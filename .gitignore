@@ -1,7 +1,6 @@
 node_modules/
 dist/
 extracted/
-public/anatomy.glb
 *.local
 .DS_Store
 tsconfig*.tsbuildinfo

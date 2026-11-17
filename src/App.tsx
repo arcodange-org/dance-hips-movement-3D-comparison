@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import Rig from "./components/Rig";
@@ -9,7 +9,13 @@ import { InfoCard, PairInfoCard } from "./components/InfoCards";
 import { usePersistentState } from "./hooks/usePersistentState";
 import { STYLES, type ModeKey } from "./styles";
 
+function readParams(): URLSearchParams {
+  if (typeof window === "undefined") return new URLSearchParams();
+  return new URLSearchParams(window.location.search);
+}
+
 export default function App() {
+  const params = readParams();
   const [mode, setMode] = usePersistentState<ModeKey>("mode", "solo");
   const [styleA, setStyleA] = usePersistentState("styleA", "kizomba");
   const [styleB, setStyleB] = usePersistentState("styleB", "kizomba");
@@ -23,6 +29,25 @@ export default function App() {
   const [showTorso, setShowTorso] = usePersistentState("showTorso", true);
   const pairRef = useRef<Record<string, any>>({});
 
+  // Paramètres d'URL (?style=&styleB=&mode=&bpm=&travel=&amp=&playing=&torso=&bare=)
+  // prioritaires sur localStorage : utilisé par les captures automatisées (scripts/capture_gifs.mjs).
+  useEffect(() => {
+    const p = params;
+    const num = (k: string) => (p.has(k) ? Number(p.get(k)) : null);
+    const str = (k: string) => p.get(k);
+    if (str("mode") && ["solo", "observe", "compare", "pair"].includes(str("mode")!)) setMode(str("mode") as ModeKey);
+    if (str("style") && STYLES[str("style")!]) setStyleA(str("style")!);
+    if (str("styleB") && STYLES[str("styleB")!]) setStyleB(str("styleB")!);
+    const b = num("bpm"); if (b !== null && b >= 24 && b <= 140) setBpm(b);
+    const tr = num("travel"); if (tr !== null && tr >= 0 && tr <= 1) setTravel(tr);
+    const am = num("amp"); if (am !== null && am >= 0.5 && am <= 2) setAmp(am);
+    if (p.has("playing")) setPlaying(p.get("playing") !== "0");
+    if (p.has("torso")) setShowTorso(p.get("torso") !== "0");
+    if (p.has("delay")) { const d = num("delay"); if (d !== null) setFollowDelay(Math.min(2, Math.max(0, d))); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const bare = params.get("bare") === "1";
   const isPair = mode === "pair";
   const isCompare = mode === "compare";
   const isObserve = mode === "observe";
@@ -65,6 +90,83 @@ export default function App() {
     const beats = 4;
     setTimeout(() => rec.stop(), (beats * 60 * 1000) / bpm);
   };
+
+  if (bare) {
+    return (
+      <div className="relative w-screen h-screen overflow-hidden bg-slate-950">
+        <Canvas camera={{ position: [0, 1.2, 3.4], fov: 42 }} dpr={[1, 2]}>
+          <color attach="background" args={["#0b1220"]} />
+          <ambientLight intensity={0.65} />
+          <directionalLight position={[3, 5, 4]} intensity={1.3} />
+          <directionalLight position={[-3, 2, -3]} intensity={0.4} color="#93c5fd" />
+          <GridFloor />
+          <React.Suspense fallback={null}>
+            <Rig
+              styleKey={styleA}
+              bpm={bpm}
+              amp={amp}
+              playing={playing}
+              offset={offsetA}
+              rotationY={isPair ? Math.PI / 2 : 0}
+              ghost={ghostA}
+              embrace={isPair}
+              pair={isPair ? pairRef : null}
+              side={isPair ? "leader" : null}
+              showContacts={isPair && showContacts}
+              travel={travel}
+              showTorso={showTorso}
+            />
+            {(isCompare || isPair) && (
+              <Rig
+                styleKey={styleB}
+                bpm={bpm}
+                amp={amp}
+                playing={playing}
+                offset={offsetB}
+                rotationY={isPair ? -Math.PI / 2 : 0}
+                ghost={ghostB}
+                embrace={isPair}
+                phaseOffset={isPair ? followDelay : 0}
+                pair={isPair ? pairRef : null}
+                side={isPair ? "follower" : null}
+                showContacts={isPair && showContacts}
+                travel={travel}
+                showTorso={showTorso}
+              />
+            )}
+            {isPair && <ContactViz pair={pairRef} />}
+          </React.Suspense>
+          <OrbitControls
+            target={[0, 0.88, 0]}
+            enableDamping
+            dampingFactor={0.08}
+            minDistance={1.8}
+            maxDistance={7}
+          />
+        </Canvas>
+        <div className="absolute bottom-3 left-3 flex gap-2 pointer-events-none">
+          <span
+            className="px-2 py-0.5 rounded-md text-[11px] font-semibold text-slate-950"
+            style={{ background: STYLES[styleA].color }}
+          >
+            {isPair ? "Guideur · " : ""}
+            {STYLES[styleA].label}
+          </span>
+        </div>
+        {(isCompare || isPair) && (
+          <div className="absolute bottom-3 right-3 pointer-events-none">
+            <span
+              className="px-2 py-0.5 rounded-md text-[11px] font-semibold text-slate-950"
+              style={{ background: STYLES[styleB].color }}
+            >
+              {isPair ? "Suiveur · " : ""}
+              {STYLES[styleB].label}
+            </span>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-6 space-y-4 max-w-6xl mx-auto">
