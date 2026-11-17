@@ -98,12 +98,16 @@ def main():
         for name, ids in FJ.items():
             ms = load_fj_meshes(args.source, ids, zf, cache)
             merged = trimesh.util.concatenate(ms)
-            merged.apply_transform(trimesh.transformations.scale_matrix(0.001))  # mm -> m dans le repere LPS brut
-            v = bake_lps(np.asarray(merged.vertices))
-            merged.vertices = v
+            merged.vertices = bake_lps(np.asarray(merged.vertices))  # mm -> m + LPS -> Y-up
             parts[name] = merged
             print(f"{name}: {len(merged.vertices)} sommets, {len(merged.faces)} faces")
 
+        # origine au centre du bassin : milieu des centres des os coxaux
+        cR = parts["HipBone_R"].bounds.mean(axis=0)
+        cL = parts["HipBone_L"].bounds.mean(axis=0)
+        origin = (cR + cL) / 2
+        for m in parts.values():
+            m.vertices = m.vertices - origin
         scene = trimesh.Scene()
         for name, m in parts.items():
             scene.add_geometry(m, node_name=name, geom_name=name)
