@@ -1,0 +1,242 @@
+import { HIP_WIDTH } from "../anatomy";
+import { MODES, STYLES, type ModeKey } from "../styles";
+
+interface ControlsProps {
+  mode: ModeKey;
+  onMode: (m: ModeKey) => void;
+  styleA: string;
+  styleB: string;
+  onStyleA: (s: string) => void;
+  onStyleB: (s: string) => void;
+  playing: boolean;
+  onPlaying: (p: boolean) => void;
+  travel: number;
+  onTravel: (v: number) => void;
+  bpm: number;
+  onBpm: (v: number) => void;
+  amp: number;
+  onAmp: (v: number) => void;
+  showTorso: boolean;
+  onShowTorso: (v: boolean) => void;
+  followDelay: number;
+  onFollowDelay: (v: number) => void;
+  showContacts: boolean;
+  onShowContacts: (v: boolean) => void;
+  ghostSel: string;
+  onGhostSel: (v: string) => void;
+  onExport: () => void;
+}
+
+function StylePicker({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (s: string) => void;
+}) {
+  return (
+    <div>
+      <div className="text-[11px] uppercase tracking-wider text-slate-400 mb-1.5">{label}</div>
+      <div className="flex flex-wrap gap-1.5">
+        {Object.entries(STYLES).map(([key, st]) => {
+          const active = key === value;
+          return (
+            <button
+              key={key}
+              onClick={() => onChange(key)}
+              className={
+                "px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors " +
+                (active
+                  ? "border-transparent text-slate-950"
+                  : "border-slate-700 bg-slate-800/60 text-slate-300 hover:bg-slate-700")
+              }
+              style={active ? { background: st.color } : undefined}
+            >
+              {st.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export default function Controls(props: ControlsProps) {
+  const {
+    mode,
+    onMode,
+    styleA,
+    styleB,
+    onStyleA,
+    onStyleB,
+    playing,
+    onPlaying,
+    travel,
+    onTravel,
+    bpm,
+    onBpm,
+    amp,
+    onAmp,
+    showTorso,
+    onShowTorso,
+    followDelay,
+    onFollowDelay,
+    showContacts,
+    onShowContacts,
+    ghostSel,
+    onGhostSel,
+    onExport,
+  } = props;
+  const isPair = mode === "pair";
+  const isCompare = mode === "compare";
+
+  return (
+    <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4 space-y-4">
+      <div className="flex flex-wrap gap-1.5">
+        {MODES.map((m) => (
+          <button
+            key={m.key}
+            onClick={() => onMode(m.key)}
+            className={
+              "px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors " +
+              (mode === m.key
+                ? "bg-sky-500 border-sky-400 text-slate-950"
+                : "border-slate-700 bg-slate-800/60 text-slate-300 hover:bg-slate-700")
+            }
+          >
+            {m.label}
+          </button>
+        ))}
+      </div>
+      <div className="grid md:grid-cols-2 gap-4">
+        <StylePicker
+          label={isPair ? "Guideur (corps A)" : "Style A (gauche)"}
+          value={styleA}
+          onChange={onStyleA}
+        />
+        <StylePicker
+          label={isPair ? "Suiveur (corps B)" : isCompare ? "Style B (droite)" : "Style B (inactif)"}
+          value={styleB}
+          onChange={onStyleB}
+        />
+      </div>
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+        <button
+          onClick={() => onPlaying(!playing)}
+          className={
+            "px-3.5 py-1.5 rounded-lg text-sm font-medium border transition-colors " +
+            (playing
+              ? "bg-emerald-500 border-emerald-400 text-slate-950"
+              : "bg-slate-800 border-slate-600 text-slate-200 hover:bg-slate-700")
+          }
+        >
+          {playing ? "⏸ Pause" : "▶ Lecture"}
+        </button>
+        <label className="flex items-center gap-2 text-xs text-slate-400">
+          Déplacement
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value={travel}
+            onChange={(e) => onTravel(Number(e.target.value))}
+            className="accent-sky-400"
+          />
+          <span className="text-slate-200 font-mono w-20">
+            {travel < 0.03
+              ? "sur place"
+              : `±${Math.round(travel * (HIP_WIDTH / 2) * 100)} cm · ${Math.round(travel * 100)}%`}
+          </span>
+        </label>
+        <label className="flex items-center gap-2 text-xs text-slate-400">
+          Tempo
+          <input
+            type="range"
+            min="24"
+            max="140"
+            step="1"
+            value={bpm}
+            onChange={(e) => onBpm(Number(e.target.value))}
+            className="accent-sky-400"
+          />
+          <span className="text-slate-200 font-mono w-14">{bpm} bpm</span>
+        </label>
+        <label className="flex items-center gap-2 text-xs text-slate-400">
+          Amplitude
+          <input
+            type="range"
+            min="0.5"
+            max="2"
+            step="0.05"
+            value={amp}
+            onChange={(e) => onAmp(Number(e.target.value))}
+            className="accent-amber-400"
+          />
+          <span className="text-slate-200 font-mono w-12">{Math.round(amp * 100)}%</span>
+        </label>
+        <label className="flex items-center gap-2 text-xs text-slate-400">
+          <input
+            type="checkbox"
+            checked={showTorso}
+            onChange={(e) => onShowTorso(e.target.checked)}
+            className="accent-sky-400"
+          />
+          Buste stylisé
+        </label>
+        <button
+          onClick={onExport}
+          className="px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700 bg-slate-800/60 text-slate-300 hover:bg-slate-700 transition-colors"
+        >
+          ⬇ Exporter un cycle (WebM)
+        </button>
+        {isPair && (
+          <label className="flex items-center gap-2 text-xs text-slate-400">
+            Retard du suiveur
+            <input
+              type="range"
+              min="0"
+              max="2"
+              step="0.1"
+              value={followDelay}
+              onChange={(e) => onFollowDelay(Number(e.target.value))}
+              className="accent-emerald-400"
+            />
+            <span className="text-slate-200 font-mono w-10">{followDelay.toFixed(1)} t</span>
+          </label>
+        )}
+        {isPair && (
+          <label className="flex items-center gap-2 text-xs text-slate-400">
+            <input
+              type="checkbox"
+              checked={showContacts}
+              onChange={(e) => onShowContacts(e.target.checked)}
+              className="accent-emerald-400"
+            />
+            Points de contact
+          </label>
+        )}
+        {(isCompare || isPair) && (
+          <label className="flex items-center gap-2 text-xs text-slate-400">
+            Isolation
+            <select
+              value={ghostSel}
+              onChange={(e) => onGhostSel(e.target.value)}
+              className="bg-slate-800 border border-slate-600 rounded-md px-2 py-1 text-xs text-slate-200"
+            >
+              <option value="none">Les deux corps</option>
+              <option value="A">
+                {isPair ? "Guideur seul (B transparent)" : "Corps A seul (B transparent)"}
+              </option>
+              <option value="B">
+                {isPair ? "Suiveur seul (A transparent)" : "Corps B seul (A transparent)"}
+              </option>
+            </select>
+          </label>
+        )}
+      </div>
+    </div>
+  );
+}
