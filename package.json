@@ -5,6 +5,8 @@
   "type": "module",
   "description": "Comparateur 3D des styles de danse (kizomba, semba, kompa, tarraxinha, suave, zouk) — Vite + React + three.js",
   "scripts": {
+    "predev": "node scripts/prepare_assets.mjs",
+    "prebuild": "node scripts/prepare_assets.mjs",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview"

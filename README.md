@@ -52,8 +52,12 @@ npm run preview  # sert dist/ en local
 - `src/components/Controls.tsx`, `InfoCards.tsx`, `ContactViz.tsx`, `GridFloor.tsx`.
 - `src/hooks/usePersistentState.ts` — persistance localStorage.
 - `public/anatomy.glb` — squelette réel bassin→pied (BodyParts3D, décimation 99 %,
-  KHR_mesh_quantization). Ne pas réimporter/réexporter sans vérifier les échelles de
-  compensation de quantification embarquées dans les nœuds.
+  KHR_mesh_quantization), **généré au build** par `npm run prebuild`
+  (`scripts/prepare_assets.mjs`) depuis `danse-comparateur-handoff.zip`, avec
+  correction de l'en-tête GLB en ordre spec (magic, version, length) exigé par
+  GLTFLoader. Ne pas réimporter/réexporter sans vérifier les échelles de
+  compensation de quantification embarquées dans les nœuds. Fichier non committé
+  (dans `.gitignore`) : le zip du handoff est la source de vérité binaire.
 - `anatomy_meta.json` — positions articulaires réelles (mètres, repère du canvas).
 - `danse-comparateur-handoff.zip` — paquet de passation Phase 3 (README/SPEC originaux,
   `src/App.jsx` du canvas, GLB, méta).
@@ -76,6 +80,9 @@ Source : https://dbarchive.biosciencedbc.jp/en/bodyparts3d/download.html
 
 ## Déploiement
 
-GitHub Pages (source « GitHub Actions ») via `.github/workflows/deploy.yml` : push sur `main`
-ou déclenchement manuel. Le `base` de Vite est automatiquement
-`/dance-hips-movement-3D-comparison/` sous GitHub Actions.
+GitHub Pages via `.github/workflows/deploy.yml` : push sur `main` ou déclenchement manuel.
+Le `base` de Vite est automatiquement `/dance-hips-movement-3D-comparison/` sous GitHub
+Actions. **Une seule action manuelle requise** : dans *Settings → Pages → Build and
+deployment → Source*, choisir « GitHub Actions » (l'activation de Pages n'est pas
+scriptable depuis un token d App). Ensuite chaque push sur `main` publie
+https://arcodange.github.io/dance-hips-movement-3D-comparison/.
