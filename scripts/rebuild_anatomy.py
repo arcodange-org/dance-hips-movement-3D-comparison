@@ -12,7 +12,7 @@ pivots attendue par l'app :
 Usage :
   pip install trimesh numpy
   python scripts/rebuild_anatomy.py \
-      --source https://dbarchive.biosciencedbc.jp/data/bodyparts3d/4.0/isa_BP3D_4.0_obj_99.zip \
+      --source https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/isa_BP3D_4.0_obj_99.zip \
       --out public/anatomy_hq.glb
   npx --yes @gltf-transform/cli draco public/anatomy_hq.glb public/anatomy_hq.glb
 
@@ -79,7 +79,7 @@ def load_fj_meshes(source: str, ids: list[str], zf: zipfile.ZipFile | None, cach
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--source", default="https://dbarchive.biosciencedbc.jp/data/bodyparts3d/4.0/isa_BP3D_4.0_obj_99.zip")
+    ap.add_argument("--source", default="https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/isa_BP3D_4.0_obj_99.zip")
     ap.add_argument("--out", default="public/anatomy_hq.glb")
     ap.add_argument("--keep-zip", default=None, help="chemin local du zip deja telecharge")
     args = ap.parse_args()
