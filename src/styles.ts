@@ -7,46 +7,57 @@ export interface StyleDef {
   apply: (r: RigHandle, b: number, a: number) => void;
 }
 
+// Courbes f(temps) issues des sources documentées dans docs/styles-de-danse.md :
+// kizomba = « 2 temps » latéral sur place avec marqua (pieds joints), pas ≤ largeur
+// du bassin ; kompa = balancier latéral sur place, un transfert de poids par temps,
+// hip check sur le temps 4 ; semba = rebond (quick-quick-slow) ; tarraxinha = sur
+// place, isolations du bassin ; suave = « 8 » au sol + talon levé + vague L5→tête ;
+// zouk = basic sur place (slow-quick-quick) + cambré + ouverture de hanche.
+// En mode Face à face, les « sorties garçon / fille » (5 temps, aller-retour latéral)
+// sont ajoutées par le rig (voir sortie dans Rig.tsx).
+
 export const STYLES: Record<string, StyleDef> = {
   kizomba: {
     label: "Kizomba",
     color: "#2dd4bf",
     bullets: [
-      "Bassin neutre : mouvement sous-produit du transfert de poids",
-      "Transferts complets (100 % du poids), pas courts d'une longueur de pied",
-      "Réception douce avant-pied puis plein pied, pauses longues",
-      "Niveau constant, genoux légèrement fléchis et absorbants",
+      "« 2 temps » latéral sur place : marqua (pieds joints) à chaque temps",
+      "Pas ≤ largeur du bassin, « touch » sans poids, transfert complet côté appui",
+      "Bassin souple, sous-produit de la marche — haut du corps calme",
+      "En couple : sorties garçon / fille (5 temps, aller-retour hors de la ligne)",
     ],
     apply: (r, b, a) => {
       const s = S2(b);
-      r.root.position.y = -0.02 + 0.012 * S1(b) * a;
-      r.pelvis.rotation.z = 0.045 * s * a;
+      r.root.position.x = 0.07 * s * a;
+      r.root.position.y = -0.02 + 0.01 * S1(b) * a;
+      r.pelvis.rotation.z = 0.05 * s * a;
       r.pelvis.rotation.y = 0.03 * s * a;
       r.pelvis.rotation.x = 0.02 * S1(b) * a;
-      r.hipL.rotation.x = -0.28 * s * a;
-      r.hipR.rotation.x = 0.28 * s * a;
-      r.kneeL.rotation.x = (0.1 + 0.16 * pos(s)) * a;
-      r.kneeR.rotation.x = (0.1 + 0.16 * pos(-s)) * a;
+      r.hipL.rotation.x = -0.24 * s * a;
+      r.hipR.rotation.x = 0.24 * s * a;
+      r.kneeL.rotation.x = (0.1 + 0.14 * pos(s)) * a;
+      r.kneeR.rotation.x = (0.1 + 0.14 * pos(-s)) * a;
     },
   },
   semba: {
     label: "Semba",
     color: "#fb923c",
     bullets: [
-      "Rebond vertical par pompage des genoux et des chevilles",
-      "Réception sur l'avant-pied, pieds ressort qui quittent le sol",
-      "Buste dressé, déplacements amples et rapides",
-      "Déhanché de marche amplifié, aucune isolation",
+      "Rebond marqué (knee pulse), rythme quick-quick-slow « 1-2-3, pause »",
+      "Réception sur l'avant-pied, pieds ressort",
+      "Déplacements en rond (koreidinha), changements de direction nets",
+      "Plus rapide et ludique que la kizomba (≈130 bpm vs ≈90)",
     ],
     apply: (r, b, a) => {
       const s = S2(b);
-      r.root.position.y = (0.05 * Math.abs(S1(b)) - 0.06) * a;
+      r.root.position.x = 0.05 * s * a;
+      r.root.position.y = (0.055 * Math.abs(S1(b)) - 0.055) * a;
       r.pelvis.rotation.z = 0.09 * s * a;
       r.pelvis.rotation.x = 0.04 * S1(b) * a;
-      r.hipL.rotation.x = -0.45 * s * a;
-      r.hipR.rotation.x = 0.45 * s * a;
-      r.kneeL.rotation.x = (0.15 + 0.35 * pos(s)) * a;
-      r.kneeR.rotation.x = (0.15 + 0.35 * pos(-s)) * a;
+      r.hipL.rotation.x = -0.4 * s * a;
+      r.hipR.rotation.x = 0.4 * s * a;
+      r.kneeL.rotation.x = (0.15 + 0.3 * pos(s)) * a;
+      r.kneeR.rotation.x = (0.15 + 0.3 * pos(-s)) * a;
       r.extraL = 0.25 * pos(S1(b)) * a;
       r.extraR = 0.25 * pos(-S1(b)) * a;
       r.chest.rotation.x = -0.08;
@@ -57,24 +68,24 @@ export const STYLES: Record<string, StyleDef> = {
     label: "Kompa",
     color: "#f87171",
     bullets: [
-      "Balancier latéral : translation pelvienne pure avec drop côté appui",
-      "Pause marquée sur le temps 4 (hip check)",
-      "Genoux fléchis en continu, niveau bas et constant",
-      "Pieds glissés plein appui, épaules immobiles",
+      "Balancier latéral sur place : un transfert de poids par temps",
+      "Hip check / pause marquée sur le temps 4",
+      "Genoux fléchis en continu, niveau bas, pieds glissés plein appui",
+      "Tout le mouvement sous la ceinture, épaules immobiles",
     ],
     apply: (r, b, a) => {
-      const w = S4(b);
+      const w = S1(b);
       const sw = 0.9 * Math.tanh(2.2 * w);
-      r.root.position.x = 0.1 * sw * a;
+      r.root.position.x = 0.09 * sw * a;
       r.root.position.y = -0.06 * a;
       r.pelvis.position.x = 0.02 * sw * a;
       r.pelvis.rotation.z = 0.1 * sw * a;
       r.pelvis.rotation.y = 0.02 * S2(b) * a;
       r.hipL.rotation.x = -0.05;
       r.hipR.rotation.x = -0.05;
-      r.kneeL.rotation.x = (0.28 + 0.1 * pos(w)) * a;
-      r.kneeR.rotation.x = (0.28 + 0.1 * pos(-w)) * a;
-      r.chest.rotation.z = -0.35 * 0.1 * sw * a;
+      r.kneeL.rotation.x = (0.28 + 0.08 * pos(w)) * a;
+      r.kneeR.rotation.x = (0.28 + 0.08 * pos(-w)) * a;
+      r.chest.rotation.z = -0.035 * sw * a;
       if (b % 4 >= 3) r.pelvis.position.x += 0.008 * S1(b) * a;
     },
   },
@@ -82,10 +93,10 @@ export const STYLES: Record<string, StyleDef> = {
     label: "Tarraxinha",
     color: "#c084fc",
     bullets: [
-      "Isolation pelvienne maximale : cercles et 8 amples",
-      "Haut du corps strictement immobile",
-      "Pieds statiques plein appui, déplacement quasi nul",
-      "Genoux souples, toute l'énergie dans le bassin",
+      "Sur place : isolations du bassin (8, cercles), blocages nets",
+      "Haut du corps strictement immobile, guidage par contact des hanches",
+      "Pas quasi nuls, plein appui, genoux souples",
+      "La plus « collée serr yakın » des variantes kizomba",
     ],
     apply: (r, b, a) => {
       r.root.position.y = -0.03;
@@ -102,10 +113,10 @@ export const STYLES: Record<string, StyleDef> = {
     label: "Suave",
     color: "#4ade80",
     bullets: [
-      "Bassin dessinant un 8 couché, sur place",
-      "Vague montante L5 vers dorsales vers tête",
-      "Transferts partiels oscillants (60/40), talons au sol",
-      "Niveau bas et constant, aucun rise-and-fall",
+      "« 8 » du bassin au sol, sur place (ginga)",
+      "Talon levé → fesses montent → on redescend et change de pied",
+      "Vague séquentielle L5 → dorsales → tête",
+      "Transferts partiels 60/40, talons au sol, aucun rise-and-fall",
     ],
     apply: (r, b, a) => {
       r.root.position.y = -0.035;
@@ -120,27 +131,30 @@ export const STYLES: Record<string, StyleDef> = {
       r.head.rotation.x = 0.06 * Math.sin((TAU * b) / 4 - 1.7) * a;
       r.kneeL.rotation.x = (0.14 + 0.1 * S2(b)) * a;
       r.kneeR.rotation.x = (0.14 - 0.1 * S2(b)) * a;
+      r.extraL = 0.15 * pos(S1(b)) * a;
+      r.extraR = 0.15 * pos(-S1(b)) * a;
     },
   },
   zouk: {
     label: "Zouk brésilien",
     color: "#38bdf8",
     bullets: [
-      "Foulées longues, rotation d'ouverture de hanche",
-      "Retard élastique du buste (catch tardif du temps)",
-      "Cambré et variations de niveau (rise and fall)",
-      "Pression continue dans le sol sur l'avant-pied",
+      "Basic sur place (slow-quick-quick), pas de déplacement forcé",
+      "Ouverture de hanche (yaw) sur les grandes foulées",
+      "Cambré contrôlé + vague du tronc + rouleaux de tête",
+      "En couple : sorties et variations de niveau (rise and fall)",
     ],
     apply: (r, b, a) => {
       const s = S2(b);
-      r.root.position.y = (-0.03 + 0.045 * S4(b)) * a;
-      r.pelvis.rotation.y = 0.2 * s * a;
+      r.root.position.x = 0.05 * s * a;
+      r.root.position.y = (-0.03 + 0.03 * S4(b)) * a;
+      r.pelvis.rotation.y = 0.18 * s * a;
       r.pelvis.rotation.x = 0.07 * s * a;
       r.pelvis.rotation.z = 0.05 * s * a;
-      r.hipL.rotation.x = -0.5 * s * a;
-      r.hipR.rotation.x = 0.5 * s * a;
-      r.kneeL.rotation.x = (0.12 + 0.3 * pos(s)) * a;
-      r.kneeR.rotation.x = (0.12 + 0.3 * pos(-s)) * a;
+      r.hipL.rotation.x = -0.45 * s * a;
+      r.hipR.rotation.x = 0.45 * s * a;
+      r.kneeL.rotation.x = (0.12 + 0.28 * pos(s)) * a;
+      r.kneeR.rotation.x = (0.12 + 0.28 * pos(-s)) * a;
       r.chest.rotation.y = 0.14 * Math.sin((TAU * b) / 2 - 1.0) * a;
       r.chest.rotation.x = -0.14 * (0.5 + 0.5 * S4(b)) * a;
       r.lumbar.rotation.x = -0.1 * (0.5 + 0.5 * S4(b)) * a;
@@ -158,3 +172,16 @@ export const MODES = [
 ];
 
 export type ModeKey = (typeof MODES)[number]["key"];
+
+// Enveloppe de « sortie » (5 temps sur un cycle de 8) : sortie latérale puis retour,
+// utilisée en mode Face à face (sortie garçon côté guideur, sortie fille côté
+// suiveur — le retard du suiveur décale la seconde). Sources : voir docs/styles-de-danse.md.
+export function sortieEnvelope(b: number): number {
+  const p = ((b % 8) + 8) % 8;
+  let e = 0;
+  if (p < 1) e = p;
+  else if (p < 3) e = 1;
+  else if (p < 5) e = (5 - p) / 2;
+  else e = 0;
+  return e * e * (3 - 2 * e);
+}

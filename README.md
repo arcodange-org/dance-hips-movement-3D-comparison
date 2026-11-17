@@ -6,17 +6,21 @@ tarraxinha, suave, zouk brésilien**. Animée par une spec biomécanique chiffr�
 
 **🌐 Site déployé (GitHub Pages) : https://arcodange-org.github.io/dance-hips-movement-3D-comparison/**
 
-## Aperçu animé
+## Aperçu animé (motion design)
 
-Captures réelles de l'app (GIF générés par Playwright, voir `scripts/capture_gifs.mjs`) :
+Captures réelles de l'app, toutes **sur place** pour mettre en avant les nuances de hanche
+(GIF générés par Playwright, voir `scripts/capture_gifs.mjs` ; habillage pastille de style +
+légende de la nuance + pastille de temps) :
 
-| Kizomba | Semba | Kompa |
+| Kizomba « 2 temps » | Semba rebond | Kompa balancier |
 |---|---|---|
 | ![Kizomba](docs/gifs/kizomba.gif) | ![Semba](docs/gifs/semba.gif) | ![Kompa](docs/gifs/kompa.gif) |
-| Tarraxinha | Suave | Zouk brésilien |
+| Tarraxinha isolations | Suave « 8 » + talon levé | Zouk basic sur place |
 | ![Tarraxinha](docs/gifs/tarraxinha.gif) | ![Suave](docs/gifs/suave.gif) | ![Zouk](docs/gifs/zouk.gif) |
 
-![Face à face — kizomba (guideur) vs zouk (suiveur)](docs/gifs/face-a-face.gif)
+| Sorties garçon / fille (Face à face) | Couche musculaire |
+|---|---|
+| ![Sorties garçon/fille](docs/gifs/sortie-garcon-fille.gif) | ![Couche musculaire](docs/gifs/couche-musculaire.gif) |
 
 Le tracé coloré visualise l'orbite du centre du bassin (le « 8 couché » du suave, les cercles
 de la tarraxinha, la ligne latérale du kompa).
@@ -28,13 +32,18 @@ de la tarraxinha, la ligne latérale du kompa).
 - [ADR 001 — rig paramétrique biodynamique](docs/adr/001-rig-parametrique-biodynamique.md)
   (pourquoi des courbes f(temps) et pas de mocap, hiérarchie de pivots, métriques réelles,
   clamp sol, IK de pas, licence, pièges de pipeline GLB).
+- [ADR 002 — mouvements sourcés, sorties, couche musculaire, GIFs motion design](docs/adr/002-mouvements-sources-muscles-sorties.md)
 
 ## Attribution obligatoire (licence des maillages)
 
-Les maillages de `public/anatomy.glb` proviennent de **BodyParts3D v4.0**, © The Database
-Center for Life Science (DBCLS), licence **CC BY-SA 2.1 Japan** — cette attribution reste
-visible dans l'application (pied de page) et dans ce README.
+Les maillages de `public/anatomy.glb` **et** de `public/anatomy_muscles.glb` (couche
+musculaire optionnelle) proviennent de **BodyParts3D v4.0**, © The Database Center for Life
+Science (DBCLS), licence **CC BY-SA 2.1 Japan** — cette attribution reste visible dans
+l'application (pied de page) et dans ce README.
 https://dbarchive.biosciencedbc.jp/en/bodyparts3d/license.html
+
+La police embarquée (`public/fonts/DejaVuSans*-latin.ttf`) est un sous-ensemble latin de
+**DejaVu Sans** (licence Bitstream Vera, permissive) : https://dejavu-fonts.github.io/
 
 ## Développement
 
@@ -43,12 +52,22 @@ npm install
 npm run dev       # http://localhost:5173/
 npm run build     # tsc + vite build -> dist/
 npm run preview   # sert dist/ en local
-npm run capture   # régénère les GIFs de docs/gifs/ (nécessite playwright + chromium)
+npm run capture   # régénère les GIFs de docs/gifs/ (nécessite playwright + chromium headless)
+npm test          # tests numériques des courbes de styles (NaN, clamp sol, amplitude, sorties)
 ```
 
 Paramètres d'URL (utilisés par les captures, prioritaires sur localStorage) :
 `?mode=solo|observe|compare|pair&style=kizomba&styleB=zouk&bpm=90&travel=0.6&delay=0.5&bare=1`
-(`bare=1` : canvas plein écran sans l'interface).
+(`bare=1` : canvas plein écran sans l'interface) + `&muscles=1` (couche musculaire),
+`&sortie=1` (sorties garçon/fille, mode paire), `&demo=<clé>&cam=hip` (captures motion design).
+
+Nouvelles options d'interface : **Couche musculaire** (tous modes, GLB BodyParts3D greffé sur
+les pivots osseux, rouge semi-transparent) et **Sorties garçon / fille** (mode Face à face :
+aller-retour latéral de 5 temps sur 8, le retard du suiveur décale la sortie fille).
+
+Pour `npm run capture` en headless sans root : `LD_LIBRARY_PATH` vers les libs extraites des
+.deb (`/tmp/debs/root/usr/lib/x86_64-linux-gnu`) et `FONTCONFIG_FILE` vers une config pointant
+sur une police (ex. DejaVu) — sinon aucun texte n'est rendu dans les vidéos.
 
 ## Conventions verrouillées (ne pas casser)
 
@@ -75,7 +94,9 @@ Paramètres d'URL (utilisés par les captures, prioritaires sur localStorage) :
 - `src/styles.ts` — config des 6 styles (label, couleur, puces, `apply(r, b, amp)`) et modes.
 - `src/components/Rig.tsx` — rig animé (GLB + buste stylisé avec segments lombaires/thoraciques,
   tracé d'orbite du bassin, IK de pas).
-- `src/components/Controls.tsx`, `InfoCards.tsx`, `ContactViz.tsx`, `GridFloor.tsx`.
+- `src/components/Controls.tsx`, `InfoCards.tsx`, `ContactViz.tsx`, `GridFloor.tsx`,
+  `DemoOverlay.tsx` (habillage motion design des captures `?demo=`).
+- `src/muscles.ts` — greffe de la couche musculaire (mapping maillage → pivot osseux).
 - `src/hooks/usePersistentState.ts` — persistance localStorage.
 - `src/ik.ts` — IK de pas (2 segments + raffinement CCD).
 - `public/anatomy.glb` — squelette réel bassin→pied (BodyParts3D, décimation 99 %,
@@ -83,8 +104,12 @@ Paramètres d'URL (utilisés par les captures, prioritaires sur localStorage) :
   vérifier les échelles de compensation de quantification embarquées dans les nœuds.
 - `anatomy_meta.json` — positions articulaires réelles (mètres, repère du canvas).
 - `scripts/capture_gifs.mjs` — captures Playwright → GIF (ffmpeg-static) dans `docs/gifs/`.
+- `scripts/test_styles.mjs` — test numérique des styles (`npm test`).
 - `scripts/rebuild_anatomy.py` — régénération d'une anatomie plus fine à partir de BodyParts3D
   (FJ IDs ci-dessous), export GLB + compression Draco via gltf-transform.
+- `scripts/build_muscles.py` — construit `public/anatomy_muscles.glb` (couche musculaire
+  BodyParts3D, côtés R/L/C) + compression Draco ; décodeur dans `public/draco/gltf/`.
+- `public/anatomy_muscles.glb`, `public/draco/`, `public/fonts/` — assets servis tels quels.
 
 ## Régénération de l'anatomie (optionnel)
 
@@ -94,7 +119,7 @@ python scripts/rebuild_anatomy.py --out public/anatomy_hq.glb   # télécharge l
 npx --yes @gltf-transform/cli draco public/anatomy_hq.glb public/anatomy_hq.glb
 ```
 
-Vérifié en Phase 3 : extraction des 17 FJ ci-dessous, bake LPS→Y-up `(x, -z, y) × 0,001`
+Vérifié en Phase 3 : extraction des 17 FJ ci-dessous, bake LPS→Y-up `(x, z, -y) × 0,001`
 avec origine au centre du bassin (milieu des os coxaux) — métriques conformes à
 `anatomy_meta.json` (fémur ≈ 0,466 m d'enveloppe, tibia ≈ 0,38 m, os coxaux centrés à
 x ≈ ∓0,074 m) ; GLB 635 Ko → **82 Ko** après Draco. Pour un remplacement complet de

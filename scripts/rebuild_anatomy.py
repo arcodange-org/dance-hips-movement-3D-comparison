@@ -56,7 +56,7 @@ FJ = {
 
 # Repere LPS BodyParts3D -> Y-up (m), bake applique aux sommets.
 def bake_lps(v: np.ndarray) -> np.ndarray:
-    return np.stack([v[:, 0], -v[:, 2], v[:, 1]], axis=1) * 0.001
+    return np.stack([v[:, 0], v[:, 2], -v[:, 1]], axis=1) * 0.001
 
 
 def load_fj_meshes(source: str, ids: list[str], zf: zipfile.ZipFile | None, cache_dir: Path):

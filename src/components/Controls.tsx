@@ -22,6 +22,10 @@ interface ControlsProps {
   onFollowDelay: (v: number) => void;
   showContacts: boolean;
   onShowContacts: (v: boolean) => void;
+  showMuscles: boolean;
+  onShowMuscles: (v: boolean) => void;
+  sortie: boolean;
+  onSortie: (v: boolean) => void;
   ghostSel: string;
   onGhostSel: (v: string) => void;
   onExport: () => void;
@@ -85,6 +89,10 @@ export default function Controls(props: ControlsProps) {
     onFollowDelay,
     showContacts,
     onShowContacts,
+    showMuscles,
+    onShowMuscles,
+    sortie,
+    onSortie,
     ghostSel,
     onGhostSel,
     onExport,
@@ -186,6 +194,26 @@ export default function Controls(props: ControlsProps) {
           />
           Buste stylisé
         </label>
+        <label className="flex items-center gap-2 text-xs text-slate-400" title="Couche musculaire réelle BodyParts3D (CC BY-SA 2.1 Japan © DBCLS), greffée sur les pivots osseux">
+          <input
+            type="checkbox"
+            checked={showMuscles}
+            onChange={(e) => onShowMuscles(e.target.checked)}
+            className="accent-red-400"
+          />
+          Couche musculaire
+        </label>
+        {isPair && (
+          <label className="flex items-center gap-2 text-xs text-slate-400" title="Sortie garçon (guideur) puis sortie fille (suiveur) : aller-retour latéral de 5 temps sur un cycle de 8">
+            <input
+              type="checkbox"
+              checked={sortie}
+              onChange={(e) => onSortie(e.target.checked)}
+              className="accent-teal-400"
+            />
+            Sorties garçon / fille
+          </label>
+        )}
         <button
           onClick={onExport}
           className="px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700 bg-slate-800/60 text-slate-300 hover:bg-slate-700 transition-colors"

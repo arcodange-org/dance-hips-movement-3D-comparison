@@ -72,8 +72,68 @@ de niveau des six styles (élévations, descentes, dips). Appui avant-pied, pres
 le sol, foulées longues. Zouk antillais (zouk love) : base latérale « 3 temps + pause », petits
 pas glissés, déhanché balancier — biomécaniquement plus proche du kompa.
 
+## Nuances des pas de base (sources externes, vérifiées 2026-11)
+
+Cette section ancre les mouvements implémentés dans `src/styles.ts` sur des sources décrivant
+les pas réels (et non sur la seule spec biomécanique). Les captures GIF de `docs/gifs/`
+(motion design : pastille de style + nuance + pastille de temps) illustrent chaque nuance.
+
+### Kizomba / passado — « 2 temps » latéral sur place + sorties
+- **2 temps** : l'homme déplace sa partenaire sur la gauche, vient marquer le sol
+  (**marqua**) en joignant les pieds, puis se déplace sur la droite et marque à nouveau
+  ([Wikipédia FR — Kizomba](https://fr.wikipedia.org/wiki/Kizomba)). Le « touch » du pied qui
+  rejoint se fait **sans poids**, et le pas ne dépasse pas la largeur du bassin
+  ([cours-kizomba.com](https://cours-kizomba.com/blog/kizomba-pour-debutant-novice-le-guide-complet)).
+- **Sortie garçon (5 temps)** : l'homme avance et **sort de la ligne de danse sur la gauche**,
+  puis revient en face de sa partenaire ; **sortie fille (5 temps)** : la partenaire sort de la
+  ligne puis y revient (même source Wikipédia). Dans l'app (mode Face à face), la case
+  « Sorties garçon / fille » ajoute cet aller-retour latéral de 5 temps sur un cycle de 8,
+  le suiveur étant décalé par le retard réglable.
+- **Ginga** (filles) : hanche qui dessine un « 8 au sol » — correspond au suave.
+  **Banga** (garçons) : mouvement de hanche droite→gauche accentué.
+- **Corridinho/koreidinha** : succession de pas formant un cercle au sol (lié au semba).
+
+### Semba
+Plus rapide que la kizomba, **rebond marqué** et changements de direction nets sur musique vive
+([O'Dance Events](https://odanceevents.com/blog/kizomba-semba-urban-kiz),
+[Angola Travel Guide](https://angolatravelguide.com/angola-music-dance/)) ; rythme ressenti
+quick-quick-slow « 1-2-3, pause », tempo ≈ 130 bpm (kizomba ≈ 60–90 bpm). Déplacements en rond
+(koreidinha). Dans l'app : rebond vertical marqué, réception sur l'avant-pied.
+
+### Kompa (Haïti)
+Balancier latéral **sur place**, un transfert de poids par temps
+([Haitian Music Zone](https://haitianmusiczone.com)), hip check / pause marquée sur le temps 4.
+
+### Tarraxinha
+**Sur place**, isolations pelviennes (contact bassin à bassin)
+([Udansa](https://udansa.com)), haut du corps immobile.
+
+### Suave (kizomba)
+« 8 » au sol + **talon levé → fesses montent → on redescend et change de pied**
+([cours-kizomba.com](https://cours-kizomba.com/blog/kizomba-pour-debutant-novice-le-guide-complet)) ;
+base « 8 temps » ([Emove thérapie](https://emoveretherapie.com)). Transferts partiels, aucun
+rise-and-fall.
+
+### Zouk brésilien
+**Basic sur place** slow-quick-quick, cambré, body waves, rouleaux de tête
+([Get Bailar](https://getbailar.com), [DanceIn NJ](https://danceinnj.com)) ; zouk love : cambré
+soutenu ([Inaya Zouk](https://inaya-zouk.com)).
+
 ## Ressources
 
 - Z-Anatomy (template Blender, modèles dérivés de BodyParts3D, contient Z-Biomechanics.7z
   « human biomechanics as a rig ») : https://github.com/Z-Anatomy/Models-of-human-anatomy
 - BodyParts3D (maillages OBJ) : https://dbarchive.biosciencedbc.jp/en/bodyparts3d/download.html
+- Mouvements kizomba (2 temps/marqua, 3 temps, ida et volta, sortie garçon/fille 5 temps,
+  ginga « 8 au sol », banga, corridinho) : https://fr.wikipedia.org/wiki/Kizomba
+- Guide débutant kizomba (pas ≤ largeur du bassin, « touch » sans poids, suave talon levé,
+  exercice de connexion ballon) : https://cours-kizomba.com/blog/kizomba-pour-debutant-novice-le-guide-complet
+- Kizomba vs semba (semba plus rapide, rebond, changements de direction) :
+  https://odanceevents.com/blog/kizomba-semba-urban-kiz et https://angolatravelguide.com/angola-music-dance/
+- Semba : déplacements en rond (koreidinha), lignes de danse kizomba + 3 temps :
+  https://soireedanse.com
+- Kompa : side-to-side sur place, un poids par temps : https://haitianmusiczone.com
+- Tarraxinha : sur place, isolations pelviennes, contact des hanches : https://udansa.com
+- Base « 8 temps » suave : https://emoveretherapie.com
+- Zouk : basic sur place slow-quick-quick, cambré, waves : https://getbailar.com et
+  https://danceinnj.com ; zouk love cambré soutenu : https://inaya-zouk.com

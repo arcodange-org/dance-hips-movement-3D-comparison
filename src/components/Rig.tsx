@@ -15,8 +15,16 @@ import {
   resetRig,
   type RigHandle,
 } from "../anatomy";
-import { STYLES } from "../styles";
+import { STYLES, sortieEnvelope } from "../styles";
 import { solveLeg3D } from "../ik";
+import {
+  MUSCLES_URL,
+  DRACO_DECODER_PATH,
+  MUSCLE_OPACITY,
+  muscleParent,
+  parentOffsetSkel,
+  makeMuscleMaterial,
+} from "../muscles";
 
 type Side = "R" | "L";
 
@@ -56,6 +64,8 @@ export interface RigProps {
   showContacts?: boolean;
   travel?: number;
   showTorso?: boolean;
+  showMuscles?: boolean;
+  sortie?: boolean;
 }
 
 export default function Rig({
@@ -73,6 +83,8 @@ export default function Rig({
   showContacts = false,
   travel = 0,
   showTorso = true,
+  showMuscles = false,
+  sortie = false,
 }: RigProps) {
   const r = useRef({} as RigHandle).current;
   const reg = (n: string) => (el: any) => {
@@ -98,6 +110,8 @@ export default function Rig({
     lastBeat: -1,
   });
   const { scene } = useGLTF(ANATOMY_URL);
+  const { scene: musclesScene } = useGLTF(MUSCLES_URL, DRACO_DECODER_PATH);
+  const muscleMeshes = useRef<THREE.Mesh[]>([]);
   const skel = useMemo(() => {
     const s = scene.clone(true);
     s.traverse((o) => {
@@ -145,6 +159,33 @@ export default function Rig({
     }
     state.ready = true;
   }, [skel, r]);
+  // Greffe de la couche musculaire (GLB BodyParts3D, espace Skeleton) sur les
+  // n\u0153uds du rig : chaque maillage `Muscle_<Label>_<R|L|C>` est re-parent\u00e9 vers
+  // son pivot osseux et d\u00e9cal\u00e9 de la position du parent en espace Skeleton.
+  useEffect(() => {
+    for (const m of muscleMeshes.current) m.removeFromParent();
+    const list: THREE.Mesh[] = [];
+    const src = musclesScene.clone(true);
+    const meshes: THREE.Mesh[] = [];
+    src.traverse((o) => {
+      if ((o as THREE.Mesh).isMesh) meshes.push(o as THREE.Mesh);
+    });
+    for (const mesh of meshes) {
+      const parentKey = muscleParent(mesh.name);
+      const parent = parentKey ? (r[parentKey] as THREE.Object3D | undefined) : undefined;
+      if (!parentKey || !parent) continue;
+      mesh.material = makeMuscleMaterial();
+      mesh.userData.part = "muscle";
+      mesh.position.sub(parentOffsetSkel(parentKey, r));
+      mesh.visible = showMuscles;
+      parent.add(mesh);
+      list.push(mesh);
+    }
+    muscleMeshes.current = list;
+  }, [musclesScene, skel, r, showMuscles]);
+  useEffect(() => {
+    for (const m of muscleMeshes.current) m.visible = showMuscles;
+  }, [showMuscles, musclesScene, skel]);
   useEffect(() => {
     count.current = 0;
     trail.geometry.setDrawRange(0, 0);
@@ -174,6 +215,7 @@ export default function Rig({
     resetRig(r);
     STYLES[styleKey].apply(r, b, amp);
     r.root.position.x += travel * (HIP_WIDTH / 2) * Math.tanh(2.2 * S2(b));
+    if (sortie && embrace) r.root.position.x += 0.22 * sortieEnvelope(b) * amp;
     if (r.root.position.y < 0) r.root.position.y = 0;
 
     const w = Math.min(1, travel / 0.2);
@@ -259,6 +301,10 @@ export default function Rig({
           ((mesh.material as THREE.Material) as THREE.MeshStandardMaterial).opacity = ghost
             ? 0.02
             : TORSO_OPACITY;
+        } else if (mesh.userData.part === "muscle") {
+          const mat = mesh.material as THREE.MeshStandardMaterial;
+          mat.transparent = true;
+          mat.opacity = ghost ? 0.06 : MUSCLE_OPACITY;
         } else {
           const mat = mesh.material as THREE.MeshStandardMaterial;
           mat.transparent = ghost;

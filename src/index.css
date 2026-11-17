@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Police embarquée (sous-ensemble latin de DejaVu Sans, licence Bitstream Vera
+   permissive) : garantit le rendu du texte même sans police système (captures
+   headless, systèmes minimaux). */
+@font-face {
+  font-family: "DejaVu Sans";
+  src: url("../fonts/DejaVuSans-latin.ttf") format("truetype");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "DejaVu Sans";
+  src: url("../fonts/DejaVuSans-Bold-latin.ttf") format("truetype");
+  font-weight: 700;
+  font-display: swap;
+}
+
+body {
+  font-family: "DejaVu Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
