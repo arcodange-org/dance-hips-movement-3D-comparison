@@ -24,6 +24,11 @@ Mise à jour à chaque commit (checkpoint anti-amnésie, voir `CONTEXT.md`).
   gauche** : case + `corridinho=`, séquence 16 temps (pivot D 0–3, pivot G 4–7, cercle 8–15,
   rayon ~0,25–0,35 m autour de l'origine, épaules vers l'intérieur) ; test trajectoire
   (cercle après pivots, rayon borné, pas de NaN) + GIF `corridinho.gif` (`cam=fixed|wide`) relu
+- [ ] 13. Vues lisibles pour les sorties : presets caméra `cam=front|back|diag` + caméra
+  **diago par défaut en mode paire** (le profil orthonormé rend la sortie, en profondeur,
+  invisible) ; GIF sortie refait en `cam=diag` avec déplacement latéral bien visible
+- [ ] 14. Lire des corps, pas des squelettes : param `solid=1` (buste opacity ↑ en capture) +
+  `torsoOpacity` prop sur Rig ; GIFs de styles regénérés avec `solid=1`
 - [ ] 12. Vérifs phase 6 : `npm test`, build, smoke headless, livraison PR + ff-merge + CI + site
 
 ## Méta — boucle de feedback (rétrospective auto-critique + critique de session indépendante)

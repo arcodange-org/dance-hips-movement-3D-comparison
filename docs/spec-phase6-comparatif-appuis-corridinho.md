@@ -47,3 +47,19 @@ corridinho** (déplacement circulaire autour du repère fixe), le tout lisible a
 
 Pas de nouveau style, pas de mocap, pas de changement de hiérarchie GLB ni de clamp. Méthode
 anti-amnésie inchangée (`CONTEXT.md`) : branche + PR draft tôt, checkpoints `TASKS.md`.
+
+## 3. Vues lisibles (sorties) et corps lisibles (tâches 13–14, demande 2026-11-18)
+
+- Problème constaté : en mode paire les danseurs se font face sur l'axe x ; la caméra frontale
+  par défaut les montre **de profil orthonormé**, et la sortie (déplacement latéral local →
+  profondeur monde z) y est invisible. Les buste semi-transparents se lisent comme des
+  « squelettes qui tanguent ».
+- Presets caméra `?cam=front|back|diag` (front [4.8,1.3,0.4], back [-4.8,1.3,0.4],
+  diag [3.3,1.5,3.3], cible [0,0.85,0]) ; **caméra diago par défaut en mode paire** (bare et
+  normal) quand aucun `cam=` n'est donné.
+- GIF `sortie-garcon-fille` refait en `cam=diag` (+ `solid=1`) : déplacement latéral des deux
+  danseurs visible relativement au repère fixe.
+- Param `?solid=1` : prop `torsoOpacity` sur Rig (0,62 au lieu de 0,22) pour les captures, sans
+  changer le rendu par défaut de l'app ; GIFs des 6 styles regénérés avec `solid=1`.
+- Critères : sortie visible en vue diago (vérifié sur frame), corps lisibles (torse opaque),
+  `npm test` + build OK, rien de cassé en mode normal.
