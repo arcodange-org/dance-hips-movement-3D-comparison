@@ -46,27 +46,36 @@ const CAPTURES = [
   },
   {
     file: "kizomba",
-    query: "bare=1&demo=kizomba&cam=hip&mode=solo&style=kizomba&bpm=90&travel=0",
+    query: "bare=1&demo=kizomba&cam=hip&mode=solo&style=kizomba&bpm=90&travel=0&solid=1",
   },
-  { file: "semba", query: "bare=1&demo=semba&mode=solo&style=semba&bpm=130&travel=0" },
+  { file: "semba", query: "bare=1&demo=semba&mode=solo&style=semba&bpm=130&travel=0&solid=1" },
   {
     file: "kompa",
-    query: "bare=1&demo=kompa&cam=hip&mode=solo&style=kompa&bpm=120&travel=0",
+    query: "bare=1&demo=kompa&cam=hip&mode=solo&style=kompa&bpm=120&travel=0&solid=1",
   },
   {
     file: "tarraxinha",
-    query: "bare=1&demo=tarraxinha&cam=hip&mode=solo&style=tarraxinha&bpm=100&travel=0",
+    query: "bare=1&demo=tarraxinha&cam=hip&mode=solo&style=tarraxinha&bpm=100&travel=0&solid=1",
   },
-  { file: "suave", query: "bare=1&demo=suave&mode=solo&style=suave&bpm=60&travel=0" },
-  { file: "zouk", query: "bare=1&demo=zouk&mode=solo&style=zouk&bpm=110&travel=0" },
+  { file: "suave", query: "bare=1&demo=suave&mode=solo&style=suave&bpm=60&travel=0&solid=1" },
+  { file: "zouk", query: "bare=1&demo=zouk&mode=solo&style=zouk&bpm=110&travel=0&solid=1" },
   {
     file: "sortie-garcon-fille",
-    query: "bare=1&demo=sortie-garcon-fille&cam=wide&mode=pair&style=kizomba&styleB=kizomba&bpm=90&sortie=1&delay=2",
+    query: "bare=1&demo=sortie-garcon-fille&cam=diag&mode=pair&style=kizomba&styleB=kizomba&bpm=90&sortie=1&delay=2&solid=1&ligne=1&repere=1",
     dur: 5.5,
   },
   {
     file: "appui-transmission",
     query: "bare=1&demo=appui&cam=hip&mode=observe&style=kizomba&bpm=32&travel=0&torso=0&appui=1&muscles=1",
+  },
+  {
+    file: "comparatif-appuis",
+    query: "bare=1&demo=comparatif-appuis&cam=wide&mode=compare&style=kizomba&styleB=kompa&bpm=90&travel=0&appui=1&solid=1&ligne=1&repere=1",
+  },
+  {
+    file: "corridinho",
+    query: "bare=1&demo=corridinho&cam=fixed&mode=solo&style=kizomba&bpm=140&travel=0&corridinho=1&solid=1&ligne=1&repere=1",
+    dur: 6.5,
   },
 ];
 
