@@ -19,18 +19,20 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   BodyParts3D régénérée, persistance localStorage, vertèbres L/D, déploiement Pages, GIFs
   motion design, mouvements sourcés sur place (2 temps, sorties garçon/fille), couche
   musculaire BodyParts3D, tests numériques (`npm test`).
-- Phase 6 **planifiée** (tâches 10–12 dans `docs/TASKS.md`, spec
-  `docs/spec-phase6-comparatif-appuis-corridinho.md`) : comparatif d'appuis (jauges G/D par
-  corps en mode Comparaison) + corridinho au repère fixe après pivots D puis G.
-- Phase 6 : tâches 13–18 (spec affinée `docs/spec-phase6-...md`) — vues face/dos/diago +
-  sortie = **ligne de danse** (paire sur la ligne, sortie perpendiculaire aller-retour) +
-  `solid=1` + pieds plantés en sur place + dissociation bras/buste (17) + **validations
-  Gherkin** `docs/features/*.feature` via `scripts/test_features.mjs` dans `npm test`.
-- Phase 6 aussi : tâches 13–15 (vues face/dos/diago + sortie lisible, `solid=1`, **pieds
-  plantés en sur place** — amendment de convention demandé par l'utilisateur 2026-11-18 :
-  à travel=0 les pieds restent au sol, pivot plante autorisé ; `plant=0` = ancien glissé).
-- Phase 6 aussi : tâches 13–14 (vues face/dos/diago, sortie lisible en diago, `solid=1` pour
-  des corps lisibles en capture).
+- Phase 6 **implémentée sur la branche `vibe/phase6-vues-plant-solid-ae8a7a`, PR #4 draft** :
+  comparatif d'appuis (jauges G/D ×2 en mode Comparaison, `statsBRef` + composant `Gauge`),
+  corridinho (`corridinhoPath` : pivot D 0–3, pivot G 4–7, cercle R=0,3 m autour du repère
+  8–15, `corridinho=`), presets caméra `src/cameras.ts` (`cam=default|hip|fixed|wide|diag|front|back`,
+  diago par défaut en paire), `solid=1` (`SOLID_TORSO_OPACITY=0.62`), pieds plantés en sur place
+  (`plantBlend`, amendment convention 2026-11-18, `plant=0` = ancien glissé), **ligne de danse**
+  (`LineOfDance` en rubans roses — piège : `THREE.Line` 1 px invisible après downscale GIF),
+  paire réorientée sur la ligne (face à face selon z, sortie = `sortieOffset` sur root.x local,
+  perpendiculaire, retour temps 5+), dissociation (contre-rotation chest/head pendant la
+  sortie), Gherkin `docs/features/*.feature` + `scripts/test_features.mjs` → **19 PASS / 0 FAIL /
+  1 SKIP** dans `npm test`. 11 GIFs regénérés (`docs/gifs/`, sortie/corridinho/comparatif avec
+  `ligne=1&repere=1&solid=1`). Vérifs : sortie latérale confirmée numériquement (root.x
+  0→0,22 m au pic), ligne rose mesurée dans les frames GIF (117–458 px), jauges/torse opaque/
+  pieds au sol confirmés visuellement. Spec : `docs/spec-phase6-comparatif-appuis-corridinho.md`.
 - Rétrospective / boucle de feedback : `docs/retrospective-phase3-5.md` + méta-tâche M4
   récurrente dans `docs/TASKS.md`.
 - Phase 5 **livrée** : PR #3 mergée dans `main` (2026-11-18), CI Pages run 44272969552 =

@@ -24,9 +24,11 @@ légende de la nuance + pastille de temps) :
 | Tarraxinha isolations | Suave « 8 » + talon levé | Zouk basic sur place |
 | ![Tarraxinha](docs/gifs/tarraxinha.gif) | ![Suave](docs/gifs/suave.gif) | ![Zouk](docs/gifs/zouk.gif) |
 
-| Sorties garçon / fille (repère fixe au sol) | Appuis & transmission (sol → genoux → hanches) |
+| Sorties garçon / fille (ligne de danse + repère fixe, vue diago) | Appuis & transmission (sol → genoux → hanches) |
 |---|---|
 | ![Sorties garçon/fille](docs/gifs/sortie-garcon-fille.gif) | ![Appuis & transmission](docs/gifs/appui-transmission.gif) |
+| Comparatif d'appuis (2 styles côte à côte, jauges G/D) | Corridinho (1/4 tour D puis G, cercle au repère fixe) |
+| ![Comparatif d'appuis](docs/gifs/comparatif-appuis.gif) | ![Corridinho](docs/gifs/corridinho.gif) |
 
 **Vérification** : les mouvements sur place et la couche musculaire ont été vérifiés par
 itérations croisées en sous-sessions indépendantes — tests numériques (`npm test` : pas de NaN,
@@ -36,8 +38,13 @@ des sources (citations verbatim dans `docs/styles-de-danse.md`).
 
 Le tracé coloré visualise l'orbite du centre du bassin (le « 8 couché » du suave, les cercles
 de la tarraxinha, la ligne latérale du kompa). Les animations avec déplacement (sorties,
-Déplacement > 0) se lisent **relativement au repère fixe** affiché au sol (anneau + croix à
-l'origine ; case « Repère fixe », `?repere=`).
+Déplacement > 0, corridinho) se lisent **relativement au repère fixe** affiché au sol (anneau +
+croix à l'origine ; case « Repère fixe », `?repere=`) et par rapport à la **ligne de danse**
+(pointillé rose, axe x passant par le repère ; affichée en modes paire/comparaison ou `?ligne=1`) :
+en mode Face à face le couple est placé sur la ligne et la sortie est un aller-retour
+**perpendiculaire** à la ligne (le buste, en contre-rotation, reste orienté sur la ligne :
+dissociation thoraco-pelvienne). En mode Comparaison, les deux styles sont côte à côte avec
+leurs jauges d'appui G/D (comparatif d'appuis).
 
 ## Docs
 
@@ -48,7 +55,9 @@ l'origine ; case « Repère fixe », `?repere=`).
   clamp sol, IK de pas, licence, pièges de pipeline GLB).
 - [ADR 002 — mouvements sourcés, sorties, couche musculaire, GIFs motion design](docs/adr/002-mouvements-sources-muscles-sorties.md)
 - [Spec Phase 5 — repère fixe, appuis/transmission, GIF muscles en vedette](docs/spec-phase5-repere-fixe-appui.md)
-  + [ADR 003](docs/adr/003-repere-fixe-appui-transmission.md) + tâches en cours (`docs/TASKS.md`)
+  + [ADR 003](docs/adr/003-repere-fixe-appui-transmission.md)
+- [Spec Phase 6 — comparatif d'appuis, corridinho, vues caméra/solid, pieds plantés, ligne de danse, dissociation, Gherkin](docs/spec-phase6-comparatif-appuis-corridinho.md)
+  + validations Gherkin (`docs/features/*.feature`, `npm test`) + tâches en cours (`docs/TASKS.md`)
   + méthode anti-amnésie (`CONTEXT.md`).
 
 ## Attribution obligatoire (licence des maillages)
@@ -77,15 +86,25 @@ Paramètres d'URL (utilisés par les captures, prioritaires sur localStorage) :
 `?mode=solo|observe|compare|pair&style=kizomba&styleB=zouk&bpm=90&travel=0.6&delay=0.5&bare=1`
 (`bare=1` : canvas plein écran sans l'interface) + `&muscles=1` (couche musculaire),
 `&sortie=1` (sorties garçon/fille, mode paire), `&repere=0` (masque le repère fixe),
-`&appui=1` (appuis & transmission), `&demo=<clé>&cam=hip|fixed|wide` (captures motion design :
-`hip` = gros plan bassin, `fixed`/`wide` = repère fixe conservé pour les déplacements).
+`&appui=1` (appuis & transmission), `&ligne=1` (force la ligne de danse en solo),
+`&corridinho=1` (1/4 tour D puis G, puis cercle au repère fixe), `&plant=0` (ancien rendu glissé ;
+par défaut les pieds restent plantés au sol sur place, `plant=1`), `&solid=1` (buste opaque pour les
+captures), `&demo=<clé>&cam=hip|fixed|wide|diag|front|back` (captures motion design : `hip` = gros
+plan bassin, `fixed`/`wide` = repère fixe conservé pour les déplacements, `diag` = vue diagonale par
+défaut en paire pour lire la sortie, `front`/`back` = de face/dos).
 
 Options d'interface : **Couche musculaire** (tous modes, GLB BodyParts3D greffé sur les pivots
 osseux, rouge semi-transparent), **Sorties garçon / fille** (mode Face à face : aller-retour
-latéral de 5 temps sur 8, le retard du suiveur décale la sortie fille), **Repère fixe**
-(anneau + croix à l'origine, pour lire les déplacements relatifs), **Appuis & transmission**
+latéral de 5 temps sur 8 perpendiculaire à la ligne de danse, le retard du suiveur décale la
+sortie fille, buste en contre-rotation), **Corridinho** (après 1/4 de tour à droite puis à gauche,
+cercle au sol autour du repère fixe), **Ligne de danse** (pointillé rose, axe x au repère),
+**Repère fixe** (anneau + croix à l'origine, pour lire les déplacements relatifs),
+**Pieds plantés (sur place)** (contact sol constant — petit pivot sur la plante du pied /
+« semi-pointe » autorisé ; désactiver pour l'ancien rendu glissé), **Appuis & transmission**
 (pastilles de charge sous les pieds + chaîne d'appui pied→genou→hanche en surbrillance + HUD
 charge G/D %, flexion genoux °, roll bassin ° ; activée par défaut en mode Observation hanche).
+En mode **Comparaison**, deux panneaux de **jauges G/D** lisent l'appui de chaque style côte à
+côte (comparatif d'appuis).
 
 Pour `npm run capture` en headless sans root : `LD_LIBRARY_PATH` vers les libs extraites des
 .deb (`/tmp/debs/root/usr/lib/x86_64-linux-gnu`) et `FONTCONFIG_FILE` vers une config pointant
@@ -102,7 +121,9 @@ sur une police (ex. DejaVu) — sinon aucun texte n'est rendu dans les vidéos.
   uniquement de la flexion de genou, jamais d'un plateau sous le sol.
 - **Curseur Déplacement** : 0 = sur place, 1 = ±17 cm (une largeur de hanche). Quand
   Déplacement > 0, un IK de pas à deux segments fait alterner les appuis (les pieds marchent
-  au lieu de glisser) ; à 0, le comportement d'origine (pieds glissés) est conservé.
+  au lieu de glisser). **Amendement 2026-11-18 (demandé)** : à 0 (sur place), les pieds restent
+  **plantés au sol** par défaut (contact constant, petit pivot sur la plante du pied /
+  « semi-pointe » autorisé via `plantBlend`) ; `plant=0` restaure l'ancien comportement glissé.
 - **Modes** : Solo / Observation hanche (lent, ~32 bpm, buste masqué) / Comparaison /
   Face à face (contacts vert/rouge, retard du suiveur 0–2 temps, isolation ghost).
 - **Pieds plats** : `footL/R.rotation.x = -(hip.rotation.x + knee.rotation.x) + extra`
@@ -119,7 +140,8 @@ sur une police (ex. DejaVu) — sinon aucun texte n'est rendu dans les vidéos.
 - `CONTEXT.md` — état du projet + méthode anti-amnésie + procédure de reprise de session.
 - `src/components/Controls.tsx`, `InfoCards.tsx`, `ContactViz.tsx`, `GridFloor.tsx`,
   `DemoOverlay.tsx` (habillage motion design des captures `?demo=`), `OriginMarker.tsx`
-  (repère fixe au sol).
+  (repère fixe au sol), `LineOfDance.tsx` (ligne de danse, axe x au repère),
+  `src/cameras.ts` (presets caméra `cam=`, `solid=`).
 - `src/muscles.ts` — greffe de la couche musculaire (mapping maillage → pivot osseux).
 - `src/hooks/usePersistentState.ts` — persistance localStorage.
 - `src/ik.ts` — IK de pas (2 segments + raffinement CCD).

@@ -15,40 +15,44 @@ Mise à jour à chaque commit (checkpoint anti-amnésie, voir `CONTEXT.md`).
 
 ---
 
-## Phase 6 — PLANIFIÉE — spec : `docs/spec-phase6-comparatif-appuis-corridinho.md` — branche prévue `vibe/phase6-comparatif-appuis-corridinho-ae8a7a`
+## Phase 6 — EN COURS (livraison en cours) — spec : `docs/spec-phase6-comparatif-appuis-corridinho.md` — branche `vibe/phase6-vues-plant-solid-ae8a7a`, PR #4 draft
 
-- [ ] 10. Mode « comparatif d'appuis » : mode Comparaison + `appui=1` → refs de stats par rig
-  (`statsARef`/`statsBRef`) + **jauge G/D par corps** (couleur du style) + HUD par style ;
-  GIF `comparatif-appuis.gif` (kizomba vs kompa, `cam=wide`) relu visuellement
-- [ ] 11. Corridinho au repère fixe, **uniquement après pivot droit (1/4 tour) puis pivot
-  gauche** : case + `corridinho=`, séquence 16 temps (pivot D 0–3, pivot G 4–7, cercle 8–15,
-  rayon ~0,25–0,35 m autour de l'origine, épaules vers l'intérieur) ; test trajectoire
-  (cercle après pivots, rayon borné, pas de NaN) + GIF `corridinho.gif` (`cam=fixed|wide`) relu
-- [ ] 13. Vues lisibles pour les sorties : presets caméra `cam=front|back|diag` + caméra
-  **diago par défaut en mode paire** (le profil orthonormé rend la sortie, en profondeur,
-  invisible) ; GIF sortie refait en `cam=diag` avec déplacement latéral bien visible
-- [ ] 14. Lire des corps, pas des squelettes : param `solid=1` (buste opacity ↑ en capture) +
-  `torsoOpacity` prop sur Rig ; GIFs de styles regénérés avec `solid=1`
-- [ ] 15. Pieds plantés au sol en sur place : à `travel=0`, IK plante les pieds au sol
-  (pivot plante/« semi-pointe » autorisé via `extra`), au lieu de glisser avec le corps ;
-  `plant=0` garde l'ancien comportement glissé (convention du handoff amendée par demande
-  utilisateur 2026-11-18, à documenter) ; case + `plant=` + vérif visuelle (le pied ne bouge
-  pas au sol pendant le transfert de poids G/D)
-- [ ] 16. Ligne de danse : `LineOfDance` (axe x au repère fixe) + mode paire réorienté sur la
-  ligne (face à face selon z) + sortie perpendiculaire via `sortieOffset` sur root.x local,
-  retour sur la ligne au temps 5+ ; GIF sortie en vue de face/diago ; feature
-  `sortie-ligne-de-danse.feature` dé-wippée
-- [ ] 17. Dissociation bras/buste vs bas du corps pendant la sortie (contre-rotation du buste
-  sur la ligne) — spec §6 à affiner à la livraison de la tâche 16
-- [x] 18. Validations Gherkin : `docs/features/*.feature` + `scripts/test_features.mjs` dans
-  `npm test` (14 PASS, 0 FAIL, 6 @wip) + fonctions pures `plantBlend`/`sortieOffset`
-- [ ] 12. Vérifs phase 6 : `npm test`, build, smoke headless, livraison PR + ff-merge + CI + site
+- [x] 10. Mode « comparatif d'appuis » : `statsBRef` + panneau **jauge G/D par corps** (2 jauges
+  en mode Comparaison, bare + normal) ; GIF `comparatif-appuis.gif` (kizomba vs kompa, `cam=wide`,
+  `ligne=1&repere=1`) — 4 jauges G/D lisibles vérifiées visuellement
+- [x] 11. Corridinho au repère fixe, **uniquement après pivot droit (1/4 tour) puis pivot
+  gauche** : `corridinhoPath(b)` (16 temps : pivot D 0–3, pivot G 4–7, cercle R=0,3 m autour de
+  l'origine 8–15) + case + `corridinho=` + tests Gherkin + GIF `corridinho.gif` (`cam=fixed`,
+  `ligne=1&repere=1`) — cercle autour du repère confirmé visuellement sur 2 frames
+- [x] 13. Vues lisibles pour les sorties : `src/cameras.ts` presets `cam=default|hip|fixed|wide|diag|front|back`,
+  **diago par défaut en paire** (`resolveCam`), paire réorientée sur la ligne (z=∓0,14, rotY 0/π) ;
+  GIF sortie en `cam=diag` — déplacement latéral confirmé numériquement (root.x 0→0,22 m au pic
+  de l'enveloppe, sonde `window.__dbg` jetable) et ligne visible
+- [x] 14. `solid=1` → `SOLID_TORSO_OPACITY=0.62` via prop `torsoOpacity` sur Rig ; 11 GIFs regénérés
+  avec `solid=1` — torse opaque confirmé visuellement
+- [x] 15. Pieds plantés en sur place : `plantBlend(travel, plant)`, swing IK coupé à travel=0,
+  case « Pieds plantés » + `plant=` ; vérif visuelle pleine vue plant=1 (pieds au sol) vs plant=0 ;
+  amendment de convention documenté dans README (2026-11-18)
+- [x] 16. Ligne de danse : `LineOfDance` (rubans/boxes roses — les `THREE.Line` 1 px disparaissent
+  au rééchantillonnage GIF, piège trouvé en relisant les frames : 0 px rose → boxes,
+  117–458 px rose après) + paire sur la ligne + `sortieOffset(b,amp)=0.22·enveloppe·amp` sur
+  root.x local, retour ligne temps 5+ ; GIF sortie `cam=diag&ligne=1&repere=1`
+- [x] 17. Dissociation : contre-rotation chest (−0,22 rad) + head (−0,12 rad) pendant la sortie,
+  buste orienté sur la ligne de danse (version simple ; cadre de bras à affiner après relecture
+  visuelle — backlog)
+- [x] 18. Validations Gherkin : `docs/features/*.feature` (7 fichiers) + `scripts/test_features.mjs`
+  dans `npm test` → **19 PASS, 0 FAIL, 1 SKIP @wip** + fonctions pures `plantBlend`/`sortieOffset`/`corridinhoPath`
+- [ ] 12. Vérifs + livraison phase 6 : `npm test`, build, smoke headless, push, PR #4 ready,
+  ff-merge main, CI Pages, vérif site live, checkpoint CONTEXT/TASKS sur main
 
 ## Méta — boucle de feedback (rétrospective auto-critique + critique de session indépendante)
 
 Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process amélioré).
 
-- [ ] M0. Rétrospective phases 3–5 rédigée (pièges 1–15, raccourcis, process) — fait le 2026-11-18
+- [x] M0. Rétrospective phases 3–5 rédigée (pièges 1–15, raccourcis, process) — fait le 2026-11-18 ;
+  addendum phase 6 dans `docs/retrospective-phase6.md` (itération 2026-11-18 : specs-first +
+  Gherkin en amont ; piège : `THREE.Line` 1 px invisible après downscale GIF → rubans ; piège :
+  ne jamais lancer write_file et git add en parallèle — course, un fichier oublié d'un commit)
 - [ ] M1. `scripts/check_sources.mjs` : link-check (HTTP 200) de toutes les URLs de
   `docs/styles-de-danse.md` + README, exécuté en CI ou via `npm test`
 - [ ] M2. Self-check des captures dans `capture_gifs.mjs` : GIF non vide, 0 erreur console,
