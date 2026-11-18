@@ -22,6 +22,9 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
 - Phase 6 **planifiée** (tâches 10–12 dans `docs/TASKS.md`, spec
   `docs/spec-phase6-comparatif-appuis-corridinho.md`) : comparatif d'appuis (jauges G/D par
   corps en mode Comparaison) + corridinho au repère fixe après pivots D puis G.
+- Phase 6 aussi : tâches 13–15 (vues face/dos/diago + sortie lisible, `solid=1`, **pieds
+  plantés en sur place** — amendment de convention demandé par l'utilisateur 2026-11-18 :
+  à travel=0 les pieds restent au sol, pivot plante autorisé ; `plant=0` = ancien glissé).
 - Phase 6 aussi : tâches 13–14 (vues face/dos/diago, sortie lisible en diago, `solid=1` pour
   des corps lisibles en capture).
 - Rétrospective / boucle de feedback : `docs/retrospective-phase3-5.md` + méta-tâche M4

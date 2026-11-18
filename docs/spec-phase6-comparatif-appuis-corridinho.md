@@ -63,3 +63,20 @@ anti-amnésie inchangée (`CONTEXT.md`) : branche + PR draft tôt, checkpoints `
   changer le rendu par défaut de l'app ; GIFs des 6 styles regénérés avec `solid=1`.
 - Critères : sortie visible en vue diago (vérifié sur frame), corps lisibles (torse opaque),
   `npm test` + build OK, rien de cassé en mode normal.
+
+## 4. Pieds plantés en sur place (tâche 15, demande 2026-11-18)
+
+« Quand il y a du sur place on s'attend à ce que le pied garde constamment un contact avec le
+sol (petit pivot possible sur la plante / "semi-pointe" = ball of the foot). »
+
+- À `travel=0`, le rig fait tourner l'IK **sans pas** : les cibles des pieds restent les
+  positions plantées de repos (`state.plant`), donc les pieds restent au sol pendant que le
+  corps (root/pelvis) fait le transfert de poids G/D. Le pivot sur la plante reste possible
+  via `extraL/extraR` (talon levé) et `foot.rotation.z = -hip.rotation.z`.
+- Prop `plant` (défaut ON), case « Pieds plantés (sur place) », param `plant=` ; `plant=0`
+  restaure l'ancien comportement glissé à travel=0 (convention handoff) — **amendement
+  demandé explicitement par l'utilisateur le 2026-11-18**, à documenter dans README/CONTEXT.
+- Blend : `w = travel>0 ? min(1, travel/0.2) : (plant ? 1 : 0)` ; pas de swing créé à
+  travel=0 (pas de levée de pied).
+- Vérif : GIF/frames — le pied d'appui ne quitte pas le sol (position au sol quasi fixe) ;
+  `npm test` + build OK.

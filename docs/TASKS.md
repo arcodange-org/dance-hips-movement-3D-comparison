@@ -29,6 +29,11 @@ Mise à jour à chaque commit (checkpoint anti-amnésie, voir `CONTEXT.md`).
   invisible) ; GIF sortie refait en `cam=diag` avec déplacement latéral bien visible
 - [ ] 14. Lire des corps, pas des squelettes : param `solid=1` (buste opacity ↑ en capture) +
   `torsoOpacity` prop sur Rig ; GIFs de styles regénérés avec `solid=1`
+- [ ] 15. Pieds plantés au sol en sur place : à `travel=0`, IK plante les pieds au sol
+  (pivot plante/« semi-pointe » autorisé via `extra`), au lieu de glisser avec le corps ;
+  `plant=0` garde l'ancien comportement glissé (convention du handoff amendée par demande
+  utilisateur 2026-11-18, à documenter) ; case + `plant=` + vérif visuelle (le pied ne bouge
+  pas au sol pendant le transfert de poids G/D)
 - [ ] 12. Vérifs phase 6 : `npm test`, build, smoke headless, livraison PR + ff-merge + CI + site
 
 ## Méta — boucle de feedback (rétrospective auto-critique + critique de session indépendante)
