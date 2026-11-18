@@ -78,18 +78,23 @@ Mise à jour à chaque commit (checkpoint anti-amnésie, voir `CONTEXT.md`).
 - [x] 29. Gherkin `mouvements-deplacement.feature` → npm test 27 PASS 0 FAIL 1 SKIP ; 18 GIFs ;
   README/TASKS/CONTEXT ; livraison PR #6 + ff-merge + CI + site live + checkpoint
 
-## Phase 9 — PLANIFIÉE (demandes 2026-11-18, priorité mouvements individuels d'abord) — branche `vibe/phase9-partage-vue-ae8a7a`
+## Phase 9 — LIVRÉE — spec : `docs/spec-phase9-partage-boussole.md` — branche `vibe/phase9-partage-vue-ae8a7a`, PR #7
 
-- [ ] 30. Bouton « 🔗 Partager la vue » : URL avec tous les paramètres d'état + **angle caméra**
-  (`campos=`/`camtgt=` depuis OrbitControls) ; copie presse-papiers + replaceState ; fns pures
-  `src/share.ts` (`parseVec3`/`buildShareUrl`) + Gherkin `partage-url.feature`
-- [ ] 31. Cadre de bras de la **suiveuse** en paire (coude G levé hauteur d'épaule, avant-bras sur le
-  dos du guideur ; coude D baissé, main D en contact main G du guideur) — non prioritaire mais
-  cohérence des danses à 2 ; vérif visuelle cam=front en mode pair
-- [ ] 32. README : descriptions **dépliables** (<details>) sous chaque GIF (brief court + source +
-  crosslink docs) ; bascule vue « squelette simple » / « + couche musculaire » (contrôle segmenté)
-  ; retrouver le détail « Appuis & transmission (sol → genoux → hanches) » aussi en vue muscles
-- [ ] 33. Livraison phase 9 : tests/build/captures/vérifs, PR, ff-merge main, CI, site live, checkpoint
+- [x] 30. Bouton « 🔗 Partager la vue » : URL avec tous les paramètres d'état + **angle caméra**
+  (`campos=`/`camtgt=` depuis OrbitControls ; restore à la charge, primant sur `cam=`) ; copie
+  presse-papiers + replaceState + feedback ; fns pures `src/share.ts` + Gherkin `partage-url.feature`
+  — vérifié end-to-end (clic → URL avec campos/camtgt ; rechargement → caméra restaurée)
+- [x] 31. Cadre de bras de la **suiveuse** en paire (`DANCE_FRAME_FOLLOWER` : coude G levé hauteur
+  d'épaule, avant-bras vers le dos du guideur ; coude D baissé, main D vers la main G du guideur)
+  — vérifié visuellement en pair cam=front (cadres complémentaires, mains au centre) + Gherkin
+- [x] 32. README : `<details>` « Détails & source » sous **chaque** GIF (brief + source + crosslink
+  docs) ; bascule segmentée **Vue Squelette / + Muscles** (la chaîne d'appui sol→genoux→hanches
+  reste visible dans les deux vues)
+- [x] 33. Livraison phase 9 : tests 32 PASS 0 FAIL, build, vérifs headless (boussole 8 directions
+  étiquetées au repère, pair, campos=), PR #7 + ff-merge main + CI + site live + checkpoint
+- [x] 34. Boussole 8 directions (4 cardinales + 4 diago, E=+x=ligne de danse) au repère fixe
+  (`CompassRose.tsx`, `boussole=`) + HUD direction du buste (diago) + position / repère
+  (`src/directions.ts`, Gherkin `directions.feature`)
 
 ## Méta — boucle de feedback (rétrospective auto-critique + critique de session indépendante)
 

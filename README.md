@@ -19,29 +19,138 @@ et HUD genoux/bassin visibles) :
 
 ![Kizomba sur place + couche musculaire — BodyParts3D © DBCLS, CC BY-SA 2.1 Japan](docs/gifs/kizomba-muscles-sur-place.gif)
 
-Captures réelles de l'app, toutes **sur place** pour mettre en avant les nuances de hanche
-(GIF générés par Playwright, voir `scripts/capture_gifs.mjs` ; habillage pastille de style +
-légende de la nuance + pastille de temps) :
+Captures réelles de l'app (GIF générés par Playwright, voir `scripts/capture_gifs.mjs` ;
+habillage pastille de style + légende de la nuance + pastille de temps). **Dépliez « Détails &
+source » sous chaque GIF** pour le brief court et le crosslink vers la documentation :
 
-| Kizomba « 2 temps » | Semba rebond | Kompa balancier |
-|---|---|---|
-| ![Kizomba](docs/gifs/kizomba.gif) | ![Semba](docs/gifs/semba.gif) | ![Kompa](docs/gifs/kompa.gif) |
-| Tarraxinha isolations | Suave « 8 » + talon levé | Zouk basic sur place |
-| ![Tarraxinha](docs/gifs/tarraxinha.gif) | ![Suave](docs/gifs/suave.gif) | ![Zouk](docs/gifs/zouk.gif) |
+### Par style (sur place, buste verrouillé vertical — `iso=1`)
 
-| Sorties garçon / fille (ligne de danse + repère fixe, vue diago) | Appuis & transmission (sol → genoux → hanches) |
-|---|---|
-| ![Sorties garçon/fille](docs/gifs/sortie-garcon-fille.gif) | ![Appuis & transmission](docs/gifs/appui-transmission.gif) |
-| Comparatif d'appuis (2 styles côte à côte, jauges G/D) | Corridinho (1/4 tour D puis G, cercle au repère fixe) |
-| ![Comparatif d'appuis](docs/gifs/comparatif-appuis.gif) | ![Corridinho](docs/gifs/corridinho.gif) |
-| Isolation basse + ginga (buste verrouillé vertical, cadre de bras) | Fessiers en mouvement, vue de dos (muscles © DBCLS) |
-| ![Isolation basse · ginga](docs/gifs/isolation-ginga.gif) | ![Fessiers — vue de dos](docs/gifs/fessiers-muscles.gif) |
-| Quarts de tour (4 = tour complet au repère fixe) | Corridinho à 2 (suiveur en marche arrière) |
-| ![Quarts de tour](docs/gifs/quarts-de-tour.gif) | ![Corridinho à 2](docs/gifs/corridinho-paire.gif) |
-| Marche + marka « 3 temps » (le long de la ligne) | Marche arrière (dir=-1) |
-| ![Marche 3 temps](docs/gifs/marche-3temps.gif) | ![Marche arrière](docs/gifs/marche-arriere.gif) |
-| Ida e volta, à 2 face à face (G avant/arrière puis D avant/arrière) |
-| ![Ida e volta](docs/gifs/ida-e-volta.gif) |
+![Kizomba « 2 temps »](docs/gifs/kizomba.gif)
+<details><summary>Détails & source</summary>
+
+« 2 temps » latéral sur place + marqua (pieds joints) : transfert de poids G/D, genoux fléchis,
+buste stable et vertical. Sources : [docs/styles-de-danse.md](docs/styles-de-danse.md) (Wikipédia FR
+Kizomba, cours-kizomba.com, odanceevents) + [docs/ginga-angolana.md](docs/ginga-angolana.md).
+</details>
+
+![Semba rebond](docs/gifs/semba.gif)
+<details><summary>Détails & source</summary>
+
+Rebond quick-quick-slow « 1-2-3, pause », réception sur l'avant-pied, rebond venant des genoux.
+Sources : [docs/styles-de-danse.md](docs/styles-de-danse.md) (angolatravelguide — citations verbatim).
+</details>
+
+![Kompa balancier](docs/gifs/kompa.gif)
+<details><summary>Détails & source</summary>
+
+Balancier latéral, un poids par temps, hip check sur le temps 4, tout sous la ceinture.
+Source : [docs/styles-de-danse.md](docs/styles-de-danse.md) (haitianmusiczone).
+</details>
+
+![Tarraxinha isolations](docs/gifs/tarraxinha.gif)
+<details><summary>Détails & source</summary>
+
+Sur place, isolations pelviennes fines, contact des hanches. Source :
+[docs/styles-de-danse.md](docs/styles-de-danse.md) (udansa).
+</details>
+
+![Suave « 8 » + talon levé](docs/gifs/suave.gif)
+<details><summary>Détails & source</summary>
+
+Base « 8 » couchée (vague vertébrale — le pitch est conservé même en iso=1) + talon levé.
+Source : [docs/styles-de-danse.md](docs/styles-de-danse.md) (emoveretherapie).
+</details>
+
+![Zouk basic sur place](docs/gifs/zouk.gif)
+<details><summary>Détails & source</summary>
+
+Basic sur place slow-quick-quick, cambré (pitch conservé en iso=1), waves.
+Source : [docs/styles-de-danse.md](docs/styles-de-danse.md) (getbailar, danceinnj, inaya-zouk).
+</details>
+
+### Mouvements & déplacements (repère fixe + ligne de danse + boussole 8 directions)
+
+![Sorties garçon/fille](docs/gifs/sortie-garcon-fille.gif)
+<details><summary>Détails & source</summary>
+
+Sortie = ligne de danse : aller-retour **perpendiculaire** à la ligne (5 temps sur 8), buste en
+contre-rotation (dissociation). Sources : [docs/styles-de-danse.md](docs/styles-de-danse.md) +
+spec phase 6 (`docs/spec-phase6-comparatif-appuis-corridinho.md` §5).
+</details>
+
+![Appuis & transmission](docs/gifs/appui-transmission.gif)
+<details><summary>Détails & source</summary>
+
+Transmission du sol vers le haut : pastilles de charge, chaîne pied→cheville→genou→hanche en
+surbrillance, HUD charge G/D % + genoux ° + roll bassin ° + stabilité buste %. Ce détail reste
+visible aussi en vue « + Muscles ». Sources : [docs/styles-de-danse.md](docs/styles-de-danse.md)
+(Wikipédia FR Kizomba « le déplacement est du bas vers le haut », viends-danser, udansa).
+</details>
+
+![Comparatif d'appuis](docs/gifs/comparatif-appuis.gif)
+<details><summary>Détails & source</summary>
+
+Deux styles côte à côte avec leurs jauges G/D (kizomba vs kompa). Spec phase 6
+(`docs/spec-phase6-comparatif-appuis-corridinho.md` §1).
+</details>
+
+![Corridinho](docs/gifs/corridinho.gif)
+<details><summary>Détails & source</summary>
+
+1/4 de tour à droite puis à gauche, puis cercle au sol autour du repère fixe (16 temps).
+Source : Wikipédia FR Kizomba — voir spec phase 6 §2.
+</details>
+
+![Isolation basse · ginga](docs/gifs/isolation-ginga.gif)
+<details><summary>Détails & source</summary>
+
+Objectif premier : isolations du bas du corps, buste verrouillé vertical (`iso=1`), cadre de bras
+de danseur. Sources : [docs/ginga-angolana.md](docs/ginga-angolana.md) (citations verbatim FR/EN/PT :
+« the movements hips down are the dominant ones », « Keep the shoulder line level… ») + spec
+phase 7 (`docs/spec-phase7-isolation-basse.md`).
+</details>
+
+![Fessiers — vue de dos](docs/gifs/fessiers-muscles.gif)
+<details><summary>Détails & source</summary>
+
+Muscles des fessiers (GluteusMaximus/Medius) qui travaillent pendant que le haut du tronc reste
+vertical ; ce sont les genoux qui fléchissent. Maillages BodyParts3D © DBCLS, CC BY-SA 2.1 Japan —
+voir [docs/ginga-angolana.md](docs/ginga-angolana.md).
+</details>
+
+![Quarts de tour](docs/gifs/quarts-de-tour.gif)
+<details><summary>Détails & source</summary>
+
+Mouvement séparé du corridinho : 4 quarts de tour sur 16 temps = un tour complet au repère fixe.
+Spec phase 8 (`docs/spec-phase8-deplacements.md` §2).
+</details>
+
+![Corridinho à 2](docs/gifs/corridinho-paire.gif)
+<details><summary>Détails & source</summary>
+
+Face à face : le guideur décrit le cercle au repère fixe, le suiveur le même cercle **en marche
+arrière** (trajectoire miroir). Spec phase 8 §2.
+</details>
+
+![Marche + marka « 3 temps »](docs/gifs/marche-3temps.gif)
+<details><summary>Détail & source</summary>
+
+Marche le long de la ligne de danse (déplacement lisible / repère fixe), un pas tous les 3 temps
+(`temps3=1`). Spec phase 8 §3.
+</details>
+
+![Marche arrière](docs/gifs/marche-arriere.gif)
+<details><summary>Détails & source</summary>
+
+Même marka « 3 temps » en sens inverse (`dir=-1`), le long de la ligne de danse. Spec phase 8 §3.
+</details>
+
+![Ida e volta, à 2 face à face](docs/gifs/ida-e-volta.gif)
+<details><summary>Détails & source</summary>
+
+Aller-retour : pied gauche avant/arrière puis pied droit avant/arrière (cycle de 8 temps, `ida=1`),
+seul ou à 2 face à face. Spec phase 8 §4.
+</details>
 
 **Vérification** : les mouvements sur place et la couche musculaire ont été vérifiés par
 itérations croisées en sous-sessions indépendantes — tests numériques (`npm test` : pas de NaN,
@@ -111,10 +220,10 @@ marche arrière), `&dir=-1` (marche arrière le long de la ligne de danse), `&te
 « 3 temps » : un pas tous les 3 temps avec Déplacement), `&ida=1` (ida e volta : G avant/arrière
 puis D avant/arrière, 8 temps), `&demo=<clé>&cam=hip|fixed|wide|diag|front|back` (captures motion design :
 `hip` = gros plan bassin, `fixed`/`wide` = repère fixe conservé pour les déplacements, `diag` = vue
-diagonale par défaut en paire pour lire la sortie, `front`/`back` = de face/dos).
+diagonale par défaut en paire pour lire la sortie, `front`/`back` = de face/dos), `&campos=x,y,z&camtgt=x,y,z` (angle de la caméra exact, ex. produit par le bouton « Partager la vue »), `&boussole=0` (masque la boussole 8 directions).
 
-Options d'interface : **Couche musculaire** (tous modes, GLB BodyParts3D greffé sur les pivots
-osseux, rouge semi-transparent), **Sorties garçon / fille** (mode Face à face : aller-retour
+Options d'interface : **Vue « Squelette » / « + Muscles (tissus) »** (bascule segmentée ; couche musculaire BodyParts3D greffée sur les pivots
+osseux, rouge semi-transparent — la chaîne d'appui sol→genoux→hanches reste visible dans les deux vues), **Boussole 8 directions** (4 cardinales + 4 diago au repère fixe ; E-W = ligne de danse ; la direction du buste et la position / repère s'affichent dans le HUD), **🔗 Partager la vue** (copie l'URL avec tous les paramètres + l'angle caméra `campos=`/`camtgt=`), **Sorties garçon / fille** (mode Face à face : aller-retour
 latéral de 5 temps sur 8 perpendiculaire à la ligne de danse, le retard du suiveur décale la
 sortie fille, buste en contre-rotation), **Corridinho** (après 1/4 de tour à droite puis à gauche,
 cercle au sol autour du repère fixe), **Ligne de danse** (pointillé rose, axe x au repère),

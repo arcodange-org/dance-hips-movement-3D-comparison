@@ -15,7 +15,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const bundle = join(root, "scripts", ".test-features-bundle.mjs");
 esbuild.buildSync({
   stdin: {
-    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras";',
+    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions";',
     resolveDir: join(root, "scripts"),
     loader: "ts",
   },
@@ -28,7 +28,7 @@ esbuild.buildSync({
 });
 const mod = await import(pathToFileURL(bundle).href + "?t=" + Date.now());
 rmSync(bundle, { force: true });
-const { STYLES, supportOf, sortieEnvelope, sortieOffset, plantBlend, corridinhoPath, quartsPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, HIP_WIDTH, HIP_Y, S2, CAM_PRESETS, resolveCam, SOLID_TORSO_OPACITY, lockUpperTrunk, residualRoll, upperStability, DANCE_FRAME } = mod;
+const { STYLES, supportOf, sortieEnvelope, sortieOffset, plantBlend, corridinhoPath, quartsPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, HIP_WIDTH, HIP_Y, S2, CAM_PRESETS, resolveCam, SOLID_TORSO_OPACITY, lockUpperTrunk, residualRoll, upperStability, DANCE_FRAME, DANCE_FRAME_FOLLOWER, parseVec3, buildShareUrl, DIR_LABELS, facingSector, isDiagonal, relToLineOfDance } = mod;
 const { Group } = await import(
   pathToFileURL(join(root, "node_modules", "three", "build", "three.module.js")).href
 );
@@ -299,6 +299,39 @@ const steps = [
       if (!rows.length) throw new Error("pas de lignes pour k=" + k);
       for (const r of rows) if (r.side !== exp[k][0] || r.dir !== exp[k][1]) throw new Error(`b=${r.b}: ${r.side}${r.dir}, attendu ${exp[k]}`);
     }
+  }],
+  [/^l'état mode=(\w+), style=(\w+), bpm=(\d+), travel=([\d.]+), iso=(true|false), quarts=(true|false), dir=(-?\d+)$/, (c, m) => {
+    c.share = { mode: m[1], style: m[2], bpm: Number(m[3]), travel: Number(m[4]), iso: m[5] === "true", quarts: m[6] === "true", dir: Number(m[7]) };
+  }],
+  [/^on construit l'URL de partage avec la caméra campos=([-\d.,]+) et camtgt=([-\d.,]+)$/, (c, m) => {
+    c.url = buildShareUrl("https://example.test/app/", c.share, parseVec3(m[1]), parseVec3(m[2]));
+  }],
+  [/^l'URL contient (.+)$/, (c, m) => {
+    const url = new URL(c.url);
+    for (const pair of m[1].split(" et ")) {
+      const eq = pair.indexOf("=");
+      const k = pair.slice(0, eq), v = pair.slice(eq + 1);
+      if (url.searchParams.get(k) !== v) throw new Error(`param ${k}=${url.searchParams.get(k)}, attendu ${v}`);
+    }
+  }],
+  [/^parseVec3\("([^"]*)"\) vaut (\[[^\]]*\]|null)$/, (c, m) => {
+    const got = parseVec3(m[1]);
+    const exp = m[2] === "null" ? null : JSON.parse(m[2]);
+    if (JSON.stringify(got) !== JSON.stringify(exp)) throw new Error(`parseVec3("${m[1]}")=${JSON.stringify(got)}, attendu ${m[2]}`);
+  }],
+  [/^le danseur à ry = ([-\d.]+) fait face à "(\w+)"( \(diago\))?$/, (c, m) => {
+    const s = facingSector(Number(m[1]));
+    if (DIR_LABELS[s] !== m[2]) throw new Error(`ry=${m[1]} → ${DIR_LABELS[s]}, attendu ${m[2]}`);
+    if ((m[3] !== undefined) !== isDiagonal(s)) throw new Error(`diago mal détecté pour ${m[2]}`);
+  }],
+  [/^relToLineOfDance\(x=([-\d.]+), z=([-\d.]+)\) donne along=([-\d.]+), across=([-\d.]+)$/, (c, m) => {
+    const r = relToLineOfDance(Number(m[1]), Number(m[2]));
+    if (Math.abs(r.along - Number(m[3])) > 1e-9 || Math.abs(r.across - Number(m[4])) > 1e-9) throw new Error(JSON.stringify(r));
+  }],
+  [/^le cadre de la suiveuse a le coude gauche levé et le coude droit baissé$/, () => {
+    if (!(DANCE_FRAME_FOLLOWER.upperLeft.x < -1.3)) throw new Error("coude G pas levé: " + DANCE_FRAME_FOLLOWER.upperLeft.x);
+    if (!(DANCE_FRAME_FOLLOWER.upperRight.x > -0.8)) throw new Error("coude D pas baissé: " + DANCE_FRAME_FOLLOWER.upperRight.x);
+    if (!(DANCE_FRAME_FOLLOWER.foreRight.x < -1.0)) throw new Error("avant-bras D pas ramené vers la main G du guideur");
   }],
   [/^le GLB place patella et fibula au niveau du genou$/, () => {
     const buf = readFileSync(join(root, "public", "anatomy.glb"));

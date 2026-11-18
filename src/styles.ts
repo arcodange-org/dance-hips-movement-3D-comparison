@@ -307,6 +307,27 @@ export function applyDanceFrame(
   if (r.armFR) r.armFR.rotation.set(DANCE_FRAME.forearmRight.x, DANCE_FRAME.forearmRight.y, DANCE_FRAME.forearmRight.z);
 }
 
+// Cadre de la SUIVEUSE en paire (demande 2026-11-18, non prioritaire) : coude gauche levé à
+// hauteur d'épaule, son avant-bras en contact avec le dos du danseur d'en face ; coude droit
+// baissé, main droite en contact avec la main gauche du danseur.
+export const DANCE_FRAME_FOLLOWER = {
+  upperLeft: { x: -1.45, y: 0, z: 0.15 }, // bras gauche ~ horizontal, hauteur d'épaule
+  foreLeft: { x: -0.35, y: 0, z: 0 }, // avant-bras vers l'avant (dos du guideur)
+  upperRight: { x: -0.45, y: 0, z: 0.55 }, // coude droit baissé, bras écarté
+  foreRight: { x: -1.35, y: 0, z: -0.3 }, // avant-bras ramené, main D vers la main G du guideur
+} as const;
+
+export function applyFollowerFrame(
+  r: { armUL?: Rotatable; armUR?: Rotatable; armFL?: Rotatable; armFR?: Rotatable },
+  cadre: boolean
+): void {
+  if (!cadre) return;
+  if (r.armUL) r.armUL.rotation.set(DANCE_FRAME_FOLLOWER.upperLeft.x, DANCE_FRAME_FOLLOWER.upperLeft.y, DANCE_FRAME_FOLLOWER.upperLeft.z);
+  if (r.armFL) r.armFL.rotation.set(DANCE_FRAME_FOLLOWER.foreLeft.x, DANCE_FRAME_FOLLOWER.foreLeft.y, DANCE_FRAME_FOLLOWER.foreLeft.z);
+  if (r.armUR) r.armUR.rotation.set(DANCE_FRAME_FOLLOWER.upperRight.x, DANCE_FRAME_FOLLOWER.upperRight.y, DANCE_FRAME_FOLLOWER.upperRight.z);
+  if (r.armFR) r.armFR.rotation.set(DANCE_FRAME_FOLLOWER.foreRight.x, DANCE_FRAME_FOLLOWER.foreRight.y, DANCE_FRAME_FOLLOWER.foreRight.z);
+}
+
 // ---------------------------------------------------------------------------
 // Phase 8 — déplacements : quarts de tour, marche avant/arrière + marka « 3 temps », ida e volta.
 // ---------------------------------------------------------------------------

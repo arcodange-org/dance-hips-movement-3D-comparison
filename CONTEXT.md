@@ -56,9 +56,15 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   **marka « 3 temps »** (`temps3=1`, `swingBeat`) ; **ida e volta** (`ida=1`, L avant/arrière puis
   R avant/arrière, 8 temps, solo et paire). Gherkin `mouvements-deplacement.feature` → 27 PASS
   0 FAIL. 18 GIFs. Spec : `docs/spec-phase8-deplacements.md`.
-- Phase 9 planifiée (TASKS 30-33) : bouton « partager la vue » (URL + angle caméra `campos=`/
-  `camtgt=`), cadre de bras de la suiveuse en paire, README dépliable (<details> sous les GIFs) +
-  bascule vue squelette/muscles.
+- Phase 9 **en livraison** (branche `vibe/phase9-partage-vue-ae8a7a`, PR #7) : bouton
+  **« 🔗 Partager la vue »** (URL complète + angle caméra `campos=`/`camtgt=` restauré à la charge,
+  `src/share.ts` + Gherkin `partage-url.feature`), **cadre de la suiveuse** en paire
+  (`DANCE_FRAME_FOLLOWER`), **boussole 8 directions** au repère (`CompassRose.tsx`, `boussole=`,
+  E=+x=ligne de danse) + HUD direction du buste (diago) et position / repère (`src/directions.ts`,
+  Gherkin `directions.feature`), README avec **<details> « Détails & source » sous chaque GIF** +
+  bascule segmentée **Vue Squelette / + Muscles**. Spec : `docs/spec-phase9-partage-boussole.md`.
+- Phase 10 planifiée : harness agentique — `AGENTS.md` racine + dossier `.vibe/` (spéc markdown du
+  harness pour toute session Mistral : état, méthode anti-amnésie, conventions, contribution).
 - Rétrospective / boucle de feedback : `docs/retrospective-phase3-5.md` +
   `docs/retrospective-phase6.md` + méta-tâche M4 récurrente dans `docs/TASKS.md`.
 - Phase 5 **livrée** : PR #3 mergée dans `main` (2026-11-18), CI Pages run 44272969552 =

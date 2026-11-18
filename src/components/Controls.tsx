@@ -48,6 +48,10 @@ interface ControlsProps {
   onIda: (v: boolean) => void;
   dir: number;
   onDir: (v: number) => void;
+  showBoussole: boolean;
+  onShowBoussole: (v: boolean) => void;
+  onShare: () => void;
+  copied: boolean;
   ghostSel: string;
   onGhostSel: (v: string) => void;
   onExport: () => void;
@@ -137,6 +141,10 @@ export default function Controls(props: ControlsProps) {
     onIda,
     dir,
     onDir,
+    showBoussole,
+    onShowBoussole,
+    onShare,
+    copied,
     ghostSel,
     onGhostSel,
     onExport,
@@ -339,15 +347,35 @@ export default function Controls(props: ControlsProps) {
           />
           Appuis &amp; transmission
         </label>
-        <label className="flex items-center gap-2 text-xs text-slate-400" title="Couche musculaire réelle BodyParts3D (CC BY-SA 2.1 Japan © DBCLS), greffée sur les pivots osseux">
-          <input
-            type="checkbox"
-            checked={showMuscles}
-            onChange={(e) => onShowMuscles(e.target.checked)}
-            className="accent-red-400"
-          />
-          Couche musculaire
-        </label>
+        <div>
+          <div className="text-[11px] uppercase tracking-wider text-slate-500 mb-1" title="Vue squelette simple, ou avec la couche musculaire/tissus (BodyParts3D CC BY-SA 2.1 Japan © DBCLS) greffée sur les pivots osseux ; la chaîne d'appui sol→genoux→hanches reste visible dans les deux vues">
+            Vue
+          </div>
+          <div className="flex gap-1.5">
+            <button
+              onClick={() => onShowMuscles(false)}
+              className={
+                "px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors " +
+                (!showMuscles
+                  ? "bg-red-500 border-red-400 text-slate-950"
+                  : "border-slate-700 bg-slate-800/60 text-slate-300 hover:bg-slate-700")
+              }
+            >
+              Squelette
+            </button>
+            <button
+              onClick={() => onShowMuscles(true)}
+              className={
+                "px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors " +
+                (showMuscles
+                  ? "bg-red-500 border-red-400 text-slate-950"
+                  : "border-slate-700 bg-slate-800/60 text-slate-300 hover:bg-slate-700")
+              }
+            >
+              + Muscles (tissus)
+            </button>
+          </div>
+        </div>
         {isPair && (
           <label className="flex items-center gap-2 text-xs text-slate-400" title="Sortie garçon (guideur) puis sortie fille (suiveur) : aller-retour latéral de 5 temps sur un cycle de 8">
             <input
@@ -365,6 +393,22 @@ export default function Controls(props: ControlsProps) {
         >
           ⬇ Exporter un cycle (WebM)
         </button>
+        <button
+          onClick={onShare}
+          title="Copie l'URL de la vue courante (tous les paramètres + angle de la caméra campos=/camtgt=) dans le presse-papiers et met à jour la barre d'adresse"
+          className="px-3 py-1.5 rounded-lg text-xs font-medium border border-sky-700 bg-sky-900/60 text-sky-200 hover:bg-sky-800 transition-colors"
+        >
+          {copied ? "✓ Lien copié !" : "🔗 Partager la vue (URL)"}
+        </button>
+        <label className="flex items-center gap-2 text-xs text-slate-400" title="Boussole 8 directions au repère fixe (4 cardinales + 4 diago ; E-W = ligne de danse) ; la direction du buste et la position relative au repère s'affichent dans le HUD">
+          <input
+            type="checkbox"
+            checked={showBoussole}
+            onChange={(e) => onShowBoussole(e.target.checked)}
+            className="accent-sky-400"
+          />
+          Boussole 8 directions
+        </label>
         {isPair && (
           <label className="flex items-center gap-2 text-xs text-slate-400">
             Retard du suiveur

@@ -9,9 +9,12 @@ import { InfoCard, PairInfoCard } from "./components/InfoCards";
 import DemoOverlay, { DEMOS } from "./components/DemoOverlay";
 import OriginMarker from "./components/OriginMarker";
 import LineOfDance from "./components/LineOfDance";
+import CompassRose from "./components/CompassRose";
 import { resolveCam, SOLID_TORSO_OPACITY } from "./cameras";
 import { usePersistentState } from "./hooks/usePersistentState";
 import { STYLES, type ModeKey } from "./styles";
+import { parseVec3, buildShareUrl } from "./share";
+import { DIR_LABELS, isDiagonal } from "./directions";
 
 function readParams(): URLSearchParams {
   if (typeof window === "undefined") return new URLSearchParams();
@@ -66,6 +69,11 @@ export default function App() {
   const [temps3, setTemps3] = usePersistentState("temps3", false);
   const [ida, setIda] = usePersistentState("ida", false);
   const [dir, setDir] = usePersistentState("dir", 1);
+  const [showBoussole, setShowBoussole] = usePersistentState("boussole", true);
+  const [copied, setCopied] = useState(false);
+  const controlsRef = useRef<any>(null);
+  const camPosParam = parseVec3(params.get("campos"));
+  const camTgtParam = parseVec3(params.get("camtgt"));
   const [hud, setHud] = useState<any>(null);
   const pairRef = useRef<Record<string, any>>({});
 
@@ -96,6 +104,7 @@ export default function App() {
     if (p.has("temps3")) setTemps3(p.get("temps3") !== "0");
     if (p.has("ida")) setIda(p.get("ida") !== "0");
     if (p.has("dir")) { const d = num("dir"); if (d !== null && (d === 1 || d === -1)) setDir(d); }
+    if (p.has("boussole")) setShowBoussole(p.get("boussole") !== "0");
     if (p.has("delay")) { const d = num("delay"); if (d !== null) setFollowDelay(Math.min(2, Math.max(0, d))); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -120,6 +129,35 @@ export default function App() {
   const isCompare = mode === "compare";
   const isObserve = mode === "observe";
   const reverseB = isPair && (corridinho || quarts);
+
+  // Partage de la vue : URL avec tous les paramètres d'état + l'angle caméra (campos/camtgt).
+  const onShare = () => {
+    const ctl = controlsRef.current;
+    const camPos: [number, number, number] | null = ctl
+      ? [ctl.object.position.x, ctl.object.position.y, ctl.object.position.z]
+      : null;
+    const camTgt: [number, number, number] | null = ctl
+      ? [ctl.target.x, ctl.target.y, ctl.target.z]
+      : null;
+    const rel = buildShareUrl(window.location.pathname, {
+      mode, style: styleA, styleB, bpm, travel, amp, playing,
+      torso: showTorso, muscles: showMuscles, sortie, repere: showRepere, appui: showAppui,
+      plant, corridinho, ligne: showLigne, iso, cadre, quarts, temps3, ida, dir,
+      delay: followDelay, ghost: ghostSel, boussole: showBoussole,
+      cam: params.get("cam") ?? undefined, demo: params.get("demo") ?? undefined,
+      bare: params.get("bare") ?? undefined, solid: params.get("solid") ?? undefined,
+    }, camPos, camTgt);
+    history.replaceState(null, "", rel);
+    const full = window.location.origin + rel;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(full).then(
+        () => { setCopied(true); setTimeout(() => setCopied(false), 2000); },
+        () => { setCopied(true); setTimeout(() => setCopied(false), 2000); }
+      );
+    } else {
+      setCopied(true); setTimeout(() => setCopied(false), 2000);
+    }
+  };
   // Ligne de danse affichée par défaut en paire/comparaison ; en solo, seulement si ligne=1 explicite.
   const ligneVisible = showLigne && (isPair || isCompare || params.get("ligne") === "1");
   const ghostA = (isCompare || isPair) && ghostSel === "B";
@@ -166,13 +204,14 @@ export default function App() {
   if (bare) {
     return (
       <div className="relative w-screen h-screen overflow-hidden bg-slate-950">
-        <Canvas camera={{ position: cam.position, fov: 42 }} dpr={[1, 2]}>
+        <Canvas camera={{ position: camPosParam ?? cam.position, fov: 42 }} dpr={[1, 2]}>
           <color attach="background" args={["#0b1220"]} />
           <ambientLight intensity={0.65} />
           <directionalLight position={[3, 5, 4]} intensity={1.3} />
           <directionalLight position={[-3, 2, -3]} intensity={0.4} color="#93c5fd" />
           <GridFloor />
           <OriginMarker visible={showRepere} />
+          <CompassRose visible={showBoussole && showRepere} />
           <LineOfDance visible={ligneVisible} />
           <React.Suspense fallback={null}>
             <Rig
@@ -239,7 +278,8 @@ export default function App() {
             {isPair && <ContactViz pair={pairRef} />}
           </React.Suspense>
           <OrbitControls
-            target={cam.target}
+            ref={controlsRef}
+            target={camTgtParam ?? cam.target}
             enableDamping
             dampingFactor={0.08}
             minDistance={1.8}
@@ -262,6 +302,13 @@ export default function App() {
               genou D {hud.kneeR.toFixed(0)}° · G {hud.kneeL.toFixed(0)}°
             </div>
             <div>roll bassin {hud.roll.toFixed(1)}° · stabilité buste {Math.round((hud.stab ?? 1) * 100)}%</div>
+            <div>
+              direction {DIR_LABELS[hud.facing ?? 0]}
+              {isDiagonal(hud.facing ?? 0) ? " (diago)" : ""} · pos/ repère : ligne{" "}
+              {(hud.posX ?? 0) >= 0 ? "+" : ""}
+              {(hud.posX ?? 0).toFixed(2)} m, travers {(hud.posZ ?? 0) >= 0 ? "+" : ""}
+              {(hud.posZ ?? 0).toFixed(2)} m
+            </div>
           </div>
         )}
         {demo && <DemoOverlay demo={demo} />}
@@ -353,6 +400,10 @@ export default function App() {
         onIda={setIda}
         dir={dir}
         onDir={setDir}
+        showBoussole={showBoussole}
+        onShowBoussole={setShowBoussole}
+        onShare={onShare}
+        copied={copied}
         ghostSel={ghostSel}
         onGhostSel={setGhostSel}
         onExport={exportCycle}
@@ -362,13 +413,14 @@ export default function App() {
         className="relative rounded-2xl overflow-hidden border border-slate-800"
         style={{ height: 540 }}
       >
-        <Canvas camera={{ position: [0, 1.2, 3.4], fov: 42 }} dpr={[1, 2]}>
+        <Canvas camera={{ position: camPosParam ?? cam.position, fov: 42 }} dpr={[1, 2]}>
           <color attach="background" args={["#0b1220"]} />
           <ambientLight intensity={0.65} />
           <directionalLight position={[3, 5, 4]} intensity={1.3} />
           <directionalLight position={[-3, 2, -3]} intensity={0.4} color="#93c5fd" />
           <GridFloor />
           <OriginMarker visible={showRepere} />
+          <CompassRose visible={showBoussole && showRepere} />
           <LineOfDance visible={ligneVisible} />
           <React.Suspense fallback={null}>
             <Rig
@@ -435,7 +487,8 @@ export default function App() {
             {isPair && <ContactViz pair={pairRef} />}
           </React.Suspense>
           <OrbitControls
-            target={cam.target}
+            ref={controlsRef}
+            target={camTgtParam ?? cam.target}
             enableDamping
             dampingFactor={0.08}
             minDistance={1.8}
@@ -480,6 +533,13 @@ export default function App() {
               genou D {hud.kneeR.toFixed(0)}° · G {hud.kneeL.toFixed(0)}°
             </div>
             <div>roll bassin {hud.roll.toFixed(1)}° · stabilité buste {Math.round((hud.stab ?? 1) * 100)}%</div>
+            <div>
+              direction {DIR_LABELS[hud.facing ?? 0]}
+              {isDiagonal(hud.facing ?? 0) ? " (diago)" : ""} · pos/ repère : ligne{" "}
+              {(hud.posX ?? 0) >= 0 ? "+" : ""}
+              {(hud.posX ?? 0).toFixed(2)} m, travers {(hud.posZ ?? 0) >= 0 ? "+" : ""}
+              {(hud.posZ ?? 0).toFixed(2)} m
+            </div>
           </div>
         )}
       </div>

@@ -16,7 +16,8 @@ import {
   resetRig,
   type RigHandle,
 } from "../anatomy";
-import { STYLES, sortieEnvelope, sortieOffset, supportOf, plantBlend, corridinhoPath, quartsPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, lockUpperTrunk, applyDanceFrame, upperStability } from "../styles";
+import { STYLES, sortieEnvelope, sortieOffset, supportOf, plantBlend, corridinhoPath, quartsPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, lockUpperTrunk, applyDanceFrame, applyFollowerFrame, upperStability } from "../styles";
+import { facingSector } from "../directions";
 import { solveLeg3D } from "../ik";
 import {
   MUSCLES_URL,
@@ -281,6 +282,8 @@ export default function Rig({
     // latérale) ; les bras prennent le cadre de danseur (coudes pliés, avant-bras G en haut).
     lockUpperTrunk({ spine: r.spine.rotation, chest: r.chest.rotation, head: r.head.rotation }, r.pelvis.rotation, iso);
     applyDanceFrame(r, cadre);
+    // En paire, la suiveuse a son propre cadre (coude G levé, main D en contact avec le guideur).
+    if (cadre && pair && side === "follower") applyFollowerFrame(r, cadre);
     if (r.root.position.y < 0) r.root.position.y = 0;
 
     // Appuis : charge pied droit (support) -> pastilles au sol + chaîne pied→genou→hanche
@@ -318,6 +321,11 @@ export default function Rig({
       }
     }
     if (stats) {
+      const q = new THREE.Quaternion();
+      r.root.getWorldQuaternion(q);
+      const fwd = new THREE.Vector3(0, 0, 1).applyQuaternion(q);
+      const wp = new THREE.Vector3();
+      r.root.getWorldPosition(wp);
       stats.current = {
         loadR,
         loadL,
@@ -325,6 +333,9 @@ export default function Rig({
         kneeL: (r.kneeL.rotation.x * 180) / Math.PI,
         roll: (r.pelvis.rotation.z * 180) / Math.PI,
         stab: upperStability({ spine: r.spine.rotation, chest: r.chest.rotation }, r.pelvis.rotation),
+        facing: facingSector(Math.atan2(fwd.x, fwd.z)),
+        posX: wp.x,
+        posZ: wp.z,
       };
     }
 
