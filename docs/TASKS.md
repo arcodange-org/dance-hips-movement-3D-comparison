@@ -141,6 +141,20 @@ Spec : `docs/spec-phase12-os-genou.md` (bug URL observe/tarraxinha/ida=1, camér
   build/deploy). Doc harness à jour dans le même commit (règle « Maintenance de ce fichier » :
   AGENTS.md + `.vibe/*`).
 
+## Phase 14 — EN COURS — branche `vibe/phase14-options-pivots-ae8a7a` — options de déplacement exclusives + vrais pivots de quart de tour
+
+Spec : `docs/spec-phase14-options-pivots.md` (demandes 2026-11-18).
+
+- [ ] 41. Options exclusives : `MovementKey`/`movementOf`/`movementFlags` (pur, `src/styles.ts`) ;
+  `movement`+`setMovement` dans `App.tsx` + parsing URL exclusif ; groupe **radio** dans
+  `Controls.tsx` à la place des 4 checkbox ; Gherkin `options-deplacement.feature`
+- [ ] 42. Pivots de quart de tour : `quartTurnStep(b, reverse)` pur (talon G au bout du pied D à
+  90°, puis pied D parallèle ; haut du corps suit pied G, bas du corps pied D) + câblage `Rig.tsx`
+  (root=lowerYaw, chest/head=dissociation, IK demi-pas 2 temps + lacet pied par cible) ; Gherkin
+  `quarts-pivots.feature`
+- [ ] 43. Captures `quarts-de-tour.gif` + `virgula-quarts.gif` regénérés + sonde numérique
+  (lacet pied ≈ cible, dissociation ~π/2, retour positions à 2π) ; README/CONTEXT/CONVENTIONS
+
 ## Méta — boucle de feedback (rétrospective auto-critique + critique de session indépendante)
 
 Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process amélioré).
