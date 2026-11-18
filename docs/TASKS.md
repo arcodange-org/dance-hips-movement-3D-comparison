@@ -239,6 +239,7 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [ ] M2. Self-check des captures dans `capture_gifs.mjs` : GIF non vide, 0 erreur console,
   ≥1 frame extraite et relue visuellement par capture
 - [ ] M3. Chargement paresseux du GLB muscles uniquement si `muscles=1` (perf réseau)
+- [x] M5. Recoupement oracle ↔ poses finales GLB (#19) : `scripts/test_oracle_final.mjs` (429 assertions PASS, dans `npm test`) + oracle étendu (sorties, `rootX`) ; leçons dans `docs/spec-phase18-oracle.md` §7 ; coordination issues #21/#22
 - [ ] M4. **Méta-tâche récurrente** : à la fin de chaque phase, relire
   `docs/retrospective-*.md`, ajouter une nouvelle rétrospective (auto-critique + session
   indépendante), évaluer les tâches à (r)ajouter ici, puis **re-ajouter cette ligne M4** —

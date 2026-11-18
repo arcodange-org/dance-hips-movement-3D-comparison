@@ -15,11 +15,16 @@ Livraison par une PR unique ; aucune fusion ni modification du site publié dans
 
 Le moteur testé est celui du rendu, sur les GLB réels. `npm test` inclut le nouveau runner
 `scripts/test_sortie_garcon.mjs` et conserve tous les runners historiques.
+La phase M5 (#23), fusionnée pendant cette livraison, est intégrée avec son runner
+`test_oracle_final.mjs`. Son ancien cas sortieG est confronté à l'option interne historique
+`sortie: true, movement: none` : cet oracle décrit le déport latéral conservé pour compatibilité,
+pas la nouvelle figure coordonnée, couverte par le nouveau runner.
 
 | Contrôle | Couverture et résultat local |
 | --- | --- |
 | Tests historiques | 6 534 poses GLB ; 92 997 assertions du runner de poses |
 | Gherkin / oracle | 69 scénarios réussis, 1 ancien `@wip` ignoré ; 6 scénarios d'oracle réussis |
+| Recoupement M5 intégré | 669 assertions oracle/poses finales, avec poses de pieds effectivement échantillonnées |
 | Sortie garçon | 7 272 poses : 6 styles, amplitudes 0,5/1/2, 2 variantes, 2 rôles, 101 instants |
 | Sol et IK | Longueurs constantes, semelles au-dessus du sol, erreur maximale des cibles de cheville < 10⁻¹⁵ m |
 | Appuis | Quatre transferts, aucun poids sur le pied en vol, marka déchargé, appui D/G conservé à la fin |
@@ -73,6 +78,15 @@ les paramètres de sortieG et à limiter la remise à zéro des traces à cette 
 trajectoires, périodes, appuis et traces historiques de sortieF/sortieGF sont conservés.
 La contre-revue finale n'a relevé aucun défaut prioritaire restant ; ses onze cas de collision
 critiques, recalculés indépendamment sur la source finale, passent également.
+
+L'intégration de M5 a révélé un défaut de couverture : sa grille de 0,25 temps ne contenait
+ni les poses `k+0,6` des sorties ni `2k+1,2` des quarts. Le runner inclut désormais ces instants
+et échoue si aucun pied n'a été vérifié pour un cas. La comparaison de la partenaire se fait
+dans son repère local. Pour le pied déjà planté, la cible de l'oracle historique est celle de
+son dernier atterrissage, pas le déport courant du bassin. Les chevilles restent contrôlées
+à 10⁻⁶ m ; le bassin nominal utilise la borne d'approximation de 8 cm déjà documentée pour
+la paire, car l'IK projette sa position (écart maximal observé : 7 cm). Résultat : 669 assertions,
+erreur maximale des pieds 2,36×10⁻¹⁶ m. Aucun changement de l'oracle ni du rendu fille/combiné.
 
 ## Limites et suite
 
