@@ -251,20 +251,18 @@ export default function Rig({
     }
     for (const sd of ["R", "L"] as Side[]) {
       const load = sd === "R" ? loadR : loadL;
-      const k = showAppui ? Math.max(0, (load - 0.55) / 0.45) : 0;
+      const k = showAppui ? Math.max(0, Math.min(1, (load - 0.5) / 0.5)) : 0;
       for (const mesh of chainMeshes.current[sd]) {
         ((mesh.material as THREE.MeshStandardMaterial).emissive as THREE.Color)
           .copy(chainColor)
-          .multiplyScalar(0.55 * k);
+          .multiplyScalar(0.85 * k);
       }
       if (showMuscles) {
         for (const mm of muscleMeshes.current) {
           if (!mm.name.endsWith("_" + sd)) continue;
-          ((mm.material as THREE.MeshStandardMaterial).emissive as THREE.Color).setRGB(
-            0.95 * k,
-            0.12 * k,
-            0.12 * k
-          );
+          ((mm.material as THREE.MeshStandardMaterial).emissive as THREE.Color)
+            .copy(chainColor)
+            .multiplyScalar(0.95 * k);
         }
       }
     }

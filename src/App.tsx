@@ -33,7 +33,7 @@ export default function App() {
   const [sortie, setSortie] = usePersistentState("sortie", false);
   const [showRepere, setShowRepere] = usePersistentState("repere", true);
   const [showAppui, setShowAppui] = usePersistentState("appui", false);
-  const statsRef = useRef<any>({});
+  const statsRef = useRef<any>({ loadR: 0.5, loadL: 0.5, kneeR: 0, kneeL: 0, roll: 0 });
   const [hud, setHud] = useState<any>(null);
   const pairRef = useRef<Record<string, any>>({});
 
