@@ -53,7 +53,7 @@ sur `quarts`/`corridinho`.)
 
 ## Tests
 
-`npm test` = `test_styles.mjs` + `test_features.mjs` + `test_poses.mjs` dans `scripts/`.
+`npm test` = `test_styles.mjs` + `test_features.mjs` + `test_oracle.mjs` + `test_poses.mjs` dans `scripts/`.
 Le dernier charge le GLB réel, applique `src/pose.ts` et contrôle les matrices monde finales,
 les longueurs, semelles, angles HUD, appuis, continuité et indépendance à l’historique.
 Le transport est partagé : aucun rig ne remet le temps à zéro en changeant de style.

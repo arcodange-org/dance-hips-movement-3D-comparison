@@ -53,7 +53,7 @@ du tronc compense le roulis du bassin (`iso=1` par défaut), avec pitch du style
 
 `src/pose.ts` applique la pose complète du GLB ; `src/clock.ts` et `DanceTransport` fournissent
 une horloge commune. `Rig.tsx` conserve le montage et l’apparence. `src/rigJoints.ts` partage les
-positions du buste entre rendu et fixture. `npm test` exécute courbes, Gherkin **et** poses
+positions du buste entre rendu et fixture. `npm test` exécute courbes, Gherkin, oracle **et** poses
 finales (`scripts/test_poses.mjs`, GLB réel). Voir [la spec #17](docs/spec-audit-poses-finales.md).
 Le bassin peut descendre : l’invariant sol porte sur les sommets et les semelles, jamais sur
 `root.y >= 0`. Longueurs osseuses constantes ; HUD après IK ; appuis illustratifs, proximité

@@ -190,11 +190,14 @@ Spec : `docs/spec-phase15-paire.md` ; sources : `docs/posture-contraposition.md`
 - [ ] 49. **Phase 17 — sortie en option exclusive** : `MovementKey += "sortie" | "sortie2"` ;
   radio « Sortie garçon/fille » + « Sortie combinée (enchainement G puis F) » ;
   `sortieActive(side, b, combine)` pur (combiné : leader temps 0–7, suiveur 8–15) ; Gherkin
-- [ ] 50. **Phase 18 — oracle de positions** : `src/oracle.ts` (`Pose`, `oracleHalfStep(movement,
-  k, reverse)` → {start, end}) ; principes : repère fixe + ligne de danse, orientation/croisement
-  des jambes, dualité haut/bas (contraposition), dualité danseur/partenaire (miroir+swap G/D) ;
-  Gherkin `oracle.feature` (continuité end(k)=start(k+1), accord avec quartTurnStep/idaContra,
-  dualité reverse) + rétrospective M4 (critique de l'évaluation des mouvements)
+- [x] 50. **Phase 18 — oracle de positions** : `src/oracle.ts` (`Pose`, `oraclePose`,
+  `oracleHalfStep(movement, k, reverse)` → {start, end}) ; `docs/oracle.feature` + runner dédié
+  `scripts/test_oracle.mjs` (branché dans `npm test`) : 6 PASS — continuité end(k)=start(k+1)
+  + raccord de cycle, accord avec quartTurnStep aux frontières, dualité reverse (miroir z +
+  lacets opposés + swap G/D), angle droit π/2 du pied pivotant, contraposition ida (signes
+  opposés en milieu de pas, nuls aux frontières) ; rétrospective M4 addendum
+  `docs/retrospective-M4-oracle.md`. NB : phase 17 (49) en attente de l'issue #17 (fichiers
+  communs avec l'audit moteur) — coordination en commentaire de #17
 
 ## Audit #17 — corrections et preuves des poses finales
 

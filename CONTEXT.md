@@ -7,11 +7,13 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
 
 ## État courant — corrections de l’audit #17
 
-Base `main` : `3ccdc75` (phase 16). Issue créée avant le code :
+Base initiale : `3ccdc75` (phase 16) ; `main` `ce84acd` (PR #18, oracle) intégré avant
+réouverture de la PR #19, en conservant les deux runners de tests. Issue créée avant le code :
 https://github.com/arcodange-org/dance-hips-movement-3D-comparison/issues/17.
 Branche `arcodange/audit-poses-finales`, worktree `.Codex/worktrees/audit-poses-finales`.
 Livraison demandée : une PR regroupée, sans fusion ni déploiement automatique de cette session.
-Les phases 17/18 restent hors périmètre. Les paragraphes de phases ci-dessous sont historiques.
+La phase 17 reste hors périmètre ; la phase 18 provient de #18, sans modification de son oracle.
+Les paragraphes de phases ci-dessous sont historiques.
 
 - `pose.ts` partagé entre React et tests GLB ; horloge commune ; longueurs constantes,
   hauteur du bassin adaptée, trajectoires continues ; métriques après IK.
@@ -127,6 +129,11 @@ Les phases 17/18 restent hors périmètre. Les paragraphes de phases ci-dessous 
   `docs/spec-session-16-18.md` (objectifs + audit des points faibles W1–W10 mesurés + modèle
   d'oracle) + harness renforcé (`.vibe/HARNESS.md` §6 pièges)
 - Phase 16 **LIVRÉE** (PR #16 mergée, commit `b5d6d89`, CI push main run 44356011283 = success,
+- Phase 18 **EN COURS** (branche `vibe/phase18-oracle-ae8a7a`) : oracle de poses discrètes par
+  demi-pas en fichiers neufs (`src/oracle.ts`, `docs/oracle.feature`, `scripts/test_oracle.mjs`
+  branché dans `npm test`) — 6 scénarios PASS (continuité, raccord de cycle, dualité reverse,
+  angle droit π/2, contraposition ida) ; coordination issue #17 (moteur réservé à un autre
+  agent, commentaire déposé) ; phase 17 (sorties exclusives) en attente de #17
   site vérifié 200 + GIFs/feature en ligne) : contact fit en paire **sans les bras**
   (PAIR_DZ=0.175, marqueurs 0.16/0.14/0.135, sonde : pénétration corps −0.0015 m, marqueurs
   0.011–0.105 m) + **clamp sol renforcé** (aucun os sous y=0 : `clampSolY` + `groundDip`,

@@ -44,3 +44,13 @@ une calibration chorégraphique humaine. MediaRecorder reste dépendant de la ca
 navigateur. Les tests couvrent le domaine décrit par la spec, sans garantie universelle.
 Les phases 17/18 ne sont pas implémentées ici. M4 reste récurrent dans TASKS ; ses prochains
 contrôles devront inclure les nouveaux mouvements et leurs combinaisons dans la fixture réelle.
+
+## Intégration concurrente de #18
+
+La PR #18 a été fusionnée après l’ouverture de #19, annulant son premier run CI via le groupe
+`concurrency: pages` commun. #19 a été temporairement fermée pour respecter le gel des branches
+ouvertes, puis `main` `ce84acd` intégré. Seul conflit textuel : `package.json`, résolu en
+conservant `test_oracle.mjs` **et** `test_poses.mjs`. Les docs de l’autre contributeur sont
+préservées. La même PR #19 est rouverte après vérification complète de cette combinaison.
+L’oracle discret n’est pas assimilé à une preuve du moteur final ; son recoupement reste un
+chantier distinct documenté par la rétrospective de #18.
