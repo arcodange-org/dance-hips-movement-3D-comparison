@@ -1,5 +1,15 @@
 # AGENTS.md — Comparateur 3D des styles de danse
 
+## Amendement de contribution — audit #17 (18 novembre 2026)
+
+Pour ce chantier, les consignes globales du propriétaire priment sur les procédures historiques
+ci-dessous : trunk réservé à l’utilisateur, travail dans `.Codex/worktrees/audit-poses-finales`
+sur `arcodange/audit-poses-finales`, issue publiée avant le code, spec poussée en premier.
+Ouvrir une seule PR après les validations ; sa branche reste gelée tant qu’elle est ouverte.
+Aucune fusion, aucun push ni checkpoint sur `main`. Utiliser le remote `origin` et les
+identifiants du gestionnaire Git ; ne jamais construire ni afficher une URL contenant un token.
+
+
 **Lire ce fichier en premier dans toute session.** Le harness complet pour travailler sur ce projet
 en autonomie (méthode anti-amnésie, conventions, contribution agentique) est dans **[`.vibe/`](.vibe/)**
 — commencer par [`.vibe/HARNESS.md`](.vibe/HARNESS.md), puis [`.vibe/CONTRIBUTING.md`](.vibe/CONTRIBUTING.md)
@@ -14,7 +24,7 @@ zouk brésilien), animés paramétriquement f(temps) — pas de mocap. Déployé
 https://arcodange-org.github.io/dance-hips-movement-3D-comparison/
 
 **Objectif premier** : discerner les **isolations du bas du corps** — au-dessus du bassin, le haut
-du tronc doit rester stable et vertical (`iso=1` par défaut). Voir
+du tronc compense le roulis du bassin (`iso=1` par défaut), avec pitch du style conservé. Voir
 [`docs/ginga-angolana.md`](docs/ginga-angolana.md) (sources FR/EN/PT, citations verbatim).
 
 ## Règles d'or (résumé — le détail dans `.vibe/`)
@@ -26,7 +36,7 @@ du tronc doit rester stable et vertical (`iso=1` par défaut). Voir
    ouverts tôt), puis code, puis validations Gherkin (`docs/features/*.feature` dans `npm test`),
    puis captures GIF, puis livraison.
 3. **Conventions verrouillées** : voir [`.vibe/CONVENTIONS.md`](.vibe/CONVENTIONS.md) — ne jamais
-   les casser (hiérarchie GLB, métriques, clamp sol, pieds plantés par défaut, attribution
+   les casser (hiérarchie GLB, métriques, sommets osseux au-dessus du sol, pieds plantés par défaut, attribution
    BodyParts3D **CC BY-SA 2.1 Japan © DBCLS** visible dans l'app et le README).
 4. **Livraison** : commits petits et fréquents sur `vibe/<slug>-ae8a7a`, push, `gh pr ready`,
    puis **ff-push `<branche>:main`** (les merges gh API sont bloqués dans le sandbox ; la PR passe
@@ -38,6 +48,16 @@ du tronc doit rester stable et vertical (`iso=1` par défaut). Voir
    casser les tests sans faire échouer le run.
 5. **Jamais de secret** en clair ; push uniquement via
    `https://x-access-token:${GH_TOKEN}@github.com/arcodange-org/dance-hips-movement-3D-comparison.git`.
+
+## Moteur et preuves des poses finales
+
+`src/pose.ts` applique la pose complète du GLB ; `src/clock.ts` et `DanceTransport` fournissent
+une horloge commune. `Rig.tsx` conserve le montage et l’apparence. `src/rigJoints.ts` partage les
+positions du buste entre rendu et fixture. `npm test` exécute courbes, Gherkin, oracle **et** poses
+finales (`scripts/test_poses.mjs`, GLB réel). Voir [la spec #17](docs/spec-audit-poses-finales.md).
+Le bassin peut descendre : l’invariant sol porte sur les sommets et les semelles, jamais sur
+`root.y >= 0`. Longueurs osseuses constantes ; HUD après IK ; appuis illustratifs, proximité
+sans simulation de contact. Ces tests ne constituent pas une validation chorégraphique.
 
 ## Maintenance de ce fichier (AGENTS.md)
 

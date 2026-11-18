@@ -136,7 +136,7 @@ export const STYLES: Record<string, StyleDef> = {
       "Vague séquentielle L5 → dorsales → tête",
       "Transferts partiels 60/40, talons au sol, aucun rise-and-fall",
     ],
-    support: (b) => -S2(b),
+    support: (b) => -0.2 * S2(b),
     apply: (r, b, a) => {
       r.root.position.y = -0.035;
       r.pelvis.position.x = 0.03 * S2(b) * a;
@@ -234,9 +234,9 @@ export function corridinhoPath(b: number): { x: number; z: number; ry: number } 
   }
   const phi = (TAU * (p - 8)) / 8;
   return {
-    x: CORRIDINHO_RADIUS * Math.sin(phi),
-    z: CORRIDINHO_RADIUS * (1 - Math.cos(phi)),
-    ry: phi + Math.PI / 2,
+    x: CORRIDINHO_RADIUS * (1 - Math.cos(phi)),
+    z: CORRIDINHO_RADIUS * Math.sin(phi),
+    ry: phi,
   };
 }
 
@@ -413,7 +413,7 @@ const QF = 0.09; // pieds légèrement en avant du bassin
 // « le pied gauche va plus à l'avant (le bout du pied droit), actuellement il s'arrête à la
 // moitié à tort » : la cible z du pied G = QF + QTOE = bout du pied D.
 const QTOE = 0.11;
-const QD = 0.17; // écart entre les pieds quand ils sont parallèles
+const QD = 2 * QH; // écart entre les pieds quand ils sont parallèles
 
 export function quartTurnStep(b: number, reverse = false): QuartStep {
   const p = ((b % 16) + 16) % 16;

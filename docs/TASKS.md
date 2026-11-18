@@ -199,6 +199,19 @@ Spec : `docs/spec-phase15-paire.md` ; sources : `docs/posture-contraposition.md`
   `docs/retrospective-M4-oracle.md`. NB : phase 17 (49) en attente de l'issue #17 (fichiers
   communs avec l'audit moteur) — coordination en commentaire de #17
 
+## Audit #17 — corrections et preuves des poses finales
+
+Spec : `docs/spec-audit-poses-finales.md`. Remplace les mécanismes de sol/IK décrits aux
+points 46, 48 et 51 ; conserve les réglages d’écartement et de lean de phase 16.
+
+- [x] 52. Moteur de pose commun au rendu et aux tests, horloge partagée, IK à longueurs
+  constantes, pieds/sol et transitions continues, angles HUD après IK, appuis illustratifs,
+  marqueurs suivant les genoux, comparaison sans HUD doublé, export de période complète.
+- [x] 53. Tests du GLB réel (6 534 poses paramétrées + régressions ciblées), vérifications
+  navigateur, captures actuelles, documentation et revue indépendante M4. Voir rétrospective.
+
+Livraison : une PR liée à #17, sans fusion automatique ; statut de revue et CI suivi sur GitHub.
+
 ## Méta — boucle de feedback (rétrospective auto-critique + critique de session indépendante)
 
 Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process amélioré).

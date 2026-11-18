@@ -36,18 +36,18 @@ export default function ContactViz({
     pairs.forEach(([a, b, line]) => {
       a.getWorldPosition(va);
       b.getWorldPosition(vb);
-      const contact = va.distanceTo(vb) < 0.09;
-      const col = contact ? "#4ade80" : "#f87171";
+      const nearby = va.distanceTo(vb) < 0.09;
+      const col = nearby ? "#4ade80" : "#f87171";
       (a.material as THREE.MeshBasicMaterial).color.set(col);
       (b.material as THREE.MeshBasicMaterial).color.set(col);
-      a.scale.setScalar(contact ? 1.3 : 1);
-      b.scale.setScalar(contact ? 1.3 : 1);
+      a.scale.setScalar(nearby ? 1.3 : 1);
+      b.scale.setScalar(nearby ? 1.3 : 1);
       const attr = line.geometry.attributes.position as THREE.BufferAttribute;
       attr.setXYZ(0, va.x, va.y, va.z);
       attr.setXYZ(1, vb.x, vb.y, vb.z);
       attr.needsUpdate = true;
-      (line.material as THREE.LineBasicMaterial).color.set(contact ? "#4ade80" : "#475569");
-      (line.material as THREE.LineBasicMaterial).opacity = contact ? 0.8 : 0.3;
+      (line.material as THREE.LineBasicMaterial).color.set(nearby ? "#4ade80" : "#475569");
+      (line.material as THREE.LineBasicMaterial).opacity = nearby ? 0.8 : 0.3;
     });
   });
 

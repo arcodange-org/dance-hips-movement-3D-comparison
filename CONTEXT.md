@@ -5,6 +5,30 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## État courant — corrections de l’audit #17
+
+Base initiale : `3ccdc75` (phase 16) ; `main` `ce84acd` (PR #18, oracle) intégré avant
+réouverture de la PR #19, en conservant les deux runners de tests. Issue créée avant le code :
+https://github.com/arcodange-org/dance-hips-movement-3D-comparison/issues/17.
+Branche `arcodange/audit-poses-finales`, worktree `.Codex/worktrees/audit-poses-finales`.
+Livraison demandée : une PR regroupée, sans fusion ni déploiement automatique de cette session.
+La phase 17 reste hors périmètre ; la phase 18 provient de #18, sans modification de son oracle.
+Les paragraphes de phases ci-dessous sont historiques.
+
+- `pose.ts` partagé entre React et tests GLB ; horloge commune ; longueurs constantes,
+  hauteur du bassin adaptée, trajectoires continues ; métriques après IK.
+- Convention remplacée : `root.y >= 0`, tibia virtuellement raccourci et correction par sphères
+  ne font plus autorité. Sol testé sur les sommets réels ; détails dans la spec #17.
+- Écartement du couple et plafond de lean de phase 16 conservés. Repères de genou animés ;
+  proximité explicitement distincte d’un contact mécanique, appuis explicitement illustratifs.
+- Vérifications : 6 534 poses paramétrées, régressions composées et mode libre, 93 105 assertions
+  de poses ; Gherkin 64 PASS / 0 FAIL / 1 SKIP. Revue indépendante sans défaut bloquant restant.
+- Navigateur : Solo/Comparaison/Paire, même phase après changement de style et remontage,
+  HUD sans doublon, exports depuis la pause de 4 et 16 temps, restauration de la pose/lecture,
+  aucune erreur console. GIFs `audit-comparaison` et `audit-quarts-paire` actualisés ; ancienne
+  galerie explicitement historique. Ces vérifications ne valident pas la technique de danse.
+- Références : `docs/spec-audit-poses-finales.md`, `docs/retrospective-audit-poses.md`.
+
 ## Liens
 
 - Dépôt : https://github.com/arcodange-org/dance-hips-movement-3D-comparison
