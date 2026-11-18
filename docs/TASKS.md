@@ -156,6 +156,20 @@ Spec : `docs/spec-phase14-options-pivots.md` (demandes 2026-11-18).
 - [x] 43. GIFs `quarts-de-tour`/`virgula-quarts`/`corridinho`/`corridinho-paire` regénérés (pivots
   visibles en cam=top) ; README/CONTEXT/CONVENTIONS — 50 PASS 0 FAIL 1 SKIP
 
+## Phase 15 — EN COURS — branche `vibe/phase15-paire-ae8a7a` — paire biomécanique : contacts hanches/genoux, plus de retard suiveur, posture par style, contraposition
+
+Spec : `docs/spec-phase15-paire.md` ; sources : `docs/posture-contraposition.md` (verbatim EN/FR).
+
+- [ ] 44. Plus de paramètre « retard du suiveur » : supprimer `followDelay`/`delay` (App, Controls,
+  URL, README) ; en pair le suiveur = miroir exact (phaseOffset 0) et danse **styleA** ; `styleB`
+  réservé au mode compare (côte à côte)
+- [ ] 45. Contacts hanches/genoux visibles en paire : espacement z=∓0.125 + marqueurs
+  contactKneeL/R dans Rig + ContactViz (4 points de contact) + Gherkin (distances < 0.09 m)
+- [ ] 46. Posture par style `posture:{lean,knee}` dans STYLES + application Rig (pitch buste
+  après lockUpperTrunk, flexion genoux dans l'IK) + Gherkin `posture-styles.feature`
+- [ ] 47. Contraposition ida (`idaContra(b)` pur, haut vs bas opposés) + vérif visuelle du cadre
+  à l'URL pair du bug + GIF `paire-contacts.gif` + README ; `idaContra` Gherkin
+
 ## Méta — boucle de feedback (rétrospective auto-critique + critique de session indépendante)
 
 Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process amélioré).
