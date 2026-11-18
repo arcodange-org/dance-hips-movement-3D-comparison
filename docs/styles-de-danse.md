@@ -94,11 +94,17 @@ les pas réels (et non sur la seule spec biomécanique). Les captures GIF de `do
 - **Corridinho/koreidinha** : succession de pas formant un cercle au sol (lié au semba).
 
 ### Semba
-Plus rapide que la kizomba, **rebond marqué** et changements de direction nets sur musique vive
-([O'Dance Events](https://odanceevents.com/blog/kizomba-semba-urban-kiz),
-[Angola Travel Guide](https://angolatravelguide.com/angola-music-dance/)) ; rythme ressenti
-quick-quick-slow « 1-2-3, pause », tempo ≈ 130 bpm (kizomba ≈ 60–90 bpm). Déplacements en rond
-(koreidinha). Dans l'app : rebond vertical marqué, réception sur l'avant-pied.
+Plus rapide que la kizomba, **rebond marqué** (« allure sautillante ») et changements de
+direction nets sur musique vive ([O'Dance Events](https://odanceevents.com/blog/kizomba-semba-urban-kiz)).
+Tempo : « semba is bouncy and **mid-tempo** », kizomba « slow (around **60 to 80 BPM**) », kuduro
+« fast (around **130 to 145 BPM**) » ([Angola Travel Guide](https://angolatravelguide.com/angola-music-dance/)).
+Le pas de base y est cité **verbatim** (§ « Semba dance steps: the basics ») :
+> « Semba's basic is a **quick-quick-slow triple step**, often described as **“1-2-3, pause”** with a
+> small hip bounce on each beat. Step **in place** with a slight **side-to-side hip motion** on beats
+> 1 and 2 ; Take a small forward or back step on beat 3 ; … **let the bounce come from the knees**. »
+
+Déplacements en rond (koreidinha). Dans l'app : rebond vertical marqué ; la « réception sur
+l'avant-pied » vient de la **spec biomécanique du handoff**, pas d'une source externe.
 
 ### Kompa (Haïti)
 Balancier latéral **sur place**, un transfert de poids par temps
@@ -119,6 +125,24 @@ rise-and-fall.
 ([Get Bailar](https://getbailar.com), [DanceIn NJ](https://danceinnj.com)) ; zouk love : cambré
 soutenu ([Inaya Zouk](https://inaya-zouk.com)).
 
+### Appui & transmission (sur place, transfert de poids G/D, genoux/hanches)
+C'est le cœur de la visualisation « Appuis & transmission » de l'app (pastilles de charge sous
+les pieds, chaîne d'appui pied→cheville→genou→hanche, HUD genoux/bassin) :
+- [Angola Travel Guide, § « Semba dance steps: the basics »](https://angolatravelguide.com/angola-music-dance/) :
+  « step **in place** », « **side-to-side** hip motion on beats 1 and 2 », « let the bounce come
+  from the **knees** ».
+- [Wikipédia FR, Kizomba](https://fr.wikipedia.org/wiki/Kizomba) : « En kizomba/semba (passada),
+  **le déplacement est du bas vers le haut** » (chaîne sol → genoux → hanches).
+- [O'Dance Events, « Débuter la kizomba »](https://odanceevents.com/blog/debuter-la-kizomba) :
+  « Tout part de la marche. Des pas **compacts, près du sol**, sans lever les pieds »,
+  « **genoux souples** », « le leader déplace son **centre** juste avant de **poser le pied** ».
+- Périmètre **samba** (fille du semba), à citer comme tel — [Viens-danser](https://www.viens-danser.fr/apprendre-samba/) :
+  « les pieds initient le mouvement, ce sont les **genoux** qui transforment cette impulsion en
+  l'énergie qui traverse tout le corps », « l'action **ball-flat des pieds** et la flexion-extension
+  des genoux se transmettent naturellement aux **hanches** », « le poids circule d'un pied à l'autre » ;
+  [Udansa, « Samba Bounce »](https://udansa.com/fr/guide-de-danse/apprendre-samba/samba-competition/apprendre-samba-bounce) :
+  ressort « provenant des **genoux et des chevilles** », poids « contrôlé par la **plante des pieds** ».
+
 ## Ressources
 
 - Z-Anatomy (template Blender, modèles dérivés de BodyParts3D, contient Z-Biomechanics.7z
@@ -132,6 +156,11 @@ soutenu ([Inaya Zouk](https://inaya-zouk.com)).
   https://odanceevents.com/blog/kizomba-semba-urban-kiz et https://angolatravelguide.com/angola-music-dance/
 - Semba : déplacements en rond (koreidinha), lignes de danse kizomba + 3 temps :
   https://soireedanse.com
+- Kizomba débutant (pas compacts près du sol, genoux souples, centre déplacé avant de poser le
+  pied) : https://odanceevents.com/blog/debuter-la-kizomba
+- Appui/transmission sol → genoux → hanches (périmètre samba, fille du semba) :
+  https://www.viens-danser.fr/apprendre-samba/ et
+  https://udansa.com/fr/guide-de-danse/apprendre-samba/samba-competition/apprendre-samba-bounce
 - Kompa : side-to-side sur place, un poids par temps : https://haitianmusiczone.com
 - Tarraxinha : sur place, isolations pelviennes, contact des hanches : https://udansa.com
 - Base « 8 temps » suave : https://emoveretherapie.com
