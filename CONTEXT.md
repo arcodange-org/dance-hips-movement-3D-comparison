@@ -63,7 +63,7 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   E=+x=ligne de danse) + HUD direction du buste (diago) et position / repère (`src/directions.ts`,
   Gherkin `directions.feature`), README avec **<details> « Détails & source » sous chaque GIF** +
   bascule segmentée **Vue Squelette / + Muscles**. Spec : `docs/spec-phase9-partage-boussole.md`.
-- Phase 10 **en livraison** (branche `vibe/phase10-harness-ae8a7a`, PR #8) — **harness agentique** :
+- Phase 10 **LIVRÉE** (PR #8 mergée, commit `49e8058`, CI success) — **harness agentique** :
   `AGENTS.md` racine (lu en premier, avec section « Maintenance de ce fichier ») + dossier caché
   `.vibe/` = `README.md` + `HARNESS.md` (démarrage session, anti-amnésie, livraison ff-push/CI/site,
   sandbox, secrets) + `CONTRIBUTING.md` (cycle phase complet) + `CONVENTIONS.md` (conventions
