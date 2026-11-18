@@ -69,3 +69,24 @@ Interface : cinq actions, pause/reprise/rejeu, variante, partage/rechargement et
 
 Les précisions de contact cuisse D/D et de contournement viennent du propriétaire. Les vidéos
 et transcriptions ne fournissent pas une reconstruction 3D ni une simulation de forces.
+
+## Calibrage du modèle et preuves de livraison
+
+L'écartement des racines propre à cette sortie est de 0,40 m. Le bassin du leader reste entre
+ses pieds pendant la préparation et le croisé ; il termine son avancée sur le droit aux
+second et quatrième arrêts. Une rentrée immédiate de tout le bassin au troisième provoquait
+une flexion forcée et une collision de genoux, malgré des cibles de pieds correctes.
+Le marka conserve la phase corporelle de l'action 4 et effectue un touché de 5 mm sans transfert.
+Les modulations supplémentaires du style sont bornées pour cette marche en couple ; voir
+[les conventions](../.vibe/CONVENTIONS.md#sortie-garçon-validée--amendement-21-18-novembre-2026).
+
+Les repères D/D utilisent des enveloppes illustratives de 8,5 cm autour des segments centraux
+des fémurs. Leur proximité latérale ne remplace pas un contact de peau. Les tests des os
+utilisent leurs sommets et triangles transformés, pas les boîtes précalculées du GLB quantifié.
+La vérification des pieds emploie leurs enveloppes convexes horizontales, y compris en vol.
+Les bras et les collisions de tous les tissus musculaires restent hors du modèle de contact.
+
+Régression historique : `scripts/fixtures/sorties-historiques.json` contient 576 empreintes de
+matrices finales et métriques de `main` 2621e59, à la précision 10⁻⁶, pour sortieF/sortieGF.
+Le nouveau runner les compare avec les nouveaux réglages activés pour s'assurer qu'ils sont
+sans effet hors de sortieG. [Rétrospective](retrospective-sortie-garcon.md).

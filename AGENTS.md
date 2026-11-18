@@ -1,5 +1,17 @@
 # AGENTS.md — Comparateur 3D des styles de danse
 
+## Contribution sortie garçon #21 / éditeur #22 (18 novembre 2026)
+
+Travail dans `.Codex/worktrees/sortie-garcon`, branche `arcodange/sortie-garcon`. Issues créées
+avant le code, specs poussées en premier ; une PR après validation, branche gelée à son ouverture.
+Pas de fusion ni push sur `main`. Ces consignes du propriétaire remplacent pour ce chantier
+les anciennes procédures de PR draft/ff-push ci-dessous.
+
+`src/sortieGarcon.ts` décrit uniquement la sortie garçon en paire ; `sortieF`/`sortieGF` restent
+historiques. Le runner `scripts/test_sortie_garcon.mjs` est inclus dans `npm test` : poses GLB,
+triangles des jambes, appuis et empreintes de non-régression des deux autres sorties. Specs :
+[sortie garçon](docs/spec-sortie-garcon.md), [éditeur futur](docs/spec-editeur-figures.md).
+
 ## Amendement de contribution — audit #17 (18 novembre 2026)
 
 Pour ce chantier, les consignes globales du propriétaire priment sur les procédures historiques

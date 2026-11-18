@@ -7,6 +7,7 @@ import {
 } from "./styles";
 import { solveLeg3D } from "./ik";
 import { facingSector } from "./directions";
+import { sampleSortieGarcon, sortieGarconBeat, DEFAULT_SORTIE_CONTRA, type SortieVariant } from "./sortieGarcon";
 
 export type Side = "L" | "R";
 const SIDES: Side[] = ["L", "R"];
@@ -21,11 +22,13 @@ export interface PoseOptions {
   quarts: boolean; corridinho: boolean; ida: boolean; temps3: boolean;
   sortie: boolean; embrace: boolean; reverse: boolean; follower: boolean;
   movement: MovementKey; // phase 17 : option exclusive (sortieG/sortieF/sortieGF incluse)
+  sortieVariant: SortieVariant; sortieContra: number;
 }
 export const DEFAULT_POSE: PoseOptions = {
   styleKey: "kizomba", amp: 1, travel: 0, dir: 1, plant: true, iso: true, cadre: true,
   quarts: false, corridinho: false, ida: false, temps3: false, sortie: false,
   embrace: false, reverse: false, follower: false, movement: "none",
+  sortieVariant: "line", sortieContra: DEFAULT_SORTIE_CONTRA,
 };
 interface Leg {
   length1: number; length2: number; f0: THREE.Vector3; t0: THREE.Vector3;
@@ -172,19 +175,38 @@ function kneeAngle(r: RigHandle, s: Side): number {
 /** The single final-pose pipeline used by React and GLB integration tests. */
 export function applyPose(r: RigHandle, model: PoseModel, beat: number, options: Partial<PoseOptions>): PoseStats {
   const o = { ...DEFAULT_POSE, ...options };
+  const figure = o.embrace && o.movement === "sortieG"
+    ? sampleSortieGarcon(beat, o.follower, { L: model.legs.L.rest, R: model.legs.R.rest }, o.sortieVariant, o.sortieContra) : null;
+  if (figure) beat = sortieGarconBeat(beat);
   resetRig(r);
   for (const s of SIDES) r["foot" + s].rotation.set(0, 0, 0);
-  STYLES[o.styleKey].apply(r, beat, o.amp);
-  const styleY = r.root.position.y;
+  // A marka moves the free foot without starting another body's weight oscillation.
+  STYLES[o.styleKey].apply(r, figure ? Math.min(beat, 4) : beat, o.amp);
+  if (figure) {
+    // The on-the-spot isolations need a smaller envelope while feet follow a fixed
+    // close-couple path. Preserve their proportions, with a geometric clearance cap.
+    const rotation = r.pelvis.rotation;
+    const scale = Math.min(1, 0.12 / Math.max(1e-12, Math.abs(rotation.x), Math.abs(rotation.y), Math.abs(rotation.z)));
+    rotation.set(rotation.x * scale, rotation.y * scale, rotation.z * scale);
+  }
+  // The close-couple figure limits extra bounce/flexion; generic deep pulses can put
+  // two opposing knees through one another. Leg reach still determines pelvis height.
+  const styleY = figure ? Math.max(-0.008, r.root.position.y * 0.25) : r.root.position.y;
   const desiredKnee = { L: r.kneeL.rotation.x, R: r.kneeR.rotation.x };
   const posture = STYLES[o.styleKey].posture;
-  const feet = plannedFeet(beat, o, model);
-  const path = bodyPath(beat, o);
-  r.root.position.x += path.x; r.root.position.z += path.z; r.root.rotation.y = path.ry;
+  const feet = figure?.feet ?? plannedFeet(beat, o, model);
+  if (figure) {
+    r.root.position.x = figure.root.x; r.root.position.z = figure.root.z;
+    r.extraL = 0; r.extraR = 0;
+  } else {
+    const path = bodyPath(beat, o);
+    r.root.position.x += path.x; r.root.position.z += path.z; r.root.rotation.y = path.ry;
+  }
   lockUpperTrunk({ spine: r.spine.rotation, chest: r.chest.rotation, head: r.head.rotation }, r.pelvis.rotation, o.iso);
-  const se = sortieEnv(beat, o);
+  const se = figure ? 0 : sortieEnv(beat, o);
   if (se > 0) r.chest.rotation.y -= 0.22 * se * o.amp;
-  if (o.quarts) {
+  if (figure) r.chest.rotation.y += figure.chestYaw;
+  if (o.quarts && !figure) {
     const qs = quartTurnStep(beat, o.reverse);
     r.root.rotation.y = qs.lowerYaw;
     r.chest.rotation.y += qs.upperYaw - qs.lowerYaw;
@@ -192,14 +214,14 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
     r.root.position.z += (feet.L.z + feet.R.z) / 2 - (o.reverse ? -0.09 : 0.09);
   }
   r.chest.rotation.x += o.embrace ? Math.min(posture.lean, 0.1) : posture.lean;
-  if (o.ida) {
+  if (o.ida && !figure) {
     const ic = idaContra(beat);
     r.root.rotation.y += ic.lowerYaw;
     r.chest.rotation.y += ic.upperYaw - ic.lowerYaw;
   }
   applyDanceFrame(r, o.cadre);
   if (o.follower) applyFollowerFrame(r, o.cadre);
-  const activeIK = o.plant || o.travel > 0 || o.quarts || o.ida || o.corridinho;
+  const activeIK = !!figure || o.plant || o.travel > 0 || o.quarts || o.ida || o.corridinho;
   const footOrientations = {} as Record<Side, THREE.Quaternion>;
   for (const s of SIDES) {
     const extra = s === "L" ? r.extraL : r.extraR;
@@ -215,7 +237,7 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
     const bounds = SIDES.map(s => {
       const leg = model.legs[s];
       const hip = r.root.parent!.worldToLocal(r["hip" + s].getWorldPosition(new THREE.Vector3()));
-      const flex = Math.max(0.12, Math.min(1.2, posture.knee + desiredKnee[s]));
+      const flex = Math.max(0.12, Math.min(figure ? 0.45 : 1.2, posture.knee + desiredKnee[s]));
       const reach2 = leg.length1 ** 2 + leg.length2 ** 2 + 2 * leg.length1 * leg.length2 * Math.cos(flex);
       return { s, hipOffset: hip.sub(r.root.position), reach2 };
     });
@@ -276,7 +298,7 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
       lowest = Math.min(lowest, v.copy(p).applyMatrix4(foot.matrixWorld).y);
     grounded[s] = lowest <= 0.0001;
   }
-  const prescribedR = (supportOf(o.styleKey, r, beat) + 1) / 2;
+  const prescribedR = figure?.loadR ?? (supportOf(o.styleKey, r, beat) + 1) / 2;
   const loadR = grounded.R ? (grounded.L ? prescribedR : 1) : 0;
   const loadL = grounded.L ? (grounded.R ? 1 - prescribedR : 1) : 0;
   const chestQ = r.chest.getWorldQuaternion(new THREE.Quaternion());

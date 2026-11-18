@@ -218,6 +218,14 @@ points 46, 48 et 51 ; conserve les réglages d’écartement et de lean de phase
 
 Livraison : une PR liée à #17, sans fusion automatique ; statut de revue et CI suivi sur GitHub.
 
+## Sortie garçon #21 et spécification éditeur #22
+
+- [x] 54. Issues avant le code, clarification et séquence approuvées, specs poussées en premier.
+- [x] 55. Plan couplé sortieG seul, variante, appuis explicites et lecture finie avec poses/rejeu.
+- [x] 56. Tests GLB/triangles, 576 poses historiques F/GF, contrôle navigateur et export, capture.
+- [x] 57. Spécification de l'éditeur de figures (aucune implémentation d'éditeur dans cette phase).
+- [x] 58. Revue M4, résultats et limites documentés ; livraison en PR unique, sans fusion.
+
 ## Méta — boucle de feedback (rétrospective auto-critique + critique de session indépendante)
 
 Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process amélioré).

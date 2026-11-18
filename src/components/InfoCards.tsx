@@ -1,6 +1,6 @@
 import { STYLES } from "../styles";
 
-export function InfoCard({ styleKey, position }: { styleKey: string; position: string }) {
+export function InfoCard({ styleKey, position, sortieGarcon = false }: { styleKey: string; position: string; sortieGarcon?: boolean }) {
   const st = STYLES[styleKey];
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
@@ -13,7 +13,7 @@ export function InfoCard({ styleKey, position }: { styleKey: string; position: s
         {st.bullets.map((bl, i) => (
           <li key={i} className="text-xs text-slate-300 leading-relaxed flex gap-2">
             <span style={{ color: st.color }}>▸</span>
-            <span>{bl}</span>
+            <span>{sortieGarcon && bl.includes("sorties garçon / fille") ? "Sortie garçon : progression, sortie à gauche, rentrée et marka sans transfert" : bl}</span>
           </li>
         ))}
       </ul>
@@ -21,7 +21,13 @@ export function InfoCard({ styleKey, position }: { styleKey: string; position: s
   );
 }
 
-export function PairInfoCard() {
+export function PairInfoCard({ sortieGarcon = false }: { sortieGarcon?: boolean }) {
+  if (sortieGarcon) return <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4 space-y-2">
+    <div className="font-semibold">Cuisses droites · sortie garçon</div>
+    <p className="text-xs text-slate-300">Au deuxième arrêt, le contact recherché est latéral, cuisse droite contre cuisse droite.</p>
+    <p className="text-xs text-slate-400">Bleu : enveloppes illustratives proches ; gris : éloignées.
+      Ces repères ne mesurent pas le contact de la peau ni les forces.</p>
+  </div>;
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
       <div className="flex items-center gap-2 mb-2">

@@ -5,6 +5,25 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Travail en cours — sortie garçon #21 et spec éditeur #22
+
+Base `2621e59`, branche `arcodange/sortie-garcon`, worktree `.Codex/worktrees/sortie-garcon`.
+Séquence et clarification pieds du leader/partenaire validées par le propriétaire. Issues :
+[#21](https://github.com/arcodange-org/dance-hips-movement-3D-comparison/issues/21),
+[#22](https://github.com/arcodange-org/dance-hips-movement-3D-comparison/issues/22).
+Specs poussées avant le code : `docs/spec-sortie-garcon.md`, `docs/spec-editeur-figures.md`.
+Une PR demandée, sans fusion. Sortie fille/combiné hors périmètre ; éditeur = documentation.
+
+- Plan coordonné en cinq actions, quatre transferts, croisé et marka sans transfert.
+- Deux fins, contraposition réglable, arrêt final, poses sélectionnables, rejeu, partage et export.
+- Corrections de revue M4 : bassin progressif aux actions 1/3, modulation de marche interrompue
+  pendant le marka, dégagement des os mesuré sur triangles ; chargement sous Suspense,
+  portée des paramètres/exports et remise à zéro des traces au seek/rejeu.
+- Vérifications locales : 7 272 poses G, 2 052 poses de couple pour les os des jambes,
+  576 références F/GF inchangées ; tests historiques et build réussis. Navigateur, chargement
+  différé, partage et export vérifiés ; GIF ajouté. Voir `docs/retrospective-sortie-garcon.md`.
+  Les paragraphes de phases ci-dessous sont historiques.
+
 ## État courant — corrections de l’audit #17
 
 Base initiale : `3ccdc75` (phase 16) ; `main` `ce84acd` (PR #18, oracle) intégré avant

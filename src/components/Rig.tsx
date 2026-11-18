@@ -7,6 +7,7 @@ import { STYLES, type MovementKey } from "../styles";
 import { applyPose, bindSkeleton, createPoseModel, type PoseModel, type Side } from "../pose";
 import { type DanceClock } from "../clock";
 import { TORSO_JOINTS } from "../rigJoints";
+import { DEFAULT_SORTIE_CONTRA, type SortieVariant } from "../sortieGarcon";
 import {
   MUSCLES_URL,
   DRACO_DECODER_PATH,
@@ -34,6 +35,8 @@ export interface RigProps {
   showTorso?: boolean;
   showMuscles?: boolean;
   movement?: MovementKey; // phase 17 : option de déplacement exclusive (inclut les sorties)
+  sortieVariant?: SortieVariant;
+  sortieContra?: number;
   showAppui?: boolean;
   stats?: React.MutableRefObject<any> | null;
   plant?: boolean;
@@ -66,6 +69,8 @@ export default function Rig({
   showTorso = true,
   showMuscles = false,
   movement = "none" as MovementKey,
+  sortieVariant = "line",
+  sortieContra = DEFAULT_SORTIE_CONTRA,
   showAppui = false,
   stats = null,
   plant = true,
@@ -86,6 +91,7 @@ export default function Rig({
   };
   const poseModel = useRef<PoseModel | null>(null);
   const count = useRef(0);
+  const trailRevision = useRef(clock.revision);
   const trailExporting = useRef(false);
   const trailExportFrame = useRef<number | null>(null);
   const tmp = useMemo(() => new THREE.Vector3(), []);
@@ -148,8 +154,14 @@ export default function Rig({
     trail.geometry.setDrawRange(0, 0);
   }, [styleKey, trail]);
   useEffect(() => {
+    if (embrace && movement === "sortieG") {
+      count.current = 0; trail.geometry.setDrawRange(0, 0);
+    }
+  }, [embrace, movement, sortieVariant, trail]);
+  useEffect(() => {
     if (pair && side) {
-      pair.current[side] = { chest: r.contactChest, pelvis: r.contactPelvis, kneeL: r.contactKneeL, kneeR: r.contactKneeR };
+      pair.current[side] = { chest: r.contactChest, pelvis: r.contactPelvis, kneeL: r.contactKneeL, kneeR: r.contactKneeR,
+        hipR: r.hipR, femurKneeR: r.kneeR };
       return () => {
         pair.current[side] = null;
       };
@@ -158,9 +170,13 @@ export default function Rig({
 
   useFrame(() => {
     if (!poseModel.current || !r.footL) return;
+    if (embrace && movement === "sortieG" && trailRevision.current !== clock.revision) {
+      count.current = 0; trail.geometry.setDrawRange(0, 0);
+    }
+    trailRevision.current = clock.revision;
     const result = applyPose(r, poseModel.current, clock.beat + phaseOffset, {
       styleKey, amp, travel, dir, movement, embrace, corridinho, reverse, quarts,
-      iso, ida, cadre, plant, temps3, follower: side === "follower",
+      iso, ida, cadre, plant, temps3, follower: side === "follower", sortieVariant, sortieContra,
     });
     if (stats) stats.current = result;
     const { loadL, loadR } = result;

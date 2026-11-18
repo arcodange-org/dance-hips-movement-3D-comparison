@@ -15,7 +15,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const bundle = join(root, "scripts", ".test-features-bundle.mjs");
 esbuild.buildSync({
   stdin: {
-    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions";',
+    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon";',
     resolveDir: join(root, "scripts"),
     loader: "ts",
   },
@@ -115,6 +115,22 @@ function ampMax(travel) {
 
 // ---------- registre de steps ----------
 const steps = [
+  [/^la sortie garçon est évaluée à la fin des cinq actions$/, (c) => {
+    const rest = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
+    c.figure = [false, true].map(follower => Array.from({ length: 6 }, (_, beat) => mod.sampleSortieGarcon(beat, follower, rest)));
+  }],
+  [/^les appuis du leader sont D G D G D D et ceux de la partenaire sont G D G D G G$/, (c) => {
+    const expected = [[1, 0, 1, 0, 1, 1], [0, 1, 0, 1, 0, 0]];
+    c.figure.forEach((poses, role) => poses.forEach((p, beat) => {
+      if (p.loadR !== expected[role][beat]) throw new Error(`appui incorrect rôle ${role}, action ${beat}`);
+    }));
+  }],
+  [/^le gauche du leader croise devant le droit puis le marka reste déchargé$/, (c) => {
+    const cross = c.figure[0][3], final = c.figure[0][5];
+    if (!(cross.feet.L.x < cross.feet.R.x && cross.feet.L.z > cross.feet.R.z)) throw new Error("croisé avant absent");
+    if (final.loadL !== 0 || final.feet.L.lift > 1e-8) throw new Error("marka gauche incorrect");
+    if (!(final.root.z > .5 && c.figure[1][5].root.z < -.5)) throw new Error("progression du couple perdue");
+  }],
   [/^le style "([^"]+)"$/, (c, m) => { if (!STYLES[m[1]]) throw new Error("style inconnu: " + m[1]); c.style = m[1]; }],
   [/^on applique le style sur (\d+) temps à amplitude ([\d.]+) sans déplacement$/, (c, m) => {
     const n = Number(m[1]), amp = Number(m[2]);
