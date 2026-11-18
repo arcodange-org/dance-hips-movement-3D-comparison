@@ -14,9 +14,11 @@ import {
   TORSO_OPACITY,
   makeTrail,
   resetRig,
+  clampSolY,
+  groundDip,
   type RigHandle,
 } from "../anatomy";
-import { STYLES, sortieEnvelope, sortieOffset, supportOf, plantBlend, corridinhoPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, idaContra, lockUpperTrunk, applyDanceFrame, applyFollowerFrame, upperStability, virgulaFootYawDelta, quartTurnStep } from "../styles";
+import { STYLES, sortieEnvelope, sortieOffset, supportOf, plantBlend, corridinhoPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, idaContra, lockUpperTrunk, applyDanceFrame, applyFollowerFrame, upperStability, virgulaFootYawDelta, quartTurnStep, swingLift } from "../styles";
 import { facingSector } from "../directions";
 import { solveLeg3D } from "../ik";
 import {
@@ -296,11 +298,14 @@ export default function Rig({
       r.root.position.x += 0.5 * qf0.x;
       r.root.position.z += qf0.z - 0.09;
     }
-    // Phase 15 — posture propre à la danse (lean = inclinaison du buste, lockUpperTrunk
+    // Phase 15/16 — posture propre à la danse (lean = inclinaison du buste, lockUpperTrunk
     // préserve le pitch) + contraposition ida e volta (bas vs haut opposés, tango).
+    // En paire (embrace), le lean est plafonné : le buste s'incline VERS le partenaire (contact
+    // poitrine) sans plonger dans son ventre (sinon les estomacs se traversent).
     const posture = STYLES[styleKey].posture;
-    r.chest.rotation.x += posture.lean;
-    if (r.head) r.head.rotation.x += posture.lean;
+    const leanEff = embrace ? Math.min(posture.lean, 0.1) : posture.lean;
+    r.chest.rotation.x += leanEff;
+    if (r.head) r.head.rotation.x += leanEff;
     if (ida) {
       const ic = idaContra(b);
       r.root.rotation.y += ic.lowerYaw;
@@ -310,7 +315,7 @@ export default function Rig({
     applyDanceFrame(r, cadre);
     // En paire, la suiveuse a son propre cadre (coude G levé, main D en contact avec le guideur).
     if (cadre && pair && side === "follower") applyFollowerFrame(r, cadre);
-    if (r.root.position.y < 0) r.root.position.y = 0;
+    r.root.position.y = clampSolY(r.root.position.y, r.root.position.y); // clamp sol root >= 0
 
     // Appuis : charge pied droit (support) -> pastilles au sol + chaîne pied→genou→hanche
     // emissive côté chargé + stats HUD (charge G/D %, flexion genoux, roll bassin).
@@ -411,7 +416,7 @@ export default function Rig({
           sw.t = Math.min(1, (b - stepIdx * stepLen) / (0.6 * stepLen));
           const e = sw.t * sw.t * (3 - 2 * sw.t);
           target = sw.from.clone().lerp(sw.to, e);
-          target.y = state.ankleOuterY + 0.05 * lift * Math.sin(Math.PI * sw.t);
+          target.y = state.ankleOuterY + swingLift(sw.t, lift);
           if (sw.yawTo !== undefined) {
             const yf = sw.yawFrom ?? 0;
             footYawTarget[s] = yf + (sw.yawTo - yf) * e;
@@ -496,6 +501,10 @@ export default function Rig({
         g.rotation.x += (tf - g.rotation.x) * 0.08;
       });
     }
+    // Clamp sol renforcé (demande 2026-11-19) : aucun sommet d'os sous y=0 — si un maillage
+    // dépasse sous le sol (pied planté, flexion genou), on remonte tout le root d'autant.
+    const dip = groundDip(r.root);
+    if (dip > 0) r.root.position.y = clampSolY(r.root.position.y + dip, r.root.position.y + dip);
     if (lastGhost.current !== ghost) {
       lastGhost.current = ghost;
       r.root.traverse((o) => {
@@ -540,18 +549,18 @@ export default function Rig({
             <mesh
               ref={reg("contactPelvis")}
               userData={{ part: "anchor" }}
-              position={[0, 0, 0.12]}
+              position={[0, 0, 0.14]}
               visible={showContacts}
             >
               <sphereGeometry args={[0.038, 12, 10]} />
               <meshBasicMaterial color="#64748b" />
             </mesh>
             {/* Phase 15 — points de contact des genoux (l'embrace touche aussi cuisses/genoux) */}
-            <mesh ref={reg("contactKneeL")} userData={{ part: "anchor" }} position={[0.084, -0.44, 0.1]} visible={showContacts}>
+            <mesh ref={reg("contactKneeL")} userData={{ part: "anchor" }} position={[0.084, -0.44, 0.135]} visible={showContacts}>
               <sphereGeometry args={[0.034, 12, 10]} />
               <meshBasicMaterial color="#64748b" />
             </mesh>
-            <mesh ref={reg("contactKneeR")} userData={{ part: "anchor" }} position={[-0.084, -0.44, 0.1]} visible={showContacts}>
+            <mesh ref={reg("contactKneeR")} userData={{ part: "anchor" }} position={[-0.084, -0.44, 0.135]} visible={showContacts}>
               <sphereGeometry args={[0.034, 12, 10]} />
               <meshBasicMaterial color="#64748b" />
             </mesh>
@@ -657,7 +666,7 @@ export default function Rig({
                   <mesh
                     ref={reg("contactChest")}
                     userData={{ part: "anchor" }}
-                    position={[0, 0, 0.13]}
+                    position={[0, 0, 0.16]}
                     visible={showContacts}
                   >
                     <sphereGeometry args={[0.038, 12, 10]} />

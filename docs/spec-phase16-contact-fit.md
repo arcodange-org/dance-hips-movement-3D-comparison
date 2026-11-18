@@ -33,3 +33,19 @@ effectivement aucun membre se toucher alors que les estomacs des danseurs se tra
   sans se traverser) ; bosse musculaire max de chaque danseur ≤ plan de contact.
 - Captures : `paire-contacts.gif` regénéré (membres qui se touchent visiblement) + vérif visuelle.
 - `npm test` (garanti en CI) + build ; README/CONTEXT/TASKS à jour.
+
+## Résultats mesurés (exécution, branche `vibe/phase16-exec-ae8a7a`)
+
+Sonde sommets runtime (probe `__fit` temporaire, retirée avant commit ; l'analyseur d'images
+est non fiable sur les petits détails 3D — W4) à l'URL exacte du bug, 22 échantillons :
+
+- **Contact fit SANS les bras** (demande 2026-11-19) : `PAIR_DZ = 0.175` (pire somme des fronts
+  locaux corps mesurée 0.174 m + marge). Pire pénétration CORPS (maillages GLB + muscles,
+  hors bras JSX) = **−0.0015 m** → les ventres se touchent sans jamais se traverser.
+  Marqueurs monde : bassin 0.054–0.105 m, poitrine 0.015–0.092 m, genoux croisés 0.011–0.231 m
+  (seuil vert < 0.09 m). Marqueurs posés sur la surface : poitrine z=0.16, bassin z=0.14,
+  genoux z=0.135 ; lean plafonné à 0.10 en paire.
+- **Clamp sol renforcé** (demande 2026-11-19 : aucun os sous le sol) : `clampSolY` (pur) +
+  `groundDip` (sphères englobantes monde, appliqué en fin de frame dans Rig) + `swingLift`
+  (cloche ≥ 0). Sonde : minY des sommets monde = **+0.004 m** en solo (travel=1, quarts=1,
+  bpm=72) et en paire → aucun sommet sous y=0. Gherkin `sol-contact.feature` (64 PASS au total).

@@ -366,10 +366,13 @@ export function virgulaFootYawDelta(footWorldYaw: number, bodyWorldYaw: number):
   return d;
 }
 
-// Phase 15 — espacement du couple en mode face à face (z = ∓PAIR_DZ) : choisi pour que les
-// surfaces frontales (poitrine z≈0.13, bassin z≈0.12, genoux z≈0.10 en local) soient en contact
-// (écart < 0.09 m) entre les deux danseurs.
-export const PAIR_DZ = 0.125;
+// Phase 16 — espacement du couple en mode face à face (z = ∓PAIR_DZ) : recalé sur la surface
+// ventrale RÉELLE du CORPS (sans les bras, demande 2026-11-19) mesurée par sonde sommets :
+// front max local ≈ 0.17 m avec lean ; à 0.125 les ventres se croisaient de ~0.21 m, à 0.15
+// encore ~1.6 cm. 0.175 = pire cas mesuré (0.174) + marge. Les marqueurs de contact sont
+// posés sur cette surface : poitrine z=0.16, bassin z=0.14, genoux z=0.135
+// (écarts 0.03 / 0.07 / 0.08 < 0.09 m → contact vert).
+export const PAIR_DZ = 0.175;
 
 // Phase 14 — les déplacements sont des options NON combinables (radio, pas checkbox).
 export type MovementKey = "none" | "corridinho" | "quarts" | "temps3" | "ida";
@@ -489,6 +492,12 @@ export function travelOffset(travel: number, dir: number, b: number): number {
 // Marke « 3 temps » : un pas tous les 3 temps au lieu de chaque temps.
 export function swingBeat(b: number, temps3: boolean): number {
   return Math.floor(b / (temps3 ? 3 : 1));
+}
+
+// Hauteur de balancement du pied pendant un pas (cloche sin(π·t) >= 0 : le pied ne descend
+// jamais sous le sol pendant la phase d'appui aérienne ; contact sol garanti par plantBlend).
+export function swingLift(t: number, lift: number): number {
+  return 0.05 * lift * Math.max(0, Math.sin(Math.PI * Math.min(1, Math.max(0, t))));
 }
 
 // Ida e volta (aller-retour, seul ou à 2 face à face) sur un cycle de 8 temps :

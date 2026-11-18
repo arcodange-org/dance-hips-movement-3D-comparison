@@ -177,9 +177,16 @@ Spec : `docs/spec-phase15-paire.md` ; sources : `docs/posture-contraposition.md`
 
 ## Session 16–18 — spec consolidée : `docs/spec-session-16-18.md` (objectifs + audit W1–W10 + oracle)
 
-- [ ] 48. **Phase 16 — contact fit en paire** : PAIR_DZ recalé sur la surface mesurée (sonde :
-  bosse frontale z≈0.21–0.23 avec muscles+lean), marqueurs sur la surface, lean plafonné en
-  paire, flexion genoux via IK ; Gherkin écarts < 0.09 m ; GIF `paire-contacts` regénéré
+- [x] 48. **Phase 16 — contact fit en paire** : sonde sommets (W4 : l'analyseur d'images ne suffit
+  pas) à l'URL du bug, contact fit **sans les bras** (demande 2026-11-19) : PAIR_DZ=0.175
+  (pire pénétration corps mesurée 0.174 m + marge), marqueurs sur la surface ventrale
+  (poitrine z=0.16, bassin z=0.14, genoux z=0.135), lean plafonné à 0.10 en paire, flexion
+  genoux via IK (L2eff) ; résultat sonde : pire pénétration CORPS = −0.0015 m (plus de
+  traversée), marqueurs 0.011–0.105 m ; Gherkin écarts < 0.09 m ; GIFs paire regénérés
+- [x] 51. **Clamp sol renforcé — aucun os sous le sol** (demande 2026-11-19) : `clampSolY`
+  (pur) + `groundDip` (sphères englobantes monde, fin de frame) dans Rig ; `swingLift`
+  (cloche ≥ 0) extrait en pur ; Gherkin `sol-contact.feature` ; sonde runtime : minY sommets
+  monde = +0.004 m en solo (travel=1, quarts=1) et en paire
 - [ ] 49. **Phase 17 — sortie en option exclusive** : `MovementKey += "sortie" | "sortie2"` ;
   radio « Sortie garçon/fille » + « Sortie combinée (enchainement G puis F) » ;
   `sortieActive(side, b, combine)` pur (combiné : leader temps 0–7, suiveur 8–15) ; Gherkin

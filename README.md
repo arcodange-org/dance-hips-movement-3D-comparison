@@ -162,8 +162,13 @@ Le guideur guide par les points de contact : **poitrine, bassin, genoux** (verts
 [docs/posture-contraposition.md](docs/posture-contraposition.md)). Le suiveur est le miroir exact du
 guideur (même style, pas de retard). Posture par style (`lean`, `knee`) : kizomba/tarraxinha buste
 légèrement en avant et genoux bien fléchis (« lean slightly forward », « slightly bent knees », SOS
-Dance), zouk en cambré. Spec phase 15.
+Dance), zouk en cambré. Espacement du couple recalé sur la surface ventrale mesurée (sonde
+sommets, hors bras) : les ventres se touchent sans se traverser. Spec phase 15 + 16.
 </details>
+
+> **Contact sol garanti** : aucun os ne passe sous le sol (`y >= 0`, clamp sol renforcé par
+> sphères englobantes en fin de frame ; le pied en balancement reste au-dessus du sol).
+> Spec phase 16, Gherkin `sol-contact.feature`.
 
 ![Marche + marka « 3 temps »](docs/gifs/marche-3temps.gif)
 <details><summary>Détail & source</summary>

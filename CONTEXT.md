@@ -101,9 +101,13 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   z=0.199≈0.200 — root suit le pied ; en paire le suiveur pivote d'abord le pied D à 90°).
   56 PASS 0 FAIL 1 SKIP, 21 GIFs. Spec : `docs/spec-phase15-paire.md` ; sources
   `docs/posture-contraposition.md`.
-- Session 16–18 **spécifiée** (branche `vibe/phase16-contact-fit-ae8a7a`) : spec consolidée
+- Session 16–18 **spécifiée** (PR #15 mergée) : spec consolidée
   `docs/spec-session-16-18.md` (objectifs + audit des points faibles W1–W10 mesurés + modèle
-  d'oracle) + harness renforcé (`.vibe/HARNESS.md` §6 pièges). Exécution : phase 16 contact fit
+  d'oracle) + harness renforcé (`.vibe/HARNESS.md` §6 pièges)
+- Phase 16 **EN COURS** (branche `vibe/phase16-exec-ae8a7a`) : contact fit en paire **sans les
+  bras** (PAIR_DZ=0.175, marqueurs 0.16/0.14/0.135, sonde : pénétration corps −0.0015 m,
+  marqueurs 0.011–0.105 m) + **clamp sol renforcé** (aucun os sous y=0 : `clampSolY` +
+  `groundDip`, sonde minY=+0.004 m) + Gherkin `sol-contact.feature` (64 PASS)
   (PAIR_DZ/marqueurs sur surface mesurée, lean plafonné en paire) → phase 17 sortie en option
   exclusive + combiné → phase 18 oracle de positions par demi-temps (`src/oracle.ts`).
 - Rétrospective / boucle de feedback : `docs/retrospective-phase3-5.md` +

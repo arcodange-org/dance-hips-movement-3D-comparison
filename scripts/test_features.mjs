@@ -28,7 +28,7 @@ esbuild.buildSync({
 });
 const mod = await import(pathToFileURL(bundle).href + "?t=" + Date.now());
 rmSync(bundle, { force: true });
-const { STYLES, supportOf, sortieEnvelope, sortieOffset, plantBlend, corridinhoPath, quartsPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, idaContra, virgulaFootYawDelta, movementOf, movementFlags, quartTurnStep, PAIR_DZ, HIP_WIDTH, HIP_Y, S2, CAM_PRESETS, resolveCam, resolveView, viewAnglesOf, posFromView, SOLID_TORSO_OPACITY, lockUpperTrunk, residualRoll, upperStability, DANCE_FRAME, DANCE_FRAME_FOLLOWER, parseVec3, buildShareUrl, DIR_LABELS, facingSector, isDiagonal, relToLineOfDance } = mod;
+const { STYLES, supportOf, sortieEnvelope, sortieOffset, plantBlend, corridinhoPath, quartsPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, idaContra, virgulaFootYawDelta, movementOf, movementFlags, quartTurnStep, PAIR_DZ, HIP_WIDTH, HIP_Y, S2, clampSolY, swingLift, CAM_PRESETS, resolveCam, resolveView, viewAnglesOf, posFromView, SOLID_TORSO_OPACITY, lockUpperTrunk, residualRoll, upperStability, DANCE_FRAME, DANCE_FRAME_FOLLOWER, parseVec3, buildShareUrl, DIR_LABELS, facingSector, isDiagonal, relToLineOfDance } = mod;
 const { Group } = await import(
   pathToFileURL(join(root, "node_modules", "three", "build", "three.module.js")).href
 );
@@ -123,7 +123,7 @@ const steps = [
     for (let b = 0; b <= n; b += 0.05) {
       STYLES[c.style].apply(r, b, amp);
       if (!allFinite(r)) c.run.finite = false;
-      if (r.root.position.y < 0) r.root.position.y = 0; // clamp sol du Rig
+      r.root.position.y = clampSolY(r.root.position.y, -0.02); // clamp sol du Rig (sommet de pied simulé à -2 cm)
       c.run.minY = Math.min(c.run.minY, r.root.position.y);
       const s = supportOf(c.style, r, b);
       if (!Number.isFinite(s) || s < -1 - 1e-9 || s > 1 + 1e-9) c.run.supportBad = true;
@@ -580,6 +580,17 @@ const steps = [
       if (!patella) throw new Error(`pas de patella au genou sous KneePivot_${sd}: ` + JSON.stringify(kids.map((k) => k.translation)));
       if (!fibula || Math.abs(fibula.translation[0]) > 0.05) throw new Error(`fibula ${sd} trop latérale: ` + JSON.stringify(fibula && fibula.translation));
     }
+  }],
+  [/^clampSolY\(([-\d.]+), ([-\d.]+)\) vaut ([-\d.]+)$/, (c, m) => {
+    const v = clampSolY(Number(m[1]), Number(m[2]));
+    if (Math.abs(v - Number(m[3])) > 1e-9) throw new Error(`clampSolY(${m[1]}, ${m[2]}) = ${v}, attendu ${m[3]}`);
+  }],
+  [/^on \u00e9value swingLift pour t de 0 \u00e0 1 \u00e0 lift ([\d.]+)$/, (c, m) => {
+    c.sw = [];
+    for (let t = 0; t <= 1; t += 0.005) c.sw.push(swingLift(t, Number(m[1])));
+  }],
+  [/^swingLift reste superieur ou egal \u00e0 0$/, (c) => {
+    for (const v of c.sw) if (v < -1e-12) throw new Error("swingLift n\u00e9gatif: " + v);
   }],
 ];
 

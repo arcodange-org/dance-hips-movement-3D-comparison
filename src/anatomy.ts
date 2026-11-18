@@ -7,6 +7,33 @@ export const S4 = (b: number) => Math.sin((TAU * b) / 4);
 export const pos = (x: number) => Math.max(0, x);
 export const TRAIL_MAX = 320;
 
+// Clamp sol renforcé (demande 2026-11-19) : aucun os sous le sol. rootY corrigé pour que
+// l'os le plus bas (décalage local boneMinY relatif au root) reste à y >= 0, et root >= 0.
+export function clampSolY(rootY: number, boneMinY: number): number {
+  return Math.max(0, rootY, -boneMinY);
+}
+
+// Quantité dont le root doit remonter pour qu'aucun sommet de maillage du rig ne soit sous
+// y=0 (sphères englobantes en espace monde ; marqueurs de contact exclus). 0 si déjà au sol.
+export function groundDip(root: THREE.Object3D): number {
+  root.updateWorldMatrix(true, true);
+  let minY = Infinity;
+  const c = new THREE.Vector3();
+  const s = new THREE.Vector3();
+  root.traverse((o) => {
+    const m = o as THREE.Mesh;
+    if (!m.isMesh || m.userData.part === "anchor") return;
+    const g = m.geometry;
+    if (!g.boundingSphere) g.computeBoundingSphere();
+    const bs = g.boundingSphere as THREE.Sphere;
+    m.getWorldScale(s);
+    m.localToWorld(c.copy(bs.center));
+    const y = c.y - bs.radius * Math.max(s.x, s.y, s.z);
+    if (y < minY) minY = y;
+  });
+  return minY < 0 ? -minY : 0;
+}
+
 export const ANATOMY_URL = `${import.meta.env.BASE_URL}anatomy.glb`;
 export const HIP_Y = 0.8835;
 export const HIP_WIDTH = 0.34;
