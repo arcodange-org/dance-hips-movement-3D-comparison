@@ -175,6 +175,20 @@ Spec : `docs/spec-phase15-paire.md` ; sources : `docs/posture-contraposition.md`
   vérifié correct à l'URL pair du bug ; GIFs `paire-contacts`, `quarts-paire` + 21 GIFs au total —
   56 PASS 0 FAIL
 
+## Session 16–18 — spec consolidée : `docs/spec-session-16-18.md` (objectifs + audit W1–W10 + oracle)
+
+- [ ] 48. **Phase 16 — contact fit en paire** : PAIR_DZ recalé sur la surface mesurée (sonde :
+  bosse frontale z≈0.21–0.23 avec muscles+lean), marqueurs sur la surface, lean plafonné en
+  paire, flexion genoux via IK ; Gherkin écarts < 0.09 m ; GIF `paire-contacts` regénéré
+- [ ] 49. **Phase 17 — sortie en option exclusive** : `MovementKey += "sortie" | "sortie2"` ;
+  radio « Sortie garçon/fille » + « Sortie combinée (enchainement G puis F) » ;
+  `sortieActive(side, b, combine)` pur (combiné : leader temps 0–7, suiveur 8–15) ; Gherkin
+- [ ] 50. **Phase 18 — oracle de positions** : `src/oracle.ts` (`Pose`, `oracleHalfStep(movement,
+  k, reverse)` → {start, end}) ; principes : repère fixe + ligne de danse, orientation/croisement
+  des jambes, dualité haut/bas (contraposition), dualité danseur/partenaire (miroir+swap G/D) ;
+  Gherkin `oracle.feature` (continuité end(k)=start(k+1), accord avec quartTurnStep/idaContra,
+  dualité reverse) + rétrospective M4 (critique de l'évaluation des mouvements)
+
 ## Méta — boucle de feedback (rétrospective auto-critique + critique de session indépendante)
 
 Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process amélioré).

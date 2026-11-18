@@ -78,3 +78,22 @@ tort, process amélioré, tâches à (r)ajouter), puis **re-ajouter la méta-tâ
   invisible → utiliser des rubans/boxes, voir `LineOfDance.tsx`).
 - gh : `pr create/ready/view/list`, `run list/view` OK ; mutations API et merge bloqués → ff-push.
 - Rate limit gh (429) : attendre ~60 s, réessayer une fois, puis remonter l'erreur.
+
+## 6. Pièges mesurés pendant les phases 11–15 (audit dans docs/spec-session-16-18.md)
+
+- **Vérifier numériquement, pas à l'œil** : l'analyseur d'images rate les petits détails 3D
+  (lacets de pieds, os) → sonde jetable `window.__dbg = …` dans `useFrame`, retirée AVANT le
+  commit (`grep -c __dbg src/components/Rig.tsx` doit donner 0).
+- **Jambe à extension max au repos** (HIP_Y = L1+L2) : toute flexion de genou ajoutée APRÈS
+  `solveLeg3D` fait reculer le pied (la cible n'est plus atteignable). Intégrer la flexion DANS
+  la résolution (tibia effectif raccourci) — voir phase 15 `posture.knee`.
+- **Marqueurs de contact** : les placer sur la SURFACE réelle du corps (mesurée par sonde :
+  bosse frontale), pas à une cote arbitraire — sinon marqueurs verts mais ventres qui se
+  traversent (mesuré : ~0.21 m de recouvrement).
+- **Outil search_replace** : un backslash peut arriver doublé dans le fichier (regex cassée) →
+  vérifier (`grep | cat -A` ; dans la sortie JSON un vrai `\` s'affiche `\\`), corriger via
+  `python3` si besoin.
+- **Corrections de tests Gherkin** : les regex de steps doivent matcher le texte exact (pas de
+  `$` final si le texte continue).
+- Ne jamais lancer `write_file` et `git add` en parallèle (course) ; ne jamais `pkill -f vite`
+  (tuer via le PID sauvé).

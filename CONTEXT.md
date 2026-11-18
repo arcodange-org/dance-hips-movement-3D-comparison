@@ -101,6 +101,11 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   z=0.199≈0.200 — root suit le pied ; en paire le suiveur pivote d'abord le pied D à 90°).
   56 PASS 0 FAIL 1 SKIP, 21 GIFs. Spec : `docs/spec-phase15-paire.md` ; sources
   `docs/posture-contraposition.md`.
+- Session 16–18 **spécifiée** (branche `vibe/phase16-contact-fit-ae8a7a`) : spec consolidée
+  `docs/spec-session-16-18.md` (objectifs + audit des points faibles W1–W10 mesurés + modèle
+  d'oracle) + harness renforcé (`.vibe/HARNESS.md` §6 pièges). Exécution : phase 16 contact fit
+  (PAIR_DZ/marqueurs sur surface mesurée, lean plafonné en paire) → phase 17 sortie en option
+  exclusive + combiné → phase 18 oracle de positions par demi-temps (`src/oracle.ts`).
 - Rétrospective / boucle de feedback : `docs/retrospective-phase3-5.md` +
   `docs/retrospective-phase6.md` + méta-tâche M4 récurrente dans `docs/TASKS.md`.
 - Phase 5 **livrée** : PR #3 mergée dans `main` (2026-11-18), CI Pages run 44272969552 =
