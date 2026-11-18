@@ -1,5 +1,12 @@
 # AGENTS.md — Comparateur 3D des styles de danse
 
+## Correction oracle #25 (19 novembre 2026)
+
+Worktree `.Codex/worktrees/oracle-corrections`, branche `arcodange/oracle-corrections` ; issue
+avant le code, spec avant implémentation, une PR après validation, sans fusion automatique.
+Spécification : [oracle](docs/spec-oracle-corrections.md). Le moteur et les trajectoires restent
+inchangés ; la [description de la sortie fille](docs/notes-sortie-fille.md) prépare une phase future.
+
 ## Contribution sortie garçon #21 / éditeur #22 (18 novembre 2026)
 
 Travail dans `.Codex/worktrees/sortie-garcon`, branche `arcodange/sortie-garcon`. Issues créées
