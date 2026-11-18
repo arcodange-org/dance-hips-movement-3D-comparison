@@ -19,6 +19,11 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   BodyParts3D régénérée, persistance localStorage, vertèbres L/D, déploiement Pages, GIFs
   motion design, mouvements sourcés sur place (2 temps, sorties garçon/fille), couche
   musculaire BodyParts3D, tests numériques (`npm test`).
+- Phase 6 **planifiée** (tâches 10–12 dans `docs/TASKS.md`, spec
+  `docs/spec-phase6-comparatif-appuis-corridinho.md`) : comparatif d'appuis (jauges G/D par
+  corps en mode Comparaison) + corridinho au repère fixe après pivots D puis G.
+- Rétrospective / boucle de feedback : `docs/retrospective-phase3-5.md` + méta-tâche M4
+  récurrente dans `docs/TASKS.md`.
 - Phase 5 **livrée** : PR #3 mergée dans `main` (2026-11-18), CI Pages run 44272969552 =
   success, site vérifié (assets 200, smoke headless sans erreur). Branche :
   `vibe/phase5-repere-fixe-appui-ae8a7a`. Contenu : repère fixe
