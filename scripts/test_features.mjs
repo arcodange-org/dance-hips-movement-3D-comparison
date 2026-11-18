@@ -405,6 +405,48 @@ const steps = [
     if (Math.abs(a - c.va.az) > 0.05) throw new Error(`angle=${a}, attendu ~${c.va.az}`);
     if (Math.abs(z - c.va.dist) > 0.005) throw new Error(`zoom=${z}, attendu ~${c.va.dist}`);
   }],
+  // Phase 12 — os du genou bien placés et symétriques (docs/spec-phase12-os-genou.md)
+  [/^on lit le GLB anatomy\.glb$/, (c) => {
+    const buf = readFileSync(join(root, "public", "anatomy.glb"));
+    const clen = buf.readUInt32LE(12);
+    c.glb = JSON.parse(buf.subarray(20, 20 + clen).toString("utf8"));
+    c.byName = Object.fromEntries(c.glb.nodes.map((n) => [n.name, n]));
+  }],
+  [/^les paires R\/L sont symétriques en translation \(tolérance ([\d.]+)\)$/, (c, m) => {
+    const tol = Number(m[1]);
+    for (const base of ["HipPivot", "HipBone", "Femur", "KneePivot", "AnklePivot", "Tibia", "Fibula", "Patella", "Foot"]) {
+      const r = c.byName[`${base}_R`];
+      const l = c.byName[`${base}_L`];
+      if (!r || !l) throw new Error(`paire manquante: ${base}`);
+      const tr = r.translation || [0, 0, 0];
+      const tl = l.translation || [0, 0, 0];
+      if (Math.abs(tr[0] + tl[0]) > tol || Math.abs(tr[1] - tl[1]) > tol || Math.abs(tr[2] - tl[2]) > tol)
+        throw new Error(`${base}: t_R=${tr} vs t_L=${tl} (miroir x attendu)`);
+    }
+  }],
+  [/^les tibias ont un maillage long \(y > ([\d.]+)\) au mi-tibia \(t\.y < -([\d.]+)\)$/, (c, m) => {
+    for (const sd of ["R", "L"]) {
+      const n = c.byName[`Tibia_${sd}`];
+      if (2 * n.scale[1] <= Number(m[1])) throw new Error(`Tibia_${sd} maillage trop petit: ${n.scale}`);
+      if (!(n.translation[1] < -Number(m[2]))) throw new Error(`Tibia_${sd} pas au mi-tibia: ${n.translation}`);
+    }
+  }],
+  [/^les patellas ont un petit maillage \(y < ([\d.]+)\) au front du genou \(t\.y > -([\d.]+), t\.z > ([\d.]+)\)$/, (c, m) => {
+    for (const sd of ["R", "L"]) {
+      const n = c.byName[`Patella_${sd}`];
+      if (!(2 * n.scale[1] < Number(m[1]))) throw new Error(`Patella_${sd} maillage trop gros: ${n.scale}`);
+      if (!(n.translation[1] > -Number(m[2]) && n.translation[2] > Number(m[3])))
+        throw new Error(`Patella_${sd} pas au front du genou: ${n.translation}`);
+    }
+  }],
+  [/^les fibulas ont un maillage long \(y > ([\d.]+)\) côté externe \(\|t\.x\| > ([\d.]+)\) au mi-tibia \(t\.y < -([\d.]+)\)$/, (c, m) => {
+    for (const sd of ["R", "L"]) {
+      const n = c.byName[`Fibula_${sd}`];
+      if (!(2 * n.scale[1] > Number(m[1]))) throw new Error(`Fibula_${sd} maillage trop petit: ${n.scale}`);
+      if (!(Math.abs(n.translation[0]) > Number(m[2]) && n.translation[1] < -Number(m[3])))
+        throw new Error(`Fibula_${sd} pas côté externe mi-tibia: ${n.translation}`);
+    }
+  }],
   [/^le GLB place patella et fibula au niveau du genou$/, () => {
     const buf = readFileSync(join(root, "public", "anatomy.glb"));
     const clen = buf.readUInt32LE(12);

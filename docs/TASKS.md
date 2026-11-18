@@ -123,6 +123,15 @@ FR/ES/PT/EN/DE).
   total), README (GIF + `<details>` source + params `angle`/`zoom`), `.vibe/CONVENTIONS.md`,
   CONTEXT.md
 
+## Phase 12 — bug os mal placé au genou — branche `vibe/phase12-os-genou-ae8a7a`
+
+Spec : `docs/spec-phase12-os-genou.md` (bug URL observe/tarraxinha/ida=1, caméra rapprochée).
+
+- [ ] 39. `scripts/fix_shin_bone_meshes.py` : réassignation mesh+scale des os sous KneePivot
+  (Tibia_R/Patella_R échangés, fibule D sur Patella_L, rotule G sur Fibula_R) + translations
+  Tibia_R/Patella_R ; Gherkin `os-symetrie.feature` (symétrie L/R + classe de taille +
+  placement tibia/fibula/patella) ; vérif visuelle à l'angle du bug
+
 ## Méta — boucle de feedback (rétrospective auto-critique + critique de session indépendante)
 
 Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process amélioré).
