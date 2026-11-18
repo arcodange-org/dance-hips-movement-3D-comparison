@@ -80,3 +80,36 @@ sol (petit pivot possible sur la plante / "semi-pointe" = ball of the foot). »
   travel=0 (pas de levée de pied).
 - Vérif : GIF/frames — le pied d'appui ne quitte pas le sol (position au sol quasi fixe) ;
   `npm test` + build OK.
+
+## 5. Sortie = ligne de danse (tâche 16, demande 2026-11-18 — AFFÛTÉE)
+
+« Quand on parle de sortie, on parle de **ligne de danse** : le garçon ou la fille **sort de la
+ligne puis revient dessus**. »
+
+- **Ligne de danse** = axe x monde passant par le repère fixe (OriginMarker) : composant
+  `LineOfDance` (ligne pointillée le long de x, au sol), visible en mode paire (case/param
+  `ligne=`, défaut ON en paire).
+- **Mode paire réorienté sur la ligne** : le couple est SUR la ligne, face à face selon l'axe z
+  (leader z=-0.14 rotY=0, follower z=+0.14 rotY=π) au lieu de l'axe x — la sortie latérale
+  (axe x) devient **visible en vue de face/diago** (elle était en profondeur en profil).
+- **Sortie** = `sortieOffset(b, amp)` (fonction pure, testée) appliqué sur `root.position.x`
+  local = perpendiculaire à la ligne : aller à ±0,22 m hors de la ligne (temps 0–5), **retour
+  sur la ligne** x=0 (temps 5+). Leader et follower symétriques (chacun sort de son côté) ;
+  le retard du suiveur décale la « sortie fille » (Wikipédia FR : « sortie garçon (5 temps) :
+  l'homme sort de la ligne de danse sur la gauche puis revient en face de sa partenaire »).
+- Validation : `docs/features/sortie-ligne-de-danse.feature` (enveloppe 5/8, bornée 0–0,22 m,
+  périodique ; scénario perpendicularité @wip jusqu'à livraison).
+
+## 6. Dissociation bras/buste vs bas du corps (tâche 17, à affiner ensuite)
+
+Pendant la sortie, le **cadre des bras et le buste restent orientés sur la ligne de danse**
+(contre-rotation du buste) pendant que le bassin sort et revient — dissociation thoraco-pelvienne
+maximale. À spécifier finement quand la tâche 16 est livrée (bras = groupes armU/armF existants).
+
+## 7. Validations Gherkin (tâche 18 — livré le 2026-11-18)
+
+- `docs/features/*.feature` (7 fichiers) + runner minimal zéro-dépendance
+  `scripts/test_features.mjs` câblé dans `npm test` : 14 PASS, 0 FAIL, 6 SKIP (@wip).
+- Chaque tâche a son feature ; les scénarios @wip sont dé-wippés à la livraison de la tâche
+  (corridinho, comparatif d'appuis, vues, perpendicularité de la sortie).
+- Fonctions pures testables ajoutées : `plantBlend(travel, plant)`, `sortieOffset(b, amp)`.

@@ -193,6 +193,18 @@ export function supportOf(styleKey: string, r: RigHandle, b: number): number {
   return Math.max(-1, Math.min(1, v));
 }
 
+// Blend IK : travel > 0 -> IK de pas progressif ; travel = 0 -> pieds plantés si plant,
+// sinon ancien comportement glissé (convention handoff, plant=0).
+export function plantBlend(travel: number, plant: boolean): number {
+  return travel > 0.001 ? Math.min(1, travel / 0.2) : plant ? 1 : 0;
+}
+
+// Sortie garçon/fille : déplacement latéral local (axe x, perpendiculaire à la ligne de
+// danse) d'amplitude 0,22 m * amplitude, aller-retour de 5 temps sur un cycle de 8.
+export function sortieOffset(b: number, amp: number): number {
+  return 0.22 * sortieEnvelope(b) * amp;
+}
+
 export function sortieEnvelope(b: number): number {
   const p = ((b % 8) + 8) % 8;
   let e = 0;

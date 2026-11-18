@@ -34,6 +34,14 @@ Mise à jour à chaque commit (checkpoint anti-amnésie, voir `CONTEXT.md`).
   `plant=0` garde l'ancien comportement glissé (convention du handoff amendée par demande
   utilisateur 2026-11-18, à documenter) ; case + `plant=` + vérif visuelle (le pied ne bouge
   pas au sol pendant le transfert de poids G/D)
+- [ ] 16. Ligne de danse : `LineOfDance` (axe x au repère fixe) + mode paire réorienté sur la
+  ligne (face à face selon z) + sortie perpendiculaire via `sortieOffset` sur root.x local,
+  retour sur la ligne au temps 5+ ; GIF sortie en vue de face/diago ; feature
+  `sortie-ligne-de-danse.feature` dé-wippée
+- [ ] 17. Dissociation bras/buste vs bas du corps pendant la sortie (contre-rotation du buste
+  sur la ligne) — spec §6 à affiner à la livraison de la tâche 16
+- [x] 18. Validations Gherkin : `docs/features/*.feature` + `scripts/test_features.mjs` dans
+  `npm test` (14 PASS, 0 FAIL, 6 @wip) + fonctions pures `plantBlend`/`sortieOffset`
 - [ ] 12. Vérifs phase 6 : `npm test`, build, smoke headless, livraison PR + ff-merge + CI + site
 
 ## Méta — boucle de feedback (rétrospective auto-critique + critique de session indépendante)
