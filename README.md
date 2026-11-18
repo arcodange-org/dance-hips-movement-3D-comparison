@@ -145,6 +145,26 @@ Face à face : le guideur décrit le cercle au repère fixe, le suiveur le même
 arrière** (trajectoire miroir). Spec phase 8 §2.
 </details>
 
+![Quarts de tour à 2 — contraposition](docs/gifs/quarts-paire.gif)
+<details><summary>Détails & source</summary>
+
+En paire, le guideur **avance en pivotant** (talon du pied G au bout du pied D à 90°, puis pied D
+ramené parallèle) et le suiveur **recule en pivotant son pied D à 90°** (gros orteil D à angle droit
+du gros orteil G), puis rassemble son pied G : la contraposition du tango — le corps du guideur fait
+agir le suiveur via les contacts. Specs phase 14 §2 + phase 15.
+</details>
+
+![Face à face — points de contact](docs/gifs/paire-contacts.gif)
+<details><summary>Détails & source</summary>
+
+Le guideur guide par les points de contact : **poitrine, bassin, genoux** (verts = en contact) —
+« chest, bellies, temples, hands, thighs, knees, arms » (Capacious Journal,
+[docs/posture-contraposition.md](docs/posture-contraposition.md)). Le suiveur est le miroir exact du
+guideur (même style, pas de retard). Posture par style (`lean`, `knee`) : kizomba/tarraxinha buste
+légèrement en avant et genoux bien fléchis (« lean slightly forward », « slightly bent knees », SOS
+Dance), zouk en cambré. Spec phase 15.
+</details>
+
 ![Marche + marka « 3 temps »](docs/gifs/marche-3temps.gif)
 <details><summary>Détail & source</summary>
 
@@ -220,7 +240,7 @@ npm test          # tests numériques des courbes de styles (NaN, clamp sol, amp
 ```
 
 Paramètres d'URL (utilisés par les captures, prioritaires sur localStorage) :
-`?mode=solo|observe|compare|pair&style=kizomba&styleB=zouk&bpm=90&travel=0.6&delay=0.5&bare=1`
+`?mode=solo|observe|compare|pair&style=kizomba&styleB=zouk&bpm=90&travel=0.6&bare=1`
 (`bare=1` : canvas plein écran sans l'interface) + `&muscles=1` (couche musculaire),
 `&sortie=1` (sorties garçon/fille, mode paire), `&repere=0` (masque le repère fixe),
 `&appui=1` (appuis & transmission), `&ligne=1` (force la ligne de danse en solo),
@@ -242,8 +262,8 @@ en m — écrits aussi dans l'URL par « Partager la vue », prioritaires sous `
 
 Options d'interface : **Vue « Squelette » / « + Muscles (tissus) »** (bascule segmentée ; couche musculaire BodyParts3D greffée sur les pivots
 osseux, rouge semi-transparent — la chaîne d'appui sol→genoux→hanches reste visible dans les deux vues), **Boussole 8 directions** (4 cardinales + 4 diago au repère fixe ; E-W = ligne de danse ; la direction du buste et la position / repère s'affichent dans le HUD), **🔗 Partager la vue** (copie l'URL avec tous les paramètres + l'angle caméra `campos=`/`camtgt=` + l'angle/zoom lisibles `angle=`/`zoom=`), **Sorties garçon / fille** (mode Face à face : aller-retour
-latéral de 5 temps sur 8 perpendiculaire à la ligne de danse, le retard du suiveur décale la
-sortie fille, buste en contre-rotation), **Déplacement (options exclusives, radio)** : Aucun / **Corridinho** (après 1/4 de tour à droite
+latéral de 5 temps sur 8 perpendiculaire à la ligne de danse, le suiveur en miroir exact décale
+la sortie fille, buste en contre-rotation), **Déplacement (options exclusives, radio)** : Aucun / **Corridinho** (après 1/4 de tour à droite
 puis à gauche, cercle au sol autour du repère fixe) / **Quarts de tour** (4 = tour complet, pivots
 vírgula : talon du pied G au bout du pied D à 90°, puis pied D ramené parallèle — haut du corps
 suit le pied G, bas du corps le pied D) / **Marka « 3 temps »** / **Ida e volta**, **Ligne de danse** (pointillé rose, axe x au repère),
@@ -279,7 +299,9 @@ sur une police (ex. DejaVu) — sinon aucun texte n'est rendu dans les vidéos.
   **plantés au sol** par défaut (contact constant, petit pivot sur la plante du pied /
   « semi-pointe » autorisé via `plantBlend`) ; `plant=0` restaure l'ancien comportement glissé.
 - **Modes** : Solo / Observation hanche (lent, ~32 bpm, buste masqué) / Comparaison /
-  Face à face (contacts vert/rouge, retard du suiveur 0–2 temps, isolation ghost).
+  Face à face (contacts vert/rouge poitrine/bassin/genoux via `contacts=`, suiveur = miroir exact
+  du guideur — pas de retard —, isolation ghost). La comparaison de styles différents se fait en
+  mode **Comparaison côte à côte** (`styleB` n'est utilisé qu'en `mode=compare`).
 - **Pieds plats** : `footL/R.rotation.x = -(hip.rotation.x + knee.rotation.x) + extra`
   (plus `foot.rotation.z = -hip.rotation.z` en mode IK).
 - **Réglages persistés** dans `localStorage` (préfixe `danse-comparateur:`).

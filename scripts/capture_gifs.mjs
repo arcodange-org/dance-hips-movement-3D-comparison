@@ -96,6 +96,16 @@ const CAPTURES = [
     dur: 7,
   },
   {
+    file: "quarts-paire",
+    query: "bare=1&demo=quarts-paire&cam=wide&mode=pair&style=kizomba&styleB=kizomba&bpm=140&quarts=1&solid=1&ligne=1&repere=1&contacts=1",
+    dur: 7,
+  },
+  {
+    file: "paire-contacts",
+    query: "bare=1&demo=paire-contacts&cam=front&mode=pair&style=tarraxinha&bpm=32&travel=0&solid=1&repere=1&contacts=1&iso=1&cadre=1",
+    dur: 6,
+  },
+  {
     file: "corridinho-paire",
     query: "bare=1&demo=corridinho-paire&cam=wide&mode=pair&style=kizomba&styleB=kizomba&bpm=140&corridinho=1&solid=1&ligne=1&repere=1",
     dur: 6.5,

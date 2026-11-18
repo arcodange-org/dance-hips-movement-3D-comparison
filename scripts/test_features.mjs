@@ -28,7 +28,7 @@ esbuild.buildSync({
 });
 const mod = await import(pathToFileURL(bundle).href + "?t=" + Date.now());
 rmSync(bundle, { force: true });
-const { STYLES, supportOf, sortieEnvelope, sortieOffset, plantBlend, corridinhoPath, quartsPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, virgulaFootYawDelta, movementOf, movementFlags, quartTurnStep, HIP_WIDTH, HIP_Y, S2, CAM_PRESETS, resolveCam, resolveView, viewAnglesOf, posFromView, SOLID_TORSO_OPACITY, lockUpperTrunk, residualRoll, upperStability, DANCE_FRAME, DANCE_FRAME_FOLLOWER, parseVec3, buildShareUrl, DIR_LABELS, facingSector, isDiagonal, relToLineOfDance } = mod;
+const { STYLES, supportOf, sortieEnvelope, sortieOffset, plantBlend, corridinhoPath, quartsPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, idaContra, virgulaFootYawDelta, movementOf, movementFlags, quartTurnStep, PAIR_DZ, HIP_WIDTH, HIP_Y, S2, CAM_PRESETS, resolveCam, resolveView, viewAnglesOf, posFromView, SOLID_TORSO_OPACITY, lockUpperTrunk, residualRoll, upperStability, DANCE_FRAME, DANCE_FRAME_FOLLOWER, parseVec3, buildShareUrl, DIR_LABELS, facingSector, isDiagonal, relToLineOfDance } = mod;
 const { Group } = await import(
   pathToFileURL(join(root, "node_modules", "three", "build", "three.module.js")).href
 );
@@ -468,8 +468,58 @@ const steps = [
       const a = c.qs[i];
       const b2 = c.qsRev[i];
       if (Math.abs(b2.lowerYaw + a.lowerYaw) > 1e-9) throw new Error("lowerYaw reverse à b=" + a.b);
-      if (Math.abs(b2.footL.z + a.footL.z) > 1e-9 || Math.abs(b2.footL.yaw + a.footL.yaw) > 1e-9) throw new Error("footL reverse à b=" + a.b);
-      if (Math.abs(b2.footR.z + a.footR.z) > 1e-9) throw new Error("footR reverse à b=" + a.b);
+      // rôles G/D échangés en reverse : footL(reverse) = miroir de footR(normal)
+      if (Math.abs(b2.footL.z + a.footR.z) > 1e-9 || Math.abs(b2.footL.yaw + a.footR.yaw) > 1e-9) throw new Error("footL reverse à b=" + a.b);
+      if (Math.abs(b2.footR.z + a.footL.z) > 1e-9) throw new Error("footR reverse à b=" + a.b);
+    }
+  }],
+  [/^au demi-pas 0 du premier quart footL\.z - footR\.z vaut ~([\d.]+)/, (c, m) => {
+    const r = c.qs.find((x) => x.q === 0 && x.half === 0);
+    const d = r.footL.z - r.footR.z;
+    if (Math.abs(d - Number(m[1])) > 0.01) throw new Error(`footL.z-footR.z=${d}, attendu ~${m[1]} (bout du pied D)`);
+  }],
+  [/^en reverse le demi-pas 0 est du pied R \(et le demi-pas 1 du pied L\)$/, (c) => {
+    const h0 = c.qsRev.filter((r) => r.half === 0);
+    const h1 = c.qsRev.filter((r) => r.half === 1);
+    if (!h0.length || h0.every((r) => r.stepSide !== "R")) throw new Error("demi-pas 0 reverse pas pied R");
+    if (!h1.length || h1.every((r) => r.stepSide !== "L")) throw new Error("demi-pas 1 reverse pas pied L");
+  }],
+  // Phase 15 — contacts de la paire, posture par style, contraposition ida (spec-phase15-paire.md)
+  [/^en paire \(PAIR_DZ\) les points de contact frontaux \(z=([\d.]+), ([\d.]+), ([\d.]+)\) sont à moins de ([\d.]+) m$/, (c, m) => {
+    for (const z of [Number(m[1]), Number(m[2]), Number(m[3])]) {
+      const gap = 2 * (PAIR_DZ - z); // leader à -PAIR_DZ, suiveur (miroir rotY π) à +PAIR_DZ
+      if (Math.abs(gap) >= Number(m[4])) throw new Error(`écart=${gap} pour marqueur z=${z} (>= ${m[4]})`);
+    }
+  }],
+  [/^les 6 styles ont une posture finie dans les bornes$/, () => {
+    for (const [k, s] of Object.entries(STYLES)) {
+      const p = s.posture;
+      if (!p || !Number.isFinite(p.lean) || !Number.isFinite(p.knee)) throw new Error(`${k}: posture manquante`);
+      if (p.knee < 0 || p.knee > 0.5) throw new Error(`${k}: knee=${p.knee} hors [0, 0.5]`);
+      if (p.lean < -0.3 || p.lean > 0.3) throw new Error(`${k}: lean=${p.lean} hors [-0.3, 0.3]`);
+    }
+  }],
+  [/^tarraxinha\.knee > kizomba\.knee > zouk\.knee et zouk\.lean < 0$/, () => {
+    if (!(STYLES.tarraxinha.posture.knee > STYLES.kizomba.posture.knee)) throw new Error("tarraxinha.knee <= kizomba.knee");
+    if (!(STYLES.kizomba.posture.knee > STYLES.zouk.posture.knee)) throw new Error("kizomba.knee <= zouk.knee");
+    if (!(STYLES.zouk.posture.lean < 0)) throw new Error("zouk.lean >= 0 (cambré attendu < 0)");
+  }],
+  [/^on évalue idaContra sur (\d+) temps$/, (c, m) => {
+    c.ic = [];
+    for (let b = 0; b <= Number(m[1]) + 1e-9; b += 0.125) c.ic.push({ b, ...idaContra(b) });
+  }],
+  [/^pendant chaque pas upperYaw et lowerYaw sont de signes opposés$/, (c) => {
+    for (const r of c.ic) {
+      const ph = (r.b % 2) / 2;
+      if (ph > 0.05 && ph < 0.95 && r.upperYaw * r.lowerYaw >= 0)
+        throw new Error(`pas d'opposition à b=${r.b}: upper=${r.upperYaw} lower=${r.lowerYaw}`);
+    }
+  }],
+  [/^entre les pas upperYaw et lowerYaw retombent à 0$/, (c) => {
+    for (const r of c.ic) {
+      const ph = (r.b % 2) / 2;
+      if ((ph < 0.05 || ph > 0.95) && (Math.abs(r.upperYaw) > 0.02 || Math.abs(r.lowerYaw) > 0.02))
+        throw new Error(`non nul entre les pas à b=${r.b}: ${JSON.stringify(r)}`);
     }
   }],
   // Phase 12 — os du genou bien placés et symétriques (docs/spec-phase12-os-genou.md)

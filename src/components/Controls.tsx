@@ -18,8 +18,8 @@ interface ControlsProps {
   onAmp: (v: number) => void;
   showTorso: boolean;
   onShowTorso: (v: boolean) => void;
-  followDelay: number;
-  onFollowDelay: (v: number) => void;
+  // Phase 15 — « retard du suiveur » supprimé : en paire, le suiveur est le miroir exact du
+  // guideur (même style, pas de délai). La comparaison de styles différents = mode compare.
   showContacts: boolean;
   onShowContacts: (v: boolean) => void;
   showMuscles: boolean;
@@ -55,10 +55,12 @@ function StylePicker({
   label,
   value,
   onChange,
+  disabled = false,
 }: {
   label: string;
   value: string;
   onChange: (s: string) => void;
+  disabled?: boolean;
 }) {
   return (
     <div>
@@ -70,8 +72,10 @@ function StylePicker({
             <button
               key={key}
               onClick={() => onChange(key)}
+              disabled={disabled}
               className={
                 "px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors " +
+                (disabled ? "opacity-40 cursor-not-allowed " : "") +
                 (active
                   ? "border-transparent text-slate-950"
                   : "border-slate-700 bg-slate-800/60 text-slate-300 hover:bg-slate-700")
@@ -105,8 +109,7 @@ export default function Controls(props: ControlsProps) {
     onAmp,
     showTorso,
     onShowTorso,
-    followDelay,
-    onFollowDelay,
+
     showContacts,
     onShowContacts,
     showMuscles,
@@ -165,9 +168,10 @@ export default function Controls(props: ControlsProps) {
           onChange={onStyleA}
         />
         <StylePicker
-          label={isPair ? "Suiveur (corps B)" : isCompare ? "Style B (droite)" : "Style B (inactif)"}
-          value={styleB}
-          onChange={onStyleB}
+          label={isPair ? "Suiveur = miroir du guideur (style A)" : isCompare ? "Style B (droite)" : "Style B (inactif)"}
+          value={isPair ? styleA : styleB}
+          onChange={isPair ? onStyleA : onStyleB}
+          disabled={isPair}
         />
       </div>
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
@@ -384,21 +388,6 @@ export default function Controls(props: ControlsProps) {
           />
           Boussole 8 directions
         </label>
-        {isPair && (
-          <label className="flex items-center gap-2 text-xs text-slate-400">
-            Retard du suiveur
-            <input
-              type="range"
-              min="0"
-              max="2"
-              step="0.1"
-              value={followDelay}
-              onChange={(e) => onFollowDelay(Number(e.target.value))}
-              className="accent-emerald-400"
-            />
-            <span className="text-slate-200 font-mono w-10">{followDelay.toFixed(1)} t</span>
-          </label>
-        )}
         {isPair && (
           <label className="flex items-center gap-2 text-xs text-slate-400">
             <input

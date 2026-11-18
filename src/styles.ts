@@ -4,6 +4,11 @@ export interface StyleDef {
   label: string;
   color: string;
   bullets: string[];
+  // Phase 15 — posture propre à la danse (sources docs/posture-contraposition.md) :
+  // lean = inclinaison du buste vers l'avant (rad, négatif = cambré/arrière), knee = flexion
+  // de base des genoux (rad). Kizomba/tarraxinha : buste légèrement en avant + genoux bien
+  // fléchis (« lean slightly forward », « slightly bent knees », SOS Dance) ; zouk = cambré.
+  posture: { lean: number; knee: number };
   apply: (r: RigHandle, b: number, a: number) => void;
   // Charge sur le pied DROIT dans [-1, 1] (+1 = plein appui droit, -1 = plein appui gauche).
   // Sert à la visualisation des appuis (pastilles de charge, chaîne pied→genou→hanche).
@@ -24,6 +29,7 @@ export const STYLES: Record<string, StyleDef> = {
   kizomba: {
     label: "Kizomba",
     color: "#2dd4bf",
+    posture: { lean: 0.1, knee: 0.3 },
     bullets: [
       "« 2 temps » latéral sur place : marqua (pieds joints) à chaque temps",
       "Pas ≤ largeur du bassin, « touch » sans poids, transfert complet côté appui",
@@ -47,6 +53,7 @@ export const STYLES: Record<string, StyleDef> = {
   semba: {
     label: "Semba",
     color: "#fb923c",
+    posture: { lean: 0.06, knee: 0.24 },
     bullets: [
       "Rebond marqué (knee pulse), rythme quick-quick-slow « 1-2-3, pause »",
       "Réception sur l'avant-pied, pieds ressort",
@@ -73,6 +80,7 @@ export const STYLES: Record<string, StyleDef> = {
   kompa: {
     label: "Kompa",
     color: "#f87171",
+    posture: { lean: 0.08, knee: 0.2 },
     bullets: [
       "Balancier latéral sur place : un transfert de poids par temps",
       "Hip check / pause marquée sur le temps 4",
@@ -99,6 +107,7 @@ export const STYLES: Record<string, StyleDef> = {
   tarraxinha: {
     label: "Tarraxinha",
     color: "#c084fc",
+    posture: { lean: 0.14, knee: 0.34 },
     bullets: [
       "Sur place : isolations du bassin (8, cercles), blocages nets",
       "Haut du corps strictement immobile, guidage par contact des hanches",
@@ -120,6 +129,7 @@ export const STYLES: Record<string, StyleDef> = {
   suave: {
     label: "Suave",
     color: "#4ade80",
+    posture: { lean: 0.02, knee: 0.14 },
     bullets: [
       "« 8 » du bassin au sol, sur place (ginga)",
       "Talon levé → fesses montent → on redescend et change de pied",
@@ -147,6 +157,7 @@ export const STYLES: Record<string, StyleDef> = {
   zouk: {
     label: "Zouk brésilien",
     color: "#38bdf8",
+    posture: { lean: -0.1, knee: 0.12 }, // cambré : buste en arrière
     bullets: [
       "Basic sur place (slow-quick-quick), pas de déplacement forcé",
       "Ouverture de hanche (yaw) sur les grandes foulées",
@@ -355,6 +366,11 @@ export function virgulaFootYawDelta(footWorldYaw: number, bodyWorldYaw: number):
   return d;
 }
 
+// Phase 15 — espacement du couple en mode face à face (z = ∓PAIR_DZ) : choisi pour que les
+// surfaces frontales (poitrine z≈0.13, bassin z≈0.12, genoux z≈0.10 en local) soient en contact
+// (écart < 0.09 m) entre les deux danseurs.
+export const PAIR_DZ = 0.125;
+
 // Phase 14 — les déplacements sont des options NON combinables (radio, pas checkbox).
 export type MovementKey = "none" | "corridinho" | "quarts" | "temps3" | "ida";
 
@@ -390,7 +406,10 @@ export interface QuartStep {
 
 const QH = 0.084; // demi inter-hanches : pieds sous les hanches
 const QF = 0.09; // pieds légèrement en avant du bassin
-const QTOE = 0.11; // talon du pied G au bout du pied D
+// Talon du pied G AU BOUT du pied D (bout du pied D à z = QF + ~0.11) — demande 2026-11-18 :
+// « le pied gauche va plus à l'avant (le bout du pied droit), actuellement il s'arrête à la
+// moitié à tort » : la cible z du pied G = QF + QTOE = bout du pied D.
+const QTOE = 0.11;
 const QD = 0.17; // écart entre les pieds quand ils sont parallèles
 
 export function quartTurnStep(b: number, reverse = false): QuartStep {
@@ -446,13 +465,17 @@ export function quartTurnStep(b: number, reverse = false): QuartStep {
     };
   }
   if (reverse) {
-    // suiveur en paire : trajectoire miroir (z -> -z, lacets opposés), comme reversePath
+    // Suiveur en paire (marche arrière) : trajectoire miroir (z -> -z, lacets opposés) ET
+    // rôles G/D échangés — le suiveur RECULE et pivote d'abord son pied DROIT en angle droit
+    // (gros orteil D à 90° du gros orteil G), puis rassemble son pied G
+    // (demande 2026-11-18).
     out = {
       ...out,
+      stepSide: out.stepSide === "L" ? "R" : "L",
       upperYaw: -out.upperYaw,
       lowerYaw: -out.lowerYaw,
-      footL: { x: out.footL.x, z: -out.footL.z, yaw: -out.footL.yaw },
-      footR: { x: out.footR.x, z: -out.footR.z, yaw: -out.footR.yaw },
+      footL: { x: out.footR.x, z: -out.footR.z, yaw: -out.footR.yaw },
+      footR: { x: out.footL.x, z: -out.footL.z, yaw: -out.footL.yaw },
     };
   }
   return out;
@@ -475,4 +498,18 @@ export function idaEVoltaStep(b: number): { side: "L" | "R"; dir: 1 | -1 } {
   const side: "L" | "R" = Math.floor(p / 4) % 2 === 0 ? "L" : "R";
   const dir: 1 | -1 = Math.floor(p / 2) % 2 === 0 ? 1 : -1;
   return { side, dir };
+}
+
+// Phase 15 — contraposition (tango, docs/posture-contraposition.md) pendant l'ida e volta :
+// pendant chaque pas de 2 temps, le BAS du corps (lowerYaw) pivote vers le pied qui avance et
+// le HAUT du corps (upperYaw) du côté opposé ("if you're stepping forward with your right
+// foot, your left shoulder will come forward to oppose this motion", Tango Topics), en cloche
+// sin(π·ph). Retombe à 0 entre les pas.
+export function idaContra(b: number): { upperYaw: number; lowerYaw: number } {
+  const p = ((b % 8) + 8) % 8;
+  const st = idaEVoltaStep(b);
+  const s = st.side === "L" ? 1 : -1;
+  const ph = (p % 2) / 2; // progression dans le pas de 2 temps, [0, 1)
+  const bell = Math.sin(Math.PI * ph);
+  return { lowerYaw: 0.08 * s * bell, upperYaw: -0.1 * s * bell };
 }

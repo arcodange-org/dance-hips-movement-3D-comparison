@@ -18,7 +18,7 @@ export default function ContactViz({
       l.frustumCulled = false;
       return l;
     };
-    return { chest: mk("#4ade80"), pelvis: mk("#4ade80") };
+    return { chest: mk("#4ade80"), pelvis: mk("#4ade80"), kneeL: mk("#4ade80"), kneeR: mk("#4ade80") };
   }, []);
   const va = useMemo(() => new THREE.Vector3(), []);
   const vb = useMemo(() => new THREE.Vector3(), []);
@@ -26,10 +26,13 @@ export default function ContactViz({
     const L = pair.current.leader;
     const F = pair.current.follower;
     if (!L || !F || !L.chest || !F.chest || !L.pelvis || !F.pelvis) return;
+    // Face à face : le genou G du guideur touche le genou D du suiveur (miroir rotY π).
     const pairs: Array<[any, any, THREE.Line]> = [
       [L.chest, F.chest, lines.chest],
       [L.pelvis, F.pelvis, lines.pelvis],
-    ];
+      ...(L.kneeL && F.kneeR ? [[L.kneeL, F.kneeR, lines.kneeL]] : []),
+      ...(L.kneeR && F.kneeL ? [[L.kneeR, F.kneeL, lines.kneeR]] : []),
+    ] as Array<[any, any, THREE.Line]>;
     pairs.forEach(([a, b, line]) => {
       a.getWorldPosition(va);
       b.getWorldPosition(vb);
@@ -52,6 +55,8 @@ export default function ContactViz({
     <>
       <primitive object={lines.chest} />
       <primitive object={lines.pelvis} />
+      <primitive object={lines.kneeL} />
+      <primitive object={lines.kneeR} />
     </>
   );
 }

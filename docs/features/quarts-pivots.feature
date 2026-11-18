@@ -21,3 +21,11 @@ Feature: Quarts de tour — vrais pivots vírgula (talon G au bout du pied D à 
   Scenario: En reverse (suiveur en paire) les lacets sont opposés et z des pieds est miroir
     Given on évalue quartTurnStep sur 16 temps
     Then en reverse lowerYaw est l'opposé et z des pieds est miroir
+
+  Scenario: Le pied G va AU BOUT du pied D (talon G au niveau du bout du pied D, pas à mi-chemin)
+    Given on évalue quartTurnStep sur 16 temps
+    Then au demi-pas 0 du premier quart footL.z - footR.z vaut ~0.11 (bout du pied D à z≈0.20)
+
+  Scenario: En reverse le suiveur pivote d'abord le pied DROIT en angle droit, puis rassemble le pied G
+    Given on évalue quartTurnStep sur 16 temps
+    Then en reverse le demi-pas 0 est du pied R (et le demi-pas 1 du pied L)

@@ -99,8 +99,20 @@ export const DEMOS: Record<string, DemoDef> = {
   virgula: {
     chip: "Vírgula · quarts de tour",
     color: "#f472b6",
-    captions: ["vírgula = changement de direction par quart de tour (90°)", "le pied pivote sur la boule du pied et fait l'angle avec le corps · boussole fixe"],
+    captions: ["vírgula = changement de direction par quart de tour (90°)", "talon du pied G au bout du pied D à 90°, puis pied D ramené parallèle · haut du corps suit le pied G, bas le pied D"],
     beat: 60 / 140,
+  },
+  "quarts-paire": {
+    chip: "Quarts de tour à 2 (face à face)",
+    color: "#f472b6",
+    captions: ["guideur : avance en pivotant (talon G au bout du D)", "suiveur : recule et pivote son pied D à 90°, puis rassemble le pied G — contraposition"],
+    beat: 60 / 140,
+  },
+  "paire-contacts": {
+    chip: "Face à face — points de contact",
+    color: "#4ade80",
+    captions: ["le guideur guide par les contacts : poitrine, bassin, genoux (verts = en contact)", "suiveur = miroir exact du guideur (pas de retard)"],
+    beat: 60 / 32,
   },
   "corridinho-paire": {
     chip: "Corridinho à 2 (face à face)",

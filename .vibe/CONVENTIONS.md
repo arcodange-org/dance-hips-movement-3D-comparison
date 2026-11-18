@@ -36,7 +36,11 @@
 
 ## Paramètres d'URL (captures + partage)
 
-`?mode=solo|observe|compare|pair&style=kizomba&styleB=kompa&bpm=90&travel=0.6&amp=1&playing=1&delay=0.5&ghost=none`
+`?mode=solo|observe|compare|pair&style=kizomba&styleB=kompa&bpm=90&travel=0.6&amp=1&playing=1&ghost=none&contacts=1`
+(pas de `delay` : le retard du suiveur a été supprimé en phase 15 — en pair le suiveur est le
+miroir exact de styleA ; `styleB` n'est utilisé qu'en `mode=compare` ; `contacts=` affiche les
+points de contact poitrine/bassin/genoux en paire. Posture par style : `posture:{lean,knee}` dans
+`src/styles.ts`.)
 + `&torso=0&muscles=1&sortie=1&repere=0&appui=1&plant=0&corridinho=1&ligne=0&iso=0&cadre=0&quarts=1&temps3=1&ida=1&dir=-1&boussole=0&solid=1&bare=1`
 + `&demo=<clé>&cam=default|hip|fixed|wide|diag|front|back|top&campos=x,y,z&camtgt=x,y,z&angle=45&zoom=2.5`
 (`campos/camtgt` = angle caméra exact, produit par le bouton « Partager la vue », prioritaire sur

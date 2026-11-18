@@ -16,7 +16,7 @@ import {
   resetRig,
   type RigHandle,
 } from "../anatomy";
-import { STYLES, sortieEnvelope, sortieOffset, supportOf, plantBlend, corridinhoPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, lockUpperTrunk, applyDanceFrame, applyFollowerFrame, upperStability, virgulaFootYawDelta, quartTurnStep } from "../styles";
+import { STYLES, sortieEnvelope, sortieOffset, supportOf, plantBlend, corridinhoPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, idaContra, lockUpperTrunk, applyDanceFrame, applyFollowerFrame, upperStability, virgulaFootYawDelta, quartTurnStep } from "../styles";
 import { facingSector } from "../directions";
 import { solveLeg3D } from "../ik";
 import {
@@ -244,7 +244,7 @@ export default function Rig({
   }, [styleKey, trail]);
   useEffect(() => {
     if (pair && side) {
-      pair.current[side] = { chest: r.contactChest, pelvis: r.contactPelvis };
+      pair.current[side] = { chest: r.contactChest, pelvis: r.contactPelvis, kneeL: r.contactKneeL, kneeR: r.contactKneeR };
       return () => {
         pair.current[side] = null;
       };
@@ -289,6 +289,23 @@ export default function Rig({
       const dYaw = qs.upperYaw - qs.lowerYaw; // haut du corps = lacet du pied G
       r.chest.rotation.y += dYaw;
       if (r.head) r.head.rotation.y += dYaw;
+      // On AVANCE en pivotant avec le pied : le root suit le pied qui avance (sinon la jambe,
+      // ~0.83 m verticale, ne peut pas atteindre la cible et le pied « s'arrête à mi-chemin »).
+      // Le repère fixe reste au sol : le déplacement se lit dessus.
+      const qf0 = qs.stepSide === "L" ? qs.footL : qs.footR;
+      r.root.position.x += 0.5 * qf0.x;
+      r.root.position.z += qf0.z - 0.09;
+    }
+    // Phase 15 — posture propre à la danse (lean = inclinaison du buste, lockUpperTrunk
+    // préserve le pitch) + contraposition ida e volta (bas vs haut opposés, tango).
+    const posture = STYLES[styleKey].posture;
+    r.chest.rotation.x += posture.lean;
+    if (r.head) r.head.rotation.x += posture.lean;
+    if (ida) {
+      const ic = idaContra(b);
+      r.root.rotation.y += ic.lowerYaw;
+      r.chest.rotation.y += ic.upperYaw;
+      if (r.head) r.head.rotation.y += ic.upperYaw;
     }
     applyDanceFrame(r, cadre);
     // En paire, la suiveuse a son propre cadre (coude G levé, main D en contact avec le guideur).
@@ -416,11 +433,16 @@ export default function Rig({
 
         const aWorld = outer.localToWorld(target.clone());
         const aSkel = skelNode.worldToLocal(aWorld);
+        // Posture (phase 15) : flexion de base des genoux PROPRE À LA DANSE, intégrée DANS la
+        // résolution (tibia effectif raccourci) -> le genou plie vraiment et le pied reste sur
+        // sa cible (ajouter la flexion après la résolution ferait reculer le pied, la jambe
+        // étant déjà à extension max au repos).
+        const L2eff = state.L2[s] * (1 - posture.knee * 0.12);
         const sol = solveLeg3D(
           state.hipSkel[s],
           aSkel,
           state.L1[s],
-          state.L2[s],
+          L2eff,
           state.f0[s],
           state.t0[s]
         );
@@ -436,6 +458,8 @@ export default function Rig({
         foot.rotation.z = -hip.rotation.z;
       }
     } else {
+      r.kneeL.rotation.x += posture.knee;
+      r.kneeR.rotation.x += posture.knee;
       r.footL.rotation.x = -(r.hipL.rotation.x + r.kneeL.rotation.x) + r.extraL;
       r.footR.rotation.x = -(r.hipR.rotation.x + r.kneeR.rotation.x) + r.extraR;
       if (qs) {
@@ -520,6 +544,15 @@ export default function Rig({
               visible={showContacts}
             >
               <sphereGeometry args={[0.038, 12, 10]} />
+              <meshBasicMaterial color="#64748b" />
+            </mesh>
+            {/* Phase 15 — points de contact des genoux (l'embrace touche aussi cuisses/genoux) */}
+            <mesh ref={reg("contactKneeL")} userData={{ part: "anchor" }} position={[0.084, -0.44, 0.1]} visible={showContacts}>
+              <sphereGeometry args={[0.034, 12, 10]} />
+              <meshBasicMaterial color="#64748b" />
+            </mesh>
+            <mesh ref={reg("contactKneeR")} userData={{ part: "anchor" }} position={[-0.084, -0.44, 0.1]} visible={showContacts}>
+              <sphereGeometry args={[0.034, 12, 10]} />
               <meshBasicMaterial color="#64748b" />
             </mesh>
             <group ref={reg("torso")} visible={showTorso}>

@@ -12,7 +12,7 @@ import LineOfDance from "./components/LineOfDance";
 import CompassRose from "./components/CompassRose";
 import { resolveCam, resolveView, viewAnglesOf, SOLID_TORSO_OPACITY } from "./cameras";
 import { usePersistentState } from "./hooks/usePersistentState";
-import { STYLES, movementOf, movementFlags, type ModeKey, type MovementKey } from "./styles";
+import { STYLES, movementOf, movementFlags, PAIR_DZ, type ModeKey, type MovementKey } from "./styles";
 import { parseVec3, buildShareUrl } from "./share";
 import { DIR_LABELS, isDiagonal } from "./directions";
 
@@ -49,7 +49,9 @@ export default function App() {
   const [playing, setPlaying] = usePersistentState("playing", true);
   const [bpm, setBpm] = usePersistentState("bpm", 32);
   const [amp, setAmp] = usePersistentState("amp", 1);
-  const [followDelay, setFollowDelay] = usePersistentState("followDelay", 0.5);
+  // Phase 15 — plus de paramètre « retard du suiveur » : en paire, le suiveur est le miroir
+  // exact du guideur (phaseOffset 0), même style ; la comparaison de styles différents se fait
+  // en mode « Comparaison côte à côte » (styleB), pas avec un suiveur retardé.
   const [showContacts, setShowContacts] = usePersistentState("showContacts", true);
   const [travel, setTravel] = usePersistentState("travel", 0);
   const [showTorso, setShowTorso] = usePersistentState("showTorso", true);
@@ -128,7 +130,8 @@ export default function App() {
     if (p.has("cadre")) setCadre(p.get("cadre") !== "0");
     if (p.has("dir")) { const d = num("dir"); if (d !== null && (d === 1 || d === -1)) setDir(d); }
     if (p.has("boussole")) setShowBoussole(p.get("boussole") !== "0");
-    if (p.has("delay")) { const d = num("delay"); if (d !== null) setFollowDelay(Math.min(2, Math.max(0, d))); }
+    // `delay` (retard du suiveur) supprimé en phase 15 : ignoré s'il est présent dans l'URL.
+    if (p.has("contacts")) setShowContacts(p.get("contacts") !== "0");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -168,7 +171,7 @@ export default function App() {
       mode, style: styleA, styleB, bpm, travel, amp, playing,
       torso: showTorso, muscles: showMuscles, sortie, repere: showRepere, appui: showAppui,
       plant, corridinho, ligne: showLigne, iso, cadre, quarts, temps3, ida, dir,
-      delay: followDelay, ghost: ghostSel, boussole: showBoussole,
+      ghost: ghostSel, boussole: showBoussole, contacts: showContacts,
       cam: params.get("cam") ?? undefined, demo: params.get("demo") ?? undefined,
       bare: params.get("bare") ?? undefined, solid: params.get("solid") ?? undefined,
     }, camPos, camTgt, view);
@@ -188,8 +191,10 @@ export default function App() {
   const ghostA = (isCompare || isPair) && ghostSel === "B";
   const ghostB = ghostSel === "A";
 
-  const offsetA: [number, number, number] = isPair ? [0, 0, -0.14] : isCompare ? [-0.85, 0, 0] : [0, 0, 0];
-  const offsetB: [number, number, number] = isPair ? [0, 0, 0.14] : [0.85, 0, 0];
+  // Phase 15 — embrace proche : les surfaces frontales (poitrine, bassin, genoux) sont en
+  // contact à z=∓0.125 (voir marqueurs contact* et ContactViz).
+  const offsetA: [number, number, number] = isPair ? [0, 0, -PAIR_DZ] : isCompare ? [-0.85, 0, 0] : [0, 0, 0];
+  const offsetB: [number, number, number] = isPair ? [0, 0, PAIR_DZ] : [0.85, 0, 0];
 
   const handleMode = (m: ModeKey) => {
     if (m === "observe" && mode !== "observe") {
@@ -270,7 +275,7 @@ export default function App() {
             />
             {(isCompare || isPair) && (
               <Rig
-                styleKey={styleB}
+                styleKey={isPair ? styleA : styleB}
                 bpm={bpm}
                 amp={amp}
                 playing={playing}
@@ -278,7 +283,6 @@ export default function App() {
                 rotationY={isPair ? Math.PI : 0}
                 ghost={ghostB}
                 embrace={isPair}
-                phaseOffset={isPair ? followDelay : 0}
                 pair={isPair ? pairRef : null}
                 side={isPair ? "follower" : null}
                 showContacts={isPair && showContacts}
@@ -395,8 +399,6 @@ export default function App() {
         onAmp={setAmp}
         showTorso={showTorso}
         onShowTorso={setShowTorso}
-        followDelay={followDelay}
-        onFollowDelay={setFollowDelay}
         showContacts={showContacts}
         onShowContacts={setShowContacts}
         showMuscles={showMuscles}
@@ -473,7 +475,7 @@ export default function App() {
             />
             {(isCompare || isPair) && (
               <Rig
-                styleKey={styleB}
+                styleKey={isPair ? styleA : styleB}
                 bpm={bpm}
                 amp={amp}
                 playing={playing}
@@ -481,7 +483,6 @@ export default function App() {
                 rotationY={isPair ? Math.PI : 0}
                 ghost={ghostB}
                 embrace={isPair}
-                phaseOffset={isPair ? followDelay : 0}
                 pair={isPair ? pairRef : null}
                 side={isPair ? "follower" : null}
                 showContacts={isPair && showContacts}
@@ -566,7 +567,7 @@ export default function App() {
       <div className={"grid gap-4 " + (isPair ? "md:grid-cols-3" : isCompare ? "md:grid-cols-2" : "")}>
         <InfoCard styleKey={styleA} position={isPair ? "guideur" : isCompare ? "gauche" : ""} />
         {(isCompare || isPair) && (
-          <InfoCard styleKey={styleB} position={isPair ? "suiveur" : "droite"} />
+          <InfoCard styleKey={isPair ? styleA : styleB} position={isPair ? "suiveur (miroir)" : "droite"} />
         )}
         {isPair && <PairInfoCard />}
       </div>
