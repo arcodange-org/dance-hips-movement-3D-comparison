@@ -129,10 +129,12 @@ Les paragraphes de phases ci-dessous sont historiques.
   `docs/spec-session-16-18.md` (objectifs + audit des points faibles W1–W10 mesurés + modèle
   d'oracle) + harness renforcé (`.vibe/HARNESS.md` §6 pièges)
 - Phase 16 **LIVRÉE** (PR #16 mergée, commit `b5d6d89`, CI push main run 44356011283 = success,
-- Phase M5 **EN COURS** (branche `vibe/phaseM5-oracle-final-ae8a7a`) : recoupement oracle ↔ poses
-  finales GLB du moteur #19 — `scripts/test_oracle_final.mjs` (429 assertions PASS : pieds/lacets
-  ~1e-17, dissociation haut/bas exacte, sorties G/F/combiné exactes, sol minY=-5e-16) + oracle
-  étendu (sorties, `rootX`) ; coordination déposée sur issues #21/#22 (périmètres réservés)
+- Phase M5 **LIVRÉE** (PR #23 mergée, commit `aec06ea`, CI PR run 44384036634 = success ; push
+  main à relancer par checkpoint) : recoupement oracle ↔ poses finales GLB du moteur #19 —
+  `scripts/test_oracle_final.mjs` (429 assertions PASS : pieds/lacets ~1e-17, dissociation
+  exacte, sorties G/F/combiné exactes, sol minY=-5e-16) + oracle étendu (sorties, `rootX`) ;
+  issues #21/#22 surveillées (pas de PR ouverte de l'autre agent à ce stade ; coordination
+  en commentaires)
 - Phase 17 **LIVRÉE** (PR #20 mergée, commit `43293bd`, CI push main run 44369926848 = success,
   site vérifié 200 + GIF/spec en ligne) : sortie garçon/fille/combinée G→F en **option
   exclusive** (`MovementKey` += sortieG/sortieF/sortieGF, `sortieActive(side, m, b)`, `pose.ts`
