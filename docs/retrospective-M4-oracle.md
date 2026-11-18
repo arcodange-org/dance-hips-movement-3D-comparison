@@ -29,5 +29,7 @@ pied pivotant (π/2) sur les quarts de tour.
 - [x] 50. Phase 18 oracle (fait ici).
 - [ ] 49. Phase 17 sortie exclusive + combiné — **bloquée tant que #17 ouverte** (fichiers
   communs), à reprendre ensuite.
-- [ ] M5. Quand #17 sera mergée : revalider l'oracle contre les poses finales post-IK livrées
-  par #17 (recoupement oracle amont / poses appliquées au squelette).
+- [x] M5. Recoupement oracle ↔ poses finales du moteur #19 (livré, `scripts/test_oracle_final.mjs`,
+  429 assertions PASS : pieds/lacets ~1e-17, dissociation exacte, sorties exactes, sol OK).
+  Voir `docs/spec-phase18-oracle.md` §7 pour les leçons (convention début/fin de pas, lacet en
+  Euler YXZ, repos GLB vs repos plan, projection reach-discs sur rootX).

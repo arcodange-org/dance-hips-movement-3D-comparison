@@ -67,3 +67,24 @@ Fichiers neufs uniquement : `src/oracle.ts`, `scripts/test_oracle.mjs`, `docs/or
 - `npm run build` OK. CI job `test` sur la PR.
 - Rétrospective M4 : addendum `docs/retrospective-M4-oracle.md` (évaluation mouvements :
   courbes → poses discrètes par demi-temps).
+
+## 7. Phase M5 — recoupement oracle ↔ poses finales du moteur #19 (livré)
+
+`scripts/test_oracle_final.mjs` (branché dans `npm test`) applique `applyPose` sur le GLB réel
+(fixture) et compare aux prédictions de `src/oracle.ts` :
+
+- **quarts** (solo, cycle 16) : chevilles x/z et lacets à chaque pas posé (b=2k+1,2, e=1) ;
+  `root.rotation.y = lowerYaw` et `chest.rotation.y = upperYaw − lowerYaw` à chaque quart de
+  temps. Erreurs max mesurées : pieds 7e-17 m, lacets 0.
+- **ida e volta** (solo, cycle 8) : pieds aux frontières b=2k, **relatifs au repos GLB** (le
+  moteur pose relativement au repos réel du GLB, ±0,0708, pas aux constantes plan ±0,084) ;
+  convention « dernier pas du côté » (recherche arrière) reprise dans l'oracle.
+- **sorties** (solo sortieG + paire sortieGF) : déplacement latéral des pieds EXACT vs oracle
+  (rel repos) ; `rootX` avec tolérance 0,08 m (la projection de portée reach-discs décale le
+  root, err max mesurée 0,070) ; contre-rotation buste prédite (`upperYaw = −0.22·se`) ;
+  fenêtres du combiné (leader p<8, follower p≥8) et miroir du suiveur vérifiés.
+- **sol** : minY sommets = −5e-16 ≥ −1e-9 (coherent avec la garantie #19).
+
+Résultat : **429 assertions PASS**. Leçons : convention début/fin de pas à préciser (e=0 vs
+e=1), lacet lu en Euler YXZ/local (pas atan2 du forward, pollué par le pitch), repos GLB ≠
+repos plan (comparer relatif au repos pour ida/sorties).
