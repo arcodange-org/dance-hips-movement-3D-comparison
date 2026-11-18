@@ -11,6 +11,33 @@ movements hips down are the dominant ones, not the upper body movements »).
 
 **🌐 Site déployé (GitHub Pages) : https://arcodange-org.github.io/dance-hips-movement-3D-comparison/**
 
+## Sortie garçon — cinq actions validées
+
+En mode paire, « Sortie garçon » joue G–D–G croisé–D–marka G pour le leader ; la partenaire
+recule sur D–G–D–G puis marque D. Quatre transferts ; au marka le leader conserve son appui D.
+La lecture s'arrête sur la pose finale, plus loin dans la salle. Le sélecteur de pose et le
+bouton Rejouer permettent la vérification pas à pas. Une variante termine par un déplacement
+commun vers la droite du leader ; la contraposition est ajustable, sans angle imposé par style.
+
+[Spécification et sources FR/PT/EN](docs/spec-sortie-garcon.md) ·
+[Projet d'éditeur de figures — spécification seulement](docs/spec-editeur-figures.md) ·
+[Tests et rétrospective](docs/retrospective-sortie-garcon.md).
+
+URL : `?mode=pair&sortieG=1&playing=0&sortieBeat=2&sortieVariant=line&sortieContra=12`.
+La ligne rose suit ici l'avant du leader (+z). La sortie fille (8 temps) et le combiné
+(16 temps) conservent leur comportement historique ; leur description sera validée séparément.
+Le plan des pieds est indépendant du curseur de déplacement générique. Les styles et la
+proximité des cuisses restent des illustrations paramétriques, pas une simulation de forces.
+
+![Sortie garçon validée — variante à droite](docs/gifs/sortie-garcon-validee.gif)
+<details><summary>Détails & source</summary>
+
+Capture du canvas via « Exporter un cycle » : cinq temps à 90 bpm, kizomba, amplitude 1,
+variante à droite et contraposition illustrative 12°. BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
+Les jauges HTML ne sont pas incluses. Le GIF boucle ; l'application conserve la pose finale.
+[Séquence et sources](docs/spec-sortie-garcon.md), [preuves et limites](docs/retrospective-sortie-garcon.md).
+</details>
+
 ## Captures après correction de l’audit #17
 
 Le rendu et les tests utilisent le même moteur de pose (`src/pose.ts`) et une horloge commune.

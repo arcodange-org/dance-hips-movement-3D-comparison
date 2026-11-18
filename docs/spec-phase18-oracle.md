@@ -1,5 +1,15 @@
 # Spec phase 18 — Oracle de poses discrètes par demi-pas (critique de l'évaluation des mouvements)
 
+**Portée après #21 :** l'oracle `sortieG` historique conserve le déport latéral de phase 17,
+confronté à l'option interne `sortie: true, movement: none` dans le test d'intégration.
+La sortie garçon en paire suit désormais les cinq actions validées de
+[sa spécification](spec-sortie-garcon.md), vérifiées sur le GLB par `test_sortie_garcon.mjs`.
+L'oracle des autres figures reste inchangé.
+Le runner M5 inclut explicitement les instants de pose `k+0,6` / `2k+1,2`, absents de sa grille
+initiale de 0,25 temps, et exige une couverture non nulle par cas : 669 assertions après
+correction, contre 429 auparavant. Voir [la rétrospective](retrospective-sortie-garcon.md)
+pour le repère de la partenaire, la dernière cible du pied planté et la portée du contrôle de bassin.
+
 Demande 2026-11-19 : « réviser le plan de la session et critiquer l'évaluation des mouvements :
 il y a des points de repère et des principes de base de body dynamic sur l'orientation /
 croisement des jambes, la dualité haut/bas du corps, la dualité danseur/partenaire. On peut

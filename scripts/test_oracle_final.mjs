@@ -34,6 +34,16 @@ const worldYaw = (o) => {
 };
 const worldPos = (o) => o.getWorldPosition(new THREE.Vector3());
 
+// The old sortie oracle gives the current lateral target, not the previous
+// landing of the planted foot. A planted foot keeps its last landing target.
+function sortieLanding(movement, beat, role, side) {
+  const current = oraclePose(movement, beat, false, role);
+  if (current.rootX === 0) return current["foot" + side];
+  const step = Math.floor(beat), moving = step % 2 === 0 ? "L" : "R";
+  const landing = step - (moving === side ? 0 : 1) + .6;
+  return oraclePose(movement, landing, false, role)["foot" + side];
+}
+
 let checks = 0;
 const errors = { foot: 0, footYaw: 0, lowerYaw: 0, upperYaw: 0, rootX: 0 };
 let minY = Infinity;
@@ -44,13 +54,15 @@ function near(a, b, tol, label, errKey) {
   checks++;
 }
 
-function checkSolo(movement, cycle, extraOpts, footBeats, relative = false) {
+function checkSolo(movement, cycle, extraOpts, footBeats, relative = false, landings = []) {
   const f = fixture(api, {}); // solo : offset 0, rotation 0
   // repos plan (oracle, constantes QH/QF) vs repos GLB réel (fixture) : pour les mouvements
   // posés relativement au repos (ida, sorties), on compare les déplacements relatifs.
   const pr = oraclePose("quarts", 0, false, "leader").footR; // repos plan {x:-QH, z:QF}
   const planRest = { L: { x: -pr.x, z: pr.z }, R: { x: pr.x, z: pr.z } };
-  for (let b = 0; b <= cycle; b += 0.25) {
+  let footChecks = 0;
+  const beats = [...new Set([...Array.from({ length: cycle * 4 + 1 }, (_, i) => i / 4), ...landings])].sort((a, b) => a - b);
+  for (const b of beats) {
     applyPose(f.r, f.model, b, { styleKey: "kizomba", amp: 1, embrace: true, movement, ...extraOpts });
     minY = Math.min(minY, minimumBoneY(f.r));
     const o = oraclePose(movement, b, false, "leader");
@@ -60,31 +72,43 @@ function checkSolo(movement, cycle, extraOpts, footBeats, relative = false) {
     near(wrapPi(f.r.chest.rotation.y - (o.upperYaw - o.lowerYaw)), 0, 1e-9, `${movement} b=${b} upperYaw`, "upperYaw");
     for (const s of ["L", "R"]) {
       if (!footBeats(b)) continue; // pieds/lacets comparés quand le pas est posé (e=1)
+      footChecks++;
       const foot = f.r["foot" + s];
       const p = worldPos(foot);
-      near(wrapPi(worldYaw(foot) - o["foot" + s].yaw), 0, 1e-6, `${movement} b=${b} foot${s} yaw`, "footYaw");
+      const expected = movement.startsWith("sortie") ? sortieLanding(movement, b, "leader", s) : o["foot" + s];
+      near(wrapPi(worldYaw(foot) - expected.yaw), 0, 1e-6, `${movement} b=${b} foot${s} yaw`, "footYaw");
       if (relative) {
-        near(p.x - f.model.legs[s].rest.x, o["foot" + s].x - planRest[s].x, 1e-6, `${movement} b=${b} foot${s}.x (rel repos)`, "foot");
-        near(p.z - f.model.legs[s].rest.z, o["foot" + s].z - planRest[s].z, 1e-6, `${movement} b=${b} foot${s}.z (rel repos)`, "foot");
+        near(p.x - f.model.legs[s].rest.x, expected.x - planRest[s].x, 1e-6, `${movement} b=${b} foot${s}.x (rel repos)`, "foot");
+        near(p.z - f.model.legs[s].rest.z, expected.z - planRest[s].z, 1e-6, `${movement} b=${b} foot${s}.z (rel repos)`, "foot");
       } else {
         near(p.x, o["foot" + s].x, 1e-6, `${movement} b=${b} foot${s}.x`, "foot");
         near(p.z, o["foot" + s].z, 1e-6, `${movement} b=${b} foot${s}.z`, "foot");
       }
     }
-    if (footBeats(b)) near(worldPos(f.r.root).x, o.rootX, 0.03, `${movement} b=${b} rootX`, "rootX");
+    // rootX is a nominal plan, before the final reach-disc projection. Use the same
+    // documented approximation bound as the pair check; ankle targets stay exact.
+    if (footBeats(b)) near(worldPos(f.r.root).x, o.rootX, 0.08, `${movement} b=${b} rootX`, "rootX");
   }
+  if (!footChecks) throw new Error(`${movement}: no landed foot was checked`);
 }
 
 // Pieds comparés quand le pas est posé (e=1) : quarts/ida -> b = 2k+1.2 ; sortie -> b = k+0.6.
-checkSolo("quarts", 16, { quarts: true }, (b) => Math.abs((b % 2) - 1.2) < 1e-9);
+checkSolo("quarts", 16, { quarts: true }, (b) => Math.abs((b % 2) - 1.2) < 1e-9, false,
+  Array.from({ length: 8 }, (_, i) => 2 * i + 1.2));
 checkSolo("ida", 8, { ida: true }, (b) => Number.isInteger(b) && b % 2 === 0, true); // frontières b=2k ; pieds relatifs au repos GLB
-checkSolo("sortieG", 8, {}, (b) => Math.abs(b - Math.floor(b) - 0.6) < 1e-9, true); // pieds = repos GLB + dx
+// The historical oracle models the former lateral envelope, still exposed by the
+// legacy internal `sortie` option. The validated couple figure (#21) has its own
+// actual-GLB checks in test_sortie_garcon.mjs; it no longer uses this old oracle.
+checkSolo("sortieG", 8, { movement: "none", sortie: true }, (b) => Math.abs(b - Math.floor(b) - 0.6) < 1e-9, true,
+  Array.from({ length: 8 }, (_, i) => i + .6));
 
 // Paire + combiné G→F : root monde du leader vs oracle leader, du suiveur (miroir rotY=π) vs -oracle follower.
 {
   const lead = fixture(api, { offset: [0, 0, -PAIR_DZ] });
   const fol = fixture(api, { rotation: Math.PI, offset: [0, 0, PAIR_DZ] });
-  for (let b = 0; b <= 16; b += 0.25) {
+  let footChecks = 0;
+  const beats = [...Array.from({ length: 65 }, (_, i) => i / 4), ...Array.from({ length: 16 }, (_, i) => i + .6)].sort((a, b) => a - b);
+  for (const b of beats) {
     applyPose(lead.r, lead.model, b, { styleKey: "kizomba", amp: 1, embrace: true, movement: "sortieGF" });
     applyPose(fol.r, fol.model, b, { styleKey: "kizomba", amp: 1, embrace: true, movement: "sortieGF", follower: true });
     minY = Math.min(minY, minimumBoneY(lead.r), minimumBoneY(fol.r));
@@ -96,16 +120,20 @@ checkSolo("sortieG", 8, {}, (b) => Math.abs(b - Math.floor(b) - 0.6) < 1e-9, tru
     // pieds posés (e=1, b=k+0.6) : déplacement latéral EXACT vs oracle (rel repos GLB)
     if (Math.abs(b - Math.floor(b) - 0.6) < 1e-9) {
       const pr = oraclePose("quarts", 0, false, "leader").footR;
-      for (const [f, o, side] of [[lead, oL, "L"], [lead, oL, "R"], [fol, oF, "L"], [fol, oF, "R"]]) {
-        const p = worldPos(f.r["foot" + side]);
+      for (const [f, role, side] of [[lead, "leader", "L"], [lead, "leader", "R"], [fol, "follower", "L"], [fol, "follower", "R"]]) {
+        // Compare in each dancer's own frame, including the follower rotated by π.
+        const p = f.outer.worldToLocal(worldPos(f.r["foot" + side]));
         const rest = f.model.legs[side].rest;
-        near(p.x - rest.x, (side === "L" ? -pr.x : pr.x) * 0 + o["foot" + side].x - (side === "L" ? -pr.x : pr.x), 1e-6, `sortieGF paire b=${b} foot${side} x`, "foot");
+        const expected = sortieLanding("sortieGF", b, role, side);
+        near(p.x - rest.x, expected.x - (side === "L" ? -pr.x : pr.x), 1e-6, `sortieGF paire b=${b} foot${side} x`, "foot");
+        footChecks++;
       }
     }
     // fenêtres : leader actif p<8, follower p>=8
     const p = ((b % 16) + 16) % 16;
     if (p >= 8.0 && p < 8.2) near(Math.abs(oL.rootX), 0, 1e-12, "leader nul en p 8", "rootX");
   }
+  if (!footChecks) throw new Error("sortieGF: no landed foot was checked");
 }
 
 if (minY < -1e-9) throw new Error(`sol violé: minY=${minY}`);

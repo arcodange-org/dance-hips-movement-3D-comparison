@@ -10,10 +10,12 @@ export default function LineOfDance({
   visible = true,
   color = "#f472b6",
   halfLength = 1.3,
+  forward = false,
 }: {
   visible?: boolean;
   color?: string;
   halfLength?: number;
+  forward?: boolean;
 }) {
   const dashes = useMemo(() => {
     const g = new THREE.Group();
@@ -32,5 +34,5 @@ export default function LineOfDance({
     return g;
   }, [color, halfLength]);
   if (!visible) return null;
-  return <primitive object={dashes} />;
+  return <group rotation-y={forward ? Math.PI / 2 : 0}><primitive object={dashes} /></group>;
 }

@@ -36,6 +36,26 @@
   **BodyParts3D v4.0, © DBCLS, CC BY-SA 2.1 Japan** — visible dans l'app (pied de page) et le
   README. Police embarquée : sous-ensemble DejaVu (Bitstream Vera).
 
+## Sortie garçon validée — amendement #21 (18 novembre 2026)
+
+Exclusivement pour `sortieG` en paire : plan de cinq actions, ligne initiale selon +z, trajectoires
+et appuis propres à chaque rôle ; lecture finie et état final conservé. Le marka est un touché
+sans transfert et tient la phase corporelle de l'action 4. Déplacement générique, sens inverse
+et désactivation de l'IK ne remplacent pas le plan validé. Paramètres : `sortieVariant=line|right`,
+`sortieContra=0..30` (degrés illustratifs), `sortieBeat=0..5` (pose à partager).
+
+L'écartement initial spécifique est 0,40 m entre racines ; `PAIR_DZ=0.175` est inchangé ailleurs.
+Le bassin reste entre les pieds aux actions 1 et 3, puis termine la progression aux actions 2
+et 4. Pour cette figure, les isolations sur place sont bornées par la portée et le dégagement
+mesuré des jambes : supplément de niveau ≤8 mm, flexion demandée ≤0,45 rad, rotations du
+bassin proportionnellement bornées à 0,12 rad par axe. Ce sont des paramètres de ce modèle,
+pas des normes chorégraphiques ni des angles déduits des sources.
+
+La proximité cuisse D/D utilise le segment central de chaque fémur et une enveloppe illustrative
+de rayon 8,5 cm. Les tests de collision osseuse utilisent les vrais triangles après transformation,
+avec leurs propres boîtes calculées depuis les sommets (GLB quantifié). Ils ne certifient pas
+l'absence de collision des tissus mous ou des bras.
+
 ## Paramètres d'URL (captures + partage)
 
 `?mode=solo|observe|compare|pair&style=kizomba&styleB=kompa&bpm=90&travel=0.6&amp=1&playing=1&ghost=none&contacts=1`
@@ -53,7 +73,7 @@ sur `quarts`/`corridinho`.)
 
 ## Tests
 
-`npm test` = `test_styles.mjs` + `test_features.mjs` + `test_oracle.mjs` + `test_poses.mjs` dans `scripts/`.
+`npm test` = `test_styles.mjs` + `test_features.mjs` + `test_oracle.mjs` + `test_poses.mjs` + `test_sortie_garcon.mjs` dans `scripts/`.
 Le dernier charge le GLB réel, applique `src/pose.ts` et contrôle les matrices monde finales,
 les longueurs, semelles, angles HUD, appuis, continuité et indépendance à l’historique.
 Le transport est partagé : aucun rig ne remet le temps à zéro en changeant de style.
