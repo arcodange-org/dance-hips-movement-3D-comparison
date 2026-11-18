@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import Rig from "./components/Rig";
@@ -32,6 +32,9 @@ export default function App() {
   const [showMuscles, setShowMuscles] = usePersistentState("showMuscles", false);
   const [sortie, setSortie] = usePersistentState("sortie", false);
   const [showRepere, setShowRepere] = usePersistentState("repere", true);
+  const [showAppui, setShowAppui] = usePersistentState("appui", false);
+  const statsRef = useRef<any>({});
+  const [hud, setHud] = useState<any>(null);
   const pairRef = useRef<Record<string, any>>({});
 
   // Paramètres d'URL (?style=&styleB=&mode=&bpm=&travel=&amp=&playing=&torso=&muscles=&sortie=&bare=)
@@ -51,9 +54,16 @@ export default function App() {
     if (p.has("muscles")) setShowMuscles(p.get("muscles") !== "0");
     if (p.has("sortie")) setSortie(p.get("sortie") !== "0");
     if (p.has("repere")) setShowRepere(p.get("repere") !== "0");
+    if (p.has("appui")) setShowAppui(p.get("appui") !== "0");
     if (p.has("delay")) { const d = num("delay"); if (d !== null) setFollowDelay(Math.min(2, Math.max(0, d))); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!showAppui) return;
+    const id = setInterval(() => setHud(statsRef.current ? { ...statsRef.current } : null), 120);
+    return () => clearInterval(id);
+  }, [showAppui]);
 
   const bare = params.get("bare") === "1";
   const demoKey = params.get("demo");
@@ -83,6 +93,7 @@ export default function App() {
       setBpm(32);
       setShowTorso(false);
       setTravel(0);
+      setShowAppui(true);
     }
     setMode(m);
   };
@@ -139,6 +150,8 @@ export default function App() {
               showTorso={showTorso}
               showMuscles={showMuscles}
               sortie={sortie}
+              showAppui={showAppui}
+              stats={statsRef}
             />
             {(isCompare || isPair) && (
               <Rig
@@ -158,6 +171,8 @@ export default function App() {
                 showTorso={showTorso}
                 showMuscles={showMuscles}
                 sortie={sortie}
+                showAppui={showAppui}
+                stats={statsRef}
               />
             )}
             {isPair && <ContactViz pair={pairRef} />}
@@ -171,6 +186,17 @@ export default function App() {
             enablePan={false}
           />
         </Canvas>
+        {showAppui && hud && (
+          <div className="absolute top-3 right-3 pointer-events-none text-[11px] font-mono text-slate-200 bg-slate-900/70 rounded-md px-2 py-1 space-y-0.5">
+            <div>
+              appui D {Math.round(hud.loadR * 100)}% · G {Math.round(hud.loadL * 100)}%
+            </div>
+            <div>
+              genou D {hud.kneeR.toFixed(0)}° · G {hud.kneeL.toFixed(0)}°
+            </div>
+            <div>roll bassin {hud.roll.toFixed(1)}°</div>
+          </div>
+        )}
         {demo && <DemoOverlay demo={demo} />}
         {!demo && (
         <div className="absolute bottom-3 left-3 flex gap-2 pointer-events-none">
@@ -240,6 +266,8 @@ export default function App() {
         onSortie={setSortie}
         showRepere={showRepere}
         onShowRepere={setShowRepere}
+        showAppui={showAppui}
+        onShowAppui={setShowAppui}
         ghostSel={ghostSel}
         onGhostSel={setGhostSel}
         onExport={exportCycle}
@@ -273,6 +301,8 @@ export default function App() {
               showTorso={showTorso}
               showMuscles={showMuscles}
               sortie={sortie}
+              showAppui={showAppui}
+              stats={statsRef}
             />
             {(isCompare || isPair) && (
               <Rig
@@ -292,6 +322,8 @@ export default function App() {
                 showTorso={showTorso}
                 showMuscles={showMuscles}
                 sortie={sortie}
+                showAppui={showAppui}
+                stats={statsRef}
               />
             )}
             {isPair && <ContactViz pair={pairRef} />}
@@ -327,6 +359,17 @@ export default function App() {
         <div className="absolute top-3 right-3 text-[10px] text-slate-500 pointer-events-none">
           glisser pour orbiter, molette pour zoomer
         </div>
+        {showAppui && hud && (
+          <div className="absolute top-10 right-3 pointer-events-none text-[11px] font-mono text-slate-200 bg-slate-900/70 rounded-md px-2 py-1 space-y-0.5">
+            <div>
+              appui D {Math.round(hud.loadR * 100)}% · G {Math.round(hud.loadL * 100)}%
+            </div>
+            <div>
+              genou D {hud.kneeR.toFixed(0)}° · G {hud.kneeL.toFixed(0)}°
+            </div>
+            <div>roll bassin {hud.roll.toFixed(1)}°</div>
+          </div>
+        )}
       </div>
 
       <div className={"grid gap-4 " + (isPair ? "md:grid-cols-3" : isCompare ? "md:grid-cols-2" : "")}>

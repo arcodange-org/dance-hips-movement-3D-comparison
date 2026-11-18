@@ -15,7 +15,7 @@ import {
   resetRig,
   type RigHandle,
 } from "../anatomy";
-import { STYLES, sortieEnvelope } from "../styles";
+import { STYLES, sortieEnvelope, supportOf } from "../styles";
 import { solveLeg3D } from "../ik";
 import {
   MUSCLES_URL,
@@ -66,6 +66,8 @@ export interface RigProps {
   showTorso?: boolean;
   showMuscles?: boolean;
   sortie?: boolean;
+  showAppui?: boolean;
+  stats?: React.MutableRefObject<any> | null;
 }
 
 export default function Rig({
@@ -85,6 +87,8 @@ export default function Rig({
   showTorso = true,
   showMuscles = false,
   sortie = false,
+  showAppui = false,
+  stats = null,
 }: RigProps) {
   const r = useRef({} as RigHandle).current;
   const reg = (n: string) => (el: any) => {
@@ -112,6 +116,8 @@ export default function Rig({
   const { scene } = useGLTF(ANATOMY_URL);
   const { scene: musclesScene } = useGLTF(MUSCLES_URL, DRACO_DECODER_PATH);
   const muscleMeshes = useRef<THREE.Mesh[]>([]);
+  const chainMeshes = useRef<Record<Side, THREE.Mesh[]>>({ R: [], L: [] });
+  const chainColor = useMemo(() => new THREE.Color(STYLES[styleKey].color), [styleKey]);
   const skel = useMemo(() => {
     const s = scene.clone(true);
     s.traverse((o) => {
@@ -156,6 +162,14 @@ export default function Rig({
     for (const s of ["R", "L"] as Side[]) {
       state.plant[s].set(state.hipSkel[s].x, state.ankleOuterY, state.footZ[s]);
       state.footPos[s].copy(state.plant[s]);
+    }
+    for (const sd of ["R", "L"] as Side[]) {
+      const list: THREE.Mesh[] = [];
+      for (const n of ["Femur", "Tibia", "Fibula", "Patella", "Foot", "HipBone"]) {
+        const m = r[`${n}_${sd}`] as THREE.Mesh | undefined;
+        if (m && m.isMesh) list.push(m);
+      }
+      chainMeshes.current[sd] = list;
     }
     state.ready = true;
   }, [skel, r]);
@@ -217,6 +231,52 @@ export default function Rig({
     r.root.position.x += travel * (HIP_WIDTH / 2) * Math.tanh(2.2 * S2(b));
     if (sortie && embrace) r.root.position.x += 0.22 * sortieEnvelope(b) * amp;
     if (r.root.position.y < 0) r.root.position.y = 0;
+
+    // Appuis : charge pied droit (support) -> pastilles au sol + chaîne pied→genou→hanche
+    // emissive côté chargé + stats HUD (charge G/D %, flexion genoux, roll bassin).
+    const loadR = Math.max(0, Math.min(1, (supportOf(styleKey, r, b) + 1) / 2));
+    const loadL = 1 - loadR;
+    if (r.padR && r.padL) {
+      const outer = r.root.parent as THREE.Group;
+      for (const [sd, pad, load] of [["R", r.padR, loadR], ["L", r.padL, loadL]] as [Side, THREE.Mesh, number][]) {
+        const foot = (sd === "R" ? r.footR : r.footL) as THREE.Object3D;
+        foot.getWorldPosition(tmp);
+        const local = outer.worldToLocal(tmp.clone());
+        pad.position.set(local.x, 0.004, local.z);
+        const pm = pad.material as THREE.MeshBasicMaterial;
+        pm.opacity = 0.12 + 0.78 * load;
+        const sc = 0.7 + 0.55 * load;
+        pad.scale.set(sc, 1, sc);
+      }
+    }
+    for (const sd of ["R", "L"] as Side[]) {
+      const load = sd === "R" ? loadR : loadL;
+      const k = showAppui ? Math.max(0, (load - 0.55) / 0.45) : 0;
+      for (const mesh of chainMeshes.current[sd]) {
+        ((mesh.material as THREE.MeshStandardMaterial).emissive as THREE.Color)
+          .copy(chainColor)
+          .multiplyScalar(0.55 * k);
+      }
+      if (showMuscles) {
+        for (const mm of muscleMeshes.current) {
+          if (!mm.name.endsWith("_" + sd)) continue;
+          ((mm.material as THREE.MeshStandardMaterial).emissive as THREE.Color).setRGB(
+            0.95 * k,
+            0.12 * k,
+            0.12 * k
+          );
+        }
+      }
+    }
+    if (stats) {
+      stats.current = {
+        loadR,
+        loadL,
+        kneeR: (r.kneeR.rotation.x * 180) / Math.PI,
+        kneeL: (r.kneeL.rotation.x * 180) / Math.PI,
+        roll: (r.pelvis.rotation.z * 180) / Math.PI,
+      };
+    }
 
     const w = Math.min(1, travel / 0.2);
     if (w > 0.001 && ik.current.ready) {
@@ -466,6 +526,28 @@ export default function Rig({
             </group>
           </group>
         </group>
+      {showAppui && (
+        <>
+          <mesh ref={reg("padR")} rotation-x={-Math.PI / 2}>
+            <circleGeometry args={[0.1, 24]} />
+            <meshBasicMaterial
+              color={STYLES[styleKey].color}
+              transparent
+              opacity={0.5}
+              depthWrite={false}
+            />
+          </mesh>
+          <mesh ref={reg("padL")} rotation-x={-Math.PI / 2}>
+            <circleGeometry args={[0.1, 24]} />
+            <meshBasicMaterial
+              color={STYLES[styleKey].color}
+              transparent
+              opacity={0.5}
+              depthWrite={false}
+            />
+          </mesh>
+        </>
+      )}
       </group>
       <primitive object={trail} />
     </>

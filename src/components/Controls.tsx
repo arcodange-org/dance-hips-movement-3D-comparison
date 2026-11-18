@@ -28,6 +28,8 @@ interface ControlsProps {
   onSortie: (v: boolean) => void;
   showRepere: boolean;
   onShowRepere: (v: boolean) => void;
+  showAppui: boolean;
+  onShowAppui: (v: boolean) => void;
   ghostSel: string;
   onGhostSel: (v: string) => void;
   onExport: () => void;
@@ -97,6 +99,8 @@ export default function Controls(props: ControlsProps) {
     onSortie,
     showRepere,
     onShowRepere,
+    showAppui,
+    onShowAppui,
     ghostSel,
     onGhostSel,
     onExport,
@@ -206,6 +210,15 @@ export default function Controls(props: ControlsProps) {
             className="accent-sky-400"
           />
           Repère fixe (origine)
+        </label>
+        <label className="flex items-center gap-2 text-xs text-slate-400" title="Pastilles de charge sous les pieds + chaîne d'appui pied→genou→hanche (sur place) + HUD genoux/bassin">
+          <input
+            type="checkbox"
+            checked={showAppui}
+            onChange={(e) => onShowAppui(e.target.checked)}
+            className="accent-amber-400"
+          />
+          Appuis &amp; transmission
         </label>
         <label className="flex items-center gap-2 text-xs text-slate-400" title="Couche musculaire réelle BodyParts3D (CC BY-SA 2.1 Japan © DBCLS), greffée sur les pivots osseux">
           <input

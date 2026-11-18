@@ -31,7 +31,7 @@ esbuild.buildSync({
 
 const mod = await import(pathToFileURL(bundle).href + "?t=" + Date.now());
 rmSync(bundle, { force: true });
-const { STYLES, sortieEnvelope, HIP_WIDTH, S2 } = mod;
+const { STYLES, sortieEnvelope, supportOf, HIP_WIDTH, S2 } = mod;
 const { Group } = await import(
   pathToFileURL(join(root, "node_modules", "three", "build", "three.module.js")).href
 );
@@ -122,6 +122,21 @@ for (const [key, st] of Object.entries(STYLES)) {
     if (Math.abs(sortieEnvelope(b) - sortieEnvelope(b + 8)) > 1e-12) fail(`sortie non periodique a b=${b}`);
   }
   if (!bad) console.log("ok sortieEnvelope: [0,1], pleine temps 1-3, nulle >= 5, periode 8");
+}
+
+// 4) support(b) : charge pied droit bornee dans [-1,1] et finie (repli root.x inclus).
+for (const key of Object.keys(STYLES)) {
+  const r = mockRig();
+  let bad = false;
+  for (let b = 0; b <= 800 && !bad; b += 0.05) {
+    STYLES[key].apply(r, b, 1);
+    const v = supportOf(key, r, b);
+    if (!Number.isFinite(v) || v < -1 - 1e-9 || v > 1 + 1e-9) {
+      fail(`${key}: support hors [-1,1] a b=${b}: ${v}`);
+      bad = true;
+    }
+  }
+  if (!bad) console.log(`ok support ${key}: [-1,1] et finie sur 16001 pas`);
 }
 
 if (failures) {

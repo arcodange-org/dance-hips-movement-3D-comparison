@@ -5,6 +5,10 @@ export interface StyleDef {
   color: string;
   bullets: string[];
   apply: (r: RigHandle, b: number, a: number) => void;
+  // Charge sur le pied DROIT dans [-1, 1] (+1 = plein appui droit, -1 = plein appui gauche).
+  // Sert à la visualisation des appuis (pastilles de charge, chaîne pied→genou→hanche).
+  // Côté droit du rig à x < 0 : un déplacement root.x > 0 = appui qui passe à gauche.
+  support?: (b: number) => number;
 }
 
 // Courbes f(temps) issues des sources documentées dans docs/styles-de-danse.md :
@@ -26,6 +30,7 @@ export const STYLES: Record<string, StyleDef> = {
       "Bassin souple, sous-produit de la marche — haut du corps calme",
       "En couple : sorties garçon / fille (5 temps, aller-retour hors de la ligne)",
     ],
+    support: (b) => -S2(b),
     apply: (r, b, a) => {
       const s = S2(b);
       r.root.position.x = 0.07 * s * a;
@@ -48,6 +53,7 @@ export const STYLES: Record<string, StyleDef> = {
       "Déplacements en rond (koreidinha), changements de direction nets",
       "Plus rapide et ludique que la kizomba (≈130 bpm vs ≈90)",
     ],
+    support: (b) => -S2(b),
     apply: (r, b, a) => {
       const s = S2(b);
       r.root.position.x = 0.05 * s * a;
@@ -73,6 +79,7 @@ export const STYLES: Record<string, StyleDef> = {
       "Genoux fléchis en continu, niveau bas, pieds glissés plein appui",
       "Tout le mouvement sous la ceinture, épaules immobiles",
     ],
+    support: (b) => -Math.tanh(2.2 * S1(b)),
     apply: (r, b, a) => {
       const w = S1(b);
       const sw = 0.9 * Math.tanh(2.2 * w);
@@ -98,6 +105,7 @@ export const STYLES: Record<string, StyleDef> = {
       "Pas quasi nuls, plein appui, genoux souples",
       "La plus « collée serr yakın » des variantes kizomba",
     ],
+    support: (b) => -0.5 * S2(b),
     apply: (r, b, a) => {
       r.root.position.y = -0.03;
       r.pelvis.rotation.z = 0.16 * S2(b) * a;
@@ -118,6 +126,7 @@ export const STYLES: Record<string, StyleDef> = {
       "Vague séquentielle L5 → dorsales → tête",
       "Transferts partiels 60/40, talons au sol, aucun rise-and-fall",
     ],
+    support: (b) => -S2(b),
     apply: (r, b, a) => {
       r.root.position.y = -0.035;
       r.pelvis.position.x = 0.03 * S2(b) * a;
@@ -144,6 +153,7 @@ export const STYLES: Record<string, StyleDef> = {
       "Cambré contrôlé + vague du tronc + rouleaux de tête",
       "En couple : sorties et variations de niveau (rise and fall)",
     ],
+    support: (b) => -S2(b),
     apply: (r, b, a) => {
       const s = S2(b);
       r.root.position.x = 0.05 * s * a;
@@ -176,6 +186,13 @@ export type ModeKey = (typeof MODES)[number]["key"];
 // Enveloppe de « sortie » (5 temps sur un cycle de 8) : sortie latérale puis retour,
 // utilisée en mode Face à face (sortie garçon côté guideur, sortie fille côté
 // suiveur — le retard du suiveur décale la seconde). Sources : voir docs/styles-de-danse.md.
+// Charge pied droit (bornée [-1,1]) : courbe du style si définie, sinon déduite de root.x.
+export function supportOf(styleKey: string, r: RigHandle, b: number): number {
+  const st = STYLES[styleKey];
+  const v = st && st.support ? st.support(b) : -r.root.position.x / 0.09;
+  return Math.max(-1, Math.min(1, v));
+}
+
 export function sortieEnvelope(b: number): number {
   const p = ((b % 8) + 8) % 8;
   let e = 0;
