@@ -132,13 +132,14 @@ Spec : `docs/spec-phase12-os-genou.md` (bug URL observe/tarraxinha/ida=1, camér
   Tibia_R/Patella_R ; Gherkin `os-symetrie.feature` (symétrie L/R + classe de taille +
   placement tibia/fibula/patella) ; vérifié visuellement à l'angle du bug — 43 PASS 0 FAIL
 
-## Phase 13 — branche `vibe/phase13-ci-tests-ae8a7a` — garantie de tests de non-régression en CI
+## Phase 13 — LIVRÉE (PR #11, commit `349efb5`, CI success : job `test` puis build/deploy) — garantie de non-régression en CI
 
-- [ ] 40. `.github/workflows/deploy.yml` : job `test` (`npm ci && npm test && npm run build`, env
+- [x] 40. `.github/workflows/deploy.yml` : job `test` (`npm ci && npm test && npm run build`, env
   `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1`) déclenché sur push `main` **et** `pull_request` ;
   `build`/`deploy` Pages ont `needs: test` + `if: github.ref == 'refs/heads/main'` → le site
-  n'est déployé que si tous les tests passent. Doc harness à jour dans le même commit (règle
-  « Maintenance de ce fichier » : AGENTS.md + `.vibe/*`).
+  n'est déployé que si tous les tests passent (vérifié : run 349efb5, job test success avant
+  build/deploy). Doc harness à jour dans le même commit (règle « Maintenance de ce fichier » :
+  AGENTS.md + `.vibe/*`).
 
 ## Méta — boucle de feedback (rétrospective auto-critique + critique de session indépendante)
 
