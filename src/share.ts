@@ -17,7 +17,8 @@ export function buildShareUrl(
   base: string,
   state: Record<string, string | number | boolean | undefined>,
   camPos: [number, number, number] | null,
-  camTgt: [number, number, number] | null
+  camTgt: [number, number, number] | null,
+  view?: { angle: number; zoom: number } | null
 ): string {
   const p = new URLSearchParams();
   for (const [k, v] of Object.entries(state)) {
@@ -26,6 +27,11 @@ export function buildShareUrl(
   }
   if (camPos) p.set("campos", formatVec3(camPos));
   if (camTgt) p.set("camtgt", formatVec3(camTgt));
+  // Angle et zoom de vue lisibles dans l'URL (en plus de campos/camtgt exacts).
+  if (view) {
+    p.set("angle", String(+view.angle.toFixed(1)));
+    p.set("zoom", String(+view.zoom.toFixed(2)));
+  }
   const qs = p.toString();
   return qs ? `${base}?${qs}` : base;
 }

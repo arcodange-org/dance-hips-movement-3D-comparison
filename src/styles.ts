@@ -344,6 +344,17 @@ export function reversePath<T extends { x?: number; z?: number; ry?: number }>(c
   return { ...cp, x: cp.x ?? 0, z: -(cp.z ?? 0), ry: -(cp.ry ?? 0) };
 }
 
+// Phase 11 — vírgula (docs/virgula.md) : sur un quart de tour le pied pivote sur la boule du
+// pied avec le corps (contact sol constant) -> correction de lacet LOCAL à ajouter à
+// foot.rotation.y pour que le lacet monde du pied rejoigne le lacet monde du corps (root).
+// Renvoie le delta dans ]-π, π]. Hors mouvement de tour : delta 0 (pied inchangé).
+export function virgulaFootYawDelta(footWorldYaw: number, bodyWorldYaw: number): number {
+  let d = bodyWorldYaw - footWorldYaw;
+  while (d > Math.PI) d -= 2 * Math.PI;
+  while (d < -Math.PI) d += 2 * Math.PI;
+  return d;
+}
+
 // Déplacement latéral le long de la ligne de danse ; dir = -1 → marche arrière.
 export function travelOffset(travel: number, dir: number, b: number): number {
   return (dir < 0 ? -1 : 1) * travel * (HIP_WIDTH / 2) * Math.tanh(2.2 * S2(b));

@@ -125,6 +125,19 @@ Mouvement séparé du corridinho : 4 quarts de tour sur 16 temps = un tour compl
 Spec phase 8 (`docs/spec-phase8-deplacements.md` §2).
 </details>
 
+![Vírgula — quarts de tour, vue plongeante](docs/gifs/virgula-quarts.gif)
+<details><summary>Détails & source</summary>
+
+**Vírgula** (« virgule » en portugais) = changement de direction par quart de tour (90°) intégré
+au pas de base : « cada conjunto completo de tres pasos giramos 90º el sentido de nuestra
+posición » (LovesKizomba) ; « Vírgula ('coma' en portugués) es un cambio de dirección … 1/4 de
+vuelta (giro de 90 grados) » (aprendekizomba.com.es). Pendant le quart de tour **le pied pivote
+sur la boule du pied et fait l'angle avec le corps** (pivot turn : « the performer's body rotates
+about its vertical axis without traveling … feet swivel in place », Wikipedia EN) — contact sol
+constant, lu ici en vue plongeante (`cam=top`) avec la boussole fixe. Sources verbatim :
+[docs/virgula.md](docs/virgula.md). Spec phase 11 (`docs/spec-phase11-virgula-vue.md` §1).
+</details>
+
 ![Corridinho à 2](docs/gifs/corridinho-paire.gif)
 <details><summary>Détails & source</summary>
 
@@ -218,12 +231,17 @@ stable et vertical au-dessus du bassin), `&cadre=0` (bras le long du corps — `
 cadre de bras de danseur), `&quarts=1` (quarts de tour : 4 = tour complet ; en paire le suiveur en
 marche arrière), `&dir=-1` (marche arrière le long de la ligne de danse), `&temps3=1` (marka
 « 3 temps » : un pas tous les 3 temps avec Déplacement), `&ida=1` (ida e volta : G avant/arrière
-puis D avant/arrière, 8 temps), `&demo=<clé>&cam=hip|fixed|wide|diag|front|back` (captures motion design :
+puis D avant/arrière, 8 temps), `&demo=<clé>&cam=default|hip|fixed|wide|diag|front|back|top` (captures motion design :
 `hip` = gros plan bassin, `fixed`/`wide` = repère fixe conservé pour les déplacements, `diag` = vue
-diagonale par défaut en paire pour lire la sortie, `front`/`back` = de face/dos), `&campos=x,y,z&camtgt=x,y,z` (angle de la caméra exact, ex. produit par le bouton « Partager la vue »), `&boussole=0` (masque la boussole 8 directions).
+diagonale par défaut en paire pour lire la sortie, `front`/`back` = de face/dos, `top` = vue
+plongeante pour lire le lacet des pieds/vírgula), `&campos=x,y,z&camtgt=x,y,z` (angle de la caméra
+exact, ex. produit par le bouton « Partager la vue »), `&angle=45&zoom=2.5` (**angle** = azimut en
+degrés autour de la cible (0 = +Z, 90 = +X = E/ligne de danse) et **zoom** = distance caméra→cible
+en m — écrits aussi dans l'URL par « Partager la vue », prioritaires sous `campos`/`camtgt`),
+`&boussole=0` (masque la boussole 8 directions).
 
 Options d'interface : **Vue « Squelette » / « + Muscles (tissus) »** (bascule segmentée ; couche musculaire BodyParts3D greffée sur les pivots
-osseux, rouge semi-transparent — la chaîne d'appui sol→genoux→hanches reste visible dans les deux vues), **Boussole 8 directions** (4 cardinales + 4 diago au repère fixe ; E-W = ligne de danse ; la direction du buste et la position / repère s'affichent dans le HUD), **🔗 Partager la vue** (copie l'URL avec tous les paramètres + l'angle caméra `campos=`/`camtgt=`), **Sorties garçon / fille** (mode Face à face : aller-retour
+osseux, rouge semi-transparent — la chaîne d'appui sol→genoux→hanches reste visible dans les deux vues), **Boussole 8 directions** (4 cardinales + 4 diago au repère fixe ; E-W = ligne de danse ; la direction du buste et la position / repère s'affichent dans le HUD), **🔗 Partager la vue** (copie l'URL avec tous les paramètres + l'angle caméra `campos=`/`camtgt=` + l'angle/zoom lisibles `angle=`/`zoom=`), **Sorties garçon / fille** (mode Face à face : aller-retour
 latéral de 5 temps sur 8 perpendiculaire à la ligne de danse, le retard du suiveur décale la
 sortie fille, buste en contre-rotation), **Corridinho** (après 1/4 de tour à droite puis à gauche,
 cercle au sol autour du repère fixe), **Ligne de danse** (pointillé rose, axe x au repère),

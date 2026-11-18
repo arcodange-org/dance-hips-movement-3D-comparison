@@ -10,7 +10,7 @@ import DemoOverlay, { DEMOS } from "./components/DemoOverlay";
 import OriginMarker from "./components/OriginMarker";
 import LineOfDance from "./components/LineOfDance";
 import CompassRose from "./components/CompassRose";
-import { resolveCam, SOLID_TORSO_OPACITY } from "./cameras";
+import { resolveCam, resolveView, viewAnglesOf, SOLID_TORSO_OPACITY } from "./cameras";
 import { usePersistentState } from "./hooks/usePersistentState";
 import { STYLES, type ModeKey } from "./styles";
 import { parseVec3, buildShareUrl } from "./share";
@@ -74,6 +74,10 @@ export default function App() {
   const controlsRef = useRef<any>(null);
   const camPosParam = parseVec3(params.get("campos"));
   const camTgtParam = parseVec3(params.get("camtgt"));
+  // Angle et zoom de vue explicites en URL (sous campos/camtgt) : angle = azimut ° autour de
+  // la cible (0 = +Z, 90 = +X = E), zoom = distance caméra→cible en m.
+  const angleParam = params.has("angle") && Number.isFinite(Number(params.get("angle"))) ? Number(params.get("angle")) : null;
+  const zoomParam = params.has("zoom") && Number.isFinite(Number(params.get("zoom"))) ? Number(params.get("zoom")) : null;
   const [hud, setHud] = useState<any>(null);
   const pairRef = useRef<Record<string, any>>({});
 
@@ -123,7 +127,7 @@ export default function App() {
   const demo = demoKey && DEMOS[demoKey] ? DEMOS[demoKey] : null;
   // Preset caméra pour les captures : ?cam=hip zoome sur le bassin (sans recadrage,
   // pour garder l'habillage motion design visible).
-  const cam = resolveCam(params.get("cam"), mode === "pair");
+  const cam = resolveView(resolveCam(params.get("cam"), mode === "pair"), angleParam, zoomParam);
   const solid = params.get("solid") === "1";
   const isPair = mode === "pair";
   const isCompare = mode === "compare";
@@ -139,6 +143,8 @@ export default function App() {
     const camTgt: [number, number, number] | null = ctl
       ? [ctl.target.x, ctl.target.y, ctl.target.z]
       : null;
+    // Angle + zoom de vue lisibles dans l'URL (en plus de campos/camtgt exacts).
+    const view = camPos && camTgt ? (() => { const va = viewAnglesOf(camPos, camTgt); return { angle: va.az, zoom: va.dist }; })() : null;
     const rel = buildShareUrl(window.location.pathname, {
       mode, style: styleA, styleB, bpm, travel, amp, playing,
       torso: showTorso, muscles: showMuscles, sortie, repere: showRepere, appui: showAppui,
@@ -146,7 +152,7 @@ export default function App() {
       delay: followDelay, ghost: ghostSel, boussole: showBoussole,
       cam: params.get("cam") ?? undefined, demo: params.get("demo") ?? undefined,
       bare: params.get("bare") ?? undefined, solid: params.get("solid") ?? undefined,
-    }, camPos, camTgt);
+    }, camPos, camTgt, view);
     history.replaceState(null, "", rel);
     const full = window.location.origin + rel;
     if (navigator.clipboard) {

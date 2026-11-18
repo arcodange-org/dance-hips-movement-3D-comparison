@@ -91,6 +91,11 @@ const CAPTURES = [
     dur: 7,
   },
   {
+    file: "virgula-quarts",
+    query: "bare=1&demo=virgula&cam=top&mode=solo&style=kizomba&bpm=140&travel=0&quarts=1&solid=1&ligne=1&repere=1&boussole=1",
+    dur: 7,
+  },
+  {
     file: "corridinho-paire",
     query: "bare=1&demo=corridinho-paire&cam=wide&mode=pair&style=kizomba&styleB=kizomba&bpm=140&corridinho=1&solid=1&ligne=1&repere=1",
     dur: 6.5,
@@ -163,10 +168,13 @@ async function main() {
   mkdirSync(outDir, { recursive: true });
   rmSync(tmpDir, { recursive: true, force: true });
   mkdirSync(tmpDir, { recursive: true });
+  // CAPTURE_ONLY=virgula-quarts,quarts-de-tour : ne rejouer qu'une sélection (itération rapide).
+  const only = process.env.CAPTURE_ONLY ? process.env.CAPTURE_ONLY.split(",").map((s) => s.trim()) : null;
+  const list = only ? CAPTURES.filter((c) => only.includes(c.file)) : CAPTURES;
   const browser = await chromium.launch({
     args: ["--no-sandbox", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"],
   });
-  for (const cap of CAPTURES) await captureOne(browser, cap);
+  for (const cap of list) await captureOne(browser, cap);
   await browser.close();
   for (const f of readdirSync(tmpDir)) if (f.endsWith(".webm")) rmSync(join(tmpDir, f));
   console.log(

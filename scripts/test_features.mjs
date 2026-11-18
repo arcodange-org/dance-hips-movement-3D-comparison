@@ -28,7 +28,7 @@ esbuild.buildSync({
 });
 const mod = await import(pathToFileURL(bundle).href + "?t=" + Date.now());
 rmSync(bundle, { force: true });
-const { STYLES, supportOf, sortieEnvelope, sortieOffset, plantBlend, corridinhoPath, quartsPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, HIP_WIDTH, HIP_Y, S2, CAM_PRESETS, resolveCam, SOLID_TORSO_OPACITY, lockUpperTrunk, residualRoll, upperStability, DANCE_FRAME, DANCE_FRAME_FOLLOWER, parseVec3, buildShareUrl, DIR_LABELS, facingSector, isDiagonal, relToLineOfDance } = mod;
+const { STYLES, supportOf, sortieEnvelope, sortieOffset, plantBlend, corridinhoPath, quartsPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, virgulaFootYawDelta, HIP_WIDTH, HIP_Y, S2, CAM_PRESETS, resolveCam, resolveView, viewAnglesOf, posFromView, SOLID_TORSO_OPACITY, lockUpperTrunk, residualRoll, upperStability, DANCE_FRAME, DANCE_FRAME_FOLLOWER, parseVec3, buildShareUrl, DIR_LABELS, facingSector, isDiagonal, relToLineOfDance } = mod;
 const { Group } = await import(
   pathToFileURL(join(root, "node_modules", "three", "build", "three.module.js")).href
 );
@@ -332,6 +332,78 @@ const steps = [
     if (!(DANCE_FRAME_FOLLOWER.upperLeft.x < -1.3)) throw new Error("coude G pas levé: " + DANCE_FRAME_FOLLOWER.upperLeft.x);
     if (!(DANCE_FRAME_FOLLOWER.upperRight.x > -0.8)) throw new Error("coude D pas baissé: " + DANCE_FRAME_FOLLOWER.upperRight.x);
     if (!(DANCE_FRAME_FOLLOWER.foreRight.x < -1.0)) throw new Error("avant-bras D pas ramené vers la main G du guideur");
+  }],
+  // Phase 11 — vírgula (pied en angle sur les quarts de tour) + URL angle/zoom
+  [/^on évalue virgulaFootYawDelta pour foot=([-\d.]+) et corps=([-\d.]+)$/, (c, m) => {
+    c.vy = { foot: Number(m[1]), corps: Number(m[2]), delta: virgulaFootYawDelta(Number(m[1]), Number(m[2])) };
+  }],
+  [/^virgulaFootYawDelta\(foot=([-\d.]+), corps=([-\d.]+)\) vaut ([-\d.]+)$/, (c, m) => {
+    const got = virgulaFootYawDelta(Number(m[1]), Number(m[2]));
+    if (Math.abs(got - Number(m[3])) > 1e-4) throw new Error(`delta=${got}, attendu ${m[3]}`);
+  }],
+  [/^après correction le lacet du pied rejoint celui du corps modulo 2π$/, (c) => {
+    let d = c.vy.foot + c.vy.delta - c.vy.corps;
+    while (d > Math.PI) d -= 2 * Math.PI;
+    while (d < -Math.PI) d += 2 * Math.PI;
+    if (Math.abs(d) > 1e-9) throw new Error(`foot+delta-corps=${d} (mod 2π)`);
+  }],
+  [/^le cadre danseur a l'avant-bras gauche vers le haut et la paume vers la droite$/, () => {
+    const f = DANCE_FRAME.forearmLeft;
+    if (Math.abs(f.y - Math.PI / 2) > 1e-9) throw new Error("avant-bras G pas vers le haut: y=" + f.y);
+    if (Math.abs(f.z - Math.PI) > 1e-9) throw new Error("paume G pas vers la droite: z=" + f.z);
+    const fr = DANCE_FRAME.forearmRight;
+    if (Math.abs(fr.x - Math.PI) > 1e-9 || Math.abs(fr.z + Math.PI / 2) > 1e-9) throw new Error("avant-bras D: " + JSON.stringify(fr));
+  }],
+  [/^le preset caméra "(\w+)"$/, (c, m) => {
+    c.preset = CAM_PRESETS[m[1]];
+    if (!c.preset) throw new Error("preset inconnu: " + m[1]);
+  }],
+  [/^resolveView sans override retourne le preset inchangé$/, (c) => {
+    if (resolveView(c.preset, null, null) !== c.preset) throw new Error("preset modifié sans override");
+  }],
+  [/^resolveView avec angle=([-\d.]+) remplace l'azimut et garde la distance$/, (c, m) => {
+    const v = resolveView(c.preset, Number(m[1]), null);
+    const va = viewAnglesOf(v.position, v.target);
+    const exp = ((Number(m[1]) % 360) + 360) % 360;
+    if (Math.abs(va.az - exp) > 1e-6) throw new Error(`az=${va.az}, attendu ${exp}`);
+    const d0 = viewAnglesOf(c.preset.position, c.preset.target).dist;
+    if (Math.abs(va.dist - d0) > 1e-9) throw new Error(`dist=${va.dist}, attendu ${d0}`);
+  }],
+  [/^resolveView avec zoom=([\d.]+) remplace la distance et garde l'azimut$/, (c, m) => {
+    const v = resolveView(c.preset, null, Number(m[1]));
+    const va = viewAnglesOf(v.position, v.target);
+    if (Math.abs(va.dist - Number(m[1])) > 1e-9) throw new Error(`dist=${va.dist}, attendu ${m[1]}`);
+    const az0 = viewAnglesOf(c.preset.position, c.preset.target).az;
+    if (Math.abs(va.az - az0) > 1e-9) throw new Error(`az=${va.az}, attendu ${az0}`);
+  }],
+  [/^viewAnglesOf\(pos=([-\d.,]+), tgt=([-\d.,]+)\) donne az=([-\d.]+), el=([-\d.]+), dist=([-\d.]+)$/, (c, m) => {
+    const va = viewAnglesOf(parseVec3(m[1]), parseVec3(m[2]));
+    for (const [k, exp] of [["az", m[3]], ["el", m[4]], ["dist", m[5]]]) {
+      if (Math.abs(va[k] - Number(exp)) > 0.01) throw new Error(`${k}=${va[k]}, attendu ${exp}`);
+    }
+    c.va = va;
+    c.tgt = parseVec3(m[2]);
+  }],
+  [/^posFromView est l'inverse de viewAnglesOf$/, (c) => {
+    const p = posFromView(c.tgt, c.va.az, c.va.el, c.va.dist);
+    const va2 = viewAnglesOf(p, c.tgt);
+    if (Math.abs(va2.az - c.va.az) > 1e-6 || Math.abs(va2.el - c.va.el) > 1e-6 || Math.abs(va2.dist - c.va.dist) > 1e-9)
+      throw new Error(JSON.stringify({ va2, va: c.va }));
+  }],
+  [/^on construit l'URL de partage avec campos=([-\d.,]+) camtgt=([-\d.,]+) et la vue courante$/, (c, m) => {
+    const cp = parseVec3(m[1]);
+    const ct = parseVec3(m[2]);
+    const va = viewAnglesOf(cp, ct);
+    c.url = buildShareUrl("https://example.test/app/", c.share, cp, ct, { angle: va.az, zoom: va.dist });
+    c.va = va;
+  }],
+  [/^l'URL a des params angle et zoom cohérents avec la caméra$/, (c) => {
+    const url = new URL(c.url);
+    const a = Number(url.searchParams.get("angle"));
+    const z = Number(url.searchParams.get("zoom"));
+    if (!Number.isFinite(a) || !Number.isFinite(z)) throw new Error("angle/zoom absents de l'URL");
+    if (Math.abs(a - c.va.az) > 0.05) throw new Error(`angle=${a}, attendu ~${c.va.az}`);
+    if (Math.abs(z - c.va.dist) > 0.005) throw new Error(`zoom=${z}, attendu ~${c.va.dist}`);
   }],
   [/^le GLB place patella et fibula au niveau du genou$/, () => {
     const buf = readFileSync(join(root, "public", "anatomy.glb"));

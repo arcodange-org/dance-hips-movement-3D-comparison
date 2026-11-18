@@ -96,6 +96,12 @@ export const DEMOS: Record<string, DemoDef> = {
     captions: ["4 quarts de tour sur 16 temps = un tour complet", "mouvement séparé du corridinho · en paire le suiveur le fait en marche arrière"],
     beat: 60 / 140,
   },
+  virgula: {
+    chip: "Vírgula · quarts de tour",
+    color: "#f472b6",
+    captions: ["vírgula = changement de direction par quart de tour (90°)", "le pied pivote sur la boule du pied et fait l'angle avec le corps · boussole fixe"],
+    beat: 60 / 140,
+  },
   "corridinho-paire": {
     chip: "Corridinho à 2 (face à face)",
     color: "#f472b6",

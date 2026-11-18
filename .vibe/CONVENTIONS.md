@@ -38,8 +38,12 @@
 
 `?mode=solo|observe|compare|pair&style=kizomba&styleB=kompa&bpm=90&travel=0.6&amp=1&playing=1&delay=0.5&ghost=none`
 + `&torso=0&muscles=1&sortie=1&repere=0&appui=1&plant=0&corridinho=1&ligne=0&iso=0&cadre=0&quarts=1&temps3=1&ida=1&dir=-1&boussole=0&solid=1&bare=1`
-+ `&demo=<clé>&cam=default|hip|fixed|wide|diag|front|back&campos=x,y,z&camtgt=x,y,z`
-(`campos/camtgt` = angle caméra exact, produit par le bouton « Partager la vue », prioritaire sur `cam=`.)
++ `&demo=<clé>&cam=default|hip|fixed|wide|diag|front|back|top&campos=x,y,z&camtgt=x,y,z&angle=45&zoom=2.5`
+(`campos/camtgt` = angle caméra exact, produit par le bouton « Partager la vue », prioritaire sur
+`cam=` ; `angle=` = azimut ° autour de la cible (0=+Z, 90=+X=E), `zoom=` = distance m, appliqués
+sur le preset `cam=` via `resolveView` — `viewAnglesOf`/`posFromView` dans `src/cameras.ts` ;
+vírgula : `virgulaFootYawDelta` dans `src/styles.ts` fait suivre le lacet du pied au lacet du corps
+sur `quarts`/`corridinho`.)
 
 ## Tests
 

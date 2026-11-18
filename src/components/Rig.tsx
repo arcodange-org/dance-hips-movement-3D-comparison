@@ -16,7 +16,7 @@ import {
   resetRig,
   type RigHandle,
 } from "../anatomy";
-import { STYLES, sortieEnvelope, sortieOffset, supportOf, plantBlend, corridinhoPath, quartsPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, lockUpperTrunk, applyDanceFrame, applyFollowerFrame, upperStability } from "../styles";
+import { STYLES, sortieEnvelope, sortieOffset, supportOf, plantBlend, corridinhoPath, quartsPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, lockUpperTrunk, applyDanceFrame, applyFollowerFrame, upperStability, virgulaFootYawDelta } from "../styles";
 import { facingSector } from "../directions";
 import { solveLeg3D } from "../ik";
 import {
@@ -414,6 +414,23 @@ export default function Rig({
     } else {
       r.footL.rotation.x = -(r.hipL.rotation.x + r.kneeL.rotation.x) + r.extraL;
       r.footR.rotation.x = -(r.hipR.rotation.x + r.kneeR.rotation.x) + r.extraR;
+    }
+
+    if (quarts || corridinho) {
+      // Phase 11 — vírgula (docs/virgula.md) : sur les quarts de tour le pied fait l'angle
+      // avec le corps (pivot sur la boule du pied, contact sol constant) -> lacet monde du
+      // pied = lacet monde du root.
+      r.root.updateWorldMatrix(true, true);
+      const qR = new THREE.Quaternion();
+      r.root.getWorldQuaternion(qR);
+      const bodyYaw = new THREE.Euler().setFromQuaternion(qR, "YXZ").y;
+      for (const s of ["R", "L"] as Side[]) {
+        const foot = (s === "R" ? r.footR : r.footL) as THREE.Object3D;
+        const qF = new THREE.Quaternion();
+        foot.getWorldQuaternion(qF);
+        const fy = new THREE.Euler().setFromQuaternion(qF, "YXZ").y;
+        foot.rotation.y += virgulaFootYawDelta(fy, bodyYaw);
+      }
     }
 
     const tx = embrace ? -1.05 : -0.25;
