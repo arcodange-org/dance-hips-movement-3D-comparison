@@ -36,8 +36,20 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   `ligne=1&repere=1&solid=1`). Vérifs : sortie latérale confirmée numériquement (root.x
   0→0,22 m au pic), ligne rose mesurée dans les frames GIF (117–458 px), jauges/torse opaque/
   pieds au sol confirmés visuellement. Spec : `docs/spec-phase6-comparatif-appuis-corridinho.md`.
-- Rétrospective / boucle de feedback : `docs/retrospective-phase3-5.md` + méta-tâche M4
-  récurrente dans `docs/TASKS.md`.
+- Phase 7 **en livraison** (branche `vibe/phase7-isolation-ginga-ae8a7a`, PR #5) — **objectif
+  premier redéfini 2026-11-18 : discerner les isolations du bas du corps, le haut du tronc
+  (au-dessus du bassin) doit rester stable et vertical**. Recherche web FR/EN/PT sur la ginga
+  angolaise : `docs/ginga-angolana.md` (citations verbatim). Implémenté : `iso=1` **par défaut**
+  (`lockUpperTrunk` : spine contre-rotate le pelvis, chest/head sans bascule latérale, pitch
+  conservé pour vague suave/cambré zouk), **cadre de bras de danseur** `cadre=1` par défaut
+  (`applyDanceFrame` : coudes pliés, avant-bras G en haut paume→droite, avant-bras D vers la
+  gauche paume→buste), métrique `upperStability` + HUD « stabilité buste % », Gherkin
+  `isolation-basse.feature` (npm test 22 PASS 0 FAIL 1 SKIP). Fessiers (GluteusMaximus/Medius,
+  parentés au Pelvis) visibles et mobiles en vue de dos — vérifié numériquement (centroid
+  musculaire déplacé entre 2 temps) + GIF `fessiers-muscles.gif`, `isolation-ginga.gif`.
+  Spec : `docs/spec-phase7-isolation-basse.md`.
+- Rétrospective / boucle de feedback : `docs/retrospective-phase3-5.md` +
+  `docs/retrospective-phase6.md` + méta-tâche M4 récurrente dans `docs/TASKS.md`.
 - Phase 5 **livrée** : PR #3 mergée dans `main` (2026-11-18), CI Pages run 44272969552 =
   success, site vérifié (assets 200, smoke headless sans erreur). Branche :
   `vibe/phase5-repere-fixe-appui-ae8a7a`. Contenu : repère fixe

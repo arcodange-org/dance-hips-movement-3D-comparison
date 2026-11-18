@@ -46,6 +46,24 @@ Mise à jour à chaque commit (checkpoint anti-amnésie, voir `CONTEXT.md`).
   live (compare/appui, pair sortie diag, corridinho, muscles : 0 erreur console), push, PR #4 ready,
   ff-merge main, CI Pages success, site live vérifié, checkpoint CONTEXT/TASKS sur main
 
+## Phase 7 — LIVRÉE (objectif premier : isolations du bas du corps, buste stable) — spec : `docs/spec-phase7-isolation-basse.md` — recherche : `docs/ginga-angolana.md` — branche `vibe/phase7-isolation-ginga-ae8a7a`, PR #5
+
+- [x] 19. Recherche web approfondie ginga angolaise FR/EN/PT → `docs/ginga-angolana.md` (citations
+  verbatim : Eddy Vents « movements hips down are the dominant ones », SOS Dance « Keep the shoulder
+  line level and do not pitch or sway the entire body », udansa « upper body remains stable », etc.)
+- [x] 20. `iso=1` par défaut : `lockUpperTrunk` (spine contre-rotate le pelvis → thorax vertical ;
+  chest/head y/z → 0 ; pitch conservé pour vague suave/cambré zouk) + case + `iso=`
+- [x] 21. Cadre de bras de danseur `cadre=1` par défaut : `applyDanceFrame`/`DANCE_FRAME` — coudes
+  pliés, bras avant, avant-bras G en haut paume→droite, avant-bras D vers la gauche paume→buste ;
+  vérifié visuellement en cam=front + case + `cadre=`
+- [x] 22. Métrique `upperStability`/`residualRoll` (pures) + HUD « stabilité buste % » (Gauge + solo,
+  bare + normal) + Gherkin `isolation-basse.feature` → npm test 22 PASS 0 FAIL 1 SKIP
+- [x] 23. Fessiers visibles et mobiles : glutes (GluteusMaximus/Medius) parentés au Pelvis — vérifié
+  vue de dos (cam=back, muscles=1) : centroid rouge déplacé ~9 px entre 2 temps + GIF
+  `fessiers-muscles.gif` ; GIF `isolation-ginga.gif` (cam=diag) ; 13 GIFs au total
+- [x] 24. README (objectif en tête, params iso=/cadre=, galerie 13 GIFs, options) + livraison PR #5 +
+  ff-merge main + CI + site live + checkpoint
+
 ## Méta — boucle de feedback (rétrospective auto-critique + critique de session indépendante)
 
 Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process amélioré).

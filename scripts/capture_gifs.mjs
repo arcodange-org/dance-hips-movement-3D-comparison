@@ -77,6 +77,14 @@ const CAPTURES = [
     query: "bare=1&demo=corridinho&cam=fixed&mode=solo&style=kizomba&bpm=140&travel=0&corridinho=1&solid=1&ligne=1&repere=1",
     dur: 6.5,
   },
+  {
+    file: "isolation-ginga",
+    query: "bare=1&demo=iso-ginga&cam=diag&mode=solo&style=kizomba&bpm=90&travel=0&muscles=1&appui=1&solid=1&iso=1&cadre=1",
+  },
+  {
+    file: "fessiers-muscles",
+    query: "bare=1&demo=fessiers&cam=back&mode=solo&style=kizomba&bpm=90&travel=0&muscles=1&solid=1&iso=1&cadre=1",
+  },
 ];
 
 const WARMUP_S = 2.5; // secondes ignorées au début (chargement GLB)

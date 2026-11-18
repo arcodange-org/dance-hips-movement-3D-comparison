@@ -4,6 +4,11 @@ Application web 3D (Vite + React + three.js / @react-three/fiber) pour aider les
 danseurs à reproduire et différencier visuellement six styles : **kizomba, semba, kompa,
 tarraxinha, suave, zouk brésilien**. Animée par une spec biomécanique chiffrée, sans mocap.
 
+**Objectif premier** : discerner les **isolations du bas du corps** — au-dessus du bassin, le
+haut du tronc reste **stable et vertical** (mode « Isolation basse », `iso=1` par défaut ;
+voir [docs/ginga-angolana.md](docs/ginga-angolana.md) pour les sources FR/EN/PT : « the
+movements hips down are the dominant ones, not the upper body movements »).
+
 **🌐 Site déployé (GitHub Pages) : https://arcodange-org.github.io/dance-hips-movement-3D-comparison/**
 
 ## Aperçu animé (motion design)
@@ -29,6 +34,8 @@ légende de la nuance + pastille de temps) :
 | ![Sorties garçon/fille](docs/gifs/sortie-garcon-fille.gif) | ![Appuis & transmission](docs/gifs/appui-transmission.gif) |
 | Comparatif d'appuis (2 styles côte à côte, jauges G/D) | Corridinho (1/4 tour D puis G, cercle au repère fixe) |
 | ![Comparatif d'appuis](docs/gifs/comparatif-appuis.gif) | ![Corridinho](docs/gifs/corridinho.gif) |
+| Isolation basse + ginga (buste verrouillé vertical, cadre de bras) | Fessiers en mouvement, vue de dos (muscles © DBCLS) |
+| ![Isolation basse · ginga](docs/gifs/isolation-ginga.gif) | ![Fessiers — vue de dos](docs/gifs/fessiers-muscles.gif) |
 
 **Vérification** : les mouvements sur place et la couche musculaire ont été vérifiés par
 itérations croisées en sous-sessions indépendantes — tests numériques (`npm test` : pas de NaN,
@@ -57,6 +64,8 @@ leurs jauges d'appui G/D (comparatif d'appuis).
 - [Spec Phase 5 — repère fixe, appuis/transmission, GIF muscles en vedette](docs/spec-phase5-repere-fixe-appui.md)
   + [ADR 003](docs/adr/003-repere-fixe-appui-transmission.md)
 - [Spec Phase 6 — comparatif d'appuis, corridinho, vues caméra/solid, pieds plantés, ligne de danse, dissociation, Gherkin](docs/spec-phase6-comparatif-appuis-corridinho.md)
+  + [Spec Phase 7 — isolation du bas du corps : buste stable/vertical, cadre de bras, ginga](docs/spec-phase7-isolation-basse.md)
+  + [Recherche ginga angolaise (FR/EN/PT, citations verbatim)](docs/ginga-angolana.md)
   + validations Gherkin (`docs/features/*.feature`, `npm test`) + tâches en cours (`docs/TASKS.md`)
   + méthode anti-amnésie (`CONTEXT.md`).
 
@@ -89,9 +98,11 @@ Paramètres d'URL (utilisés par les captures, prioritaires sur localStorage) :
 `&appui=1` (appuis & transmission), `&ligne=1` (force la ligne de danse en solo),
 `&corridinho=1` (1/4 tour D puis G, puis cercle au repère fixe), `&plant=0` (ancien rendu glissé ;
 par défaut les pieds restent plantés au sol sur place, `plant=1`), `&solid=1` (buste opaque pour les
-captures), `&demo=<clé>&cam=hip|fixed|wide|diag|front|back` (captures motion design : `hip` = gros
-plan bassin, `fixed`/`wide` = repère fixe conservé pour les déplacements, `diag` = vue diagonale par
-défaut en paire pour lire la sortie, `front`/`back` = de face/dos).
+captures), `&iso=0` (désactive l'isolation basse : buste libre — `iso=1` par défaut, haut du tronc
+stable et vertical au-dessus du bassin), `&cadre=0` (bras le long du corps — `cadre=1` par défaut :
+cadre de bras de danseur), `&demo=<clé>&cam=hip|fixed|wide|diag|front|back` (captures motion design :
+`hip` = gros plan bassin, `fixed`/`wide` = repère fixe conservé pour les déplacements, `diag` = vue
+diagonale par défaut en paire pour lire la sortie, `front`/`back` = de face/dos).
 
 Options d'interface : **Couche musculaire** (tous modes, GLB BodyParts3D greffé sur les pivots
 osseux, rouge semi-transparent), **Sorties garçon / fille** (mode Face à face : aller-retour
@@ -100,7 +111,12 @@ sortie fille, buste en contre-rotation), **Corridinho** (après 1/4 de tour à d
 cercle au sol autour du repère fixe), **Ligne de danse** (pointillé rose, axe x au repère),
 **Repère fixe** (anneau + croix à l'origine, pour lire les déplacements relatifs),
 **Pieds plantés (sur place)** (contact sol constant — petit pivot sur la plante du pied /
-« semi-pointe » autorisé ; désactiver pour l'ancien rendu glissé), **Appuis & transmission**
+« semi-pointe » autorisé ; désactiver pour l'ancien rendu glissé), **Isolation basse (buste
+verrouillé, vertical)** (au-dessus du bassin le haut du tronc ne bascule plus latéralement : la
+colonne contre-rotate le pelvis ; métrique « stabilité buste % » dans le HUD ; `iso=0` pour
+l'ancien buste libre), **Cadre de bras de danseur** (coudes pliés, bras vers l'avant,
+avant-bras gauche vers le haut paume à droite, avant-bras droit vers la gauche paume vers le
+buste ; `cadre=0` pour les bras le long du corps), **Appuis & transmission**
 (pastilles de charge sous les pieds + chaîne d'appui pied→genou→hanche en surbrillance + HUD
 charge G/D %, flexion genoux °, roll bassin ° ; activée par défaut en mode Observation hanche).
 En mode **Comparaison**, deux panneaux de **jauges G/D** lisent l'appui de chaque style côte à
