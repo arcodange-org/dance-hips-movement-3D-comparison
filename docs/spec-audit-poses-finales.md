@@ -50,3 +50,24 @@ Les anciennes vérifications de formules sont conservées et amendées quand leu
 changé. Les tests d’intégration constituent la preuve des poses finales. Validation visuelle
 Solo/Comparaison/Paire, GIFs ciblés, npm test, build et CI de PR. Les tolérances ne valent pas
 validation de la technique de danse : revue d’enseignants et calibration humaine restent ouvertes.
+
+## Résultat et domaine vérifié
+
+6 styles × amplitudes 0,5 / 1 / 2 × 11 configurations × 33 temps = 6 534 poses, plus les tests
+ciblés de frontières, mode libre et reproductions de revue. Les options combinées couvrent
+notamment travel=1 + sortie + quarts/corridinho et le suiveur retourné. Tolérances contrôlées
+sur tous les sommets osseux, pas sur une boîte ou un cercle englobant.
+
+La projection horizontale du bassin utilise 60 % du rayon atteignable pour conserver une
+marge verticale face aux os saillants (rotule), puis la hauteur est résolue avec les longueurs
+réelles. C’est un choix illustratif vérifié sur ce domaine, pas un solveur de dynamique ni une
+preuve pour toutes les options futures. Les flexions finales peuvent différer du paramètre
+`posture.knee` ; le HUD expose leur valeur géométrique effective.
+
+Les tests de transport/montage purs vérifient l’absence d’état interne au moteur, sans prétendre
+monter React. La vérification navigateur complète cette preuve : même HUD pour deux styles
+identiques après changement de style et après Solo → Comparaison, exports depuis la pause
+puis retour à la pose précédente. Périodes logiques 4/8/12/16 temps (et PPCM des combinaisons) ;
+les fichiers MediaRecorder restent soumis à la cadence du navigateur, sans garantie d’encodage
+image par image. Mesures locales à 90 bpm : 2,641 s (4 temps) et 10,642 s (16 temps), soit moins
+d’une image à 30 fps par rapport aux durées théoriques.

@@ -202,8 +202,8 @@ const steps = [
     if (Math.abs(pts[0].ry - Math.PI / 2) > 0.06) throw new Error("début pivot gauche ry=" + pts[0].ry);
     if (Math.abs(pts[pts.length - 1].ry) > 0.06) throw new Error("fin pivot gauche ry=" + pts[pts.length - 1].ry);
   }],
-  [/^les temps 8 à 15 décrivent un cercle de rayon entre ([\d.]+) et ([\d.]+) m autour du point \(0, ([\d.]+)\), en passant par le repère fixe$/, (c, m) => {
-    const cx = 0, cz = Number(m[3]);
+  [/^les temps 8 à 15 décrivent un cercle de rayon entre ([\d.]+) et ([\d.]+) m autour du point \(([\d.]+), 0\), en passant par le repère fixe$/, (c, m) => {
+    const cx = Number(m[3]), cz = 0;
     for (const p of c.path) {
       const q = ((p.b % 16) + 16) % 16;
       if (q < 8 || q >= 16) continue;

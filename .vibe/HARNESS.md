@@ -1,5 +1,15 @@
 # HARNESS.md — harnais de session (anti-amnésie)
 
+## Amendement de contribution — audit #17 (18 novembre 2026)
+
+Pour ce chantier, les consignes globales du propriétaire priment sur les procédures historiques
+ci-dessous : trunk réservé à l’utilisateur, travail dans `.Codex/worktrees/audit-poses-finales`
+sur `arcodange/audit-poses-finales`, issue publiée avant le code, spec poussée en premier.
+Ouvrir une seule PR après les validations ; sa branche reste gelée tant qu’elle est ouverte.
+Aucune fusion, aucun push ni checkpoint sur `main`. Utiliser le remote `origin` et les
+identifiants du gestionnaire Git ; ne jamais construire ni afficher une URL contenant un token.
+
+
 Objectif : qu'une **nouvelle session Mistral** (multi-campaign / cross-session amnesia) reprenne
 le projet sans perdre d'état et travaille **en continu et en autonomie**.
 
@@ -86,7 +96,9 @@ tort, process amélioré, tâches à (r)ajouter), puis **re-ajouter la méta-tâ
   commit (`grep -c __dbg src/components/Rig.tsx` doit donner 0).
 - **Jambe à extension max au repos** (HIP_Y = L1+L2) : toute flexion de genou ajoutée APRÈS
   `solveLeg3D` fait reculer le pied (la cible n'est plus atteignable). Intégrer la flexion DANS
-  la résolution (tibia effectif raccourci) — voir phase 15 `posture.knee`.
+  la résolution par la hauteur et la position du bassin, avec longueurs GLB constantes.
+  Le tibia effectif raccourci de phase 15 était une erreur corrigée par l’audit #17 ; tester
+  les chevilles et sommets après IK, pas seulement la courbe de posture.
 - **Marqueurs de contact** : les placer sur la SURFACE réelle du corps (mesurée par sonde :
   bosse frontale), pas à une cote arbitraire — sinon marqueurs verts mais ventres qui se
   traversent (mesuré : ~0.21 m de recouvrement).

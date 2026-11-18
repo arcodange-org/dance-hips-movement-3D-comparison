@@ -247,14 +247,14 @@ export default function Controls(props: ControlsProps) {
           />
           Pieds plantés (sur place)
         </label>
-        <label className="flex items-center gap-2 text-xs text-slate-400" title="Isolation du bas du corps (objectif premier) : au-dessus du bassin, le haut du tronc reste stable et vertical pendant que bassin/genoux/pieds travaillent ; métrique « stabilité buste % » dans le HUD. iso=0 = ancien buste libre">
+        <label className="flex items-center gap-2 text-xs text-slate-400" title="Isolation du bas du corps (objectif premier) : roulis du bassin compensé par la colonne ; le pitch du style est conservé ; inclinaison du buste en degrés dans le HUD. iso=0 = ancien buste libre">
           <input
             type="checkbox"
             checked={iso}
             onChange={(e) => onIso(e.target.checked)}
             className="accent-teal-400"
           />
-          Isolation basse (buste verrouillé, vertical)
+          Isolation basse (roulis compensé)
         </label>
         <label className="flex items-center gap-2 text-xs text-slate-400" title="Cadre de bras de danseur : coudes pliés, bras vers l'avant, avant-bras gauche vers le haut (paume à droite), avant-bras droit vers la gauche (paume vers le buste). cadre=0 = bras le long du corps">
           <input
@@ -324,7 +324,7 @@ export default function Controls(props: ControlsProps) {
             onChange={(e) => onShowAppui(e.target.checked)}
             className="accent-amber-400"
           />
-          Appuis &amp; transmission
+          Appuis indicatifs
         </label>
         <div>
           <div className="text-[11px] uppercase tracking-wider text-slate-500 mb-1" title="Vue squelette simple, ou avec la couche musculaire/tissus (BodyParts3D CC BY-SA 2.1 Japan © DBCLS) greffée sur les pivots osseux ; la chaîne d'appui sol→genoux→hanches reste visible dans les deux vues">
@@ -396,7 +396,7 @@ export default function Controls(props: ControlsProps) {
               onChange={(e) => onShowContacts(e.target.checked)}
               className="accent-emerald-400"
             />
-            Points de contact
+            Repères de proximité
           </label>
         )}
         {(isCompare || isPair) && (

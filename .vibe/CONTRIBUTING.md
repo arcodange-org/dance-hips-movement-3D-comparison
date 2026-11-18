@@ -1,5 +1,15 @@
 # CONTRIBUTING.md — contribuer agentiquement au projet
 
+## Amendement de contribution — audit #17 (18 novembre 2026)
+
+Pour ce chantier, les consignes globales du propriétaire priment sur les procédures historiques
+ci-dessous : trunk réservé à l’utilisateur, travail dans `.Codex/worktrees/audit-poses-finales`
+sur `arcodange/audit-poses-finales`, issue publiée avant le code, spec poussée en premier.
+Ouvrir une seule PR après les validations ; sa branche reste gelée tant qu’elle est ouverte.
+Aucune fusion, aucun push ni checkpoint sur `main`. Utiliser le remote `origin` et les
+identifiants du gestionnaire Git ; ne jamais construire ni afficher une URL contenant un token.
+
+
 N'importe quelle session Mistral peut continuer d'améliorer le projet en autonomie. Le cycle
 standard d'une contribution (phase) :
 
@@ -18,6 +28,8 @@ standard d'une contribution (phase) :
 - Validations **Gherkin** : `docs/features/*.feature` + steps dans `scripts/test_features.mjs`
   (runner zero-dep, exécuté par `npm test`). Un scénario `@wip` est sauté tant que la feature
   n'est pas livrée.
+- Poses finales : `scripts/test_poses.mjs` charge le GLB réel et appelle le même moteur que
+  React. Toute correction IK doit vérifier les cibles, longueurs et sommets **après** résolution.
 - Style : TypeScript strict, composants séparés, pas de commentaire superflu, pas de dépendance
   ajoutée sauf si le projet l'utilise déjà.
 
@@ -53,7 +65,7 @@ standard d'une contribution (phase) :
 ## 6. Ce qu'il ne faut PAS faire
 
 - Casser les conventions verrouillées (voir `CONVENTIONS.md`) : hiérarchie de pivots GLB,
-  métriques réelles, clamp `root.position.y >= 0`, pieds plats, `plant=1` par défaut en sur place,
+  métriques réelles, sommets osseux au-dessus du sol, pieds plats, `plant=1` par défaut en sur place,
   animation paramétrique f(temps) uniquement (pas de mocap), attribution **BodyParts3D CC BY-SA
   2.1 Japan © DBCLS** visible dans l'app et le README.
 - Oublier de documenter un changement de convention (amendement daté, ex. plant 2026-11-18).

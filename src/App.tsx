@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import Rig from "./components/Rig";
+import DanceTransport from "./components/DanceTransport";
+import { createDanceClock, cycleBeats, exportBeat } from "./clock";
 import ContactViz from "./components/ContactViz";
 import GridFloor from "./components/GridFloor";
 import Controls from "./components/Controls";
@@ -32,9 +34,9 @@ function Gauge({ label, color, hud }: { label: string; color: string; hud: any }
         <div style={{ width: `${hud.loadR * 100}%`, background: color, opacity: 0.45 }} title="appui D" />
       </div>
       <div className="text-[10px] text-slate-300 font-mono">
-        G {Math.round(hud.loadL * 100)}% · D {Math.round(hud.loadR * 100)}% · genoux{" "}
-        {hud.kneeL.toFixed(0)}°/{hud.kneeR.toFixed(0)}° · roll {hud.roll.toFixed(1)}° · buste{" "}
-        {Math.round((hud.stab ?? 1) * 100)}%
+        appuis indicatifs G {Math.round(hud.loadL * 100)}% · D {Math.round(hud.loadR * 100)}% · genoux{" "}
+        {hud.kneeL.toFixed(0)}°/{hud.kneeR.toFixed(0)}° · roll {hud.roll.toFixed(1)}° · inclinaison buste{" "}
+        {(hud.trunkTilt ?? 0).toFixed(1)}°
       </div>
     </div>
   );
@@ -42,6 +44,11 @@ function Gauge({ label, color, hud }: { label: string; color: string; hud: any }
 
 export default function App() {
   const params = readParams();
+  const clock = useRef(createDanceClock()).current;
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState("");
+  const cancelExport = useRef<(() => void) | null>(null);
+  useEffect(() => () => cancelExport.current?.(), []);
   const [mode, setMode] = usePersistentState<ModeKey>("mode", "solo");
   const [styleA, setStyleA] = usePersistentState("styleA", "kizomba");
   const [styleB, setStyleB] = usePersistentState("styleB", "kizomba");
@@ -131,6 +138,7 @@ export default function App() {
     if (p.has("dir")) { const d = num("dir"); if (d !== null && (d === 1 || d === -1)) setDir(d); }
     if (p.has("boussole")) setShowBoussole(p.get("boussole") !== "0");
     // `delay` (retard du suiveur) supprimé en phase 15 : ignoré s'il est présent dans l'URL.
+    if (["none", "A", "B"].includes(p.get("ghost") ?? "")) setGhostSel(p.get("ghost")!);
     if (p.has("contacts")) setShowContacts(p.get("contacts") !== "0");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -191,8 +199,7 @@ export default function App() {
   const ghostA = (isCompare || isPair) && ghostSel === "B";
   const ghostB = ghostSel === "A";
 
-  // Phase 15 — embrace proche : les surfaces frontales (poitrine, bassin, genoux) sont en
-  // contact à z=∓0.125 (voir marqueurs contact* et ContactViz).
+  // Espacement de phase 16 conservé ; les repères indiquent une proximité, pas un contact mécanique.
   const offsetA: [number, number, number] = isPair ? [0, 0, -PAIR_DZ] : isCompare ? [-0.85, 0, 0] : [0, 0, 0];
   const offsetB: [number, number, number] = isPair ? [0, 0, PAIR_DZ] : [0.85, 0, 0];
 
@@ -206,35 +213,74 @@ export default function App() {
     setMode(m);
   };
 
-  const exportCycle = () => {
+  const exportCycle = async () => {
+    if (cancelExport.current) return;
     const canvas = document.querySelector("canvas");
     if (!(canvas instanceof HTMLCanvasElement)) return;
-    const stream = canvas.captureStream(30);
-    const mime = MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
-      ? "video/webm;codecs=vp9"
-      : "video/webm";
-    const rec = new MediaRecorder(stream, { mimeType: mime });
-    const chunks: Blob[] = [];
-    rec.ondataavailable = (e) => {
-      if (e.data.size) chunks.push(e.data);
+    if (typeof MediaRecorder === "undefined" || !canvas.captureStream) {
+      setExportError("L’export vidéo n’est pas disponible dans ce navigateur."); return;
+    }
+    const mime = ["video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm"]
+      .find(type => MediaRecorder.isTypeSupported(type));
+    if (!mime) { setExportError("Ce navigateur ne prend pas en charge l’export WebM."); return; }
+    const savedBeat = clock.beat;
+    let frameId = 0;
+    let stream: MediaStream | undefined;
+    let rec: MediaRecorder | undefined;
+    let cancelled = false;
+    const restore = () => {
+      cancelAnimationFrame(frameId);
+      stream?.getTracks().forEach(track => track.stop());
+      clock.beat = savedBeat; clock.exportFrame = null;
+      cancelExport.current = null;
+      setExporting(false);
     };
-    rec.onstop = () => {
-      const blob = new Blob(chunks, { type: "video/webm" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `danse-${styleA}${isCompare || isPair ? `-vs-${styleB}` : ""}-${bpm}bpm.webm`;
-      a.click();
-      URL.revokeObjectURL(a.href);
+    cancelExport.current = () => {
+      cancelled = true;
+      if (rec?.state === "recording") rec.stop();
+      restore();
     };
-    rec.start();
-    const beats = 4;
-    setTimeout(() => rec.stop(), (beats * 60 * 1000) / bpm);
+    setExportError(""); setExporting(true);
+    clock.exportFrame = 0; clock.beat = 0;
+    try {
+      // Let both rigs render beat zero before the recording starts, also when paused.
+      await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+      if (cancelled) return;
+      stream = canvas.captureStream(30);
+      rec = new MediaRecorder(stream, { mimeType: mime });
+      const chunks: Blob[] = [];
+      rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+      rec.onerror = () => { cancelled = true; setExportError("L’enregistrement vidéo a échoué."); restore(); };
+      rec.onstop = () => {
+        if (!cancelled) {
+          const url = URL.createObjectURL(new Blob(chunks, { type: mime }));
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = `danse-${styleA}-${bpm}bpm.webm`;
+          link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+        restore();
+      };
+      const duration = cycleBeats({ quarts, corridinho, ida, sortie: isPair && sortie, temps3 });
+      const started = performance.now();
+      const tick = (now: number) => {
+        const elapsed = (now - started) / 1000;
+        if (elapsed >= duration * 60 / bpm) { rec!.stop(); return; }
+        const frame = Math.floor(elapsed * 30);
+        clock.exportFrame = frame; clock.beat = exportBeat(frame, 30, bpm);
+        frameId = requestAnimationFrame(tick);
+      };
+      rec.start(); frameId = requestAnimationFrame(tick);
+    } catch {
+      cancelled = true; setExportError("Impossible de démarrer l’export vidéo."); restore();
+    }
   };
 
   if (bare) {
     return (
       <div className="relative w-screen h-screen overflow-hidden bg-slate-950">
         <Canvas camera={{ position: camPosParam ?? cam.position, fov: 42 }} dpr={[1, 2]}>
+          <DanceTransport clock={clock} bpm={bpm} playing={playing} />
           <color attach="background" args={["#0b1220"]} />
           <ambientLight intensity={0.65} />
           <directionalLight position={[3, 5, 4]} intensity={1.3} />
@@ -247,6 +293,7 @@ export default function App() {
             <Rig
               styleKey={styleA}
               bpm={bpm}
+              clock={clock}
               amp={amp}
               playing={playing}
               offset={offsetA}
@@ -277,6 +324,7 @@ export default function App() {
               <Rig
                 styleKey={isPair ? styleA : styleB}
                 bpm={bpm}
+                clock={clock}
                 amp={amp}
                 playing={playing}
                 offset={offsetB}
@@ -304,7 +352,7 @@ export default function App() {
               ida={ida}
               />
             )}
-            {isPair && <ContactViz pair={pairRef} />}
+            {isPair && showContacts && <ContactViz pair={pairRef} />}
           </React.Suspense>
           <OrbitControls
             ref={controlsRef}
@@ -319,18 +367,18 @@ export default function App() {
         {showAppui && isCompare && hud && hudB && (
           <div className="absolute top-3 right-3 pointer-events-none bg-slate-900/70 rounded-md px-2 py-1 space-y-1.5">
             <Gauge label={`A · ${STYLES[styleA].label}`} color={STYLES[styleA].color} hud={hud} />
-            <Gauge label={`B · ${STYLES[styleB].label}`} color={STYLES[styleB].color} hud={hudB} />
+            <Gauge label={`B · ${STYLES[isPair ? styleA : styleB].label}`} color={STYLES[styleB].color} hud={hudB} />
           </div>
         )}
-        {showAppui && hud && (
+        {showAppui && !isCompare && hud && (
           <div className="absolute top-3 right-3 pointer-events-none text-[11px] font-mono text-slate-200 bg-slate-900/70 rounded-md px-2 py-1 space-y-0.5">
             <div>
-              appui D {Math.round(hud.loadR * 100)}% · G {Math.round(hud.loadL * 100)}%
+              appuis indicatifs · D {Math.round(hud.loadR * 100)}% · G {Math.round(hud.loadL * 100)}%
             </div>
             <div>
               genou D {hud.kneeR.toFixed(0)}° · G {hud.kneeL.toFixed(0)}°
             </div>
-            <div>roll bassin {hud.roll.toFixed(1)}° · stabilité buste {Math.round((hud.stab ?? 1) * 100)}%</div>
+            <div>roll bassin {hud.roll.toFixed(1)}° · inclinaison buste {(hud.trunkTilt ?? 0).toFixed(1)}°</div>
             <div>
               direction {DIR_LABELS[hud.facing ?? 0]}
               {isDiagonal(hud.facing ?? 0) ? " (diago)" : ""} · pos/ repère : ligne{" "}
@@ -356,10 +404,10 @@ export default function App() {
           <div className="absolute bottom-3 right-3 pointer-events-none">
             <span
               className="px-2 py-0.5 rounded-md text-[11px] font-semibold text-slate-950"
-              style={{ background: STYLES[styleB].color }}
+              style={{ background: STYLES[isPair ? styleA : styleB].color }}
             >
               {isPair ? "Suiveur · " : ""}
-              {STYLES[styleB].label}
+              {STYLES[isPair ? styleA : styleB].label}
             </span>
           </div>
         )}
@@ -374,7 +422,7 @@ export default function App() {
           Comparateur 3D des styles de danse
         </h1>
         <p className="text-xs md:text-sm text-slate-400 mt-1">
-          Anatomie réelle du bassin au pied (BodyParts3D) animée par la spec biomécanique. Le
+          Anatomie du bassin au pied (BodyParts3D), animation paramétrique illustrative. Le
           curseur « Déplacement » passe du sur place à une amplitude latérale d'une largeur de
           hanche (les pieds marchent quand Déplacement &gt; 0). Le tracé coloré visualise l'orbite
           du centre du bassin. Mode « Observation hanche » : tempo lent (~32 bpm), buste masqué,
@@ -382,6 +430,7 @@ export default function App() {
         </p>
       </div>
 
+      <fieldset disabled={exporting}>
       <Controls
         mode={mode}
         onMode={handleMode}
@@ -429,12 +478,16 @@ export default function App() {
         onGhostSel={setGhostSel}
         onExport={exportCycle}
       />
+      </fieldset>
+      {exporting && <p role="status">Export du cycle complet en cours…</p>}
+      {exportError && <p role="alert">{exportError}</p>}
 
       <div
         className="relative rounded-2xl overflow-hidden border border-slate-800"
         style={{ height: 540 }}
       >
         <Canvas camera={{ position: camPosParam ?? cam.position, fov: 42 }} dpr={[1, 2]}>
+          <DanceTransport clock={clock} bpm={bpm} playing={playing} />
           <color attach="background" args={["#0b1220"]} />
           <ambientLight intensity={0.65} />
           <directionalLight position={[3, 5, 4]} intensity={1.3} />
@@ -447,6 +500,7 @@ export default function App() {
             <Rig
               styleKey={styleA}
               bpm={bpm}
+              clock={clock}
               amp={amp}
               playing={playing}
               offset={offsetA}
@@ -477,6 +531,7 @@ export default function App() {
               <Rig
                 styleKey={isPair ? styleA : styleB}
                 bpm={bpm}
+                clock={clock}
                 amp={amp}
                 playing={playing}
                 offset={offsetB}
@@ -504,7 +559,7 @@ export default function App() {
               ida={ida}
               />
             )}
-            {isPair && <ContactViz pair={pairRef} />}
+            {isPair && showContacts && <ContactViz pair={pairRef} />}
           </React.Suspense>
           <OrbitControls
             ref={controlsRef}
@@ -528,10 +583,10 @@ export default function App() {
           <div className="absolute bottom-3 right-3 pointer-events-none">
             <span
               className="px-2 py-0.5 rounded-md text-[11px] font-semibold text-slate-950"
-              style={{ background: STYLES[styleB].color }}
+              style={{ background: STYLES[isPair ? styleA : styleB].color }}
             >
               {isPair ? "Suiveur · " : ""}
-              {STYLES[styleB].label}
+              {STYLES[isPair ? styleA : styleB].label}
             </span>
           </div>
         )}
@@ -541,18 +596,18 @@ export default function App() {
         {showAppui && isCompare && hud && hudB && (
           <div className="absolute top-10 right-3 pointer-events-none bg-slate-900/70 rounded-md px-2 py-1 space-y-1.5">
             <Gauge label={`A · ${STYLES[styleA].label}`} color={STYLES[styleA].color} hud={hud} />
-            <Gauge label={`B · ${STYLES[styleB].label}`} color={STYLES[styleB].color} hud={hudB} />
+            <Gauge label={`B · ${STYLES[isPair ? styleA : styleB].label}`} color={STYLES[styleB].color} hud={hudB} />
           </div>
         )}
-        {showAppui && hud && (
+        {showAppui && !isCompare && hud && (
           <div className="absolute top-10 right-3 pointer-events-none text-[11px] font-mono text-slate-200 bg-slate-900/70 rounded-md px-2 py-1 space-y-0.5">
             <div>
-              appui D {Math.round(hud.loadR * 100)}% · G {Math.round(hud.loadL * 100)}%
+              appuis indicatifs · D {Math.round(hud.loadR * 100)}% · G {Math.round(hud.loadL * 100)}%
             </div>
             <div>
               genou D {hud.kneeR.toFixed(0)}° · G {hud.kneeL.toFixed(0)}°
             </div>
-            <div>roll bassin {hud.roll.toFixed(1)}° · stabilité buste {Math.round((hud.stab ?? 1) * 100)}%</div>
+            <div>roll bassin {hud.roll.toFixed(1)}° · inclinaison buste {(hud.trunkTilt ?? 0).toFixed(1)}°</div>
             <div>
               direction {DIR_LABELS[hud.facing ?? 0]}
               {isDiagonal(hud.facing ?? 0) ? " (diago)" : ""} · pos/ repère : ligne{" "}

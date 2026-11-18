@@ -13,23 +13,18 @@ export function clampSolY(rootY: number, boneMinY: number): number {
   return Math.max(0, rootY, -boneMinY);
 }
 
-// Quantité dont le root doit remonter pour qu'aucun sommet de maillage du rig ne soit sous
-// y=0 (sphères englobantes en espace monde ; marqueurs de contact exclus). 0 si déjà au sol.
+// Correction du mode libre (plant=0) sur les sommets réels : une sphère englobante
+// surévalue la semelle et ferait flotter le personnage. Le mode planté résout chaque pied.
 export function groundDip(root: THREE.Object3D): number {
   root.updateWorldMatrix(true, true);
   let minY = Infinity;
-  const c = new THREE.Vector3();
-  const s = new THREE.Vector3();
+  const v = new THREE.Vector3();
   root.traverse((o) => {
-    const m = o as THREE.Mesh;
-    if (!m.isMesh || m.userData.part === "anchor") return;
-    const g = m.geometry;
-    if (!g.boundingSphere) g.computeBoundingSphere();
-    const bs = g.boundingSphere as THREE.Sphere;
-    m.getWorldScale(s);
-    m.localToWorld(c.copy(bs.center));
-    const y = c.y - bs.radius * Math.max(s.x, s.y, s.z);
-    if (y < minY) minY = y;
+    const mesh = o as THREE.Mesh;
+    if (!mesh.isMesh || mesh.userData.part === "anchor" || mesh.userData.part === "muscle") return;
+    const positions = mesh.geometry.attributes.position;
+    for (let i = 0; i < positions.count; i++)
+      minY = Math.min(minY, v.fromBufferAttribute(positions, i).applyMatrix4(mesh.matrixWorld).y);
   });
   return minY < 0 ? -minY : 0;
 }

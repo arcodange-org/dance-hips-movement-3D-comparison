@@ -2,16 +2,43 @@
 
 Application web 3D (Vite + React + three.js / @react-three/fiber) pour aider les apprentis
 danseurs à reproduire et différencier visuellement six styles : **kizomba, semba, kompa,
-tarraxinha, suave, zouk brésilien**. Animée par une spec biomécanique chiffrée, sans mocap.
+tarraxinha, suave, zouk brésilien**. Animation paramétrique illustrative, sans mocap ni calibration chorégraphique validée.
 
 **Objectif premier** : discerner les **isolations du bas du corps** — au-dessus du bassin, le
-haut du tronc reste **stable et vertical** (mode « Isolation basse », `iso=1` par défaut ;
+haut du tronc **compense le roulis du bassin** (pitch du style conservé) (mode « Isolation basse », `iso=1` par défaut ;
 voir [docs/ginga-angolana.md](docs/ginga-angolana.md) pour les sources FR/EN/PT : « the
 movements hips down are the dominant ones, not the upper body movements »).
 
 **🌐 Site déployé (GitHub Pages) : https://arcodange-org.github.io/dance-hips-movement-3D-comparison/**
 
-## Aperçu animé (motion design)
+## Captures après correction de l’audit #17
+
+Le rendu et les tests utilisent le même moteur de pose (`src/pose.ts`) et une horloge commune.
+Les jambes gardent leurs longueurs GLB ; le bassin descend pour permettre la flexion. Les angles
+HUD proviennent des poses finales. Les appuis restent illustratifs, avec 0 % sur un pied levé.
+La proximité des repères ne représente pas une force ni un contact de surfaces.
+
+![Comparaison synchronisée semba / kizomba](docs/gifs/audit-comparaison.gif)
+<details><summary>Détails & source</summary>
+
+Capture du canvas local corrigé via « Exporter un cycle », depuis la pause : 4 temps à 90 bpm,
+semba à gauche, kizomba à droite, amplitude 1, pieds plantés. BodyParts3D © DBCLS,
+CC BY-SA 2.1 Japan. Le HUD HTML n’est pas inclus dans l’export du canvas.
+</details>
+
+![Quarts de tour en paire — cycle complet](docs/gifs/audit-quarts-paire.gif)
+<details><summary>Détails & source</summary>
+
+Capture du même moteur : kizomba, paire, quarts de tour, 16 temps à 90 bpm, amplitude 1.
+Export depuis la pause, traînée réinitialisée et alimentée pendant l’export.
+[Spécification et limites](docs/spec-audit-poses-finales.md),
+[rétrospective et vérifications](docs/retrospective-audit-poses.md).
+</details>
+
+## Galerie historique (avant l’audit #17)
+
+Les captures ci-dessous documentent les phases précédentes. Elles n’ont pas été régénérées
+pour l’audit et ne constituent pas une preuve du rendu corrigé ci-dessus.
 
 **Mis en avant — kizomba sur place + couche musculaire** (version issue des itérations de
 vérification croisées, voir la note « Vérification » ci-dessous ; pastilles de charge des appuis
@@ -82,7 +109,7 @@ spec phase 6 (`docs/spec-phase6-comparatif-appuis-corridinho.md` §5).
 <details><summary>Détails & source</summary>
 
 Transmission du sol vers le haut : pastilles de charge, chaîne pied→cheville→genou→hanche en
-surbrillance, HUD charge G/D % + genoux ° + roll bassin ° + stabilité buste %. Ce détail reste
+surbrillance, HUD charge G/D % + genoux ° + roll bassin ° + inclinaison du buste °. Ce détail reste
 visible aussi en vue « + Muscles ». Sources : [docs/styles-de-danse.md](docs/styles-de-danse.md)
 (Wikipédia FR Kizomba « le déplacement est du bas vers le haut », viends-danser, udansa).
 </details>
@@ -157,18 +184,19 @@ agir le suiveur via les contacts. Specs phase 14 §2 + phase 15.
 ![Face à face — points de contact](docs/gifs/paire-contacts.gif)
 <details><summary>Détails & source</summary>
 
-Le guideur guide par les points de contact : **poitrine, bassin, genoux** (verts = en contact) —
+Le guideur guide par les points de contact : **poitrine, bassin, genoux** (verts = repères à moins de 9 cm, sans mesure de contact) —
 « chest, bellies, temples, hands, thighs, knees, arms » (Capacious Journal,
 [docs/posture-contraposition.md](docs/posture-contraposition.md)). Le suiveur est le miroir exact du
 guideur (même style, pas de retard). Posture par style (`lean`, `knee`) : kizomba/tarraxinha buste
 légèrement en avant et genoux bien fléchis (« lean slightly forward », « slightly bent knees », SOS
 Dance), zouk en cambré. Espacement du couple recalé sur la surface ventrale mesurée (sonde
-sommets, hors bras) : les ventres se touchent sans se traverser. Spec phase 15 + 16.
+sommets, hors bras) : ce réglage de phase 16 reste illustratif, sans collision mécanique entre partenaires.
 </details>
 
-> **Contact sol garanti** : aucun os ne passe sous le sol (`y >= 0`, clamp sol renforcé par
-> sphères englobantes en fin de frame ; le pied en balancement reste au-dessus du sol).
-> Spec phase 16, Gherkin `sol-contact.feature`.
+> **Vérification du sol après l’audit** : les tests mesurent tous les sommets osseux du GLB
+> après IK (tolérance 0,1 mm), les longueurs et l’erreur de cible de cheville (≤1 mm).
+> Le bassin peut descendre sous sa hauteur de repos. Les sphères englobantes de phase 16
+> ne servent plus à relever artificiellement les pieds. Domaine et limites dans la spec #17.
 
 ![Marche + marka « 3 temps »](docs/gifs/marche-3temps.gif)
 <details><summary>Détail & source</summary>
@@ -241,7 +269,7 @@ npm run dev       # http://localhost:5173/
 npm run build     # tsc + vite build -> dist/
 npm run preview   # sert dist/ en local
 npm run capture   # régénère les GIFs de docs/gifs/ (nécessite playwright + chromium headless)
-npm test          # tests numériques des courbes de styles (NaN, clamp sol, amplitude, sorties)
+npm test          # courbes, Gherkin et poses finales du GLB réel
 ```
 
 Paramètres d'URL (utilisés par les captures, prioritaires sur localStorage) :
@@ -274,12 +302,11 @@ vírgula : talon du pied G au bout du pied D à 90°, puis pied D ramené parall
 suit le pied G, bas du corps le pied D) / **Marka « 3 temps »** / **Ida e volta**, **Ligne de danse** (pointillé rose, axe x au repère),
 **Repère fixe** (anneau + croix à l'origine, pour lire les déplacements relatifs),
 **Pieds plantés (sur place)** (contact sol constant — petit pivot sur la plante du pied /
-« semi-pointe » autorisé ; désactiver pour l'ancien rendu glissé), **Isolation basse (buste
-verrouillé, vertical)** (au-dessus du bassin le haut du tronc ne bascule plus latéralement : la
-colonne contre-rotate le pelvis ; métrique « stabilité buste % » dans le HUD ; `iso=0` pour
+« semi-pointe » autorisé ; désactiver pour l'ancien rendu glissé), **Isolation basse (roulis compensé)** (au-dessus du bassin le haut du tronc ne bascule plus latéralement : la
+colonne contre-rotate le pelvis ; métrique « inclinaison du buste ° » dans le HUD ; `iso=0` pour
 l'ancien buste libre), **Cadre de bras de danseur** (coudes pliés, bras vers l'avant,
 avant-bras gauche vers le haut paume à droite, avant-bras droit vers la gauche paume vers le
-buste ; `cadre=0` pour les bras le long du corps), **Marche arrière**, **Appuis & transmission**
+buste ; `cadre=0` pour les bras le long du corps), **Marche arrière**, **Appuis indicatifs**
 (pastilles de charge sous les pieds + chaîne d'appui pied→genou→hanche en surbrillance + HUD
 charge G/D %, flexion genoux °, roll bassin ° ; activée par défaut en mode Observation hanche).
 En mode **Comparaison**, deux panneaux de **jauges G/D** lisent l'appui de chaque style côte à
@@ -296,8 +323,8 @@ sur une police (ex. DejaVu) — sinon aucun texte n'est rendu dans les vidéos.
   `r.hipR/L, r.kneeR/L, r.footR/L` (pivots) et `r.root` (Skeleton).
 - **Métriques** (mètres, `anatomy_meta.json`) : hauteur de hanche 0,8835 m (`HIP_Y`),
   inter-hanches 0,168 m, hanche→genou 0,440 m, genou→cheville 0,389 m. `HIP_WIDTH = 0,34 m`.
-- **Clamp sol obligatoire** : `root.position.y >= 0`. Le « niveau bas » d'un style vient
-  uniquement de la flexion de genou, jamais d'un plateau sous le sol.
+- **Sol (amendement #17)** : sommets osseux au-dessus de y=0, semelles au sol en appui,
+  longueurs osseuses constantes. `root.y` peut être négatif pour fléchir les genoux.
 - **Curseur Déplacement** : 0 = sur place, 1 = ±17 cm (une largeur de hanche). Quand
   Déplacement > 0, un IK de pas à deux segments fait alterner les appuis (les pieds marchent
   au lieu de glisser). **Amendement 2026-11-18 (demandé)** : à 0 (sur place), les pieds restent
@@ -307,8 +334,8 @@ sur une police (ex. DejaVu) — sinon aucun texte n'est rendu dans les vidéos.
   Face à face (contacts vert/rouge poitrine/bassin/genoux via `contacts=`, suiveur = miroir exact
   du guideur — pas de retard —, isolation ghost). La comparaison de styles différents se fait en
   mode **Comparaison côte à côte** (`styleB` n'est utilisé qu'en `mode=compare`).
-- **Pieds plats** : `footL/R.rotation.x = -(hip.rotation.x + knee.rotation.x) + extra`
-  (plus `foot.rotation.z = -hip.rotation.z` en mode IK).
+- **Pieds plats** : quaternion monde cible compensant les parents ; hauteur de semelle
+  issue des sommets réels. Aucun raccourcissement virtuel du tibia.
 - **Réglages persistés** dans `localStorage` (préfixe `danse-comparateur:`).
 
 ## Structure
@@ -316,8 +343,10 @@ sur une police (ex. DejaVu) — sinon aucun texte n'est rendu dans les vidéos.
 - `src/anatomy.ts` — constantes (HIP_Y, HIP_WIDTH, ANATOMY_URL), helpers de courbes f(temps),
   `resetRig`, type `RigHandle`.
 - `src/styles.ts` — config des 6 styles (label, couleur, puces, `apply(r, b, amp)`) et modes.
-- `src/components/Rig.tsx` — rig animé (GLB + buste stylisé avec segments lombaires/thoraciques,
-  tracé d'orbite du bassin, IK de pas).
+- `src/pose.ts` — moteur déterministe de pose finale, planning des pieds, IK, mesures HUD.
+- `src/clock.ts`, `src/components/DanceTransport.tsx` — horloge commune et périodes d’export.
+- `src/rigJoints.ts` — positions du buste partagées entre le rendu et les tests.
+- `src/components/Rig.tsx` — montage GLB/buste, apparence, appuis et traînée du bassin.
 - `CONTEXT.md` — état du projet + méthode anti-amnésie + procédure de reprise de session.
 - `src/components/Controls.tsx`, `InfoCards.tsx`, `ContactViz.tsx`, `GridFloor.tsx`,
   `DemoOverlay.tsx` (habillage motion design des captures `?demo=`), `OriginMarker.tsx`
@@ -325,13 +354,15 @@ sur une police (ex. DejaVu) — sinon aucun texte n'est rendu dans les vidéos.
   `src/cameras.ts` (presets caméra `cam=`, `solid=`).
 - `src/muscles.ts` — greffe de la couche musculaire (mapping maillage → pivot osseux).
 - `src/hooks/usePersistentState.ts` — persistance localStorage.
-- `src/ik.ts` — IK de pas (2 segments + raffinement CCD).
+- `src/ik.ts` — IK analytique à deux segments, longueurs réelles constantes.
 - `public/anatomy.glb` — squelette réel bassin→pied (BodyParts3D, décimation 99 %,
   KHR_mesh_quantization, en-tête GLB en ordre spec). Ne pas réimporter/réexporter sans
   vérifier les échelles de compensation de quantification embarquées dans les nœuds.
 - `anatomy_meta.json` — positions articulaires réelles (mètres, repère du canvas).
 - `scripts/capture_gifs.mjs` — captures Playwright → GIF (ffmpeg-static) dans `docs/gifs/`.
-- `scripts/test_styles.mjs` — test numérique des styles (`npm test`).
+- `scripts/test_styles.mjs`, `scripts/test_features.mjs` — courbes et scénarios Gherkin.
+- `scripts/test_poses.mjs`, `scripts/pose_fixture.mjs` — GLB réel, matrices finales, sol,
+  longueur des os, appuis, marqueurs, continuité, transport et cycles (`npm test`).
 - `scripts/rebuild_anatomy.py` — régénération d'une anatomie plus fine à partir de BodyParts3D
   (FJ IDs ci-dessous), export GLB + compression Draco via gltf-transform.
 - `scripts/build_muscles.py` — construit `public/anatomy_muscles.glb` (couche musculaire
