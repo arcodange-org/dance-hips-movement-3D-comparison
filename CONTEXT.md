@@ -69,11 +69,13 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   sandbox, secrets) + `CONTRIBUTING.md` (cycle phase complet) + `CONVENTIONS.md` (conventions
   verrouillées + params URL). Toute session Mistral peut adopter et continuer le projet en
   autonomie.
-- Phase 11 **en cours** (branche `vibe/phase11-virgula-vue-ae8a7a`) — **vírgula + URL angle/zoom** :
-  sur les quarts de tour le pied fait l'angle avec le corps (pivot sur la boule du pied,
-  `virgulaFootYawDelta`, recherche `docs/virgula.md`) ; params URL `angle=`/`zoom=` en plus de
-  `campos`/`camtgt` (`viewAnglesOf`/`posFromView`/`resolveView` dans `src/cameras.ts`) ; preset
-  caméra `top` + GIF `virgula-quarts.gif`. Spec : `docs/spec-phase11-virgula-vue.md`.
+- Phase 11 **LIVRÉE** (PR #9 mergée, commit `da6968a`, CI success) — **vírgula + URL angle/zoom** :
+  sur les quarts de tour/corridinho le pied fait l'angle avec le corps (pivot sur la boule du
+  pied, `virgulaFootYawDelta` ; sonde : max |Δlacet| = 4.4e-4 rad ; recherche `docs/virgula.md`)
+  ; params URL `angle=`/`zoom=` en plus de `campos`/`camtgt` (`viewAnglesOf`/`posFromView`/
+  `resolveView` dans `src/cameras.ts`, preset `top`, écrits par « Partager la vue ») ; cadre
+  avant-bras G vers le haut verrouillé par Gherkin ; GIF `virgula-quarts.gif` (19 GIFs).
+  Spec : `docs/spec-phase11-virgula-vue.md`. Tests : 39 PASS 0 FAIL 1 SKIP.
 - Rétrospective / boucle de feedback : `docs/retrospective-phase3-5.md` +
   `docs/retrospective-phase6.md` + méta-tâche M4 récurrente dans `docs/TASKS.md`.
 - Phase 5 **livrée** : PR #3 mergée dans `main` (2026-11-18), CI Pages run 44272969552 =
