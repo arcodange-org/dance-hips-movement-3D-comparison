@@ -86,11 +86,12 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   Pages conditionné à `needs: test` (`.github/workflows/deploy.yml`) — vérifié sur le run 349efb5
   (job test success avant build/deploy). Doc harness mise à jour dans le même commit (AGENTS.md,
   `.vibe/HARNESS.md`, `CONTRIBUTING.md`, `CONVENTIONS.md`).
-- Phase 14 **en cours** (branche `vibe/phase14-options-pivots-ae8a7a`) — **options de déplacement
-  exclusives (radio) + vrais pivots de quart de tour** : `movementOf`/`movementFlags` +
-  groupe radio dans Controls ; `quartTurnStep(b, reverse)` (talon pied G au bout du pied D à 90°,
-  pied D ramené parallèle ; haut du corps suit le pied G, bas le pied D — dissociation) + IK
-  demi-pas. Spec : `docs/spec-phase14-options-pivots.md`.
+- Phase 14 **LIVRÉE** (PR #12 mergée, commit `92a34e2`, CI success ; PR #13 = garde-fou CI
+  `if: github.event_name != 'pull_request'` sur build/deploy) — **options de déplacement
+  exclusives (radio `movementOf`/`movementFlags` + groupe radio Controls, parsing URL exclusif) +
+  vrais pivots de quart de tour** `quartTurnStep(b, reverse)` (talon pied G au bout du pied D à
+  90°, pied D ramené parallèle ; haut du corps = lacet pied G, bas = lacet pied D ; sonde runtime
+  exacte). 50 PASS 0 FAIL 1 SKIP. Spec : `docs/spec-phase14-options-pivots.md`.
 - Rétrospective / boucle de feedback : `docs/retrospective-phase3-5.md` +
   `docs/retrospective-phase6.md` + méta-tâche M4 récurrente dans `docs/TASKS.md`.
 - Phase 5 **livrée** : PR #3 mergée dans `main` (2026-11-18), CI Pages run 44272969552 =

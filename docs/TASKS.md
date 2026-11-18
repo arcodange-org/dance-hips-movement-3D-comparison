@@ -141,19 +141,20 @@ Spec : `docs/spec-phase12-os-genou.md` (bug URL observe/tarraxinha/ida=1, camér
   build/deploy). Doc harness à jour dans le même commit (règle « Maintenance de ce fichier » :
   AGENTS.md + `.vibe/*`).
 
-## Phase 14 — EN COURS — branche `vibe/phase14-options-pivots-ae8a7a` — options de déplacement exclusives + vrais pivots de quart de tour
+## Phase 14 — LIVRÉE (PR #12, commit `92a34e2`, CI success : test 50 PASS + build + deploy ; PR #13 = fix `if` CI) — options exclusives + pivots de quart de tour
 
 Spec : `docs/spec-phase14-options-pivots.md` (demandes 2026-11-18).
 
-- [ ] 41. Options exclusives : `MovementKey`/`movementOf`/`movementFlags` (pur, `src/styles.ts`) ;
+- [x] 41. Options exclusives : `MovementKey`/`movementOf`/`movementFlags` (pur, `src/styles.ts`) ;
   `movement`+`setMovement` dans `App.tsx` + parsing URL exclusif ; groupe **radio** dans
-  `Controls.tsx` à la place des 4 checkbox ; Gherkin `options-deplacement.feature`
-- [ ] 42. Pivots de quart de tour : `quartTurnStep(b, reverse)` pur (talon G au bout du pied D à
+  `Controls.tsx` ; Gherkin `options-deplacement.feature`
+- [x] 42. Pivots de quart de tour : `quartTurnStep(b, reverse)` pur (talon G au bout du pied D à
   90°, puis pied D parallèle ; haut du corps suit pied G, bas du corps pied D) + câblage `Rig.tsx`
-  (root=lowerYaw, chest/head=dissociation, IK demi-pas 2 temps + lacet pied par cible) ; Gherkin
-  `quarts-pivots.feature`
-- [ ] 43. Captures `quarts-de-tour.gif` + `virgula-quarts.gif` regénérés + sonde numérique
-  (lacet pied ≈ cible, dissociation ~π/2, retour positions à 2π) ; README/CONTEXT/CONVENTIONS
+  (root=lowerYaw, chest/head=dissociation, IK demi-pas 2 temps + lacet pied par cible) ; sonde
+  runtime : |rootYaw−lowerYaw|=0, |chestYaw−(upper−lower)|=0, lacet pied=cible en fin de demi-pas ;
+  Gherkin `quarts-pivots.feature`
+- [x] 43. GIFs `quarts-de-tour`/`virgula-quarts`/`corridinho`/`corridinho-paire` regénérés (pivots
+  visibles en cam=top) ; README/CONTEXT/CONVENTIONS — 50 PASS 0 FAIL 1 SKIP
 
 ## Méta — boucle de feedback (rétrospective auto-critique + critique de session indépendante)
 
