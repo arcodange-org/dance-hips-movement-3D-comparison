@@ -205,6 +205,30 @@ export function sortieOffset(b: number, amp: number): number {
   return 0.22 * sortieEnvelope(b) * amp;
 }
 
+// Corridinho (tâche 11) : séquence de 16 temps — 1/4 de tour à DROITE (temps 0–3),
+// 1/4 de tour à GAUCHE (4–7), puis cercle au sol de rayon R autour du repère fixe
+// (origine) pendant 8–15, en avançant (le danseur décrit le cercle). Source : Wikipédia FR
+// Kizomba (« corridinho : succession de pas qui forme un cercle au sol » ; « 1/4 de tour,
+// en 3 temps avec un marqua »).
+export const CORRIDINHO_RADIUS = 0.3;
+export function corridinhoPath(b: number): { x: number; z: number; ry: number } {
+  const p = ((b % 16) + 16) % 16;
+  if (p < 4) {
+    const t = p / 4;
+    return { x: 0, z: 0, ry: (Math.PI / 2) * t };
+  }
+  if (p < 8) {
+    const t = (p - 4) / 4;
+    return { x: 0, z: 0, ry: (Math.PI / 2) * (1 - t) };
+  }
+  const phi = (TAU * (p - 8)) / 8;
+  return {
+    x: CORRIDINHO_RADIUS * Math.sin(phi),
+    z: CORRIDINHO_RADIUS * (1 - Math.cos(phi)),
+    ry: phi + Math.PI / 2,
+  };
+}
+
 export function sortieEnvelope(b: number): number {
   const p = ((b % 8) + 8) % 8;
   let e = 0;

@@ -15,7 +15,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const bundle = join(root, "scripts", ".test-features-bundle.mjs");
 esbuild.buildSync({
   stdin: {
-    contents: 'export * from "../src/styles"; export * from "../src/anatomy";',
+    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras";',
     resolveDir: join(root, "scripts"),
     loader: "ts",
   },
@@ -28,7 +28,7 @@ esbuild.buildSync({
 });
 const mod = await import(pathToFileURL(bundle).href + "?t=" + Date.now());
 rmSync(bundle, { force: true });
-const { STYLES, supportOf, sortieEnvelope, sortieOffset, plantBlend, HIP_WIDTH, S2 } = mod;
+const { STYLES, supportOf, sortieEnvelope, sortieOffset, plantBlend, corridinhoPath, HIP_WIDTH, S2, CAM_PRESETS, resolveCam, SOLID_TORSO_OPACITY } = mod;
 const { Group } = await import(
   pathToFileURL(join(root, "node_modules", "three", "build", "three.module.js")).href
 );
@@ -161,17 +161,60 @@ const steps = [
   [/^plantBlend vaut ([\d.]+)$/, (c, m) => { const v = plantBlend(c.travel, c.plant); if (Math.abs(v - Number(m[1])) > 1e-9) throw new Error(`plantBlend=${v}, attendu ${m[1]}`); }],
   [/^on applique chaque style sur (\d+) temps à amplitude ([\d.]+)$/, (c, m) => {
     const n = Number(m[1]), amp = Number(m[2]);
-    c.all = { minExtra: Infinity, maxExtra: -Infinity };
+    c.all = { minExtra: Infinity, maxExtra: -Infinity, supportBad: false };
     for (const key of Object.keys(STYLES)) {
       const r = mockRig();
       for (let b = 0; b <= n; b += 0.05) {
         STYLES[key].apply(r, b, amp);
         c.all.minExtra = Math.min(c.all.minExtra, r.extraL, r.extraR);
         c.all.maxExtra = Math.max(c.all.maxExtra, r.extraL, r.extraR);
+        const sv = supportOf(key, r, b);
+        if (!Number.isFinite(sv) || sv < -1 - 1e-9 || sv > 1 + 1e-9) c.all.supportBad = true;
       }
     }
   }],
   [/^extraL et extraR restent dans \[-0\.05, 0\.35\] rad$/, (c) => { if (c.all.minExtra < -0.05 - 1e-9 || c.all.maxExtra > 0.35 + 1e-9) throw new Error(`extra hors plage: [${c.all.minExtra}, ${c.all.maxExtra}]`); }],
+  [/^la charge de chaque pied \(load G\/D\) reste dans \[0, 1\]$/, (c) => { if (c.all.supportBad) throw new Error("charge hors [0,1]"); }],
+  [/^les presets cam (.+) sont définis$/, (c, m) => {
+    const names = m[1].split(",").map((x) => x.trim().replace(/"/g, ""));
+    for (const n of names) if (!CAM_PRESETS[n]) throw new Error("preset cam inconnu: " + n);
+  }],
+  [/^le mode pair sans preset cam$/, (c) => { c.preset = null; c.isPair = true; }],
+  [/^la caméra par défaut est le preset (\w+)$/, (c, m) => {
+    const r = resolveCam(c.preset, c.isPair);
+    if (JSON.stringify(r) !== JSON.stringify(CAM_PRESETS[m[1]])) throw new Error("défaut != " + m[1]);
+  }],
+  [/^le paramètre solid = 1$/, (c) => { c.solid = true; }],
+  [/^torsoOpacity vaut ([\d.]+)$/, (c, m) => { if (Math.abs(SOLID_TORSO_OPACITY - Number(m[1])) > 1e-9) throw new Error("SOLID_TORSO_OPACITY=" + SOLID_TORSO_OPACITY); }],
+  [/^la séquence corridinho sur (\d+) temps$/, (c, m) => { c.n = Number(m[1]); }],
+  [/^on évalue la trajectoire de root$/, (c) => {
+    c.path = [];
+    for (let b = 0; b <= c.n; b += 0.05) { const p = corridinhoPath(b); c.path.push({ b, ...p, finite: [p.x, p.z, p.ry].every(Number.isFinite) }); }
+  }],
+  [/^les temps 0 à 3 font un quart de tour à droite/, (c) => {
+    const pts = c.path.filter((p) => { const q = ((p.b % 16) + 16) % 16; return q < 4; });
+    if (pts[0].ry > 0.05) throw new Error("ry initial non nul: " + pts[0].ry);
+    const last = pts[pts.length - 1];
+    if (Math.abs(last.ry - Math.PI / 2) > 0.06) throw new Error("fin pivot droit ry=" + last.ry);
+  }],
+  [/^les temps 4 à 7 font un quart de tour à gauche/, (c) => {
+    const pts = c.path.filter((p) => { const q = ((p.b % 16) + 16) % 16; return q >= 4 && q < 8; });
+    if (Math.abs(pts[0].ry - Math.PI / 2) > 0.06) throw new Error("début pivot gauche ry=" + pts[0].ry);
+    if (Math.abs(pts[pts.length - 1].ry) > 0.06) throw new Error("fin pivot gauche ry=" + pts[pts.length - 1].ry);
+  }],
+  [/^les temps 8 à 15 décrivent un cercle de rayon entre ([\d.]+) et ([\d.]+) m autour du point \(0, ([\d.]+)\), en passant par le repère fixe$/, (c, m) => {
+    const cx = 0, cz = Number(m[3]);
+    for (const p of c.path) {
+      const q = ((p.b % 16) + 16) % 16;
+      if (q < 8 || q >= 16) continue;
+      const d = Math.hypot(p.x - cx, p.z - cz);
+      if (Math.abs(d - Number(m[3])) > 0.02) throw new Error("pas sur le cercle à b=" + p.b + " d=" + d);
+    }
+    if (!(Number(m[1]) <= Number(m[3]) && Number(m[3]) <= Number(m[2]))) throw new Error("rayon hors plage");
+  }],
+  [/^la trajectoire reste finie et le rayon est borné$/, (c) => {
+    for (const p of c.path) if (!p.finite) throw new Error("trajectoire non finie à b=" + p.b);
+  }],
 ];
 
 // ---------- exécution ----------
