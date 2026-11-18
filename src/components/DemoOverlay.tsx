@@ -66,6 +66,18 @@ export const DEMOS: Record<string, DemoDef> = {
     captions: ["charge transmise du sol vers le genou", "chaîne pied → cheville → genou → hanche"],
     beat: 60 / 32,
   },
+  "comparatif-appuis": {
+    chip: "Comparatif d'appuis",
+    color: "#fbbf24",
+    captions: ["kizomba vs kompa, sur place", "jauge G/D par corps (appui transmis du sol)"],
+    beat: 60 / 90,
+  },
+  corridinho: {
+    chip: "Corridinho",
+    color: "#f472b6",
+    captions: ["1/4 tour D, 1/4 tour G, puis cercle au sol", "cercle autour du repère fixe (ligne de danse)"],
+    beat: 60 / 140,
+  },
 };
 
 export default function DemoOverlay({ demo }: { demo: DemoDef }) {

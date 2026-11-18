@@ -8,6 +8,7 @@ import {
   HIP_WIDTH,
   S2,
   TRAIL_MAX,
+  TAU,
   BODY,
   BODY_DARK,
   TORSO_OPACITY,
@@ -15,7 +16,7 @@ import {
   resetRig,
   type RigHandle,
 } from "../anatomy";
-import { STYLES, sortieEnvelope, supportOf } from "../styles";
+import { STYLES, sortieEnvelope, sortieOffset, supportOf, plantBlend, corridinhoPath } from "../styles";
 import { solveLeg3D } from "../ik";
 import {
   MUSCLES_URL,
@@ -68,6 +69,9 @@ export interface RigProps {
   sortie?: boolean;
   showAppui?: boolean;
   stats?: React.MutableRefObject<any> | null;
+  plant?: boolean;
+  corridinho?: boolean;
+  torsoOpacity?: number;
 }
 
 export default function Rig({
@@ -89,7 +93,11 @@ export default function Rig({
   sortie = false,
   showAppui = false,
   stats = null,
+  plant = true,
+  corridinho = false,
+  torsoOpacity,
 }: RigProps) {
+  const torsoOp = torsoOpacity ?? TORSO_OPACITY;
   const r = useRef({} as RigHandle).current;
   const reg = (n: string) => (el: any) => {
     r[n] = el;
@@ -229,7 +237,23 @@ export default function Rig({
     resetRig(r);
     STYLES[styleKey].apply(r, b, amp);
     r.root.position.x += travel * (HIP_WIDTH / 2) * Math.tanh(2.2 * S2(b));
-    if (sortie && embrace) r.root.position.x += 0.22 * sortieEnvelope(b) * amp;
+    if (sortie && embrace) {
+      // Sortie = ligne de danse : déplacement latéral local (axe x, perpendiculaire à la
+      // ligne) hors de la ligne puis retour dessus. Le buste/bras restent orientés sur la
+      // ligne (contre-rotation) -> dissociation thoraco-pelvienne pendant la sortie.
+      r.root.position.x += sortieOffset(b, amp);
+      const e = sortieEnvelope(b) * amp;
+      r.chest.rotation.y -= 0.22 * e;
+      if (r.head) r.head.rotation.y -= 0.12 * e;
+    }
+    if (corridinho) {
+      // 1/4 de tour à droite (0-3), à gauche (4-7), puis cercle au sol autour du repère fixe.
+      const cp = corridinhoPath(b);
+      r.root.position.x += cp.x;
+      r.root.position.z += cp.z;
+      r.root.rotation.y += cp.ry;
+      r.chest.rotation.z -= 0.06; // épaules vers l'intérieur du cercle
+    }
     if (r.root.position.y < 0) r.root.position.y = 0;
 
     // Appuis : charge pied droit (support) -> pastilles au sol + chaîne pied→genou→hanche
@@ -276,7 +300,7 @@ export default function Rig({
       };
     }
 
-    const w = Math.min(1, travel / 0.2);
+    const w = plantBlend(travel, plant);
     if (w > 0.001 && ik.current.ready) {
       r.root.updateWorldMatrix(true, true);
       const outer = r.root.parent as THREE.Group;
@@ -286,17 +310,20 @@ export default function Rig({
       const swingSide: Side = beat % 2 === 0 ? "L" : "R";
       if (beat !== state.lastBeat) {
         state.lastBeat = beat;
+        // sur place planté (travel=0) : pas de pas, les pieds restent plantés
+        if (travel > 0.001) {
         const to = new THREE.Vector3(
           r.root.position.x + state.hipSkel[swingSide].x,
           state.ankleOuterY,
           state.footZ[swingSide]
         );
         state.swing[swingSide] = { from: state.footPos[swingSide].clone(), to, t: 0 };
+        }
       }
       for (const s of ["R", "L"] as Side[]) {
         let target: THREE.Vector3;
         const sw = state.swing[s];
-        if (sw && s === swingSide) {
+        if (travel > 0.001 && sw && s === swingSide) {
           sw.t = Math.min(1, (b - beat) / 0.6);
           const e = sw.t * sw.t * (3 - 2 * sw.t);
           target = sw.from.clone().lerp(sw.to, e);
@@ -358,7 +385,7 @@ export default function Rig({
         if (mesh.userData.part === "torso") {
           ((mesh.material as THREE.Material) as THREE.MeshStandardMaterial).opacity = ghost
             ? 0.02
-            : TORSO_OPACITY;
+            : torsoOp;
         } else if (mesh.userData.part === "muscle") {
           const mat = mesh.material as THREE.MeshStandardMaterial;
           mat.transparent = true;
@@ -408,7 +435,7 @@ export default function Rig({
                     color={BODY_DARK}
                     roughness={0.6}
                     transparent
-                    opacity={TORSO_OPACITY}
+                    opacity={torsoOp}
                   />
                 </mesh>
                 <group ref={reg("lumbar")} position={[0, 0.05, 0]}>
@@ -418,7 +445,7 @@ export default function Rig({
                       color={BODY_DARK}
                       roughness={0.6}
                       transparent
-                      opacity={TORSO_OPACITY}
+                      opacity={torsoOp}
                     />
                   </mesh>
                 </group>
@@ -429,7 +456,7 @@ export default function Rig({
                       color={BODY_DARK}
                       roughness={0.6}
                       transparent
-                      opacity={TORSO_OPACITY}
+                      opacity={torsoOp}
                     />
                   </mesh>
                 </group>
@@ -440,7 +467,7 @@ export default function Rig({
                       color={BODY}
                       roughness={0.6}
                       transparent
-                      opacity={TORSO_OPACITY}
+                      opacity={torsoOp}
                     />
                   </mesh>
                   <mesh userData={{ part: "torso" }} position={[-0.19, 0.1, 0]}>
@@ -449,7 +476,7 @@ export default function Rig({
                       color={BODY_DARK}
                       roughness={0.6}
                       transparent
-                      opacity={TORSO_OPACITY}
+                      opacity={torsoOp}
                     />
                   </mesh>
                   <mesh userData={{ part: "torso" }} position={[0.19, 0.1, 0]}>
@@ -458,7 +485,7 @@ export default function Rig({
                       color={BODY_DARK}
                       roughness={0.6}
                       transparent
-                      opacity={TORSO_OPACITY}
+                      opacity={torsoOp}
                     />
                   </mesh>
                   {[-1, 1].map((sxi) => (
@@ -474,7 +501,7 @@ export default function Rig({
                           color={BODY}
                           roughness={0.6}
                           transparent
-                          opacity={TORSO_OPACITY}
+                          opacity={torsoOp}
                         />
                       </mesh>
                       <group ref={reg(sxi < 0 ? "armFL" : "armFR")} position={[0, -0.26, 0]}>
@@ -484,7 +511,7 @@ export default function Rig({
                             color={BODY_DARK}
                             roughness={0.6}
                             transparent
-                            opacity={TORSO_OPACITY}
+                            opacity={torsoOp}
                           />
                         </mesh>
                         <mesh userData={{ part: "torso" }} position={[0, -0.24, 0]}>
@@ -493,7 +520,7 @@ export default function Rig({
                             color={STYLES[styleKey].color}
                             roughness={0.5}
                             transparent
-                            opacity={TORSO_OPACITY}
+                            opacity={torsoOp}
                           />
                         </mesh>
                       </group>
@@ -515,7 +542,7 @@ export default function Rig({
                         color="#cbd5e1"
                         roughness={0.5}
                         transparent
-                        opacity={TORSO_OPACITY}
+                        opacity={torsoOp}
                       />
                     </mesh>
                   </group>

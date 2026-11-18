@@ -8,12 +8,32 @@ import Controls from "./components/Controls";
 import { InfoCard, PairInfoCard } from "./components/InfoCards";
 import DemoOverlay, { DEMOS } from "./components/DemoOverlay";
 import OriginMarker from "./components/OriginMarker";
+import LineOfDance from "./components/LineOfDance";
+import { resolveCam, SOLID_TORSO_OPACITY } from "./cameras";
 import { usePersistentState } from "./hooks/usePersistentState";
 import { STYLES, type ModeKey } from "./styles";
 
 function readParams(): URLSearchParams {
   if (typeof window === "undefined") return new URLSearchParams();
   return new URLSearchParams(window.location.search);
+}
+
+function Gauge({ label, color, hud }: { label: string; color: string; hud: any }) {
+  return (
+    <div className="space-y-0.5">
+      <div className="text-[10px] font-semibold" style={{ color }}>
+        {label}
+      </div>
+      <div className="flex h-2.5 w-44 rounded overflow-hidden border border-slate-600">
+        <div style={{ width: `${hud.loadL * 100}%`, background: color, opacity: 0.95 }} title="appui G" />
+        <div style={{ width: `${hud.loadR * 100}%`, background: color, opacity: 0.45 }} title="appui D" />
+      </div>
+      <div className="text-[10px] text-slate-300 font-mono">
+        G {Math.round(hud.loadL * 100)}% · D {Math.round(hud.loadR * 100)}% · genoux{" "}
+        {hud.kneeL.toFixed(0)}°/{hud.kneeR.toFixed(0)}° · roll {hud.roll.toFixed(1)}°
+      </div>
+    </div>
+  );
 }
 
 export default function App() {
@@ -34,6 +54,11 @@ export default function App() {
   const [showRepere, setShowRepere] = usePersistentState("repere", true);
   const [showAppui, setShowAppui] = usePersistentState("appui", false);
   const statsRef = useRef<any>({ loadR: 0.5, loadL: 0.5, kneeR: 0, kneeL: 0, roll: 0 });
+  const statsBRef = useRef<any>({ loadR: 0.5, loadL: 0.5, kneeR: 0, kneeL: 0, roll: 0 });
+  const [hudB, setHudB] = useState<any>(null);
+  const [plant, setPlant] = usePersistentState("plant", true);
+  const [corridinho, setCorridinho] = usePersistentState("corridinho", false);
+  const [showLigne, setShowLigne] = usePersistentState("ligne", true);
   const [hud, setHud] = useState<any>(null);
   const pairRef = useRef<Record<string, any>>({});
 
@@ -55,13 +80,19 @@ export default function App() {
     if (p.has("sortie")) setSortie(p.get("sortie") !== "0");
     if (p.has("repere")) setShowRepere(p.get("repere") !== "0");
     if (p.has("appui")) setShowAppui(p.get("appui") !== "0");
+    if (p.has("plant")) setPlant(p.get("plant") !== "0");
+    if (p.has("corridinho")) setCorridinho(p.get("corridinho") !== "0");
+    if (p.has("ligne")) setShowLigne(p.get("ligne") !== "0");
     if (p.has("delay")) { const d = num("delay"); if (d !== null) setFollowDelay(Math.min(2, Math.max(0, d))); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (!showAppui) return;
-    const id = setInterval(() => setHud(statsRef.current ? { ...statsRef.current } : null), 120);
+    const id = setInterval(() => {
+      setHud(statsRef.current ? { ...statsRef.current } : null);
+      setHudB(statsBRef.current ? { ...statsBRef.current } : null);
+    }, 120);
     return () => clearInterval(id);
   }, [showAppui]);
 
@@ -70,23 +101,18 @@ export default function App() {
   const demo = demoKey && DEMOS[demoKey] ? DEMOS[demoKey] : null;
   // Preset caméra pour les captures : ?cam=hip zoome sur le bassin (sans recadrage,
   // pour garder l'habillage motion design visible).
-  const camPreset = params.get("cam");
-  const cam =
-    camPreset === "hip"
-      ? { position: [0, 0.98, 2.35] as [number, number, number], target: [0, 0.8, 0] as [number, number, number] }
-      : camPreset === "fixed"
-        ? { position: [0, 1.25, 4.0] as [number, number, number], target: [0, 0.88, 0] as [number, number, number] }
-        : camPreset === "wide"
-          ? { position: [0, 1.35, 4.6] as [number, number, number], target: [0, 0.88, 0] as [number, number, number] }
-          : { position: [0, 1.2, 3.4] as [number, number, number], target: [0, 0.88, 0] as [number, number, number] };
+  const cam = resolveCam(params.get("cam"), mode === "pair");
+  const solid = params.get("solid") === "1";
   const isPair = mode === "pair";
   const isCompare = mode === "compare";
   const isObserve = mode === "observe";
+  // Ligne de danse affichée par défaut en paire/comparaison ; en solo, seulement si ligne=1 explicite.
+  const ligneVisible = showLigne && (isPair || isCompare || params.get("ligne") === "1");
   const ghostA = (isCompare || isPair) && ghostSel === "B";
   const ghostB = ghostSel === "A";
 
-  const offsetA: [number, number, number] = isPair ? [-0.14, 0, 0] : isCompare ? [-0.85, 0, 0] : [0, 0, 0];
-  const offsetB: [number, number, number] = isPair ? [0.14, 0, 0] : [0.85, 0, 0];
+  const offsetA: [number, number, number] = isPair ? [0, 0, -0.14] : isCompare ? [-0.85, 0, 0] : [0, 0, 0];
+  const offsetB: [number, number, number] = isPair ? [0, 0, 0.14] : [0.85, 0, 0];
 
   const handleMode = (m: ModeKey) => {
     if (m === "observe" && mode !== "observe") {
@@ -133,6 +159,7 @@ export default function App() {
           <directionalLight position={[-3, 2, -3]} intensity={0.4} color="#93c5fd" />
           <GridFloor />
           <OriginMarker visible={showRepere} />
+          <LineOfDance visible={ligneVisible} />
           <React.Suspense fallback={null}>
             <Rig
               styleKey={styleA}
@@ -140,7 +167,7 @@ export default function App() {
               amp={amp}
               playing={playing}
               offset={offsetA}
-              rotationY={isPair ? Math.PI / 2 : 0}
+              rotationY={0}
               ghost={ghostA}
               embrace={isPair}
               pair={isPair ? pairRef : null}
@@ -152,6 +179,9 @@ export default function App() {
               sortie={sortie}
               showAppui={showAppui}
               stats={statsRef}
+              plant={plant}
+              corridinho={corridinho}
+              torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
             />
             {(isCompare || isPair) && (
               <Rig
@@ -160,7 +190,7 @@ export default function App() {
                 amp={amp}
                 playing={playing}
                 offset={offsetB}
-                rotationY={isPair ? -Math.PI / 2 : 0}
+                rotationY={isPair ? Math.PI : 0}
                 ghost={ghostB}
                 embrace={isPair}
                 phaseOffset={isPair ? followDelay : 0}
@@ -172,7 +202,10 @@ export default function App() {
                 showMuscles={showMuscles}
                 sortie={sortie}
                 showAppui={showAppui}
-                stats={statsRef}
+                stats={statsBRef}
+                plant={plant}
+                corridinho={corridinho}
+                torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
               />
             )}
             {isPair && <ContactViz pair={pairRef} />}
@@ -186,6 +219,12 @@ export default function App() {
             enablePan={false}
           />
         </Canvas>
+        {showAppui && isCompare && hud && hudB && (
+          <div className="absolute top-3 right-3 pointer-events-none bg-slate-900/70 rounded-md px-2 py-1 space-y-1.5">
+            <Gauge label={`A · ${STYLES[styleA].label}`} color={STYLES[styleA].color} hud={hud} />
+            <Gauge label={`B · ${STYLES[styleB].label}`} color={STYLES[styleB].color} hud={hudB} />
+          </div>
+        )}
         {showAppui && hud && (
           <div className="absolute top-3 right-3 pointer-events-none text-[11px] font-mono text-slate-200 bg-slate-900/70 rounded-md px-2 py-1 space-y-0.5">
             <div>
@@ -268,6 +307,12 @@ export default function App() {
         onShowRepere={setShowRepere}
         showAppui={showAppui}
         onShowAppui={setShowAppui}
+        plant={plant}
+        onPlant={setPlant}
+        corridinho={corridinho}
+        onCorridinho={setCorridinho}
+        showLigne={showLigne}
+        onShowLigne={setShowLigne}
         ghostSel={ghostSel}
         onGhostSel={setGhostSel}
         onExport={exportCycle}
@@ -284,6 +329,7 @@ export default function App() {
           <directionalLight position={[-3, 2, -3]} intensity={0.4} color="#93c5fd" />
           <GridFloor />
           <OriginMarker visible={showRepere} />
+          <LineOfDance visible={ligneVisible} />
           <React.Suspense fallback={null}>
             <Rig
               styleKey={styleA}
@@ -291,7 +337,7 @@ export default function App() {
               amp={amp}
               playing={playing}
               offset={offsetA}
-              rotationY={isPair ? Math.PI / 2 : 0}
+              rotationY={0}
               ghost={ghostA}
               embrace={isPair}
               pair={isPair ? pairRef : null}
@@ -303,6 +349,9 @@ export default function App() {
               sortie={sortie}
               showAppui={showAppui}
               stats={statsRef}
+              plant={plant}
+              corridinho={corridinho}
+              torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
             />
             {(isCompare || isPair) && (
               <Rig
@@ -311,7 +360,7 @@ export default function App() {
                 amp={amp}
                 playing={playing}
                 offset={offsetB}
-                rotationY={isPair ? -Math.PI / 2 : 0}
+                rotationY={isPair ? Math.PI : 0}
                 ghost={ghostB}
                 embrace={isPair}
                 phaseOffset={isPair ? followDelay : 0}
@@ -323,13 +372,16 @@ export default function App() {
                 showMuscles={showMuscles}
                 sortie={sortie}
                 showAppui={showAppui}
-                stats={statsRef}
+                stats={statsBRef}
+                plant={plant}
+                corridinho={corridinho}
+                torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
               />
             )}
             {isPair && <ContactViz pair={pairRef} />}
           </React.Suspense>
           <OrbitControls
-            target={[0, 0.88, 0]}
+            target={cam.target}
             enableDamping
             dampingFactor={0.08}
             minDistance={1.8}
@@ -359,6 +411,12 @@ export default function App() {
         <div className="absolute top-3 right-3 text-[10px] text-slate-500 pointer-events-none">
           glisser pour orbiter, molette pour zoomer
         </div>
+        {showAppui && isCompare && hud && hudB && (
+          <div className="absolute top-10 right-3 pointer-events-none bg-slate-900/70 rounded-md px-2 py-1 space-y-1.5">
+            <Gauge label={`A · ${STYLES[styleA].label}`} color={STYLES[styleA].color} hud={hud} />
+            <Gauge label={`B · ${STYLES[styleB].label}`} color={STYLES[styleB].color} hud={hudB} />
+          </div>
+        )}
         {showAppui && hud && (
           <div className="absolute top-10 right-3 pointer-events-none text-[11px] font-mono text-slate-200 bg-slate-900/70 rounded-md px-2 py-1 space-y-0.5">
             <div>

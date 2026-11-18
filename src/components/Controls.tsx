@@ -30,6 +30,12 @@ interface ControlsProps {
   onShowRepere: (v: boolean) => void;
   showAppui: boolean;
   onShowAppui: (v: boolean) => void;
+  plant: boolean;
+  onPlant: (v: boolean) => void;
+  corridinho: boolean;
+  onCorridinho: (v: boolean) => void;
+  showLigne: boolean;
+  onShowLigne: (v: boolean) => void;
   ghostSel: string;
   onGhostSel: (v: string) => void;
   onExport: () => void;
@@ -101,6 +107,12 @@ export default function Controls(props: ControlsProps) {
     onShowRepere,
     showAppui,
     onShowAppui,
+    plant,
+    onPlant,
+    corridinho,
+    onCorridinho,
+    showLigne,
+    onShowLigne,
     ghostSel,
     onGhostSel,
     onExport,
@@ -202,6 +214,35 @@ export default function Controls(props: ControlsProps) {
           />
           Buste stylisé
         </label>
+        <label className="flex items-center gap-2 text-xs text-slate-400" title="En sur place (Déplacement 0), les pieds restent plantés au sol ; petit pivot sur la plante (semi-pointe) autorisé. plant=0 = ancien comportement glissé">
+          <input
+            type="checkbox"
+            checked={plant}
+            onChange={(e) => onPlant(e.target.checked)}
+            className="accent-emerald-400"
+          />
+          Pieds plantés (sur place)
+        </label>
+        <label className="flex items-center gap-2 text-xs text-slate-400" title="Corridinho : 1/4 de tour à droite puis à gauche, puis cercle au sol autour du repère fixe (16 temps)">
+          <input
+            type="checkbox"
+            checked={corridinho}
+            onChange={(e) => onCorridinho(e.target.checked)}
+            className="accent-fuchsia-400"
+          />
+          Corridinho (après 1/4 tour D puis G)
+        </label>
+        {isPair && (
+          <label className="flex items-center gap-2 text-xs text-slate-400" title="Ligne de danse (axe x au repère fixe) : la sortie est perpendiculaire à la ligne, aller-retour">
+            <input
+              type="checkbox"
+              checked={showLigne}
+              onChange={(e) => onShowLigne(e.target.checked)}
+              className="accent-pink-400"
+            />
+            Ligne de danse
+          </label>
+        )}
         <label className="flex items-center gap-2 text-xs text-slate-400" title="Repère fixe au sol (origine) : les déplacements (sorties, Déplacement) se lisent relativement à ce repère">
           <input
             type="checkbox"
