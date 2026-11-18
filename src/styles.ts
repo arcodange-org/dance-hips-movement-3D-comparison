@@ -238,3 +238,71 @@ export function sortieEnvelope(b: number): number {
   else e = 0;
   return e * e * (3 - 2 * e);
 }
+
+// ---------------------------------------------------------------------------
+// Phase 7 — isolation du bas du corps (objectif premier, 2026-11-18) : au-dessus du bassin,
+// le haut du tronc doit rester stable et vertical pendant que bassin/genoux/pieds travaillent.
+// Sources : docs/ginga-angolana.md §2 (« the movements hips down are the dominant ones [...], not
+// the upper body movements » — Eddy Vents ; « Keep the shoulder line level and do not pitch or
+// sway the entire body » — SOS Dance Footwork Manual ; « the upper body remains stable and calm
+// in the connection » — udansa).
+// ---------------------------------------------------------------------------
+
+export interface RotLike {
+  x: number;
+  y: number;
+  z: number;
+}
+
+// Verrouillage du haut du tronc quand iso = true : la colonne (spine) contre-rotate le
+// roll/pitch du pelvis (le thorax reste vertical en monde), et le buste (chest) + la tête ne
+// basculent plus latéralement (y/z remis à 0). Le pitch (x) est conservé : posture, cambré du
+// zouk et vague du suave passent par la chaîne vertébrale sagittale (spine/lumbar/thoracic).
+export function lockUpperTrunk(
+  t: { spine: RotLike; chest: RotLike; head: RotLike },
+  pelvis: RotLike,
+  iso: boolean
+): void {
+  if (!iso) return;
+  t.spine.x -= pelvis.x;
+  t.spine.z -= pelvis.z;
+  t.chest.y = 0;
+  t.chest.z = 0;
+  t.head.y = 0;
+  t.head.z = 0;
+}
+
+// Roll résiduel (monde, approx.) du thorax : somme des rotations z pelvis + spine + chest.
+export function residualRoll(t: { spine: RotLike; chest: RotLike }, pelvis: RotLike): number {
+  return pelvis.z + t.spine.z + t.chest.z;
+}
+
+// Stabilité du buste ∈ [0,1] : 1 = thorax parfaitement vertical, 0 = bascule ≥ 0.3 rad.
+export function upperStability(t: { spine: RotLike; chest: RotLike }, pelvis: RotLike): number {
+  const roll = Math.abs(residualRoll(t, pelvis));
+  return Math.max(0, Math.min(1, 1 - roll / 0.3));
+}
+
+// Cadre de bras de danseur (demande 2026-11-18) : coudes pliés, bras vers l'avant,
+// avant-bras gauche vers le haut paume vers la droite, avant-bras droit vers la gauche
+// paume vers le buste. sxi = -1 côté gauche (x < 0), +1 côté droit.
+export const DANCE_FRAME = {
+  upperArm: { x: -1.15, y: 0, z: 0.22 }, // bras vers l'avant, légère ouverture (z = -z*sxi)
+  forearmLeft: { x: 0, y: Math.PI / 2, z: Math.PI }, // avant-bras G vers le haut, paume → droite
+  forearmRight: { x: Math.PI, y: 0, z: -Math.PI / 2 }, // avant-bras D vers la gauche, paume → buste
+} as const;
+
+interface Rotatable {
+  rotation: RotLike & { set(x: number, y: number, z: number): void };
+}
+
+export function applyDanceFrame(
+  r: { armUL?: Rotatable; armUR?: Rotatable; armFL?: Rotatable; armFR?: Rotatable },
+  cadre: boolean
+): void {
+  if (!cadre) return;
+  if (r.armUL) r.armUL.rotation.set(DANCE_FRAME.upperArm.x, DANCE_FRAME.upperArm.y, DANCE_FRAME.upperArm.z);
+  if (r.armUR) r.armUR.rotation.set(DANCE_FRAME.upperArm.x, DANCE_FRAME.upperArm.y, -DANCE_FRAME.upperArm.z);
+  if (r.armFL) r.armFL.rotation.set(DANCE_FRAME.forearmLeft.x, DANCE_FRAME.forearmLeft.y, DANCE_FRAME.forearmLeft.z);
+  if (r.armFR) r.armFR.rotation.set(DANCE_FRAME.forearmRight.x, DANCE_FRAME.forearmRight.y, DANCE_FRAME.forearmRight.z);
+}

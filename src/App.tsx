@@ -30,7 +30,8 @@ function Gauge({ label, color, hud }: { label: string; color: string; hud: any }
       </div>
       <div className="text-[10px] text-slate-300 font-mono">
         G {Math.round(hud.loadL * 100)}% · D {Math.round(hud.loadR * 100)}% · genoux{" "}
-        {hud.kneeL.toFixed(0)}°/{hud.kneeR.toFixed(0)}° · roll {hud.roll.toFixed(1)}°
+        {hud.kneeL.toFixed(0)}°/{hud.kneeR.toFixed(0)}° · roll {hud.roll.toFixed(1)}° · buste{" "}
+        {Math.round((hud.stab ?? 1) * 100)}%
       </div>
     </div>
   );
@@ -59,6 +60,8 @@ export default function App() {
   const [plant, setPlant] = usePersistentState("plant", true);
   const [corridinho, setCorridinho] = usePersistentState("corridinho", false);
   const [showLigne, setShowLigne] = usePersistentState("ligne", true);
+  const [iso, setIso] = usePersistentState("iso", true);
+  const [cadre, setCadre] = usePersistentState("cadre", true);
   const [hud, setHud] = useState<any>(null);
   const pairRef = useRef<Record<string, any>>({});
 
@@ -83,6 +86,8 @@ export default function App() {
     if (p.has("plant")) setPlant(p.get("plant") !== "0");
     if (p.has("corridinho")) setCorridinho(p.get("corridinho") !== "0");
     if (p.has("ligne")) setShowLigne(p.get("ligne") !== "0");
+    if (p.has("iso")) setIso(p.get("iso") !== "0");
+    if (p.has("cadre")) setCadre(p.get("cadre") !== "0");
     if (p.has("delay")) { const d = num("delay"); if (d !== null) setFollowDelay(Math.min(2, Math.max(0, d))); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -182,6 +187,8 @@ export default function App() {
               plant={plant}
               corridinho={corridinho}
               torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
+              iso={iso}
+              cadre={cadre}
             />
             {(isCompare || isPair) && (
               <Rig
@@ -206,6 +213,8 @@ export default function App() {
                 plant={plant}
                 corridinho={corridinho}
                 torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
+              iso={iso}
+              cadre={cadre}
               />
             )}
             {isPair && <ContactViz pair={pairRef} />}
@@ -233,7 +242,7 @@ export default function App() {
             <div>
               genou D {hud.kneeR.toFixed(0)}° · G {hud.kneeL.toFixed(0)}°
             </div>
-            <div>roll bassin {hud.roll.toFixed(1)}°</div>
+            <div>roll bassin {hud.roll.toFixed(1)}° · stabilité buste {Math.round((hud.stab ?? 1) * 100)}%</div>
           </div>
         )}
         {demo && <DemoOverlay demo={demo} />}
@@ -313,6 +322,10 @@ export default function App() {
         onCorridinho={setCorridinho}
         showLigne={showLigne}
         onShowLigne={setShowLigne}
+        iso={iso}
+        onIso={setIso}
+        cadre={cadre}
+        onCadre={setCadre}
         ghostSel={ghostSel}
         onGhostSel={setGhostSel}
         onExport={exportCycle}
@@ -352,6 +365,8 @@ export default function App() {
               plant={plant}
               corridinho={corridinho}
               torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
+              iso={iso}
+              cadre={cadre}
             />
             {(isCompare || isPair) && (
               <Rig
@@ -376,6 +391,8 @@ export default function App() {
                 plant={plant}
                 corridinho={corridinho}
                 torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
+              iso={iso}
+              cadre={cadre}
               />
             )}
             {isPair && <ContactViz pair={pairRef} />}
@@ -425,7 +442,7 @@ export default function App() {
             <div>
               genou D {hud.kneeR.toFixed(0)}° · G {hud.kneeL.toFixed(0)}°
             </div>
-            <div>roll bassin {hud.roll.toFixed(1)}°</div>
+            <div>roll bassin {hud.roll.toFixed(1)}° · stabilité buste {Math.round((hud.stab ?? 1) * 100)}%</div>
           </div>
         )}
       </div>

@@ -16,7 +16,7 @@ import {
   resetRig,
   type RigHandle,
 } from "../anatomy";
-import { STYLES, sortieEnvelope, sortieOffset, supportOf, plantBlend, corridinhoPath } from "../styles";
+import { STYLES, sortieEnvelope, sortieOffset, supportOf, plantBlend, corridinhoPath, lockUpperTrunk, applyDanceFrame, upperStability } from "../styles";
 import { solveLeg3D } from "../ik";
 import {
   MUSCLES_URL,
@@ -72,6 +72,8 @@ export interface RigProps {
   plant?: boolean;
   corridinho?: boolean;
   torsoOpacity?: number;
+  iso?: boolean;
+  cadre?: boolean;
 }
 
 export default function Rig({
@@ -96,6 +98,8 @@ export default function Rig({
   plant = true,
   corridinho = false,
   torsoOpacity,
+  iso = true,
+  cadre = true,
 }: RigProps) {
   const torsoOp = torsoOpacity ?? TORSO_OPACITY;
   const r = useRef({} as RigHandle).current;
@@ -254,6 +258,11 @@ export default function Rig({
       r.root.rotation.y += cp.ry;
       r.chest.rotation.z -= 0.06; // épaules vers l'intérieur du cercle
     }
+    // Phase 7 — isolation du bas du corps (iso=1 par défaut) : le haut du tronc reste stable et
+    // vertical (contre-rotation du pelvis au niveau de la colonne, buste/tête sans bascule
+    // latérale) ; les bras prennent le cadre de danseur (coudes pliés, avant-bras G en haut).
+    lockUpperTrunk({ spine: r.spine.rotation, chest: r.chest.rotation, head: r.head.rotation }, r.pelvis.rotation, iso);
+    applyDanceFrame(r, cadre);
     if (r.root.position.y < 0) r.root.position.y = 0;
 
     // Appuis : charge pied droit (support) -> pastilles au sol + chaîne pied→genou→hanche
@@ -297,6 +306,7 @@ export default function Rig({
         kneeR: (r.kneeR.rotation.x * 180) / Math.PI,
         kneeL: (r.kneeL.rotation.x * 180) / Math.PI,
         roll: (r.pelvis.rotation.z * 180) / Math.PI,
+        stab: upperStability({ spine: r.spine.rotation, chest: r.chest.rotation }, r.pelvis.rotation),
       };
     }
 

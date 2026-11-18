@@ -78,6 +78,18 @@ export const DEMOS: Record<string, DemoDef> = {
     captions: ["1/4 tour D, 1/4 tour G, puis cercle au sol", "cercle autour du repère fixe (ligne de danse)"],
     beat: 60 / 140,
   },
+  "iso-ginga": {
+    chip: "Isolation basse · ginga",
+    color: "#2dd4bf",
+    captions: ["buste verrouillé au-dessus du bassin, vertical", "bassin/genoux actifs · transfert de poids G/D · cadre de bras"],
+    beat: 60 / 90,
+  },
+  fessiers: {
+    chip: "Fessiers — vue de dos",
+    color: "#b91c1c",
+    captions: ["muscles des fessiers qui travaillent (BodyParts3D © DBCLS)", "le bassin roule, le haut du tronc reste vertical · ce sont les genoux qui fléchissent"],
+    beat: 60 / 90,
+  },
 };
 
 export default function DemoOverlay({ demo }: { demo: DemoDef }) {

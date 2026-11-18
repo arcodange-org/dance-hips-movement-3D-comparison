@@ -36,6 +36,10 @@ interface ControlsProps {
   onCorridinho: (v: boolean) => void;
   showLigne: boolean;
   onShowLigne: (v: boolean) => void;
+  iso: boolean;
+  onIso: (v: boolean) => void;
+  cadre: boolean;
+  onCadre: (v: boolean) => void;
   ghostSel: string;
   onGhostSel: (v: string) => void;
   onExport: () => void;
@@ -113,6 +117,10 @@ export default function Controls(props: ControlsProps) {
     onCorridinho,
     showLigne,
     onShowLigne,
+    iso,
+    onIso,
+    cadre,
+    onCadre,
     ghostSel,
     onGhostSel,
     onExport,
@@ -222,6 +230,24 @@ export default function Controls(props: ControlsProps) {
             className="accent-emerald-400"
           />
           Pieds plantés (sur place)
+        </label>
+        <label className="flex items-center gap-2 text-xs text-slate-400" title="Isolation du bas du corps (objectif premier) : au-dessus du bassin, le haut du tronc reste stable et vertical pendant que bassin/genoux/pieds travaillent ; métrique « stabilité buste % » dans le HUD. iso=0 = ancien buste libre">
+          <input
+            type="checkbox"
+            checked={iso}
+            onChange={(e) => onIso(e.target.checked)}
+            className="accent-teal-400"
+          />
+          Isolation basse (buste verrouillé, vertical)
+        </label>
+        <label className="flex items-center gap-2 text-xs text-slate-400" title="Cadre de bras de danseur : coudes pliés, bras vers l'avant, avant-bras gauche vers le haut (paume à droite), avant-bras droit vers la gauche (paume vers le buste). cadre=0 = bras le long du corps">
+          <input
+            type="checkbox"
+            checked={cadre}
+            onChange={(e) => onCadre(e.target.checked)}
+            className="accent-teal-400"
+          />
+          Cadre de bras de danseur
         </label>
         <label className="flex items-center gap-2 text-xs text-slate-400" title="Corridinho : 1/4 de tour à droite puis à gauche, puis cercle au sol autour du repère fixe (16 temps)">
           <input

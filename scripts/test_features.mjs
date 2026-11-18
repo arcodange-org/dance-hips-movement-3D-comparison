@@ -28,7 +28,7 @@ esbuild.buildSync({
 });
 const mod = await import(pathToFileURL(bundle).href + "?t=" + Date.now());
 rmSync(bundle, { force: true });
-const { STYLES, supportOf, sortieEnvelope, sortieOffset, plantBlend, corridinhoPath, HIP_WIDTH, S2, CAM_PRESETS, resolveCam, SOLID_TORSO_OPACITY } = mod;
+const { STYLES, supportOf, sortieEnvelope, sortieOffset, plantBlend, corridinhoPath, HIP_WIDTH, HIP_Y, S2, CAM_PRESETS, resolveCam, SOLID_TORSO_OPACITY, lockUpperTrunk, residualRoll, upperStability, DANCE_FRAME } = mod;
 const { Group } = await import(
   pathToFileURL(join(root, "node_modules", "three", "build", "three.module.js")).href
 );
@@ -214,6 +214,38 @@ const steps = [
   }],
   [/^la trajectoire reste finie et le rayon est borné$/, (c) => {
     for (const p of c.path) if (!p.finite) throw new Error("trajectoire non finie à b=" + p.b);
+  }],
+  [/^on applique le style puis lockUpperTrunk avec iso = (true|false) sur (\d+) temps à amplitude ([\d.]+)$/, (c, m) => {
+    const iso = m[1] === "true", n = Number(m[2]), amp = Number(m[3]);
+    const r = mockRig();
+    c.isoRun = { maxRes: 0, maxPelvisRoll: 0, minKnee: Infinity, minStab: Infinity };
+    for (let b = 0; b <= n; b += 0.05) {
+      r.root.position.set(0, 0, 0); r.root.rotation.set(0, 0, 0);
+      r.pelvis.position.set(0, HIP_Y, 0); r.pelvis.rotation.set(0, 0, 0);
+      r.spine.rotation.set(0, 0, 0); r.lumbar.rotation.set(0, 0, 0); r.thoracic.rotation.set(0, 0, 0);
+      r.chest.rotation.set(0, 0, 0); r.head.rotation.set(0, 0, 0);
+      r.hipL.rotation.set(0, 0, 0); r.hipR.rotation.set(0, 0, 0);
+      r.kneeL.rotation.set(0, 0, 0); r.kneeR.rotation.set(0, 0, 0);
+      STYLES[c.style].apply(r, b, amp);
+      lockUpperTrunk({ spine: r.spine.rotation, chest: r.chest.rotation, head: r.head.rotation }, r.pelvis.rotation, iso);
+      c.isoRun.maxRes = Math.max(c.isoRun.maxRes, Math.abs(residualRoll({ spine: r.spine.rotation, chest: r.chest.rotation }, r.pelvis.rotation)));
+      c.isoRun.maxPelvisRoll = Math.max(c.isoRun.maxPelvisRoll, Math.abs(r.pelvis.rotation.z));
+      c.isoRun.minKnee = Math.min(c.isoRun.minKnee, r.kneeL.rotation.x, r.kneeR.rotation.x);
+      c.isoRun.minStab = Math.min(c.isoRun.minStab, upperStability({ spine: r.spine.rotation, chest: r.chest.rotation }, r.pelvis.rotation));
+    }
+  }],
+  [/^le roll résiduel du thorax reste inférieur à ([\d.]+) rad$/, (c, m) => { if (c.isoRun.maxRes > Number(m[1]) + 1e-9) throw new Error("roll résiduel=" + c.isoRun.maxRes); }],
+  [/^le pelvis roule d'au moins ([\d.]+) rad$/, (c, m) => { if (c.isoRun.maxPelvisRoll < Number(m[1]) - 1e-9) throw new Error("pelvis roll=" + c.isoRun.maxPelvisRoll); }],
+  [/^les genoux restent fléchis d'au moins ([\d.]+) rad$/, (c, m) => { if (c.isoRun.minKnee < Number(m[1]) - 1e-9) throw new Error("knee min=" + c.isoRun.minKnee); }],
+  [/^la stabilité du buste vaut au moins ([\d.]+)$/, (c, m) => { if (c.isoRun.minStab < Number(m[1]) - 1e-9) throw new Error("stabilité min=" + c.isoRun.minStab); }],
+  [/^le roll résiduel du thorax n'est pas corrigé \(supérieur au cas iso=1\)$/, (c) => { if (!(c.isoRun.maxRes > 0.03)) throw new Error("iso=false: roll résiduel encore faible: " + c.isoRun.maxRes); }],
+  [/^le cadre de bras a les bras vers l'avant et les coudes pliés$/, () => {
+    if (!(DANCE_FRAME.upperArm.x < -1)) throw new Error("bras pas vers l'avant: " + DANCE_FRAME.upperArm.x);
+    if (!(Math.abs(DANCE_FRAME.forearmLeft.z) > 1.5 && Math.abs(DANCE_FRAME.forearmRight.z) > 1.5)) throw new Error("coudes pas pliés");
+  }],
+  [/^l'avant-bras gauche est vers le haut$/, () => { if (Math.abs(DANCE_FRAME.forearmLeft.z - Math.PI) > 1e-9) throw new Error("avant-bras G pas en haut: " + DANCE_FRAME.forearmLeft.z); }],
+  [/^l'avant-bras droit est vers la gauche, paume vers le buste$/, () => {
+    if (!(Math.abs(DANCE_FRAME.forearmRight.z + Math.PI / 2) < 1e-9 && Math.abs(DANCE_FRAME.forearmRight.x - Math.PI) < 1e-9)) throw new Error("avant-bras D mal orienté: " + JSON.stringify(DANCE_FRAME.forearmRight));
   }],
 ];
 
