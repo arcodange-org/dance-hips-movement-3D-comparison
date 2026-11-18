@@ -40,6 +40,11 @@ if (existsSync(FONTCONF)) process.env.FONTCONFIG_FILE = FONTCONF;
 // vidéo 960x640 (cadrée sur le bassin et les jambes).
 const CAPTURES = [
   {
+    file: "kizomba-muscles-sur-place",
+    query: "bare=1&demo=kizomba-muscles&cam=hip&mode=solo&style=kizomba&bpm=90&travel=0&muscles=1&appui=1",
+    dur: 4.5,
+  },
+  {
     file: "kizomba",
     query: "bare=1&demo=kizomba&cam=hip&mode=solo&style=kizomba&bpm=90&travel=0",
   },
@@ -56,12 +61,12 @@ const CAPTURES = [
   { file: "zouk", query: "bare=1&demo=zouk&mode=solo&style=zouk&bpm=110&travel=0" },
   {
     file: "sortie-garcon-fille",
-    query: "bare=1&demo=sortie-garcon-fille&mode=pair&style=kizomba&styleB=kizomba&bpm=90&sortie=1&delay=2",
+    query: "bare=1&demo=sortie-garcon-fille&cam=wide&mode=pair&style=kizomba&styleB=kizomba&bpm=90&sortie=1&delay=2",
     dur: 5.5,
   },
   {
-    file: "couche-musculaire",
-    query: "bare=1&demo=couche-musculaire&mode=solo&style=kizomba&bpm=90&travel=0&muscles=1",
+    file: "appui-transmission",
+    query: "bare=1&demo=appui&cam=hip&mode=observe&style=kizomba&bpm=32&travel=0&torso=0&appui=1&muscles=1",
   },
 ];
 

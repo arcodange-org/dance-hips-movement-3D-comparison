@@ -51,14 +51,20 @@ export const DEMOS: Record<string, DemoDef> = {
   "sortie-garcon-fille": {
     chip: "Sorties garçon / fille",
     color: "#2dd4bf",
-    captions: ["guideur sort à gauche (5 temps sur 8)", "suiveur en retard : la « sortie fille » revient"],
+    captions: ["guideur sort à gauche (5 temps sur 8)", "repère fixe au sol · suiveur en retard = « sortie fille »"],
     beat: 60 / 90,
   },
-  "couche-musculaire": {
-    chip: "Couche musculaire",
-    color: "#b91c1c",
-    captions: ["BodyParts3D © DBCLS — CC BY-SA 2.1 Japan", "greffée sur les pivots osseux du rig"],
+  "kizomba-muscles": {
+    chip: "Kizomba sur place + muscles",
+    color: "#2dd4bf",
+    captions: ["sur place · transfert de poids G/D", "couche musculaire BodyParts3D © DBCLS — CC BY-SA 2.1 Japan"],
     beat: 60 / 90,
+  },
+  appui: {
+    chip: "Appuis & transmission",
+    color: "#fbbf24",
+    captions: ["charge transmise du sol vers le genou", "chaîne pied → cheville → genou → hanche"],
+    beat: 60 / 32,
   },
 };
 

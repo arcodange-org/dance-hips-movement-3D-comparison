@@ -8,6 +8,12 @@ tarraxinha, suave, zouk brésilien**. Animée par une spec biomécanique chiffr�
 
 ## Aperçu animé (motion design)
 
+**Mis en avant — kizomba sur place + couche musculaire** (version issue des itérations de
+vérification croisées, voir la note « Vérification » ci-dessous ; pastilles de charge des appuis
+et HUD genoux/bassin visibles) :
+
+![Kizomba sur place + couche musculaire — BodyParts3D © DBCLS, CC BY-SA 2.1 Japan](docs/gifs/kizomba-muscles-sur-place.gif)
+
 Captures réelles de l'app, toutes **sur place** pour mettre en avant les nuances de hanche
 (GIF générés par Playwright, voir `scripts/capture_gifs.mjs` ; habillage pastille de style +
 légende de la nuance + pastille de temps) :
@@ -18,12 +24,20 @@ légende de la nuance + pastille de temps) :
 | Tarraxinha isolations | Suave « 8 » + talon levé | Zouk basic sur place |
 | ![Tarraxinha](docs/gifs/tarraxinha.gif) | ![Suave](docs/gifs/suave.gif) | ![Zouk](docs/gifs/zouk.gif) |
 
-| Sorties garçon / fille (Face à face) | Couche musculaire |
+| Sorties garçon / fille (repère fixe au sol) | Appuis & transmission (sol → genoux → hanches) |
 |---|---|
-| ![Sorties garçon/fille](docs/gifs/sortie-garcon-fille.gif) | ![Couche musculaire](docs/gifs/couche-musculaire.gif) |
+| ![Sorties garçon/fille](docs/gifs/sortie-garcon-fille.gif) | ![Appuis & transmission](docs/gifs/appui-transmission.gif) |
+
+**Vérification** : les mouvements sur place et la couche musculaire ont été vérifiés par
+itérations croisées en sous-sessions indépendantes — tests numériques (`npm test` : pas de NaN,
+clamp sol, amplitude ±16,6 cm, `support` borné [-1,1], enveloppe de sortie), parsing des GLB
+(symétrie R/L, positions anatomiques), captures headless relues visuellement, et re-vérification
+des sources (citations verbatim dans `docs/styles-de-danse.md`).
 
 Le tracé coloré visualise l'orbite du centre du bassin (le « 8 couché » du suave, les cercles
-de la tarraxinha, la ligne latérale du kompa).
+de la tarraxinha, la ligne latérale du kompa). Les animations avec déplacement (sorties,
+Déplacement > 0) se lisent **relativement au repère fixe** affiché au sol (anneau + croix à
+l'origine ; case « Repère fixe », `?repere=`).
 
 ## Docs
 
@@ -33,6 +47,9 @@ de la tarraxinha, la ligne latérale du kompa).
   (pourquoi des courbes f(temps) et pas de mocap, hiérarchie de pivots, métriques réelles,
   clamp sol, IK de pas, licence, pièges de pipeline GLB).
 - [ADR 002 — mouvements sourcés, sorties, couche musculaire, GIFs motion design](docs/adr/002-mouvements-sources-muscles-sorties.md)
+- [Spec Phase 5 — repère fixe, appuis/transmission, GIF muscles en vedette](docs/spec-phase5-repere-fixe-appui.md)
+  + [ADR 003](docs/adr/003-repere-fixe-appui-transmission.md) + tâches en cours (`docs/TASKS.md`)
+  + méthode anti-amnésie (`CONTEXT.md`).
 
 ## Attribution obligatoire (licence des maillages)
 
@@ -59,11 +76,16 @@ npm test          # tests numériques des courbes de styles (NaN, clamp sol, amp
 Paramètres d'URL (utilisés par les captures, prioritaires sur localStorage) :
 `?mode=solo|observe|compare|pair&style=kizomba&styleB=zouk&bpm=90&travel=0.6&delay=0.5&bare=1`
 (`bare=1` : canvas plein écran sans l'interface) + `&muscles=1` (couche musculaire),
-`&sortie=1` (sorties garçon/fille, mode paire), `&demo=<clé>&cam=hip` (captures motion design).
+`&sortie=1` (sorties garçon/fille, mode paire), `&repere=0` (masque le repère fixe),
+`&appui=1` (appuis & transmission), `&demo=<clé>&cam=hip|fixed|wide` (captures motion design :
+`hip` = gros plan bassin, `fixed`/`wide` = repère fixe conservé pour les déplacements).
 
-Nouvelles options d'interface : **Couche musculaire** (tous modes, GLB BodyParts3D greffé sur
-les pivots osseux, rouge semi-transparent) et **Sorties garçon / fille** (mode Face à face :
-aller-retour latéral de 5 temps sur 8, le retard du suiveur décale la sortie fille).
+Options d'interface : **Couche musculaire** (tous modes, GLB BodyParts3D greffé sur les pivots
+osseux, rouge semi-transparent), **Sorties garçon / fille** (mode Face à face : aller-retour
+latéral de 5 temps sur 8, le retard du suiveur décale la sortie fille), **Repère fixe**
+(anneau + croix à l'origine, pour lire les déplacements relatifs), **Appuis & transmission**
+(pastilles de charge sous les pieds + chaîne d'appui pied→genou→hanche en surbrillance + HUD
+charge G/D %, flexion genoux °, roll bassin ° ; activée par défaut en mode Observation hanche).
 
 Pour `npm run capture` en headless sans root : `LD_LIBRARY_PATH` vers les libs extraites des
 .deb (`/tmp/debs/root/usr/lib/x86_64-linux-gnu`) et `FONTCONFIG_FILE` vers une config pointant
@@ -94,8 +116,10 @@ sur une police (ex. DejaVu) — sinon aucun texte n'est rendu dans les vidéos.
 - `src/styles.ts` — config des 6 styles (label, couleur, puces, `apply(r, b, amp)`) et modes.
 - `src/components/Rig.tsx` — rig animé (GLB + buste stylisé avec segments lombaires/thoraciques,
   tracé d'orbite du bassin, IK de pas).
+- `CONTEXT.md` — état du projet + méthode anti-amnésie + procédure de reprise de session.
 - `src/components/Controls.tsx`, `InfoCards.tsx`, `ContactViz.tsx`, `GridFloor.tsx`,
-  `DemoOverlay.tsx` (habillage motion design des captures `?demo=`).
+  `DemoOverlay.tsx` (habillage motion design des captures `?demo=`), `OriginMarker.tsx`
+  (repère fixe au sol).
 - `src/muscles.ts` — greffe de la couche musculaire (mapping maillage → pivot osseux).
 - `src/hooks/usePersistentState.ts` — persistance localStorage.
 - `src/ik.ts` — IK de pas (2 segments + raffinement CCD).
