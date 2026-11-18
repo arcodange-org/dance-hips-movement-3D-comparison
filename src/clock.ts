@@ -5,10 +5,12 @@ export function advanceClock(clock: DanceClock, delta: number, bpm: number, play
   if (clock.exportFrame !== null) return;
   if (playing) clock.beat += Math.max(0, Math.min(delta, 0.1)) * bpm / 60;
 }
-export function cycleBeats(o: { quarts?: boolean; corridinho?: boolean; ida?: boolean; sortie?: boolean; temps3?: boolean }): number {
+export function cycleBeats(o: { movement?: string; quarts?: boolean; corridinho?: boolean; ida?: boolean; sortie?: boolean; temps3?: boolean }): number {
   // Styles have periods dividing 4; marka steps have period 6.
-  const movement = o.quarts || o.corridinho ? 16 : o.ida || o.sortie ? 8 : 4;
-  return o.temps3 ? movement * 3 : movement;
+  // Phase 17 : sortie combinée G→F = cycle de 16 temps (guideur 0–7, suiveur 8–15).
+  const base = o.movement === "sortieGF" ? 16 : o.movement === "sortieG" || o.movement === "sortieF" ? 8
+    : o.quarts || o.corridinho ? 16 : o.ida || o.sortie ? 8 : 4;
+  return o.temps3 ? base * 3 : base;
 }
 export function exportBeat(frame: number, fps: number, bpm: number): number {
   return frame * bpm / (60 * fps);

@@ -61,7 +61,7 @@ const CAPTURES = [
   { file: "zouk", query: "bare=1&demo=zouk&mode=solo&style=zouk&bpm=110&travel=0&solid=1" },
   {
     file: "sortie-garcon-fille",
-    query: "bare=1&demo=sortie-garcon-fille&cam=diag&mode=pair&style=kizomba&styleB=kizomba&bpm=90&sortie=1&solid=1&ligne=1&repere=1",
+    query: "bare=1&demo=sortie-garcon-fille&cam=diag&mode=pair&style=kizomba&styleB=kizomba&bpm=90&sortieGF=1&solid=1&ligne=1&repere=1",
     dur: 5.5,
   },
   {

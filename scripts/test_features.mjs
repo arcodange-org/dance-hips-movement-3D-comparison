@@ -28,7 +28,7 @@ esbuild.buildSync({
 });
 const mod = await import(pathToFileURL(bundle).href + "?t=" + Date.now());
 rmSync(bundle, { force: true });
-const { STYLES, supportOf, sortieEnvelope, sortieOffset, plantBlend, corridinhoPath, quartsPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, idaContra, virgulaFootYawDelta, movementOf, movementFlags, quartTurnStep, PAIR_DZ, HIP_WIDTH, HIP_Y, S2, clampSolY, swingLift, CAM_PRESETS, resolveCam, resolveView, viewAnglesOf, posFromView, SOLID_TORSO_OPACITY, lockUpperTrunk, residualRoll, upperStability, DANCE_FRAME, DANCE_FRAME_FOLLOWER, parseVec3, buildShareUrl, DIR_LABELS, facingSector, isDiagonal, relToLineOfDance } = mod;
+const { STYLES, supportOf, sortieEnvelope, sortieOffset, plantBlend, corridinhoPath, quartsPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, idaContra, virgulaFootYawDelta, movementOf, movementFlags, sortieActive, quartTurnStep, PAIR_DZ, HIP_WIDTH, HIP_Y, S2, clampSolY, swingLift, CAM_PRESETS, resolveCam, resolveView, viewAnglesOf, posFromView, SOLID_TORSO_OPACITY, lockUpperTrunk, residualRoll, upperStability, DANCE_FRAME, DANCE_FRAME_FOLLOWER, parseVec3, buildShareUrl, DIR_LABELS, facingSector, isDiagonal, relToLineOfDance } = mod;
 const { Group } = await import(
   pathToFileURL(join(root, "node_modules", "three", "build", "three.module.js")).href
 );
@@ -420,6 +420,32 @@ const steps = [
   }],
   [/^movementOf\(movementFlags\("(\w+)"\)\) vaut "(\w+)"$/, (c, m) => {
     if (movementOf(movementFlags(m[1])) !== m[2]) throw new Error("roundtrip flags->movementOf");
+  }],
+  // Phase 17 — sorties en options exclusives (sortieActive)
+  [/^on évalue sortieActive pour le côté "(leader|follower)" et le mouvement "(\w+)" sur (\d+) temps$/, (c, m) => {
+    c.sa = { side: m[1], movement: m[2], n: Number(m[3]), vals: [] };
+    for (let b = 0; b <= c.sa.n; b += 0.05) c.sa.vals.push({ b, v: sortieActive(c.sa.side, c.sa.movement, b) });
+  }],
+  [/^sortieActive reste dans \[0, 1\]$/, (c) => {
+    for (const { v } of c.sa.vals) if (!Number.isFinite(v) || v < -1e-12 || v > 1 + 1e-12) throw new Error("sortieActive hors [0,1]: " + v);
+  }],
+  [/^sortieActive est pleine \(1\) entre les temps 1 et 3$/, (c) => {
+    for (const { b, v } of c.sa.vals) { const p = ((b % 8) + 8) % 8; if (p >= 1 && p <= 3 && Math.abs(v - 1) > 1e-9) throw new Error("pas pleine à b=" + b); }
+  }],
+  [/^sortieActive est nulle à partir du temps 5 du cycle de 8$/, (c) => {
+    for (const { b, v } of c.sa.vals) { const p = ((b % 8) + 8) % 8; if (p >= 5 && v > 1e-12) throw new Error("non nulle à b=" + b); }
+  }],
+  [/^sortieActive vaut 0 pour l'autre danseur$/, (c) => {
+    for (const { v } of c.sa.vals) if (v > 1e-12) throw new Error("l'autre danseur ne doit pas sortir: " + v);
+  }],
+  [/^sortieActive du combiné vaut 0 hors de la fenêtre de ce côté$/, (c) => {
+    const win = c.sa.side === "leader" ? [0, 8] : [8, 16];
+    for (const { b, v } of c.sa.vals) { const p = ((b % 16) + 16) % 16; if (!(p >= win[0] && p < win[1]) && v > 1e-12) throw new Error("combiné: actif hors fenêtre à b=" + b); }
+  }],
+  [/^sortieActive du combiné est périodique de 16 temps$/, (c) => {
+    for (let b = 0; b <= 16; b += 0.05) {
+      if (Math.abs(sortieActive(c.sa.side, c.sa.movement, b) - sortieActive(c.sa.side, c.sa.movement, b + 16)) > 1e-9) throw new Error("non périodique 16 à b=" + b);
+    }
   }],
   [/^on évalue quartTurnStep sur (\d+) temps$/, (c, m) => {
     const n = Number(m[1]);

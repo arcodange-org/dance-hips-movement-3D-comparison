@@ -3,7 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { ANATOMY_URL, HIP_Y, TRAIL_MAX, BODY, BODY_DARK, TORSO_OPACITY, makeTrail, type RigHandle } from "../anatomy";
-import { STYLES } from "../styles";
+import { STYLES, type MovementKey } from "../styles";
 import { applyPose, bindSkeleton, createPoseModel, type PoseModel, type Side } from "../pose";
 import { type DanceClock } from "../clock";
 import { TORSO_JOINTS } from "../rigJoints";
@@ -33,7 +33,7 @@ export interface RigProps {
   travel?: number;
   showTorso?: boolean;
   showMuscles?: boolean;
-  sortie?: boolean;
+  movement?: MovementKey; // phase 17 : option de déplacement exclusive (inclut les sorties)
   showAppui?: boolean;
   stats?: React.MutableRefObject<any> | null;
   plant?: boolean;
@@ -65,7 +65,7 @@ export default function Rig({
   travel = 0,
   showTorso = true,
   showMuscles = false,
-  sortie = false,
+  movement = "none" as MovementKey,
   showAppui = false,
   stats = null,
   plant = true,
@@ -159,7 +159,7 @@ export default function Rig({
   useFrame(() => {
     if (!poseModel.current || !r.footL) return;
     const result = applyPose(r, poseModel.current, clock.beat + phaseOffset, {
-      styleKey, amp, travel, dir, sortie, embrace, corridinho, reverse, quarts,
+      styleKey, amp, travel, dir, movement, embrace, corridinho, reverse, quarts,
       iso, ida, cadre, plant, temps3, follower: side === "follower",
     });
     if (stats) stats.current = result;

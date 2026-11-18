@@ -24,8 +24,6 @@ interface ControlsProps {
   onShowContacts: (v: boolean) => void;
   showMuscles: boolean;
   onShowMuscles: (v: boolean) => void;
-  sortie: boolean;
-  onSortie: (v: boolean) => void;
   showRepere: boolean;
   onShowRepere: (v: boolean) => void;
   showAppui: boolean;
@@ -114,8 +112,6 @@ export default function Controls(props: ControlsProps) {
     onShowContacts,
     showMuscles,
     onShowMuscles,
-    sortie,
-    onSortie,
     showRepere,
     onShowRepere,
     showAppui,
@@ -274,6 +270,11 @@ export default function Controls(props: ControlsProps) {
               ["quarts", "Quarts de tour (4 = tour complet, pivots vírgula)"],
               ["temps3", "Marka « 3 temps » (avec Déplacement)"],
               ["ida", "Ida e volta (aller-retour, 8 temps)"],
+              ...(isPair ? [
+                ["sortieG", "Sortie garçon (paire, 8 temps)"],
+                ["sortieF", "Sortie fille (paire, 8 temps)"],
+                ["sortieGF", "Sortie combinée G→F (paire, 16 temps)"],
+              ] : []),
             ] as [MovementKey, string][]
           ).map(([k, label]) => (
             <label key={k} className="flex items-center gap-2 text-xs text-slate-400" title={label}>
@@ -355,17 +356,6 @@ export default function Controls(props: ControlsProps) {
             </button>
           </div>
         </div>
-        {isPair && (
-          <label className="flex items-center gap-2 text-xs text-slate-400" title="Sortie garçon (guideur) puis sortie fille (suiveur) : aller-retour latéral de 5 temps sur un cycle de 8">
-            <input
-              type="checkbox"
-              checked={sortie}
-              onChange={(e) => onSortie(e.target.checked)}
-              className="accent-teal-400"
-            />
-            Sorties garçon / fille
-          </label>
-        )}
         <button
           onClick={onExport}
           className="px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700 bg-slate-800/60 text-slate-300 hover:bg-slate-700 transition-colors"

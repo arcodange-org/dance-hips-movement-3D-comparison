@@ -16,3 +16,34 @@ Feature: Déplacements = options non combinables (radio, pas checkbox)
     And movementFlags("none") n'active aucune option
     And movementOf(movementFlags("ida")) vaut "ida"
     And movementOf(movementFlags("none")) vaut "none"
+
+  Scenario: Phase 17 — les sorties sont des options exclusives comme les autres déplacements
+    Then movementFlags("sortieG") n'active que sortieG
+    And movementFlags("sortieF") n'active que sortieF
+    And movementFlags("sortieGF") n'active que sortieGF
+    And movementOf(movementFlags("sortieG")) vaut "sortieG"
+    And movementOf(movementFlags("sortieF")) vaut "sortieF"
+    And movementOf(movementFlags("sortieGF")) vaut "sortieGF"
+
+  Scenario: Sortie garçon — seul le guideur sort (cycle 8), le suiveur reste sur la ligne
+    When on évalue sortieActive pour le côté "leader" et le mouvement "sortieG" sur 16 temps
+    Then sortieActive reste dans [0, 1]
+    And sortieActive est pleine (1) entre les temps 1 et 3
+    And sortieActive est nulle à partir du temps 5 du cycle de 8
+    When on évalue sortieActive pour le côté "follower" et le mouvement "sortieG" sur 16 temps
+    Then sortieActive vaut 0 pour l'autre danseur
+
+  Scenario: Sortie fille — seul le suiveur sort (cycle 8)
+    When on évalue sortieActive pour le côté "follower" et le mouvement "sortieF" sur 16 temps
+    Then sortieActive reste dans [0, 1]
+    And sortieActive est pleine (1) entre les temps 1 et 3
+    When on évalue sortieActive pour le côté "leader" et le mouvement "sortieF" sur 16 temps
+    Then sortieActive vaut 0 pour l'autre danseur
+
+  Scenario: Sortie combinée — enchaînement G (temps 0–7) puis F (8–15) sur un cycle de 16
+    When on évalue sortieActive pour le côté "leader" et le mouvement "sortieGF" sur 32 temps
+    Then sortieActive du combiné vaut 0 hors de la fenêtre de ce côté
+    And sortieActive du combiné est périodique de 16 temps
+    When on évalue sortieActive pour le côté "follower" et le mouvement "sortieGF" sur 32 temps
+    Then sortieActive du combiné vaut 0 hors de la fenêtre de ce côté
+    And sortieActive du combiné est périodique de 16 temps

@@ -101,8 +101,12 @@ Source : [docs/styles-de-danse.md](docs/styles-de-danse.md) (getbailar, danceinn
 <details><summary>Détails & source</summary>
 
 Sortie = ligne de danse : aller-retour **perpendiculaire** à la ligne (5 temps sur 8), buste en
-contre-rotation (dissociation). Sources : [docs/styles-de-danse.md](docs/styles-de-danse.md) +
-spec phase 6 (`docs/spec-phase6-comparatif-appuis-corridinho.md` §5).
+contre-rotation (dissociation). **Option exclusive** (radio Déplacement, mode paire) : *Sortie
+garçon* (seul le guideur sort), *Sortie fille* (seul le suiveur), *Sortie combinée G→F* (guideur
+temps 0–7 puis suiveur 8–15, cycle de 16 — GIF ci-dessus). Sources :
+[docs/styles-de-danse.md](docs/styles-de-danse.md) + spec phase 6
+(`docs/spec-phase6-comparatif-appuis-corridinho.md` §5) + spec phase 17
+(`docs/spec-phase17-sortie-exclusive.md`).
 </details>
 
 ![Appuis & transmission](docs/gifs/appui-transmission.gif)
@@ -275,7 +279,7 @@ npm test          # courbes, Gherkin et poses finales du GLB réel
 Paramètres d'URL (utilisés par les captures, prioritaires sur localStorage) :
 `?mode=solo|observe|compare|pair&style=kizomba&styleB=zouk&bpm=90&travel=0.6&bare=1`
 (`bare=1` : canvas plein écran sans l'interface) + `&muscles=1` (couche musculaire),
-`&sortie=1` (sorties garçon/fille, mode paire), `&repere=0` (masque le repère fixe),
+`&sortieG=1` / `&sortieF=1` / `&sortieGF=1` (sortie garçon / fille / combinée G→F, options exclusives, mode paire ; `&sortie=1` legacy = garçon), `&repere=0` (masque le repère fixe),
 `&appui=1` (appuis & transmission), `&ligne=1` (force la ligne de danse en solo),
 `&corridinho=1` (1/4 tour D puis G, puis cercle au repère fixe), `&plant=0` (ancien rendu glissé ;
 par défaut les pieds restent plantés au sol sur place, `plant=1`), `&solid=1` (buste opaque pour les
@@ -294,12 +298,13 @@ en m — écrits aussi dans l'URL par « Partager la vue », prioritaires sous `
 `&boussole=0` (masque la boussole 8 directions).
 
 Options d'interface : **Vue « Squelette » / « + Muscles (tissus) »** (bascule segmentée ; couche musculaire BodyParts3D greffée sur les pivots
-osseux, rouge semi-transparent — la chaîne d'appui sol→genoux→hanches reste visible dans les deux vues), **Boussole 8 directions** (4 cardinales + 4 diago au repère fixe ; E-W = ligne de danse ; la direction du buste et la position / repère s'affichent dans le HUD), **🔗 Partager la vue** (copie l'URL avec tous les paramètres + l'angle caméra `campos=`/`camtgt=` + l'angle/zoom lisibles `angle=`/`zoom=`), **Sorties garçon / fille** (mode Face à face : aller-retour
-latéral de 5 temps sur 8 perpendiculaire à la ligne de danse, le suiveur en miroir exact décale
-la sortie fille, buste en contre-rotation), **Déplacement (options exclusives, radio)** : Aucun / **Corridinho** (après 1/4 de tour à droite
+osseux, rouge semi-transparent — la chaîne d'appui sol→genoux→hanches reste visible dans les deux vues), **Boussole 8 directions** (4 cardinales + 4 diago au repère fixe ; E-W = ligne de danse ; la direction du buste et la position / repère s'affichent dans le HUD), **🔗 Partager la vue** (copie l'URL avec tous les paramètres + l'angle caméra `campos=`/`camtgt=` + l'angle/zoom lisibles `angle=`/`zoom=`), **Déplacement (options exclusives, radio)** : Aucun / **Corridinho** (après 1/4 de tour à droite
 puis à gauche, cercle au sol autour du repère fixe) / **Quarts de tour** (4 = tour complet, pivots
 vírgula : talon du pied G au bout du pied D à 90°, puis pied D ramené parallèle — haut du corps
-suit le pied G, bas du corps le pied D) / **Marka « 3 temps »** / **Ida e volta**, **Ligne de danse** (pointillé rose, axe x au repère),
+suit le pied G, bas du corps le pied D) / **Marka « 3 temps »** / **Ida e volta** / en mode Face à
+face : **Sortie garçon**, **Sortie fille**, **Sortie combinée G→F** (aller-retour latéral de
+5 temps sur 8 perpendiculaire à la ligne de danse, buste en contre-rotation ; combiné = cycle 16,
+guideur 0–7 puis suiveur 8–15), **Ligne de danse** (pointillé rose, axe x au repère),
 **Repère fixe** (anneau + croix à l'origine, pour lire les déplacements relatifs),
 **Pieds plantés (sur place)** (contact sol constant — petit pivot sur la plante du pied /
 « semi-pointe » autorisé ; désactiver pour l'ancien rendu glissé), **Isolation basse (roulis compensé)** (au-dessus du bassin le haut du tronc ne bascule plus latéralement : la

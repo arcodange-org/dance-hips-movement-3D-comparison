@@ -187,9 +187,15 @@ Spec : `docs/spec-phase15-paire.md` ; sources : `docs/posture-contraposition.md`
   (pur) + `groundDip` (sphères englobantes monde, fin de frame) dans Rig ; `swingLift`
   (cloche ≥ 0) extrait en pur ; Gherkin `sol-contact.feature` ; sonde runtime : minY sommets
   monde = +0.004 m en solo (travel=1, quarts=1) et en paire
-- [ ] 49. **Phase 17 — sortie en option exclusive** : `MovementKey += "sortie" | "sortie2"` ;
-  radio « Sortie garçon/fille » + « Sortie combinée (enchainement G puis F) » ;
-  `sortieActive(side, b, combine)` pur (combiné : leader temps 0–7, suiveur 8–15) ; Gherkin
+- [x] 49. **Phase 17 — sortie en option exclusive** : `MovementKey += "sortieG" | "sortieF" |
+  "sortieGF"` ; `movementOf`/`movementFlags` à 7 drapeaux ; `sortieActive(side, m, b)` pur
+  (G : leader cycle 8 ; F : follower ; combiné : cycle 16, leader 0–7 puis follower 8–15) ;
+  `pose.ts` applique `sortieEnv` (mouvement prioritaire, legacy `sortie` préservé pour les
+  tests de #19) ; App : 3 états + parse URL exclusif (`sortie=1` legacy = garçon, `sortieF=1`,
+  `sortieGF=1`) + `cycleBeats` avec movement + partage URL ; Controls : checkbox sortie
+  supprimée, 3 radios en mode paire ; validation moteur (fixture GLB) : fenêtres G/F/combiné
+  OK, retour à x=0 en fin de cycle ; Gherkin 4 scénarios sortieActive (68 PASS + 6 oracle) ;
+  GIF `sortie-garcon-fille` régénéré en combiné ; spec `docs/spec-phase17-sortie-exclusive.md`
 - [x] 50. **Phase 18 — oracle de positions** : `src/oracle.ts` (`Pose`, `oraclePose`,
   `oracleHalfStep(movement, k, reverse)` → {start, end}) ; `docs/oracle.feature` + runner dédié
   `scripts/test_oracle.mjs` (branché dans `npm test`) : 6 PASS — continuité end(k)=start(k+1)

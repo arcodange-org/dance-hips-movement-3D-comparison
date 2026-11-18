@@ -375,20 +375,44 @@ export function virgulaFootYawDelta(footWorldYaw: number, bodyWorldYaw: number):
 export const PAIR_DZ = 0.175;
 
 // Phase 14 — les déplacements sont des options NON combinables (radio, pas checkbox).
-export type MovementKey = "none" | "corridinho" | "quarts" | "temps3" | "ida";
+// Phase 17 — la sortie garçon/fille devient aussi une option exclusive (radio), avec le
+// combiné G→F (docs/spec-phase17-sortie-exclusive.md).
+export type MovementKey = "none" | "corridinho" | "quarts" | "temps3" | "ida" | "sortieG" | "sortieF" | "sortieGF";
 
 // Priorité d'exclusivité si plusieurs flags sont positionnés (ex. URL artisanale).
-export function movementOf(o: { corridinho?: boolean; quarts?: boolean; temps3?: boolean; ida?: boolean }): MovementKey {
+export function movementOf(o: { corridinho?: boolean; quarts?: boolean; temps3?: boolean; ida?: boolean; sortieG?: boolean; sortieF?: boolean; sortieGF?: boolean }): MovementKey {
   if (o.corridinho) return "corridinho";
   if (o.quarts) return "quarts";
   if (o.temps3) return "temps3";
   if (o.ida) return "ida";
+  if (o.sortieG) return "sortieG";
+  if (o.sortieF) return "sortieF";
+  if (o.sortieGF) return "sortieGF";
   return "none";
 }
 
 // Un seul flag à true ("none" -> tous false) : garantit la non-combinabilité.
-export function movementFlags(m: MovementKey): { corridinho: boolean; quarts: boolean; temps3: boolean; ida: boolean } {
-  return { corridinho: m === "corridinho", quarts: m === "quarts", temps3: m === "temps3", ida: m === "ida" };
+export function movementFlags(m: MovementKey): { corridinho: boolean; quarts: boolean; temps3: boolean; ida: boolean; sortieG: boolean; sortieF: boolean; sortieGF: boolean } {
+  return {
+    corridinho: m === "corridinho", quarts: m === "quarts", temps3: m === "temps3", ida: m === "ida",
+    sortieG: m === "sortieG", sortieF: m === "sortieF", sortieGF: m === "sortieGF",
+  };
+}
+
+// Phase 17 — enveloppe de sortie par danseur et par option (0..1) :
+// - "sortieG" : le guideur sort (cycle 8), le suiveur reste sur la ligne ;
+// - "sortieF" : le suiveur sort, le guideur reste ;
+// - "sortieGF" (combiné) : cycle 16 — guideur sur les temps 0–7, suiveur sur 8–15 (enchaînement).
+// Hors paire (embrace false) ou autre mouvement : 0 (géré par l'appelant).
+export function sortieActive(side: "leader" | "follower", m: MovementKey, b: number): number {
+  if (m === "sortieG") return side === "leader" ? sortieEnvelope(b) : 0;
+  if (m === "sortieF") return side === "follower" ? sortieEnvelope(b) : 0;
+  if (m === "sortieGF") {
+    const p = ((b % 16) + 16) % 16;
+    if (side === "leader") return p < 8 ? sortieEnvelope(p) : 0;
+    return p >= 8 ? sortieEnvelope(p - 8) : 0;
+  }
+  return 0;
 }
 
 // Phase 14 — quarts de tour avec vrais pivots (vírgula pas à pas, demande 2026-11-18).

@@ -2,8 +2,8 @@ import * as THREE from "three";
 import { resetRig, groundDip, type RigHandle } from "./anatomy";
 import {
   STYLES, supportOf, travelOffset, corridinhoPath, reversePath, quartTurnStep,
-  idaEVoltaStep, idaContra, sortieEnvelope, sortieOffset, lockUpperTrunk,
-  applyDanceFrame, applyFollowerFrame, swingLift,
+  idaEVoltaStep, idaContra, sortieEnvelope, sortieActive, lockUpperTrunk,
+  applyDanceFrame, applyFollowerFrame, swingLift, type MovementKey,
 } from "./styles";
 import { solveLeg3D } from "./ik";
 import { facingSector } from "./directions";
@@ -20,11 +20,12 @@ export interface PoseOptions {
   plant: boolean; iso: boolean; cadre: boolean;
   quarts: boolean; corridinho: boolean; ida: boolean; temps3: boolean;
   sortie: boolean; embrace: boolean; reverse: boolean; follower: boolean;
+  movement: MovementKey; // phase 17 : option exclusive (sortieG/sortieF/sortieGF incluse)
 }
 export const DEFAULT_POSE: PoseOptions = {
   styleKey: "kizomba", amp: 1, travel: 0, dir: 1, plant: true, iso: true, cadre: true,
   quarts: false, corridinho: false, ida: false, temps3: false, sortie: false,
-  embrace: false, reverse: false, follower: false,
+  embrace: false, reverse: false, follower: false, movement: "none",
 };
 interface Leg {
   length1: number; length2: number; f0: THREE.Vector3; t0: THREE.Vector3;
@@ -82,11 +83,18 @@ export function createPoseModel(r: RigHandle): PoseModel {
 }
 
 interface FootPlan { x: number; z: number; yaw: number; lift: number }
+// Phase 17 — enveloppe de sortie effective pour ce rig : option exclusive `movement`
+// (sortieG/sortieF/sortieGF selon le côté leader/follower), sinon legacy `sortie` (les deux
+// danseurs en même temps). Hors embrace : 0.
+function sortieEnv(b: number, o: PoseOptions): number {
+  if (!o.embrace) return 0;
+  if (o.movement !== "none") return sortieActive(o.follower ? "follower" : "leader", o.movement, b);
+  return o.sortie ? sortieEnvelope(b) : 0;
+}
 function bodyPath(b: number, o: PoseOptions) {
   const cp = o.corridinho ? corridinhoPath(b) : { x: 0, z: 0, ry: 0 };
   const p = o.reverse ? reversePath(cp) : cp;
-  return { x: p.x + travelOffset(o.travel, o.dir, b)
-    + (o.sortie && o.embrace ? sortieOffset(b, o.amp) : 0), z: p.z, ry: p.ry };
+  return { x: p.x + travelOffset(o.travel, o.dir, b) + 0.22 * sortieEnv(b, o) * o.amp, z: p.z, ry: p.ry };
 }
 function plannedFeet(b: number, o: PoseOptions, m: PoseModel): Record<Side, FootPlan> {
   const feet = {} as Record<Side, FootPlan>;
@@ -105,7 +113,7 @@ function plannedFeet(b: number, o: PoseOptions, m: PoseModel): Record<Side, Foot
     }
     return feet;
   }
-  const walking = o.travel > 0 || o.ida || o.corridinho || (o.sortie && o.embrace);
+  const walking = o.travel > 0 || o.ida || o.corridinho || sortieEnv(b, o) > 0;
   const length = o.ida ? 2 : o.temps3 ? 3 : 1;
   const index = Math.floor(b / length);
   const stepSide = (i: number): Side => o.ida ? idaEVoltaStep(i * length).side : ((i % 2 + 2) % 2 === 0 ? "L" : "R");
@@ -174,7 +182,8 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
   const path = bodyPath(beat, o);
   r.root.position.x += path.x; r.root.position.z += path.z; r.root.rotation.y = path.ry;
   lockUpperTrunk({ spine: r.spine.rotation, chest: r.chest.rotation, head: r.head.rotation }, r.pelvis.rotation, o.iso);
-  if (o.sortie && o.embrace) r.chest.rotation.y -= 0.22 * sortieEnvelope(beat) * o.amp;
+  const se = sortieEnv(beat, o);
+  if (se > 0) r.chest.rotation.y -= 0.22 * se * o.amp;
   if (o.quarts) {
     const qs = quartTurnStep(beat, o.reverse);
     r.root.rotation.y = qs.lowerYaw;

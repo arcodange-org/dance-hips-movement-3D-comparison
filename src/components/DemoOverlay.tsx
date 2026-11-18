@@ -51,7 +51,7 @@ export const DEMOS: Record<string, DemoDef> = {
   "sortie-garcon-fille": {
     chip: "Sorties garçon / fille",
     color: "#2dd4bf",
-    captions: ["guideur sort à gauche (5 temps sur 8)", "repère fixe au sol · suiveur en retard = « sortie fille »"],
+    captions: ["combiné : guideur sort à gauche (5 temps sur 8)", "puis suiveur sort à son tour (temps 8–15) · repère fixe au sol"],
     beat: 60 / 90,
   },
   "kizomba-muscles": {

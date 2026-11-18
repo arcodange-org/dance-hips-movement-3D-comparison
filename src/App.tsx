@@ -63,7 +63,6 @@ export default function App() {
   const [travel, setTravel] = usePersistentState("travel", 0);
   const [showTorso, setShowTorso] = usePersistentState("showTorso", true);
   const [showMuscles, setShowMuscles] = usePersistentState("showMuscles", false);
-  const [sortie, setSortie] = usePersistentState("sortie", false);
   const [showRepere, setShowRepere] = usePersistentState("repere", true);
   const [showAppui, setShowAppui] = usePersistentState("appui", false);
   const statsRef = useRef<any>({ loadR: 0.5, loadL: 0.5, kneeR: 0, kneeL: 0, roll: 0 });
@@ -77,14 +76,21 @@ export default function App() {
   const [quarts, setQuarts] = usePersistentState("quarts", false);
   const [temps3, setTemps3] = usePersistentState("temps3", false);
   const [ida, setIda] = usePersistentState("ida", false);
+  // Phase 17 — sorties garçon/fille/combinée : 3 options de plus dans le mouvement exclusif.
+  const [sortieG, setSortieG] = usePersistentState("sortieG", false);
+  const [sortieF, setSortieF] = usePersistentState("sortieF", false);
+  const [sortieGF, setSortieGF] = usePersistentState("sortieGF", false);
   // Phase 14 — déplacements = options NON combinables (radio) : un seul actif à la fois.
-  const movement = movementOf({ corridinho, quarts, temps3, ida });
+  const movement = movementOf({ corridinho, quarts, temps3, ida, sortieG, sortieF, sortieGF });
   const setMovement = (m: MovementKey) => {
     const f = movementFlags(m);
     setCorridinho(f.corridinho);
     setQuarts(f.quarts);
     setTemps3(f.temps3);
     setIda(f.ida);
+    setSortieG(f.sortieG);
+    setSortieF(f.sortieF);
+    setSortieGF(f.sortieGF);
   };
   const [dir, setDir] = usePersistentState("dir", 1);
   const [showBoussole, setShowBoussole] = usePersistentState("boussole", true);
@@ -114,23 +120,30 @@ export default function App() {
     if (p.has("playing")) setPlaying(p.get("playing") !== "0");
     if (p.has("torso")) setShowTorso(p.get("torso") !== "0");
     if (p.has("muscles")) setShowMuscles(p.get("muscles") !== "0");
-    if (p.has("sortie")) setSortie(p.get("sortie") !== "0");
     if (p.has("repere")) setShowRepere(p.get("repere") !== "0");
     if (p.has("appui")) setShowAppui(p.get("appui") !== "0");
     if (p.has("plant")) setPlant(p.get("plant") !== "0");
-    if (p.has("corridinho") || p.has("quarts") || p.has("temps3") || p.has("ida")) {
-      // options exclusives : si plusieurs params sont présents, un seul est retenu (movementOf)
+    if (p.has("corridinho") || p.has("quarts") || p.has("temps3") || p.has("ida")
+        || p.has("sortie") || p.has("sortieG") || p.has("sortieF") || p.has("sortieGF")) {
+      // options exclusives : si plusieurs params sont présents, un seul est retenu (movementOf).
+      // `sortie=1` (legacy) = sortie garçon ; `sortieF=1` = sortie fille ; `sortieGF=1` = combiné.
       const m = movementOf({
         corridinho: p.has("corridinho") && p.get("corridinho") !== "0",
         quarts: p.has("quarts") && p.get("quarts") !== "0",
         temps3: p.has("temps3") && p.get("temps3") !== "0",
         ida: p.has("ida") && p.get("ida") !== "0",
+        sortieG: (p.has("sortie") && p.get("sortie") !== "0") || (p.has("sortieG") && p.get("sortieG") !== "0"),
+        sortieF: p.has("sortieF") && p.get("sortieF") !== "0",
+        sortieGF: p.has("sortieGF") && p.get("sortieGF") !== "0",
       });
       const f = movementFlags(m);
       setCorridinho(f.corridinho);
       setQuarts(f.quarts);
       setTemps3(f.temps3);
       setIda(f.ida);
+      setSortieG(f.sortieG);
+      setSortieF(f.sortieF);
+      setSortieGF(f.sortieGF);
     }
     if (p.has("ligne")) setShowLigne(p.get("ligne") !== "0");
     if (p.has("iso")) setIso(p.get("iso") !== "0");
@@ -177,7 +190,10 @@ export default function App() {
     const view = camPos && camTgt ? (() => { const va = viewAnglesOf(camPos, camTgt); return { angle: va.az, zoom: va.dist }; })() : null;
     const rel = buildShareUrl(window.location.pathname, {
       mode, style: styleA, styleB, bpm, travel, amp, playing,
-      torso: showTorso, muscles: showMuscles, sortie, repere: showRepere, appui: showAppui,
+      torso: showTorso, muscles: showMuscles, repere: showRepere, appui: showAppui,
+      sortieG: movement === "sortieG" ? true : undefined,
+      sortieF: movement === "sortieF" ? true : undefined,
+      sortieGF: movement === "sortieGF" ? true : undefined,
       plant, corridinho, ligne: showLigne, iso, cadre, quarts, temps3, ida, dir,
       ghost: ghostSel, boussole: showBoussole, contacts: showContacts,
       cam: params.get("cam") ?? undefined, demo: params.get("demo") ?? undefined,
@@ -261,7 +277,7 @@ export default function App() {
         }
         restore();
       };
-      const duration = cycleBeats({ quarts, corridinho, ida, sortie: isPair && sortie, temps3 });
+      const duration = cycleBeats({ movement, quarts, corridinho, ida, temps3 });
       const started = performance.now();
       const tick = (now: number) => {
         const elapsed = (now - started) / 1000;
@@ -306,7 +322,7 @@ export default function App() {
               travel={travel}
               showTorso={showTorso}
               showMuscles={showMuscles}
-              sortie={sortie}
+              movement={movement}
               showAppui={showAppui}
               stats={statsRef}
               plant={plant}
@@ -337,7 +353,7 @@ export default function App() {
                 travel={travel}
                 showTorso={showTorso}
                 showMuscles={showMuscles}
-                sortie={sortie}
+                movement={movement}
                 showAppui={showAppui}
                 stats={statsBRef}
                 plant={plant}
@@ -452,15 +468,13 @@ export default function App() {
         onShowContacts={setShowContacts}
         showMuscles={showMuscles}
         onShowMuscles={setShowMuscles}
-        sortie={sortie}
-        onSortie={setSortie}
+        movement={movement}
         showRepere={showRepere}
         onShowRepere={setShowRepere}
         showAppui={showAppui}
         onShowAppui={setShowAppui}
         plant={plant}
         onPlant={setPlant}
-        movement={movement}
         onMovement={setMovement}
         showLigne={showLigne}
         onShowLigne={setShowLigne}
@@ -513,7 +527,7 @@ export default function App() {
               travel={travel}
               showTorso={showTorso}
               showMuscles={showMuscles}
-              sortie={sortie}
+              movement={movement}
               showAppui={showAppui}
               stats={statsRef}
               plant={plant}
@@ -544,7 +558,7 @@ export default function App() {
                 travel={travel}
                 showTorso={showTorso}
                 showMuscles={showMuscles}
-                sortie={sortie}
+                movement={movement}
                 showAppui={showAppui}
                 stats={statsBRef}
                 plant={plant}
