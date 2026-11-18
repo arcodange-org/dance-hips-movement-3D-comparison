@@ -28,7 +28,7 @@ esbuild.buildSync({
 });
 const mod = await import(pathToFileURL(bundle).href + "?t=" + Date.now());
 rmSync(bundle, { force: true });
-const { STYLES, supportOf, sortieEnvelope, sortieOffset, plantBlend, corridinhoPath, HIP_WIDTH, HIP_Y, S2, CAM_PRESETS, resolveCam, SOLID_TORSO_OPACITY, lockUpperTrunk, residualRoll, upperStability, DANCE_FRAME } = mod;
+const { STYLES, supportOf, sortieEnvelope, sortieOffset, plantBlend, corridinhoPath, quartsPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, HIP_WIDTH, HIP_Y, S2, CAM_PRESETS, resolveCam, SOLID_TORSO_OPACITY, lockUpperTrunk, residualRoll, upperStability, DANCE_FRAME } = mod;
 const { Group } = await import(
   pathToFileURL(join(root, "node_modules", "three", "build", "three.module.js")).href
 );
@@ -212,6 +212,10 @@ const steps = [
     }
     if (!(Number(m[1]) <= Number(m[3]) && Number(m[3]) <= Number(m[2]))) throw new Error("rayon hors plage");
   }],
+  [/^la trajectoire reste finie$/, (c) => {
+    const rows = c.quarts || c.path || [];
+    for (const r of rows) if (!r.finite) throw new Error("non fini à b=" + r.b);
+  }],
   [/^la trajectoire reste finie et le rayon est borné$/, (c) => {
     for (const p of c.path) if (!p.finite) throw new Error("trajectoire non finie à b=" + p.b);
   }],
@@ -246,6 +250,72 @@ const steps = [
   [/^l'avant-bras gauche est vers le haut$/, () => { if (Math.abs(DANCE_FRAME.forearmLeft.z - Math.PI) > 1e-9) throw new Error("avant-bras G pas en haut: " + DANCE_FRAME.forearmLeft.z); }],
   [/^l'avant-bras droit est vers la gauche, paume vers le buste$/, () => {
     if (!(Math.abs(DANCE_FRAME.forearmRight.z + Math.PI / 2) < 1e-9 && Math.abs(DANCE_FRAME.forearmRight.x - Math.PI) < 1e-9)) throw new Error("avant-bras D mal orienté: " + JSON.stringify(DANCE_FRAME.forearmRight));
+  }],
+  [/^la séquence quarts de tour sur (\d+) temps$/, (c, m) => { c.n = Number(m[1]); }],
+  [/^on évalue quartsPath de 0 à (\d+)$/, (c, m) => {
+    c.quarts = [];
+    for (let b = 0; b <= Number(m[1]); b += 0.05) { const q = quartsPath(b); c.quarts.push({ b, ry: q.ry, finite: Number.isFinite(q.ry) }); }
+  }],
+  [/^ry croît de 0 à 2π \(tour complet\)$/, (c) => {
+    const first = c.quarts[0], last = c.quarts[c.quarts.length - 1];
+    if (Math.abs(first.ry) > 1e-9) throw new Error("ry initial=" + first.ry);
+    if (Math.abs(last.ry - 2 * Math.PI) > 0.1) throw new Error("ry final=" + last.ry + " (attendu ~2π)");
+    for (let i = 1; i < c.quarts.length; i++) if (c.quarts[i].ry < c.quarts[i - 1].ry - 1e-9) throw new Error("ry non monotone à b=" + c.quarts[i].b);
+  }],
+  [/^on inverse la trajectoire du corridinho \(reversePath\)$/, (c) => {
+    c.rev = [];
+    for (let b = 0; b <= 16; b += 0.05) {
+      const p = corridinhoPath(b); const q = reversePath(p);
+      c.rev.push({ b, x: q.x, z: q.z, ry: q.ry, ok: Math.abs(q.z + p.z) < 1e-9 && Math.abs(q.ry + p.ry) < 1e-9 });
+    }
+  }],
+  [/^z est miroir et ry opposé, et le cercle passe encore par le repère \(0, 0\)$/, (c) => {
+    for (const r of c.rev) if (!r.ok) throw new Error("reverse incorrect à b=" + r.b);
+    const onCircle = c.rev.filter((r) => { const p = ((r.b % 16) + 16) % 16; return p >= 8 && p < 16; });
+    const origin = onCircle.find((r) => Math.abs(r.x) < 0.31 && Math.abs(r.z) < 0.31 && Math.hypot(r.x, r.z) < 0.02 + 0.0001);
+    if (!origin) throw new Error("le cercle inversé ne passe pas par le repère (0,0)");
+  }],
+  [/^on évalue travelOffset avec travel = ([\d.]+), dir = (-?\d+) puis dir = (-?\d+) sur (\d+) temps$/, (c, m) => {
+    c.trav = { t: Number(m[1]), d1: Number(m[2]), d2: Number(m[3]), n: Number(m[4]), rows: [] };
+    for (let b = 0; b <= c.trav.n; b += 0.05) c.trav.rows.push([travelOffset(c.trav.t, c.trav.d1, b), travelOffset(c.trav.t, c.trav.d2, b)]);
+  }],
+  [/^travelOffset\(dir=-1\) est l'opposé de travelOffset\(dir=1\) à chaque temps$/, (c) => {
+    for (const [a, bb] of c.trav.rows) if (Math.abs(a + bb) > 1e-9) throw new Error("dir=-1 pas opposé: " + a + " vs " + bb);
+  }],
+  [/^swingBeat avec temps3 a une période de 3 temps$/, () => {
+    for (let b = 0; b <= 12; b += 0.25) if (swingBeat(b, true) !== Math.floor(b / 3)) throw new Error("période != 3 à b=" + b);
+  }],
+  [/^swingBeat sans temps3 a une période de 1 temps$/, () => {
+    for (let b = 0; b <= 12; b += 0.25) if (swingBeat(b, false) !== Math.floor(b)) throw new Error("période != 1 à b=" + b);
+  }],
+  [/^on évalue idaEVoltaStep sur (\d+) temps$/, (c, m) => {
+    c.ida = [];
+    for (let b = 0; b < Number(m[1]); b += 0.5) c.ida.push({ b, ...idaEVoltaStep(b) });
+  }],
+  [/^la séquence est L avant, L arrière, R avant, R arrière$/, (c) => {
+    const exp = [["L", 1], ["L", -1], ["R", 1], ["R", -1]];
+    for (let k = 0; k < 4; k++) {
+      const rows = c.ida.filter((r) => Math.floor(((r.b % 8) + 8) % 8 / 2) === k);
+      if (!rows.length) throw new Error("pas de lignes pour k=" + k);
+      for (const r of rows) if (r.side !== exp[k][0] || r.dir !== exp[k][1]) throw new Error(`b=${r.b}: ${r.side}${r.dir}, attendu ${exp[k]}`);
+    }
+  }],
+  [/^le GLB place patella et fibula au niveau du genou$/, () => {
+    const buf = readFileSync(join(root, "public", "anatomy.glb"));
+    const clen = buf.readUInt32LE(12);
+    const gltf = JSON.parse(buf.subarray(20, 20 + clen).toString("utf8"));
+    const nodes = gltf.nodes;
+    const byName = Object.fromEntries(nodes.map((n) => [n.name, n]));
+    for (const sd of ["R", "L"]) {
+      const knee = byName[`KneePivot_${sd}`];
+      const kids = knee.children.map((i) => nodes[i]);
+      const shin = kids.find((n) => n.translation && Math.abs(n.translation[1]) > 0.15);
+      const patella = kids.find((n) => n.translation && n.translation[1] > -0.05 && n.translation[2] > 0.02);
+      const fibula = kids.find((n) => n.name.startsWith("Fibula"));
+      if (!shin) throw new Error(`pas de tibia long sous KneePivot_${sd}`);
+      if (!patella) throw new Error(`pas de patella au genou sous KneePivot_${sd}: ` + JSON.stringify(kids.map((k) => k.translation)));
+      if (!fibula || Math.abs(fibula.translation[0]) > 0.05) throw new Error(`fibula ${sd} trop latérale: ` + JSON.stringify(fibula && fibula.translation));
+    }
   }],
 ];
 

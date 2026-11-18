@@ -40,6 +40,14 @@ interface ControlsProps {
   onIso: (v: boolean) => void;
   cadre: boolean;
   onCadre: (v: boolean) => void;
+  quarts: boolean;
+  onQuarts: (v: boolean) => void;
+  temps3: boolean;
+  onTemps3: (v: boolean) => void;
+  ida: boolean;
+  onIda: (v: boolean) => void;
+  dir: number;
+  onDir: (v: number) => void;
   ghostSel: string;
   onGhostSel: (v: string) => void;
   onExport: () => void;
@@ -121,6 +129,14 @@ export default function Controls(props: ControlsProps) {
     onIso,
     cadre,
     onCadre,
+    quarts,
+    onQuarts,
+    temps3,
+    onTemps3,
+    ida,
+    onIda,
+    dir,
+    onDir,
     ghostSel,
     onGhostSel,
     onExport,
@@ -257,6 +273,42 @@ export default function Controls(props: ControlsProps) {
             className="accent-fuchsia-400"
           />
           Corridinho (après 1/4 tour D puis G)
+        </label>
+        <label className="flex items-center gap-2 text-xs text-slate-400" title="Quarts de tour (mouvement séparé du corridinho) : 4 quarts de tour sur 16 temps = un tour complet ; en paire, le suiveur le fait en marche arrière (quarts=1)">
+          <input
+            type="checkbox"
+            checked={quarts}
+            onChange={(e) => onQuarts(e.target.checked)}
+            className="accent-fuchsia-400"
+          />
+          Quarts de tour (4 = tour complet)
+        </label>
+        <label className="flex items-center gap-2 text-xs text-slate-400" title="Marka « 3 temps » : un pas tous les 3 temps au lieu de chaque temps pendant le Déplacement (temps3=1)">
+          <input
+            type="checkbox"
+            checked={temps3}
+            onChange={(e) => onTemps3(e.target.checked)}
+            className="accent-fuchsia-400"
+          />
+          Marke « 3 temps » (avec Déplacement)
+        </label>
+        <label className="flex items-center gap-2 text-xs text-slate-400" title="Ida e volta (aller-retour), seul ou à 2 face à face : pied gauche avant/arrière puis pied droit avant/arrière, cycle de 8 temps (ida=1)">
+          <input
+            type="checkbox"
+            checked={ida}
+            onChange={(e) => onIda(e.target.checked)}
+            className="accent-fuchsia-400"
+          />
+          Ida e volta (aller-retour, 8 temps)
+        </label>
+        <label className="flex items-center gap-2 text-xs text-slate-400" title="Marche arrière : inverse le sens du Déplacement le long de la ligne de danse (dir=-1)">
+          <input
+            type="checkbox"
+            checked={dir < 0}
+            onChange={(e) => onDir(e.target.checked ? -1 : 1)}
+            className="accent-fuchsia-400"
+          />
+          Marche arrière (dir=-1)
         </label>
         {isPair && (
           <label className="flex items-center gap-2 text-xs text-slate-400" title="Ligne de danse (axe x au repère fixe) : la sortie est perpendiculaire à la ligne, aller-retour">

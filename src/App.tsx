@@ -62,6 +62,10 @@ export default function App() {
   const [showLigne, setShowLigne] = usePersistentState("ligne", true);
   const [iso, setIso] = usePersistentState("iso", true);
   const [cadre, setCadre] = usePersistentState("cadre", true);
+  const [quarts, setQuarts] = usePersistentState("quarts", false);
+  const [temps3, setTemps3] = usePersistentState("temps3", false);
+  const [ida, setIda] = usePersistentState("ida", false);
+  const [dir, setDir] = usePersistentState("dir", 1);
   const [hud, setHud] = useState<any>(null);
   const pairRef = useRef<Record<string, any>>({});
 
@@ -88,6 +92,10 @@ export default function App() {
     if (p.has("ligne")) setShowLigne(p.get("ligne") !== "0");
     if (p.has("iso")) setIso(p.get("iso") !== "0");
     if (p.has("cadre")) setCadre(p.get("cadre") !== "0");
+    if (p.has("quarts")) setQuarts(p.get("quarts") !== "0");
+    if (p.has("temps3")) setTemps3(p.get("temps3") !== "0");
+    if (p.has("ida")) setIda(p.get("ida") !== "0");
+    if (p.has("dir")) { const d = num("dir"); if (d !== null && (d === 1 || d === -1)) setDir(d); }
     if (p.has("delay")) { const d = num("delay"); if (d !== null) setFollowDelay(Math.min(2, Math.max(0, d))); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -111,6 +119,7 @@ export default function App() {
   const isPair = mode === "pair";
   const isCompare = mode === "compare";
   const isObserve = mode === "observe";
+  const reverseB = isPair && (corridinho || quarts);
   // Ligne de danse affichée par défaut en paire/comparaison ; en solo, seulement si ligne=1 explicite.
   const ligneVisible = showLigne && (isPair || isCompare || params.get("ligne") === "1");
   const ghostA = (isCompare || isPair) && ghostSel === "B";
@@ -189,6 +198,11 @@ export default function App() {
               torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
               iso={iso}
               cadre={cadre}
+              quarts={quarts}
+              reverse={false}
+              dir={dir}
+              temps3={temps3}
+              ida={ida}
             />
             {(isCompare || isPair) && (
               <Rig
@@ -215,6 +229,11 @@ export default function App() {
                 torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
               iso={iso}
               cadre={cadre}
+              quarts={quarts}
+              reverse={reverseB}
+              dir={dir}
+              temps3={temps3}
+              ida={ida}
               />
             )}
             {isPair && <ContactViz pair={pairRef} />}
@@ -326,6 +345,14 @@ export default function App() {
         onIso={setIso}
         cadre={cadre}
         onCadre={setCadre}
+        quarts={quarts}
+        onQuarts={setQuarts}
+        temps3={temps3}
+        onTemps3={setTemps3}
+        ida={ida}
+        onIda={setIda}
+        dir={dir}
+        onDir={setDir}
         ghostSel={ghostSel}
         onGhostSel={setGhostSel}
         onExport={exportCycle}
@@ -367,6 +394,11 @@ export default function App() {
               torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
               iso={iso}
               cadre={cadre}
+              quarts={quarts}
+              reverse={false}
+              dir={dir}
+              temps3={temps3}
+              ida={ida}
             />
             {(isCompare || isPair) && (
               <Rig
@@ -393,6 +425,11 @@ export default function App() {
                 torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
               iso={iso}
               cadre={cadre}
+              quarts={quarts}
+              reverse={reverseB}
+              dir={dir}
+              temps3={temps3}
+              ida={ida}
               />
             )}
             {isPair && <ContactViz pair={pairRef} />}

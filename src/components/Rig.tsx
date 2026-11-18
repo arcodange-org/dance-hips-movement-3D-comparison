@@ -16,7 +16,7 @@ import {
   resetRig,
   type RigHandle,
 } from "../anatomy";
-import { STYLES, sortieEnvelope, sortieOffset, supportOf, plantBlend, corridinhoPath, lockUpperTrunk, applyDanceFrame, upperStability } from "../styles";
+import { STYLES, sortieEnvelope, sortieOffset, supportOf, plantBlend, corridinhoPath, quartsPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, lockUpperTrunk, applyDanceFrame, upperStability } from "../styles";
 import { solveLeg3D } from "../ik";
 import {
   MUSCLES_URL,
@@ -74,6 +74,11 @@ export interface RigProps {
   torsoOpacity?: number;
   iso?: boolean;
   cadre?: boolean;
+  quarts?: boolean;
+  reverse?: boolean;
+  dir?: number;
+  temps3?: boolean;
+  ida?: boolean;
 }
 
 export default function Rig({
@@ -100,6 +105,11 @@ export default function Rig({
   torsoOpacity,
   iso = true,
   cadre = true,
+  quarts = false,
+  reverse = false,
+  dir = 1,
+  temps3 = false,
+  ida = false,
 }: RigProps) {
   const torsoOp = torsoOpacity ?? TORSO_OPACITY;
   const r = useRef({} as RigHandle).current;
@@ -240,7 +250,7 @@ export default function Rig({
     const b = t.current + phaseOffset;
     resetRig(r);
     STYLES[styleKey].apply(r, b, amp);
-    r.root.position.x += travel * (HIP_WIDTH / 2) * Math.tanh(2.2 * S2(b));
+    r.root.position.x += travelOffset(travel, dir, b);
     if (sortie && embrace) {
       // Sortie = ligne de danse : déplacement latéral local (axe x, perpendiculaire à la
       // ligne) hors de la ligne puis retour dessus. Le buste/bras restent orientés sur la
@@ -252,11 +262,19 @@ export default function Rig({
     }
     if (corridinho) {
       // 1/4 de tour à droite (0-3), à gauche (4-7), puis cercle au sol autour du repère fixe.
-      const cp = corridinhoPath(b);
+      // En paire, le suiveur (reverse) le fait en marche arrière (trajectoire miroir, ry opposé).
+      const cp0 = corridinhoPath(b);
+      const cp = reverse ? reversePath(cp0) : cp0;
       r.root.position.x += cp.x;
       r.root.position.z += cp.z;
       r.root.rotation.y += cp.ry;
       r.chest.rotation.z -= 0.06; // épaules vers l'intérieur du cercle
+    }
+    if (quarts) {
+      // Quarts de tour séparés du corridinho : 4 quarts de tour sur 16 temps = tour complet.
+      const q0 = quartsPath(b);
+      const q = reverse ? reversePath(q0) : q0;
+      r.root.rotation.y += q.ry;
     }
     // Phase 7 — isolation du bas du corps (iso=1 par défaut) : le haut du tronc reste stable et
     // vertical (contre-rotation du pelvis au niveau de la colonne, buste/tête sans bascule
@@ -316,28 +334,38 @@ export default function Rig({
       const outer = r.root.parent as THREE.Group;
       const skelNode = r["Skeleton"] as THREE.Object3D;
       const state = ik.current;
-      const beat = Math.floor(b);
-      const swingSide: Side = beat % 2 === 0 ? "L" : "R";
-      if (beat !== state.lastBeat) {
-        state.lastBeat = beat;
-        // sur place planté (travel=0) : pas de pas, les pieds restent plantés
-        if (travel > 0.001) {
+      const beat = swingBeat(b, temps3);
+      let swingSide: Side = beat % 2 === 0 ? "L" : "R";
+      let stepDir = 0; // ida e volta : pas en avant/arrière (axe z)
+      if (ida) {
+        const st = idaEVoltaStep(b);
+        swingSide = st.side;
+        stepDir = st.dir;
+      }
+      const stepIdx = ida ? Math.floor(b / 2) : beat;
+      const stepLen = ida ? 2 : temps3 ? 3 : 1;
+      const walking = travel > 0.001 || ida;
+      if (stepIdx !== state.lastBeat) {
+        state.lastBeat = stepIdx;
+        // sur place planté (travel=0) sans ida : pas de pas, les pieds restent plantés
+        if (walking) {
         const to = new THREE.Vector3(
           r.root.position.x + state.hipSkel[swingSide].x,
           state.ankleOuterY,
-          state.footZ[swingSide]
+          state.footZ[swingSide] + stepDir * 0.09
         );
         state.swing[swingSide] = { from: state.footPos[swingSide].clone(), to, t: 0 };
         }
       }
+      const lift = travel > 0.001 ? travel : ida ? 0.5 : 0;
       for (const s of ["R", "L"] as Side[]) {
         let target: THREE.Vector3;
         const sw = state.swing[s];
-        if (travel > 0.001 && sw && s === swingSide) {
-          sw.t = Math.min(1, (b - beat) / 0.6);
+        if (walking && sw && s === swingSide) {
+          sw.t = Math.min(1, (b - stepIdx * stepLen) / (0.6 * stepLen));
           const e = sw.t * sw.t * (3 - 2 * sw.t);
           target = sw.from.clone().lerp(sw.to, e);
-          target.y = state.ankleOuterY + 0.05 * travel * Math.sin(Math.PI * sw.t);
+          target.y = state.ankleOuterY + 0.05 * lift * Math.sin(Math.PI * sw.t);
           if (sw.t >= 1) {
             state.plant[s].copy(sw.to);
             state.swing[s] = null;
@@ -379,7 +407,7 @@ export default function Rig({
 
     const tx = embrace ? -1.05 : -0.25;
     const tf = embrace ? -0.55 : -0.3;
-    if (r.armUL && r.armUR && r.armFL && r.armFR) {
+    if (!cadre && r.armUL && r.armUR && r.armFL && r.armFR) {
       [r.armUL, r.armUR].forEach((g: THREE.Group) => {
         g.rotation.x += (tx - g.rotation.x) * 0.08;
       });

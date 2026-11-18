@@ -1,4 +1,4 @@
-import { TAU, S1, S2, S4, pos, type RigHandle } from "./anatomy";
+import { TAU, S1, S2, S4, pos, HIP_WIDTH, type RigHandle } from "./anatomy";
 
 export interface StyleDef {
   label: string;
@@ -305,4 +305,39 @@ export function applyDanceFrame(
   if (r.armUR) r.armUR.rotation.set(DANCE_FRAME.upperArm.x, DANCE_FRAME.upperArm.y, -DANCE_FRAME.upperArm.z);
   if (r.armFL) r.armFL.rotation.set(DANCE_FRAME.forearmLeft.x, DANCE_FRAME.forearmLeft.y, DANCE_FRAME.forearmLeft.z);
   if (r.armFR) r.armFR.rotation.set(DANCE_FRAME.forearmRight.x, DANCE_FRAME.forearmRight.y, DANCE_FRAME.forearmRight.z);
+}
+
+// ---------------------------------------------------------------------------
+// Phase 8 — déplacements : quarts de tour, marche avant/arrière + marka « 3 temps », ida e volta.
+// ---------------------------------------------------------------------------
+
+// Quarts de tour (mouvement séparé du corridinho, demande 2026-11-18) : 4 quarts de tour sur 16
+// temps = un tour complet (2π). Le suiveur en paire peut le faire en marche arrière (reverse).
+export function quartsPath(b: number): { ry: number } {
+  const p = ((b % 16) + 16) % 16;
+  return { ry: (Math.PI / 2) * (p / 4) };
+}
+
+// Inversion d'une trajectoire (marche arrière du suiveur en paire) : z miroir, ry opposé.
+export function reversePath<T extends { x?: number; z?: number; ry?: number }>(cp: T): T {
+  return { ...cp, x: cp.x ?? 0, z: -(cp.z ?? 0), ry: -(cp.ry ?? 0) };
+}
+
+// Déplacement latéral le long de la ligne de danse ; dir = -1 → marche arrière.
+export function travelOffset(travel: number, dir: number, b: number): number {
+  return (dir < 0 ? -1 : 1) * travel * (HIP_WIDTH / 2) * Math.tanh(2.2 * S2(b));
+}
+
+// Marke « 3 temps » : un pas tous les 3 temps au lieu de chaque temps.
+export function swingBeat(b: number, temps3: boolean): number {
+  return Math.floor(b / (temps3 ? 3 : 1));
+}
+
+// Ida e volta (aller-retour, seul ou à 2 face à face) sur un cycle de 8 temps :
+// pied gauche avant puis arrière (temps 0-3), pied droit avant puis arrière (temps 4-7).
+export function idaEVoltaStep(b: number): { side: "L" | "R"; dir: 1 | -1 } {
+  const p = ((b % 8) + 8) % 8;
+  const side: "L" | "R" = Math.floor(p / 4) % 2 === 0 ? "L" : "R";
+  const dir: 1 | -1 = Math.floor(p / 2) % 2 === 0 ? 1 : -1;
+  return { side, dir };
 }

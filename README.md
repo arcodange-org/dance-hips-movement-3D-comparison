@@ -36,6 +36,12 @@ légende de la nuance + pastille de temps) :
 | ![Comparatif d'appuis](docs/gifs/comparatif-appuis.gif) | ![Corridinho](docs/gifs/corridinho.gif) |
 | Isolation basse + ginga (buste verrouillé vertical, cadre de bras) | Fessiers en mouvement, vue de dos (muscles © DBCLS) |
 | ![Isolation basse · ginga](docs/gifs/isolation-ginga.gif) | ![Fessiers — vue de dos](docs/gifs/fessiers-muscles.gif) |
+| Quarts de tour (4 = tour complet au repère fixe) | Corridinho à 2 (suiveur en marche arrière) |
+| ![Quarts de tour](docs/gifs/quarts-de-tour.gif) | ![Corridinho à 2](docs/gifs/corridinho-paire.gif) |
+| Marche + marka « 3 temps » (le long de la ligne) | Marche arrière (dir=-1) |
+| ![Marche 3 temps](docs/gifs/marche-3temps.gif) | ![Marche arrière](docs/gifs/marche-arriere.gif) |
+| Ida e volta, à 2 face à face (G avant/arrière puis D avant/arrière) |
+| ![Ida e volta](docs/gifs/ida-e-volta.gif) |
 
 **Vérification** : les mouvements sur place et la couche musculaire ont été vérifiés par
 itérations croisées en sous-sessions indépendantes — tests numériques (`npm test` : pas de NaN,
@@ -100,7 +106,10 @@ Paramètres d'URL (utilisés par les captures, prioritaires sur localStorage) :
 par défaut les pieds restent plantés au sol sur place, `plant=1`), `&solid=1` (buste opaque pour les
 captures), `&iso=0` (désactive l'isolation basse : buste libre — `iso=1` par défaut, haut du tronc
 stable et vertical au-dessus du bassin), `&cadre=0` (bras le long du corps — `cadre=1` par défaut :
-cadre de bras de danseur), `&demo=<clé>&cam=hip|fixed|wide|diag|front|back` (captures motion design :
+cadre de bras de danseur), `&quarts=1` (quarts de tour : 4 = tour complet ; en paire le suiveur en
+marche arrière), `&dir=-1` (marche arrière le long de la ligne de danse), `&temps3=1` (marka
+« 3 temps » : un pas tous les 3 temps avec Déplacement), `&ida=1` (ida e volta : G avant/arrière
+puis D avant/arrière, 8 temps), `&demo=<clé>&cam=hip|fixed|wide|diag|front|back` (captures motion design :
 `hip` = gros plan bassin, `fixed`/`wide` = repère fixe conservé pour les déplacements, `diag` = vue
 diagonale par défaut en paire pour lire la sortie, `front`/`back` = de face/dos).
 
@@ -116,7 +125,8 @@ verrouillé, vertical)** (au-dessus du bassin le haut du tronc ne bascule plus l
 colonne contre-rotate le pelvis ; métrique « stabilité buste % » dans le HUD ; `iso=0` pour
 l'ancien buste libre), **Cadre de bras de danseur** (coudes pliés, bras vers l'avant,
 avant-bras gauche vers le haut paume à droite, avant-bras droit vers la gauche paume vers le
-buste ; `cadre=0` pour les bras le long du corps), **Appuis & transmission**
+buste ; `cadre=0` pour les bras le long du corps), **Quarts de tour**, **Marka « 3 temps »**,
+**Ida e volta**, **Marche arrière**, **Appuis & transmission**
 (pastilles de charge sous les pieds + chaîne d'appui pied→genou→hanche en surbrillance + HUD
 charge G/D %, flexion genoux °, roll bassin ° ; activée par défaut en mode Observation hanche).
 En mode **Comparaison**, deux panneaux de **jauges G/D** lisent l'appui de chaque style côte à

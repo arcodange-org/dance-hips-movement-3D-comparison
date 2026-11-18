@@ -48,6 +48,17 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   parentés au Pelvis) visibles et mobiles en vue de dos — vérifié numériquement (centroid
   musculaire déplacé entre 2 temps) + GIF `fessiers-muscles.gif`, `isolation-ginga.gif`.
   Spec : `docs/spec-phase7-isolation-basse.md`.
+- Phase 8 **en livraison** (branche `vibe/phase8-mouvements-ae8a7a`, PR #6) — déplacements
+  (priorité : mouvements individuels) : **bug os flottants plant=0 corrigé** (translations GLB
+  Patella_L/Fibula_R/Fibula_L → `scripts/fix_knee_bone_offsets.py` + test Gherkin sur le GLB) ;
+  **quarts de tour séparés** du corridinho (`quarts=1`, `quartsPath` 0→2π/16 temps ; en paire le
+  suiveur en marche arrière via `reverse`+`reversePath`) ; **marche avant/arrière** (`dir=-1`) +
+  **marka « 3 temps »** (`temps3=1`, `swingBeat`) ; **ida e volta** (`ida=1`, L avant/arrière puis
+  R avant/arrière, 8 temps, solo et paire). Gherkin `mouvements-deplacement.feature` → 27 PASS
+  0 FAIL. 18 GIFs. Spec : `docs/spec-phase8-deplacements.md`.
+- Phase 9 planifiée (TASKS 30-33) : bouton « partager la vue » (URL + angle caméra `campos=`/
+  `camtgt=`), cadre de bras de la suiveuse en paire, README dépliable (<details> sous les GIFs) +
+  bascule vue squelette/muscles.
 - Rétrospective / boucle de feedback : `docs/retrospective-phase3-5.md` +
   `docs/retrospective-phase6.md` + méta-tâche M4 récurrente dans `docs/TASKS.md`.
 - Phase 5 **livrée** : PR #3 mergée dans `main` (2026-11-18), CI Pages run 44272969552 =

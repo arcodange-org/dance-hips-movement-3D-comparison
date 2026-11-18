@@ -64,6 +64,33 @@ Mise à jour à chaque commit (checkpoint anti-amnésie, voir `CONTEXT.md`).
 - [x] 24. README (objectif en tête, params iso=/cadre=, galerie 13 GIFs, options) + livraison PR #5 +
   ff-merge main + CI + site live + checkpoint
 
+## Phase 8 — LIVRÉE — spec : `docs/spec-phase8-deplacements.md` — branche `vibe/phase8-mouvements-ae8a7a`, PR #6
+
+- [x] 25. Bug os flottants (plant=0) : cause GLB (Patella_L/Fibula_R/Fibula_L mal placés) →
+  `scripts/fix_knee_bone_offsets.py` + test Gherkin (GLB parse) + vérif visuelle plant=0 travel 0/0.6
+- [x] 26. Quarts de tour séparés du corridinho (`quarts=1`, `quartsPath` 0→2π sur 16 temps) + en paire
+  le suiveur en marche arrière (`reverse` + `reversePath`) ; GIFs `quarts-de-tour.gif` (tour complet
+  vérifié face→dos), `corridinho-paire.gif`
+- [x] 27. Marche avant/arrière (`dir=-1` = arrière, `travelOffset`) + marka « 3 temps » (`temps3=1`,
+  `swingBeat` période 3) ; GIFs `marche-3temps.gif`, `marche-arriere.gif`
+- [x] 28. Ida e volta (`ida=1`, `idaEVoltaStep` : L avant/arrière puis R avant/arrière, 8 temps),
+  seul et à 2 face à face ; GIF `ida-e-volta.gif` (mode pair)
+- [x] 29. Gherkin `mouvements-deplacement.feature` → npm test 27 PASS 0 FAIL 1 SKIP ; 18 GIFs ;
+  README/TASKS/CONTEXT ; livraison PR #6 + ff-merge + CI + site live + checkpoint
+
+## Phase 9 — PLANIFIÉE (demandes 2026-11-18, priorité mouvements individuels d'abord) — branche `vibe/phase9-partage-vue-ae8a7a`
+
+- [ ] 30. Bouton « 🔗 Partager la vue » : URL avec tous les paramètres d'état + **angle caméra**
+  (`campos=`/`camtgt=` depuis OrbitControls) ; copie presse-papiers + replaceState ; fns pures
+  `src/share.ts` (`parseVec3`/`buildShareUrl`) + Gherkin `partage-url.feature`
+- [ ] 31. Cadre de bras de la **suiveuse** en paire (coude G levé hauteur d'épaule, avant-bras sur le
+  dos du guideur ; coude D baissé, main D en contact main G du guideur) — non prioritaire mais
+  cohérence des danses à 2 ; vérif visuelle cam=front en mode pair
+- [ ] 32. README : descriptions **dépliables** (<details>) sous chaque GIF (brief court + source +
+  crosslink docs) ; bascule vue « squelette simple » / « + couche musculaire » (contrôle segmenté)
+  ; retrouver le détail « Appuis & transmission (sol → genoux → hanches) » aussi en vue muscles
+- [ ] 33. Livraison phase 9 : tests/build/captures/vérifs, PR, ff-merge main, CI, site live, checkpoint
+
 ## Méta — boucle de feedback (rétrospective auto-critique + critique de session indépendante)
 
 Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process amélioré).

@@ -90,6 +90,36 @@ export const DEMOS: Record<string, DemoDef> = {
     captions: ["muscles des fessiers qui travaillent (BodyParts3D © DBCLS)", "le bassin roule, le haut du tronc reste vertical · ce sont les genoux qui fléchissent"],
     beat: 60 / 90,
   },
+  "quarts-de-tour": {
+    chip: "Quarts de tour",
+    color: "#f472b6",
+    captions: ["4 quarts de tour sur 16 temps = un tour complet", "mouvement séparé du corridinho · en paire le suiveur le fait en marche arrière"],
+    beat: 60 / 140,
+  },
+  "corridinho-paire": {
+    chip: "Corridinho à 2 (face à face)",
+    color: "#f472b6",
+    captions: ["guideur : cercle au sol autour du repère fixe", "suiveur : le même cercle en marche arrière"],
+    beat: 60 / 140,
+  },
+  "marche-3temps": {
+    chip: "Marche + marka « 3 temps »",
+    color: "#2dd4bf",
+    captions: ["déplacement le long de la ligne de danse (repère fixe)", "un pas tous les 3 temps (marka)"],
+    beat: 60 / 90,
+  },
+  "marche-arriere": {
+    chip: "Marche arrière (dir=-1)",
+    color: "#2dd4bf",
+    captions: ["même marka « 3 temps », sens inversé le long de la ligne", "déplacement lisible par rapport au repère fixe"],
+    beat: 60 / 90,
+  },
+  "ida-e-volta": {
+    chip: "Ida e volta (aller-retour)",
+    color: "#fbbf24",
+    captions: ["G avant/arrière puis D avant/arrière — cycle de 8 temps", "seul ou à 2 face à face"],
+    beat: 60 / 90,
+  },
 };
 
 export default function DemoOverlay({ demo }: { demo: DemoDef }) {

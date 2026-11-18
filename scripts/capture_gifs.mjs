@@ -85,6 +85,31 @@ const CAPTURES = [
     file: "fessiers-muscles",
     query: "bare=1&demo=fessiers&cam=back&mode=solo&style=kizomba&bpm=90&travel=0&muscles=1&solid=1&iso=1&cadre=1",
   },
+  {
+    file: "quarts-de-tour",
+    query: "bare=1&demo=quarts-de-tour&cam=fixed&mode=solo&style=kizomba&bpm=140&travel=0&quarts=1&solid=1&ligne=1&repere=1",
+    dur: 7,
+  },
+  {
+    file: "corridinho-paire",
+    query: "bare=1&demo=corridinho-paire&cam=wide&mode=pair&style=kizomba&styleB=kizomba&bpm=140&corridinho=1&solid=1&ligne=1&repere=1",
+    dur: 6.5,
+  },
+  {
+    file: "marche-3temps",
+    query: "bare=1&demo=marche-3temps&cam=fixed&mode=solo&style=kizomba&bpm=90&travel=0.8&temps3=1&dir=1&solid=1&ligne=1&repere=1",
+    dur: 5,
+  },
+  {
+    file: "marche-arriere",
+    query: "bare=1&demo=marche-arriere&cam=fixed&mode=solo&style=kizomba&bpm=90&travel=0.8&temps3=1&dir=-1&solid=1&ligne=1&repere=1",
+    dur: 5,
+  },
+  {
+    file: "ida-e-volta",
+    query: "bare=1&demo=ida-e-volta&cam=diag&mode=pair&style=kizomba&styleB=kizomba&bpm=90&travel=0&ida=1&solid=1&ligne=1&repere=1",
+    dur: 6,
+  },
 ];
 
 const WARMUP_S = 2.5; // secondes ignorées au début (chargement GLB)
