@@ -129,10 +129,12 @@ Les paragraphes de phases ci-dessous sont historiques.
   `docs/spec-session-16-18.md` (objectifs + audit des points faibles W1–W10 mesurés + modèle
   d'oracle) + harness renforcé (`.vibe/HARNESS.md` §6 pièges)
 - Phase 16 **LIVRÉE** (PR #16 mergée, commit `b5d6d89`, CI push main run 44356011283 = success,
-- Phase 17 **EN COURS** (branche `vibe/phase17-sortie-exclusive-ae8a7a`, post-merge #19 / issue
-  #17 clôturée) : sortie garçon/fille/combinée en **option exclusive** (`MovementKey` +=
-  sortieG/sortieF/sortieGF, `sortieActive(side, m, b)`, `pose.ts` via `sortieEnv`, radios en
-  mode paire, URL `sortie=1` (legacy G) / `sortieF=1` / `sortieGF=1`) — 68 PASS Gherkin + 6 oracle
+- Phase 17 **LIVRÉE** (PR #20 mergée, commit `43293bd`, CI push main run 44369926848 = success,
+  site vérifié 200 + GIF/spec en ligne) : sortie garçon/fille/combinée G→F en **option
+  exclusive** (`MovementKey` += sortieG/sortieF/sortieGF, `sortieActive(side, m, b)`, `pose.ts`
+  via `sortieEnv`, radios paire, URL `sortie=1`(legacy G)/`sortieF=1`/`sortieGF=1`) — validé
+  moteur (fixture GLB) + sonde navigateur (fenêtres G/F/combiné, retour x=0 en 16 temps) ;
+  68 PASS Gherkin + 6 oracle ; GIF sortie combiné regénéré
 - Phase 18 **LIVRÉE** (PR #18 mergée, commit `ce84acd`, CI push main run 44363605287 = success,
   site vérifié 200 + fichiers oracle en ligne) : oracle de poses discrètes par demi-pas en
   fichiers neufs (`src/oracle.ts`, `docs/oracle.feature`, `scripts/test_oracle.mjs` dans
