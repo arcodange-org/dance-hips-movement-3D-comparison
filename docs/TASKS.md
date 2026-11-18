@@ -105,6 +105,22 @@ Mise à jour à chaque commit (checkpoint anti-amnésie, voir `CONTEXT.md`).
   Gherkin → captures → PR → merge → checkpoint + rétrospective M4), `CONVENTIONS.md` (conventions
   verrouillées + params URL + tests)
 
+## Phase 11 — EN COURS — branche `vibe/phase11-virgula-vue-ae8a7a` — vírgula (pied en angle sur les quarts de tour) + URL angle/zoom de vue
+
+Spec : `docs/spec-phase11-virgula-vue.md` ; recherche : `docs/virgula.md` (citations verbatim
+FR/ES/PT/EN/DE).
+
+- [ ] 36. Vírgula : `virgulaFootYawDelta(footWorldYaw, bodyWorldYaw)` pur dans `src/styles.ts` ;
+  appliqué dans `Rig.tsx` quand `quarts||corridinho` (lacet monde du pied = lacet du corps,
+  pivot sur la boule du pied, contact sol constant) ; Gherkin `virgula-cadre.feature` +
+  verrou cadre (`DANCE_FRAME.forearmLeft` avant-bras G vers le haut, paume → droite)
+- [ ] 37. URL angle/zoom : `viewAnglesOf`/`posFromView`/`resolveView` dans `src/cameras.ts`
+  (params `angle=` degrés, `zoom=` m, priorité sous `campos`/`camtgt`), preset `top` ;
+  `buildShareUrl(..., view?)` ajoute `angle`/`zoom` ; `App.tsx` parse + `onShare` ; Gherkin
+  `vue-angle-zoom.feature`
+- [ ] 38. Captures + docs : GIF `virgula-quarts.gif` (`cam=top`, demo `virgula`), README
+  (GIF + `<details>` source + params `angle`/`zoom`), `.vibe/CONVENTIONS.md`, CONTEXT.md
+
 ## Méta — boucle de feedback (rétrospective auto-critique + critique de session indépendante)
 
 Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process amélioré).
