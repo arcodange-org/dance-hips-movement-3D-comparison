@@ -19,7 +19,9 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   BodyParts3D régénérée, persistance localStorage, vertèbres L/D, déploiement Pages, GIFs
   motion design, mouvements sourcés sur place (2 temps, sorties garçon/fille), couche
   musculaire BodyParts3D, tests numériques (`npm test`).
-- Phase 5 en livraison (PR #3, branche `vibe/phase5-repere-fixe-appui-ae8a7a`) : repère fixe
+- Phase 5 **livrée** : PR #3 mergée dans `main` (2026-11-18), CI Pages run 44272969552 =
+  success, site vérifié (assets 200, smoke headless sans erreur). Branche :
+  `vibe/phase5-repere-fixe-appui-ae8a7a`. Contenu : repère fixe
   (OriginMarker + `repere=` + `cam=fixed|wide` + pan off en bare), appuis & transmission
   (`support(b)`, pastilles de charge, chaîne pied→genou→hanche emissive, HUD, `appui=`),
   GIF vedette README = kizomba sur place + muscles (`kizomba-muscles-sur-place.gif`), corrections
