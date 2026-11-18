@@ -32,6 +32,10 @@ du tronc doit rester stable et vertical (`iso=1` par défaut). Voir
    puis **ff-push `<branche>:main`** (les merges gh API sont bloqués dans le sandbox ; la PR passe
    MERGED automatiquement), surveiller `gh run list --branch main` jusqu'à `success`, vérifier le
    site live, puis commit checkpoint (CONTEXT.md/TASKS.md) sur main.
+   **Garantie de non-régression** : la CI (`.github/workflows/deploy.yml`) exécute le job `test`
+   (`npm ci && npm test && npm run build`) à chaque push sur `main` **et chaque PR** ; le déploiement
+   Pages (`build`/`deploy`) n'a lieu que si `test` passe (`needs: test`). Aucun merge ne peut
+   casser les tests sans faire échouer le run.
 5. **Jamais de secret** en clair ; push uniquement via
    `https://x-access-token:${GH_TOKEN}@github.com/arcodange-org/dance-hips-movement-3D-comparison.git`.
 

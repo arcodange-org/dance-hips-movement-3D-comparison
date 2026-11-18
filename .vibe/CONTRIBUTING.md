@@ -36,8 +36,9 @@ standard d'une contribution (phase) :
 1. `npm test` (0 FAIL), `npm run build`, smoke headless (0 erreur console).
 2. Commits petits, push branche, `gh pr ready N`.
 3. ff-push `<branche>:main` (voir HARNESS §3.4) → la PR passe MERGED.
-4. `gh run list --branch main` jusqu'à `success` ; vérifier le site live (200 sur index, GLB, draco,
-   fonts, GIFs).
+4. `gh run list --branch main` jusqu'à `success` — le job `test` (CI, `npm test` + build) a dû
+   passer avant le déploiement Pages (`needs: test`, garantie de non-régression) ; vérifier le
+   site live (200 sur index, GLB, draco, fonts, GIFs).
 5. Commit checkpoint sur main : `CONTEXT.md` + `docs/TASKS.md`.
 6. Rétrospective M4 : addendum `docs/retrospective-*.md` + ré-ajouter M4 dans `docs/TASKS.md`.
 

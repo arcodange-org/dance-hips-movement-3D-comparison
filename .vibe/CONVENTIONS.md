@@ -50,3 +50,7 @@ sur `quarts`/`corridinho`.)
 `npm test` = `node scripts/test_styles.mjs && node scripts/test_features.mjs` (tests numériques des
 courbes + runner Gherkin zero-dep sur `docs/features/*.feature`). Build : `npm run build`
 (`tsc -b && vite build`). Captures : `npm run capture`.
+**Garantie de non-régression** : `npm test` + `npm run build` sont exécutés en CI (job `test` de
+`.github/workflows/deploy.yml`) à chaque push sur `main` et chaque PR ; le déploiement Pages est
+bloqué si un test échoue (`needs: test`). Tout nouveau comportement doit donc arriver avec son
+scénario Gherkin (ou test numérique) dans le même commit.

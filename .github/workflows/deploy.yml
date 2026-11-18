@@ -3,6 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -15,7 +16,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Garantie de non-régression : tests numériques + Gherkin (npm test) + build TypeScript.
+  # Tourne à chaque push sur main ET à chaque pull request ; le déploiement Pages
+  # (build/deploy ci-dessous) n'a lieu que si ce job passe (needs: test).
+  test:
+    name: Tests de non-régression (npm test + build)
+    runs-on: ubuntu-latest
+    env:
+      # les tests sont 100 % node (pas de navigateur) : on évite le téléchargement Chromium
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
   build:
+    needs: test
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,6 +52,7 @@ jobs:
           path: dist
   deploy:
     needs: build
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

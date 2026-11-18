@@ -81,6 +81,10 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   les KneePivot (fibule « en pointe » au genou G, rotule flottante mi-tibia D) ; corrigé par
   `scripts/fix_shin_bone_meshes.py` (mesh+scale+translations) + Gherkin `os-symetrie.feature`
   (43 PASS 0 FAIL). Spec : `docs/spec-phase12-os-genou.md`.
+- Phase 13 **en cours** (branche `vibe/phase13-ci-tests-ae8a7a`) — **garantie de non-régression** :
+  job CI `test` (`npm ci && npm test && npm run build`) sur push main + chaque PR, et déploiement
+  Pages conditionné à `needs: test` (`.github/workflows/deploy.yml`) ; doc harness mise à jour dans
+  le même commit (AGENTS.md, `.vibe/HARNESS.md`, `CONTRIBUTING.md`, `CONVENTIONS.md`).
 - Rétrospective / boucle de feedback : `docs/retrospective-phase3-5.md` +
   `docs/retrospective-phase6.md` + méta-tâche M4 récurrente dans `docs/TASKS.md`.
 - Phase 5 **livrée** : PR #3 mergée dans `main` (2026-11-18), CI Pages run 44272969552 =

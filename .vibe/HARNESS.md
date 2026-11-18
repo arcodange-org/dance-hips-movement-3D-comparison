@@ -50,6 +50,10 @@ gh run list --branch main --limit 3 --repo arcodange-org/dance-hips-movement-3D-
    `gh api`/merge sont bloquées dans le sandbox ; la PR passe MERGED automatiquement).
 5. Surveiller `gh run list --branch main` (workflow « Deploy to GitHub Pages ») jusqu'à `success`,
    puis vérifier le site live (200 sur `/`, GLB, draco, fonts, GIFs via raw.githubusercontent).
+   **Garantie de non-régression en CI** : le job `test` du workflow (`npm ci && npm test &&
+   npm run build`) tourne à chaque push sur `main` et chaque PR, et `build`/`deploy` ont
+   `needs: test` — le site n'est déployé que si tous les tests passent. En cas d'échec, lire
+   `gh run view <id> --log-failed`, corriger, re-pusher.
 6. **Commit checkpoint** sur main : `CONTEXT.md` + `docs/TASKS.md` à jour.
 
 ## 4. Rétrospective (boucle M4)
