@@ -76,11 +76,11 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   `resolveView` dans `src/cameras.ts`, preset `top`, écrits par « Partager la vue ») ; cadre
   avant-bras G vers le haut verrouillé par Gherkin ; GIF `virgula-quarts.gif` (19 GIFs).
   Spec : `docs/spec-phase11-virgula-vue.md`. Tests : 39 PASS 0 FAIL 1 SKIP.
-- Phase 12 **en cours** (branche `vibe/phase12-os-genou-ae8a7a`) — **bug os mal placé au genou** :
+- Phase 12 **LIVRÉE** (PR #10 mergée, commit `639f337`, CI success) — **bug os mal placés au genou** :
   dans `public/anatomy.glb` les maillages tibia/patella/fibula étaient mal assignés aux noms sous
   les KneePivot (fibule « en pointe » au genou G, rotule flottante mi-tibia D) ; corrigé par
-  `scripts/fix_shin_bone_meshes.py` (mesh+scale+translations) + Gherkin `os-symetrie.feature`.
-  Spec : `docs/spec-phase12-os-genou.md`.
+  `scripts/fix_shin_bone_meshes.py` (mesh+scale+translations) + Gherkin `os-symetrie.feature`
+  (43 PASS 0 FAIL). Spec : `docs/spec-phase12-os-genou.md`.
 - Rétrospective / boucle de feedback : `docs/retrospective-phase3-5.md` +
   `docs/retrospective-phase6.md` + méta-tâche M4 récurrente dans `docs/TASKS.md`.
 - Phase 5 **livrée** : PR #3 mergée dans `main` (2026-11-18), CI Pages run 44272969552 =
