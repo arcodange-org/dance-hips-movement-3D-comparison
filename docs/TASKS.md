@@ -156,19 +156,24 @@ Spec : `docs/spec-phase14-options-pivots.md` (demandes 2026-11-18).
 - [x] 43. GIFs `quarts-de-tour`/`virgula-quarts`/`corridinho`/`corridinho-paire` regénérés (pivots
   visibles en cam=top) ; README/CONTEXT/CONVENTIONS — 50 PASS 0 FAIL 1 SKIP
 
-## Phase 15 — EN COURS — branche `vibe/phase15-paire-ae8a7a` — paire biomécanique : contacts hanches/genoux, plus de retard suiveur, posture par style, contraposition
+## Phase 15 — LIVRÉE (PR #14, commit `71c2016`, CI test success) — paire biomécanique
 
 Spec : `docs/spec-phase15-paire.md` ; sources : `docs/posture-contraposition.md` (verbatim EN/FR).
 
-- [ ] 44. Plus de paramètre « retard du suiveur » : supprimer `followDelay`/`delay` (App, Controls,
+- [x] 44. Plus de paramètre « retard du suiveur » : `followDelay`/`delay` supprimés (App, Controls,
   URL, README) ; en pair le suiveur = miroir exact (phaseOffset 0) et danse **styleA** ; `styleB`
-  réservé au mode compare (côte à côte)
-- [ ] 45. Contacts hanches/genoux visibles en paire : espacement z=∓0.125 + marqueurs
-  contactKneeL/R dans Rig + ContactViz (4 points de contact) + Gherkin (distances < 0.09 m)
-- [ ] 46. Posture par style `posture:{lean,knee}` dans STYLES + application Rig (pitch buste
-  après lockUpperTrunk, flexion genoux dans l'IK) + Gherkin `posture-styles.feature`
-- [ ] 47. Contraposition ida (`idaContra(b)` pur, haut vs bas opposés) + vérif visuelle du cadre
-  à l'URL pair du bug + GIF `paire-contacts.gif` + README ; `idaContra` Gherkin
+  réservé au mode compare (côte à côte) ; picker styleB désactivé en pair
+- [x] 45. Contacts hanches/genoux visibles en paire : `PAIR_DZ=0.125` + marqueurs `contactKneeL/R`
+  dans Rig + ContactViz à 4 points (genoux croisés en face à face) + param `contacts=` + Gherkin
+  (écarts < 0.09 m) ; vérifié par comptage de pixels verts sur capture
+- [x] 46. Posture par style `posture:{lean,knee}` dans STYLES (kizomba/tarraxinha fléchis+lean,
+  zouk cambré) ; flexion genoux intégrée DANS la résolution IK (tibia effectif raccourci — sinon
+  le pied reculait, la jambe étant à extension max au repos) ; Gherkin `paire-posture-contra.feature`
+- [x] 47. Contraposition ida (`idaContra(b)` pur, haut vs bas opposés) + vírgula affinée
+  (QTOE = bout du pied D, root suit le pied qui avance — sonde : pied G atteint z=0.199 ≈ cible
+  0.200 ; reverse : le suiveur pivote d'abord le pied D à 90° puis rassemble le pied G) ; cadre
+  vérifié correct à l'URL pair du bug ; GIFs `paire-contacts`, `quarts-paire` + 21 GIFs au total —
+  56 PASS 0 FAIL
 
 ## Méta — boucle de feedback (rétrospective auto-critique + critique de session indépendante)
 

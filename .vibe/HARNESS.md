@@ -53,7 +53,10 @@ gh run list --branch main --limit 3 --repo arcodange-org/dance-hips-movement-3D-
    **Garantie de non-régression en CI** : le job `test` du workflow (`npm ci && npm test &&
    npm run build`) tourne à chaque push sur `main` et chaque PR, et `build`/`deploy` ont
    `needs: test` — le site n'est déployé que si tous les tests passent. En cas d'échec, lire
-   `gh run view <id> --log-failed`, corriger, re-pusher.
+   `gh run view <id> --log-failed`, corriger, re-pusher. Note : la `concurrency` (groupe `pages`,
+   `cancel-in-progress`) peut annuler le run **push** quand un run **PR** tourne en parallèle sur
+   le même SHA, et `gh run rerun` est bloqué par l'intégration → pousser n'importe quel nouveau
+   commit sur `main` (ex. le checkpoint) redéclenche un run push propre qui déploie.
 6. **Commit checkpoint** sur main : `CONTEXT.md` + `docs/TASKS.md` à jour.
 
 ## 4. Rétrospective (boucle M4)

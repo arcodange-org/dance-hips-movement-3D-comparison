@@ -92,13 +92,15 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   vrais pivots de quart de tour** `quartTurnStep(b, reverse)` (talon pied G au bout du pied D à
   90°, pied D ramené parallèle ; haut du corps = lacet pied G, bas = lacet pied D ; sonde runtime
   exacte). 50 PASS 0 FAIL 1 SKIP. Spec : `docs/spec-phase14-options-pivots.md`.
-- Phase 15 **en cours** (branche `vibe/phase15-paire-ae8a7a`) — **paire biomécanique** : plus de
-  paramètre « retard du suiveur » (delay supprimé ; en pair le suiveur = miroir exact de styleA,
-  styleB réservé au mode compare) ; contacts **hanches + genoux** visibles (z=∓0.125 + marqueurs
-  contactKneeL/R + ContactViz 4 points) ; **posture par style** `posture:{lean,knee}` (lean buste,
-  flexion genoux — kizomba/tarraxinha plus fléchis, zouk cambré) ; **contraposition** ida
-  (`idaContra`, haut vs bas opposés comme les quarts phase 14). Spec :
-  `docs/spec-phase15-paire.md` ; sources `docs/posture-contraposition.md`.
+- Phase 15 **LIVRÉE** (PR #14 mergée, commit `71c2016`, CI test success) — **paire biomécanique** :
+  plus de paramètre « retard du suiveur » (delay supprimé ; en pair le suiveur = miroir exact de
+  styleA, styleB réservé au mode compare) ; contacts **poitrine + bassin + genoux** visibles
+  (`PAIR_DZ=0.125`, marqueurs `contactKneeL/R`, ContactViz 4 points, param `contacts=`) ;
+  **posture par style** `posture:{lean,knee}` (flexion genoux intégrée à la résolution IK) ;
+  **contraposition** ida (`idaContra`) + vírgula affinée (pied G au bout du pied D — sonde
+  z=0.199≈0.200 — root suit le pied ; en paire le suiveur pivote d'abord le pied D à 90°).
+  56 PASS 0 FAIL 1 SKIP, 21 GIFs. Spec : `docs/spec-phase15-paire.md` ; sources
+  `docs/posture-contraposition.md`.
 - Rétrospective / boucle de feedback : `docs/retrospective-phase3-5.md` +
   `docs/retrospective-phase6.md` + méta-tâche M4 récurrente dans `docs/TASKS.md`.
 - Phase 5 **livrée** : PR #3 mergée dans `main` (2026-11-18), CI Pages run 44272969552 =
