@@ -7,6 +7,7 @@ import GridFloor from "./components/GridFloor";
 import Controls from "./components/Controls";
 import { InfoCard, PairInfoCard } from "./components/InfoCards";
 import DemoOverlay, { DEMOS } from "./components/DemoOverlay";
+import OriginMarker from "./components/OriginMarker";
 import { usePersistentState } from "./hooks/usePersistentState";
 import { STYLES, type ModeKey } from "./styles";
 
@@ -30,6 +31,7 @@ export default function App() {
   const [showTorso, setShowTorso] = usePersistentState("showTorso", true);
   const [showMuscles, setShowMuscles] = usePersistentState("showMuscles", false);
   const [sortie, setSortie] = usePersistentState("sortie", false);
+  const [showRepere, setShowRepere] = usePersistentState("repere", true);
   const pairRef = useRef<Record<string, any>>({});
 
   // Paramètres d'URL (?style=&styleB=&mode=&bpm=&travel=&amp=&playing=&torso=&muscles=&sortie=&bare=)
@@ -48,6 +50,7 @@ export default function App() {
     if (p.has("torso")) setShowTorso(p.get("torso") !== "0");
     if (p.has("muscles")) setShowMuscles(p.get("muscles") !== "0");
     if (p.has("sortie")) setSortie(p.get("sortie") !== "0");
+    if (p.has("repere")) setShowRepere(p.get("repere") !== "0");
     if (p.has("delay")) { const d = num("delay"); if (d !== null) setFollowDelay(Math.min(2, Math.max(0, d))); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -61,7 +64,11 @@ export default function App() {
   const cam =
     camPreset === "hip"
       ? { position: [0, 0.98, 2.35] as [number, number, number], target: [0, 0.8, 0] as [number, number, number] }
-      : { position: [0, 1.2, 3.4] as [number, number, number], target: [0, 0.88, 0] as [number, number, number] };
+      : camPreset === "fixed"
+        ? { position: [0, 1.25, 4.0] as [number, number, number], target: [0, 0.88, 0] as [number, number, number] }
+        : camPreset === "wide"
+          ? { position: [0, 1.35, 4.6] as [number, number, number], target: [0, 0.88, 0] as [number, number, number] }
+          : { position: [0, 1.2, 3.4] as [number, number, number], target: [0, 0.88, 0] as [number, number, number] };
   const isPair = mode === "pair";
   const isCompare = mode === "compare";
   const isObserve = mode === "observe";
@@ -114,6 +121,7 @@ export default function App() {
           <directionalLight position={[3, 5, 4]} intensity={1.3} />
           <directionalLight position={[-3, 2, -3]} intensity={0.4} color="#93c5fd" />
           <GridFloor />
+          <OriginMarker visible={showRepere} />
           <React.Suspense fallback={null}>
             <Rig
               styleKey={styleA}
@@ -160,6 +168,7 @@ export default function App() {
             dampingFactor={0.08}
             minDistance={1.8}
             maxDistance={7}
+            enablePan={false}
           />
         </Canvas>
         {demo && <DemoOverlay demo={demo} />}
@@ -229,6 +238,8 @@ export default function App() {
         onShowMuscles={setShowMuscles}
         sortie={sortie}
         onSortie={setSortie}
+        showRepere={showRepere}
+        onShowRepere={setShowRepere}
         ghostSel={ghostSel}
         onGhostSel={setGhostSel}
         onExport={exportCycle}
@@ -244,6 +255,7 @@ export default function App() {
           <directionalLight position={[3, 5, 4]} intensity={1.3} />
           <directionalLight position={[-3, 2, -3]} intensity={0.4} color="#93c5fd" />
           <GridFloor />
+          <OriginMarker visible={showRepere} />
           <React.Suspense fallback={null}>
             <Rig
               styleKey={styleA}
