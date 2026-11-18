@@ -40,6 +40,7 @@ reste une préparation pour une prochaine phase.
    pertinents. Ne pas confondre l'orientation locale du thorax et son quaternion monde.
 5. Tests de mutation sur des copies isolées : prédiction NaN, saut de pose, dernier pas
    inverse décalé de 10 cm et perturbation du buste partagée de 0,20 rad doivent être détectés.
+   La revue ajoute un cinquième cas : rotation d'un ancêtre avec angle local du thorax intact.
 6. Tests historiques, poses sortie garçon et empreintes fille/combiné toujours verts ; build
    TypeScript et CI. Aucun besoin de régénérer les captures : le code de rendu est inchangé.
 

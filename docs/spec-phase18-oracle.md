@@ -1,100 +1,79 @@
-# Spec phase 18 — Oracle de poses discrètes par demi-pas (critique de l'évaluation des mouvements)
+# Oracle — poses évaluées, cibles et repères
 
-**Portée après #21 :** l'oracle `sortieG` historique conserve le déport latéral de phase 17,
-confronté à l'option interne `sortie: true, movement: none` dans le test d'intégration.
-La sortie garçon en paire suit désormais les cinq actions validées de
-[sa spécification](spec-sortie-garcon.md), vérifiées sur le GLB par `test_sortie_garcon.mjs`.
-L'oracle des autres figures reste inchangé.
-Le runner M5 inclut explicitement les instants de pose `k+0,6` / `2k+1,2`, absents de sa grille
-initiale de 0,25 temps, et exige une couverture non nulle par cas : 669 assertions après
-correction, contre 429 auparavant. Voir [la rétrospective](retrospective-sortie-garcon.md)
-pour le repère de la partenaire, la dernière cible du pied planté et la portée du contrôle de bassin.
+[Accueil](../README.md) · [Correction #25](spec-oracle-corrections.md) · [Résultats](retrospective-oracle-corrections.md) · [Scénarios](oracle.feature)
 
-Demande 2026-11-19 : « réviser le plan de la session et critiquer l'évaluation des mouvements :
-il y a des points de repère et des principes de base de body dynamic sur l'orientation /
-croisement des jambes, la dualité haut/bas du corps, la dualité danseur/partenaire. On peut
-proposer un oracle et déduire quelle position de départ et quelle position d'arrivée avoir entre
-chaque demi-temps. »
+Ce document remplace le contrat initial des phases 18/M5 après l'audit de novembre 2026.
+Le rendu et ses trajectoires n'ont pas changé. L'oracle sert à tester le modèle, pas à
+certifier une technique de danse ou des forces physiques.
 
-## 1. Critique de l'évaluation actuelle (audit W9, `docs/spec-session-16-18.md`)
+## Poses continues de quarts et ida
 
-L'évaluation actuelle des mouvements est **courbe-continue** : on trace des trajectoires f(temps)
-et on vérifie des bornes (support ∈ [-1,1], extra ∈ [-0.05, 0.35], lacets, etc.). Problèmes :
+`oraclePose(movement, beat, reverse?, rest?)` évalue les pieds dans le **repère extérieur
+fixe du rig** (`outer`), parent de la racine animée. La rotation de `root` n'est pas à
+réappliquer aux pieds ; pour obtenir le monde, appliquer uniquement la transformation externe.
 
-- Une courbe peut être « dans les bornes » tout en étant **discontinue au raccord des cycles**
-  (saut de translation des quarts de tour, saut d'orientation du corridinho) — invisible aux
-  bornes, visible à l'œil.
-- Les poses **réellement appliquées au squelette** (après IK, clamp sol, vírgula) ne sont pas
-  testées : seule la courbe amont l'est.
-- La **dualité danseur/partenaire** (miroir + échange G/D en `reverse`) et la **dualité
-  haut/bas** (contraposition) sont implicites dans le code, jamais énoncées comme propriétés.
+- `footL` / `footR` : positions x/z et lacets évalués à cet instant.
+- `targets.L` / `targets.R` : cibles du pas courant. Elles peuvent changer à une frontière
+  sans que les pieds évalués sautent à ces cibles.
+- `rootLocalYaw` : consigne de lacet local de la racine.
+- `chestLocalYaw` : consigne locale du thorax après isolation ; ce n'est pas un lacet mondial.
+- `nominalRootX/Z` : chemin nominal, avant translation de style et projection IK.
 
-## 2. Oracle proposé
+Les quarts utilisent huit atterrissages explicites autour d'un carré (pivots à 90°, fermeture
+parallèle), une durée de deux temps par pas et une pose au sol à 1,2 temps. Ida utilise les
+quatre actions G avant/G arrière/D avant/D arrière, relativement au repos fourni, puis
+retour à son état cyclique. L'easing et les amplitudes sont des paramètres de ce modèle.
+La référence n'importe plus les fonctions de mouvement de `styles.ts`.
 
-`src/oracle.ts` (fichier neuf — ne touche pas au moteur) définit la **pose discrète** par
-demi-pas (2 temps) :
+`reverse=true` n'est supporté que pour les quarts, conformément au moteur : échange G/D,
+x conservé après échange, z et lacets opposés. Pour ida, la combinaison est refusée. Le rôle
+leader/partenaire ne doit pas être confondu avec reverse ni avec la rotation extérieure de π.
+Les beats non finis et les indices de pas invalides sont rejetés.
 
-```ts
-interface FootPose { x: number; z: number; yaw: number }
-interface Pose { footL: FootPose; footR: FootPose; upperYaw: number; lowerYaw: number }
-oracleHalfStep(movement: "quarts" | "ida", k: number, reverse?: boolean): { start: Pose; end: Pose }
-```
+`oracleHalfStep(movement,k,reverse?,rest?)` expose deux poses évaluées séparées de deux temps.
+L'égalité entre `end(k)` et `start(k+1)` est une propriété de l'API, **pas une preuve de
+continuité**. Les tests évaluent les limites t−ε/t/t+ε, puis les matrices finales du GLB aux
+changements de pas, atterrissages et raccords, pour tous les demi-pas y compris le dernier.
+Les orientations sont comparées modulo 2π ou par quaternions (q et −q équivalents).
 
-- `quarts` : poses déduites de `quartTurnStep(2k)` / `quartTurnStep(2k+2)` (pieds en cibles monde
-  du demi-pas, lacets, upperYaw/lowerYaw).
-- `ida` : poses déduites de `idaEVoltaStep(2k)` (pied actif, direction ±0.09 m en z, pied
-  d'appui fixe) + `idaContra(2k)` (upperYaw/lowerYaw en cloche).
+## Sorties latérales historiques
 
-## 3. Propriétés exigées (principes de body dynamic, testés en Gherkin `docs/oracle.feature`)
+`legacySortiePose(movement,beat,side?,rest?)` est une API distincte pour `sortieG`, `sortieF`
+et `sortieGF` **historiques**, à amplitude 1. Le rôle sélectionne la fenêtre active ; il ne
+produit pas un miroir implicite. Aucun paramètre reverse n'y est proposé.
+La nouvelle sortie garçon à cinq actions relève de `sortieGarcon.ts` et de son propre runner.
 
-1. **Continuité** : `end(k) == start(k+1)` (tolérance 1e-9) pour tout k, y compris au raccord
-   de cycle (k = 7 → 0 sur 16 temps pour quarts, 3 → 0 sur 8 pour ida) — détecte les sauts.
-2. **Accord avec le moteur** : les poses de l'oracle = `quartTurnStep`/`idaContra` aux
-   frontières de demi-pas (l'oracle ne réinvente pas, il énonce).
-3. **Dualité danseur/partenaire** : `reverse` = miroir (z → −z, yaw → −yaw) + échange des
-   rôles G/D (`stepSide` L↔R, pied pivotant D'abord).
-4. **Dualité haut/bas (contraposition)** : pendant un pas, `upperYaw` et `lowerYaw` évoluent
-   en opposition (signe opposé), et retombent à la frontière entre demi-pas.
-5. **Orientation/croisement des jambes** : au quart de tour, le pied qui pivote a
-   `yaw = th0 + π/2` (angle droit avec l'autre pied) à la fin de son demi-pas.
+Les pieds plantés conservent la cible de leur dernier atterrissage pendant la fenêtre active.
+Le reset historique au repos à b=5 (b=13 côté partenaire du combiné) reste discontinu :
+2,288 cm pour G, 17,248 cm pour D, mesurés dans le cas nominal. L'oracle caractérise ce
+comportement ; il ne le présente pas comme une continuité validée. Sa correction attend la
+validation des figures remplaçantes, dont la [sortie fille décrite](notes-sortie-fille.md).
 
-## 4. Limites (à documenter)
+## Contrôles et indépendance
 
-- L'oracle couvre les **poses de frontière** (début/fin de demi-pas), pas la courbe interne :
-  c'est volontaire (évaluation discrète, lisible), la courbe reste du rendu.
-- Il ne teste pas encore la pose **post-IK** (issue #17 en cours sur le moteur) ; ici on teste
-  la consigne de pose amont. Le recoupement viendra quand #17 livrera les tests de poses finales.
+- `test_oracle.mjs` : six scénarios Gherkin, repères géométriques explicites, limites,
+  bornes inclusives et rejets des entrées/combinaisons invalides.
+- `test_oracle_final.mjs` : référence confrontée au GLB avec deux repères extérieurs et les
+  deux sens des quarts ; pieds, consignes locales, quaternions mondiaux, sol et matrices.
+  La référence d'orientation mondiale du thorax est explicitement **Kizomba, amplitude 1,
+  isolation active**, composée depuis des angles de référence, pas des ancêtres animés mesurés.
+  Elle ne généralise pas cette validation aux autres styles.
+- `test_oracle_mutations.mjs` : le code nominal passe ; cinq erreurs injectées en mémoire
+  doivent échouer pour leur raison attendue. Une erreur de compilation ou un timeout ne compte
+  pas comme détection. Les fichiers de production ne sont jamais modifiés par ces mutations.
+  La cinquième modifie un ancêtre du thorax pour éprouver spécifiquement l'orientation mondiale.
+- `oracle_assertions.mjs` : nombres finis requis pour valeurs, attentes, erreurs, tolérances,
+  minimum de sol et quaternions. Le compteur ne peut plus masquer NaN.
 
-## 5. Périmètre fichiers (coordination issue #17)
+La borne historique de 8 cm sur le bassin nominal reste une approximation distincte des
+contrôles exacts de chevilles (10⁻⁶ m). Elle inclut l'oscillation de style et la projection
+horizontale de portée. Les tables constituent une référence géométrique du modèle ; leur
+indépendance logicielle ne remplace pas la validation chorégraphique humaine.
 
-Fichiers neufs uniquement : `src/oracle.ts`, `scripts/test_oracle.mjs`, `docs/oracle.feature`
-(hors `docs/features/`), + une ligne dans le script `test` de `package.json`, + docs
-(TASKS 50, CONTEXT, rétrospective M4). Aucun édition de `Rig.tsx`/`styles.ts`/`ik.ts`/`App.tsx`.
+## Historique
 
-## 6. Validation
-
-- `npm test` inclut `scripts/test_oracle.mjs` (64 PASS Gherkin existants + scénarios oracle).
-- `npm run build` OK. CI job `test` sur la PR.
-- Rétrospective M4 : addendum `docs/retrospective-M4-oracle.md` (évaluation mouvements :
-  courbes → poses discrètes par demi-temps).
-
-## 7. Phase M5 — recoupement oracle ↔ poses finales du moteur #19 (livré)
-
-`scripts/test_oracle_final.mjs` (branché dans `npm test`) applique `applyPose` sur le GLB réel
-(fixture) et compare aux prédictions de `src/oracle.ts` :
-
-- **quarts** (solo, cycle 16) : chevilles x/z et lacets à chaque pas posé (b=2k+1,2, e=1) ;
-  `root.rotation.y = lowerYaw` et `chest.rotation.y = upperYaw − lowerYaw` à chaque quart de
-  temps. Erreurs max mesurées : pieds 7e-17 m, lacets 0.
-- **ida e volta** (solo, cycle 8) : pieds aux frontières b=2k, **relatifs au repos GLB** (le
-  moteur pose relativement au repos réel du GLB, ±0,0708, pas aux constantes plan ±0,084) ;
-  convention « dernier pas du côté » (recherche arrière) reprise dans l'oracle.
-- **sorties** (solo sortieG + paire sortieGF) : déplacement latéral des pieds EXACT vs oracle
-  (rel repos) ; `rootX` avec tolérance 0,08 m (la projection de portée reach-discs décale le
-  root, err max mesurée 0,070) ; contre-rotation buste prédite (`upperYaw = −0.22·se`) ;
-  fenêtres du combiné (leader p<8, follower p≥8) et miroir du suiveur vérifiés.
-- **sol** : minY sommets = −5e-16 ≥ −1e-9 (coherent avec la garantie #19).
-
-Résultat : **429 assertions PASS**. Leçons : convention début/fin de pas à préciser (e=0 vs
-e=1), lacet lu en Euler YXZ/local (pas atan2 du forward, pollué par le pitch), repos GLB ≠
-repos plan (comparer relatif au repos pour ida/sorties).
+La phase 18 comparait les cibles des fonctions du moteur à ces mêmes fonctions ; sa continuité
+était une identité au même instant. M5 ajoutait 429 assertions mais sa grille de 0,25 temps
+sautait les poses à k+0,6 / 2k+1,2. La PR #24 a rétabli ces poses (669 assertions) et leurs
+repères. L'issue #25 corrige la finitude, la continuité évaluée, reverse et le contrat des angles.
+Les résultats actualisés sont dans la [rétrospective](retrospective-oracle-corrections.md).

@@ -73,8 +73,13 @@ sur `quarts`/`corridinho`.)
 
 ## Tests
 
-`npm test` = `test_styles.mjs` + `test_features.mjs` + `test_oracle.mjs` + `test_poses.mjs` + `test_sortie_garcon.mjs` dans `scripts/`.
-Le dernier charge le GLB réel, applique `src/pose.ts` et contrôle les matrices monde finales,
+`npm test` = `test_styles.mjs` + `test_features.mjs` + `test_oracle.mjs` + `test_poses.mjs` +
+`test_oracle_final.mjs` + `test_oracle_mutations.mjs` + `test_sortie_garcon.mjs` dans `scripts/`.
+L'oracle distingue pose évaluée/cible, repère outer/monde et rotations locales nominales.
+Les limites t−ε/t/t+ε et les quaternions monde remplacent les égalités tautologiques ; les
+mutations négatives doivent échouer pour leur diagnostic attendu. Les anciennes sorties
+restent caractérisées séparément, sans promesse de continuité. [Contrat](../docs/spec-phase18-oracle.md).
+Les runners de poses chargent le GLB réel, appliquent `src/pose.ts` et contrôlent les matrices monde finales,
 les longueurs, semelles, angles HUD, appuis, continuité et indépendance à l’historique.
 Le transport est partagé : aucun rig ne remet le temps à zéro en changeant de style.
 Les pourcentages d’appui sont illustratifs et nuls sur un pied levé ; ils ne mesurent pas de

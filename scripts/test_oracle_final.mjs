@@ -1,141 +1,118 @@
 #!/usr/bin/env node
-// Phase M5 — recoupement oracle ↔ poses FINALES du moteur #19 : applique applyPose sur le GLB
-// réel (fixture) et compare aux prédictions de src/oracle.ts (chevilles x/z/lacets, lacets
-// root/buste = dissociation haut/bas, déplacement latéral rootX des sorties, sol y>=0).
-// Fichier neuf (coordination issues #21/#22) ; ne modifie aucun moteur (lecture seule).
-// Usage : npm test (4e étape) ou node scripts/test_oracle_final.mjs
-import { createRequire } from "node:module";
-import { unlinkSync } from "node:fs";
-const require = createRequire(import.meta.url);
-const { buildSync } = require("esbuild");
-const THREE = require("three");
-const { fixture, minimumBoneY } = await import("./pose_fixture.mjs");
+import assert from 'node:assert/strict';
+import * as THREE from 'three';
+import { loadOracleApi } from './oracle_test_api.mjs';
+import { fixture, minimumBoneY, snapshot } from './pose_fixture.mjs';
+import { near, angleNear, finiteTree, floorAtLeast, quaternionNear } from './oracle_assertions.mjs';
+const api = await loadOracleApi();
+let poses=0, footChecks=0, worldChecks=0, continuityChecks=0;
+let maxFootError=0, minY=Infinity, maxNominalRootError=0;
+const worldPosition = node => node.getWorldPosition(new THREE.Vector3());
+const worldQuaternion = node => node.getWorldQuaternion(new THREE.Quaternion());
+const eulerQ = (x,y,z) => new THREE.Quaternion().setFromEuler(new THREE.Euler(x,y,z,'XYZ'));
+const Y = new THREE.Vector3(0,1,0);
+const rest = f => Object.fromEntries(['L','R'].map(side=>[side,{x:f.model.legs[side].rest.x,z:f.model.legs[side].rest.z,yaw:0}]));
 
-const root = new URL("../", import.meta.url).pathname;
-const bundle = new URL("./.test-oracle-final-bundle.mjs", import.meta.url);
-buildSync({
-  stdin: {
-    contents: 'export * from "./src/pose"; export * from "./src/oracle"; export * from "./src/anatomy"; export * from "./src/styles"; export * from "./src/clock"; export * from "./src/rigJoints";',
-    resolveDir: root,
-    loader: "ts",
-  },
-  bundle: true, packages: "external", platform: "node", format: "esm", outfile: bundle.pathname,
-  define: { "import.meta.env.BASE_URL": '"/"' }, logLevel: "silent",
-});
-const api = await import(bundle.href);
-unlinkSync(bundle.pathname);
-const { applyPose, createPoseModel, oraclePose, PAIR_DZ } = api;
-
-const wrapPi = (d) => Math.atan2(Math.sin(d), Math.cos(d));
-const eul = new THREE.Euler();
-const worldYaw = (o) => {
-  eul.setFromQuaternion(o.getWorldQuaternion(new THREE.Quaternion()), "YXZ");
-  return eul.y; // lacet pur, insensible au pitch/roll
-};
-const worldPos = (o) => o.getWorldPosition(new THREE.Vector3());
-
-// The old sortie oracle gives the current lateral target, not the previous
-// landing of the planted foot. A planted foot keeps its last landing target.
-function sortieLanding(movement, beat, role, side) {
-  const current = oraclePose(movement, beat, false, role);
-  if (current.rootX === 0) return current["foot" + side];
-  const step = Math.floor(beat), moving = step % 2 === 0 ? "L" : "R";
-  const landing = step - (moving === side ? 0 : 1) + .6;
-  return oraclePose(movement, landing, false, role)["foot" + side];
+// Independent Kizomba/amp=1/iso=1 orientation reference for this integration contract.
+// These documented style amplitudes are not read from STYLES.apply or animated ancestors.
+// World = outer * root * pelvis * spine * chest. The nominal yaw sum is NOT a world Euler yaw.
+function expectedChestWorld(outer, beat, expected) {
+  const sway=Math.sin(Math.PI*beat), pitch=.02*Math.sin(2*Math.PI*beat), roll=.05*sway;
+  return outer.clone().multiply(eulerQ(0,expected.rootLocalYaw,0))
+    .multiply(eulerQ(pitch,.03*sway,roll)).multiply(eulerQ(-pitch,0,-roll))
+    .multiply(eulerQ(.1,expected.chestLocalYaw,0));
 }
-
-let checks = 0;
-const errors = { foot: 0, footYaw: 0, lowerYaw: 0, upperYaw: 0, rootX: 0 };
-let minY = Infinity;
-function near(a, b, tol, label, errKey) {
-  const e = Math.abs(a - b);
-  if (e > errors[errKey]) errors[errKey] = e;
-  if (e > tol) throw new Error(`${label}: ${a} vs ${b} (err ${e} > ${tol})`);
-  checks++;
-}
-
-function checkSolo(movement, cycle, extraOpts, footBeats, relative = false, landings = []) {
-  const f = fixture(api, {}); // solo : offset 0, rotation 0
-  // repos plan (oracle, constantes QH/QF) vs repos GLB réel (fixture) : pour les mouvements
-  // posés relativement au repos (ida, sorties), on compare les déplacements relatifs.
-  const pr = oraclePose("quarts", 0, false, "leader").footR; // repos plan {x:-QH, z:QF}
-  const planRest = { L: { x: -pr.x, z: pr.z }, R: { x: pr.x, z: pr.z } };
-  let footChecks = 0;
-  const beats = [...new Set([...Array.from({ length: cycle * 4 + 1 }, (_, i) => i / 4), ...landings])].sort((a, b) => a - b);
-  for (const b of beats) {
-    applyPose(f.r, f.model, b, { styleKey: "kizomba", amp: 1, embrace: true, movement, ...extraOpts });
-    minY = Math.min(minY, minimumBoneY(f.r));
-    const o = oraclePose(movement, b, false, "leader");
-    // Lacets appliqués aux joints (ce que l'oracle prédit) : root.rotation.y = lowerYaw,
-    // chest.rotation.y = dissociation (upperYaw - lowerYaw) après lockUpperTrunk.
-    near(wrapPi(f.r.root.rotation.y - o.lowerYaw), 0, 1e-9, `${movement} b=${b} lowerYaw`, "lowerYaw");
-    near(wrapPi(f.r.chest.rotation.y - (o.upperYaw - o.lowerYaw)), 0, 1e-9, `${movement} b=${b} upperYaw`, "upperYaw");
-    for (const s of ["L", "R"]) {
-      if (!footBeats(b)) continue; // pieds/lacets comparés quand le pas est posé (e=1)
-      footChecks++;
-      const foot = f.r["foot" + s];
-      const p = worldPos(foot);
-      const expected = movement.startsWith("sortie") ? sortieLanding(movement, b, "leader", s) : o["foot" + s];
-      near(wrapPi(worldYaw(foot) - expected.yaw), 0, 1e-6, `${movement} b=${b} foot${s} yaw`, "footYaw");
-      if (relative) {
-        near(p.x - f.model.legs[s].rest.x, expected.x - planRest[s].x, 1e-6, `${movement} b=${b} foot${s}.x (rel repos)`, "foot");
-        near(p.z - f.model.legs[s].rest.z, expected.z - planRest[s].z, 1e-6, `${movement} b=${b} foot${s}.z (rel repos)`, "foot");
-      } else {
-        near(p.x, o["foot" + s].x, 1e-6, `${movement} b=${b} foot${s}.x`, "foot");
-        near(p.z, o["foot" + s].z, 1e-6, `${movement} b=${b} foot${s}.z`, "foot");
-      }
-    }
-    // rootX is a nominal plan, before the final reach-disc projection. Use the same
-    // documented approximation bound as the pair check; ankle targets stay exact.
-    if (footBeats(b)) near(worldPos(f.r.root).x, o.rootX, 0.08, `${movement} b=${b} rootX`, "rootX");
+function check(f, beat, expected, config, label) {
+  finiteTree(expected, label+' expected');
+  api.applyPose(f.r,f.model,beat,{styleKey:'kizomba',amp:1,embrace:true,iso:true,...config});
+  snapshot(f.r).forEach(value=>near(value,value,0,label+' finite matrix'));
+  const floor=minimumBoneY(f.r); floorAtLeast(floor); minY=Math.min(minY,floor);
+  const outer=worldQuaternion(f.outer);
+  for(const side of ['L','R']) {
+    const actual=f.outer.worldToLocal(worldPosition(f.r['foot'+side])), target=expected['foot'+side];
+    for(const axis of ['x','z']) maxFootError=Math.max(maxFootError,near(actual[axis],target[axis],1e-6,`${label} foot${side}.${axis}`));
+    const orientation=outer.clone().multiply(new THREE.Quaternion().setFromAxisAngle(Y,target.yaw));
+    quaternionNear(worldQuaternion(f.r['foot'+side]).toArray(),orientation.toArray(),1e-7,`${label} foot${side} world`);
+    footChecks++;
   }
-  if (!footChecks) throw new Error(`${movement}: no landed foot was checked`);
+  angleNear(f.r.root.rotation.y,expected.rootLocalYaw,1e-9,label+' root local');
+  angleNear(f.r.chest.rotation.y,expected.chestLocalYaw,1e-9,label+' chest local');
+  quaternionNear(worldQuaternion(f.r.root).toArray(),outer.clone().multiply(eulerQ(0,expected.rootLocalYaw,0)).toArray(),1e-7,label+' root world');
+  quaternionNear(worldQuaternion(f.r.chest).toArray(),expectedChestWorld(outer,beat,expected).toArray(),1e-7,label+' chest world');
+  worldChecks+=4;
+  // This is a nominal path with no style sway or reach projection. Keep its historical
+  // 8 cm approximation bound separate from the exact ankle/orientation comparisons.
+  maxNominalRootError=Math.max(maxNominalRootError,near(f.r.root.position.x,expected.nominalRootX,.08,label+' nominal root'));
+  poses++;
 }
+function checkContinuity(f, times, config, label) {
+  for(const t of times) {
+    const frames=[t-1e-7,t,t+1e-7].map(b=>{
+      api.applyPose(f.r,f.model,b,{styleKey:'kizomba',amp:1,embrace:true,...config});
+      return snapshot(f.r);
+    });
+    for(const [a,b] of [[frames[0],frames[1]],[frames[1],frames[2]]])
+      a.forEach((value,i)=>near(value,b[i],1e-4,`${label} GLB continuity t=${t} matrix[${i}]`));
+    continuityChecks++;
+  }
+}
+const coverage=[];
+for(const movement of ['quarts','ida']) for(const reverse of movement==='quarts'?[false,true]:[false]) for(const follower of [false,true]) {
+  const cycle=movement==='quarts'?16:8;
+  const f=fixture(api,{rotation:(follower?Math.PI:0)+.37,offset:[.13,0,follower?.175:-.175]});
+  const config={movement,quarts:movement==='quarts',ida:movement==='ida',reverse,follower};
+  const landings=Array.from({length:cycle/2},(_,k)=>2*k+1.2);
+  const boundaries=Array.from({length:cycle/2+1},(_,k)=>2*k);
+  const times=[...new Set([...Array.from({length:cycle*4+1},(_,i)=>i/4),...landings,...boundaries.flatMap(t=>[t-1e-7,t+1e-7])])].sort((a,b)=>a-b);
+  const seen=new Set();
+  for(const b of times) {
+    const label=`${movement} reverse=${reverse} follower=${follower} b=${b}`;
+    check(f,b,api.oraclePose(movement,b,reverse,rest(f)),config,label);
+    if(landings.includes(b)) seen.add(Math.floor(b/2));
+  }
+  assert.deepEqual([...seen],Array.from({length:cycle/2},(_,i)=>i),'all landed half-steps, including the last');
+  checkContinuity(f,[...boundaries,...landings],config,`${movement} reverse=${reverse}`);
+  coverage.push({movement,reverse,follower,poses:times.length,landedSteps:seen.size});
+}
+assert.equal(coverage.length,6,'both roles, both quarts directions, ida forward');
+assert.equal(coverage.filter(c=>c.reverse).length,2,'reverse evaluated on the GLB for both roles');
 
-// Pieds comparés quand le pas est posé (e=1) : quarts/ida -> b = 2k+1.2 ; sortie -> b = k+0.6.
-checkSolo("quarts", 16, { quarts: true }, (b) => Math.abs((b % 2) - 1.2) < 1e-9, false,
-  Array.from({ length: 8 }, (_, i) => 2 * i + 1.2));
-checkSolo("ida", 8, { ida: true }, (b) => Number.isInteger(b) && b % 2 === 0, true); // frontières b=2k ; pieds relatifs au repos GLB
-// The historical oracle models the former lateral envelope, still exposed by the
-// legacy internal `sortie` option. The validated couple figure (#21) has its own
-// actual-GLB checks in test_sortie_garcon.mjs; it no longer uses this old oracle.
-checkSolo("sortieG", 8, { movement: "none", sortie: true }, (b) => Math.abs(b - Math.floor(b) - 0.6) < 1e-9, true,
-  Array.from({ length: 8 }, (_, i) => i + .6));
-
-// Paire + combiné G→F : root monde du leader vs oracle leader, du suiveur (miroir rotY=π) vs -oracle follower.
+// All old M5 paths remain exercised. The G case targets only the legacy internal option.
+// Historical reset at b=5/13 is characterised, not silently turned into a continuity claim.
+for(const movement of ['sortieG','sortieF','sortieGF']) for(const follower of [false,true]) {
+  const cycle=movement==='sortieGF'?16:8, role=follower?'follower':'leader';
+  const f=fixture(api,{rotation:follower?Math.PI:0,offset:[0,0,follower?.175:-.175]});
+  // Do not confuse the old internal sortie=true (active for both) with G's role window.
+  // Its inactive follower uses the baseline pose; the current sortieG is a different figure.
+  const config=movement==='sortieG'
+    ? follower?{movement:'none',sortie:false,follower:true}:{movement:'none',sortie:true}
+    : {movement,follower};
+  const times=[...new Set([...Array.from({length:cycle*4+1},(_,i)=>i/4),...Array.from({length:cycle},(_,i)=>i+.6)])].sort((a,b)=>a-b);
+  for(const b of times) check(f,b,api.legacySortiePose(movement,b,role,rest(f)),config,`legacy ${movement} ${role} b=${b}`);
+  const reset=movement==='sortieGF'?(follower?13:5):5;
+  const active=movement==='sortieGF'||(movement==='sortieG'?!follower:follower);
+  if(active) {
+    const before=api.legacySortiePose(movement,reset-1e-7,role,rest(f));
+    const after=api.legacySortiePose(movement,reset,role,rest(f));
+    // Characterisation only, preserving this known pre-existing discontinuity until the
+    // owner validates the replacement figures. Never included in continuity coverage.
+    near(before.footR.x-after.footR.x,.17248,1e-6,'historical right foot reset');
+    const actual=[reset-1e-7,reset].map(b=>{
+      check(f,b,api.legacySortiePose(movement,b,role,rest(f)),config,`legacy reset ${movement} ${role} b=${b}`);
+      return Object.fromEntries(['L','R'].map(s=>[s,f.outer.worldToLocal(worldPosition(f.r['foot'+s])).x]));
+    });
+    near(actual[0].L-actual[1].L,.02288,1e-6,'historical GLB left foot reset');
+    near(actual[0].R-actual[1].R,.17248,1e-6,'historical GLB right foot reset');
+  }
+}
+// The actual world yaw differs from the nominal root+chest sum: guard the old mislabelling.
 {
-  const lead = fixture(api, { offset: [0, 0, -PAIR_DZ] });
-  const fol = fixture(api, { rotation: Math.PI, offset: [0, 0, PAIR_DZ] });
-  let footChecks = 0;
-  const beats = [...Array.from({ length: 65 }, (_, i) => i / 4), ...Array.from({ length: 16 }, (_, i) => i + .6)].sort((a, b) => a - b);
-  for (const b of beats) {
-    applyPose(lead.r, lead.model, b, { styleKey: "kizomba", amp: 1, embrace: true, movement: "sortieGF" });
-    applyPose(fol.r, fol.model, b, { styleKey: "kizomba", amp: 1, embrace: true, movement: "sortieGF", follower: true });
-    minY = Math.min(minY, minimumBoneY(lead.r), minimumBoneY(fol.r));
-    const oL = oraclePose("sortieGF", b, false, "leader");
-    const oF = oraclePose("sortieGF", b, false, "follower");
-    // root.x : la projection de portée (reach discs) peut décaler le root -> tolérance 0.08 m
-    near(worldPos(lead.r.root).x, oL.rootX, 0.08, `sortieGF paire b=${b} leader rootX`, "rootX");
-    near(worldPos(fol.r.root).x, -oF.rootX, 0.08, `sortieGF paire b=${b} follower rootX (miroir)`, "rootX");
-    // pieds posés (e=1, b=k+0.6) : déplacement latéral EXACT vs oracle (rel repos GLB)
-    if (Math.abs(b - Math.floor(b) - 0.6) < 1e-9) {
-      const pr = oraclePose("quarts", 0, false, "leader").footR;
-      for (const [f, role, side] of [[lead, "leader", "L"], [lead, "leader", "R"], [fol, "follower", "L"], [fol, "follower", "R"]]) {
-        // Compare in each dancer's own frame, including the follower rotated by π.
-        const p = f.outer.worldToLocal(worldPos(f.r["foot" + side]));
-        const rest = f.model.legs[side].rest;
-        const expected = sortieLanding("sortieGF", b, role, side);
-        near(p.x - rest.x, expected.x - (side === "L" ? -pr.x : pr.x), 1e-6, `sortieGF paire b=${b} foot${side} x`, "foot");
-        footChecks++;
-      }
-    }
-    // fenêtres : leader actif p<8, follower p>=8
-    const p = ((b % 16) + 16) % 16;
-    if (p >= 8.0 && p < 8.2) near(Math.abs(oL.rootX), 0, 1e-12, "leader nul en p 8", "rootX");
-  }
-  if (!footChecks) throw new Error("sortieGF: no landed foot was checked");
+  const f=fixture(api), expected=api.oraclePose('ida',.5,false,rest(f));
+  api.applyPose(f.r,f.model,.5,{movement:'ida',ida:true,embrace:true});
+  const measured=new THREE.Euler().setFromQuaternion(worldQuaternion(f.r.chest),'YXZ').y;
+  near(expected.rootLocalYaw+expected.chestLocalYaw,-.07071067811865475);
+  near(measured,-.0413428059705013);
+  assert(Math.abs(measured-(expected.rootLocalYaw+expected.chestLocalYaw))>.02,'nominal is not world yaw');
 }
-
-if (minY < -1e-9) throw new Error(`sol violé: minY=${minY}`);
-checks++;
-console.log(`PASS oracle↔poses finales GLB: ${checks} assertions, erreurs max foot=${errors.foot.toExponential(2)} footYaw=${errors.footYaw.toExponential(2)} lowerYaw=${errors.lowerYaw.toExponential(2)} upperYaw=${errors.upperYaw.toExponential(2)} rootX=${errors.rootX.toFixed(4)} minY=${minY.toExponential(2)}`);
+floorAtLeast(minY);
+console.log('PASS oracle GLB:',JSON.stringify({poses,footChecks,worldChecks,continuityChecks,maxFootError,minY,maxNominalRootError,coverage}));
