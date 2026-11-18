@@ -1,5 +1,5 @@
 import { HIP_WIDTH } from "../anatomy";
-import { MODES, STYLES, type ModeKey } from "../styles";
+import { MODES, STYLES, type ModeKey, type MovementKey } from "../styles";
 
 interface ControlsProps {
   mode: ModeKey;
@@ -32,20 +32,14 @@ interface ControlsProps {
   onShowAppui: (v: boolean) => void;
   plant: boolean;
   onPlant: (v: boolean) => void;
-  corridinho: boolean;
-  onCorridinho: (v: boolean) => void;
+  movement: MovementKey;
+  onMovement: (m: MovementKey) => void;
   showLigne: boolean;
   onShowLigne: (v: boolean) => void;
   iso: boolean;
   onIso: (v: boolean) => void;
   cadre: boolean;
   onCadre: (v: boolean) => void;
-  quarts: boolean;
-  onQuarts: (v: boolean) => void;
-  temps3: boolean;
-  onTemps3: (v: boolean) => void;
-  ida: boolean;
-  onIda: (v: boolean) => void;
   dir: number;
   onDir: (v: number) => void;
   showBoussole: boolean;
@@ -125,20 +119,14 @@ export default function Controls(props: ControlsProps) {
     onShowAppui,
     plant,
     onPlant,
-    corridinho,
-    onCorridinho,
+    movement,
+    onMovement,
     showLigne,
     onShowLigne,
     iso,
     onIso,
     cadre,
     onCadre,
-    quarts,
-    onQuarts,
-    temps3,
-    onTemps3,
-    ida,
-    onIda,
     dir,
     onDir,
     showBoussole,
@@ -273,42 +261,29 @@ export default function Controls(props: ControlsProps) {
           />
           Cadre de bras de danseur
         </label>
-        <label className="flex items-center gap-2 text-xs text-slate-400" title="Corridinho : 1/4 de tour à droite puis à gauche, puis cercle au sol autour du repère fixe (16 temps)">
-          <input
-            type="checkbox"
-            checked={corridinho}
-            onChange={(e) => onCorridinho(e.target.checked)}
-            className="accent-fuchsia-400"
-          />
-          Corridinho (après 1/4 tour D puis G)
-        </label>
-        <label className="flex items-center gap-2 text-xs text-slate-400" title="Quarts de tour (mouvement séparé du corridinho) : 4 quarts de tour sur 16 temps = un tour complet ; en paire, le suiveur le fait en marche arrière (quarts=1)">
-          <input
-            type="checkbox"
-            checked={quarts}
-            onChange={(e) => onQuarts(e.target.checked)}
-            className="accent-fuchsia-400"
-          />
-          Quarts de tour (4 = tour complet)
-        </label>
-        <label className="flex items-center gap-2 text-xs text-slate-400" title="Marka « 3 temps » : un pas tous les 3 temps au lieu de chaque temps pendant le Déplacement (temps3=1)">
-          <input
-            type="checkbox"
-            checked={temps3}
-            onChange={(e) => onTemps3(e.target.checked)}
-            className="accent-fuchsia-400"
-          />
-          Marke « 3 temps » (avec Déplacement)
-        </label>
-        <label className="flex items-center gap-2 text-xs text-slate-400" title="Ida e volta (aller-retour), seul ou à 2 face à face : pied gauche avant/arrière puis pied droit avant/arrière, cycle de 8 temps (ida=1)">
-          <input
-            type="checkbox"
-            checked={ida}
-            onChange={(e) => onIda(e.target.checked)}
-            className="accent-fuchsia-400"
-          />
-          Ida e volta (aller-retour, 8 temps)
-        </label>
+        <fieldset className="border border-slate-700/60 rounded px-2 py-1">
+          <legend className="text-[11px] text-slate-400 px-1">Déplacement (options exclusives)</legend>
+          {(
+            [
+              ["none", "Aucun (sur place)"],
+              ["corridinho", "Corridinho (1/4 tour D puis G, puis cercle au repère)"],
+              ["quarts", "Quarts de tour (4 = tour complet, pivots vírgula)"],
+              ["temps3", "Marka « 3 temps » (avec Déplacement)"],
+              ["ida", "Ida e volta (aller-retour, 8 temps)"],
+            ] as [MovementKey, string][]
+          ).map(([k, label]) => (
+            <label key={k} className="flex items-center gap-2 text-xs text-slate-400" title={label}>
+              <input
+                type="radio"
+                name="movement"
+                checked={movement === k}
+                onChange={() => onMovement(k)}
+                className="accent-fuchsia-400"
+              />
+              {label}
+            </label>
+          ))}
+        </fieldset>
         <label className="flex items-center gap-2 text-xs text-slate-400" title="Marche arrière : inverse le sens du Déplacement le long de la ligne de danse (dir=-1)">
           <input
             type="checkbox"

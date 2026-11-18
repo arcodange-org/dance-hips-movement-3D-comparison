@@ -355,6 +355,109 @@ export function virgulaFootYawDelta(footWorldYaw: number, bodyWorldYaw: number):
   return d;
 }
 
+// Phase 14 — les déplacements sont des options NON combinables (radio, pas checkbox).
+export type MovementKey = "none" | "corridinho" | "quarts" | "temps3" | "ida";
+
+// Priorité d'exclusivité si plusieurs flags sont positionnés (ex. URL artisanale).
+export function movementOf(o: { corridinho?: boolean; quarts?: boolean; temps3?: boolean; ida?: boolean }): MovementKey {
+  if (o.corridinho) return "corridinho";
+  if (o.quarts) return "quarts";
+  if (o.temps3) return "temps3";
+  if (o.ida) return "ida";
+  return "none";
+}
+
+// Un seul flag à true ("none" -> tous false) : garantit la non-combinabilité.
+export function movementFlags(m: MovementKey): { corridinho: boolean; quarts: boolean; temps3: boolean; ida: boolean } {
+  return { corridinho: m === "corridinho", quarts: m === "quarts", temps3: m === "temps3", ida: m === "ida" };
+}
+
+// Phase 14 — quarts de tour avec vrais pivots (vírgula pas à pas, demande 2026-11-18).
+// Cycle 16 temps = 4 quarts x 4 temps, 2 demi-pas de 2 temps par quart ; quart à gauche =
+// anti-horaire = yaw +π/2. Demi-pas 0 : talon du pied G au bout du pied D, pied G orienté à
+// 90° vers la gauche, le HAUT du corps (upperYaw) suit le pied G ; demi-pas 1 : pied D ramené
+// parallèle au pied G, le BAS du corps (lowerYaw) suit le pied D. Les pieds tracent un petit
+// carré autour de l'origine (retour ~ position initiale après 4 quarts = 2π).
+export interface QuartStep {
+  q: number; // quart courant 0..3
+  half: 0 | 1; // demi-pas courant
+  stepSide: "L" | "R"; // pied qui bouge à ce demi-pas
+  upperYaw: number; // lacet monde du haut du corps (suit le pied G)
+  lowerYaw: number; // lacet monde du bas du corps / root (suit le pied D)
+  footL: { x: number; z: number; yaw: number }; // cible monde pied G (position + lacet)
+  footR: { x: number; z: number; yaw: number }; // cible monde pied D
+}
+
+const QH = 0.084; // demi inter-hanches : pieds sous les hanches
+const QF = 0.09; // pieds légèrement en avant du bassin
+const QTOE = 0.11; // talon du pied G au bout du pied D
+const QD = 0.17; // écart entre les pieds quand ils sont parallèles
+
+export function quartTurnStep(b: number, reverse = false): QuartStep {
+  const p = ((b % 16) + 16) % 16;
+  const q = Math.min(3, Math.floor(p / 4));
+  const half = (Math.floor(p / 2) % 2) as 0 | 1;
+  const ph = (p % 2) / 2; // progression dans le demi-pas, [0, 1)
+  const rot = (x: number, z: number, th: number) => ({
+    x: x * Math.cos(th) + z * Math.sin(th),
+    z: -x * Math.sin(th) + z * Math.cos(th),
+  });
+  // état des pieds en simulant les quarts précédents (positions/lacets monde)
+  let l = { x: QH, z: QF, yaw: 0 };
+  let r = { x: -QH, z: QF, yaw: 0 };
+  const applyQuarter = (qq: number) => {
+    const th0 = (qq * Math.PI) / 2;
+    const th1 = ((qq + 1) * Math.PI) / 2;
+    const d0 = rot(0, QTOE, th0);
+    l = { x: r.x + d0.x, z: r.z + d0.z, yaw: th1 }; // talon G au bout du D, pied G à 90°
+    const d1 = rot(-QD, 0, th1);
+    r = { x: l.x + d1.x, z: l.z + d1.z, yaw: th1 }; // pied D parallèle au pied G
+  };
+  for (let qq = 0; qq < q; qq++) applyQuarter(qq);
+  const th0 = (q * Math.PI) / 2;
+  const th1 = ((q + 1) * Math.PI) / 2;
+  // au demi-pas 1 du quart courant, le pied G a déjà bougé au demi-pas 0 du même quart
+  if (half === 1) {
+    const d0 = rot(0, QTOE, th0);
+    l = { x: r.x + d0.x, z: r.z + d0.z, yaw: th1 };
+  }
+  let out: QuartStep;
+  if (half === 0) {
+    const d0 = rot(0, QTOE, th0);
+    out = {
+      q,
+      half,
+      stepSide: "L",
+      upperYaw: th0 + ph * (Math.PI / 2), // haut du corps suit le pied G
+      lowerYaw: th0, // bas du corps attend le pied D
+      footL: { x: r.x + d0.x, z: r.z + d0.z, yaw: th0 + Math.PI / 2 },
+      footR: r,
+    };
+  } else {
+    const d1 = rot(-QD, 0, th1);
+    out = {
+      q,
+      half,
+      stepSide: "R",
+      upperYaw: th1,
+      lowerYaw: th0 + ph * (Math.PI / 2), // bas du corps suit le pied D
+      footL: l,
+      footR: { x: l.x + d1.x, z: l.z + d1.z, yaw: th1 },
+    };
+  }
+  if (reverse) {
+    // suiveur en paire : trajectoire miroir (z -> -z, lacets opposés), comme reversePath
+    out = {
+      ...out,
+      upperYaw: -out.upperYaw,
+      lowerYaw: -out.lowerYaw,
+      footL: { x: out.footL.x, z: -out.footL.z, yaw: -out.footL.yaw },
+      footR: { x: out.footR.x, z: -out.footR.z, yaw: -out.footR.yaw },
+    };
+  }
+  return out;
+}
+
 // Déplacement latéral le long de la ligne de danse ; dir = -1 → marche arrière.
 export function travelOffset(travel: number, dir: number, b: number): number {
   return (dir < 0 ? -1 : 1) * travel * (HIP_WIDTH / 2) * Math.tanh(2.2 * S2(b));

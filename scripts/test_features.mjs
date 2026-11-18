@@ -28,7 +28,7 @@ esbuild.buildSync({
 });
 const mod = await import(pathToFileURL(bundle).href + "?t=" + Date.now());
 rmSync(bundle, { force: true });
-const { STYLES, supportOf, sortieEnvelope, sortieOffset, plantBlend, corridinhoPath, quartsPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, virgulaFootYawDelta, HIP_WIDTH, HIP_Y, S2, CAM_PRESETS, resolveCam, resolveView, viewAnglesOf, posFromView, SOLID_TORSO_OPACITY, lockUpperTrunk, residualRoll, upperStability, DANCE_FRAME, DANCE_FRAME_FOLLOWER, parseVec3, buildShareUrl, DIR_LABELS, facingSector, isDiagonal, relToLineOfDance } = mod;
+const { STYLES, supportOf, sortieEnvelope, sortieOffset, plantBlend, corridinhoPath, quartsPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, virgulaFootYawDelta, movementOf, movementFlags, quartTurnStep, HIP_WIDTH, HIP_Y, S2, CAM_PRESETS, resolveCam, resolveView, viewAnglesOf, posFromView, SOLID_TORSO_OPACITY, lockUpperTrunk, residualRoll, upperStability, DANCE_FRAME, DANCE_FRAME_FOLLOWER, parseVec3, buildShareUrl, DIR_LABELS, facingSector, isDiagonal, relToLineOfDance } = mod;
 const { Group } = await import(
   pathToFileURL(join(root, "node_modules", "three", "build", "three.module.js")).href
 );
@@ -404,6 +404,73 @@ const steps = [
     if (!Number.isFinite(a) || !Number.isFinite(z)) throw new Error("angle/zoom absents de l'URL");
     if (Math.abs(a - c.va.az) > 0.05) throw new Error(`angle=${a}, attendu ~${c.va.az}`);
     if (Math.abs(z - c.va.dist) > 0.005) throw new Error(`zoom=${z}, attendu ~${c.va.dist}`);
+  }],
+  // Phase 14 — options de déplacement exclusives + quarts de tour à pas détaillés (vírgula)
+  [/^avec corridinho=(\w+), quarts=(\w+), temps3=(\w+), ida=(\w+), movementOf vaut "(\w+)"$/, (c, m) => {
+    const got = movementOf({ corridinho: m[1] === "true", quarts: m[2] === "true", temps3: m[3] === "true", ida: m[4] === "true" });
+    if (got !== m[5]) throw new Error(`movementOf=${got}, attendu ${m[5]}`);
+  }],
+  [/^movementFlags\("(\w+)"\) n'active que (\w+)$/, (c, m) => {
+    const f = movementFlags(m[1]);
+    const n = Object.values(f).filter(Boolean).length;
+    if (n !== 1 || !f[m[2]]) throw new Error(`movementFlags(${m[1]})=${JSON.stringify(f)}, attendu uniquement ${m[2]}`);
+  }],
+  [/^movementFlags\("none"\) n'active aucune option$/, (c) => {
+    if (Object.values(movementFlags("none")).some(Boolean)) throw new Error("none doit tout désactiver");
+  }],
+  [/^movementOf\(movementFlags\("(\w+)"\)\) vaut "(\w+)"$/, (c, m) => {
+    if (movementOf(movementFlags(m[1])) !== m[2]) throw new Error("roundtrip flags->movementOf");
+  }],
+  [/^on évalue quartTurnStep sur (\d+) temps$/, (c, m) => {
+    const n = Number(m[1]);
+    c.qs = [];
+    c.qsRev = [];
+    for (let b = 0; b <= n + 1e-9; b += 0.125) {
+      c.qs.push({ b, ...quartTurnStep(b, false) });
+      c.qsRev.push({ b, ...quartTurnStep(b, true) });
+    }
+  }],
+  [/^lowerYaw croît de 0 à ~2π \(tour complet\) et stepSide alterne L, R, L, R$/, (c) => {
+    const first = c.qs[0];
+    const end = c.qs.filter((r) => r.b > 15.8 && r.b < 16).pop();
+    if (Math.abs(first.lowerYaw) > 1e-9) throw new Error("lowerYaw initial=" + first.lowerYaw);
+    if (Math.abs(end.lowerYaw - 2 * Math.PI) > 0.2) throw new Error("lowerYaw final=" + end.lowerYaw);
+    for (let i = 1; i < c.qs.length; i++) if (c.qs[i].b < 16 && c.qs[i].lowerYaw < c.qs[i - 1].lowerYaw - 1e-9) throw new Error("lowerYaw non monotone à b=" + c.qs[i].b);
+    for (let k = 0; k < 8; k++) {
+      const rows = c.qs.filter((r) => Math.floor(r.b / 2) === k);
+      if (!rows.length || rows[0].stepSide !== (k % 2 === 0 ? "L" : "R")) throw new Error(`stepSide au demi-pas ${k}: ${rows[0] && rows[0].stepSide}`);
+    }
+  }],
+  [/^pendant le demi-pas 0 la dissociation upperYaw-lowerYaw atteint ~π\/2 en fin de demi-pas$/, (c) => {
+    const maxD = Math.max(...c.qs.filter((r) => r.half === 0).map((r) => r.upperYaw - r.lowerYaw));
+    if (Math.abs(maxD - Math.PI / 2) > 0.12) throw new Error("max dissociation demi-pas 0 = " + maxD + " (attendu ~π/2=" + (Math.PI / 2) + ")");
+  }],
+  [/^pendant le demi-pas 1 lowerYaw rattrape upperYaw \(dissociation retombe à 0 en fin de quart\)$/, (c) => {
+    const fins = c.qs.filter((r) => r.half === 1 && (r.b % 4) > 3.8);
+    for (const r of fins) if (Math.abs(r.upperYaw - r.lowerYaw) > 0.12) throw new Error(`dissociation non nulle en fin de quart b=${r.b}: ${r.upperYaw - r.lowerYaw}`);
+  }],
+  [/^le pied G a un lacet de th0\+π\/2 pendant chaque demi-pas 0$/, (c) => {
+    for (const r of c.qs.filter((x) => x.half === 0)) {
+      const th0 = (r.q * Math.PI) / 2;
+      if (Math.abs(r.footL.yaw - (th0 + Math.PI / 2)) > 1e-9) throw new Error(`b=${r.b}: footL.yaw=${r.footL.yaw}, attendu ${th0 + Math.PI / 2}`);
+    }
+  }],
+  [/^après 4 quarts les pieds retrouvent leur position initiale \(tol ([\d.]+)\)$/, (c, m) => {
+    const tol = Number(m[1]);
+    const last = c.qs.filter((r) => r.b > 15.8 && r.b < 16).pop();
+    if (Math.abs(last.footL.x - 0.084) > tol || Math.abs(last.footL.z - 0.09) > tol)
+      throw new Error("footL final=" + JSON.stringify(last.footL) + " (attendu ~(0.084, 0.09))");
+    if (Math.abs(last.footR.x + 0.084) > tol || Math.abs(last.footR.z - 0.09) > tol)
+      throw new Error("footR final=" + JSON.stringify(last.footR) + " (attendu ~(-0.084, 0.09))");
+  }],
+  [/^en reverse lowerYaw est l'opposé et z des pieds est miroir$/, (c) => {
+    for (let i = 0; i < c.qs.length; i++) {
+      const a = c.qs[i];
+      const b2 = c.qsRev[i];
+      if (Math.abs(b2.lowerYaw + a.lowerYaw) > 1e-9) throw new Error("lowerYaw reverse à b=" + a.b);
+      if (Math.abs(b2.footL.z + a.footL.z) > 1e-9 || Math.abs(b2.footL.yaw + a.footL.yaw) > 1e-9) throw new Error("footL reverse à b=" + a.b);
+      if (Math.abs(b2.footR.z + a.footR.z) > 1e-9) throw new Error("footR reverse à b=" + a.b);
+    }
   }],
   // Phase 12 — os du genou bien placés et symétriques (docs/spec-phase12-os-genou.md)
   [/^on lit le GLB anatomy\.glb$/, (c) => {

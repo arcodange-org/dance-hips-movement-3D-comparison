@@ -12,7 +12,7 @@ import LineOfDance from "./components/LineOfDance";
 import CompassRose from "./components/CompassRose";
 import { resolveCam, resolveView, viewAnglesOf, SOLID_TORSO_OPACITY } from "./cameras";
 import { usePersistentState } from "./hooks/usePersistentState";
-import { STYLES, type ModeKey } from "./styles";
+import { STYLES, movementOf, movementFlags, type ModeKey, type MovementKey } from "./styles";
 import { parseVec3, buildShareUrl } from "./share";
 import { DIR_LABELS, isDiagonal } from "./directions";
 
@@ -68,6 +68,15 @@ export default function App() {
   const [quarts, setQuarts] = usePersistentState("quarts", false);
   const [temps3, setTemps3] = usePersistentState("temps3", false);
   const [ida, setIda] = usePersistentState("ida", false);
+  // Phase 14 — déplacements = options NON combinables (radio) : un seul actif à la fois.
+  const movement = movementOf({ corridinho, quarts, temps3, ida });
+  const setMovement = (m: MovementKey) => {
+    const f = movementFlags(m);
+    setCorridinho(f.corridinho);
+    setQuarts(f.quarts);
+    setTemps3(f.temps3);
+    setIda(f.ida);
+  };
   const [dir, setDir] = usePersistentState("dir", 1);
   const [showBoussole, setShowBoussole] = usePersistentState("boussole", true);
   const [copied, setCopied] = useState(false);
@@ -100,13 +109,23 @@ export default function App() {
     if (p.has("repere")) setShowRepere(p.get("repere") !== "0");
     if (p.has("appui")) setShowAppui(p.get("appui") !== "0");
     if (p.has("plant")) setPlant(p.get("plant") !== "0");
-    if (p.has("corridinho")) setCorridinho(p.get("corridinho") !== "0");
+    if (p.has("corridinho") || p.has("quarts") || p.has("temps3") || p.has("ida")) {
+      // options exclusives : si plusieurs params sont présents, un seul est retenu (movementOf)
+      const m = movementOf({
+        corridinho: p.has("corridinho") && p.get("corridinho") !== "0",
+        quarts: p.has("quarts") && p.get("quarts") !== "0",
+        temps3: p.has("temps3") && p.get("temps3") !== "0",
+        ida: p.has("ida") && p.get("ida") !== "0",
+      });
+      const f = movementFlags(m);
+      setCorridinho(f.corridinho);
+      setQuarts(f.quarts);
+      setTemps3(f.temps3);
+      setIda(f.ida);
+    }
     if (p.has("ligne")) setShowLigne(p.get("ligne") !== "0");
     if (p.has("iso")) setIso(p.get("iso") !== "0");
     if (p.has("cadre")) setCadre(p.get("cadre") !== "0");
-    if (p.has("quarts")) setQuarts(p.get("quarts") !== "0");
-    if (p.has("temps3")) setTemps3(p.get("temps3") !== "0");
-    if (p.has("ida")) setIda(p.get("ida") !== "0");
     if (p.has("dir")) { const d = num("dir"); if (d !== null && (d === 1 || d === -1)) setDir(d); }
     if (p.has("boussole")) setShowBoussole(p.get("boussole") !== "0");
     if (p.has("delay")) { const d = num("delay"); if (d !== null) setFollowDelay(Math.min(2, Math.max(0, d))); }
@@ -390,20 +409,14 @@ export default function App() {
         onShowAppui={setShowAppui}
         plant={plant}
         onPlant={setPlant}
-        corridinho={corridinho}
-        onCorridinho={setCorridinho}
+        movement={movement}
+        onMovement={setMovement}
         showLigne={showLigne}
         onShowLigne={setShowLigne}
         iso={iso}
         onIso={setIso}
         cadre={cadre}
         onCadre={setCadre}
-        quarts={quarts}
-        onQuarts={setQuarts}
-        temps3={temps3}
-        onTemps3={setTemps3}
-        ida={ida}
-        onIda={setIda}
         dir={dir}
         onDir={setDir}
         showBoussole={showBoussole}

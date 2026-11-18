@@ -243,8 +243,10 @@ en m — écrits aussi dans l'URL par « Partager la vue », prioritaires sous `
 Options d'interface : **Vue « Squelette » / « + Muscles (tissus) »** (bascule segmentée ; couche musculaire BodyParts3D greffée sur les pivots
 osseux, rouge semi-transparent — la chaîne d'appui sol→genoux→hanches reste visible dans les deux vues), **Boussole 8 directions** (4 cardinales + 4 diago au repère fixe ; E-W = ligne de danse ; la direction du buste et la position / repère s'affichent dans le HUD), **🔗 Partager la vue** (copie l'URL avec tous les paramètres + l'angle caméra `campos=`/`camtgt=` + l'angle/zoom lisibles `angle=`/`zoom=`), **Sorties garçon / fille** (mode Face à face : aller-retour
 latéral de 5 temps sur 8 perpendiculaire à la ligne de danse, le retard du suiveur décale la
-sortie fille, buste en contre-rotation), **Corridinho** (après 1/4 de tour à droite puis à gauche,
-cercle au sol autour du repère fixe), **Ligne de danse** (pointillé rose, axe x au repère),
+sortie fille, buste en contre-rotation), **Déplacement (options exclusives, radio)** : Aucun / **Corridinho** (après 1/4 de tour à droite
+puis à gauche, cercle au sol autour du repère fixe) / **Quarts de tour** (4 = tour complet, pivots
+vírgula : talon du pied G au bout du pied D à 90°, puis pied D ramené parallèle — haut du corps
+suit le pied G, bas du corps le pied D) / **Marka « 3 temps »** / **Ida e volta**, **Ligne de danse** (pointillé rose, axe x au repère),
 **Repère fixe** (anneau + croix à l'origine, pour lire les déplacements relatifs),
 **Pieds plantés (sur place)** (contact sol constant — petit pivot sur la plante du pied /
 « semi-pointe » autorisé ; désactiver pour l'ancien rendu glissé), **Isolation basse (buste
@@ -252,8 +254,7 @@ verrouillé, vertical)** (au-dessus du bassin le haut du tronc ne bascule plus l
 colonne contre-rotate le pelvis ; métrique « stabilité buste % » dans le HUD ; `iso=0` pour
 l'ancien buste libre), **Cadre de bras de danseur** (coudes pliés, bras vers l'avant,
 avant-bras gauche vers le haut paume à droite, avant-bras droit vers la gauche paume vers le
-buste ; `cadre=0` pour les bras le long du corps), **Quarts de tour**, **Marka « 3 temps »**,
-**Ida e volta**, **Marche arrière**, **Appuis & transmission**
+buste ; `cadre=0` pour les bras le long du corps), **Marche arrière**, **Appuis & transmission**
 (pastilles de charge sous les pieds + chaîne d'appui pied→genou→hanche en surbrillance + HUD
 charge G/D %, flexion genoux °, roll bassin ° ; activée par défaut en mode Observation hanche).
 En mode **Comparaison**, deux panneaux de **jauges G/D** lisent l'appui de chaque style côte à

@@ -16,7 +16,7 @@ import {
   resetRig,
   type RigHandle,
 } from "../anatomy";
-import { STYLES, sortieEnvelope, sortieOffset, supportOf, plantBlend, corridinhoPath, quartsPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, lockUpperTrunk, applyDanceFrame, applyFollowerFrame, upperStability, virgulaFootYawDelta } from "../styles";
+import { STYLES, sortieEnvelope, sortieOffset, supportOf, plantBlend, corridinhoPath, reversePath, travelOffset, swingBeat, idaEVoltaStep, lockUpperTrunk, applyDanceFrame, applyFollowerFrame, upperStability, virgulaFootYawDelta, quartTurnStep } from "../styles";
 import { facingSector } from "../directions";
 import { solveLeg3D } from "../ik";
 import {
@@ -34,6 +34,8 @@ interface Swing {
   from: THREE.Vector3;
   to: THREE.Vector3;
   t: number;
+  yawFrom?: number;
+  yawTo?: number;
 }
 
 interface IkState {
@@ -48,6 +50,7 @@ interface IkState {
   plant: Record<Side, THREE.Vector3>;
   footPos: Record<Side, THREE.Vector3>;
   swing: Record<Side, Swing | null>;
+  footYaw: Record<Side, number>;
   lastBeat: number;
 }
 
@@ -134,6 +137,7 @@ export default function Rig({
     plant: { R: new THREE.Vector3(), L: new THREE.Vector3() },
     footPos: { R: new THREE.Vector3(), L: new THREE.Vector3() },
     swing: { R: null, L: null },
+    footYaw: { R: 0, L: 0 },
     lastBeat: -1,
   });
   const { scene } = useGLTF(ANATOMY_URL);
@@ -231,6 +235,8 @@ export default function Rig({
     state.lastBeat = -1;
     state.swing.R = null;
     state.swing.L = null;
+    state.footYaw.R = 0;
+    state.footYaw.L = 0;
     for (const s of ["R", "L"] as Side[]) {
       state.plant[s].set(state.hipSkel[s].x, state.ankleOuterY, state.footZ[s]);
       state.footPos[s].copy(state.plant[s]);
@@ -271,16 +277,19 @@ export default function Rig({
       r.root.rotation.y += cp.ry;
       r.chest.rotation.z -= 0.06; // épaules vers l'intérieur du cercle
     }
-    if (quarts) {
-      // Quarts de tour séparés du corridinho : 4 quarts de tour sur 16 temps = tour complet.
-      const q0 = quartsPath(b);
-      const q = reverse ? reversePath(q0) : q0;
-      r.root.rotation.y += q.ry;
-    }
+    // Phase 14 — quarts de tour à pas détaillés (vírgula) : 2 demi-pas par quart, le haut du
+    // corps suit le pied G, le bas du corps le pied D (dissociation, appliquée après lockUpperTrunk).
+    const qs = quarts ? quartTurnStep(b, reverse) : null;
     // Phase 7 — isolation du bas du corps (iso=1 par défaut) : le haut du tronc reste stable et
     // vertical (contre-rotation du pelvis au niveau de la colonne, buste/tête sans bascule
     // latérale) ; les bras prennent le cadre de danseur (coudes pliés, avant-bras G en haut).
     lockUpperTrunk({ spine: r.spine.rotation, chest: r.chest.rotation, head: r.head.rotation }, r.pelvis.rotation, iso);
+    if (qs) {
+      r.root.rotation.y += qs.lowerYaw; // bas du corps = lacet du pied D
+      const dYaw = qs.upperYaw - qs.lowerYaw; // haut du corps = lacet du pied G
+      r.chest.rotation.y += dYaw;
+      if (r.head) r.head.rotation.y += dYaw;
+    }
     applyDanceFrame(r, cadre);
     // En paire, la suiveuse a son propre cadre (coude G levé, main D en contact avec le guideur).
     if (cadre && pair && side === "follower") applyFollowerFrame(r, cadre);
@@ -339,6 +348,9 @@ export default function Rig({
       };
     }
 
+    // Cible de lacet monde par pied pour la vírgula (quarts de tour : cible propre à chaque
+    // pied ; sinon lacet du corps, voir bloc vírgula ci-dessous).
+    const footYawTarget: Record<Side, number> = { R: 0, L: 0 };
     const w = plantBlend(travel, plant);
     if (w > 0.001 && ik.current.ready) {
       r.root.updateWorldMatrix(true, true);
@@ -353,37 +365,49 @@ export default function Rig({
         swingSide = st.side;
         stepDir = st.dir;
       }
-      const stepIdx = ida ? Math.floor(b / 2) : beat;
-      const stepLen = ida ? 2 : temps3 ? 3 : 1;
-      const walking = travel > 0.001 || ida;
+      // Phase 14 — quarts de tour : demi-pas de 2 temps, pied = qs.stepSide, cible absolue monde.
+      const qf = qs ? (qs.stepSide === "L" ? qs.footL : qs.footR) : null;
+      if (qs) swingSide = qs.stepSide;
+      const stepIdx = qs ? Math.floor(b / 2) : ida ? Math.floor(b / 2) : beat;
+      const stepLen = qs ? 2 : ida ? 2 : temps3 ? 3 : 1;
+      const walking = travel > 0.001 || ida || !!qs;
       if (stepIdx !== state.lastBeat) {
         state.lastBeat = stepIdx;
-        // sur place planté (travel=0) sans ida : pas de pas, les pieds restent plantés
+        // sur place planté (travel=0) sans ida ni quarts : pas de pas, les pieds restent plantés
         if (walking) {
-        const to = new THREE.Vector3(
-          r.root.position.x + state.hipSkel[swingSide].x,
-          state.ankleOuterY,
-          state.footZ[swingSide] + stepDir * 0.09
-        );
-        state.swing[swingSide] = { from: state.footPos[swingSide].clone(), to, t: 0 };
+        const to = qf
+          ? new THREE.Vector3(qf.x, state.ankleOuterY, qf.z)
+          : new THREE.Vector3(
+              r.root.position.x + state.hipSkel[swingSide].x,
+              state.ankleOuterY,
+              state.footZ[swingSide] + stepDir * 0.09
+            );
+        state.swing[swingSide] = { from: state.footPos[swingSide].clone(), to, t: 0, yawFrom: state.footYaw[swingSide], yawTo: qf ? qf.yaw : undefined };
         }
       }
-      const lift = travel > 0.001 ? travel : ida ? 0.5 : 0;
+      const lift = travel > 0.001 ? travel : ida ? 0.5 : qs ? 0.04 : 0;
       for (const s of ["R", "L"] as Side[]) {
         let target: THREE.Vector3;
         const sw = state.swing[s];
+        if (qs) footYawTarget[s] = s === "L" ? qs.footL.yaw : qs.footR.yaw;
         if (walking && sw && s === swingSide) {
           sw.t = Math.min(1, (b - stepIdx * stepLen) / (0.6 * stepLen));
           const e = sw.t * sw.t * (3 - 2 * sw.t);
           target = sw.from.clone().lerp(sw.to, e);
           target.y = state.ankleOuterY + 0.05 * lift * Math.sin(Math.PI * sw.t);
+          if (sw.yawTo !== undefined) {
+            const yf = sw.yawFrom ?? 0;
+            footYawTarget[s] = yf + (sw.yawTo - yf) * e;
+          }
           if (sw.t >= 1) {
             state.plant[s].copy(sw.to);
+            if (sw.yawTo !== undefined) state.footYaw[s] = sw.yawTo;
             state.swing[s] = null;
           }
         } else {
           if (sw) {
             state.plant[s].copy(sw.to);
+            if (sw.yawTo !== undefined) state.footYaw[s] = sw.yawTo;
             state.swing[s] = null;
           }
           target = state.plant[s].clone();
@@ -414,12 +438,16 @@ export default function Rig({
     } else {
       r.footL.rotation.x = -(r.hipL.rotation.x + r.kneeL.rotation.x) + r.extraL;
       r.footR.rotation.x = -(r.hipR.rotation.x + r.kneeR.rotation.x) + r.extraR;
+      if (qs) {
+        footYawTarget.L = qs.footL.yaw;
+        footYawTarget.R = qs.footR.yaw;
+      }
     }
 
-    if (quarts || corridinho) {
-      // Phase 11 — vírgula (docs/virgula.md) : sur les quarts de tour le pied fait l'angle
-      // avec le corps (pivot sur la boule du pied, contact sol constant) -> lacet monde du
-      // pied = lacet monde du root.
+    if (qs || corridinho) {
+      // Phase 11/14 — vírgula (docs/virgula.md) : le pied pivote sur la boule du pied avec le
+      // corps (contact sol constant). Sur les quarts de tour chaque pied a sa propre cible de
+      // lacet (qs.footX.yaw, talon G à 90° puis pied D parallèle) ; sinon lacet = lacet du root.
       r.root.updateWorldMatrix(true, true);
       const qR = new THREE.Quaternion();
       r.root.getWorldQuaternion(qR);
@@ -429,7 +457,8 @@ export default function Rig({
         const qF = new THREE.Quaternion();
         foot.getWorldQuaternion(qF);
         const fy = new THREE.Euler().setFromQuaternion(qF, "YXZ").y;
-        foot.rotation.y += virgulaFootYawDelta(fy, bodyYaw);
+        const targetYaw = qs ? footYawTarget[s] : bodyYaw;
+        foot.rotation.y += virgulaFootYawDelta(fy, targetYaw);
       }
     }
 
