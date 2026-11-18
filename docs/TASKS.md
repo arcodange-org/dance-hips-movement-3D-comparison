@@ -15,7 +15,7 @@ Mise à jour à chaque commit (checkpoint anti-amnésie, voir `CONTEXT.md`).
 
 ---
 
-## Phase 6 — EN COURS (livraison en cours) — spec : `docs/spec-phase6-comparatif-appuis-corridinho.md` — branche `vibe/phase6-vues-plant-solid-ae8a7a`, PR #4 draft
+## Phase 6 — LIVRÉE (PR #4 mergée 2026-11-18, commit 83d680b, CI Pages run 44284489080 = success, site vérifié 200 + smoke headless 0 erreur) — spec : `docs/spec-phase6-comparatif-appuis-corridinho.md` — branche `vibe/phase6-vues-plant-solid-ae8a7a`
 
 - [x] 10. Mode « comparatif d'appuis » : `statsBRef` + panneau **jauge G/D par corps** (2 jauges
   en mode Comparaison, bare + normal) ; GIF `comparatif-appuis.gif` (kizomba vs kompa, `cam=wide`,
@@ -42,8 +42,9 @@ Mise à jour à chaque commit (checkpoint anti-amnésie, voir `CONTEXT.md`).
   visuelle — backlog)
 - [x] 18. Validations Gherkin : `docs/features/*.feature` (7 fichiers) + `scripts/test_features.mjs`
   dans `npm test` → **19 PASS, 0 FAIL, 1 SKIP @wip** + fonctions pures `plantBlend`/`sortieOffset`/`corridinhoPath`
-- [ ] 12. Vérifs + livraison phase 6 : `npm test`, build, smoke headless, push, PR #4 ready,
-  ff-merge main, CI Pages, vérif site live, checkpoint CONTEXT/TASKS sur main
+- [x] 12. Vérifs + livraison phase 6 : `npm test` (19 PASS 0 FAIL 1 SKIP), build OK, smoke headless
+  live (compare/appui, pair sortie diag, corridinho, muscles : 0 erreur console), push, PR #4 ready,
+  ff-merge main, CI Pages success, site live vérifié, checkpoint CONTEXT/TASKS sur main
 
 ## Méta — boucle de feedback (rétrospective auto-critique + critique de session indépendante)
 

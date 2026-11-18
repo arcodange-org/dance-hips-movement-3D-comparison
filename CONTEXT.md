@@ -19,7 +19,10 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   BodyParts3D régénérée, persistance localStorage, vertèbres L/D, déploiement Pages, GIFs
   motion design, mouvements sourcés sur place (2 temps, sorties garçon/fille), couche
   musculaire BodyParts3D, tests numériques (`npm test`).
-- Phase 6 **implémentée sur la branche `vibe/phase6-vues-plant-solid-ae8a7a`, PR #4 draft** :
+- Phase 6 **LIVRÉE** (PR #4 mergée 2026-11-18, commit `83d680b` sur main, CI Pages run
+  44284489080 = success, site live vérifié : assets 200 + smoke headless 0 erreur console sur
+  comparatif-appuis / sortie paire diago / corridinho / muscles) — branche
+  `vibe/phase6-vues-plant-solid-ae8a7a`. Contenu :
   comparatif d'appuis (jauges G/D ×2 en mode Comparaison, `statsBRef` + composant `Gauge`),
   corridinho (`corridinhoPath` : pivot D 0–3, pivot G 4–7, cercle R=0,3 m autour du repère
   8–15, `corridinho=`), presets caméra `src/cameras.ts` (`cam=default|hip|fixed|wide|diag|front|back`,
