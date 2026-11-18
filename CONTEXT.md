@@ -63,8 +63,12 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   E=+x=ligne de danse) + HUD direction du buste (diago) et position / repère (`src/directions.ts`,
   Gherkin `directions.feature`), README avec **<details> « Détails & source » sous chaque GIF** +
   bascule segmentée **Vue Squelette / + Muscles**. Spec : `docs/spec-phase9-partage-boussole.md`.
-- Phase 10 planifiée : harness agentique — `AGENTS.md` racine + dossier `.vibe/` (spéc markdown du
-  harness pour toute session Mistral : état, méthode anti-amnésie, conventions, contribution).
+- Phase 10 **en livraison** (branche `vibe/phase10-harness-ae8a7a`, PR #8) — **harness agentique** :
+  `AGENTS.md` racine (lu en premier, avec section « Maintenance de ce fichier ») + dossier caché
+  `.vibe/` = `README.md` + `HARNESS.md` (démarrage session, anti-amnésie, livraison ff-push/CI/site,
+  sandbox, secrets) + `CONTRIBUTING.md` (cycle phase complet) + `CONVENTIONS.md` (conventions
+  verrouillées + params URL). Toute session Mistral peut adopter et continuer le projet en
+  autonomie.
 - Rétrospective / boucle de feedback : `docs/retrospective-phase3-5.md` +
   `docs/retrospective-phase6.md` + méta-tâche M4 récurrente dans `docs/TASKS.md`.
 - Phase 5 **livrée** : PR #3 mergée dans `main` (2026-11-18), CI Pages run 44272969552 =

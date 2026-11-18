@@ -96,6 +96,15 @@ Mise à jour à chaque commit (checkpoint anti-amnésie, voir `CONTEXT.md`).
   (`CompassRose.tsx`, `boussole=`) + HUD direction du buste (diago) + position / repère
   (`src/directions.ts`, Gherkin `directions.feature`)
 
+## Phase 10 — LIVRÉE — harness agentique — branche `vibe/phase10-harness-ae8a7a`, PR #8
+
+- [x] 35. `AGENTS.md` racine (lu en premier ; règles d'or + **section « Maintenance de ce fichier »**
+  : mis à jour dans le même commit que tout changement de structure/workflow) + dossier caché
+  `.vibe/` : `README.md` (index), `HARNESS.md` (harnais de session anti-amnésie : démarrage,
+  règles, livraison ff-push+CI+site, sandbox, secrets), `CONTRIBUTING.md` (cycle phase spec-first →
+  Gherkin → captures → PR → merge → checkpoint + rétrospective M4), `CONVENTIONS.md` (conventions
+  verrouillées + params URL + tests)
+
 ## Méta — boucle de feedback (rétrospective auto-critique + critique de session indépendante)
 
 Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process amélioré).
