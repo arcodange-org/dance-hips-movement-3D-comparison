@@ -104,10 +104,11 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
 - Session 16–18 **spécifiée** (PR #15 mergée) : spec consolidée
   `docs/spec-session-16-18.md` (objectifs + audit des points faibles W1–W10 mesurés + modèle
   d'oracle) + harness renforcé (`.vibe/HARNESS.md` §6 pièges)
-- Phase 16 **EN COURS** (branche `vibe/phase16-exec-ae8a7a`) : contact fit en paire **sans les
-  bras** (PAIR_DZ=0.175, marqueurs 0.16/0.14/0.135, sonde : pénétration corps −0.0015 m,
-  marqueurs 0.011–0.105 m) + **clamp sol renforcé** (aucun os sous y=0 : `clampSolY` +
-  `groundDip`, sonde minY=+0.004 m) + Gherkin `sol-contact.feature` (64 PASS)
+- Phase 16 **LIVRÉE** (PR #16 mergée, commit `b5d6d89`, CI push main run 44356011283 = success,
+  site vérifié 200 + GIFs/feature en ligne) : contact fit en paire **sans les bras**
+  (PAIR_DZ=0.175, marqueurs 0.16/0.14/0.135, sonde : pénétration corps −0.0015 m, marqueurs
+  0.011–0.105 m) + **clamp sol renforcé** (aucun os sous y=0 : `clampSolY` + `groundDip`,
+  sonde minY=+0.004 m) + Gherkin `sol-contact.feature` (64 PASS 0 FAIL 1 SKIP)
   (PAIR_DZ/marqueurs sur surface mesurée, lean plafonné en paire) → phase 17 sortie en option
   exclusive + combiné → phase 18 oracle de positions par demi-temps (`src/oracle.ts`).
 - Rétrospective / boucle de feedback : `docs/retrospective-phase3-5.md` +
