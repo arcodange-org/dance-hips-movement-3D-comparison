@@ -22,6 +22,7 @@ import CompassRose from "./components/CompassRose";
 import { resolveCam, resolveView, viewAnglesOf, SOLID_TORSO_OPACITY } from "./cameras";
 import { usePersistentState } from "./hooks/usePersistentState";
 import { STYLES, movementOf, movementFlags, PAIR_DZ, type ModeKey, type MovementKey } from "./styles";
+import { QUARTS_PAIR_DZ } from "./quartsPaire";
 import { parseVec3, buildShareUrl } from "./share";
 import { DIR_LABELS, isDiagonal } from "./directions";
 
@@ -200,6 +201,9 @@ export default function App() {
   const isSortieGarcon = isPair && movement === "sortieG";
   const isSortieFille = isPair && movement === "sortieF";
   const isFiveActionFigure = isSortieGarcon || isSortieFille;
+  // #37: pair quarter turns share the couple placement of the five-action figures.
+  const isQuartsPaire = isPair && movement === "quarts";
+  const hasPlacement = isFiveActionFigure || isQuartsPaire;
   const endBeat = isSortieFille ? SORTIE_FILLE_BEATS : SORTIE_GARCON_BEATS;
   const handlePlaying = (value: boolean) => {
     if (value && isFiveActionFigure && clock.beat >= endBeat) seekClock(clock, 0);
@@ -207,7 +211,7 @@ export default function App() {
   };
   const isCompare = mode === "compare";
   const isObserve = mode === "observe";
-  const reverseB = isPair && (corridinho || quarts);
+  const reverseB = isPair && corridinho;
 
   // Partage de la vue : URL avec tous les paramètres d'état + l'angle caméra (campos/camtgt).
   const onShare = () => {
@@ -227,7 +231,7 @@ export default function App() {
       sortieVariant: isSortieGarcon ? sortieVariant : undefined,
       sortieContra: isSortieGarcon ? sortieContra : undefined,
       sortieFilleVariant: isSortieFille ? sortieFilleVariant : undefined,
-      placement: isFiveActionFigure ? placement : undefined,
+      placement: hasPlacement ? placement : undefined,
       sortieBeat: isFiveActionFigure ? Number(clock.beat.toFixed(3)) : undefined,
       sortieF: movement === "sortieF" ? true : undefined,
       sortieGF: movement === "sortieGF" ? true : undefined,
@@ -253,7 +257,7 @@ export default function App() {
   const ghostB = ghostSel === "A";
 
   // Les figures en cinq actions ont chacune un écartement calibré.
-  const pairDz = isSortieGarcon ? SORTIE_GARCON_PAIR_DZ : isSortieFille ? SORTIE_FILLE_PAIR_DZ : PAIR_DZ;
+  const pairDz = isSortieGarcon ? SORTIE_GARCON_PAIR_DZ : isSortieFille ? SORTIE_FILLE_PAIR_DZ : isQuartsPaire ? QUARTS_PAIR_DZ : PAIR_DZ;
   const offsetA: [number, number, number] = isPair ? [0, 0, -pairDz] : isCompare ? [-0.85, 0, 0] : [0, 0, 0];
   const offsetB: [number, number, number] = isPair ? [0, 0, pairDz] : [0.85, 0, 0];
 
@@ -369,13 +373,13 @@ export default function App() {
               embrace={isPair}
               pair={isPair ? pairRef : null}
               side={isPair ? "leader" : null}
-              showContacts={isPair && showContacts && !isFiveActionFigure}
+              showContacts={isPair && showContacts && !hasPlacement}
               travel={travel}
               showTorso={showTorso}
               showMuscles={showMuscles}
               movement={movement}
               sortieFilleVariant={sortieFilleVariant}
-              placement={isFiveActionFigure ? placement : undefined}
+              placement={hasPlacement ? placement : undefined}
               sortieVariant={sortieVariant}
               sortieContra={sortieContra}
               showAppui={showAppui}
@@ -404,13 +408,13 @@ export default function App() {
                 embrace={isPair}
                 pair={isPair ? pairRef : null}
                 side={isPair ? "follower" : null}
-                showContacts={isPair && showContacts && !isFiveActionFigure}
+                showContacts={isPair && showContacts && !hasPlacement}
                 travel={travel}
                 showTorso={showTorso}
                 showMuscles={showMuscles}
                 movement={movement}
                 sortieFilleVariant={sortieFilleVariant}
-                placement={isFiveActionFigure ? placement : undefined}
+                placement={hasPlacement ? placement : undefined}
                 sortieVariant={sortieVariant}
                 sortieContra={sortieContra}
                 showAppui={showAppui}
@@ -562,8 +566,8 @@ export default function App() {
       />
       {isSortieGarcon && <SortieGarconControls clock={clock} variant={sortieVariant}
         onVariant={setSortieVariant} contra={sortieContra} onContra={setSortieContra} onPlaying={setPlaying} />}
-      {isFiveActionFigure && <PlacementControl clock={clock} placement={placement}
-        onPlacement={setPlacement} onPlaying={setPlaying} />}
+      {hasPlacement && <PlacementControl clock={clock} placement={placement}
+        onPlacement={setPlacement} onPlaying={setPlaying} quarts={isQuartsPaire} />}
       {isSortieFille && <SortieFilleControls clock={clock} variant={sortieFilleVariant}
         onVariant={setSortieFilleVariant} onPlaying={setPlaying} />}
       </fieldset>
@@ -599,13 +603,13 @@ export default function App() {
               embrace={isPair}
               pair={isPair ? pairRef : null}
               side={isPair ? "leader" : null}
-              showContacts={isPair && showContacts && !isFiveActionFigure}
+              showContacts={isPair && showContacts && !hasPlacement}
               travel={travel}
               showTorso={showTorso}
               showMuscles={showMuscles}
               movement={movement}
               sortieFilleVariant={sortieFilleVariant}
-              placement={isFiveActionFigure ? placement : undefined}
+              placement={hasPlacement ? placement : undefined}
               sortieVariant={sortieVariant}
               sortieContra={sortieContra}
               showAppui={showAppui}
@@ -634,13 +638,13 @@ export default function App() {
                 embrace={isPair}
                 pair={isPair ? pairRef : null}
                 side={isPair ? "follower" : null}
-                showContacts={isPair && showContacts && !isFiveActionFigure}
+                showContacts={isPair && showContacts && !hasPlacement}
                 travel={travel}
                 showTorso={showTorso}
                 showMuscles={showMuscles}
                 movement={movement}
                 sortieFilleVariant={sortieFilleVariant}
-                placement={isFiveActionFigure ? placement : undefined}
+                placement={hasPlacement ? placement : undefined}
                 sortieVariant={sortieVariant}
                 sortieContra={sortieContra}
                 showAppui={showAppui}

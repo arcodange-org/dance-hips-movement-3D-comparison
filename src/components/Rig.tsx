@@ -184,6 +184,8 @@ export default function Rig({
       styleKey, amp, travel, dir, movement, embrace, corridinho, reverse, quarts,
       iso, ida, cadre, plant, temps3, follower: side === "follower", sortieVariant, sortieContra, sortieFilleVariant,
       placement: placement ?? "reference",
+      // #37: in pair, the quarter turns use the couple model (placement given by the app).
+      quartsPaire: embrace && movement === "quarts" && placement !== undefined,
     });
     if (stats) stats.current = result;
     const { loadL, loadR } = result;
