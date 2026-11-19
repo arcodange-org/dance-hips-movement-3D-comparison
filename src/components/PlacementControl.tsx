@@ -21,9 +21,9 @@ export default function PlacementControl({ clock, placement, onPlacement, onPlay
       </select>
     </label>
     <p className="text-xs text-slate-400">
-      Le couple part rapproché. Les pas suivants rejoignent la figure validée avant l’arrivée D/D.
-      Le rapprochement est complet jusqu’à l’amplitude 1, puis diminue jusqu’à l’écartement validé
-      à l’amplitude 2, pour que les os des genoux ne se croisent pas.
+      En quinconce, les demi-pointes se touchent, les genoux droits se croisent et le bassin du suiveur
+      suit celui du leader. Les pas suivants rejoignent la figure validée avant l’arrivée D/D. Le
+      rapprochement est complet jusqu’à l’amplitude 1, puis diminue jusqu’à l’amplitude 2.
     </p>
   </section>;
 }

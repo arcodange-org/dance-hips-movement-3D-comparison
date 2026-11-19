@@ -13,6 +13,9 @@ buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'clock', 'rigJoints
 const api = await import(bundle.href); unlinkSync(bundle);
 const near = (a, b, tolerance = 1e-8) => assert.ok(Math.abs(a - b) <= tolerance, `${a} != ${b} (tol ${tolerance})`);
 const world = (f, name) => f.r[name].getWorldPosition(new THREE.Vector3());
+// Functional foot axis (heel → ball), not the ankle pivot's +z: the GLB foot is natively turned out.
+const footAxis = (f, side) => { const t = f.model.legs[side].toeOut;
+  return new THREE.Vector3(Math.sin(t), 0, Math.cos(t)).applyQuaternion(f.r['foot' + side].getWorldQuaternion(new THREE.Quaternion())); };
 const couple = (figure = true) => {
   const dz = figure ? api.SORTIE_GARCON_PAIR_DZ : api.PAIR_DZ;
   return [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];
@@ -31,10 +34,15 @@ const thighContact = (proximity, hipA, kneeA, hipB, kneeB, label) => {
 };
 
 const o = api.placementOffset(placement);
+// Neutral stance at the start: feet under the hips (owner request), absorbed on each first step.
+const stanceOf = m => (m.legs.L.hipX - m.legs.L.rest.x + m.legs.R.rest.x - m.legs.R.hipX) / 2;
+const sign2 = i => i ? -1 : 1;
+let stance = 0;
 
 // Direction and support assertions describe the validated choreography, independently of the planner.
 for (const sortieVariant of ['line', 'right']) {
   const pair = couple();
+  stance = stanceOf(pair[0].model);
   const states = [];
   for (let beat = 0; beat <= 5; beat++) {
     states.push(pair.map((f, i) => {
@@ -49,7 +57,7 @@ for (const sortieVariant of ['line', 'right']) {
   assert(exitZ > exitX, `step 1 is more forward (${exitZ}) than sideways (${exitX})`);
   assert(states[1][0].L.z > states[0][0].L.z + .1, 'leader advances G');
   assert(states[1][1].R.z > states[0][1].R.z + .1, 'partner retreats D');
-  assert(states[2][0].R.z > states[2][0].L.z + .1, 'leader D is in front of G');
+  assert(states[2][0].R.z > states[2][0].L.z + .05, 'leader D is in front of G');
   assert(states[2][0].R.x > Math.max(states[2][1].R.x, states[2][1].L.x) + .1,
     'leader feet outside partner feet, not interleaved');
   assert(states[3][0].L.x < states[3][0].R.x - .1, 'G crosses in front of D toward initial lane');
@@ -60,12 +68,13 @@ for (const sortieVariant of ['line', 'right']) {
   }
   for (const i of [0, 1]) {
     for (const side of ['L', 'R']) {
-      // Validated final pose; the start is shifted by o in each dancer's frame (world sign by role).
-      const sign = i ? -1 : 1;
-      near(states[5][i][side].z - states[0][i][side].z, .70 - sign * o.z);
-      near(states[5][i][side].x - states[0][i][side].x, (sortieVariant === 'right' ? -.1 : 0) - sign * o.x);
+      // Validated final pose; the start is shifted by o and widened to the hips (neutral stance)
+      // in each dancer's frame (world sign by role).
+      const sign = i ? -1 : 1, widen = side === 'L' ? stance : -stance;
+      near(states[5][i][side].z - states[0][i][side].z, .70 - sign * (o.z + (side === 'R' ? (o.stagger ?? 0) / 2 : 0)));
+      near(states[5][i][side].x - states[0][i][side].x, (sortieVariant === 'right' ? -.1 : 0) - sign * (o.x + widen));
     }
-    near(states[5][i].L.x - states[5][i].R.x, states[0][i].L.x - states[0][i].R.x);
+    near(states[5][i].L.x - states[5][i].R.x, states[0][i].L.x - states[0][i].R.x - sign2(i) * 2 * stance);
   }
   near(states[5][0].root.x, states[5][1].root.x);
 }
@@ -99,7 +108,8 @@ for (const styleKey of Object.keys(api.STYLES)) for (const amp of [.5, 1, 2]) fo
       near(hip.distanceTo(knee), f.model.legs[side].length1);
       near(knee.distanceTo(foot), f.model.legs[side].length2);
       if (f.model.lift[side] > 1e-6) near(stats['load' + side], 0);
-      const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(f.r['foot' + side].getWorldQuaternion(new THREE.Quaternion()));
+      // Neutral feet (owner request): the heel → ball axis points forward, along the knees.
+      const forward = footAxis(f, side);
       near(forward.z, i ? -1 : 1); near(forward.x, 0);
     }
     if (beat >= 4) near(i ? stats.loadR : stats.loadL, 0);

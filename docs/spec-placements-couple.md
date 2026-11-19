@@ -5,8 +5,16 @@
 
 ## Décisions du propriétaire (19 novembre 2026)
 
-- **Quinconce, variante par défaut** : les **jambes droites** s'intercalent. Le D du leader se place
-  entre les pieds du suiveur et le D du suiveur entre ceux du leader.
+- **Quinconce, variante par défaut** : les **jambes droites** s'intercalent. Ordre des pieds, de la
+  droite du leader vers sa gauche : G suiveur, D leader, D suiveur, G leader. Au départ,
+  l'extérieur de l'avant du pied D du leader touche l'intérieur de l'avant du pied G du suiveur, et
+  l'intérieur de l'avant du pied G du leader touche l'extérieur de l'avant du pied D du suiveur, dans
+  le premier tiers du pied (zone de la demi-pointe, *ball of the foot*). Le haut du buste peut se toucher.
+- **Pieds neutres** : pieds orientés vers l'avant, dans l'axe des genoux, et sous les hanches en
+  position initiale.
+- **Genoux décalés en profondeur** : le genou D du leader passe un peu devant celui du suiveur,
+  entre ses genoux.
+- **Bassins couplés** : les hanches du suiveur cherchent celles du leader, qui les repousse.
 - **Face à face** : les pointes de pied sont presque en contact frontal (limité par les genoux, voir Calibrage).
 - **Arrivées relatives conservées** : les arrivées définies par rapport au partenaire (proximité
   des cuisses D/D, retour sur la ligne, marka final) restent celles des figures validées. Les autres pas
@@ -31,38 +39,57 @@ face au leader. Les sorties gardent leur écartement de référence : les racine
 
 ## Modèle
 
+### Pieds neutres
+
+Le pied du GLB est ouvert d'environ 25° (axe talon → demi-pointe). Dans les sorties, une correction
+de lacet par pied l'aligne sur l'axe du genou (`footAxisYaw`, `toeOut` dans `src/pose.ts`). Pieds droits,
+les demi-pointes (8,6 cm de large) ne laissent que 5,6 cm entre elles à l'écart natif des chevilles
+(±7,1 cm), trop peu pour y glisser celle du partenaire. La position initiale place donc les pieds
+**sous les hanches** (±8,4 cm). Chaque pied rejoint la trajectoire validée à son premier pas, comme
+le décalage de placement.
+
+### Placement
+
 Un placement est un **décalage de départ `o = (x, z)`**, identique pour les deux rôles et exprimé
-dans le repère propre de chaque danseur. Chacun se décale de `x` vers sa gauche et avance de `z`.
-Le couple reste centré sur la ligne de danse. L'écart relatif vaut `2x` latéralement, le suiveur
-passant à la droite du leader, et `2z` longitudinalement.
+dans le repère propre de chaque danseur. Chacun se décale de `x` vers sa gauche et avance de `z`,
+le pied D de `stagger / 2` de plus. Le couple reste centré sur la ligne de danse.
 
-| Placement | `o` (amplitude ≤ 1) | Demi-écartement effectif | Résultat au départ |
-| --- | --- | --- | --- |
-| Référence (interne, tests) | (0 ; 0) | 0,200 m | Figures validées, inchangées |
-| Face à face | (0 ; 0,010) | 0,190 m | Pointes à 6,4 cm au lieu de 8,4 cm |
-| Quinconce | (0,036 ; 0,035) | 0,165 m | Genoux D intercalés, racines à 33 cm au lieu de 40 cm |
+| Placement | `o` (amplitude ≤ 1) | Résultat au départ |
+| --- | --- | --- |
+| Référence (interne, tests) | (0 ; 0) | Figures validées, base sous les hanches |
+| Face à face | (0 ; 0,010) | Pointes rapprochées de 2 cm |
+| Quinconce | (0,0405 ; 0,060), `stagger` 0,10 | Demi-pointes au contact (≈ 1 mm), genoux D croisés |
 
-En quinconce, le décalage latéral relatif de 7,2 cm centre le genou D de chacun entre les genoux du
-partenaire. Les deux jambes droites se retrouvent côte à côte au centre, chacune entre les jambes
-de l'autre. Élargir ce décalage rapprocherait les deux genoux droits l'un de l'autre.
+En quinconce, le contact se fait à 31 % de la longueur du pied du leader et à 22 % de celle du
+suiveur, mesurés depuis la pointe : les deux sont dans le premier tiers. Les deux pieds droits
+restent à 2,4 cm l'un de l'autre.
 
 ### Calibrage : ce qui limite le rapprochement
 
-Les valeurs viennent d'un balayage de non-croisement des os des jambes (fémur, tibia, péroné,
-rotule) sur le GLB réel : six styles, figures et variantes, par pas de 0,1 temps jusqu'à l'arrivée
-relative. **Ce sont les genoux, pas les pieds, qui limitent.** La flexion des styles porte les
-rotules au-delà des pointes.
+Balayage de non-croisement des os des jambes (fémur, tibia, péroné, rotule) sur le GLB réel : six
+styles, deux figures, par pas de 0,1 temps. **Ce sont les genoux, pas les pieds, qui limitent.**
 
-| Placement | Amplitude ≤ 1 | Amplitude 2 |
-| --- | --- | --- |
-| Face à face | Rotules croisées dès 2 cm de rapprochement par danseur ; 1 cm sûr | 1 cm sûr |
-| Quinconce (x = 0,036) | 4 cm sûrs, croisement à 4,5 cm ; retenu 3,5 cm | Croisement dès 2 cm |
+1. Au contact des demi-pointes, le genou est au-dessus de la demi-pointe : les deux genoux D se
+   trouvent côte à côte, à 8,6 cm et à la même profondeur. Les os du genou font environ 8 cm de large ;
+   dès qu'un style plie ou balance, ils se croisent (dès l'amplitude 0,5 en tarraxinha et en kompa).
+2. **Décalage en profondeur** : avancer chaque pied D de 5 cm vers le partenaire fait passer le genou D
+   du leader devant celui du suiveur. Les demi-pointes restent dans le premier tiers.
+3. **Bassins couplés** : chaque danseur applique le même style dans son propre repère, et ils se font
+   face. Le suiveur reçoit donc les rotations et le déplacement latéral du bassin en miroir. Le kompa
+   décale le bassin de 1,8 cm : sans miroir, les deux hanches D convergent. Une même rotation verticale
+   autour de deux centres distants de 24 cm balance les cuisses centrales l'une vers l'autre : elle
+   est aussi mise en miroir. Le couplage est complet pendant la première action, s'efface pendant la
+   deuxième, et ne s'applique pas sans rapprochement.
+
+| Configuration (amplitudes 0,5 et 1, temps 0 à 2,5) | Poses en collision |
+| --- | --- |
+| Demi-pointes au contact, sans décalage ni couplage | dès le temps 0,1 (kompa, tarraxinha) |
+| Décalage de 8 cm, couplage sans miroir de la rotation verticale | 6 sur 312 |
+| Décalage de 8 cm, couplage complet | 1 sur 312 |
+| **Décalage de 10 cm, couplage complet** | **0 sur 312** |
 
 Décision du propriétaire : le rapprochement est complet jusqu'à l'amplitude 1, puis il **décroît
-linéairement jusqu'à l'écartement validé à l'amplitude 2** (`o × clamp(2 − amp, 0, 1)`). Aucun
-croisement d'os, et les styles restent inchangés. Un rapprochement plus fort, avec des pointes
-presque en contact, exigerait des genoux moins fléchis en placement rapproché : c'est une décision
-chorégraphique distincte, non prise ici.
+linéairement jusqu'à l'écartement validé à l'amplitude 2** (`o × clamp(2 − amp, 0, 1)`).
 
 ### Absorption du décalage, sans glissement
 
@@ -82,7 +109,7 @@ chorégraphique distincte, non prise ici.
 | Figure | Arrivée relative | Atterrissages décalés |
 | --- | --- | --- |
 | Sortie garçon | Action 2 : D du leader contre la cuisse D du suiveur, posée à l'action 1 | Aucun : chaque pied absorbe `o` à son premier pas |
-| Sortie fille | Action 3 : D du suiveur à côté du D du leader, posé à l'action 2 | Suiveur : D1, G2. Leader : aucun, car au crochet son D rejoint le niveau de son G |
+| Sortie fille | Action 3 : D du suiveur à côté du D du leader, posé à l'action 2 | Suiveur : G2. Son D1 est validé pour libérer le genou du leader ; son bassin finit son recul à 80 % du pas. Leader : aucun ; son crochet part 0,08 temps après le G2 |
 
 Dans la sortie garçon, l'arrivée D/D suit immédiatement le premier pas. La hauteur du bassin du
 leader dépend aussi de son pied libre : garder l'amplitude du G1 relèverait le bassin d'environ

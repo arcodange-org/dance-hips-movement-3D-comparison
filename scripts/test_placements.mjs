@@ -23,9 +23,11 @@ assert.equal(api.placementOf('face'), 'face');
 for (const value of ['quinconce', 'unknown', '', null, undefined]) assert.equal(api.placementOf(value), 'quinconce');
 assert.equal(api.DEFAULT_PLACEMENT, 'quinconce');
 for (const [amp, scale] of [[0, 1], [.5, 1], [1, 1], [1.5, .5], [2, 0], [3, 0], [NaN, 0]]) near(api.placementScale(amp), scale, 1e-12, `scale(${amp})`);
-assert.deepEqual(api.placementOffset('reference', 1), { x: 0, z: 0 });
-assert.deepEqual(api.placementOffset({ x: NaN, z: .1 }), { x: 0, z: 0 });
+assert.deepEqual(api.placementOffset('reference', 1), { x: 0, z: 0, stagger: 0 });
+assert.deepEqual(api.placementOffset({ x: NaN, z: .1 }), { x: 0, z: 0, stagger: 0 });
 near(api.placementOffset('quinconce', 1.5).z, api.PLACEMENT_OFFSETS.quinconce.z / 2, 1e-12);
+near(api.placementOffset('quinconce', 1.5).x, api.PLACEMENT_OFFSETS.quinconce.x, 1e-12); // lateral fades last
+near(api.placementOffset('quinconce', 1.75).x, api.PLACEMENT_OFFSETS.quinconce.x / 2, 1e-12);
 const shared = new URL(api.buildShareUrl('https://example.test/', { mode: 'pair', sortieF: true, placement: 'face' }, null, null));
 assert.equal(api.placementOf(shared.searchParams.get('placement')), 'face');
 console.log('PASS placements: parsing, share parameter and amplitude fade');
@@ -42,7 +44,8 @@ for (const figure of figures) for (const variant of figure.variants) for (const 
   const pair = couple(figure.dz), reference = couple(figure.dz);
   const pose = (fixtures, beat, role, extra) => api.applyPose(fixtures[role].r, fixtures[role].model, beat,
     { movement: figure.movement, embrace: true, follower: role === 1, [figure.key]: variant, ...extra });
-  // Start: each dancer shifted by o in their own frame; relative ankle offset 2o; couple centred.
+  // Start: each dancer shifted by o in their own frame (the right foot by `stagger / 2` more);
+  // relative ankle offset 2o; couple centred. Both starts share the neutral stance (feet under hips).
   const o = api.placementOffset(placement, 1);
   for (const role of [0, 1]) {
     pose(pair, 0, role, { placement }); pose(reference, 0, role, { placement: 'reference' });
@@ -50,7 +53,7 @@ for (const figure of figures) for (const variant of figure.variants) for (const 
     for (const side of ['L', 'R']) {
       const shifted = world(pair[role], 'foot' + side), validated = world(reference[role], 'foot' + side);
       near(shifted.x - validated.x, sign * o.x, 1e-9, `${figure.movement} ${placement} start x`);
-      near(shifted.z - validated.z, sign * o.z, 1e-9, `${figure.movement} ${placement} start z`);
+      near(shifted.z - validated.z, sign * (o.z + (side === 'R' ? (o.stagger ?? 0) / 2 : 0)), 1e-9, `${figure.movement} ${placement} start z`);
     }
   }
   if (placement === 'quinconce') {
@@ -88,7 +91,8 @@ console.log(`PASS placements: shifted start, validated D/D arrival, validated po
 const rest = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
 for (const variant of ['hook', 'back']) for (const placement of ['quinconce', 'face']) {
   const o = api.placementOffset(placement, 1);
-  for (const [beat, side] of [[1, 'R'], [2, 'L']]) {
+  // D1 lands on its validated target (frees the leader's knee); G2 keeps its amplitude.
+  for (const [beat, side] of [[2, 'L']]) {
     const shifted = api.sampleSortieFille(beat, true, rest, variant, o).feet[side];
     const validated = api.sampleSortieFille(beat, true, rest, variant, 'reference').feet[side];
     near(shifted.x - validated.x, o.x, 1e-12, `follower ${side} amplitude x`);
