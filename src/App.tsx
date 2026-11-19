@@ -25,6 +25,8 @@ import { STYLES, movementOf, movementFlags, PAIR_DZ, type ModeKey, type Movement
 import { QUARTS_PAIR_DZ } from "./quartsPaire";
 import { parseVec3, buildShareUrl } from "./share";
 import { DIR_LABELS, isDiagonal } from "./directions";
+import SoundControls from "./components/SoundControls";
+import { useMusic } from "./music/useMusic";
 
 function readParams(): URLSearchParams {
   if (typeof window === "undefined") return new URLSearchParams();
@@ -109,6 +111,11 @@ export default function App() {
   };
   const [dir, setDir] = usePersistentState("dir", 1);
   const [showBoussole, setShowBoussole] = usePersistentState("boussole", true);
+  // Son synthétisé (#44, docs/spec-son-synthese.md) : éteint à chaque visite (geste requis).
+  const [musicSide, setMusicSide] = usePersistentState<"A" | "B">("musique", "A");
+  const [musicMuted, setMusicMuted] = usePersistentState<string[]>("musiqueMuted", []);
+  const [musicVolume, setMusicVolume] = usePersistentState("musiqueVolume", 0.7);
+  const [soundWanted, setSoundWanted] = useState(false);
   const [copied, setCopied] = useState(false);
   const controlsRef = useRef<any>(null);
   const camPosParam = parseVec3(params.get("campos"));
@@ -184,6 +191,8 @@ export default function App() {
     // `delay` (retard du suiveur) supprimé en phase 15 : ignoré s'il est présent dans l'URL.
     if (["none", "A", "B"].includes(p.get("ghost") ?? "")) setGhostSel(p.get("ghost")!);
     if (p.has("contacts")) setShowContacts(p.get("contacts") !== "0");
+    if (p.get("musique") === "A" || p.get("musique") === "B") setMusicSide(p.get("musique") as "A" | "B");
+    if (p.get("son") === "1") setSoundWanted(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -218,6 +227,11 @@ export default function App() {
   const isCompare = mode === "compare";
   const isObserve = mode === "observe";
   const reverseB = isPair && corridinho;
+  // Comparaison : la musique de A ou de B ; sinon celle du style A.
+  const musicStyleKey = isCompare && musicSide === "B" ? styleB : styleA;
+  const music = useMusic({ clock, styleKey: musicStyleKey, bpm, playing: playing && !exporting,
+    muted: musicMuted, volume: musicVolume });
+  const soundOn = music.status === "on";
 
   // Partage de la vue : URL avec tous les paramètres d'état + l'angle caméra (campos/camtgt).
   const onShare = () => {
@@ -244,6 +258,7 @@ export default function App() {
       sortieGF: movement === "sortieGF" ? true : undefined,
       plant, corridinho, ligne: showLigne, iso, cadre, quarts, temps3, ida, dir,
       ghost: ghostSel, boussole: showBoussole, contacts: showContacts,
+      son: soundOn ? true : undefined, musique: soundOn && isCompare ? musicSide : undefined,
       cam: params.get("cam") ?? undefined, demo: params.get("demo") ?? undefined,
       bare: params.get("bare") ?? undefined, solid: params.get("solid") ?? undefined,
     }, camPos, camTgt, view);
@@ -580,6 +595,23 @@ export default function App() {
         contraposition={contraposition} onContraposition={setContraposition} />}
       {isSortieFille && <SortieFilleControls clock={clock} variant={sortieFilleVariant}
         onVariant={setSortieFilleVariant} onPlaying={setPlaying} />}
+      <SoundControls
+        status={music.status}
+        wanted={soundWanted}
+        onToggle={() => { setSoundWanted(false); void music.toggle(); }}
+        musicStyleKey={musicStyleKey}
+        isCompare={isCompare}
+        musicSide={musicSide}
+        onMusicSide={setMusicSide}
+        styleA={styleA}
+        styleB={styleB}
+        bpm={bpm}
+        onBpm={setBpm}
+        muted={musicMuted}
+        onMuted={setMusicMuted}
+        volume={musicVolume}
+        onVolume={setMusicVolume}
+      />
       </fieldset>
       {exporting && <p role="status">Export du cycle complet en cours…</p>}
       {exportError && <p role="alert">{exportError}</p>}
@@ -589,7 +621,7 @@ export default function App() {
         style={{ height: 540 }}
       >
         <Canvas camera={{ position: camPosParam ?? cam.position, fov: 42 }} dpr={[1, 2]}>
-          {!isFiveActionFigure && <DanceTransport clock={clock} bpm={bpm} playing={playing} />}
+          {!isFiveActionFigure && <DanceTransport clock={clock} bpm={bpm} playing={playing} driver={music.driver} />}
           <color attach="background" args={["#0b1220"]} />
           <ambientLight intensity={0.65} />
           <directionalLight position={[3, 5, 4]} intensity={1.3} />
@@ -600,7 +632,7 @@ export default function App() {
           <LineOfDance visible={ligneVisible} forward={isFiveActionFigure} />
           <React.Suspense fallback={null}>
             {isFiveActionFigure && <DanceTransport clock={clock} bpm={bpm} playing={playing}
-              endBeat={endBeat} onEnd={() => setPlaying(false)} />}
+              endBeat={endBeat} onEnd={() => setPlaying(false)} driver={music.driver} />}
             <Rig
               styleKey={styleA}
               bpm={bpm}

@@ -8,6 +8,13 @@ export function advanceClock(clock: DanceClock, delta: number, bpm: number, play
   if (clock.exportFrame !== null) return;
   if (playing) clock.beat = Math.min(endBeat, clock.beat + Math.max(0, Math.min(delta, 0.1)) * bpm / 60);
 }
+/** Son actif (docs/spec-son-synthese.md) : l'horloge audio pilote le temps ; renvoie true si elle l'a fait. */
+export interface ClockDriver { drive(clock: DanceClock, endBeat: number): boolean }
+/** Une image du transport : horloge audio si un pilote est actif, sinon advanceClock inchangé. */
+export function stepTransport(clock: DanceClock, delta: number, bpm: number, playing: boolean, endBeat = Infinity,
+  driver: ClockDriver | null = null): void {
+  if (!driver?.drive(clock, endBeat)) advanceClock(clock, delta, bpm, playing, endBeat);
+}
 export function cycleBeats(o: { movement?: string; quarts?: boolean; corridinho?: boolean; ida?: boolean; sortie?: boolean; temps3?: boolean }): number {
   if (o.movement === "sortieG" || o.movement === "sortieF") return 5;
   // Styles have periods dividing 4; marka steps have period 6.

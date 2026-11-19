@@ -271,3 +271,10 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [ ] Ida e volta : marche et contact plexus (#51).
 - [ ] Captures GIF mises à jour et validation à l'œil par le propriétaire.
 
+## Son synthétisé synchronisé (#44)
+
+- [x] Spécification poussée en premier ([spec](spec-son-synthese.md)).
+- [x] Grilles des six styles en données sourcées et planificateur pur (`src/music/`).
+- [x] Synthèse Web Audio, horloge audio maîtresse, bouton « Son », choix A/B, URL.
+- [x] `scripts/test_music.mjs` et `son-synthese.feature` dans `npm test` ; contrôle navigateur.
+- [ ] Écoute de validation par le propriétaire (grilles, équilibre, tempos) et décisions ouvertes.
