@@ -15,7 +15,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const bundle = join(root, "scripts", ".test-features-bundle.mjs");
 esbuild.buildSync({
   stdin: {
-    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon"; export * from "../src/sortieFille";',
+    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon"; export * from "../src/sortieFille"; export * from "../src/music/patterns"; export * from "../src/music/scheduler";',
     resolveDir: join(root, "scripts"),
     loader: "ts",
   },
@@ -115,6 +115,48 @@ function ampMax(travel) {
 
 // ---------- registre de steps ----------
 const steps = [
+  // Son synthétisé (#44, docs/spec-son-synthese.md)
+  [/^la musique "(\w+)"$/, (c, m) => {
+    if (!mod.MUSIC_STYLES[m[1]]) throw new Error("musique inconnue " + m[1]);
+    c.music = mod.MUSIC_STYLES[m[1]];
+  }],
+  [/^la piste "(\w+)" frappe aux pas ([\d, ]+) de la grille (\d)$/, (c, m) => {
+    const got = mod.gridNotes(c.music, Number(m[3]) - 1).filter((n) => n.track === m[1]).map((n) => n.step).join(",");
+    const want = m[2].split(",").map((x) => x.trim()).join(",");
+    if (got !== want) throw new Error(`${m[1]} : pas ${got}, attendu ${want}`);
+  }],
+  [/^la piste "(\w+)" est accentuée aux pas ([\d, ]+) de la grille (\d)$/, (c, m) => {
+    const notes = mod.gridNotes(c.music, Number(m[3]) - 1).filter((n) => n.track === m[1]);
+    const max = Math.max(...notes.map((n) => n.velocity));
+    const got = notes.filter((n) => n.velocity === max).map((n) => n.step).join(",");
+    const want = m[2].split(",").map((x) => x.trim()).join(",");
+    if (got !== want) throw new Error(`${m[1]} : accents ${got}, attendu ${want}`);
+  }],
+  [/^les fenêtres \[([\d.]+), ([\d.]+)\) et \[([\d.]+), ([\d.]+)\) donnent les mêmes notes que \[([\d.]+), ([\d.]+)\)$/, (c, m) => {
+    const [a, b, b2, d, e, f] = m.slice(1).map(Number);
+    const k = (es) => es.map((x) => `${x.track}@${x.beat}`).join(" ");
+    const parts = [...mod.eventsInWindow(c.music, a, b), ...mod.eventsInWindow(c.music, b2, d)];
+    if (k(parts) !== k(mod.eventsInWindow(c.music, e, f))) throw new Error("fenêtres incohérentes");
+  }],
+  [/^un transport audio parti du temps ([\d.]+) à (\d+) bpm$/, (c, m) => {
+    c.tr = mod.createTransport(0, Number(m[1]), Number(m[2]), true);
+  }],
+  [/^([\d.]+) s plus tard le temps de la danse vaut ([\d.]+)$/, (c, m) => {
+    const b = mod.beatAt(c.tr, Number(m[1]));
+    if (Math.abs(b - Number(m[2])) > 1e-9) throw new Error(`temps ${b}, attendu ${m[2]}`);
+  }],
+  [/^après un passage à (\d+) bpm à ([\d.]+) s, ([\d.]+) s plus tard le temps de la danse vaut ([\d.]+)$/, (c, m) => {
+    const tr = mod.retempoAt(c.tr, Number(m[2]), Number(m[1]));
+    const b = mod.beatAt(tr, Number(m[2]) + Number(m[3]));
+    if (Math.abs(b - Number(m[4])) > 1e-9) throw new Error(`temps ${b}, attendu ${m[4]}`);
+  }],
+  [/^on construit l'URL de partage avec son=true et musique=B$/, (c) => {
+    c.url = buildShareUrl("/app/", { mode: "compare", son: true, musique: "B" }, null, null);
+  }],
+  [/^l'URL contient son=1 et musique=B$/, (c) => {
+    const q = new URL(c.url, "https://exemple.test").searchParams;
+    if (q.get("son") !== "1" || q.get("musique") !== "B") throw new Error(c.url);
+  }],
   [/^on échantillonne la sortie fille au deuxième pas en variante "(hook|back)"$/, (c, m) => {
     const rest = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
     const pose = (beat, follower) => mod.sampleSortieFille(beat, follower, rest, m[1]);
