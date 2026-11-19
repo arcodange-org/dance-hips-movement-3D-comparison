@@ -319,7 +319,8 @@ export default function App() {
       const tick = (now: number) => {
         const elapsed = (now - started) / 1000;
         if (elapsed >= duration * 60 / bpm) {
-          if (isSortieFille) {
+          if (isFiveActionFigure) {
+            // Hold the final marka for two frames so the recording ends on it.
             clock.beat = duration;
             frameId = requestAnimationFrame(() => { frameId = requestAnimationFrame(() => rec!.stop()); });
           } else rec!.stop();
