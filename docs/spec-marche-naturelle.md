@@ -104,17 +104,17 @@ Chaque pas d'une figure suit un cycle de marche, sur la fenêtre de vol déjà d
 
 ### Sortie fille et plexus (suite de #51)
 
-- Le D1 du suiveur recule de 45 cm dans le crochet (55 cm avant) : écart maximal 18,9 → 15,6 cm.
+- Le D1 du suiveur recule de 45 cm dans le crochet (55 cm avant) : écart au temps 1 13 → 10 cm.
   Plus court, ses genoux rencontrent ceux du leader (quinconce, kompa). Dans la variante recul, aucun
-  raccourcissement sans collision ne réduit l'écart de plus de 1 cm : le D1 reste à 42 cm.
-- Les deux écarts restants viennent de la chorégraphie, pas des réglages :
-  - **action 2** : le G2 du suiveur s'ouvre de 55 cm sur le côté (crochet). Une ouverture plus
-    courte fait se chevaucher les pieds du couple ;
-  - **action 4** : le D du suiveur reste au contact D/D pendant que son G recroise : pieds écartés
-    de 55 cm, bassin plus bas de 12 cm, poitrine plus basse que celle du leader. Le buste penché ne
-    comble pas une différence de hauteur ; décaler le bassin vers le D fait croiser ses propres jambes.
-- Décision du propriétaire attendue : raccourcir l'ouverture latérale et le contact D/D de l'action 3,
-  ou faire descendre le leader avec la suiveuse (le couple s'abaisse ensemble).
+  raccourcissement sans collision ne gagne plus de 1 cm : le D1 reste à 42 cm.
+- Plexus par le buste seul (voir plus haut) : écart maximal 17,5 cm (crochet), 18,1 cm (recul).
+  - **Action 2** : le bassin du suiveur est à 33 cm sur le côté pendant que son G2 s'ouvre de 55 cm.
+  - **Action 4** : son D reste au contact D/D pendant que son G recroise ; pieds écartés de 55 cm,
+    bassin plus bas de 12 cm. Faire descendre le couple ensemble croise les jambes (mesuré).
+- **Choix du propriétaire : ouverture plus courte.** Exploration sur `arcodange/pas-courts` : ouverture
+  de 40 cm (bassin lié à l'ouverture) et contact D/D de l'action 3 rapproché de 8 cm, écart
+  17,5 → 14,1 cm (35 cm : 12,7 cm). Restent des chevauchements de pieds (1,3 ; 2,4 ; 3,4 temps) et
+  quelques os : trajectoires du crochet à recalibrer (#56).
 
 ## Limites
 
