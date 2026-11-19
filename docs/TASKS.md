@@ -252,3 +252,9 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
   `docs/retrospective-*.md`, ajouter une nouvelle rétrospective (auto-critique + session
   indépendante), évaluer les tâches à (r)ajouter ici, puis **re-ajouter cette ligne M4** —
   répéter jusqu'à satisfaction objective (rigueur maximale)
+
+## Sortie fille en paire (#27)
+
+- [x] Spécification et séquence en cinq actions ([spec](spec-sortie-fille.md)).
+- [ ] Trajectoires, cadre guidé, variantes, transport, partage et export.
+- [ ] Validation sur le GLB et protection des traces sortie garçon/combiné.
