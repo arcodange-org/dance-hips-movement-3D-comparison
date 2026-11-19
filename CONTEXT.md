@@ -5,6 +5,14 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Recherche biomécanique (19 novembre 2026)
+
+Documentation seule (#34, PR #35). `docs/recherche-biomecanique/` réunit
+environ 50 sources FR/EN (pied, bassin, genou et hanche, danse de couple, kiné/ostéo) et une page de
+confrontation paramètre par paramètre. Aucune étude biomécanique ne porte sur les six styles : les
+comparaisons passent par la marche, la danse orientale, le tango et la danse de salon. Les points à
+valider par le propriétaire sont listés en fin de `confrontation-modele.md`.
+
 ## Placements du couple #28 (19 novembre 2026)
 
 Branche `arcodange/placements-couple` (worktree `.claude/worktrees/placements-couple`), depuis `main` 1322a24.

@@ -114,6 +114,9 @@ Export depuis la pause, traînée réinitialisée et alimentée pendant l’expo
 
 ## Docs
 
+- [Recherche biomécanique](docs/recherche-biomecanique/README.md) : podologie, biomécanique,
+  kinésithérapie et ostéopathie (sources FR/EN), puis confrontation des paramètres du modèle
+  à la littérature, avec verdicts et points à valider.
 - [Différences biomécaniques entre les six styles](docs/styles-de-danse.md) (leviers du
   déhanché, ancrage, tableau comparatif, tempos).
 - [ADR 001 — rig paramétrique biodynamique](docs/adr/001-rig-parametrique-biodynamique.md)
