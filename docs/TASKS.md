@@ -259,3 +259,11 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Trajectoires, cadre guidé, variantes, transport, partage et export.
 - [x] Validation sur le GLB et protection des traces sortie garçon/combiné.
 - [x] Revue M4, contrôle navigateur des deux variantes et captures ([rétrospective](retrospective-sortie-fille.md)).
+
+## Son synthétisé synchronisé (#44)
+
+- [x] Spécification poussée en premier ([spec](spec-son-synthese.md)).
+- [x] Grilles des six styles en données sourcées et planificateur pur (`src/music/`).
+- [x] Synthèse Web Audio, horloge audio maîtresse, bouton « Son », choix A/B, URL.
+- [x] `scripts/test_music.mjs` et `son-synthese.feature` dans `npm test` ; contrôle navigateur.
+- [ ] Écoute de validation par le propriétaire (grilles, équilibre, tempos) et décisions ouvertes.

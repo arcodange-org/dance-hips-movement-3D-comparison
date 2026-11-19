@@ -85,6 +85,9 @@ note ; la boucle de 16 temps est périodique ; les temps négatifs sont accepté
 5. **Grilles** : simplifications pédagogiques de `docs/musique/` ; seules les variantes de base
    sont jouées (pas de version « ancienne » du semba ni de gabarit zouk antillais).
 6. Humanisation déterministe ±4 ms (±2 ms kompa/tarraxinha), vélocité ±8 % (±10 % dikanza).
+7. Équilibre des timbres (`LEVEL` dans `src/music/synth.ts`) réglé sur les niveaux RMS d'un rendu
+   hors ligne (`OfflineAudioContext`, aucun écrêtage ni NaN), pas à l'oreille : à valider.
+8. Glissando de basse (kizomba), chorus de guitare et Karplus-Strong non rendus (version simple).
 
 ## Validation
 

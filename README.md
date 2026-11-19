@@ -11,6 +11,17 @@ movements hips down are the dominant ones, not the upper body movements »).
 
 **🌐 Site déployé (GitHub Pages) : https://arcodange-org.github.io/dance-hips-movement-3D-comparison/**
 
+## Son synthétisé synchronisé (#44)
+
+Le bouton **« Son »** (éteint par défaut) joue une musique **synthétisée dans le navigateur**
+(Web Audio) propre au style : grilles de 16 pas, harmonie et timbres de
+[docs/musique/](docs/musique/README.md), sans enregistrement ni œuvre protégée. Quand le son est
+actif, **l'horloge audio pilote la danse** (b = (t − t0)·bpm/60) : image et son ne dérivent pas ;
+son coupé, le comportement est inchangé. En comparaison, on choisit la musique de A ou de B.
+Le tempo reste celui du curseur (un bouton propose le tempo conseillé du style) ; chaque piste
+affiche son niveau de preuve (documenté, faible, proposition) et peut être coupée. URL :
+`son=1&musique=A|B`. [Spécification et choix provisoires](docs/spec-son-synthese.md).
+
 ## Sortie garçon — cinq actions validées
 
 En mode paire, « Sortie garçon » joue G–D–G croisé–D–marka G pour le leader ; la partenaire
@@ -150,6 +161,8 @@ Export depuis la pause, traînée réinitialisée et alimentée pendant l’expo
   + méthode anti-amnésie (`CONTEXT.md`).
 - [Musique des six styles](docs/musique/README.md) : tempos, instruments, rythmes et nuances,
   grilles et timbres proposés pour un son synthétisé synchronisé (#38, à valider).
+- [Spec son synthétisé](docs/spec-son-synthese.md) : grilles en données, planificateur, horloge
+  audio maîtresse, interface « Son » (#44, choix provisoires à valider).
 - [Cadre leader/suiveur](docs/cadre/README.md) : points de contact, actions et intentions de
   guidage par danse et par figure, spec d'implémentation (#40, à valider).
 
@@ -250,6 +263,9 @@ sur une police (ex. DejaVu) — sinon aucun texte n'est rendu dans les vidéos.
 - `src/pose.ts` — moteur déterministe de pose finale, planning des pieds, IK, mesures HUD.
 - `src/clock.ts`, `src/components/DanceTransport.tsx` — horloge commune et périodes d’export.
 - `src/rigJoints.ts` — positions du buste partagées entre le rendu et les tests.
+- `src/music/` — son synthétisé : `patterns.ts` (grilles par style, niveau de preuve),
+  `scheduler.ts` (fenêtres de notes, transport audio, moteur testable), `synth.ts` (timbres
+  Web Audio), `useMusic.ts` (hook, pilote d'horloge) ; `src/components/SoundControls.tsx`.
 - `src/components/Rig.tsx` — montage GLB/buste, apparence, appuis et traînée du bassin.
 - `CONTEXT.md` — état du projet + méthode anti-amnésie + procédure de reprise de session.
 - `src/components/Controls.tsx`, `InfoCards.tsx`, `ContactViz.tsx`, `GridFloor.tsx`,
@@ -265,6 +281,7 @@ sur une police (ex. DejaVu) — sinon aucun texte n'est rendu dans les vidéos.
 - `anatomy_meta.json` — positions articulaires réelles (mètres, repère du canvas).
 - `scripts/capture_gifs.mjs` — captures Playwright → GIF (ffmpeg-static) dans `docs/gifs/`.
 - `scripts/test_styles.mjs`, `scripts/test_features.mjs` — courbes et scénarios Gherkin.
+- `scripts/test_music.mjs` — grilles, accents par style, fenêtres de planification, horloge audio.
 - `scripts/test_poses.mjs`, `scripts/pose_fixture.mjs` — GLB réel, matrices finales, sol,
   longueur des os, appuis, marqueurs, continuité, transport et cycles (`npm test`).
 - `scripts/rebuild_anatomy.py` — régénération d'une anatomie plus fine à partir de BodyParts3D
