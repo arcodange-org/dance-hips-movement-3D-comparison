@@ -43,11 +43,14 @@ interface Action {
 
 export function sampleSortieFille(beat: number, follower: boolean,
   rest: Record<FigureFoot, FootPoint>, variant: SortieFilleVariant = "hook",
-  placement: CouplePlacement | "reference" | PlacementOffset = "reference") {
+  placement: CouplePlacement | "reference" | PlacementOffset = "reference", contact = 1) {
   const b = sortieFilleBeat(beat);
   const index = Math.min(4, Math.floor(b));
   const t = b - index;
   const back = variant === "back";
+  // Owner request (19 Nov.): at action 3 the upper right thighs touch. The follower's pelvis comes
+  // 2 cm (hook) or 3 cm (back) closer to the leader's; `contact` fades this above amplitude 1.
+  const touch = Number.isFinite(contact) ? Math.max(0, Math.min(1, contact)) : 1;
   const halfHip = HIP_WIDTH / 2;
   const firstLeaderZ = .12;
   const firstFollowerZ = back ? -.42 : -.55;
@@ -68,7 +71,7 @@ export function sampleSortieFille(beat: number, follower: boolean,
   const steps: Action[] = follower ? [
     { foot: "R", target: { x: .07, z: firstFollowerZ }, body: { x: 0, z: firstFollowerZ * .43 } },
     { foot: "L", target: { x: secondFollowerX, z: back ? .13 : 0 }, body: { x: back ? .22 : .33, z: back ? -.005 : -.12 } },
-    { foot: "R", target: approach, body: { x: back ? .36 : .43, z: back ? .44 : .30 } },
+    { foot: "R", target: approach, body: { x: mix(back ? .36 : .43, back ? .33 : .41, touch), z: back ? .44 : .30 } },
     { foot: "L", target: mark, body: { x: .16, z: returnBodyZ },
       corner: { x: secondFollowerX, z: returnZ }, keep: "x", delay: .24 },
     { foot: "R", target: mark, body: { x: mark.x, z: returnBodyZ },

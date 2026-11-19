@@ -10,7 +10,7 @@ import { facingSector } from "./directions";
 import { sampleSortieGarcon, DEFAULT_SORTIE_CONTRA, type SortieVariant } from "./sortieGarcon";
 
 import { sampleSortieFille, type SortieFilleVariant } from "./sortieFille";
-import { placementOffset, type CouplePlacement } from "./placement";
+import { placementOffset, placementScale, type CouplePlacement } from "./placement";
 
 export type Side = "L" | "R";
 const SIDES: Side[] = ["L", "R"];
@@ -183,8 +183,8 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
   const o = { ...DEFAULT_POSE, ...options };
   const rest = { L: model.legs.L.rest, R: model.legs.R.rest };
   const figure = !o.embrace ? null
-    : o.movement === "sortieG" ? sampleSortieGarcon(beat, o.follower, rest, o.sortieVariant, o.sortieContra, placementOffset(o.placement, o.amp))
-    : o.movement === "sortieF" ? sampleSortieFille(beat, o.follower, rest, o.sortieFilleVariant, placementOffset(o.placement, o.amp))
+    : o.movement === "sortieG" ? sampleSortieGarcon(beat, o.follower, rest, o.sortieVariant, o.sortieContra, placementOffset(o.placement, o.amp), placementScale(o.amp))
+    : o.movement === "sortieF" ? sampleSortieFille(beat, o.follower, rest, o.sortieFilleVariant, placementOffset(o.placement, o.amp), placementScale(o.amp))
     : null;
   if (figure) beat = figure.beat;
   resetRig(r);

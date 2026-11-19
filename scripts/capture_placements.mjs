@@ -4,7 +4,7 @@
 import { chromium } from "playwright";
 const out = new URL("../docs/placements/", import.meta.url).pathname;
 const views = { dessus: "campos=0,2.1,0.001&camtgt=0,0,0", profil: "campos=2.0,0.55,0&camtgt=0,0.42,0" };
-const figures = { garcon: { flag: "sortieG", beats: [0, 1] }, fille: { flag: "sortieF", beats: [0, 1, 2] } };
+const figures = { garcon: { flag: "sortieG", beats: [0, 1, 2] }, fille: { flag: "sortieF", beats: [0, 1, 2, 3] } };
 const sources = { reference: "https://arcodange-org.github.io/dance-hips-movement-3D-comparison/", quinconce: "http://localhost:5182/", face: "http://localhost:5182/" };
 const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH, args: ["--no-sandbox", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"] });
 const page = await browser.newPage({ viewport: { width: 640, height: 480 } });

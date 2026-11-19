@@ -30,19 +30,25 @@ export function sortieGarconSettings(params: URLSearchParams): { variant: Sortie
 
 export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record<FigureFoot, FootPoint>,
   variant: SortieVariant = "line", contraDegrees = DEFAULT_SORTIE_CONTRA,
-  placement: CouplePlacement | "reference" | PlacementOffset = "reference") {
+  placement: CouplePlacement | "reference" | PlacementOffset = "reference", contact = 1) {
   const b = sortieGarconBeat(beat);
   const index = Math.min(4, Math.floor(b));
   const t = b - index;
   const shift = variant === "right" ? 0.10 : 0;
+  // Owner request (19 Nov.): at action 2 the middle of the right thighs touch. The partner's G2
+  // retreats less (25 cm) and the leader's D2 goes further (45 cm), so the pelvises are 20 cm apart
+  // along the line instead of 40 cm; the leader's pelvis sits 2 cm inside his D, which stays out
+  // for the partner's D3 to pass, and moves 5 cm further during the crossing so that G clears D. `contact` (1 up to amplitude 1, 0 at amplitude 2) returns to the
+  // earlier, looser arrival where large style motion would make the femurs cross.
+  const touch = Number.isFinite(contact) ? Math.max(0, Math.min(1, contact)) : 1;
   // Absolute offsets from the initial ankle positions, in each dancer's local frame.
   // The follower retreats with D/G/D/G; it never copies the leader's exit or crossing.
   const steps: [FigureFoot, FootPoint][] = follower ? [
-    ["R", { x: 0, z: -0.14 }], ["L", { x: 0, z: -0.40 }],
+    ["R", { x: 0, z: -0.14 }], ["L", { x: 0, z: mix(-0.40, -0.25, touch) }],
     ["R", { x: 0, z: -0.70 }], ["L", { x: shift, z: -0.70 }],
     ["R", { x: shift, z: -0.70 }],
   ] : [
-    ["L", { x: 0.34, z: 0.14 }], ["R", { x: 0.34, z: 0.40 }],
+    ["L", { x: 0.34, z: 0.14 }], ["R", { x: mix(0.34, 0.345, touch), z: mix(0.40, 0.45, touch) }],
     ["L", { x: 0, z: 0.70 }], ["R", { x: -shift, z: 0.70 }],
     ["L", { x: -shift, z: 0.70 }],
   ];
@@ -62,7 +68,8 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   // D follows would over-stretch that leg and force G's knee into the partner.
   const bodyAfter = (action: number, offset: FootPoint): FootPoint =>
     !follower && action === 0 ? { x: 0.17, z: 0.07 }
-    : !follower && action === 2 ? { x: 0.17, z: 0.55 } : offset;
+    : !follower && action === 1 ? { x: mix(0.34, 0.325, touch), z: offset.z }
+    : !follower && action === 2 ? { x: 0.17, z: mix(0.55, 0.60, touch) } : offset;
   let support: FigureFoot = follower ? "L" : "R";
   let body: FootPoint = { x: 0, z: 0 };
   for (let i = 0; i < index; i++) {

@@ -19,6 +19,16 @@ const couple = () => {
 // TEST_PLACEMENT=reference|quinconce|face replays the whole runner for one couple placement.
 const placement = process.env.TEST_PLACEMENT ?? 'reference';
 const options = { movement: 'sortieF', embrace: true, placement };
+// Owner request (19 Nov.): the middle/upper right thighs touch at the D/D arrival. Contact of the
+// illustrative 8.5 cm envelopes: gap in [-6, +3] mm, closest points on the middle/upper part
+// of both femurs (s ≤ 0.65 along hip → knee).
+const thighContact = (proximity, hipA, kneeA, hipB, kneeB, label) => {
+  const sA = proximity.centerA.distanceTo(hipA) / hipA.distanceTo(kneeA), sB = proximity.centerB.distanceTo(hipB) / hipB.distanceTo(kneeB);
+  assert(proximity.gap >= -.006 && proximity.gap <= .003, `${label}: thighs touch (gap ${proximity.gap})`);
+  assert(sA <= .65 && sB <= .65, `${label}: contact on the middle/upper thighs (s=${sA.toFixed(2)}/${sB.toFixed(2)})`);
+  return { sA, sB };
+};
+
 const o = api.placementOffset(placement);
 
 const variants = ['hook', 'back'];
@@ -207,10 +217,10 @@ for (const sortieFilleVariant of variants) {
   pair.forEach((f, i) => api.applyPose(f.r, f.model, 3, { ...options, follower: !!i, sortieFilleVariant }));
   const proximity = api.thighProximity(world(pair[0], 'hipR'), world(pair[0], 'kneeR'), world(pair[1], 'hipR'), world(pair[1], 'kneeR'));
   assert(proximity.direction.x < -.95, `rightward thigh proximity: ${proximity.direction.x}`);
-  assert(proximity.gap >= 0 && proximity.gap < .03, `illustrative thigh gap ${proximity.gap}`);
-  console.log(sortieFilleVariant, `illustrative D/D gap ${(proximity.gap * 1000).toFixed(1)} mm, rightward component ${proximity.direction.x.toFixed(2)}`);
+  const { sA, sB } = thighContact(proximity, world(pair[0], 'hipR'), world(pair[0], 'kneeR'), world(pair[1], 'hipR'), world(pair[1], 'kneeR'), `sortieF ${sortieFilleVariant}`);
+  console.log(sortieFilleVariant, `D/D thigh contact ${(proximity.gap * 1000).toFixed(1)} mm at s=${sA.toFixed(2)}/${sB.toFixed(2)}, rightward component ${proximity.direction.x.toFixed(2)}`);
 }
-console.log('PASS sortie fille: swept foot hulls and rightward D/D thigh proximity');
+console.log('PASS sortie fille: swept foot hulls and D/D contact of the upper thighs');
 
 // Real transformed triangles, not GLB cached bounding boxes or knee-marker distances.
 // Include mid-flight poses, direction changes and landings specific to the two variants.

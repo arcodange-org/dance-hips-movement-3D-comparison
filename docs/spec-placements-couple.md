@@ -90,6 +90,17 @@ leader dépend aussi de son pied libre : garder l'amplitude du G1 relèverait le
 relative prime, donc le rapprochement se résorbe sur le premier pas de chaque pied. Les autres atterrissages sont validés. Les marka finals et les variantes (fin à droite, recul)
 sont donc inchangés.
 
+## Contact des cuisses à l'arrivée D/D (demande du 19 novembre)
+
+À l'action 2 (garçon) et à l'action 3 (fille), le milieu et le haut des cuisses D des deux
+danseurs **se touchent**. Le contact est défini sur les enveloppes illustratives de 8,5 cm : écart
+compris entre −6 et +3 mm, points de contact sur la moitié haute ou le milieu des deux fémurs
+(s ≤ 0,65, de la hanche au genou). L'arrivée relative étant commune à tous les placements, ce contact
+vaut pour la référence, le quinconce et le face à face. Il suit la même atténuation selon
+l'amplitude. Détails : [sortie garçon](spec-sortie-garcon.md), [sortie fille](spec-sortie-fille.md).
+Les empreintes de non-régression `sortieG` du fixture sont régénérées (252 sur 504 changent, aux
+amplitudes ≤ 1). Celles du combiné `sortieGF` sont inchangées.
+
 ## Interface, partage, export
 
 - Sélecteur « Placement du couple » (Quinconce / Face à face), visible pour les deux sorties en paire.

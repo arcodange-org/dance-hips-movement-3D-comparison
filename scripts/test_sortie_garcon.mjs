@@ -20,6 +20,16 @@ const couple = (figure = true) => {
 // TEST_PLACEMENT=reference|quinconce|face replays the whole runner for one couple placement.
 const placement = process.env.TEST_PLACEMENT ?? 'reference';
 const options = { movement: 'sortieG', embrace: true, placement };
+// Owner request (19 Nov.): the middle/upper right thighs touch at the D/D arrival. Contact of the
+// illustrative 8.5 cm envelopes: gap in [-6, +3] mm, closest points on the middle/upper part
+// of both femurs (s ≤ 0.65 along hip → knee).
+const thighContact = (proximity, hipA, kneeA, hipB, kneeB, label) => {
+  const sA = proximity.centerA.distanceTo(hipA) / hipA.distanceTo(kneeA), sB = proximity.centerB.distanceTo(hipB) / hipB.distanceTo(kneeB);
+  assert(proximity.gap >= -.006 && proximity.gap <= .003, `${label}: thighs touch (gap ${proximity.gap})`);
+  assert(sA <= .65 && sB <= .65, `${label}: contact on the middle/upper thighs (s=${sA.toFixed(2)}/${sB.toFixed(2)})`);
+  return { sA, sB };
+};
+
 const o = api.placementOffset(placement);
 
 // Direction and support assertions describe the validated choreography, independently of the planner.
@@ -133,10 +143,11 @@ for (const sortieVariant of ['line', 'right']) {
   }
   pair.forEach((f, i) => api.applyPose(f.r, f.model, 2, { ...options, follower: !!i }));
   const proximity = api.thighProximity(world(pair[0], 'hipR'), world(pair[0], 'kneeR'), world(pair[1], 'hipR'), world(pair[1], 'kneeR'));
-  assert(proximity.direction.x < -.95, 'D/D proximity is lateral, on both anatomical right flanks');
-  assert(proximity.gap >= 0 && proximity.gap < .03, `illustrative thigh gap ${proximity.gap}`);
+  assert(proximity.direction.x < -.85, `D/D proximity is lateral, on both anatomical right flanks (${proximity.direction.x})`);
+  const { sA, sB } = thighContact(proximity, world(pair[0], 'hipR'), world(pair[0], 'kneeR'), world(pair[1], 'hipR'), world(pair[1], 'kneeR'), `sortieG ${sortieVariant}`);
+  console.log(sortieVariant, `D/D thigh contact ${(proximity.gap * 1000).toFixed(1)} mm at s=${sA.toFixed(2)}/${sB.toFixed(2)}`);
 }
-console.log('PASS swept foot hull clearance and lateral D/D thigh proximity (illustrative envelopes)');
+console.log('PASS swept foot hull clearance and D/D contact of the middle/upper thighs (illustrative envelopes)');
 
 // The geometry guard must detect both surface crossings and full containment.
 const cube = (size, x = 0) => {
