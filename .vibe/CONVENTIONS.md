@@ -44,7 +44,7 @@ sans transfert et tient la phase corporelle de l'action 4. Déplacement généri
 et désactivation de l'IK ne remplacent pas le plan validé. Paramètres : `sortieVariant=line|right`,
 `sortieContra=0..30` (degrés illustratifs), `sortieBeat=0..5` (pose à partager).
 
-L'écartement initial spécifique est 0,40 m entre racines ; `PAIR_DZ=0.175` est inchangé ailleurs.
+L'écartement initial de la sortie garçon est 0,40 m entre racines.
 Le bassin reste entre les pieds aux actions 1 et 3, puis termine la progression aux actions 2
 et 4. Pour cette figure, les isolations sur place sont bornées par la portée et le dégagement
 mesuré des jambes : supplément de niveau ≤8 mm, flexion demandée ≤0,45 rad, rotations du
@@ -56,11 +56,19 @@ de rayon 8,5 cm. Les tests de collision osseuse utilisent les vrais triangles ap
 avec leurs propres boîtes calculées depuis les sommets (GLB quantifié). Ils ne certifient pas
 l'absence de collision des tissus mous ou des bras.
 
+## Sortie fille en paire — amendement #27 (19 novembre 2026)
+
+`sortieF=1` sélectionne cinq actions, avec un écart initial de 0,40 m entre les racines.
+`sortieFilleVariant=hook|back` choisit le deuxième pas. Avec `back`, le droit du leader recule
+et le gauche du suiveur avance en diagonale. `sortieBeat=0..5` partage une pose.
+Les repères D/D sont visibles autour du troisième arrêt. Les limites IK de la sortie garçon
+s'appliquent aussi à cette figure. `sortieGF=1` conserve son cycle historique de 16 temps.
+
 ## Paramètres d'URL (captures + partage)
 
 `?mode=solo|observe|compare|pair&style=kizomba&styleB=kompa&bpm=90&travel=0.6&amp=1&playing=1&ghost=none&contacts=1`
 (pas de `delay` : le retard du suiveur a été supprimé en phase 15 — en pair le suiveur est le
-miroir exact de styleA ; `styleB` n'est utilisé qu'en `mode=compare` ; `contacts=` affiche les
+miroir de styleA pour les pas génériques ; les sorties en cinq actions ont des pas coordonnés propres à chaque rôle. `styleB` n'est utilisé qu'en `mode=compare` ; `contacts=` affiche les
 repères de proximité poitrine/bassin/genoux en paire. Posture par style : `posture:{lean,knee}` dans
 `src/styles.ts`.)
 + `&torso=0&muscles=1&sortie=1&repere=0&appui=1&plant=0&corridinho=1&ligne=0&iso=0&cadre=0&quarts=1&temps3=1&ida=1&dir=-1&boussole=0&solid=1&bare=1`

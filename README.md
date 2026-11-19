@@ -24,8 +24,7 @@ commun vers la droite du leader ; la contraposition est ajustable, sans angle im
 [Tests et rétrospective](docs/retrospective-sortie-garcon.md).
 
 URL : `?mode=pair&sortieG=1&playing=0&sortieBeat=2&sortieVariant=line&sortieContra=12`.
-La ligne rose suit ici l'avant du leader (+z). La sortie fille (8 temps) et le combiné
-(16 temps) conservent leur comportement historique ; leur description sera validée séparément.
+La ligne rose suit ici l'avant du leader (+z). Le combiné G→F (16 temps) conserve les trajectoires historiques.
 Le plan des pieds est indépendant du curseur de déplacement générique. Les styles et la
 proximité des cuisses restent des illustrations paramétriques, pas une simulation de forces.
 
@@ -38,14 +37,47 @@ Les jauges HTML ne sont pas incluses. Le GIF boucle ; l'application conserve la 
 [Séquence et sources](docs/spec-sortie-garcon.md), [preuves et limites](docs/retrospective-sortie-garcon.md).
 </details>
 
-## Vérifications de l'oracle
+## Sortie fille — cinq actions en paire
+
+Le leader avance G puis dessine un crochet du droit. Le suiveur recule D puis sort à gauche.
+Dans la variante recul, le leader recule D pendant que le suiveur avance G en diagonale gauche.
+L’ouverture du buste du leader guide la sortie dans le cadre. Le droit du suiveur avance en
+diagonale et arrive à côté du droit du leader. Le leader dégage ensuite le passage au croisé. Au marka, le leader
+reste sur D et le suiveur sur G. La lecture conserve cette pose finale.
+
+URL de partage : `?mode=pair&sortieF=1&sortieFilleVariant=hook&sortieBeat=3&playing=0`.
+Le deuxième pas accepte aussi `sortieFilleVariant=back`.
+[Séquence, mesures et limites](docs/spec-sortie-fille.md).
+
+![Sortie fille en paire, variante crochet](docs/gifs/sortie-fille-crochet.gif)
+<details><summary>Détails et source du contrôle crochet</summary>
+
+Cinq temps à 60 bpm, kizomba d’amplitude 1. Le droit du leader dessine le crochet et le gauche
+du suiveur se décale de 55 cm. L’illustration reprend la séquence décrite par le propriétaire.
+La proximité des flancs est mesurée sur des enveloppes de cuisse. Les charges affichées
+dans l’application indiquent les appuis prescrits. BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
+[Description](docs/notes-sortie-fille.md) · [Mesures et limites](docs/spec-sortie-fille.md).
+
+</details>
+
+![Sortie fille en paire, variante recul](docs/gifs/sortie-fille-recul.gif)
+<details><summary>Détails et source du contrôle recul</summary>
+
+Cinq temps à 60 bpm, kizomba d’amplitude 1. Le droit du leader recule. Le gauche du suiveur
+avance de 13 cm et s’écarte de 34 cm à sa gauche. Les deux GIFs sont issus de l’export du
+canvas et bouclent. La lecture dans l’application conserve le marka final.
+BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
+[Description](docs/notes-sortie-fille.md) · [Mesures et limites](docs/spec-sortie-fille.md).
+
+</details>
+
+## Vérifications de l’oracle
 
 Les contrôles de l'oracle distinguent désormais les poses évaluées, les cibles et les rotations
 locales/monde. Ils vérifient les limites de trajectoire, les derniers pas inversés et le rejet
 de cinq erreurs injectées, en plus des poses GLB. [Contrat de l'oracle](docs/spec-phase18-oracle.md),
 [corrections #25 et preuves](docs/retrospective-oracle-corrections.md).
-La [description reçue de la sortie fille](docs/notes-sortie-fille.md) prépare la prochaine étape ;
-elle n'est pas encore implémentée.
+Les cellules historiques G/F décrivent les anciennes trajectoires. Les figures en cinq actions ont leurs propres tests GLB.
 
 ## Captures après correction de l’audit #17
 

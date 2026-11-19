@@ -48,3 +48,21 @@ export function meshIntersection(a, b) {
   return null;
 }
 
+
+// Actual foot convex hulls: conservative horizontal clearance, even when the swing is airborne.
+export function footHull(points) {
+  const sorted = points.map(p => [p.x, p.z]).sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const cross = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+  const half = rows => { const h = []; for (const p of rows) { while (h.length > 1 && cross(h.at(-2), h.at(-1), p) <= 0) h.pop(); h.push(p); } return h; };
+  return [...half(sorted).slice(0, -1), ...half([...sorted].reverse()).slice(0, -1)];
+}
+export function footHullsOverlap(a, b) {
+  for (const polygon of [a, b]) for (let i = 0; i < polygon.length; i++) {
+    const p = polygon[i], q = polygon[(i + 1) % polygon.length];
+    const axis = [q[1] - p[1], p[0] - q[0]], length = Math.hypot(...axis);
+    const project = v => (v[0] * axis[0] + v[1] * axis[1]) / length;
+    const pa = a.map(project), pb = b.map(project);
+    if (Math.min(Math.max(...pa), Math.max(...pb)) - Math.max(Math.min(...pa), Math.min(...pb)) <= .0001) return false;
+  }
+  return true;
+}

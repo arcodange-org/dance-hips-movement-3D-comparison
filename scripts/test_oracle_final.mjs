@@ -77,16 +77,15 @@ for(const movement of ['quarts','ida']) for(const reverse of movement==='quarts'
 assert.equal(coverage.length,6,'both roles, both quarts directions, ida forward');
 assert.equal(coverage.filter(c=>c.reverse).length,2,'reverse evaluated on the GLB for both roles');
 
-// All old M5 paths remain exercised. The G case targets only the legacy internal option.
+// All old M5 paths remain exercised. G and F target the legacy internal option on their active roles.
 // Historical reset at b=5/13 is characterised, not silently turned into a continuity claim.
 for(const movement of ['sortieG','sortieF','sortieGF']) for(const follower of [false,true]) {
   const cycle=movement==='sortieGF'?16:8, role=follower?'follower':'leader';
   const f=fixture(api,{rotation:follower?Math.PI:0,offset:[0,0,follower?.175:-.175]});
   // Do not confuse the old internal sortie=true (active for both) with G's role window.
   // Its inactive follower uses the baseline pose; the current sortieG is a different figure.
-  const config=movement==='sortieG'
-    ? follower?{movement:'none',sortie:false,follower:true}:{movement:'none',sortie:true}
-    : {movement,follower};
+  const config=movement==='sortieGF' ? {movement,follower}
+    : {movement:'none',sortie:movement==='sortieG' ? !follower : follower,follower};
   const times=[...new Set([...Array.from({length:cycle*4+1},(_,i)=>i/4),...Array.from({length:cycle},(_,i)=>i+.6)])].sort((a,b)=>a-b);
   for(const b of times) check(f,b,api.legacySortiePose(movement,b,role,rest(f)),config,`legacy ${movement} ${role} b=${b}`);
   const reset=movement==='sortieGF'?(follower?13:5):5;

@@ -86,7 +86,6 @@ utilisent leurs sommets et triangles transformés, pas les boîtes précalculée
 La vérification des pieds emploie leurs enveloppes convexes horizontales, y compris en vol.
 Les bras et les collisions de tous les tissus musculaires restent hors du modèle de contact.
 
-Régression historique : `scripts/fixtures/sorties-historiques.json` contient 576 empreintes de
-matrices finales et métriques de `main` 2621e59, à la précision 10⁻⁶, pour sortieF/sortieGF.
-Le nouveau runner les compare avec les nouveaux réglages activés pour s'assurer qu'ils sont
-sans effet hors de sortieG. [Rétrospective](retrospective-sortie-garcon.md).
+Le chantier #27 prolonge la régression avec 504 empreintes sortieG
+de `fa551c3` et conserve les 288 empreintes historiques sortieGF de `2621e59`. Le nouveau
+rendu sortieF est décrit dans [sa spécification](spec-sortie-fille.md). [Rétrospective](retrospective-sortie-garcon.md).

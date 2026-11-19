@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "capture": "node scripts/capture_gifs.mjs",
-    "test": "node scripts/test_styles.mjs && node scripts/test_features.mjs && node scripts/test_oracle.mjs && node scripts/test_poses.mjs && node scripts/test_oracle_final.mjs && node scripts/test_oracle_mutations.mjs && node scripts/test_sortie_garcon.mjs"
+    "test": "node scripts/test_styles.mjs && node scripts/test_features.mjs && node scripts/test_oracle.mjs && node scripts/test_poses.mjs && node scripts/test_oracle_final.mjs && node scripts/test_oracle_mutations.mjs && node scripts/test_sortie_garcon.mjs && node scripts/test_sortie_fille.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
