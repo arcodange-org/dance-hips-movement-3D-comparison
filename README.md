@@ -37,6 +37,15 @@ Les jauges HTML ne sont pas incluses. Le GIF boucle ; l'application conserve la 
 [Séquence et sources](docs/spec-sortie-garcon.md), [preuves et limites](docs/retrospective-sortie-garcon.md).
 </details>
 
+## Placement du couple dans les sorties
+
+En paire, les deux sorties partent d'un placement rapproché : **quinconce** par défaut (genoux
+droits intercalés, racines à 33 cm au lieu de 40) ou **face à face** (pointes à 6,4 cm). Les pas
+rejoignent la figure validée avant l'arrivée D/D. Le rapprochement est complet jusqu'à
+l'amplitude 1, puis il diminue jusqu'à l'écartement validé à l'amplitude 2, pour que les os des
+genoux ne se croisent pas. Partage : `placement=quinconce|face`.
+[Spécification, calibrage et vues comparables](docs/spec-placements-couple.md).
+
 ## Sortie fille — cinq actions en paire
 
 Le leader avance G puis dessine un crochet du droit. Le suiveur recule D puis sort à gauche.

@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { fixture, minimumBoneY, snapshot } from "./pose_fixture.mjs";
 import { transformedMesh, meshIntersection, footHull, footHullsOverlap } from "./mesh_intersections.mjs";
 const bundle = new URL("./.test-sortie-fille-bundle.mjs", import.meta.url);
-buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'clock', 'rigJoints', 'sortieGarcon', 'sortieFille', 'sortieGarconContact', 'share']
+buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'clock', 'rigJoints', 'sortieGarcon', 'sortieFille', 'placement', 'sortieGarconContact', 'share']
   .map(n => `export * from "./src/${n}";`).join('\n'), resolveDir: new URL('../', import.meta.url).pathname },
   bundle: true, packages: 'external', platform: 'node', format: 'esm', outfile: bundle.pathname,
   define: { 'import.meta.env.BASE_URL': '"/"' }, logLevel: 'silent' });
@@ -16,7 +16,10 @@ const couple = () => {
   const dz = api.SORTIE_FILLE_PAIR_DZ;
   return [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];
 };
-const options = { movement: 'sortieF', embrace: true };
+// TEST_PLACEMENT=reference|quinconce|face replays the whole runner for one couple placement.
+const placement = process.env.TEST_PLACEMENT ?? 'reference';
+const options = { movement: 'sortieF', embrace: true, placement };
+const o = api.placementOffset(placement);
 
 const variants = ['hook', 'back'];
 const moving = [['L', 'R', 'L', 'R', 'L'], ['R', 'L', 'R', 'L', 'R']];
@@ -33,7 +36,8 @@ for (const variant of variants) {
   });
   const stops = Array.from({ length: 6 }, (_, beat) => at(beat));
   const [start, first, second, third, fourth, fifth] = stops;
-  assert(first[0].L.z > start[0].L.z + .1, 'leader G advances');
+  // The leader's landings are validated: his first steps absorb the placement shift.
+  assert(first[0].L.z > start[0].L.z + .1 - o.z, 'leader G advances');
   assert(first[1].R.z > start[1].R.z + .1, 'follower D retreats');
   assert(first[1].L.x - second[1].L.x >= api.HIP_WIDTH - 1e-8, 'G opens at least one hip width');
 
@@ -42,15 +46,16 @@ for (const variant of variants) {
     const early = at(1.15)[0].R, corner = at(1.34)[0].R, late = at(1.5)[0].R;
     assert(early.x < first[0].R.x - .03, 'initial flight moves right');
     near(early.z, first[0].R.z);
-    near(corner.x, first[0].R.x - api.HIP_WIDTH / 2);
+    // The leader's D starts shifted by o (world +x = his left) and lands on the validated hook.
+    near(corner.x, first[0].R.x - api.HIP_WIDTH / 2 - o.x);
     near(corner.z, first[0].R.z);
     near(late.x, corner.x);
     assert(late.z > corner.z + .03, 'longitudinal flight comes after the lateral flight');
     near(second[0].R.z, second[0].L.z);
-    near(second[0].R.x, first[0].R.x - api.HIP_WIDTH / 2);
+    near(second[0].R.x, first[0].R.x - api.HIP_WIDTH / 2 - o.x);
   } else {
     assert(second[1].L.z < first[1].L.z - .10, 'follower G advances diagonally in the alternate');
-    near(second[0].R.x, first[0].R.x);
+    near(second[0].R.x, first[0].R.x - o.x);
     assert(second[0].R.z < first[0].R.z - .05, 'alternate D leader retreats');
   }
   assert(third[0].L.z < second[0].L.z - .2, 'leader G retreats on action 3');

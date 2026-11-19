@@ -10,6 +10,7 @@ import { facingSector } from "./directions";
 import { sampleSortieGarcon, DEFAULT_SORTIE_CONTRA, type SortieVariant } from "./sortieGarcon";
 
 import { sampleSortieFille, type SortieFilleVariant } from "./sortieFille";
+import { placementOffset, type CouplePlacement } from "./placement";
 
 export type Side = "L" | "R";
 const SIDES: Side[] = ["L", "R"];
@@ -25,12 +26,15 @@ export interface PoseOptions {
   sortie: boolean; embrace: boolean; reverse: boolean; follower: boolean;
   movement: MovementKey; // phase 17 : option exclusive (sortieG/sortieF/sortieGF incluse)
   sortieFilleVariant: SortieFilleVariant; sortieVariant: SortieVariant; sortieContra: number;
+  // Couple placement of the five-action figures; "reference" = validated spacing (tests).
+  placement: CouplePlacement | "reference";
 }
 export const DEFAULT_POSE: PoseOptions = {
   styleKey: "kizomba", amp: 1, travel: 0, dir: 1, plant: true, iso: true, cadre: true,
   quarts: false, corridinho: false, ida: false, temps3: false, sortie: false,
   embrace: false, reverse: false, follower: false, movement: "none",
   sortieFilleVariant: "hook", sortieVariant: "line", sortieContra: DEFAULT_SORTIE_CONTRA,
+  placement: "reference",
 };
 interface Leg {
   length1: number; length2: number; f0: THREE.Vector3; t0: THREE.Vector3;
@@ -179,8 +183,8 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
   const o = { ...DEFAULT_POSE, ...options };
   const rest = { L: model.legs.L.rest, R: model.legs.R.rest };
   const figure = !o.embrace ? null
-    : o.movement === "sortieG" ? sampleSortieGarcon(beat, o.follower, rest, o.sortieVariant, o.sortieContra)
-    : o.movement === "sortieF" ? sampleSortieFille(beat, o.follower, rest, o.sortieFilleVariant)
+    : o.movement === "sortieG" ? sampleSortieGarcon(beat, o.follower, rest, o.sortieVariant, o.sortieContra, placementOffset(o.placement, o.amp))
+    : o.movement === "sortieF" ? sampleSortieFille(beat, o.follower, rest, o.sortieFilleVariant, placementOffset(o.placement, o.amp))
     : null;
   if (figure) beat = figure.beat;
   resetRig(r);

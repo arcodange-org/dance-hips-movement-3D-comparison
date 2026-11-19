@@ -6,7 +6,7 @@ import * as THREE from "three";
 import { fixture, minimumBoneY, snapshot } from "./pose_fixture.mjs";
 import { transformedMesh, meshIntersection, footHull, footHullsOverlap } from "./mesh_intersections.mjs";
 const bundle = new URL("./.test-sortie-bundle.mjs", import.meta.url);
-buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'clock', 'rigJoints', 'sortieGarcon', 'sortieGarconContact', 'share']
+buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'clock', 'rigJoints', 'sortieGarcon', 'sortieGarconContact', 'share', 'placement']
   .map(n => `export * from "./src/${n}";`).join('\n'), resolveDir: new URL('../', import.meta.url).pathname },
   bundle: true, packages: 'external', platform: 'node', format: 'esm', outfile: bundle.pathname,
   define: { 'import.meta.env.BASE_URL': '"/"' }, logLevel: 'silent' });
@@ -17,7 +17,10 @@ const couple = (figure = true) => {
   const dz = figure ? api.SORTIE_GARCON_PAIR_DZ : api.PAIR_DZ;
   return [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];
 };
-const options = { movement: 'sortieG', embrace: true };
+// TEST_PLACEMENT=reference|quinconce|face replays the whole runner for one couple placement.
+const placement = process.env.TEST_PLACEMENT ?? 'reference';
+const options = { movement: 'sortieG', embrace: true, placement };
+const o = api.placementOffset(placement);
 
 // Direction and support assertions describe the validated choreography, independently of the planner.
 for (const sortieVariant of ['line', 'right']) {
@@ -29,7 +32,8 @@ for (const sortieVariant of ['line', 'right']) {
       return { L: world(f, 'footL'), R: world(f, 'footR'), root: world(f, 'root'), stats };
     }));
   }
-  assert(states[1][0].L.x - states[0][0].L.x > .3, 'leader exits to own left');
+  // Every landing is validated: the first step of each foot also absorbs the placement shift.
+  assert(states[1][0].L.x - states[0][0].L.x > .3 - o.x, 'leader exits to own left');
   assert(states[1][0].L.z > states[0][0].L.z + .1, 'leader advances G');
   assert(states[1][1].R.z > states[0][1].R.z + .1, 'partner retreats D');
   assert(states[2][0].R.z > states[2][0].L.z + .2, 'leader D is in front of G');
@@ -43,8 +47,10 @@ for (const sortieVariant of ['line', 'right']) {
   }
   for (const i of [0, 1]) {
     for (const side of ['L', 'R']) {
-      near(states[5][i][side].z - states[0][i][side].z, .70);
-      near(states[5][i][side].x - states[0][i][side].x, sortieVariant === 'right' ? -.1 : 0);
+      // Validated final pose; the start is shifted by o in each dancer's frame (world sign by role).
+      const sign = i ? -1 : 1;
+      near(states[5][i][side].z - states[0][i][side].z, .70 - sign * o.z);
+      near(states[5][i][side].x - states[0][i][side].x, (sortieVariant === 'right' ? -.1 : 0) - sign * o.x);
     }
     near(states[5][i].L.x - states[5][i].R.x, states[0][i].L.x - states[0][i].R.x);
   }
@@ -52,9 +58,9 @@ for (const sortieVariant of ['line', 'right']) {
 }
 const restForProgress = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
 for (const follower of [false, true]) for (const variant of ['line', 'right']) {
-  let previous = api.sampleSortieGarcon(0, follower, restForProgress, variant);
+  let previous = api.sampleSortieGarcon(0, follower, restForProgress, variant, undefined, placement);
   for (let tick = 1; tick <= 500; tick++) {
-    const current = api.sampleSortieGarcon(tick / 100, follower, restForProgress, variant);
+    const current = api.sampleSortieGarcon(tick / 100, follower, restForProgress, variant, undefined, placement);
     for (const side of ['L', 'R']) assert((current.feet[side].z - previous.feet[side].z) * (follower ? -1 : 1) >= -1e-12,
       'the forward leader / retreating partner never make a backward excursion');
     previous = current;

@@ -8,6 +8,7 @@ import { applyPose, bindSkeleton, createPoseModel, type PoseModel, type Side } f
 import { type DanceClock } from "../clock";
 import { TORSO_JOINTS } from "../rigJoints";
 import type { SortieFilleVariant } from "../sortieFille";
+import type { CouplePlacement } from "../placement";
 import { DEFAULT_SORTIE_CONTRA, type SortieVariant } from "../sortieGarcon";
 import {
   MUSCLES_URL,
@@ -37,6 +38,7 @@ export interface RigProps {
   showMuscles?: boolean;
   movement?: MovementKey; // phase 17 : option de déplacement exclusive (inclut les sorties)
   sortieFilleVariant?: SortieFilleVariant;
+  placement?: CouplePlacement; // five-action figures only; undefined = validated spacing
   sortieVariant?: SortieVariant;
   sortieContra?: number;
   showAppui?: boolean;
@@ -72,6 +74,7 @@ export default function Rig({
   showMuscles = false,
   movement = "none" as MovementKey,
   sortieFilleVariant = "hook",
+  placement,
   sortieVariant = "line",
   sortieContra = DEFAULT_SORTIE_CONTRA,
   showAppui = false,
@@ -160,7 +163,7 @@ export default function Rig({
     if (embrace && (movement === "sortieG" || movement === "sortieF")) {
       count.current = 0; trail.geometry.setDrawRange(0, 0);
     }
-  }, [embrace, movement, sortieFilleVariant, sortieVariant, trail]);
+  }, [embrace, movement, placement, sortieFilleVariant, sortieVariant, trail]);
   useEffect(() => {
     if (pair && side) {
       pair.current[side] = { chest: r.contactChest, pelvis: r.contactPelvis, kneeL: r.contactKneeL, kneeR: r.contactKneeR,
@@ -180,6 +183,7 @@ export default function Rig({
     const result = applyPose(r, poseModel.current, clock.beat + phaseOffset, {
       styleKey, amp, travel, dir, movement, embrace, corridinho, reverse, quarts,
       iso, ida, cadre, plant, temps3, follower: side === "follower", sortieVariant, sortieContra, sortieFilleVariant,
+      placement: placement ?? "reference",
     });
     if (stats) stats.current = result;
     const { loadL, loadR } = result;
