@@ -13,8 +13,8 @@ l'ancienne option interne `sortie` gardent leurs trajectoires et périodes histo
 | Action | Leader | Partenaire | Appui final leader / partenaire |
 | --- | --- | --- | --- |
 | Départ | G disponible | D disponible | D / G |
-| 1 | G avance à gauche, prépare le couloir extérieur | D recule | G / D |
-| 2 | D avance autour du genou D de la partenaire ; flanc des cuisses D en proximité | G recule | D / G |
+| 1 | G surtout en avant, un peu à gauche : l'intention vers l'avant fait reculer la partenaire | D recule | G / D |
+| 2 | D avance autour du genou D de la partenaire ; milieu des cuisses D au contact | G recule (moins) | D / G |
 | 3 | G croise devant D pour rentrer sur la ligne | D recule | G / D |
 | 4 | D retrouve sa position neutre relative au G | G s'ajuste en face | D / G |
 | 5 | Marka G en position neutre, sans transfert | Marka D, sans transfert | D / G |
@@ -67,7 +67,24 @@ Interface : cinq actions, pause/reprise/rejeu, variante, partage/rechargement et
 - [Discovering Kizomba, dissociation](https://discoveringkizomba.com/dissociation-in-kizomba-just-westerners-or-also-angolans/) :
   témoignage pédagogique sur la variabilité des explications et des usages, sans angles normatifs.
 
-Les précisions de contact cuisse D/D et de contournement viennent du propriétaire. Les vidéos
+Les précisions de contact cuisse D/D et de contournement viennent du propriétaire.
+
+**Pas 1 plus en avant que de côté** (demande du 19 novembre, #28). Le G1 du leader avance de 34 cm et
+s'écarte de 26 cm à gauche, au lieu de 14 cm en avant et 34 cm à gauche. La partenaire recule son D1
+de 16 cm au lieu de 14. Le D2 glisse ensuite latéralement à hauteur de son départ, puis avance droit
+pour se poser à l'extérieur du D de la partenaire. Le G1 ne peut pas être moins latéral : le D2 doit
+se poser à environ 27 cm à gauche de l'axe pour le contact hanche contre hanche, et un G1 trop proche
+de l'axe ferait passer le D2 par-dessus le G. Ce pas vaut à toutes les amplitudes.
+
+**Contact du milieu des cuisses à l'action 2** (demande du 19 novembre, #28). Avant ce changement,
+les bassins restaient à 40 cm l'un de l'autre dans l'axe de la danse : les cuisses se croisaient en X
+et ne se rapprochaient qu'au genou (2,3 cm). Désormais, le G2 de la partenaire recule de 25 cm au lieu
+de 40, et le D2 du leader avance de 46 cm au lieu de 40. Son bassin reste 2,5 cm à l'intérieur de son D,
+ce qui laisse passer le D3 de la partenaire, puis avance de 7 cm de plus pendant le croisé pour que G
+dégage D. Les bassins ne sont plus qu'à 19 cm l'un de l'autre, et les enveloppes des cuisses se
+touchent (+0,4 mm) à 65 % et 69 % de la longueur des fémurs, au milieu des cuisses. Ce contact est complet jusqu'à
+l'amplitude 1, puis il décroît jusqu'à l'arrivée précédente à l'amplitude 2, où l'ampleur des styles
+ferait se croiser les fémurs. La progression totale de 70 cm et la pose finale sont inchangées. Les vidéos
 et transcriptions ne fournissent pas une reconstruction 3D ni une simulation de forces.
 
 ## Calibrage du modèle et preuves de livraison

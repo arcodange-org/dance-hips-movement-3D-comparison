@@ -5,18 +5,36 @@ import * as THREE from "three";
 import { fixture, minimumBoneY, snapshot } from "./pose_fixture.mjs";
 import { transformedMesh, meshIntersection, footHull, footHullsOverlap } from "./mesh_intersections.mjs";
 const bundle = new URL("./.test-sortie-fille-bundle.mjs", import.meta.url);
-buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'clock', 'rigJoints', 'sortieGarcon', 'sortieFille', 'sortieGarconContact', 'share']
+buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'clock', 'rigJoints', 'sortieGarcon', 'sortieFille', 'placement', 'sortieGarconContact', 'share']
   .map(n => `export * from "./src/${n}";`).join('\n'), resolveDir: new URL('../', import.meta.url).pathname },
   bundle: true, packages: 'external', platform: 'node', format: 'esm', outfile: bundle.pathname,
   define: { 'import.meta.env.BASE_URL': '"/"' }, logLevel: 'silent' });
 const api = await import(bundle.href); unlinkSync(bundle);
 const near = (a, b, tolerance = 1e-8) => assert.ok(Math.abs(a - b) <= tolerance, `${a} != ${b} (tol ${tolerance})`);
 const world = (f, name) => f.r[name].getWorldPosition(new THREE.Vector3());
+// Functional foot axis (heel → ball), not the ankle pivot's +z: the GLB foot is natively turned out.
+const footAxis = (f, side) => { const t = f.model.legs[side].toeOut;
+  return new THREE.Vector3(Math.sin(t), 0, Math.cos(t)).applyQuaternion(f.r['foot' + side].getWorldQuaternion(new THREE.Quaternion())); };
 const couple = () => {
   const dz = api.SORTIE_FILLE_PAIR_DZ;
   return [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];
 };
-const options = { movement: 'sortieF', embrace: true };
+// TEST_PLACEMENT=reference|quinconce|face replays the whole runner for one couple placement.
+const placement = process.env.TEST_PLACEMENT ?? 'reference';
+const options = { movement: 'sortieF', embrace: true, placement };
+// Owner request (19 Nov.): the middle/upper right thighs touch at the D/D arrival. Contact of the
+// illustrative 8.5 cm envelopes: gap in [-6, +3] mm, closest points on the middle/upper part
+// of both femurs (s ≤ 0.70 along hip → knee).
+const thighContact = (proximity, hipA, kneeA, hipB, kneeB, label) => {
+  const sA = proximity.centerA.distanceTo(hipA) / hipA.distanceTo(kneeA), sB = proximity.centerB.distanceTo(hipB) / hipB.distanceTo(kneeB);
+  assert(proximity.gap >= -.006 && proximity.gap <= .003, `${label}: thighs touch (gap ${proximity.gap})`);
+  assert(sA <= .7 && sB <= .7, `${label}: contact on the middle/upper thighs (s=${sA.toFixed(2)}/${sB.toFixed(2)})`);
+  return { sA, sB };
+};
+
+const o = api.placementOffset(placement);
+// Neutral stance at the start: feet under the hips (owner request), absorbed on each first step.
+const stanceOf = m => (m.legs.L.hipX - m.legs.L.rest.x + m.legs.R.rest.x - m.legs.R.hipX) / 2;
 
 const variants = ['hook', 'back'];
 const moving = [['L', 'R', 'L', 'R', 'L'], ['R', 'L', 'R', 'L', 'R']];
@@ -33,24 +51,32 @@ for (const variant of variants) {
   });
   const stops = Array.from({ length: 6 }, (_, beat) => at(beat));
   const [start, first, second, third, fourth, fifth] = stops;
-  assert(first[0].L.z > start[0].L.z + .1, 'leader G advances');
+  // The leader's landings are validated: his first steps absorb the placement shift.
+  assert(first[0].L.z > start[0].L.z + .1 - o.z, 'leader G advances');
   assert(first[1].R.z > start[1].R.z + .1, 'follower D retreats');
-  assert(first[1].L.x - second[1].L.x >= api.HIP_WIDTH - 1e-8, 'G opens at least one hip width');
+  // One hip width from the validated stance; the neutral start is already `stance` wider.
+  assert(first[1].L.x - second[1].L.x >= api.HIP_WIDTH - stanceOf(pair[1].model) - 1e-8, 'G opens at least one hip width');
 
   if (variant === 'hook') {
     near(second[1].L.z, first[1].L.z);
-    const early = at(1.15)[0].R, corner = at(1.34)[0].R, late = at(1.5)[0].R;
+    // Same flight fractions as the validated hook, shifted by the close-start lead.
+    const lead = api.sortieFilleHookLead(o), when = f => 1 + lead + f * (.68 - lead);
+    const early = at(when(.15 / .68))[0].R, corner = at(when(.5))[0].R, late = at(when(.5 / .68 * 1))[0].R;
     assert(early.x < first[0].R.x - .03, 'initial flight moves right');
     near(early.z, first[0].R.z);
-    near(corner.x, first[0].R.x - api.HIP_WIDTH / 2);
+    // The leader's D starts shifted by o (world +x = his left) and widened to the hips (−x),
+    // and lands on the validated hook.
+    const stance = stanceOf(pair[0].model);
+    near(corner.x, first[0].R.x - api.HIP_WIDTH / 2 - o.x + stance);
     near(corner.z, first[0].R.z);
     near(late.x, corner.x);
-    assert(late.z > corner.z + .03, 'longitudinal flight comes after the lateral flight');
+    // From a closer start (quinconce) the hook's longitudinal part is shorter, never reversed.
+    assert(late.z > corner.z + Math.min(.03, (second[0].R.z - corner.z) / 3), 'longitudinal flight comes after the lateral flight');
     near(second[0].R.z, second[0].L.z);
-    near(second[0].R.x, first[0].R.x - api.HIP_WIDTH / 2);
+    near(second[0].R.x, first[0].R.x - api.HIP_WIDTH / 2 - o.x + stance);
   } else {
     assert(second[1].L.z < first[1].L.z - .10, 'follower G advances diagonally in the alternate');
-    near(second[0].R.x, first[0].R.x);
+    near(second[0].R.x, first[0].R.x - o.x + stanceOf(pair[0].model));
     assert(second[0].R.z < first[0].R.z - .05, 'alternate D leader retreats');
   }
   assert(third[0].L.z < second[0].L.z - .2, 'leader G retreats on action 3');
@@ -58,8 +84,8 @@ for (const variant of variants) {
   assert(third[1].R.x < third[0].R.x - .12, 'follower D lies right of leader D in leader coordinates');
   near(third[1].R.z, third[0].R.z);
   at(3);
-  const finalRightToe = pair[1].r.footR.getWorldQuaternion(new THREE.Quaternion());
-  const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(finalRightToe);
+  // Neutral feet (owner request): the heel → ball axis of the final right foot points forward.
+  const forward = footAxis(pair[1], 'R');
   near(forward.x, 0);
   near(forward.z, -1);
   const diagonal = third[1].R.clone().sub(second[1].R);
@@ -188,24 +214,26 @@ for (const beat of [0, 1.34, 2.5, 4.68, 7]) {
   assert.deepEqual(stats, base);
 }
 
-for (const sortieFilleVariant of variants) {
+// Amplitudes above 1 fade the thigh contact back to the looser arrival: the feet are checked there too.
+for (const sortieFilleVariant of variants) for (const amp of [1, 1.5, 2]) {
   const pair = couple();
   for (let tick = 0; tick <= 500; tick++) {
     const polygons = [];
     pair.forEach((f, i) => {
-      api.applyPose(f.r, f.model, tick / 100, { ...options, follower: !!i, sortieFilleVariant });
+      api.applyPose(f.r, f.model, tick / 100, { ...options, follower: !!i, sortieFilleVariant, amp });
       for (const side of ['L', 'R']) polygons.push(footHull(f.model.legs[side].sole.map(p => p.clone().applyMatrix4(f.r['foot' + side].matrixWorld))));
     });
     for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++)
-      assert(!footHullsOverlap(polygons[i], polygons[j]), `foot clearance at ${tick / 100} (${sortieFilleVariant}), feet ${i}/${j}`);
+      assert(!footHullsOverlap(polygons[i], polygons[j]), `foot clearance at ${tick / 100} (${sortieFilleVariant}, amp ${amp}), feet ${i}/${j}`);
   }
+  if (amp !== 1) continue;
   pair.forEach((f, i) => api.applyPose(f.r, f.model, 3, { ...options, follower: !!i, sortieFilleVariant }));
   const proximity = api.thighProximity(world(pair[0], 'hipR'), world(pair[0], 'kneeR'), world(pair[1], 'hipR'), world(pair[1], 'kneeR'));
   assert(proximity.direction.x < -.95, `rightward thigh proximity: ${proximity.direction.x}`);
-  assert(proximity.gap >= 0 && proximity.gap < .03, `illustrative thigh gap ${proximity.gap}`);
-  console.log(sortieFilleVariant, `illustrative D/D gap ${(proximity.gap * 1000).toFixed(1)} mm, rightward component ${proximity.direction.x.toFixed(2)}`);
+  const { sA, sB } = thighContact(proximity, world(pair[0], 'hipR'), world(pair[0], 'kneeR'), world(pair[1], 'hipR'), world(pair[1], 'kneeR'), `sortieF ${sortieFilleVariant}`);
+  console.log(sortieFilleVariant, `D/D thigh contact ${(proximity.gap * 1000).toFixed(1)} mm at s=${sA.toFixed(2)}/${sB.toFixed(2)}, rightward component ${proximity.direction.x.toFixed(2)}`);
 }
-console.log('PASS sortie fille: swept foot hulls and rightward D/D thigh proximity');
+console.log('PASS sortie fille: swept foot hulls and D/D contact of the upper thighs');
 
 // Real transformed triangles, not GLB cached bounding boxes or knee-marker distances.
 // Include mid-flight poses, direction changes and landings specific to the two variants.

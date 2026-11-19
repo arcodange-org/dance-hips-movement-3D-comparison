@@ -10,6 +10,7 @@ import { facingSector } from "./directions";
 import { sampleSortieGarcon, DEFAULT_SORTIE_CONTRA, type SortieVariant } from "./sortieGarcon";
 
 import { sampleSortieFille, type SortieFilleVariant } from "./sortieFille";
+import { placementOffset, placementScale, type CouplePlacement } from "./placement";
 
 export type Side = "L" | "R";
 const SIDES: Side[] = ["L", "R"];
@@ -25,16 +26,23 @@ export interface PoseOptions {
   sortie: boolean; embrace: boolean; reverse: boolean; follower: boolean;
   movement: MovementKey; // phase 17 : option exclusive (sortieG/sortieF/sortieGF incluse)
   sortieFilleVariant: SortieFilleVariant; sortieVariant: SortieVariant; sortieContra: number;
+  // Couple placement of the five-action figures; "reference" = validated spacing (tests).
+  placement: CouplePlacement | "reference";
 }
 export const DEFAULT_POSE: PoseOptions = {
   styleKey: "kizomba", amp: 1, travel: 0, dir: 1, plant: true, iso: true, cadre: true,
   quarts: false, corridinho: false, ida: false, temps3: false, sortie: false,
   embrace: false, reverse: false, follower: false, movement: "none",
   sortieFilleVariant: "hook", sortieVariant: "line", sortieContra: DEFAULT_SORTIE_CONTRA,
+  placement: "reference",
 };
 interface Leg {
   length1: number; length2: number; f0: THREE.Vector3; t0: THREE.Vector3;
   hip: THREE.Vector3; rest: THREE.Vector3; sole: THREE.Vector3[];
+  /** Native toe-out of the GLB foot: yaw of the heel → ball axis in ankle coordinates (+x = left). */
+  toeOut: number;
+  /** Hip joint x in the rig's outer frame at rest: "feet under the hips" stance. */
+  hipX: number;
 }
 export interface PoseModel {
   legs: Record<Side, Leg>;
@@ -69,6 +77,16 @@ function solePoints(foot: THREE.Object3D): THREE.Vector3[] {
   });
   return points;
 }
+/** Yaw of the heel → ball (forefoot, 15–33 % from the toe) axis of a sole, from +z toward +x. */
+function footAxisYaw(sole: THREE.Vector3[]): number {
+  const zs = sole.map(p => p.z), toe = Math.max(...zs), heel = Math.min(...zs), length = toe - heel;
+  const centre = (from: number, to: number) => {
+    const band = sole.filter(p => p.z <= toe - from * length && p.z >= toe - to * length);
+    return { x: band.reduce((a, p) => a + p.x, 0) / band.length, z: band.reduce((a, p) => a + p.z, 0) / band.length };
+  };
+  const heelCentre = centre(0.8, 1), ball = centre(0.15, 0.33);
+  return Math.atan2(ball.x - heelCentre.x, ball.z - heelCentre.z);
+}
 export function createPoseModel(r: RigHandle): PoseModel {
   resetRig(r);
   r.root.updateWorldMatrix(true, true);
@@ -78,10 +96,12 @@ export function createPoseModel(r: RigHandle): PoseModel {
     const knee = r["knee" + s] as THREE.Object3D;
     const foot = r["foot" + s] as THREE.Object3D;
     const rest = r.root.parent!.worldToLocal(foot.getWorldPosition(new THREE.Vector3()));
+    const sole = solePoints(foot);
     legs[s] = {
       length1: knee.position.length(), length2: foot.position.length(),
       f0: knee.position.clone().normalize(), t0: foot.position.clone().normalize(),
-      hip: hip.position.clone(), rest, sole: solePoints(foot),
+      hip: hip.position.clone(), rest, sole, toeOut: footAxisYaw(sole),
+      hipX: r.root.parent!.worldToLocal(hip.getWorldPosition(new THREE.Vector3())).x,
     };
   }
   return { legs, targets: { L: new THREE.Vector3(), R: new THREE.Vector3() }, lift: { L: 0, R: 0 } };
@@ -178,11 +198,18 @@ function kneeAngle(r: RigHandle, s: Side): number {
 export function applyPose(r: RigHandle, model: PoseModel, beat: number, options: Partial<PoseOptions>): PoseStats {
   const o = { ...DEFAULT_POSE, ...options };
   const rest = { L: model.legs.L.rest, R: model.legs.R.rest };
+  // Owner request (19 Nov.): in the five-action figures the feet point forward along the knees'
+  // axis (the GLB foot is natively turned out by ≈25°), and the initial/neutral stance has the
+  // feet under the hips; each foot joins the validated path on its first step.
+  const stance = (model.legs.L.hipX - rest.L.x + rest.R.x - model.legs.R.hipX) / 2;
   const figure = !o.embrace ? null
-    : o.movement === "sortieG" ? sampleSortieGarcon(beat, o.follower, rest, o.sortieVariant, o.sortieContra)
-    : o.movement === "sortieF" ? sampleSortieFille(beat, o.follower, rest, o.sortieFilleVariant)
+    : o.movement === "sortieG" ? sampleSortieGarcon(beat, o.follower, rest, o.sortieVariant, o.sortieContra, placementOffset(o.placement, o.amp), placementScale(o.amp), stance)
+    : o.movement === "sortieF" ? sampleSortieFille(beat, o.follower, rest, o.sortieFilleVariant, placementOffset(o.placement, o.amp), placementScale(o.amp), stance)
     : null;
-  if (figure) beat = figure.beat;
+  if (figure) {
+    beat = figure.beat;
+    for (const s of SIDES) figure.feet[s] = { ...figure.feet[s], yaw: figure.feet[s].yaw - model.legs[s].toeOut };
+  }
   resetRig(r);
   for (const s of SIDES) r["foot" + s].rotation.set(0, 0, 0);
   // A marka moves the free foot without starting another body's weight oscillation.
@@ -193,6 +220,19 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
     const rotation = r.pelvis.rotation;
     const scale = Math.min(1, 0.12 / Math.max(1e-12, Math.abs(rotation.x), Math.abs(rotation.y), Math.abs(rotation.z)));
     rotation.set(rotation.x * scale, rotation.y * scale, rotation.z * scale);
+    // Coupled pelvises (owner request, 19 Nov.): while the couple starts in contact, the follower's
+    // pelvis follows the leader's instead of dancing on its own: the follower's hips seek the
+    // leader's, who pushes them away. Both apply the same style in their own frames, which face each
+    // other: the follower's local rotations and sway are mirrored (measured on the GLB, mirroring the
+    // yaw too keeps the interleaved right thighs clear; a same-sign yaw turns both pelvises about
+    // two centres 24 cm apart and swings the central thighs into each other).
+    // `coupling` fades out as the first action opens the position.
+    const coupling = o.follower ? figure.coupling : 0;
+    if (coupling > 0) {
+      const mirror = 1 - 2 * coupling;
+      rotation.set(rotation.x * mirror, rotation.y * mirror, rotation.z * mirror);
+      r.pelvis.position.x *= mirror; r.pelvis.position.z *= mirror;
+    }
   }
   // The close-couple figure limits extra bounce/flexion; generic deep pulses can put
   // two opposing knees through one another. Leg reach still determines pelvis height.

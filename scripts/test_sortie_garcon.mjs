@@ -6,22 +6,43 @@ import * as THREE from "three";
 import { fixture, minimumBoneY, snapshot } from "./pose_fixture.mjs";
 import { transformedMesh, meshIntersection, footHull, footHullsOverlap } from "./mesh_intersections.mjs";
 const bundle = new URL("./.test-sortie-bundle.mjs", import.meta.url);
-buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'clock', 'rigJoints', 'sortieGarcon', 'sortieGarconContact', 'share']
+buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'clock', 'rigJoints', 'sortieGarcon', 'sortieGarconContact', 'share', 'placement']
   .map(n => `export * from "./src/${n}";`).join('\n'), resolveDir: new URL('../', import.meta.url).pathname },
   bundle: true, packages: 'external', platform: 'node', format: 'esm', outfile: bundle.pathname,
   define: { 'import.meta.env.BASE_URL': '"/"' }, logLevel: 'silent' });
 const api = await import(bundle.href); unlinkSync(bundle);
 const near = (a, b, tolerance = 1e-8) => assert.ok(Math.abs(a - b) <= tolerance, `${a} != ${b} (tol ${tolerance})`);
 const world = (f, name) => f.r[name].getWorldPosition(new THREE.Vector3());
+// Functional foot axis (heel → ball), not the ankle pivot's +z: the GLB foot is natively turned out.
+const footAxis = (f, side) => { const t = f.model.legs[side].toeOut;
+  return new THREE.Vector3(Math.sin(t), 0, Math.cos(t)).applyQuaternion(f.r['foot' + side].getWorldQuaternion(new THREE.Quaternion())); };
 const couple = (figure = true) => {
   const dz = figure ? api.SORTIE_GARCON_PAIR_DZ : api.PAIR_DZ;
   return [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];
 };
-const options = { movement: 'sortieG', embrace: true };
+// TEST_PLACEMENT=reference|quinconce|face replays the whole runner for one couple placement.
+const placement = process.env.TEST_PLACEMENT ?? 'reference';
+const options = { movement: 'sortieG', embrace: true, placement };
+// Owner request (19 Nov.): the middle/upper right thighs touch at the D/D arrival. Contact of the
+// illustrative 8.5 cm envelopes: gap in [-6, +3] mm, closest points on the middle/upper part
+// of both femurs (s ≤ 0.70 along hip → knee).
+const thighContact = (proximity, hipA, kneeA, hipB, kneeB, label) => {
+  const sA = proximity.centerA.distanceTo(hipA) / hipA.distanceTo(kneeA), sB = proximity.centerB.distanceTo(hipB) / hipB.distanceTo(kneeB);
+  assert(proximity.gap >= -.006 && proximity.gap <= .003, `${label}: thighs touch (gap ${proximity.gap})`);
+  assert(sA <= .7 && sB <= .7, `${label}: contact on the middle/upper thighs (s=${sA.toFixed(2)}/${sB.toFixed(2)})`);
+  return { sA, sB };
+};
+
+const o = api.placementOffset(placement);
+// Neutral stance at the start: feet under the hips (owner request), absorbed on each first step.
+const stanceOf = m => (m.legs.L.hipX - m.legs.L.rest.x + m.legs.R.rest.x - m.legs.R.hipX) / 2;
+const sign2 = i => i ? -1 : 1;
+let stance = 0;
 
 // Direction and support assertions describe the validated choreography, independently of the planner.
 for (const sortieVariant of ['line', 'right']) {
   const pair = couple();
+  stance = stanceOf(pair[0].model);
   const states = [];
   for (let beat = 0; beat <= 5; beat++) {
     states.push(pair.map((f, i) => {
@@ -29,10 +50,14 @@ for (const sortieVariant of ['line', 'right']) {
       return { L: world(f, 'footL'), R: world(f, 'footR'), root: world(f, 'root'), stats };
     }));
   }
-  assert(states[1][0].L.x - states[0][0].L.x > .3, 'leader exits to own left');
+  // Owner request: step 1 is more forward than sideways. Every landing is validated, so the
+  // first step of each foot also absorbs the placement shift.
+  const exitX = states[1][0].L.x - states[0][0].L.x, exitZ = states[1][0].L.z - states[0][0].L.z;
+  assert(exitX > .2 - o.x, 'leader exits to own left');
+  assert(exitZ > exitX, `step 1 is more forward (${exitZ}) than sideways (${exitX})`);
   assert(states[1][0].L.z > states[0][0].L.z + .1, 'leader advances G');
   assert(states[1][1].R.z > states[0][1].R.z + .1, 'partner retreats D');
-  assert(states[2][0].R.z > states[2][0].L.z + .2, 'leader D is in front of G');
+  assert(states[2][0].R.z > states[2][0].L.z + .05, 'leader D is in front of G');
   assert(states[2][0].R.x > Math.max(states[2][1].R.x, states[2][1].L.x) + .1,
     'leader feet outside partner feet, not interleaved');
   assert(states[3][0].L.x < states[3][0].R.x - .1, 'G crosses in front of D toward initial lane');
@@ -43,18 +68,21 @@ for (const sortieVariant of ['line', 'right']) {
   }
   for (const i of [0, 1]) {
     for (const side of ['L', 'R']) {
-      near(states[5][i][side].z - states[0][i][side].z, .70);
-      near(states[5][i][side].x - states[0][i][side].x, sortieVariant === 'right' ? -.1 : 0);
+      // Validated final pose; the start is shifted by o and widened to the hips (neutral stance)
+      // in each dancer's frame (world sign by role).
+      const sign = i ? -1 : 1, widen = side === 'L' ? stance : -stance;
+      near(states[5][i][side].z - states[0][i][side].z, .70 - sign * (o.z + (side === 'R' ? (o.stagger ?? 0) / 2 : 0)));
+      near(states[5][i][side].x - states[0][i][side].x, (sortieVariant === 'right' ? -.1 : 0) - sign * (o.x + widen));
     }
-    near(states[5][i].L.x - states[5][i].R.x, states[0][i].L.x - states[0][i].R.x);
+    near(states[5][i].L.x - states[5][i].R.x, states[0][i].L.x - states[0][i].R.x - sign2(i) * 2 * stance);
   }
   near(states[5][0].root.x, states[5][1].root.x);
 }
 const restForProgress = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
 for (const follower of [false, true]) for (const variant of ['line', 'right']) {
-  let previous = api.sampleSortieGarcon(0, follower, restForProgress, variant);
+  let previous = api.sampleSortieGarcon(0, follower, restForProgress, variant, undefined, placement);
   for (let tick = 1; tick <= 500; tick++) {
-    const current = api.sampleSortieGarcon(tick / 100, follower, restForProgress, variant);
+    const current = api.sampleSortieGarcon(tick / 100, follower, restForProgress, variant, undefined, placement);
     for (const side of ['L', 'R']) assert((current.feet[side].z - previous.feet[side].z) * (follower ? -1 : 1) >= -1e-12,
       'the forward leader / retreating partner never make a backward excursion');
     previous = current;
@@ -80,7 +108,8 @@ for (const styleKey of Object.keys(api.STYLES)) for (const amp of [.5, 1, 2]) fo
       near(hip.distanceTo(knee), f.model.legs[side].length1);
       near(knee.distanceTo(foot), f.model.legs[side].length2);
       if (f.model.lift[side] > 1e-6) near(stats['load' + side], 0);
-      const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(f.r['foot' + side].getWorldQuaternion(new THREE.Quaternion()));
+      // Neutral feet (owner request): the heel → ball axis points forward, along the knees.
+      const forward = footAxis(f, side);
       near(forward.z, i ? -1 : 1); near(forward.x, 0);
     }
     if (beat >= 4) near(i ? stats.loadR : stats.loadL, 0);
@@ -114,23 +143,26 @@ for (const follower of [false, true]) for (const sortieVariant of ['line', 'righ
 }
 console.log('PASS planted-foot stability, continuous transitions, final hold and seek independence');
 
-for (const sortieVariant of ['line', 'right']) {
+// Amplitudes above 1 fade the thigh contact back to the looser arrival: the feet are checked there too.
+for (const sortieVariant of ['line', 'right']) for (const amp of [1, 1.5, 2]) {
   const pair = couple();
   for (let tick = 0; tick <= 500; tick++) {
     const polygons = [];
     pair.forEach((f, i) => {
-      api.applyPose(f.r, f.model, tick / 100, { ...options, follower: !!i, sortieVariant });
+      api.applyPose(f.r, f.model, tick / 100, { ...options, follower: !!i, sortieVariant, amp });
       for (const side of ['L', 'R']) polygons.push(footHull(f.model.legs[side].sole.map(p => p.clone().applyMatrix4(f.r['foot' + side].matrixWorld))));
     });
     for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++)
-      assert(!footHullsOverlap(polygons[i], polygons[j]), `foot clearance at ${tick / 100} (${sortieVariant}), feet ${i}/${j}`);
+      assert(!footHullsOverlap(polygons[i], polygons[j]), `foot clearance at ${tick / 100} (${sortieVariant}, amp ${amp}), feet ${i}/${j}`);
   }
+  if (amp !== 1) continue;
   pair.forEach((f, i) => api.applyPose(f.r, f.model, 2, { ...options, follower: !!i }));
   const proximity = api.thighProximity(world(pair[0], 'hipR'), world(pair[0], 'kneeR'), world(pair[1], 'hipR'), world(pair[1], 'kneeR'));
-  assert(proximity.direction.x < -.95, 'D/D proximity is lateral, on both anatomical right flanks');
-  assert(proximity.gap >= 0 && proximity.gap < .03, `illustrative thigh gap ${proximity.gap}`);
+  assert(proximity.direction.x < -.85, `D/D proximity is lateral, on both anatomical right flanks (${proximity.direction.x})`);
+  const { sA, sB } = thighContact(proximity, world(pair[0], 'hipR'), world(pair[0], 'kneeR'), world(pair[1], 'hipR'), world(pair[1], 'kneeR'), `sortieG ${sortieVariant}`);
+  console.log(sortieVariant, `D/D thigh contact ${(proximity.gap * 1000).toFixed(1)} mm at s=${sA.toFixed(2)}/${sB.toFixed(2)}`);
 }
-console.log('PASS swept foot hull clearance and lateral D/D thigh proximity (illustrative envelopes)');
+console.log('PASS swept foot hull clearance and D/D contact of the middle/upper thighs (illustrative envelopes)');
 
 // The geometry guard must detect both surface crossings and full containment.
 const cube = (size, x = 0) => {

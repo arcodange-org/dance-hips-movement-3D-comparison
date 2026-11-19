@@ -7,7 +7,7 @@
 | Départ | G disponible | D disponible | D / G |
 | 1 | Avance G | Recule D | G / D |
 | 2 | D suit un crochet vers sa droite, rejoint le niveau longitudinal de G. Variante : D recule | Décale G à gauche pour ouvrir le passage de D. Au crochet : latéral. Si D leader recule : avance G en diagonale gauche | D / G |
-| 3 | Recule G | Avance D en diagonale directe, au même niveau que le D du leader et à sa droite. Rapprochement des flancs de cuisse D/D | G / D |
+| 3 | Recule G | Avance D en diagonale directe, au même niveau que le D du leader et à sa droite. Contact du haut des cuisses D/D | G / D |
 | 4 | Recule D pour dégager le passage | Croise G devant D pour retrouver la ligne | D / G |
 | 5 | Marka G | Ramène D en marka | D / G |
 
@@ -35,8 +35,11 @@ de placements initiaux resserrés face à face et en quinconce est suivie sépar
 
 Au troisième arrêt, les chevilles droites sont au même niveau longitudinal. Le droit du
 suiveur reste à droite du droit du leader. L’écart latéral des chevilles est de 28 cm en crochet
-et de 22 cm en recul. En kizomba à amplitude 1, les enveloppes de rayon 8,5 cm autour du centre
-des fémurs approchent à 19,5 mm en crochet et à 27,4 mm en recul. La direction du rapprochement
+et de 22 cm en recul. **Contact du haut des cuisses** (demande du propriétaire du 19 novembre,
+#28) : le bassin du suiveur se rapproche de 2 cm en crochet et de 3 cm en recul. En kizomba à
+amplitude 1, les enveloppes de rayon 8,5 cm autour des fémurs se touchent (+0,9 mm en crochet,
+−0,5 mm en recul) sur le haut des cuisses. Ce contact est complet jusqu'à l'amplitude 1, puis il
+revient progressivement à l'arrivée précédente (19,5 et 27,4 mm) à l'amplitude 2. La direction du rapprochement
 a une composante x de −0,98 dans le repère du leader pour les deux variantes. La géométrie osseuse
 et les pieds font l’objet de contrôles séparés. Le modèle ne simule ni les forces, ni les
 surfaces de peau, ni les collisions de bras ou de tissus mous.

@@ -9,6 +9,8 @@ import SortieGarconContactViz from "./components/SortieGarconContactViz";
 import GridFloor from "./components/GridFloor";
 import Controls from "./components/Controls";
 import SortieFilleControls from "./components/SortieFilleControls";
+import PlacementControl from "./components/PlacementControl";
+import { DEFAULT_PLACEMENT, placementOf, type CouplePlacement } from "./placement";
 import { SORTIE_FILLE_BEATS, SORTIE_FILLE_PAIR_DZ, sortieFilleBeat, sortieFilleVariantOf, type SortieFilleVariant } from "./sortieFille";
 import SortieGarconControls from "./components/SortieGarconControls";
 import { SORTIE_GARCON_BEATS, SORTIE_GARCON_PAIR_DZ, DEFAULT_SORTIE_CONTRA, sortieGarconSettings, type SortieVariant } from "./sortieGarcon";
@@ -86,6 +88,7 @@ export default function App() {
   const [sortieF, setSortieF] = usePersistentState("sortieF", false);
   const [sortieGF, setSortieGF] = usePersistentState("sortieGF", false);
   const [sortieFilleVariant, setSortieFilleVariant] = usePersistentState<SortieFilleVariant>("sortieFilleVariant", "hook");
+  const [placement, setPlacement] = usePersistentState<CouplePlacement>("placement", DEFAULT_PLACEMENT);
   const [sortieVariant, setSortieVariant] = usePersistentState<SortieVariant>("sortieVariant", "line");
   const [sortieContra, setSortieContra] = usePersistentState("sortieContra", DEFAULT_SORTIE_CONTRA);
   // Phase 14 — déplacements = options NON combinables (radio) : un seul actif à la fois.
@@ -157,6 +160,7 @@ export default function App() {
       setSortieGF(f.sortieGF);
     }
     if (p.has("sortieFilleVariant")) setSortieFilleVariant(sortieFilleVariantOf(p.get("sortieFilleVariant")));
+    if (p.has("placement")) setPlacement(placementOf(p.get("placement")));
     const figureSettings = sortieGarconSettings(p);
     if (p.has("sortieVariant")) setSortieVariant(figureSettings.variant);
     if (p.has("sortieContra")) setSortieContra(figureSettings.contra);
@@ -223,6 +227,7 @@ export default function App() {
       sortieVariant: isSortieGarcon ? sortieVariant : undefined,
       sortieContra: isSortieGarcon ? sortieContra : undefined,
       sortieFilleVariant: isSortieFille ? sortieFilleVariant : undefined,
+      placement: isFiveActionFigure ? placement : undefined,
       sortieBeat: isFiveActionFigure ? Number(clock.beat.toFixed(3)) : undefined,
       sortieF: movement === "sortieF" ? true : undefined,
       sortieGF: movement === "sortieGF" ? true : undefined,
@@ -370,6 +375,7 @@ export default function App() {
               showMuscles={showMuscles}
               movement={movement}
               sortieFilleVariant={sortieFilleVariant}
+              placement={isFiveActionFigure ? placement : undefined}
               sortieVariant={sortieVariant}
               sortieContra={sortieContra}
               showAppui={showAppui}
@@ -404,6 +410,7 @@ export default function App() {
                 showMuscles={showMuscles}
                 movement={movement}
                 sortieFilleVariant={sortieFilleVariant}
+                placement={isFiveActionFigure ? placement : undefined}
                 sortieVariant={sortieVariant}
                 sortieContra={sortieContra}
                 showAppui={showAppui}
@@ -555,6 +562,8 @@ export default function App() {
       />
       {isSortieGarcon && <SortieGarconControls clock={clock} variant={sortieVariant}
         onVariant={setSortieVariant} contra={sortieContra} onContra={setSortieContra} onPlaying={setPlaying} />}
+      {isFiveActionFigure && <PlacementControl clock={clock} placement={placement}
+        onPlacement={setPlacement} onPlaying={setPlaying} />}
       {isSortieFille && <SortieFilleControls clock={clock} variant={sortieFilleVariant}
         onVariant={setSortieFilleVariant} onPlaying={setPlaying} />}
       </fieldset>
@@ -596,6 +605,7 @@ export default function App() {
               showMuscles={showMuscles}
               movement={movement}
               sortieFilleVariant={sortieFilleVariant}
+              placement={isFiveActionFigure ? placement : undefined}
               sortieVariant={sortieVariant}
               sortieContra={sortieContra}
               showAppui={showAppui}
@@ -630,6 +640,7 @@ export default function App() {
                 showMuscles={showMuscles}
                 movement={movement}
                 sortieFilleVariant={sortieFilleVariant}
+                placement={isFiveActionFigure ? placement : undefined}
                 sortieVariant={sortieVariant}
                 sortieContra={sortieContra}
                 showAppui={showAppui}

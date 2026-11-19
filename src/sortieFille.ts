@@ -1,5 +1,6 @@
 import { HIP_WIDTH } from "./anatomy";
 import type { FigureFoot, FigureFootPose, FootPoint } from "./sortieGarcon";
+import { placementOffset, startCoupling, type CouplePlacement, type PlacementOffset } from "./placement";
 
 export type SortieFilleVariant = "hook" | "back";
 export const SORTIE_FILLE_BEATS = 5;
@@ -15,6 +16,11 @@ export const SORTIE_FILLE_ACTIONS = [
 
 export function sortieFilleVariantOf(value: string | null): SortieFilleVariant {
   return value === "back" ? "back" : "hook";
+}
+
+/** Delay (in beats) of the leader's D2 after the follower's G2, proportional to the close start. */
+export function sortieFilleHookLead(offset: PlacementOffset): number {
+  return 0.08 * Math.min(1, Math.hypot(offset.x, offset.z) / 0.05);
 }
 
 export function sortieFilleBeat(beat: number): number {
@@ -34,15 +40,22 @@ interface Action {
   target: FootPoint;
   body: FootPoint;
   corner?: FootPoint;
+  // Which coordinate of the (possibly shifted) start the corner keeps, so that each
+  // segment keeps its direction when the couple placement shifts the start.
+  keep?: "x" | "z";
   delay?: number;
 }
 
 export function sampleSortieFille(beat: number, follower: boolean,
-  rest: Record<FigureFoot, FootPoint>, variant: SortieFilleVariant = "hook") {
+  rest: Record<FigureFoot, FootPoint>, variant: SortieFilleVariant = "hook",
+  placement: CouplePlacement | "reference" | PlacementOffset = "reference", contact = 1, stance = 0) {
   const b = sortieFilleBeat(beat);
   const index = Math.min(4, Math.floor(b));
   const t = b - index;
   const back = variant === "back";
+  // Owner request (19 Nov.): at action 3 the upper right thighs touch. The follower's pelvis comes
+  // 2 cm (hook) or 3 cm (back) closer to the leader's; `contact` fades this above amplitude 1.
+  const touch = Number.isFinite(contact) ? Math.max(0, Math.min(1, contact)) : 1;
   const halfHip = HIP_WIDTH / 2;
   const firstLeaderZ = .12;
   const firstFollowerZ = back ? -.42 : -.55;
@@ -63,40 +76,63 @@ export function sampleSortieFille(beat: number, follower: boolean,
   const steps: Action[] = follower ? [
     { foot: "R", target: { x: .07, z: firstFollowerZ }, body: { x: 0, z: firstFollowerZ * .43 } },
     { foot: "L", target: { x: secondFollowerX, z: back ? .13 : 0 }, body: { x: back ? .22 : .33, z: back ? -.005 : -.12 } },
-    { foot: "R", target: approach, body: { x: back ? .36 : .43, z: back ? .44 : .30 } },
+    { foot: "R", target: approach, body: { x: mix(back ? .36 : .43, back ? .33 : .41, touch), z: back ? .44 : .30 } },
     { foot: "L", target: mark, body: { x: .16, z: returnBodyZ },
-      corner: { x: secondFollowerX, z: returnZ }, delay: .24 },
+      corner: { x: secondFollowerX, z: returnZ }, keep: "x", delay: .24 },
     { foot: "R", target: mark, body: { x: mark.x, z: returnBodyZ },
       corner: { x: 0, z: approach.z }, delay: back ? .16 : 0 },
   ] : [
     { foot: "L", target: { x: 0, z: firstLeaderZ }, body: { x: 0, z: firstLeaderZ / 2 } },
     { foot: "R", target: secondLeader,
-      body: { x: back ? 0 : -.095, z: back ? .02 : firstLeaderZ }, corner: back ? undefined : { x: -halfHip, z: 0 } },
+      body: { x: back ? 0 : -.095, z: back ? .02 : firstLeaderZ }, corner: back ? undefined : { x: -halfHip, z: 0 }, keep: "z" },
     { foot: "L", target: { x: 0, z: -.19 }, body: { x: back ? 0 : -.08, z: back ? -.04 : .10 } },
     { foot: "R", target: { x: .065, z: leaderEndZ }, body: { x: .025, z: leaderEndZ } },
     { foot: "L", target: { x: .065, z: leaderEndZ }, body: { x: 0, z: leaderEndZ } },
   ];
 
-  const position = (foot: FigureFoot, offset: FootPoint): FootPoint =>
-    ({ x: rest[foot].x + offset.x, z: rest[foot].z + offset.z });
+  // Couple placement (docs/spec-placements-couple.md): both feet start shifted by o. Shifted
+  // landings keep the step amplitude; the D/D arrival (leader D2, follower D3) and every later
+  // landing are validated, so the figure is unchanged from action 3 on.
+  const o = placementOffset(placement);
+  // The leader's hooked D must reach the longitudinal level of his own G and anchor the D/D
+  // arrival, so his G1 is validated too; only the follower's D1/G2 keep their amplitude.
+  // From the quinconce start (knees interleaved), the follower's D1 lands on its validated target to
+  // free the leader's knee; her G2 keeps its amplitude.
+  const shifted = follower ? [false, true, false, false, false] : [false, false, false, false, false];
+  const shiftOf: Record<FigureFoot, number> = { L: 1, R: 1 };
+  const position = (foot: FigureFoot, offset: FootPoint, shift = 0): FootPoint =>
+    ({ x: rest[foot].x + offset.x + o.x * shift, z: rest[foot].z + offset.z + o.z * shift });
+  // Initial/neutral stance: each foot `stance` further out (feet under the hips), absorbed on its first step.
+  const widen = Number.isFinite(stance) ? stance : 0;
   const feet: Record<FigureFoot, FigureFootPose> = {
-    L: { ...rest.L, yaw: 0, lift: 0 }, R: { ...rest.R, yaw: 0, lift: 0 },
+    L: { ...position("L", { x: widen, z: 0 }, 1), yaw: 0, lift: 0 },
+    R: { ...position("R", { x: -widen, z: (o.stagger ?? 0) / 2 }, 1), yaw: 0, lift: 0 },
   };
   let support: FigureFoot = follower ? "L" : "R";
   let body: FootPoint = { x: 0, z: 0 };
-  for (const action of steps.slice(0, index)) {
-    feet[action.foot] = { ...position(action.foot, action.target), yaw: 0, lift: 0 };
+  steps.slice(0, index).forEach((action, i) => {
+    shiftOf[action.foot] = shifted[i] ? 1 : 0;
+    feet[action.foot] = { ...position(action.foot, action.target, shiftOf[action.foot]), yaw: 0, lift: 0 };
     support = action.foot;
     body = action.body;
-  }
+  });
   const action = steps[index];
-  const from = feet[action.foot], to = position(action.foot, action.target);
-  const delay = action.delay ?? 0;
+  const fromShift = shiftOf[action.foot];
+  // The pelvis follows the shift of the support foot (validated from the D/D arrival on).
+  const weightBefore = shiftOf[support];
+  const weightAfter = index < 4 ? (shifted[index] ? 1 : 0) : weightBefore;
+  const from = feet[action.foot], to = position(action.foot, action.target, shifted[index] ? 1 : 0);
+  // From a close start the leader's D2 touches the follower's G: her G2 opens the way first.
+  const closeStart = Math.min(1, Math.hypot(o.x, o.z) / 0.05);
+  const delay = action.delay ?? (!follower && index === 1 ? sortieFilleHookLead(o) : 0);
   const touchdown = !follower && index === 3 ? .48 : .68;
   const flight = Math.max(0, Math.min(1, (t - delay) / (touchdown - delay)));
   let point = interpolate(from, to, smooth(flight));
   if (action.corner) {
     const via = position(action.foot, action.corner);
+    // The corner keeps the start's own coordinate (shift, stance and stagger included).
+    if (action.keep === "x") via.x = from.x;
+    if (action.keep === "z") via.z = from.z;
     point = flight < .5 ? interpolate(from, via, smooth(flight * 2))
       : interpolate(via, to, smooth(flight * 2 - 1));
   }
@@ -107,13 +143,17 @@ export function sampleSortieFille(beat: number, follower: boolean,
   feet[action.foot] = { ...point, yaw, lift: (index === 4 ? .022 : .045) * swing };
   const transfer = index < 4 ? smooth((t - touchdown) / (1 - touchdown)) : 0;
   const loadR = mix(Number(support === "R"), Number(action.foot === "R"), transfer);
-  const bodyPhase = follower && index === 1 ? (t - .25) / .75 : t;
-  const root = interpolate(body, action.body, smooth(bodyPhase));
+  // From a close start the follower's pelvis completes its retreat over D1 by 80 % of the step, so
+  // her planted G leg never folds onto the leader's right knee between hers (measured on the GLB).
+  const bodyPhase = follower && index === 1 ? (t - .25) / .75
+    : follower && index === 0 ? t / (1 - 0.2 * closeStart) : t;
+  const root = interpolate({ x: body.x + o.x * weightBefore, z: body.z + o.z * weightBefore },
+    { x: action.body.x + o.x * weightAfter, z: action.body.z + o.z * weightAfter }, smooth(bodyPhase));
   // Keep the follower's pelvis over the outside support while D clears the
   // leader's leg. The support foot stays fixed and D keeps its straight segment.
   if (follower && index === 2) root.x += (back ? .06 : .10) * Math.sin(Math.PI * t) ** 2;
   // Opening of the leader's chest leads the answering rotation of the partner.
   const cue = follower ? .72 : .47;
   const chestYaw = -.20 * smooth((b - cue) / .72) * (1 - smooth((b - 2.15) / 1.1));
-  return { beat: b, feet, root, loadR, chestYaw };
+  return { beat: b, feet, root, loadR, chestYaw, coupling: startCoupling(b, o) };
 }
