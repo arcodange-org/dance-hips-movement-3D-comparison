@@ -11,7 +11,11 @@ et [des placements #28](spec-placements-couple.md).
   Le propriétaire ajoute que cela « peut se travailler encore une fois avec la figure ida e volta ».
 - **Marche (#49)** : on doit avoir l'impression que les danseurs marchent normalement.
 - **Neutre (#48)** : la position neutre est le quinconce, retrouvé dès que le couple revient sur sa ligne.
-- **Ginga (#42)** : il partira de l'ida e volta. Ce chantier en pose la base de déplacement.
+- **Ginga (#42)** : il partira de l'ida e volta. Ce chantier en pose la base de déplacement. Le
+  propriétaire : « on n'oublie pas les transferts de poids avec le ginga déclenché à chaque alternance
+  droite/gauche gauche/droite » : chaque transfert d'appui est explicite et mesurable.
+- **Pas plus petits (#56)** : « faire des déplacements plus petits (longueur de pied) pour la plupart
+  des figures ». Le pas de l'ida e volta (18 cm) reste sous la longueur d'un pied (21 cm).
 
 ## Constat sur le code
 
@@ -53,16 +57,24 @@ Repère du couple : celui du leader (+x à gauche, +z vers le suiveur). Écartem
   passage de jambe, pose de l'avant-pied puis du talon. Le point d'appui ne glisse pas pendant un pivot.
   Le roulé est réduit à 30 % (pas au contact, comme les pas croisés des sorties) : à 100 %, le talon
   qui se lève pousse les deux genoux l'un vers l'autre.
-- **Poids et bassins (pas balancé, « rock step »)** : à l'aller, le poids passe sur le pied posé
-  (temps 1 → 1,5) puis revient sur le pied resté au neutre (1,5 → 2), ce qui libère le pied pour le
-  retour. Au retour, le pied revient sans poids et reprend le poids en se posant. Les deux bassins se
+- **Poids et bassins (pas balancé, « rock step »)** : une fois les deux pieds posés (fin du vol, 1,2),
+  le poids passe sur le pied posé (1,2 → 1,5) ; à l'aller il revient ensuite sur le pied resté au neutre
+  (1,55 → 1,95), ce qui libère le pied pour le retour. Au retour, le pied revient sans poids et reprend
+  le poids en se posant.
+- **Transferts d'appui explicites (pour le ginga #42)** : `idaTransfers(follower)` liste les six
+  transferts du cycle (début, fin, pied quitté, pied chargé), alternés D/G : D→G à 1,2, G→D à 1,55,
+  D→G à 3,2, G→D à 5,2, D→G à 5,55, G→D à 7,2 pour le leader ; mêmes instants, pieds en miroir, pour le
+  suiveur. L'échantillon donne `support` (pied porteur) et `transfer` (transfert en cours et sa
+  progression). Hors transfert, tout le poids est sur un pied. Les deux bassins se
   déplacent **ensemble**, d'une part `carry` du pas, avec le poids. L'écart entre les bassins reste
   constant, donc le contact des plexus aussi.
 - **Contraposition** : la courbe `idaContra` de la phase 15 donne le lacet du bassin (vers le pied qui
-  bouge) et du buste (à l'opposé). Le suiveur la joue sur son propre pied, en miroir : les lacets des
+  bouge, réduit de moitié dans le couple serré : il rapproche les cuisses d'appui du couloir extérieur)
+  et du buste (à l'opposé). Le suiveur la joue sur son propre pied, en miroir : les lacets des
   bassins sont de signes opposés dans le monde, comme les bassins couplés du quinconce. Le buste du leader
   guide un quart de temps en avance (`IDA_LEAD`, règle de #37). Avec l'option plexus, le buste fait face
-  au partenaire (contraposition 1) ou reste aligné sur le bassin (0) ; il penche pour garder le contact.
+  au partenaire (contraposition 1) ou reste aligné sur le bassin (0) ; il penche pour garder le contact
+  (le buste seul : `PLEXUS.pelvisPull` = 0 depuis #52, rapprocher les bassins croise les os).
 - **Bassins couplés** : comme les quarts, le bassin du suiveur suit celui du leader (rotations du style
   en miroir), proportionnellement au rapprochement du placement.
 - Hors paire (solo, comparaison) et sans `idaPaire` : comportement de la phase 8 et de la phase 15,
@@ -72,21 +84,24 @@ Repère du couple : celui du leader (+x à gauche, +z vers le suiveur). Écartem
 
 1. **Neutre** : aux temps 0, 4 et 8, pieds et racines des deux danseurs sur la position neutre du
    placement (quinconce compris) ; cycle de 8 temps en boucle.
-2. **Séquence** : le leader avance quand le suiveur recule, du même pas, avec le pied opposé ; le pied
+2. **Transferts** : six transferts d'appui par cycle, alternés, simultanés et en miroir pour les deux
+   danseurs, les deux pieds au sol ; le poids ne change que pendant un transfert et finit entièrement
+   sur le pied chargé ; les appuis du moteur (GLB) sont ceux de l'échantillonneur.
+3. **Séquence** : le leader avance quand le suiveur recule, du même pas, avec le pied opposé ; le pied
    qui recule part le premier et garde l'avance, les deux se posent ensemble ; le couple se déplace d'un
    bloc (écart des racines constant) ; le buste du leader précède de `IDA_LEAD`.
-3. **Marche** : pendant chaque pas, le talon se lève avant que le pied ne quitte le sol ; attaque du
+4. **Marche** : pendant chaque pas, le talon se lève avant que le pied ne quitte le sol ; attaque du
    talon sur les pas vers l'avant, avant-pied d'abord sur les pas vers l'arrière ; pivot sans glissement.
-4. Six styles, amplitudes 0,5 ; 1 ; 2, quinconce et référence : semelles au-dessus du sol, cibles IK
+5. Six styles, amplitudes 0,5 ; 1 ; 2, quinconce et référence : semelles au-dessus du sol, cibles IK
    atteintes, longueurs osseuses constantes, pied d'appui immobile hors de sa fenêtre de vol, appui nul
    sur un pied levé, continuité.
-5. Enveloppes des quatre semelles disjointes en continu (quinconce, face à face, amplitudes 0,5 à 2) ;
+6. Enveloppes des quatre semelles disjointes en continu (quinconce, face à face, amplitudes 0,5 à 2) ;
    aucun croisement des triangles des os des jambes, entre danseurs et pour chaque danseur (quinconce,
    référence, et la vue par défaut de l'app : quinconce avec plexus et contraposition).
-6. **Plexus** (`scripts/test_plexus.mjs`) : avec contraposition, écart maximal des repères de poitrine
-   ≤ 6 cm pendant tout le cycle (quinconce et référence, kizomba et kompa) ; sans contraposition, mesuré
-   et rapporté.
-7. Solo et comparaison inchangés : oracle, empreintes et suite existante verts sans modification.
+7. **Plexus** (`scripts/test_plexus.mjs`) : avec contraposition, écart maximal des repères de poitrine
+   ≤ 6 cm pendant tout le cycle en quinconce (kizomba et kompa) ; référence gardée à 10 cm ; sans
+   contraposition, mesuré et rapporté.
+8. Solo et comparaison inchangés : oracle, empreintes et suite existante verts sans modification.
 
 ## Paramètres retenus (`IDA_PAIR`, à valider à l'œil par le propriétaire)
 
@@ -98,7 +113,8 @@ Repère du couple : celui du leader (+x à gauche, +z vers le suiveur). Écartem
 | `aside` | 2 cm | ouverture du pied G pendant son vol |
 | `carry` | 0,5 | part du pas suivie par les deux bassins (9 cm) |
 | `forwardRoll`, `backRoll` | 30 % | roulé du pas (`gaitStep`) |
-| `weight` | 1,05 → 1,4 → 1,5 → 1,95 | poids sur le pied posé, puis retour (pas balancé) |
+| `weight` | 1,2 → 1,5 → 1,55 → 1,95 | poids sur le pied posé (deux pieds au sol), puis retour (pas balancé) |
+| `pelvisYaw` | 0,5 | part du lacet de bassin de la phase 15 gardée en paire |
 | `kneeCap` | 0,3 rad | flexion maximale des genoux (0,45 dans les sorties) |
 | `rotationCap` | 0,06 rad | rotation du bassin propre au style (0,12 dans les sorties) |
 
@@ -115,12 +131,15 @@ huitième de temps (poses en collision) :
 | Retard 0,5, roulé à 30 % | 5 |
 | + flexion des genoux plafonnée à 0,3 rad | 2 (kompa : genou G du leader contre genou D du suiveur, décalé en quinconce) |
 | + pied G ouvert de 2 cm | 1 (tarraxinha : jambes d'appui, rotation du bassin du style) |
-| + rotation du bassin du style plafonnée à 0,06 rad | **0**, aussi au seizième de temps, en face à face et avec le plexus (avec ou sans contraposition) |
+| + rotation du bassin du style plafonnée à 0,06 rad | 0 |
+| Poids reporté après la pose (1,2) et plexus sans traction des bassins (#52) | 2 (tarraxinha : cuisses d'appui, lacet du bassin) |
+| + lacet du bassin réduit de moitié | **0**, aussi au seizième de temps, trois placements, plexus coupé, avec et sans contraposition |
 
-Plexus (`scripts/test_plexus.mjs`, kizomba et kompa, amplitude 1) : écart maximal des repères de
-poitrine **3,3 à 4,9 cm** avec contraposition ; sans contraposition 9,1–9,2 cm en quinconce,
-3,4–4,9 cm en référence ; sans l'option plexus 8,6–9,6 cm. Les bassins se déplacent ensemble : l'écart
-reste celui du départ, contrairement aux sorties.
+Plexus (`scripts/test_plexus.mjs`, kizomba et kompa, amplitude 1, buste seul : `PLEXUS.pelvisPull` = 0
+depuis #52) : écart maximal des repères de poitrine **3,4 cm** avec contraposition en quinconce (vue
+par défaut de l'app) ; 9,2 cm sans contraposition ; 9,6 cm sans l'option plexus. En référence, les
+bassins restent à 40 cm : 8,3–9,2 cm (garde de non-régression à 10 cm). Les bassins se déplacent
+ensemble : l'écart reste celui du départ, contrairement aux sorties.
 
 ## Points de décision du propriétaire
 
@@ -132,6 +151,8 @@ reste celui du départ, contrairement aux sorties.
   toucher les genoux.
 - Le roulé réduit à 30 %, le pied G ouvert de 2 cm, genoux et bassin du style plafonnés (0,3 et
   0,06 rad) : le prix d'un couple serré qui avance et recule sans que les os se croisent.
+- Le lacet du bassin de la phase 15 réduit de moitié en paire.
+- Les instants des transferts d'appui (après la pose des deux pieds), point d'accroche du ginga (#42).
 - Le bassin qui suit le poids de 9 cm (la moitié du pas) et le pas balancé (le poids revient avant le
   retour du pied).
 

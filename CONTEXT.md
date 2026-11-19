@@ -11,8 +11,10 @@ Branche `arcodange/ida-paire`, PR #55 empilée sur #52. En paire, `idaPaire: tru
 quand le placement est donné) remplace le même pas des deux danseurs par un pas balancé du couple
 (`src/idaPaire.ts`) : le leader avance pendant que le suiveur recule avec le pied opposé, dans le même
 couloir, puis retour au quinconce (temps 4 et 8). Pas de marche `gaitStep` (roulé 30 %), le pied qui
-recule part 0,5 temps avant, pied G ouvert de 2 cm, genoux et bassin du style plafonnés (0,3 / 0,06 rad) :
-0 croisement d'os. Bassins ensemble : plexus 3,3–4,9 cm avec contraposition. Base du ginga (#42).
+recule part 0,5 temps avant, pied G ouvert de 2 cm, genoux et bassin du style plafonnés (0,3 / 0,06 rad),
+lacet de bassin de la phase 15 réduit de moitié : 0 croisement d'os, avec ou sans plexus. Bassins
+ensemble : contact plexus tenu avec contraposition. Six transferts d'appui explicites par cycle
+(`idaTransfers`, `support`, `transfer`) : point d'accroche du ginga (#42).
 `scripts/test_ida_paire.mjs` dans `npm test`. [Spécification](docs/spec-ida-paire.md).
 
 ## Fin en quinconce, marche naturelle, contact des pieds D, plexus #48 #49 #50 #51 (19 novembre 2026)

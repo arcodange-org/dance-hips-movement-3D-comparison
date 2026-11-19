@@ -87,6 +87,44 @@ console.log('PASS neutre : quinconce (ou placement) retrouvé aux temps 0, 4 et 
   console.log(`PASS séquence : leader en avant, suiveur en arrière (pied opposé, même pas, le pied qui recule part en premier), couple d'un bloc (${(travel * 100).toFixed(1)} cm), buste du leader en avance de ${api.IDA_LEAD} temps`);
 }
 
+// 2b. Support transfers, explicit for the ginga (#42, « transferts de poids […] à chaque alternance ») :
+// six per cycle, alternating feet, the same instants for both dancers with mirrored feet; the load
+// only changes inside a transfer and ends fully on its target foot.
+{
+  const rest = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
+  for (const follower of [false, true]) {
+    const list = api.idaTransfers(follower);
+    assert.equal(list.length, 6, 'six transfers per cycle');
+    list.forEach((t, k) => {
+      assert.notEqual(t.from, t.to);
+      const next = list[(k + 1) % list.length];
+      assert.equal(next.from, t.to, `transfers alternate (${k})`);
+      assert(t.end > t.start && (k === list.length - 1 || next.start >= t.end), `ordered transfers (${k})`);
+      const mirror = api.idaTransfers(!follower)[k];
+      near(mirror.start, t.start); near(mirror.end, t.end);
+      assert.equal(mirror.to, t.to === 'L' ? 'R' : 'L', 'mirrored feet');
+    });
+    let previous = api.sampleIdaPaire(0, follower, rest, 'quinconce');
+    assert.equal(previous.loadR, follower ? 0 : 1, 'cycle starts on the leader R / follower L');
+    for (let tick = 1; tick <= 800; tick++) {
+      const b = tick / 100, s = api.sampleIdaPaire(b, follower, rest, 'quinconce');
+      const t = list.find(x => b > x.start + 1e-9 && b < x.end - 1e-9);
+      if (!t) { const inside = list.some(x => b >= x.start - .011 && b <= x.end + .011);
+        if (!inside) near(s.loadR, previous.loadR, 1e-12, `load constant outside transfers at ${b}`);
+        assert(s.loadR === 0 || s.loadR === 1 || inside, `full support outside transfers at ${b}`); }
+      else { assert.equal(s.transfer?.to, t.to); assert(t.to === 'R' ? s.loadR >= previous.loadR - 1e-12 : s.loadR <= previous.loadR + 1e-12, `monotonic transfer at ${b}`); }
+      previous = s;
+    }
+    for (const t of list) {
+      const s = api.sampleIdaPaire(t.end + 1e-6, follower, rest, 'quinconce');
+      near(t.to === 'R' ? s.loadR : s.loadL, 1, 1e-9, `transfer ends on ${t.to}`);
+      // Both feet are down during every transfer.
+      for (const side of ['L', 'R']) near(api.sampleIdaPaire((t.start + t.end) / 2, follower, rest, 'quinconce').feet[side].lift, 0, 1e-12);
+    }
+  }
+  console.log('PASS transferts d’appui : six par cycle, alternés D/G, simultanés et en miroir, deux pieds au sol', api.idaTransfers(false).map(t => `${t.from}→${t.to}@${t.start}`).join(' '));
+}
+
 // 3. Walk: heel rises before the foot leaves the floor; heel strike forward, ball first backward.
 {
   const rest = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
@@ -116,6 +154,8 @@ for (const placement of ['quinconce', 'reference']) for (const styleKey of STYLE
     assert(ground >= -.0001, `floor ${placement} ${styleKey} ${amp} ${beat}: ${ground}`);
     near(stats.loadL + stats.loadR, 1);
     const sample = api.sampleIdaPaire(beat, !!i, restOf(f), api.placementOffset(placement, amp), stanceOf(f.model));
+    // The engine's supports are the sampler's (both feet down) or all on the standing foot.
+    if (sample.feet.L.lift === 0 && sample.feet.R.lift === 0) near(stats.loadR, sample.loadR, 1e-9, `GLB load ${styleKey} ${beat}`);
     for (const side of ['L', 'R']) {
       const hip = world(f, 'hip' + side), knee = world(f, 'knee' + side), foot = world(f, 'foot' + side);
       const error = foot.distanceTo(f.outer.localToWorld(f.model.targets[side].clone()));

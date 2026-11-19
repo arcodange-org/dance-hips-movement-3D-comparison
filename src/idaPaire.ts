@@ -22,12 +22,15 @@ export const IDA_LEAD = 0.25;
  *   the follower's D, the follower's G next to the leader's D) opens this far to its left during its
  *   flight, so the two knees that travel side by side clear each other;
  * - `carry`: share of the step the pelvises travel with the weight on an outgoing step;
- * - `weight`: the weight reaches the landed foot (`on`→`full`), then rocks back (`back`→`home`);
+ * - `weight`: once both feet are down (end of the flight), the weight moves onto the landed foot
+ *   (`on`→`full`), then on an outgoing step rocks back (`back`→`home`); see `idaTransfers`;
+ * - `pelvisYaw`: share of the phase 15 pelvis yaw (idaContra) kept in the close couple: the yaw brings
+ *   the standing thighs of the outer lane towards each other;
  * - `coupling`, `kneeCap`, `rotationCap`, `dip`, `sway`: pelvis and style bounds in the close couple. */
 export const IDA_PAIR = {
   step: 0.18, flight: 1.2, delay: 0.5, aside: 0.02, carry: 0.5, forwardRoll: 0.3, backRoll: 0.3,
-  weight: { on: 1.05, full: 1.4, back: 1.5, home: 1.95 },
-  coupling: 1, kneeCap: 0.3, rotationCap: 0.06, dip: -0.008, sway: 1,
+  weight: { on: 1.2, full: 1.5, back: 1.55, home: 1.95 },
+  pelvisYaw: 0.5, coupling: 1, kneeCap: 0.3, rotationCap: 0.06, dip: -0.008, sway: 1,
 };
 
 const smooth = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * (3 - 2 * t); };
@@ -48,6 +51,21 @@ export function idaStepAt(beat: number): IdaStep {
   const p = ((b % IDA_BEATS) + IDA_BEATS) % IDA_BEATS;
   const index = Math.min(3, Math.floor(p / 2));
   return { index, q: p - index * 2, side: index < 2 ? "L" : "R", out: index % 2 === 0 };
+}
+
+/** One support transfer: the weight moves from one foot to the other between `start` and `end`
+ * (beats in the 8-beat cycle). The ginga (#42) is triggered at each left/right alternation. */
+export interface IdaTransfer { start: number; end: number; from: FigureFoot; to: FigureFoot }
+/** Every support transfer of a dancer over the cycle (six, alternating feet): on each step the weight
+ * goes onto the landed foot; on an outgoing step it then rocks back onto the foot left at neutral. */
+export function idaTransfers(follower: boolean): IdaTransfer[] {
+  const w = IDA_PAIR.weight, list: IdaTransfer[] = [];
+  for (let index = 0; index < 4; index++) {
+    const side: FigureFoot = index < 2 ? "L" : "R", moving = follower ? other(side) : side, slot = 2 * index;
+    list.push({ start: slot + w.on, end: slot + w.full, from: other(moving), to: moving });
+    if (index % 2 === 0) list.push({ start: slot + w.back, end: slot + w.home, from: moving, to: other(moving) });
+  }
+  return list;
 }
 
 /** Neutral stance (own frame): feet under the hips, placement offset, right foot staggered. */
@@ -103,10 +121,14 @@ export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<Fig
   // Phase 15 contraposition on the dancer's own moving foot (the follower mirrors the leader: opposite
   // world yaws, like the coupled pelvises). The leader's upper body leads by IDA_LEAD.
   const sign = follower ? -1 : 1;
-  const lower = sign * idaContra(b).lowerYaw;
+  const lower = sign * IDA_PAIR.pelvisYaw * idaContra(b).lowerYaw;
   const upper = sign * idaContra(follower ? b : b + IDA_LEAD).upperYaw;
+  // The support transfer under way (explicit for the ginga #42), with its progress.
+  const p = ((b % IDA_BEATS) + IDA_BEATS) % IDA_BEATS;
+  const current = idaTransfers(follower).find(t => p >= t.start && p < t.end);
+  const transfer = current ? { ...current, progress: smooth((p - current.start) / (current.end - current.start)) } : null;
   return { beat: b, action: now.index, moving, feet, root, rootYaw: lower, chestYaw: upper - lower,
-    loadR, loadL: 1 - loadR, cyclic: true as const,
+    loadR, loadL: 1 - loadR, support: (loadR >= 0.5 ? "R" : "L") as FigureFoot, transfer, cyclic: true as const,
     coupling: IDA_PAIR.coupling * Math.min(1, Math.hypot(o.x, o.z) / 0.05),
     kneeCap: IDA_PAIR.kneeCap, rotationCap: IDA_PAIR.rotationCap, dip: IDA_PAIR.dip, sway: IDA_PAIR.sway };
 }
