@@ -103,10 +103,13 @@ for (const styleKey of Object.keys(api.STYLES)) for (const amp of [.5, 1, 2]) {
       near(hip.distanceTo(knee), f.model.legs[side].length1);
       near(knee.distanceTo(foot), f.model.legs[side].length2);
       if (f.model.lift[side] > 1e-6) near(stats['load' + side], 0);
-      // Feet forward along the knees: the heel → ball axis turns with the foot's yaw.
+      // Feet forward along the knees: the heel → ball axis turns with the foot's yaw; #49: it only
+      // pitches (heel rise, heel strike) in the vertical plane of that yaw.
       const forward = footAxis(f, side), yaw = sample.feet[side].yaw + (i ? Math.PI : 0);
-      near(forward.x, Math.sin(yaw), 1e-6, `foot axis x ${styleKey} ${beat} ${side}`);
-      near(forward.z, Math.cos(yaw), 1e-6, `foot axis z ${styleKey} ${beat} ${side}`);
+      const pitch = sample.feet[side].pitch ?? 0, flat = Math.hypot(forward.x, forward.z);
+      near(flat, Math.cos(pitch), 1e-6, `foot pitch ${styleKey} ${beat} ${side}`);
+      near(forward.x / flat, Math.sin(yaw), 1e-6, `foot axis x ${styleKey} ${beat} ${side}`);
+      near(forward.z / flat, Math.cos(yaw), 1e-6, `foot axis z ${styleKey} ${beat} ${side}`);
     }
     poses++;
   }

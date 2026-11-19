@@ -15,7 +15,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const bundle = join(root, "scripts", ".test-features-bundle.mjs");
 esbuild.buildSync({
   stdin: {
-    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon"; export * from "../src/sortieFille";',
+    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon"; export * from "../src/sortieFille"; export * from "../src/gait";',
     resolveDir: join(root, "scripts"),
     loader: "ts",
   },
@@ -118,7 +118,9 @@ const steps = [
   [/^on échantillonne la sortie fille au deuxième pas en variante "(hook|back)"$/, (c, m) => {
     const rest = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
     const pose = (beat, follower) => mod.sampleSortieFille(beat, follower, rest, m[1]);
-    c.fille = { start: pose(1, false), corner: pose(1.34, false), end: pose(2, false),
+    // #49: the corner of the hook is reached half-way through the swing of the (reduced) walking roll.
+    const roll = mod.SORTIE_FILLE_FIRST_ROLL, push = mod.GAIT.push * roll, land = 1 - (1 - mod.GAIT.land) * roll;
+    c.fille = { start: pose(1, false), corner: pose(1 + .68 * (push + .5 * (land - push)), false), end: pose(2, false),
       followerStart: pose(1, true), followerEnd: pose(2, true) };
   }],
   [/^le droit du leader prend un crochet et le gauche du suiveur sort latéralement$/, (c) => {

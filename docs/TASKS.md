@@ -259,3 +259,15 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Trajectoires, cadre guidé, variantes, transport, partage et export.
 - [x] Validation sur le GLB et protection des traces sortie garçon/combiné.
 - [x] Revue M4, contrôle navigateur des deux variantes et captures ([rétrospective](retrospective-sortie-fille.md)).
+
+## Fin en quinconce, marche naturelle, contact des pieds D, plexus (#48 #49 #50 #51)
+
+- [x] Spécification ([spec](spec-marche-naturelle.md)).
+- [x] Fin de figure en position neutre (sorties garçon et fille), bassins recouplés (#48).
+- [x] Cycle de marche des pas de figure (`src/gait.ts`), sorties et quarts de tour en paire (#49).
+- [x] Sortie garçon : pieds D bord à bord au temps 2, G1 moins latéral (#50).
+- [x] Option plexus contre plexus, avec ou sans contraposition, et mesure de l'indicateur (#51).
+- [ ] Sortie fille : raccourcir les reculs du suiveur pour tenir le contact plexus (#51, 19 cm).
+- [ ] Ida e volta : marche et contact plexus (#51).
+- [ ] Captures GIF mises à jour et validation à l'œil par le propriétaire.
+

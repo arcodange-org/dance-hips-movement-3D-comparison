@@ -2,8 +2,12 @@ import { seekClock, type DanceClock } from "../clock";
 import { PLACEMENT_LABELS, placementOf, type CouplePlacement } from "../placement";
 
 /** Couple placement of the five-action figures (docs/spec-placements-couple.md). */
-export default function PlacementControl({ clock, placement, onPlacement, onPlaying, quarts = false }: {
+export default function PlacementControl({ clock, placement, onPlacement, onPlaying, quarts = false,
+  contraposition = 1, onContraposition }: {
   clock: DanceClock;
+  /** #51: plexus-to-plexus contact, chest facing the partner (1) or aligned with the pelvis (0). */
+  contraposition?: number;
+  onContraposition?: (value: number) => void;
   /** Pair quarter turns (#37): the placement is found again at the end of each quarter. */
   quarts?: boolean;
   placement: CouplePlacement;
@@ -22,6 +26,13 @@ export default function PlacementControl({ clock, placement, onPlacement, onPlay
           <option key={key} value={key}>{PLACEMENT_LABELS[key]}</option>)}
       </select>
     </label>
+    {onContraposition && <label className="grid min-w-0 max-w-full gap-1">Plexus contre plexus
+      <select className="w-full min-w-0 max-w-full bg-slate-800 border border-slate-600 rounded p-2"
+        value={contraposition ? "1" : "0"} onChange={event => onContraposition(event.target.value === "0" ? 0 : 1)}>
+        <option value="1">Avec contraposition (buste face au partenaire)</option>
+        <option value="0">Sans contraposition (buste aligné sur le bassin)</option>
+      </select>
+    </label>}
     <p className="text-xs text-slate-400">
       En quinconce, les demi-pointes se touchent, les genoux droits se croisent et le bassin du suiveur
       suit celui du leader. {quarts

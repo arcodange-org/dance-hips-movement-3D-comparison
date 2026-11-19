@@ -10,7 +10,9 @@ import { facingSector } from "./directions";
 import { sampleSortieGarcon, DEFAULT_SORTIE_CONTRA, type SortieVariant } from "./sortieGarcon";
 
 import { sampleSortieFille, type SortieFilleVariant } from "./sortieFille";
-import { sampleQuartsPaire } from "./quartsPaire";
+import { sampleQuartsPaire, QUARTS_PAIR_DZ } from "./quartsPaire";
+import { SORTIE_GARCON_PAIR_DZ } from "./sortieGarcon";
+import { SORTIE_FILLE_PAIR_DZ } from "./sortieFille";
 import { placementOffset, placementScale, type CouplePlacement } from "./placement";
 
 export type Side = "L" | "R";
@@ -31,14 +33,22 @@ export interface PoseOptions {
   placement: CouplePlacement | "reference";
   /** #37: pair quarter turns around the leader (docs/spec-quarts-paire.md); off = phase 14 model. */
   quartsPaire: boolean;
+  /** #51: in pair figures the upper bodies keep plexus-to-plexus contact (lean towards the partner). */
+  plexus: boolean;
+  /** #51: 1 = the chest faces the partner while the pelvis follows the feet (contraposition), 0 = the
+   * chest stays aligned with the pelvis. */
+  contraposition: number;
 }
 export const DEFAULT_POSE: PoseOptions = {
   styleKey: "kizomba", amp: 1, travel: 0, dir: 1, plant: true, iso: true, cadre: true,
   quarts: false, corridinho: false, ida: false, temps3: false, sortie: false,
   embrace: false, reverse: false, follower: false, movement: "none",
   sortieFilleVariant: "hook", sortieVariant: "line", sortieContra: DEFAULT_SORTIE_CONTRA,
-  placement: "reference", quartsPaire: false,
+  placement: "reference", quartsPaire: false, plexus: false, contraposition: 1,
 };
+/** Plexus-to-plexus contact (#51): chest-marker gap targeted between partners (m) and the largest
+ * lean of the upper body towards the partner (rad). */
+export const PLEXUS = { gap: 0.08, maxLean: 0.35, marker: 0.16, pelvisDistance: 0.34, pelvisPull: 1 };
 interface Leg {
   length1: number; length2: number; f0: THREE.Vector3; t0: THREE.Vector3;
   hip: THREE.Vector3; rest: THREE.Vector3; sole: THREE.Vector3[];
@@ -46,6 +56,8 @@ interface Leg {
   toeOut: number;
   /** Hip joint x in the rig's outer frame at rest: "feet under the hips" stance. */
   hipX: number;
+  /** #49: sole points a rolling foot pivots on (ankle coordinates): ball of the foot and heel. */
+  ball: THREE.Vector3; heel: THREE.Vector3;
 }
 export interface PoseModel {
   legs: Record<Side, Leg>;
@@ -80,6 +92,20 @@ function solePoints(foot: THREE.Object3D): THREE.Vector3[] {
   });
   return points;
 }
+/** #49: ball of the foot (forefoot band 15–33 % from the toe) and heel (rear 12 %) contact points,
+ * centroids of the lowest sole points of each band along the functional axis. */
+function rollPoints(sole: THREE.Vector3[], toeOut: number): { ball: THREE.Vector3; heel: THREE.Vector3 } {
+  const axis = new THREE.Vector3(Math.sin(toeOut), 0, Math.cos(toeOut));
+  const along = sole.map(p => p.dot(axis)), toe = Math.max(...along), back = Math.min(...along), length = toe - back;
+  const low = Math.min(...sole.map(p => p.y)) + 0.012;
+  const centroid = (from: number, to: number) => {
+    const band = sole.filter((p, i) => p.y <= low && along[i] >= back + from * length && along[i] <= back + to * length);
+    const c = new THREE.Vector3();
+    for (const p of band) c.add(p);
+    return band.length ? c.divideScalar(band.length) : new THREE.Vector3(0, low, back + (from + to) / 2 * length);
+  };
+  return { ball: centroid(0.67, 0.85), heel: centroid(0, 0.12) };
+}
 /** Yaw of the heel → ball (forefoot, 15–33 % from the toe) axis of a sole, from +z toward +x. */
 function footAxisYaw(sole: THREE.Vector3[]): number {
   const zs = sole.map(p => p.z), toe = Math.max(...zs), heel = Math.min(...zs), length = toe - heel;
@@ -105,12 +131,16 @@ export function createPoseModel(r: RigHandle): PoseModel {
       f0: knee.position.clone().normalize(), t0: foot.position.clone().normalize(),
       hip: hip.position.clone(), rest, sole, toeOut: footAxisYaw(sole),
       hipX: r.root.parent!.worldToLocal(hip.getWorldPosition(new THREE.Vector3())).x,
+      ball: new THREE.Vector3(), heel: new THREE.Vector3(),
     };
+    Object.assign(legs[s], rollPoints(sole, legs[s].toeOut));
   }
   return { legs, targets: { L: new THREE.Vector3(), R: new THREE.Vector3() }, lift: { L: 0, R: 0 } };
 }
 
-interface FootPlan { x: number; z: number; yaw: number; lift: number }
+interface FootPlan { x: number; z: number; yaw: number; lift: number;
+  /** #49: rolling foot — pitch (+ = heel up) and the sole point kept fixed on the floor. */
+  pitch?: number; pivot?: "ball" | "heel" | null }
 // Phase 17 — enveloppe de sortie effective pour ce rig : option exclusive `movement`
 // (sortieG/sortieF/sortieGF selon le côté leader/follower), sinon legacy `sortie` (les deux
 // danseurs en même temps). Hors embrace : 0.
@@ -197,6 +227,40 @@ function kneeAngle(r: RigHandle, s: Side): number {
   return knee.sub(hip).angleTo(foot.sub(r["knee" + s].getWorldPosition(new THREE.Vector3()))) * 180 / Math.PI;
 }
 
+/** #51: tilt the spine towards the partner until this dancer's plexus marker reaches the middle of the
+ * couple (minus half the contact gap). Both partners do the same, so their plexus markers meet. */
+function leanTowards(r: RigHandle, partner: { x: number; z: number }): void {
+  const outer = r.root.parent!;
+  const spine = r.spine as THREE.Object3D, chest = r.chest as THREE.Object3D;
+  const marker = (): THREE.Vector3 => {
+    r.root.updateWorldMatrix(true, true);
+    const forward = new THREE.Vector3(0, 0, PLEXUS.marker).applyQuaternion(chest.getWorldQuaternion(new THREE.Quaternion()));
+    return outer.worldToLocal(chest.getWorldPosition(new THREE.Vector3()).add(forward));
+  };
+  for (let iteration = 0; iteration < 2; iteration++) {
+    const own = r.root.position, plexus = marker();
+    const dx = partner.x - own.x, dz = partner.z - own.z, distance = Math.hypot(dx, dz);
+    if (distance < 1e-6) return;
+    const ux = dx / distance, uz = dz / distance;
+    // Where this plexus should be: half-way between the pelvises, half the contact gap short of it.
+    const reach = distance / 2 - PLEXUS.gap / 2;
+    const ahead = (plexus.x - own.x) * ux + (plexus.z - own.z) * uz;
+    const missing = reach - ahead;
+    if (missing <= 1e-4) return;
+    const pivot = outer.worldToLocal(spine.getWorldPosition(new THREE.Vector3()));
+    const arm = Math.max(0.1, plexus.distanceTo(pivot));
+    const angle = Math.min(PLEXUS.maxLean, Math.asin(Math.min(1, missing / arm)));
+    // Rotate the spine in world space about (up × towards-partner), expressed in the outer frame.
+    const axisLocal = new THREE.Vector3(uz, 0, -ux);
+    const outerQ = outer.getWorldQuaternion(new THREE.Quaternion());
+    const axis = axisLocal.applyQuaternion(outerQ).normalize();
+    const tilt = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+    const parentQ = spine.parent!.getWorldQuaternion(new THREE.Quaternion());
+    const world = tilt.multiply(spine.getWorldQuaternion(new THREE.Quaternion()));
+    spine.quaternion.copy(parentQ.invert().multiply(world));
+  }
+}
+
 /** The single final-pose pipeline used by React and GLB integration tests. */
 export function applyPose(r: RigHandle, model: PoseModel, beat: number, options: Partial<PoseOptions>): PoseStats {
   const o = { ...DEFAULT_POSE, ...options };
@@ -205,12 +269,17 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
   // axis (the GLB foot is natively turned out by ≈25°), and the initial/neutral stance has the
   // feet under the hips; each foot joins the validated path on its first step.
   const stance = (model.legs.L.hipX - rest.L.x + rest.R.x - model.legs.R.hipX) / 2;
-  const figure = !o.embrace ? null
-    : o.movement === "sortieG" ? sampleSortieGarcon(beat, o.follower, rest, o.sortieVariant, o.sortieContra, placementOffset(o.placement, o.amp), placementScale(o.amp), stance)
-    : o.movement === "sortieF" ? sampleSortieFille(beat, o.follower, rest, o.sortieFilleVariant, placementOffset(o.placement, o.amp), placementScale(o.amp), stance)
+  const sampleFigure = (follower: boolean) => !o.embrace ? null
+    : o.movement === "sortieG" ? sampleSortieGarcon(beat, follower, rest, o.sortieVariant, o.sortieContra, placementOffset(o.placement, o.amp), placementScale(o.amp), stance)
+    : o.movement === "sortieF" ? sampleSortieFille(beat, follower, rest, o.sortieFilleVariant, placementOffset(o.placement, o.amp), placementScale(o.amp), stance)
     // #37: in pair the couple turns rigidly around a centre on the leader's side (docs/spec-quarts-paire.md).
-    : o.movement === "quarts" && o.quartsPaire ? sampleQuartsPaire(beat, o.follower, rest, placementOffset(o.placement, o.amp), stance)
+    : o.movement === "quarts" && o.quartsPaire ? sampleQuartsPaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance)
     : null;
+  const figure = sampleFigure(o.follower);
+  // #51: the partner's pelvis, in this dancer's outer frame (partners face each other 2·dz apart).
+  const pairDz = o.movement === "sortieG" ? SORTIE_GARCON_PAIR_DZ : o.movement === "sortieF" ? SORTIE_FILLE_PAIR_DZ : QUARTS_PAIR_DZ;
+  const partnerFigure = figure && o.plexus ? sampleFigure(!o.follower) : null;
+  const partnerRoot = partnerFigure ? { x: -partnerFigure.root.x, z: 2 * pairDz - partnerFigure.root.z } : null;
   // Quarter turns loop: the style keeps dancing; the five-action figures hold after their marka.
   const cyclic = !!figure && "cyclic" in figure;
   if (figure) {
@@ -254,6 +323,13 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
     r.root.position.x = figure.root.x; r.root.position.z = figure.root.z;
     const rootYaw = (figure as { rootYaw?: number }).rootYaw;
     if (rootYaw !== undefined) r.root.rotation.y = rootYaw;
+    // #51: the pelvises seek each other: each closes half the gap beyond the plexus distance (the leg
+    // reach projection below keeps the pelvis above its feet).
+    if (partnerRoot && PLEXUS.pelvisPull > 0) {
+      const dx = partnerRoot.x - r.root.position.x, dz = partnerRoot.z - r.root.position.z, d = Math.hypot(dx, dz);
+      const close = PLEXUS.pelvisPull * Math.max(0, d - PLEXUS.pelvisDistance) / 2;
+      if (d > 1e-6) { r.root.position.x += dx / d * close; r.root.position.z += dz / d * close; }
+    }
     r.extraL = 0; r.extraR = 0;
   } else {
     const path = bodyPath(beat, o);
@@ -262,7 +338,11 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
   lockUpperTrunk({ spine: r.spine.rotation, chest: r.chest.rotation, head: r.head.rotation }, r.pelvis.rotation, o.iso);
   const se = figure ? 0 : sortieEnv(beat, o);
   if (se > 0) r.chest.rotation.y -= 0.22 * se * o.amp;
-  if (figure) r.chest.rotation.y += figure.chestYaw;
+  // #51: with plexus contact the chest turns towards the partner (contraposition share) instead of
+  // the figure's own chest yaw; the lean towards the partner is applied once the frame is set.
+  const facing = partnerRoot ? Math.atan2(partnerRoot.x - r.root.position.x, partnerRoot.z - r.root.position.z) : 0;
+  if (figure && partnerRoot) r.chest.rotation.y += o.contraposition * angleDelta(r.root.rotation.y, facing);
+  else if (figure) r.chest.rotation.y += figure.chestYaw;
   if (o.quarts && !figure) {
     const qs = quartTurnStep(beat, o.reverse);
     r.root.rotation.y = qs.lowerYaw;
@@ -278,15 +358,28 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
   }
   applyDanceFrame(r, o.cadre);
   if (o.follower) applyFollowerFrame(r, o.cadre);
+  if (partnerRoot) leanTowards(r, partnerRoot);
   const activeIK = !!figure || o.plant || o.travel > 0 || o.quarts || o.ida || o.corridinho;
   const footOrientations = {} as Record<Side, THREE.Quaternion>;
   for (const s of SIDES) {
-    const extra = s === "L" ? r.extraL : r.extraR;
-    const q = new THREE.Quaternion().setFromAxisAngle(Y, feet[s].yaw)
-      .multiply(new THREE.Quaternion().setFromAxisAngle(X, extra));
+    const extra = figure ? feet[s].pitch ?? 0 : s === "L" ? r.extraL : r.extraR;
+    const flat = new THREE.Quaternion().setFromAxisAngle(Y, feet[s].yaw);
+    // #49: a figure foot rolls about its functional transverse axis (the GLB foot is turned out by
+    // `toeOut`: rolling about the ankle's own x axis would also tip it sideways).
+    const toeOut = model.legs[s].toeOut;
+    const rollAxis = figure ? new THREE.Vector3(Math.cos(toeOut), 0, -Math.sin(toeOut)) : X;
+    const q = flat.clone().multiply(new THREE.Quaternion().setFromAxisAngle(rollAxis, extra));
     footOrientations[s] = q;
     model.lift[s] = feet[s].lift;
-    model.targets[s].set(feet[s].x, soleHeight(model.legs[s].sole, q) + feet[s].lift, feet[s].z);
+    // #49: a rolling foot pivots on its ball or heel: that sole point stays where it is when flat.
+    let x = feet[s].x, z = feet[s].z;
+    const pivot = feet[s].pivot;
+    if (pivot && extra !== 0) {
+      const point = model.legs[s][pivot];
+      const shift = point.clone().applyQuaternion(flat).sub(point.clone().applyQuaternion(q));
+      x += shift.x; z += shift.z;
+    }
+    model.targets[s].set(x, soleHeight(model.legs[s].sole, q) + feet[s].lift, z);
   }
   if (activeIK) {
     r.root.position.y = 0;

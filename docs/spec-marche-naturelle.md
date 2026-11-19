@@ -12,7 +12,9 @@ Fil d'Ariane : [docs](./) › spec #48 #49 #50. Dépend de [#28, placements](spe
   l'impression qu'il marche normalement même s'il place ses pieds en réalisant une figure
   chorégraphique. »
 - **Indicateur** — « Un bon indicateur, c'est que les danseurs doivent pouvoir maintenir un contact
-  plexus contre plexus en appliquant une contraposition. »
+  plexus contre plexus en appliquant une contraposition. » Précision : la variante avec
+  contraposition doit être possible, la variante sans contraposition est très courante ; la
+  première sert d'indicateur de la bonne distance (#51).
 - **#50** — « À la position 2 de la sortie garçon, l'extérieur du pied droit est au contact de
   l'extérieur du pied droit du suiveur : on cherche le contact qui permet de guider des mouvements.
   La jambe gauche peut ainsi se décaler moins loin. »
@@ -41,6 +43,11 @@ demi-pointes sont retrouvés. Le bassin suit le pied d'appui comme pour les autr
 Le D2 du leader se pose bord externe contre bord externe du D du suiveur (écart des enveloppes de
 semelles ≤ 3 mm, sans chevauchement). Le G1 du leader s'écarte moins sur le côté.
 
+Conséquence géométrique : pieds D bord à bord, les jambes convergent vers le bas et le contact des
+cuisses D/D descend au tiers inférieur des fémurs (s ≈ 0,87 de la hanche au genou), toujours au-dessus
+de la rotule. Rapprocher les bassins pour remonter le contact à mi-cuisse fait s'interpénétrer les
+cuisses (−57 mm) : à valider à l'œil par le propriétaire.
+
 ### Pas de marche (#49)
 
 Chaque pas d'une figure suit un cycle de marche, sur la fenêtre de vol déjà définie par la figure :
@@ -62,7 +69,7 @@ Chaque pas d'une figure suit un cycle de marche, sur la fenêtre de vol déjà d
 1. Sorties : pose finale = pose de départ translatée le long de la ligne (garçon : 70 cm ; variante
    à droite : 10 cm de côté en plus), quinconce compris ; contact des demi-pointes retrouvé.
 2. Sortie garçon, temps 2 : bords externes des pieds D au contact (≤ 3 mm), cuisses D/D toujours au
-   contact ; G1 moins latéral qu'avant.
+   contact, au-dessus des rotules (s ≤ 0,90) ; G1 moins latéral qu'avant.
 3. Marche : pendant chaque pas, le talon se lève avant que le pied ne quitte le sol ; attaque du talon
    sur les pas vers l'avant ; le point d'appui ne glisse pas pendant un pivot ; flexion du genou de
    la jambe qui passe supérieure à celle de la jambe d'appui.
@@ -72,6 +79,21 @@ Chaque pas d'une figure suit un cycle de marche, sur la fenêtre de vol déjà d
 5. Invariants inchangés : semelles au-dessus du sol, cibles IK atteintes, longueurs osseuses, pied
    d'appui immobile, continuité, semelles disjointes, aucun croisement des os des jambes (six
    styles, trois amplitudes), contacts des cuisses.
+
+## Calibrations retenues (mesurées sur le GLB, six styles, trois amplitudes, deux placements)
+
+- **Roulé réduit** des pas croisés ou au contact : G3 (croisé) et D4 (décroisé) du leader de la
+  sortie garçon à 30 %, D1 du suiveur à 30 % (il part avant que le talon du leader ne monte), D2 du
+  leader posé à plat (il ferme le contact D/D) ; deux premiers pas de la sortie fille à 20 %, G4
+  croisé du suiveur à 30 % ; quarts de tour : pas de roulé pendant le croisement.
+- Sortie garçon : détour du D2 de 6 cm au contact (3 cm sans contact) ; le G3 croise 0,2 temps après
+  le début de l'action 3.
+- Sortie fille : au marka final le bassin arrive avec le pied ; après le G4, bassin du suiveur 12 cm
+  derrière son pied (fenêtre mesurée 0,11–0,12 : marge étroite).
+- Bassins recouplés de 3 à 3,8 temps (avant les atterrissages neutres), comme au départ.
+- Plexus (`plexus: true`, contraposition 1) : écart maximal des repères de poitrine 6,9 cm (sortie
+  garçon), 5,6 cm (quarts en paire), 18,9 cm (sortie fille : reculs de 55 cm du suiveur, à raccourcir).
+  Sans contraposition, les bustes restent dans l'axe des bassins : 30 à 34 cm dans les sorties.
 
 ## Limites
 
