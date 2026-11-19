@@ -7,7 +7,7 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
 
 ## Ida e volta en paire #54 (19 novembre 2026)
 
-Branche `arcodange/ida-paire`, PR #55 empilée sur #52. En paire, `idaPaire: true` (activé par l'app
+Branche `arcodange/ida-paire`, PR #55 (draft, base `main` depuis la fusion de #52). En paire, `idaPaire: true` (activé par l'app
 quand le placement est donné) remplace le même pas des deux danseurs par un pas balancé du couple
 (`src/idaPaire.ts`) : le leader avance pendant que le suiveur recule avec le pied opposé, dans le même
 couloir, puis retour au quinconce (temps 4 et 8). Pas de marche `gaitStep` (roulé 30 %), le pied qui

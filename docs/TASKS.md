@@ -273,7 +273,7 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 
 ## Ida e volta en paire (#54)
 
-- [x] Spécification ([spec](spec-ida-paire.md)), issue #54, PR draft #55 empilée sur #52.
+- [x] Spécification ([spec](spec-ida-paire.md)), issue #54, PR draft #55 (empilée sur #52, fusionnée depuis).
 - [x] Échantillonneur opt-in `src/idaPaire.ts` (`idaPaire`), câblé dans `pose.ts`, `Rig.tsx`, `App.tsx`.
 - [x] Tests GLB `scripts/test_ida_paire.mjs` + ida dans `scripts/test_plexus.mjs`, dans `npm test`.
 - [x] GIF `docs/gifs/ida-paire-couple.gif` et README.
