@@ -34,7 +34,7 @@ export default function SoundControls({
   const slow = bpm < music.bpm.min;
   const fast = bpm > music.bpm.max;
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900/50 px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-slate-400">
+    <div className="mt-3 rounded-2xl border border-slate-800 bg-slate-900/50 px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-slate-400">
       <button
         onClick={onToggle}
         aria-pressed={on}

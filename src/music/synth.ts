@@ -11,11 +11,15 @@ import type { Timbre } from "./patterns";
 const midiHz = (m: number) => 440 * Math.pow(2, (m - 69) / 12);
 const EPS = 0.0001;
 
-/** Niveau de base par timbre (équilibre du mélange, proposition). */
+/**
+ * Niveau de base par timbre (équilibre du mélange, proposition) : réglé sur les RMS d'un rendu
+ * hors ligne (OfflineAudioContext) pour que la pulsation (grosse caisse, claquement, racleur)
+ * reste au-dessus des nappes et de la basse ; à valider à l'oreille.
+ */
 const LEVEL: Record<Timbre, number> = {
-  KICK: 0.9, KICK_SOFT: 0.9, SUB: 0.9, RIM: 0.32, SNARE: 0.4, CLAP: 0.45, HAT_C: 0.16, HAT_O: 0.14,
-  SHAKER: 0.2, SCRAPER: 0.9, COWBELL: 0.9, CONGA_L: 0.55, CONGA_H: 0.5, TANBOU: 0.5, NGOMA_L: 0.7,
-  NGOMA_H: 0.45, FLOOR_TOM: 0.55, BASS: 0.5, PLUCK: 1.4, PAD: 1.6, BRASS: 1.4, EPIANO: 1.6,
+  KICK: 0.9, KICK_SOFT: 0.95, SUB: 0.6, RIM: 0.45, SNARE: 0.5, CLAP: 1.0, HAT_C: 0.3, HAT_O: 0.22,
+  SHAKER: 0.35, SCRAPER: 1.2, COWBELL: 1.1, CONGA_L: 0.55, CONGA_H: 0.5, TANBOU: 0.6, NGOMA_L: 0.8,
+  NGOMA_H: 0.55, FLOOR_TOM: 0.5, BASS: 0.3, PLUCK: 1.4, PAD: 0.6, BRASS: 0.6, EPIANO: 1.2,
 };
 
 /** Enveloppe percussive : montée exponentielle puis décroissance exponentielle vers ~0. */
