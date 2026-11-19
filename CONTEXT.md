@@ -13,9 +13,10 @@ quinconce, pieds sous les hanches, stagger du D), bassins recouplés dès le com
 talon ou pose de l'avant-pied, pivot sans glissement) ; les pas croisés ou au contact roulent peu
 (calibré sur le GLB, six styles). Sortie garçon : D2 bord à bord contre le D du suiveur (2,2 mm), G1
 moins latéral ; le contact des cuisses descend au tiers inférieur (s ≈ 0,87). Option `plexus`
-(app : « Plexus contre plexus », avec ou sans contraposition) : bassins rapprochés et buste penché
-vers le partenaire ; `scripts/test_plexus.mjs` mesure l'indicateur (≤ 7,5 cm garçon, ≤ 6 cm quarts ;
-sortie fille à 15,6 cm après un D1 de crochet raccourci : le reste dépend d'un choix chorégraphique, voir la spec). [Spécification](docs/spec-marche-naturelle.md).
+(app : « Plexus contre plexus », avec ou sans contraposition) : buste penché vers le partenaire
+(rapprocher les bassins croise les jambes) ; `scripts/test_plexus.mjs` mesure l'indicateur (16 cm
+garçon, 7,5–9,5 cm quarts, 15–21 cm fille : les distances des sorties restent trop grandes, #51) et
+rejoue les runners en mode plexus. [Spécification](docs/spec-marche-naturelle.md).
 
 ## Son synthétisé #44 (19 novembre 2026)
 

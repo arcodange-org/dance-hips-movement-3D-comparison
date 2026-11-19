@@ -16,7 +16,7 @@ const wrap = a => Math.atan2(Math.sin(a), Math.cos(a));
 const world = (f, name) => f.r[name].getWorldPosition(new THREE.Vector3());
 const dz = api.QUARTS_PAIR_DZ;
 const couple = () => [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];
-const options = (i, extra = {}) => ({ movement: 'quarts', quarts: true, embrace: true, quartsPaire: true, follower: !!i, ...extra });
+const options = (i, extra = {}) => ({ movement: 'quarts', quarts: true, embrace: true, quartsPaire: true, follower: !!i, plexus: process.env.TEST_PLEXUS === '1', ...extra });
 const stanceOf = m => (m.legs.L.hipX - m.legs.L.rest.x + m.legs.R.rest.x - m.legs.R.hipX) / 2;
 const footAxis = (f, side) => { const t = f.model.legs[side].toeOut;
   return new THREE.Vector3(Math.sin(t), 0, Math.cos(t)).applyQuaternion(f.r['foot' + side].getWorldQuaternion(new THREE.Quaternion())); };

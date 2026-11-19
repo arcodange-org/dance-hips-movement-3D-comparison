@@ -48,7 +48,10 @@ export const DEFAULT_POSE: PoseOptions = {
 };
 /** Plexus-to-plexus contact (#51): chest-marker gap targeted between partners (m) and the largest
  * lean of the upper body towards the partner (rad). */
-export const PLEXUS = { gap: 0.08, maxLean: 0.35, marker: 0.16, pelvisDistance: 0.34, pelvisPull: 1 };
+// pelvisPull 0: pulling the pelvises together (even down to 45 cm apart) or lowering the couple
+// together makes the leg bones of the partners cross (measured on the GLB, six styles): only the
+// upper body leans towards the partner.
+export const PLEXUS = { gap: 0.08, maxLean: 0.35, marker: 0.16, pelvisDistance: 0.34, pelvisPull: 0 };
 interface Leg {
   length1: number; length2: number; f0: THREE.Vector3; t0: THREE.Vector3;
   hip: THREE.Vector3; rest: THREE.Vector3; sole: THREE.Vector3[];

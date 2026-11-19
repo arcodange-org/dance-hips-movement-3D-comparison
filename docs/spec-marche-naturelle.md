@@ -91,9 +91,16 @@ Chaque pas d'une figure suit un cycle de marche, sur la fenêtre de vol déjà d
 - Sortie fille : au marka final le bassin arrive avec le pied ; après le G4, bassin du suiveur 12 cm
   derrière son pied (fenêtre mesurée 0,11–0,12 : marge étroite).
 - Bassins recouplés de 3 à 3,8 temps (avant les atterrissages neutres), comme au départ.
-- Plexus (`plexus: true`, contraposition 1) : écart maximal des repères de poitrine 6,9 cm (sortie
-  garçon), 5,6 cm (quarts en paire), 15,6 cm (sortie fille, crochet et recul).
-  Sans contraposition, les bustes restent dans l'axe des bassins : 30 à 34 cm dans les sorties.
+- Plexus (`plexus: true`, contraposition 1) : seul le buste penche vers le partenaire. Rapprocher
+  les bassins (jusqu'à 34 ou même 45 cm d'écart) ou faire descendre le couple ensemble fait se
+  croiser les os des jambes des partenaires (mesuré sur le GLB, six styles) : `pelvisPull` vaut 0.
+  Écart maximal des repères de poitrine : 16 cm (sortie garçon), 7,5 à 9,5 cm (quarts en paire),
+  15 à 21 cm (sortie fille). Sans contraposition : 30 à 34 cm dans les sorties.
+- **Lecture de l'indicateur** : dans les sorties, le couple reste trop loin pour que les poitrines se
+  touchent sans que les jambes se croisent. Selon l'indicateur du propriétaire, les distances des
+  sorties sont encore trop grandes ; les raccourcir est un choix chorégraphique (#51).
+- Les runners des sorties et des quarts en paire sont rejoués en mode plexus (`TEST_PLEXUS=1`,
+  quinconce), le mode que l'application active dès qu'un placement est choisi.
 
 ### Sortie fille et plexus (suite de #51)
 

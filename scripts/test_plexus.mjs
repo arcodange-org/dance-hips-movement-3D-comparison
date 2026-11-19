@@ -4,6 +4,7 @@
 import assert from "node:assert/strict";
 import { buildSync } from "esbuild";
 import { unlinkSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import * as THREE from "three";
 import { fixture } from "./pose_fixture.mjs";
 const bundle = new URL("./.test-plexus-bundle.mjs", import.meta.url);
@@ -14,16 +15,16 @@ buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'rigJoints', 'place
 const api = await import(bundle.href); unlinkSync(bundle);
 const world = (f, name) => f.r[name].getWorldPosition(new THREE.Vector3());
 
-// Largest chest-marker distance accepted with contraposition (m). The sortie fille is a regression
-// guard only: at action 2 her G2 opens 55 cm aside, and at action 4 her feet stand 55 cm apart (D
-// still at the D/D contact, G crossed back) so her pelvis drops and her chest is lower than his.
-// Closing that gap changes the figure's choreography (owner decision, docs/spec-marche-naturelle.md).
+// Largest chest-marker distance accepted with contraposition (m): regression guards of the measured
+// state. Only the upper body leans (PLEXUS.pelvisPull 0): pulling the pelvises or lowering the couple
+// together crosses the partners' leg bones. In the sorties the couple stays too far apart for the
+// chests to meet: the indicator says the figures' distances are still too large (#51).
 const cases = [
-  ['sortieG line', api.SORTIE_GARCON_PAIR_DZ, 5, { movement: 'sortieG', sortieVariant: 'line' }, .075],
-  ['sortieG right', api.SORTIE_GARCON_PAIR_DZ, 5, { movement: 'sortieG', sortieVariant: 'right' }, .075],
-  ['quarts paire', api.QUARTS_PAIR_DZ, 16, { movement: 'quarts', quarts: true, quartsPaire: true }, .06],
-  ['sortieF hook', api.SORTIE_FILLE_PAIR_DZ, 5, { movement: 'sortieF', sortieFilleVariant: 'hook' }, .17],
-  ['sortieF back', api.SORTIE_FILLE_PAIR_DZ, 5, { movement: 'sortieF', sortieFilleVariant: 'back' }, .17],
+  ['sortieG line', api.SORTIE_GARCON_PAIR_DZ, 5, { movement: 'sortieG', sortieVariant: 'line' }, .18],
+  ['sortieG right', api.SORTIE_GARCON_PAIR_DZ, 5, { movement: 'sortieG', sortieVariant: 'right' }, .18],
+  ['quarts paire', api.QUARTS_PAIR_DZ, 16, { movement: 'quarts', quarts: true, quartsPaire: true }, .11],
+  ['sortieF hook', api.SORTIE_FILLE_PAIR_DZ, 5, { movement: 'sortieF', sortieFilleVariant: 'hook' }, .22],
+  ['sortieF back', api.SORTIE_FILLE_PAIR_DZ, 5, { movement: 'sortieF', sortieFilleVariant: 'back' }, .22],
 ];
 const distances = (dz, beats, options, extra) => {
   const pair = [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];
@@ -48,4 +49,17 @@ for (const placement of ['quinconce', 'reference']) for (const [label, dz, beats
       `without ${(max(free) * 100).toFixed(1)} cm, plexus off ${(max(off) * 100).toFixed(1)} cm`);
   }
 }
-console.log('PASS plexus-to-plexus contact with contraposition (sorties garçon, quarts de tour en paire; sortie fille guarded)');
+console.log('PASS plexus-to-plexus lean with contraposition (measured state guarded)');
+
+// The app enables the plexus contact whenever a placement is set: the figure runners (GLB poses,
+// supports, foot hulls, thigh contacts, leg-bone triangles across six styles and three
+// amplitudes) are replayed with it, in the default quinconce placement.
+for (const runner of ['test_sortie_garcon.mjs', 'test_sortie_fille.mjs', 'test_quarts_paire.mjs']) {
+  const result = spawnSync(process.execPath, ['scripts/' + runner], {
+    cwd: new URL('../', import.meta.url).pathname, encoding: 'utf8',
+    env: { ...process.env, TEST_PLACEMENT: 'quinconce', TEST_PLEXUS: '1' }, timeout: 1800000,
+  });
+  assert.equal(result.status, 0, `${runner} (plexus, quinconce) failed:\n${result.stdout}\n${result.stderr}`);
+  console.log(`PASS plexus: ${runner} replayed with the plexus contact (quinconce)`);
+}
+
