@@ -15,13 +15,14 @@ valider par le propriétaire sont listés en fin de `confrontation-modele.md`.
 
 ## Placements du couple #28 (19 novembre 2026)
 
-Branche `arcodange/placements-couple` (worktree `.claude/worktrees/placements-couple`), depuis `main` 1322a24.
-Décisions du propriétaire : quinconce par défaut (jambes droites intercalées), arrivées relatives conservées,
+Fusionné dans `main` (PR #33, 07794bd) et déployé.
+Décisions du propriétaire : quinconce par défaut (jambes droites intercalées, demi-pointes au contact, genoux D
+décalés, bassins couplés, pieds dans l'axe des genoux), arrivées relatives conservées,
 seulement les deux sorties pour commencer, rapprochement atténué au-delà de l'amplitude 1.
 `src/placement.ts` ; les échantillonneurs reçoivent un décalage de départ absorbé sans glissement.
 `scripts/test_placements.mjs` rejoue les runners garçon/fille pour chaque placement.
 Le moteur garde `placement: "reference"` par défaut, ce qui conserve les empreintes validées.
-Validation chorégraphique par le propriétaire en attente, sur les vues de `docs/placements/`.
+Vues comparables dans `docs/placements/`. Suite : quarts de tour en paire (#37).
 [Spécification](docs/spec-placements-couple.md).
 
 ## Sortie fille #27 (19 novembre 2026)
