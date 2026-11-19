@@ -95,11 +95,11 @@ sont donc inchangés.
 À l'action 2 (garçon) et à l'action 3 (fille), le milieu et le haut des cuisses D des deux
 danseurs **se touchent**. Le contact est défini sur les enveloppes illustratives de 8,5 cm : écart
 compris entre −6 et +3 mm, points de contact sur la moitié haute ou le milieu des deux fémurs
-(s ≤ 0,65, de la hanche au genou). L'arrivée relative étant commune à tous les placements, ce contact
+(s ≤ 0,70, de la hanche au genou). L'arrivée relative étant commune à tous les placements, ce contact
 vaut pour la référence, le quinconce et le face à face. Il suit la même atténuation selon
 l'amplitude. Détails : [sortie garçon](spec-sortie-garcon.md), [sortie fille](spec-sortie-fille.md).
-Les empreintes de non-régression `sortieG` du fixture sont régénérées (252 sur 504 changent, aux
-amplitudes ≤ 1). Celles du combiné `sortieGF` sont inchangées.
+Les empreintes de non-régression `sortieG` du fixture sont régénérées (348 sur 504 changent, aux
+amplitudes ≤ 1 et, pour le pas 1, à toutes les amplitudes). Celles du combiné `sortieGF` sont inchangées.
 
 ## Interface, partage, export
 

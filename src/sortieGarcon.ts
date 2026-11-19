@@ -13,6 +13,7 @@ export const SORTIE_GARCON_ACTIONS = [
   "4 · Droit, retour en face", "5 · Marka gauche, sans transfert",
 ] as const;
 export const DEFAULT_SORTIE_CONTRA = 12;
+const STEP1_LEAD = 0.1;
 const smooth = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * (3 - 2 * t); };
 const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 const interpolate = (a: FootPoint, b: FootPoint, t: number): FootPoint => ({ x: mix(a.x, b.x, t), z: mix(a.z, b.z, t) });
@@ -35,20 +36,24 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   const index = Math.min(4, Math.floor(b));
   const t = b - index;
   const shift = variant === "right" ? 0.10 : 0;
-  // Owner request (19 Nov.): at action 2 the middle of the right thighs touch. The partner's G2
-  // retreats less (25 cm) and the leader's D2 goes further (45 cm), so the pelvises are 20 cm apart
-  // along the line instead of 40 cm; the leader's pelvis sits 2 cm inside his D, which stays out
-  // for the partner's D3 to pass, and moves 5 cm further during the crossing so that G clears D. `contact` (1 up to amplitude 1, 0 at amplitude 2) returns to the
-  // earlier, looser arrival where large style motion would make the femurs cross.
+  // Owner requests (19 Nov.):
+  // - Step 1 is more forward than sideways (34 cm forward, 26 cm left): the leader's forward
+  //   intention makes the partner retreat (D1: 16 cm). This holds at every amplitude.
+  // - At action 2 the middle of the right thighs touch. The partner's G2 retreats 25 cm (not 40) and
+  //   the leader's D2 goes 46 cm (not 40): the pelvises are 20 cm apart along the line instead of 40.
+  //   The leader's pelvis sits 2.5 cm inside his D, which stays out for the partner's D3 to pass,
+  //   and moves 7 cm further during the crossing so that G clears D. `contact` (1 up to amplitude 1,
+  //   0 at amplitude 2) returns to the earlier, looser arrival where large style motion would make
+  //   the femurs cross.
   const touch = Number.isFinite(contact) ? Math.max(0, Math.min(1, contact)) : 1;
   // Absolute offsets from the initial ankle positions, in each dancer's local frame.
   // The follower retreats with D/G/D/G; it never copies the leader's exit or crossing.
   const steps: [FigureFoot, FootPoint][] = follower ? [
-    ["R", { x: 0, z: -0.14 }], ["L", { x: 0, z: mix(-0.40, -0.25, touch) }],
+    ["R", { x: 0, z: -0.16 }], ["L", { x: 0, z: mix(-0.40, -0.25, touch) }],
     ["R", { x: 0, z: -0.70 }], ["L", { x: shift, z: -0.70 }],
     ["R", { x: shift, z: -0.70 }],
   ] : [
-    ["L", { x: 0.34, z: 0.14 }], ["R", { x: mix(0.34, 0.345, touch), z: mix(0.40, 0.45, touch) }],
+    ["L", { x: 0.26, z: 0.34 }], ["R", { x: mix(0.34, 0.345, touch), z: mix(0.40, 0.46, touch) }],
     ["L", { x: 0, z: 0.70 }], ["R", { x: -shift, z: 0.70 }],
     ["L", { x: -shift, z: 0.70 }],
   ];
@@ -67,9 +72,9 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   // At the crossing the pelvis stays between the feet; returning it to x=0 before
   // D follows would over-stretch that leg and force G's knee into the partner.
   const bodyAfter = (action: number, offset: FootPoint): FootPoint =>
-    !follower && action === 0 ? { x: 0.17, z: 0.07 }
-    : !follower && action === 1 ? { x: mix(0.34, 0.325, touch), z: offset.z }
-    : !follower && action === 2 ? { x: 0.17, z: mix(0.55, 0.60, touch) } : offset;
+    !follower && action === 0 ? { x: 0.13, z: 0.17 }
+    : !follower && action === 1 ? { x: mix(0.34, 0.32, touch), z: offset.z }
+    : !follower && action === 2 ? { x: 0.17, z: mix(0.55, 0.62, touch) } : offset;
   let support: FigureFoot = follower ? "L" : "R";
   let body: FootPoint = { x: 0, z: 0 };
   for (let i = 0; i < index; i++) {
@@ -87,10 +92,13 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   const weightAfter = index < 4 ? (shifted[index] ? 1 : 0) : weightBefore;
   const shiftedBody = (point: FootPoint, weight: number): FootPoint =>
     ({ x: point.x + o.x * weight, z: point.z + o.z * weight });
-  const flight = Math.min(1, t / 0.6);
+  // The leader's forward intention starts in the frame: his G1 (and pelvis) leave 0.1 beat after the
+  // partner's D1, so his knee never meets her thigh before she retreats (face-à-face placement).
+  const lead = !follower && index === 0 ? STEP1_LEAD : 0;
+  const flight = Math.max(0, Math.min(1, (t - lead) / 0.6));
   let point = interpolate(from, to, smooth(flight));
-  // Clear the partner's right knee before advancing; cross in front of the planted D.
-  const via = !follower && index === 1 ? { x: to.x + 0.06, z: from.z + 0.06 }
+  // D2 slides sideways past the partner's right knee, then advances; G crosses in front of the planted D.
+  const via = !follower && index === 1 ? { x: to.x, z: from.z }
     : !follower && index === 2 ? { x: from.x, z: to.z }
     : !follower && index === 3 ? { x: to.x, z: from.z } : null;
   if (via) point = flight < 0.5 ? interpolate(from, via, smooth(flight * 2))
@@ -104,7 +112,8 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   const oldR = support === "R" ? 1 : 0;
   const loadR = mix(oldR, moving === "R" ? 1 : 0, transfer);
   const root = index < 4
-    ? interpolate(shiftedBody(body, weightBefore), shiftedBody(bodyAfter(index, offset), weightAfter), smooth(t))
+    ? interpolate(shiftedBody(body, weightBefore), shiftedBody(bodyAfter(index, offset), weightAfter),
+      smooth((t - lead) / (1 - lead)))
     : shiftedBody(body, weightBefore);
   // Same local yaw for both partners, whose outer frames differ by π.
   const exit = b < 1 ? smooth(b) : b < 2 ? 1 : b < 3 ? 1 - smooth(b - 2) : 0;
