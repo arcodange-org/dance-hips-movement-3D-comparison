@@ -1,43 +1,27 @@
 # AGENTS.md — Comparateur 3D des styles de danse
 
-## Sortie fille #27 (19 novembre 2026)
+## Workflow de contribution (consignes du propriétaire, en vigueur)
 
-Worktree `.Codex/worktrees/sortie-fille-sol`, branche `arcodange/sortie-fille-sol`, empilée sur #26.
-[Spécification et mesures](docs/spec-sortie-fille.md). `npm test` inclut `scripts/test_sortie_fille.mjs`
-pour les deux variantes en paire, ainsi que les traces de référence G/GF dans le runner sortie garçon.
+Ces consignes remplacent les anciennes procédures « ff-push sur `main` » des phases Vibe.
 
-## Correction oracle #25 (19 novembre 2026)
+- **Trunk réservé** : le checkout principal reste sur `main`, synchronisé avec `origin`. Tout travail
+  d'agent se fait dans un worktree (`.claude/worktrees/<slug>` ou `.Codex/worktrees/<slug>`) sur une
+  branche `arcodange/<slug>`.
+- **Issue d'abord**, publiée avant le code pour réserver le périmètre ; **spec poussée en premier**
+  (`docs/spec-*.md`), puis code, tests, captures.
+- **Une PR par chantier**, qui ferme ses issues (`Closes #N`). La branche est **gelée** tant que la PR
+  est ouverte ; un travail dépendant part de cette branche et s'annonce « Stacks on #N ».
+- **Fusion** : uniquement avec l'accord du propriétaire, CI verte et commentaires résolus (merge
+  commit, pour préserver les empilements). Vérifier ensuite le run `main` et le site Pages.
+- Ne jamais construire ni afficher d'URL contenant un token ; utiliser `origin` et le gestionnaire
+  d'identifiants Git.
 
-Worktree `.Codex/worktrees/oracle-corrections`, branche `arcodange/oracle-corrections` ; issue
-avant le code, spec avant implémentation, une PR après validation, sans fusion automatique.
-Spécification : [oracle](docs/spec-oracle-corrections.md). Le moteur et les trajectoires restent
-inchangés ; la [description de la sortie fille](docs/notes-sortie-fille.md) prépare une phase future.
-`scripts/test_oracle_mutations.mjs` est inclus dans `npm test` ; `oracle_assertions.mjs` centralise
-les gardes finies et les comparaisons de quaternions. Contrat courant dans
-[`docs/spec-phase18-oracle.md`](docs/spec-phase18-oracle.md) ; ne pas réintroduire une comparaison
-d'une fonction de mouvement avec elle-même comme preuve de continuité ou de chorégraphie.
-
-## Contribution sortie garçon #21 / éditeur #22 (18 novembre 2026)
-
-Travail dans `.Codex/worktrees/sortie-garcon`, branche `arcodange/sortie-garcon`. Issues créées
-avant le code, specs poussées en premier ; une PR après validation, branche gelée à son ouverture.
-Pas de fusion ni push sur `main`. Ces consignes du propriétaire remplacent pour ce chantier
-les anciennes procédures de PR draft/ff-push ci-dessous.
-
-`src/sortieGarcon.ts` décrit la sortie garçon en paire. Le runner `scripts/test_sortie_garcon.mjs`
-contrôle les poses GLB, les appuis et les triangles des jambes. Depuis #27, les empreintes
-de non-régression couvrent la sortie garçon et le combiné. Specs :
-[sortie garçon](docs/spec-sortie-garcon.md), [éditeur futur](docs/spec-editeur-figures.md).
-
-## Amendement de contribution — audit #17 (18 novembre 2026)
-
-Pour ce chantier, les consignes globales du propriétaire priment sur les procédures historiques
-ci-dessous : trunk réservé à l’utilisateur, travail dans `.Codex/worktrees/audit-poses-finales`
-sur `arcodange/audit-poses-finales`, issue publiée avant le code, spec poussée en premier.
-Ouvrir une seule PR après les validations ; sa branche reste gelée tant qu’elle est ouverte.
-Aucune fusion, aucun push ni checkpoint sur `main`. Utiliser le remote `origin` et les
-identifiants du gestionnaire Git ; ne jamais construire ni afficher une URL contenant un token.
-
+Modules des figures en paire : [sortie garçon](docs/spec-sortie-garcon.md) (`src/sortieGarcon.ts`,
+`scripts/test_sortie_garcon.mjs`), [sortie fille](docs/spec-sortie-fille.md) (`src/sortieFille.ts`,
+`scripts/test_sortie_fille.mjs`). Le combiné `sortieGF` reste historique. Oracle :
+[contrat](docs/spec-phase18-oracle.md) ; `scripts/oracle_assertions.mjs` centralise les gardes finies
+et les comparaisons de quaternions ; ne pas réintroduire une comparaison d'une fonction de mouvement
+avec elle-même comme preuve de continuité ou de chorégraphie. [Éditeur futur](docs/spec-editeur-figures.md).
 
 **Lire ce fichier en premier dans toute session.** Le harness complet pour travailler sur ce projet
 en autonomie (méthode anti-amnésie, conventions, contribution agentique) est dans **[`.vibe/`](.vibe/)**
@@ -67,16 +51,11 @@ du tronc compense le roulis du bassin (`iso=1` par défaut), avec pitch du style
 3. **Conventions verrouillées** : voir [`.vibe/CONVENTIONS.md`](.vibe/CONVENTIONS.md) — ne jamais
    les casser (hiérarchie GLB, métriques, sommets osseux au-dessus du sol, pieds plantés par défaut, attribution
    BodyParts3D **CC BY-SA 2.1 Japan © DBCLS** visible dans l'app et le README).
-4. **Livraison** : commits petits et fréquents sur `vibe/<slug>-ae8a7a`, push, `gh pr ready`,
-   puis **ff-push `<branche>:main`** (les merges gh API sont bloqués dans le sandbox ; la PR passe
-   MERGED automatiquement), surveiller `gh run list --branch main` jusqu'à `success`, vérifier le
-   site live, puis commit checkpoint (CONTEXT.md/TASKS.md) sur main.
+4. **Livraison** : voir « Workflow de contribution » ci-dessus (PR, fusion par le propriétaire).
    **Garantie de non-régression** : la CI (`.github/workflows/deploy.yml`) exécute le job `test`
    (`npm ci && npm test && npm run build`) à chaque push sur `main` **et chaque PR** ; le déploiement
-   Pages (`build`/`deploy`) n'a lieu que si `test` passe (`needs: test`). Aucun merge ne peut
-   casser les tests sans faire échouer le run.
-5. **Jamais de secret** en clair ; push uniquement via
-   `https://x-access-token:${GH_TOKEN}@github.com/arcodange-org/dance-hips-movement-3D-comparison.git`.
+   Pages (`build`/`deploy`) n'a lieu que si `test` passe (`needs: test`).
+5. **Jamais de secret** en clair (ni token dans une URL de remote ou un log).
 
 ## Moteur et preuves des poses finales
 

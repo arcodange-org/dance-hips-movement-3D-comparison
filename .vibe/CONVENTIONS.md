@@ -82,7 +82,8 @@ sur `quarts`/`corridinho`.)
 ## Tests
 
 `npm test` = `test_styles.mjs` + `test_features.mjs` + `test_oracle.mjs` + `test_poses.mjs` +
-`test_oracle_final.mjs` + `test_oracle_mutations.mjs` + `test_sortie_garcon.mjs` dans `scripts/`.
+`test_oracle_final.mjs` + `test_oracle_mutations.mjs` + `test_sortie_garcon.mjs` +
+`test_sortie_fille.mjs` dans `scripts/`.
 L'oracle distingue pose évaluée/cible, repère outer/monde et rotations locales nominales.
 Les limites t−ε/t/t+ε et les quaternions monde remplacent les égalités tautologiques ; les
 mutations négatives doivent échouer pour leur diagnostic attendu. Les anciennes sorties
