@@ -6,15 +6,14 @@
 | --- | --- | --- | --- |
 | Départ | G disponible | D disponible | D / G |
 | 1 | Avance G | Recule D | G / D |
-| 2 | D suit un crochet vers sa droite, rejoint le niveau longitudinal de G. Variante : D recule | Décale G à gauche d'une largeur de bassin | D / G |
+| 2 | D suit un crochet vers sa droite, rejoint le niveau longitudinal de G. Variante : D recule | Décale G à gauche d'une largeur de bassin. Au crochet : latéral. Si D leader recule : avance G en diagonale gauche | D / G |
 | 3 | Recule G | Avance D à droite du D du leader, en proximité de cuisse | G / D |
 | 4 | Recule D pour dégager le passage | Croise G pour retrouver la ligne | D / G |
 | 5 | Marka G | Ramène D en marka | D / G |
 
 Dans le repère local du GLB, +x est la gauche et +z l'avant. Le suiveur fait face au leader
 avec un lacet de π. Au crochet, D leader prend un couloir latéral puis progresse jusqu'au z de G.
-Son écart par rapport à sa position de départ vaut une demi-largeur de bassin. La variante
-change le pas D et les placements nécessaires à sa suite. Le dégagement précède le retour
+Son écart par rapport à sa position de départ vaut une demi-largeur de bassin. La variante associe le recul D du leader à une avancée diagonale G du suiveur vers sa gauche. Le dégagement précède le retour
 du G suiveur, dont le trajet passe autour du D porteur.
 
 Le leader amorce la contraposition du thorax au premier temps. La rotation du thorax du suiveur

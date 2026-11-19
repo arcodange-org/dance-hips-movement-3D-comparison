@@ -1,9 +1,9 @@
 # Sortie fille — description reçue, prochaine étape
 
-[Accueil](../README.md) · [Tâches](TASKS.md) · [Chantier oracle actuel](spec-oracle-corrections.md)
+[Accueil](../README.md) · [Tâches](TASKS.md) · [Chantier oracle](spec-oracle-corrections.md)
 
-Description fournie par le propriétaire le 19 novembre 2026. **Note de préparation : cette
-figure n'est ni implémentée ni réputée validée par la PR de correction de l'oracle.**
+Description fournie par le propriétaire le 19 novembre 2026. Voir la [spécification de
+la sortie fille en paire](spec-sortie-fille.md) pour sa mise en œuvre.
 
 | Action | Leader | Suiveur |
 | --- | --- | --- |
@@ -13,7 +13,8 @@ figure n'est ni implémentée ni réputée validée par la PR de correction de l
 | 4 | Recule D et libère la place | Croise G pour retrouver la ligne |
 | 5 | Marka G | Ramène D avec un marka également |
 
-Alternative décrite pour l'action 2 du leader : **reculer** au lieu du crochet.
+Alternative précisée pour l’action 2 : **D leader recule et G suiveur avance en diagonale
+vers sa gauche**. Avec le crochet, G suiveur fait un pas purement latéral.
 Ce qui provoque la sortie du suiveur est le cadre : cela peut être le bras droit du cadre
 ou le buste, avec la contraposition enclenchée par le leader.
 
