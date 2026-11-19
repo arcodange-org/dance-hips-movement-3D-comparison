@@ -106,6 +106,14 @@ Les paragraphes de phases ci-dessous sont historiques.
 - Derniers runs CI (Pages) : `gh run list --repo arcodange-org/dance-hips-movement-3D-comparison --branch main --limit 5`
 - Branche de travail courante : voir `git branch --show-current` (convention `vibe/phaseN-<slug>-ae8a7a`)
 
+## Recherche musicale #38 (19 novembre 2026)
+
+[docs/musique/](docs/musique/README.md) : caractéristiques musicales des six styles (niveaux de
+preuve), grilles de 16 pas et timbres Web Audio proposés, confrontation avec `src/styles.ts`. Écarts
+relevés : tempo global, plein appui entre les temps (kizomba, semba, zouk), kompa quatre fois trop
+rapide, semba deux rebonds par temps, basic zouk lent-vite-vite absent. Son non implémenté : attend
+la validation du propriétaire.
+
 ## Où en est le projet
 
 - Phases 1–4 **mergées dans `main`** : migration Vite+React+three TS, IK de pas, anatomie

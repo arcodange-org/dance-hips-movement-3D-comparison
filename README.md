@@ -130,6 +130,8 @@ Export depuis la pause, traînée réinitialisée et alimentée pendant l’expo
   + [Recherche ginga angolaise (FR/EN/PT, citations verbatim)](docs/ginga-angolana.md)
   + validations Gherkin (`docs/features/*.feature`, `npm test`) + tâches en cours (`docs/TASKS.md`)
   + méthode anti-amnésie (`CONTEXT.md`).
+- [Musique des six styles](docs/musique/README.md) : tempos, instruments, rythmes et nuances,
+  grilles et timbres proposés pour un son synthétisé synchronisé (#38, à valider).
 
 ## Attribution obligatoire (licence des maillages)
 
