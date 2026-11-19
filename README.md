@@ -30,6 +30,12 @@ La lecture s'arrête sur la pose finale, plus loin dans la salle. Le sélecteur 
 bouton Rejouer permettent la vérification pas à pas. Une variante termine par un déplacement
 commun vers la droite du leader ; la contraposition est ajustable, sans angle imposé par style.
 
+Les pas se déroulent comme une marche : le talon se lève, la jambe passe, le talon attaque puis le
+pied se pose à plat, sans glisser. Au temps 2, le bord externe du pied D du leader touche celui du
+pied D du suiveur. La figure finit en quinconce, comme au départ. En placement rapproché, l'option
+« Plexus contre plexus » garde les bustes au contact, avec ou sans contraposition.
+[Spécification marche, quinconce et plexus](docs/spec-marche-naturelle.md).
+
 [Spécification et sources FR/PT/EN](docs/spec-sortie-garcon.md) ·
 [Projet d'éditeur de figures — spécification seulement](docs/spec-editeur-figures.md) ·
 [Tests et rétrospective](docs/retrospective-sortie-garcon.md).
@@ -85,8 +91,8 @@ dans l’application indiquent les appuis prescrits. BodyParts3D © DBCLS, CC BY
 <details><summary>Détails et source du contrôle recul</summary>
 
 Cinq temps à 60 bpm, kizomba d’amplitude 1. Le droit du leader recule. Le gauche du suiveur
-avance de 13 cm et s’écarte de 34 cm à sa gauche. Les deux GIFs sont issus de l’export du
-canvas et bouclent. La lecture dans l’application conserve le marka final.
+avance de 13 cm et s’écarte de 34 cm à sa gauche. Les deux GIFs sont capturés image par image
+(placement quinconce) et finissent en quinconce. La lecture dans l’application conserve le marka final.
 BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 [Description](docs/notes-sortie-fille.md) · [Mesures et limites](docs/spec-sortie-fille.md).
 
