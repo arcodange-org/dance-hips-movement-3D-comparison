@@ -40,19 +40,48 @@ C, exprimée dans le repère du leader (+x à gauche, +z vers l'avant) :
 - À la fin du quart k, toute la configuration (pieds, racines, quinconce et contact des
   demi-pointes compris) est la configuration de départ tournée de k·π/2 autour de C. Après quatre
   quarts, le couple revient exactement au départ (cycle de 16 temps, en boucle).
-- Chaque pied suit un **arc autour de C** pendant son pas, avec un lacet qui tourne avec lui.
-- Séquence d'un quart (4 temps, deux demi-pas de 2 temps) :
+- Chaque pied suit un **arc autour de C** pendant son pas, avec un lacet qui tourne avec lui ; il
+  peut d'abord se dégager le long de son propre axe, élargir ou resserrer l'arc, et pivoter en fin
+  de vol (`QuartsStepShape`).
+- **Ordre des appuis** (un quart = 4 temps) :
 
-| Demi-pas | Leader | Suiveur |
+| Temps du quart | Suiveur | Leader |
 |---|---|---|
-| 0 (temps 0–2) | G en angle droit, talon au bout du D ; le **haut du corps** suit le G ; appui D puis G | D en angle droit ; le haut du corps suit le D ; appui G puis D |
-| 1 (temps 2–4) | D parallèle au G ; le **bas du corps** suit le D ; appui G puis D | G rassemblé parallèle au D ; le bas du corps suit le G ; appui D puis G |
+| 0 → 1,45 | **D** : recule de 32 cm (il est coincé entre les pieds du leader, avant-pieds au contact), puis tourne autour de C et revient en glissant le long de son axe, à côté du G du leader | buste en avance (intention) |
+| 0,8 → 1,4 | | **G** : glisse de 7 cm vers l'avant dans la place laissée par le D du suiveur et se pose talon au bout du D, en angle droit, juste avant que le D du suiveur n'arrive à côté |
+| 1,45 → 3,1 | **G** : part dès que le D est posé (jamais les deux pieds en l'air), recule de 18 cm, arc 35 % plus large | |
+| 1,8 → 2,9 | | **D** : contourne le talon du G (arc 40 % plus large) et pivote dans la seconde moitié du vol, parallèle au G |
 
-- **Anticipation** : le leader joue chaque pas 0,25 temps en avance (`QUARTS_LEAD`) ; le suiveur
-  pose sur le temps. Dans la boucle, l'anticipation du premier pas a lieu à la fin du cycle
-  précédent ; à la première image de la lecture, le leader a déjà engagé son premier pas.
-- **Bassins couplés** pendant tout le tour (le couple reste rapproché).
+- **Anticipation** : les bustes suivent une même courbe d'intention, celle du premier pas du
+  suiveur ; le buste du leader la joue 0,25 temps plus tôt (`QUARTS_LEAD`). Les pieds ne peuvent
+  pas partir en avance : depuis le quinconce, le G du leader ne peut prendre que la place que le D
+  du suiveur libère. L'intention passe donc par le buste et le cadre ; le suiveur pose sur le temps.
+- Le haut du corps suit le premier pied, le bas du corps le second (règle de la phase 14).
+- **Bassins** : chacun tourne autour de C avec son **second pied** (le D du leader, le G du suiveur),
+  pour qu'aucune jambe d'appui ne se couche en travers du pied que le partenaire pose. Bassins
+  couplés pendant tout le tour ; balancement du style réduit de moitié.
+- **Genoux et style au croisement** : flexion plafonnée à 0,3 rad (≈ 17°, contre 0,45 rad dans les
+  sorties). Autour du croisement (temps 1 à 1,9 de chaque quart, quand les deux paires de cuisses
+  sont intercalées et que le G du leader se pose à côté du G d'appui du suiveur), les genoux se
+  tendent (0,12 rad), la rotation du bassin propre au style est plafonnée à 0,04 rad et le petit
+  affaissement du style est supprimé. Points à valider : c'est le prix d'un couple collé-serré
+  qui tourne sans que les os se croisent.
 - Hors paire (seul, comparaison), les quarts de tour gardent le comportement de la phase 14.
+
+## Calibrage
+
+Mené sur le GLB réel, au premier quart (les autres s'en déduisent par rotation) :
+
+- Le leader seul, pieds partis en avance : 1 541 chevauchements de semelles (son G percute
+  l'avant-pied D du suiveur).
+- Recherche aléatoire puis escalade sur les trajectoires : 6 à 12 chevauchements au mieux. Le
+  raisonnement sur l'**ordre d'arrivée** (qui libère la place, qui arrive de côté, qui glisse le long
+  de son axe) donne 0 chevauchement, en quinconce comme en face à face, amplitudes 0,5 à 2.
+- Os des jambes : la jambe d'appui du suiveur, très inclinée quand ses pieds sont écartés, croisait le
+  genou du leader ; en kompa, le bassin du leader, abaissé par son grand pas G, pliait sa jambe D
+  contre le genou G du suiveur. L'ordre ci-dessus, les bassins qui tournent avec le second pied et
+  l'adoucissement au croisement donnent 0 croisement sur 1 728 poses (six styles, amplitudes 0,5 ;
+  1 ; 2, trois placements, au huitième de temps).
 
 ## Critères d'acceptation (tests sur le GLB réel)
 
@@ -75,4 +104,6 @@ C, exprimée dans le repère du leader (+x à gauche, +z vers l'avant) :
 - Le cadre (bras) reste rigide et suit le buste : le guidage par le coude et l'avant-bras attend la
   validation de la recherche sur le cadre (#40) et une IK des bras.
 - Pas de lecture finie ni de choix de pose : le tour complet revient au départ et boucle.
+- Piste notée : un algorithme génétique pourrait explorer d'autres solutions sur ces mêmes
+  contraintes (semelles, os, contacts, distance) ; ici, le raisonnement a été plus efficace que le hasard.
 - Ces tests ne constituent pas une validation chorégraphique.

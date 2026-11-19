@@ -18,7 +18,8 @@ Ces consignes remplacent les anciennes procédures « ff-push sur `main` » des 
 
 Modules des figures en paire : [sortie garçon](docs/spec-sortie-garcon.md) (`src/sortieGarcon.ts`,
 `scripts/test_sortie_garcon.mjs`), [sortie fille](docs/spec-sortie-fille.md) (`src/sortieFille.ts`,
-`scripts/test_sortie_fille.mjs`). Le combiné `sortieGF` reste historique. Oracle :
+`scripts/test_sortie_fille.mjs`), [quarts de tour en paire](docs/spec-quarts-paire.md) (`src/quartsPaire.ts`,
+`scripts/test_quarts_paire.mjs`). Le combiné `sortieGF` reste historique. Oracle :
 [contrat](docs/spec-phase18-oracle.md) ; `scripts/oracle_assertions.mjs` centralise les gardes finies
 et les comparaisons de quaternions ; ne pas réintroduire une comparaison d'une fonction de mouvement
 avec elle-même comme preuve de continuité ou de chorégraphie. [Éditeur futur](docs/spec-editeur-figures.md).

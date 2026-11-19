@@ -2,8 +2,10 @@ import { seekClock, type DanceClock } from "../clock";
 import { PLACEMENT_LABELS, placementOf, type CouplePlacement } from "../placement";
 
 /** Couple placement of the five-action figures (docs/spec-placements-couple.md). */
-export default function PlacementControl({ clock, placement, onPlacement, onPlaying }: {
+export default function PlacementControl({ clock, placement, onPlacement, onPlaying, quarts = false }: {
   clock: DanceClock;
+  /** Pair quarter turns (#37): the placement is found again at the end of each quarter. */
+  quarts?: boolean;
   placement: CouplePlacement;
   onPlacement: (value: CouplePlacement) => void;
   onPlaying: (value: boolean) => void;
@@ -22,8 +24,10 @@ export default function PlacementControl({ clock, placement, onPlacement, onPlay
     </label>
     <p className="text-xs text-slate-400">
       En quinconce, les demi-pointes se touchent, les genoux droits se croisent et le bassin du suiveur
-      suit celui du leader. Les pas suivants rejoignent la figure validée avant l’arrivée D/D. Le
-      rapprochement est complet jusqu’à l’amplitude 1, puis diminue jusqu’à l’amplitude 2.
+      suit celui du leader. {quarts
+        ? "Pendant les quarts de tour, le couple tourne autour du leader et retrouve le quinconce à la fin de chaque quart."
+        : "Les pas suivants rejoignent la figure validée avant l’arrivée D/D."} Le rapprochement est
+      complet jusqu’à l’amplitude 1, puis diminue jusqu’à l’amplitude 2.
     </p>
   </section>;
 }

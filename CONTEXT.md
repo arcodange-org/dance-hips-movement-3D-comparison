@@ -5,6 +5,16 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Quarts de tour en paire #37 (19 novembre 2026)
+
+Branche `arcodange/quarts-de-tour`, PR #43. En paire, `quartsPaire: true` (activé par l'app quand
+le placement est donné) remplace le miroir du suiveur par une rotation rigide du couple autour d'un
+centre C du côté du leader (`src/quartsPaire.ts`). Ordre des appuis calibré sur le GLB (le D du
+suiveur recule d'abord, le G du leader prend sa place, puis G du suiveur, D du leader), buste du
+leader en avance de 0,25 temps, bassins qui tournent avec le second pied, genoux et style adoucis au
+croisement. `scripts/test_quarts_paire.mjs` dans `npm test`. Points à valider : voir la spec.
+[Spécification](docs/spec-quarts-paire.md).
+
 ## Recherche biomécanique (19 novembre 2026)
 
 Documentation seule (#34, PR #35). `docs/recherche-biomecanique/` réunit

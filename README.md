@@ -37,14 +37,15 @@ Les jauges HTML ne sont pas incluses. Le GIF boucle ; l'application conserve la 
 [Séquence et sources](docs/spec-sortie-garcon.md), [preuves et limites](docs/retrospective-sortie-garcon.md).
 </details>
 
-## Placement du couple dans les sorties
+## Placement du couple
 
-En paire, les deux sorties partent d'un placement rapproché : **quinconce** par défaut (genoux
-droits intercalés, racines à 33 cm au lieu de 40) ou **face à face** (pointes à 6,4 cm). Les pas
-rejoignent la figure validée avant l'arrivée D/D. Le rapprochement est complet jusqu'à
-l'amplitude 1, puis il diminue jusqu'à l'écartement validé à l'amplitude 2, pour que les os des
-genoux ne se croisent pas. Partage : `placement=quinconce|face`.
-[Spécification, calibrage et vues comparables](docs/spec-placements-couple.md).
+En paire, les sorties et les quarts de tour partent d'un placement rapproché : **quinconce** par
+défaut (demi-pointes au contact, pieds dans l'axe des genoux, genoux droits intercalés, bassins
+couplés) ou **face à face** (pointes rapprochées). Dans les sorties, les pas rejoignent la figure
+validée avant l'arrivée D/D ; dans les quarts de tour, le quinconce est retrouvé à la fin de chaque
+quart. Le rapprochement est complet jusqu'à l'amplitude 1, puis il diminue jusqu'à l'écartement
+validé à l'amplitude 2, pour que les os des genoux ne se croisent pas. Partage :
+`placement=quinconce|face`. [Spécification, calibrage et vues comparables](docs/spec-placements-couple.md).
 
 ## Sortie fille — cinq actions en paire
 
@@ -78,6 +79,23 @@ canvas et bouclent. La lecture dans l’application conserve le marka final.
 BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 [Description](docs/notes-sortie-fille.md) · [Mesures et limites](docs/spec-sortie-fille.md).
 
+</details>
+
+## Quarts de tour en paire — autour du leader
+
+Le couple tourne d'un quart vers la gauche du leader, quatre fois, sans jamais se lâcher : le leader
+pose son G talon au bout de son D puis ramène son D, et ses pieds passent par les quatre quarts de
+la boussole ; le suiveur, à l'extérieur, recule d'abord son D (coincé entre les pieds du leader),
+puis enchaîne son G. Le buste du leader guide un quart de temps en avance ; le quinconce est
+retrouvé à chaque fin de quart. Testé sur le GLB : rotation rigide du couple, aucun chevauchement
+des semelles ni croisement des os des jambes (six styles, trois amplitudes, trois placements).
+
+![Quarts de tour en paire autour du leader, quinconce](docs/gifs/quarts-paire-couple.gif)
+<details><summary>Détails & source</summary>
+
+Export du canvas depuis la pause (« Exporter un cycle ») : kizomba, paire, quinconce, 16 temps à
+90 bpm, amplitude 1. [Spécification, ordre des appuis et calibrage](docs/spec-quarts-paire.md).
+BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 </details>
 
 ## Vérifications de l’oracle
