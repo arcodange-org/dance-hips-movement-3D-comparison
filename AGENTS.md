@@ -1,5 +1,16 @@
 # AGENTS.md — Comparateur 3D des styles de danse
 
+## Correction oracle #25 (19 novembre 2026)
+
+Worktree `.Codex/worktrees/oracle-corrections`, branche `arcodange/oracle-corrections` ; issue
+avant le code, spec avant implémentation, une PR après validation, sans fusion automatique.
+Spécification : [oracle](docs/spec-oracle-corrections.md). Le moteur et les trajectoires restent
+inchangés ; la [description de la sortie fille](docs/notes-sortie-fille.md) prépare une phase future.
+`scripts/test_oracle_mutations.mjs` est inclus dans `npm test` ; `oracle_assertions.mjs` centralise
+les gardes finies et les comparaisons de quaternions. Contrat courant dans
+[`docs/spec-phase18-oracle.md`](docs/spec-phase18-oracle.md) ; ne pas réintroduire une comparaison
+d'une fonction de mouvement avec elle-même comme preuve de continuité ou de chorégraphie.
+
 ## Contribution sortie garçon #21 / éditeur #22 (18 novembre 2026)
 
 Travail dans `.Codex/worktrees/sortie-garcon`, branche `arcodange/sortie-garcon`. Issues créées

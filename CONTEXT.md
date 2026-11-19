@@ -5,7 +5,24 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
-## Travail en cours — sortie garçon #21 et spec éditeur #22
+## Priorité actuelle — oracle #25 (19 novembre 2026)
+
+PR #24 fusionnée en `8e44b85`, déploiement Pages run `44413404026` réussi et vérifié.
+Nouveau chantier : `.Codex/worktrees/oracle-corrections`, branche `arcodange/oracle-corrections`.
+Issue #25 créée avant le code ; spec et note de sortie fille poussées dans le premier commit.
+Contrat : `docs/spec-phase18-oracle.md` ; corrections : `docs/spec-oracle-corrections.md` ;
+preuves : `docs/retrospective-oracle-corrections.md`. Une PR, sans fusion automatique.
+
+Oracle quarts/ida indépendant des fonctions de styles, poses/cibles séparées, champs locaux
+nommés explicitement ; API historique des sorties séparée. Bornes inclusives, reverse seulement
+quarts, limites t±ε, orientations monde Kizomba par quaternions, assertions finies et cinq
+mutants détectés. 792 poses d'oracle GLB ; suite complète, build et revue M4 réussis.
+Assets JS/CSS identiques à #24. Aucun changement du rendu ou des trajectoires. La prochaine sortie fille
+est décrite dans `docs/notes-sortie-fille.md`, sans implémentation à ce stade.
+
+Les sections suivantes documentent les chantiers précédents.
+
+## Sortie garçon #21 et spec éditeur #22 — historique
 
 Base `2621e59`, branche `arcodange/sortie-garcon`, worktree `.Codex/worktrees/sortie-garcon`.
 PR #24 ; `main` acd0cdd (M5, PR #23) intégré avant réouverture. Les deux nouveaux runners

@@ -226,7 +226,15 @@ Livraison : une PR liée à #17, sans fusion automatique ; statut de revue et CI
 - [x] 57. Spécification de l'éditeur de figures (aucune implémentation d'éditeur dans cette phase).
 - [x] 58. Revue M4, résultats et limites documentés ; livraison en PR unique, sans fusion.
 
-## Méta — boucle de feedback (rétrospective auto-critique + critique de session indépendante)
+## Correction oracle #25
+
+- [x] 59. Issue de coordination puis spec poussée avant le code ; note de sortie fille préservée.
+- [x] 60. Gardes NaN/Infinity sur valeurs, attentes, tolérances, sol et quaternions ; tests négatifs.
+- [x] 61. Oracle indépendant, poses/cibles et local/monde séparés, bornes inclusives et reverse explicite.
+- [x] 62. Limites réelles du GLB, références mondiales Kizomba et cinq mutations détectées.
+- [x] 63. Suite complète, build et revue M4 ; livraison en PR unique, aucun changement du rendu.
+
+## Méta — suivi récurrent
 
 Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process amélioré).
 

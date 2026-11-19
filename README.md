@@ -38,6 +38,15 @@ Les jauges HTML ne sont pas incluses. Le GIF boucle ; l'application conserve la 
 [Séquence et sources](docs/spec-sortie-garcon.md), [preuves et limites](docs/retrospective-sortie-garcon.md).
 </details>
 
+## Vérifications de l'oracle
+
+Les contrôles de l'oracle distinguent désormais les poses évaluées, les cibles et les rotations
+locales/monde. Ils vérifient les limites de trajectoire, les derniers pas inversés et le rejet
+de cinq erreurs injectées, en plus des poses GLB. [Contrat de l'oracle](docs/spec-phase18-oracle.md),
+[corrections #25 et preuves](docs/retrospective-oracle-corrections.md).
+La [description reçue de la sortie fille](docs/notes-sortie-fille.md) prépare la prochaine étape ;
+elle n'est pas encore implémentée.
+
 ## Captures après correction de l’audit #17
 
 Le rendu et les tests utilisent le même moteur de pose (`src/pose.ts`) et une horloge commune.
