@@ -1,10 +1,12 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import type { DanceClock } from "../clock";
 import { thighProximity } from "../sortieGarconContact";
 
-/** Two lateral thigh-envelope markers for sortieG only; no mechanical-contact claim. */
-export default function SortieGarconContactViz({ pair }: {
+/** Two lateral thigh-envelope markers for the five-action figures. */
+export default function SortieGarconContactViz({ pair, clock }: {
+  clock?: DanceClock;
   pair: React.MutableRefObject<Record<string, any>>;
 }) {
   const a = useRef<THREE.Mesh>(null), b = useRef<THREE.Mesh>(null);
@@ -13,14 +15,17 @@ export default function SortieGarconContactViz({ pair }: {
     geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
     const result = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: '#38bdf8' }));
     result.frustumCulled = false;
+    result.visible = !clock;
     return result;
-  }, []);
+  }, [clock]);
   useFrame(() => {
     const leader = pair.current.leader, follower = pair.current.follower;
     if (!leader?.hipR || !follower?.hipR || !a.current || !b.current) return;
     const position = (node: THREE.Object3D) => node.getWorldPosition(new THREE.Vector3());
     const contact = thighProximity(position(leader.hipR), position(leader.femurKneeR),
       position(follower.hipR), position(follower.femurKneeR));
+    const visible = !clock || (clock.beat >= 2.45 && clock.beat <= 3.2);
+    a.current.visible = b.current.visible = line.visible = visible;
     const nearby = Math.abs(contact.gap) < 0.03;
     const color = nearby ? '#38bdf8' : '#64748b';
     a.current.position.copy(contact.surfaceA); b.current.position.copy(contact.surfaceB);
@@ -33,8 +38,8 @@ export default function SortieGarconContactViz({ pair }: {
     (line.material as THREE.LineBasicMaterial).color.set(color);
   });
   return <>
-    <mesh ref={a}><sphereGeometry args={[0.018, 12, 8]} /><meshBasicMaterial color="#38bdf8" /></mesh>
-    <mesh ref={b}><sphereGeometry args={[0.018, 12, 8]} /><meshBasicMaterial color="#38bdf8" /></mesh>
+    <mesh ref={a} visible={!clock}><sphereGeometry args={[0.018, 12, 8]} /><meshBasicMaterial color="#38bdf8" /></mesh>
+    <mesh ref={b} visible={!clock}><sphereGeometry args={[0.018, 12, 8]} /><meshBasicMaterial color="#38bdf8" /></mesh>
     <primitive object={line} />
   </>;
 }

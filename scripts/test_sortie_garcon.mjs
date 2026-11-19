@@ -4,7 +4,7 @@ import { readFileSync, unlinkSync } from "node:fs";
 import { createHash } from "node:crypto";
 import * as THREE from "three";
 import { fixture, minimumBoneY, snapshot } from "./pose_fixture.mjs";
-import { transformedMesh, meshIntersection } from "./mesh_intersections.mjs";
+import { transformedMesh, meshIntersection, footHull, footHullsOverlap } from "./mesh_intersections.mjs";
 const bundle = new URL("./.test-sortie-bundle.mjs", import.meta.url);
 buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'clock', 'rigJoints', 'sortieGarcon', 'sortieGarconContact', 'share']
   .map(n => `export * from "./src/${n}";`).join('\n'), resolveDir: new URL('../', import.meta.url).pathname },
@@ -114,33 +114,16 @@ for (const follower of [false, true]) for (const sortieVariant of ['line', 'righ
 }
 console.log('PASS planted-foot stability, continuous transitions, final hold and seek independence');
 
-// Actual foot convex hulls: conservative horizontal clearance, even when the swing is airborne.
-function hull(points) {
-  const sorted = points.map(p => [p.x, p.z]).sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-  const cross = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
-  const half = rows => { const h = []; for (const p of rows) { while (h.length > 1 && cross(h.at(-2), h.at(-1), p) <= 0) h.pop(); h.push(p); } return h; };
-  return [...half(sorted).slice(0, -1), ...half([...sorted].reverse()).slice(0, -1)];
-}
-function overlaps(a, b) {
-  for (const polygon of [a, b]) for (let i = 0; i < polygon.length; i++) {
-    const p = polygon[i], q = polygon[(i + 1) % polygon.length];
-    const axis = [q[1] - p[1], p[0] - q[0]], length = Math.hypot(...axis);
-    const project = v => (v[0] * axis[0] + v[1] * axis[1]) / length;
-    const pa = a.map(project), pb = b.map(project);
-    if (Math.min(Math.max(...pa), Math.max(...pb)) - Math.max(Math.min(...pa), Math.min(...pb)) <= .0001) return false;
-  }
-  return true;
-}
 for (const sortieVariant of ['line', 'right']) {
   const pair = couple();
   for (let tick = 0; tick <= 500; tick++) {
     const polygons = [];
     pair.forEach((f, i) => {
       api.applyPose(f.r, f.model, tick / 100, { ...options, follower: !!i, sortieVariant });
-      for (const side of ['L', 'R']) polygons.push(hull(f.model.legs[side].sole.map(p => p.clone().applyMatrix4(f.r['foot' + side].matrixWorld))));
+      for (const side of ['L', 'R']) polygons.push(footHull(f.model.legs[side].sole.map(p => p.clone().applyMatrix4(f.r['foot' + side].matrixWorld))));
     });
     for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++)
-      assert(!overlaps(polygons[i], polygons[j]), `foot clearance at ${tick / 100} (${sortieVariant}), feet ${i}/${j}`);
+      assert(!footHullsOverlap(polygons[i], polygons[j]), `foot clearance at ${tick / 100} (${sortieVariant}), feet ${i}/${j}`);
   }
   pair.forEach((f, i) => api.applyPose(f.r, f.model, 2, { ...options, follower: !!i }));
   const proximity = api.thighProximity(world(pair[0], 'hipR'), world(pair[0], 'kneeR'), world(pair[1], 'hipR'), world(pair[1], 'kneeR'));
@@ -185,22 +168,22 @@ const legacy = JSON.parse(readFileSync(new URL('./fixtures/sorties-historiques.j
 const fingerprint = values => createHash('sha256').update(JSON.stringify(values.map(v => Math.round(v * 1e6)))).digest('hex');
 let regressions = 0;
 for (const { poses: rows, ...config } of legacy.cases) {
-  const f = couple(false)[config.follower ? 1 : 0];
+  const f = couple(config.movement === 'sortieG')[config.follower ? 1 : 0];
   for (const [beat, expected] of rows) {
-    const stats = api.applyPose(f.r, f.model, beat, { ...config, embrace: true, sortieVariant: 'right', sortieContra: 30 });
+    const stats = api.applyPose(f.r, f.model, beat, { sortieVariant: 'right', sortieContra: 30, ...config, embrace: true, sortieFilleVariant: 'back' });
     assert.equal(fingerprint([...snapshot(f.r), stats.loadL, stats.loadR, stats.kneeL, stats.kneeR]), expected,
       `historical ${JSON.stringify(config)} at ${beat}`);
     regressions++;
   }
 }
-console.log('PASS', regressions, 'unchanged sortieF/sortieGF final poses from', legacy.source);
+console.log('PASS', regressions, 'unchanged sortieG/sortieGF final poses from', legacy.source);
 
 const clock = api.createDanceClock(); clock.beat = 4.99;
 api.advanceClock(clock, .1, 90, true, 5); near(clock.beat, 5);
 api.advanceClock(clock, .1, 90, true, 5); near(clock.beat, 5);
 clock.exportFrame = 0; clock.beat = 3;
 api.advanceClock(clock, .1, 90, true, 5); near(clock.beat, 3);
-for (const [movement, expected] of [['sortieG', 5], ['sortieF', 8], ['sortieGF', 16]]) near(api.cycleBeats({ movement }), expected);
+for (const [movement, expected] of [['sortieG', 5], ['sortieF', 5], ['sortieGF', 16]]) near(api.cycleBeats({ movement }), expected);
 for (const variant of ['line', 'right']) {
   const url = new URL(api.buildShareUrl('https://example.test/', { sortieG: true, sortieVariant: variant, sortieContra: 23, sortieBeat: 5 }, null, null));
   assert.deepEqual(api.sortieGarconSettings(url.searchParams), { variant, contra: 23, beat: 5 });

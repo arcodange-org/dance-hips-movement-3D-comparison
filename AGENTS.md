@@ -1,5 +1,11 @@
 # AGENTS.md — Comparateur 3D des styles de danse
 
+## Sortie fille #27 (19 novembre 2026)
+
+Worktree `.Codex/worktrees/sortie-fille-sol`, branche `arcodange/sortie-fille-sol`, empilée sur #26.
+[Spécification et mesures](docs/spec-sortie-fille.md). `npm test` inclut `scripts/test_sortie_fille.mjs`
+pour les deux variantes en paire, ainsi que les traces de référence G/GF dans le runner sortie garçon.
+
 ## Correction oracle #25 (19 novembre 2026)
 
 Worktree `.Codex/worktrees/oracle-corrections`, branche `arcodange/oracle-corrections` ; issue
@@ -18,9 +24,9 @@ avant le code, specs poussées en premier ; une PR après validation, branche ge
 Pas de fusion ni push sur `main`. Ces consignes du propriétaire remplacent pour ce chantier
 les anciennes procédures de PR draft/ff-push ci-dessous.
 
-`src/sortieGarcon.ts` décrit uniquement la sortie garçon en paire ; `sortieF`/`sortieGF` restent
-historiques. Le runner `scripts/test_sortie_garcon.mjs` est inclus dans `npm test` : poses GLB,
-triangles des jambes, appuis et empreintes de non-régression des deux autres sorties. Specs :
+`src/sortieGarcon.ts` décrit la sortie garçon en paire. Le runner `scripts/test_sortie_garcon.mjs`
+contrôle les poses GLB, les appuis et les triangles des jambes. Depuis #27, les empreintes
+de non-régression couvrent la sortie garçon et le combiné. Specs :
 [sortie garçon](docs/spec-sortie-garcon.md), [éditeur futur](docs/spec-editeur-figures.md).
 
 ## Amendement de contribution — audit #17 (18 novembre 2026)

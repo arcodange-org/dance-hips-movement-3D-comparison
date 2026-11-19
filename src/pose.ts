@@ -7,7 +7,9 @@ import {
 } from "./styles";
 import { solveLeg3D } from "./ik";
 import { facingSector } from "./directions";
-import { sampleSortieGarcon, sortieGarconBeat, DEFAULT_SORTIE_CONTRA, type SortieVariant } from "./sortieGarcon";
+import { sampleSortieGarcon, DEFAULT_SORTIE_CONTRA, type SortieVariant } from "./sortieGarcon";
+
+import { sampleSortieFille, type SortieFilleVariant } from "./sortieFille";
 
 export type Side = "L" | "R";
 const SIDES: Side[] = ["L", "R"];
@@ -22,13 +24,13 @@ export interface PoseOptions {
   quarts: boolean; corridinho: boolean; ida: boolean; temps3: boolean;
   sortie: boolean; embrace: boolean; reverse: boolean; follower: boolean;
   movement: MovementKey; // phase 17 : option exclusive (sortieG/sortieF/sortieGF incluse)
-  sortieVariant: SortieVariant; sortieContra: number;
+  sortieFilleVariant: SortieFilleVariant; sortieVariant: SortieVariant; sortieContra: number;
 }
 export const DEFAULT_POSE: PoseOptions = {
   styleKey: "kizomba", amp: 1, travel: 0, dir: 1, plant: true, iso: true, cadre: true,
   quarts: false, corridinho: false, ida: false, temps3: false, sortie: false,
   embrace: false, reverse: false, follower: false, movement: "none",
-  sortieVariant: "line", sortieContra: DEFAULT_SORTIE_CONTRA,
+  sortieFilleVariant: "hook", sortieVariant: "line", sortieContra: DEFAULT_SORTIE_CONTRA,
 };
 interface Leg {
   length1: number; length2: number; f0: THREE.Vector3; t0: THREE.Vector3;
@@ -175,9 +177,12 @@ function kneeAngle(r: RigHandle, s: Side): number {
 /** The single final-pose pipeline used by React and GLB integration tests. */
 export function applyPose(r: RigHandle, model: PoseModel, beat: number, options: Partial<PoseOptions>): PoseStats {
   const o = { ...DEFAULT_POSE, ...options };
-  const figure = o.embrace && o.movement === "sortieG"
-    ? sampleSortieGarcon(beat, o.follower, { L: model.legs.L.rest, R: model.legs.R.rest }, o.sortieVariant, o.sortieContra) : null;
-  if (figure) beat = sortieGarconBeat(beat);
+  const rest = { L: model.legs.L.rest, R: model.legs.R.rest };
+  const figure = !o.embrace ? null
+    : o.movement === "sortieG" ? sampleSortieGarcon(beat, o.follower, rest, o.sortieVariant, o.sortieContra)
+    : o.movement === "sortieF" ? sampleSortieFille(beat, o.follower, rest, o.sortieFilleVariant)
+    : null;
+  if (figure) beat = figure.beat;
   resetRig(r);
   for (const s of SIDES) r["foot" + s].rotation.set(0, 0, 0);
   // A marka moves the free foot without starting another body's weight oscillation.

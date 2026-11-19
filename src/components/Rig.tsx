@@ -7,6 +7,7 @@ import { STYLES, type MovementKey } from "../styles";
 import { applyPose, bindSkeleton, createPoseModel, type PoseModel, type Side } from "../pose";
 import { type DanceClock } from "../clock";
 import { TORSO_JOINTS } from "../rigJoints";
+import type { SortieFilleVariant } from "../sortieFille";
 import { DEFAULT_SORTIE_CONTRA, type SortieVariant } from "../sortieGarcon";
 import {
   MUSCLES_URL,
@@ -35,6 +36,7 @@ export interface RigProps {
   showTorso?: boolean;
   showMuscles?: boolean;
   movement?: MovementKey; // phase 17 : option de déplacement exclusive (inclut les sorties)
+  sortieFilleVariant?: SortieFilleVariant;
   sortieVariant?: SortieVariant;
   sortieContra?: number;
   showAppui?: boolean;
@@ -69,6 +71,7 @@ export default function Rig({
   showTorso = true,
   showMuscles = false,
   movement = "none" as MovementKey,
+  sortieFilleVariant = "hook",
   sortieVariant = "line",
   sortieContra = DEFAULT_SORTIE_CONTRA,
   showAppui = false,
@@ -154,10 +157,10 @@ export default function Rig({
     trail.geometry.setDrawRange(0, 0);
   }, [styleKey, trail]);
   useEffect(() => {
-    if (embrace && movement === "sortieG") {
+    if (embrace && (movement === "sortieG" || movement === "sortieF")) {
       count.current = 0; trail.geometry.setDrawRange(0, 0);
     }
-  }, [embrace, movement, sortieVariant, trail]);
+  }, [embrace, movement, sortieFilleVariant, sortieVariant, trail]);
   useEffect(() => {
     if (pair && side) {
       pair.current[side] = { chest: r.contactChest, pelvis: r.contactPelvis, kneeL: r.contactKneeL, kneeR: r.contactKneeR,
@@ -170,13 +173,13 @@ export default function Rig({
 
   useFrame(() => {
     if (!poseModel.current || !r.footL) return;
-    if (embrace && movement === "sortieG" && trailRevision.current !== clock.revision) {
+    if (embrace && (movement === "sortieG" || movement === "sortieF") && trailRevision.current !== clock.revision) {
       count.current = 0; trail.geometry.setDrawRange(0, 0);
     }
     trailRevision.current = clock.revision;
     const result = applyPose(r, poseModel.current, clock.beat + phaseOffset, {
       styleKey, amp, travel, dir, movement, embrace, corridinho, reverse, quarts,
-      iso, ida, cadre, plant, temps3, follower: side === "follower", sortieVariant, sortieContra,
+      iso, ida, cadre, plant, temps3, follower: side === "follower", sortieVariant, sortieContra, sortieFilleVariant,
     });
     if (stats) stats.current = result;
     const { loadL, loadR } = result;

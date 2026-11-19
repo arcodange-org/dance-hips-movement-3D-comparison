@@ -48,6 +48,13 @@ export const DEMOS: Record<string, DemoDef> = {
     captions: ["basic sur place (slow-quick-quick)", "cambré + ouverture de hanche"],
     beat: 60 / 110,
   },
+  "sortie-fille-controle": {
+    chip: "Sortie fille · cinq actions",
+    color: "#2dd4bf",
+    captions: ["1 avance/recul · 2 sortie G latérale ou diagonale · 3 diagonale et rapprochement D/D",
+      "4 dégagement et croisé · 5 marka sans transfert"],
+    beat: 60 / 90,
+  },
   "sortie-garcon-fille": {
     chip: "Sorties garçon / fille",
     color: "#2dd4bf",

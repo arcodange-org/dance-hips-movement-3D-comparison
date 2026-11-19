@@ -138,7 +138,7 @@ export default function Controls(props: ControlsProps) {
   } = props;
   const isPair = mode === "pair";
   const isCompare = mode === "compare";
-  const isSortieGarcon = isPair && movement === "sortieG";
+  const isFiveActionFigure = isPair && (movement === "sortieG" || movement === "sortieF");
 
   return (
     <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4 space-y-4">
@@ -165,7 +165,7 @@ export default function Controls(props: ControlsProps) {
           onChange={onStyleA}
         />
         <StylePicker
-          label={isPair ? isSortieGarcon ? "Partenaire · même style, pas coordonnés" : "Suiveur = miroir du guideur (style A)" : isCompare ? "Style B (droite)" : "Style B (inactif)"}
+          label={isPair ? isFiveActionFigure ? "Partenaire · même style, pas coordonnés" : "Suiveur = miroir du guideur (style A)" : isCompare ? "Style B (droite)" : "Style B (inactif)"}
           value={isPair ? styleA : styleB}
           onChange={isPair ? onStyleA : onStyleB}
           disabled={isPair}
@@ -190,13 +190,13 @@ export default function Controls(props: ControlsProps) {
             min="0"
             max="1"
             step="0.05"
-            disabled={isSortieGarcon}
+            disabled={isFiveActionFigure}
             value={travel}
             onChange={(e) => onTravel(Number(e.target.value))}
             className="accent-sky-400"
           />
           <span className="text-slate-200 font-mono w-20">
-            {isSortieGarcon ? "figure" : travel < 0.03
+            {isFiveActionFigure ? "figure" : travel < 0.03
               ? "sur place"
               : `±${Math.round(travel * (HIP_WIDTH / 2) * 100)} cm · ${Math.round(travel * 100)}%`}
           </span>
@@ -239,7 +239,7 @@ export default function Controls(props: ControlsProps) {
         <label className="flex items-center gap-2 text-xs text-slate-400" title="En sur place (Déplacement 0), les pieds restent plantés au sol ; petit pivot sur la plante (semi-pointe) autorisé. plant=0 = ancien comportement glissé">
           <input
             type="checkbox"
-            disabled={isSortieGarcon}
+            disabled={isFiveActionFigure}
             checked={plant}
             onChange={(e) => onPlant(e.target.checked)}
             className="accent-emerald-400"
@@ -275,7 +275,7 @@ export default function Controls(props: ControlsProps) {
               ["ida", "Ida e volta (aller-retour, 8 temps)"],
               ...(isPair ? [
                 ["sortieG", "Sortie garçon (paire, 5 actions)"],
-                ["sortieF", "Sortie fille (paire, 8 temps)"],
+                ["sortieF", "Sortie fille (paire, 5 actions)"],
                 ["sortieGF", "Sortie combinée G→F (paire, 16 temps)"],
               ] : []),
             ] as [MovementKey, string][]
@@ -295,7 +295,7 @@ export default function Controls(props: ControlsProps) {
         <label className="flex items-center gap-2 text-xs text-slate-400" title="Marche arrière : inverse le sens du Déplacement le long de la ligne de danse (dir=-1)">
           <input
             type="checkbox"
-            disabled={isSortieGarcon}
+            disabled={isFiveActionFigure}
             checked={dir < 0}
             onChange={(e) => onDir(e.target.checked ? -1 : 1)}
             className="accent-fuchsia-400"
@@ -303,7 +303,7 @@ export default function Controls(props: ControlsProps) {
           Marche arrière (dir=-1)
         </label>
         {isPair && (
-          <label className="flex items-center gap-2 text-xs text-slate-400" title={isSortieGarcon ? "Couloir initial de progression : avant du leader, axe z" : "Ligne de danse (axe x au repère fixe) : la sortie est perpendiculaire à la ligne, aller-retour"}>
+          <label className="flex items-center gap-2 text-xs text-slate-400" title={isFiveActionFigure ? "Couloir initial de progression : avant du leader, axe z" : "Ligne de danse (axe x au repère fixe) : la sortie est perpendiculaire à la ligne, aller-retour"}>
             <input
               type="checkbox"
               checked={showLigne}
@@ -373,7 +373,7 @@ export default function Controls(props: ControlsProps) {
         >
           {copied ? "✓ Lien copié !" : "🔗 Partager la vue (URL)"}
         </button>
-        <label className="flex items-center gap-2 text-xs text-slate-400" title={isSortieGarcon ? "Boussole fixe ; la sortie garçon progresse selon l’axe N-S" : "Boussole 8 directions au repère fixe (4 cardinales + 4 diago ; E-W = ligne de danse) ; la direction du buste et la position relative au repère s'affichent dans le HUD"}>
+        <label className="flex items-center gap-2 text-xs text-slate-400" title={isFiveActionFigure ? "Boussole fixe ; la figure progresse selon l’axe N-S" : "Boussole 8 directions au repère fixe (4 cardinales + 4 diago ; E-W = ligne de danse) ; la direction du buste et la position relative au repère s'affichent dans le HUD"}>
           <input
             type="checkbox"
             checked={showBoussole}

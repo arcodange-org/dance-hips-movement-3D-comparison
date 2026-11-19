@@ -9,10 +9,10 @@ export function advanceClock(clock: DanceClock, delta: number, bpm: number, play
   if (playing) clock.beat = Math.min(endBeat, clock.beat + Math.max(0, Math.min(delta, 0.1)) * bpm / 60);
 }
 export function cycleBeats(o: { movement?: string; quarts?: boolean; corridinho?: boolean; ida?: boolean; sortie?: boolean; temps3?: boolean }): number {
-  if (o.movement === "sortieG") return 5;
+  if (o.movement === "sortieG" || o.movement === "sortieF") return 5;
   // Styles have periods dividing 4; marka steps have period 6.
   // Phase 17 : sortie combinée G→F = cycle de 16 temps (guideur 0–7, suiveur 8–15).
-  const base = o.movement === "sortieGF" ? 16 : o.movement === "sortieF" ? 8
+  const base = o.movement === "sortieGF" ? 16
     : o.quarts || o.corridinho ? 16 : o.ida || o.sortie ? 8 : 4;
   return o.temps3 ? base * 3 : base;
 }

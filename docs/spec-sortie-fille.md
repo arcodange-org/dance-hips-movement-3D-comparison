@@ -14,19 +14,30 @@
 Dans le repère local du GLB, +x est la gauche et +z l'avant. Le suiveur fait face au leader
 avec un lacet de π. Au crochet, D leader prend un couloir latéral puis progresse jusqu'au z de G.
 Depuis sa position de départ, D se décale à droite de 17 cm, soit une demi-largeur de bassin.
-Le suiveur ouvre un passage suffisant pour que son D avance en ligne droite oblique au troisième pas, côte à côte avec le D du leader. Dans la variante recul, son G
-avance aussi de 13 cm. Au quatrième pas, le D du leader recule avant que le G du suiveur
-s'engage. Le suiveur avance d'abord dans son couloir extérieur, puis traverse devant son D
-porteur. Ce passage demande plus de dégagement en variante recul, où son D s'est posé plus en avant.
+Le recul du D du suiveur au premier pas est de 55 cm en crochet et de 42 cm en recul, avec
+un biais de 7 cm vers sa gauche. Au deuxième pas, son G se décale de 55 cm en crochet et de
+34 cm en recul. Dans la variante recul, ce G avance aussi de 13 cm. Ces amplitudes ouvrent le
+passage du D, dont la cheville suit une diagonale rectiligne au troisième pas. La pointe du pied
+libre pivote jusqu’à 55° vers la diagonale en vol pour dégager la semelle opposée puis revient
+parallèle à l'arrivée. Au quatrième pas, le D du leader recule avant que le G du suiveur s'engage. Le D du leader revient légèrement vers sa gauche pendant le recul pour libérer le
+croisé des genoux. Le suiveur avance d’abord dans son couloir extérieur, puis traverse devant
+son D porteur. Au cinquième pas, les pieds libres reviennent dans la largeur de départ.
 
 Le leader amorce la contraposition du thorax au premier temps. La rotation du thorax du suiveur
 répond progressivement à cette ouverture du cadre. Le bassin et les pieds suivent leurs propres
-courbes d'appui. Au marka, le bassin du suiveur termine sa rentrée au-dessus de sa base
-d'appui. Les dimensions sont calibrées pour illustrer la figure avec ces squelettes.
+courbes d'appui. Au marka, le bassin du suiveur revient vers sa base d’appui. Les deux racines
+sont à 40 cm l’une de l’autre au départ. Les distances et angles illustrent la figure avec ces squelettes. Les diagonales du troisième pas sont
+longues à partir de ce placement fixe (98 cm en crochet et 93 cm en recul). Au deuxième
+arrêt, la racine du bassin du suiveur reste à 32 cm ou 23 cm horizontalement de sa cheville
+gauche, selon la variante. Les charges affichées décrivent la succession des appuis prescrits.
+Leur géométrie seule ne mesure ni le centre de masse ni l’équilibre dynamique. La comparaison
+de placements initiaux resserrés face à face et en quinconce est suivie séparément. [Issue #28](https://github.com/arcodange-org/dance-hips-movement-3D-comparison/issues/28).
 
 Au troisième arrêt, les chevilles droites sont au même niveau longitudinal. Le droit du
-suiveur reste à droite du droit du leader. Le rapprochement des flancs se mesure avec deux
-enveloppes de rayon 8,5 cm le long des segments centraux des fémurs. La géométrie osseuse
+suiveur reste à droite du droit du leader. L’écart latéral des chevilles est de 28 cm en crochet
+et de 22 cm en recul. En kizomba à amplitude 1, les enveloppes de rayon 8,5 cm autour du centre
+des fémurs approchent à 19,5 mm en crochet et à 27,4 mm en recul. La direction du rapprochement
+a une composante x de −0,98 dans le repère du leader pour les deux variantes. La géométrie osseuse
 et les pieds font l’objet de contrôles séparés. Le modèle ne simule ni les forces, ni les
 surfaces de peau, ni les collisions de bras ou de tissus mous.
 
@@ -44,7 +55,13 @@ les actions des deux partenaires et l'amorce de la sortie par le cadre.
 
 Les empreintes horizontales des pieds sont comparées sur 1 002 poses de couple. Les triangles
 du fémur, tibia, péroné et de la rotule sont comparés entre les jambes et les partenaires
-sur 2 412 poses de couple, avec six styles et trois amplitudes, y compris aux transitions. Les
+sur 2 628 poses de couple, avec six styles et trois amplitudes, y compris aux transitions. Les
 7 272 poses individuelles contrôlent également la longueur des os, les semelles, les
 cibles IK et les appuis, avec et sans isolation basse selon le contrôle.
 Les 792 empreintes de référence G/GF proviennent de la base moteur `fa551c3`.
+
+Les exports de contrôle sur navigateur ont enregistré les deux variantes en kizomba (60 bpm,
+amplitude 1), sur environ cinq secondes chacun. La pose et la pause d'origine ont été
+restaurées après chaque export. Les GIFs montrent le [crochet](gifs/sortie-fille-crochet.gif)
+et le [recul](gifs/sortie-fille-recul.gif).
+[Rétrospective M4](retrospective-sortie-fille.md).

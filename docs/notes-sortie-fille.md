@@ -8,7 +8,7 @@ la sortie fille en paire](spec-sortie-fille.md) pour sa mise en œuvre.
 | Action | Leader | Suiveur |
 | --- | --- | --- |
 | 1 | Avance G et fait reculer le suiveur | Recule D |
-| 2, variante crochet | D dessine un crochet, sans diagonale, pour arriver au même niveau que G ; D est écarté vers la droite d'une demi-distance de hanche | Décale G d'une distance de hanche complète : sortie de ligne |
+| 2, variante crochet | D dessine un crochet, sans diagonale, pour arriver au même niveau que G ; D est écarté vers la droite d'une demi-distance de hanche | Décale G vers sa gauche : sortie de ligne et couloir pour la diagonale du D |
 | 3 | Recule G, fait avancer le suiveur | Avance D en diagonale directe ; D du suiveur côte à côte à droite du D leader, avec contact des flancs de cuisse |
 | 4 | Recule D et libère la place | Croise G pour retrouver la ligne |
 | 5 | Marka G | Ramène D avec un marka également |
@@ -18,7 +18,4 @@ vers sa gauche**. Avec le crochet, G suiveur fait un pas purement latéral.
 Ce qui provoque la sortie du suiveur est le cadre : cela peut être le bras droit du cadre
 ou le buste, avec la contraposition enclenchée par le leader.
 
-Pour la prochaine validation : conserver le crochet comme trajet, pas seulement une arrivée
-en diagonale ; préciser le repère de « à droite du pied droit leader » dans la vue de dessus,
-les instants d'appui et les surfaces de cuisse. Ne pas réduire le guidage à une copie miroir
-des pieds. Aucune cote supplémentaire, angle normatif ou reconstruction 3D n'est déduit ici.
+La [spécification](spec-sortie-fille.md) détaille le trajet du crochet, le repère du leader et les instants d’appui.

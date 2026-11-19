@@ -15,7 +15,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const bundle = join(root, "scripts", ".test-features-bundle.mjs");
 esbuild.buildSync({
   stdin: {
-    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon";',
+    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon"; export * from "../src/sortieFille";',
     resolveDir: join(root, "scripts"),
     loader: "ts",
   },
@@ -115,6 +115,30 @@ function ampMax(travel) {
 
 // ---------- registre de steps ----------
 const steps = [
+  [/^on échantillonne la sortie fille au deuxième pas en variante "(hook|back)"$/, (c, m) => {
+    const rest = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
+    const pose = (beat, follower) => mod.sampleSortieFille(beat, follower, rest, m[1]);
+    c.fille = { start: pose(1, false), corner: pose(1.34, false), end: pose(2, false),
+      followerStart: pose(1, true), followerEnd: pose(2, true) };
+  }],
+  [/^le droit du leader prend un crochet et le gauche du suiveur sort latéralement$/, (c) => {
+    const { start, corner, end, followerStart, followerEnd } = c.fille;
+    if (Math.abs(corner.feet.R.x - start.feet.R.x + HIP_WIDTH / 2) > 1e-9
+      || Math.abs(corner.feet.R.z - start.feet.R.z) > 1e-9
+      || Math.abs(end.feet.R.z - end.feet.L.z) > 1e-9
+      || followerEnd.feet.L.x - followerStart.feet.L.x < HIP_WIDTH - 1e-9
+      || Math.abs(followerEnd.feet.L.z - followerStart.feet.L.z) > 1e-9) {
+      throw new Error("crochet et sortie latérale attendus");
+    }
+  }],
+  [/^le droit du leader recule et le gauche du suiveur avance en diagonale$/, (c) => {
+    const { start, end, followerStart, followerEnd } = c.fille;
+    if (!(end.feet.R.z < start.feet.R.z && end.feet.R.x === start.feet.R.x
+      && followerEnd.feet.L.z > followerStart.feet.L.z
+      && followerEnd.feet.L.x > followerStart.feet.L.x)) {
+      throw new Error("recul D et avancée G en diagonale attendus");
+    }
+  }],
   [/^la sortie garçon est évaluée à la fin des cinq actions$/, (c) => {
     const rest = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
     c.figure = [false, true].map(follower => Array.from({ length: 6 }, (_, beat) => mod.sampleSortieGarcon(beat, follower, rest)));

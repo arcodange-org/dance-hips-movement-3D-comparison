@@ -1,6 +1,6 @@
 import { STYLES } from "../styles";
 
-export function InfoCard({ styleKey, position, sortieGarcon = false }: { styleKey: string; position: string; sortieGarcon?: boolean }) {
+export function InfoCard({ styleKey, position, sortieGarcon = false, figureSteps }: { styleKey: string; position: string; sortieGarcon?: boolean; figureSteps?: string }) {
   const st = STYLES[styleKey];
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
@@ -10,7 +10,7 @@ export function InfoCard({ styleKey, position, sortieGarcon = false }: { styleKe
         <span className="text-[10px] uppercase tracking-wider text-slate-500">{position}</span>
       </div>
       <ul className="space-y-1.5">
-        {st.bullets.map((bl, i) => (
+        {(figureSteps ? [figureSteps] : st.bullets).map((bl, i) => (
           <li key={i} className="text-xs text-slate-300 leading-relaxed flex gap-2">
             <span style={{ color: st.color }}>▸</span>
             <span>{sortieGarcon && bl.includes("sorties garçon / fille") ? "Sortie garçon : progression, sortie à gauche, rentrée et marka sans transfert" : bl}</span>
@@ -21,7 +21,14 @@ export function InfoCard({ styleKey, position, sortieGarcon = false }: { styleKe
   );
 }
 
-export function PairInfoCard({ sortieGarcon = false }: { sortieGarcon?: boolean }) {
+export function PairInfoCard({ sortieGarcon = false, sortieFille = false }: { sortieGarcon?: boolean; sortieFille?: boolean }) {
+  if (sortieFille) return <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4 space-y-2">
+    <div className="font-semibold">Cuisses droites · sortie fille</div>
+    <p className="text-xs text-slate-300">Au troisième arrêt, le droit du suiveur se pose à côté du droit du leader, à sa droite.</p>
+    <p className="text-xs text-slate-400">Le bleu indique la proximité de deux enveloppes de cuisse.
+      Les repères représentent une distance illustrative.</p>
+  </div>;
+
   if (sortieGarcon) return <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4 space-y-2">
     <div className="font-semibold">Cuisses droites · sortie garçon</div>
     <p className="text-xs text-slate-300">Au deuxième arrêt, le contact recherché est latéral, cuisse droite contre cuisse droite.</p>

@@ -256,5 +256,6 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 ## Sortie fille en paire (#27)
 
 - [x] Spécification et séquence en cinq actions ([spec](spec-sortie-fille.md)).
-- [ ] Trajectoires, cadre guidé, variantes, transport, partage et export.
-- [ ] Validation sur le GLB et protection des traces sortie garçon/combiné.
+- [x] Trajectoires, cadre guidé, variantes, transport, partage et export.
+- [x] Validation sur le GLB et protection des traces sortie garçon/combiné.
+- [x] Revue M4, contrôle navigateur des deux variantes et captures ([rétrospective](retrospective-sortie-fille.md)).

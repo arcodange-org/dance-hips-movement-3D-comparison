@@ -5,7 +5,16 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
-## Priorité actuelle — oracle #25 (19 novembre 2026)
+## Sortie fille #27 (19 novembre 2026)
+
+Branche `arcodange/sortie-fille-sol` empilée sur #26 (base moteur `fa551c3`).
+`sortieF` en paire utilise cinq actions et deux variantes pour le second pas.
+Le leader amorce la sortie par le cadre. Le crochet accompagne un pas purement latéral du suiveur ;
+le recul du leader accompagne une avancée diagonale du suiveur. Le troisième pas du suiveur avance en diagonale, puis aligne les chevilles droites côte à côte.
+Le combiné reste historique. Les placements initiaux resserrés sont suivis séparément.
+[Spécification, contrôles et limites](docs/spec-sortie-fille.md) · [Issue #28](https://github.com/arcodange-org/dance-hips-movement-3D-comparison/issues/28).
+
+## Chantier oracle #25 (19 novembre 2026)
 
 PR #24 fusionnée en `8e44b85`, déploiement Pages run `44413404026` réussi et vérifié.
 Nouveau chantier : `.Codex/worktrees/oracle-corrections`, branche `arcodange/oracle-corrections`.
