@@ -5,15 +5,24 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Recherche biomécanique (19 novembre 2026)
+
+Documentation seule (#34, PR #35). `docs/recherche-biomecanique/` réunit
+environ 50 sources FR/EN (pied, bassin, genou et hanche, danse de couple, kiné/ostéo) et une page de
+confrontation paramètre par paramètre. Aucune étude biomécanique ne porte sur les six styles : les
+comparaisons passent par la marche, la danse orientale, le tango et la danse de salon. Les points à
+valider par le propriétaire sont listés en fin de `confrontation-modele.md`.
+
 ## Placements du couple #28 (19 novembre 2026)
 
-Branche `arcodange/placements-couple` (worktree `.claude/worktrees/placements-couple`), depuis `main` 1322a24.
-Décisions du propriétaire : quinconce par défaut (jambes droites intercalées), arrivées relatives conservées,
+Fusionné dans `main` (PR #33, 07794bd) et déployé.
+Décisions du propriétaire : quinconce par défaut (jambes droites intercalées, demi-pointes au contact, genoux D
+décalés, bassins couplés, pieds dans l'axe des genoux), arrivées relatives conservées,
 seulement les deux sorties pour commencer, rapprochement atténué au-delà de l'amplitude 1.
 `src/placement.ts` ; les échantillonneurs reçoivent un décalage de départ absorbé sans glissement.
 `scripts/test_placements.mjs` rejoue les runners garçon/fille pour chaque placement.
 Le moteur garde `placement: "reference"` par défaut, ce qui conserve les empreintes validées.
-Validation chorégraphique par le propriétaire en attente, sur les vues de `docs/placements/`.
+Vues comparables dans `docs/placements/`. Suite : quarts de tour en paire (#37).
 [Spécification](docs/spec-placements-couple.md).
 
 ## Sortie fille #27 (19 novembre 2026)
