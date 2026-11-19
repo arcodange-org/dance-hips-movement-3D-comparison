@@ -92,8 +92,22 @@ Chaque pas d'une figure suit un cycle de marche, sur la fenêtre de vol déjà d
   derrière son pied (fenêtre mesurée 0,11–0,12 : marge étroite).
 - Bassins recouplés de 3 à 3,8 temps (avant les atterrissages neutres), comme au départ.
 - Plexus (`plexus: true`, contraposition 1) : écart maximal des repères de poitrine 6,9 cm (sortie
-  garçon), 5,6 cm (quarts en paire), 18,9 cm (sortie fille : reculs de 55 cm du suiveur, à raccourcir).
+  garçon), 5,6 cm (quarts en paire), 15,6 cm (sortie fille, crochet et recul).
   Sans contraposition, les bustes restent dans l'axe des bassins : 30 à 34 cm dans les sorties.
+
+### Sortie fille et plexus (suite de #51)
+
+- Le D1 du suiveur recule de 45 cm dans le crochet (55 cm avant) : écart maximal 18,9 → 15,6 cm.
+  Plus court, ses genoux rencontrent ceux du leader (quinconce, kompa). Dans la variante recul, aucun
+  raccourcissement sans collision ne réduit l'écart de plus de 1 cm : le D1 reste à 42 cm.
+- Les deux écarts restants viennent de la chorégraphie, pas des réglages :
+  - **action 2** : le G2 du suiveur s'ouvre de 55 cm sur le côté (crochet). Une ouverture plus
+    courte fait se chevaucher les pieds du couple ;
+  - **action 4** : le D du suiveur reste au contact D/D pendant que son G recroise : pieds écartés
+    de 55 cm, bassin plus bas de 12 cm, poitrine plus basse que celle du leader. Le buste penché ne
+    comble pas une différence de hauteur ; décaler le bassin vers le D fait croiser ses propres jambes.
+- Décision du propriétaire attendue : raccourcir l'ouverture latérale et le contact D/D de l'action 3,
+  ou faire descendre le leader avec la suiveuse (le couple s'abaisse ensemble).
 
 ## Limites
 

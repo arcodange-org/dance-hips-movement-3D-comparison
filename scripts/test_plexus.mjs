@@ -15,14 +15,15 @@ const api = await import(bundle.href); unlinkSync(bundle);
 const world = (f, name) => f.r[name].getWorldPosition(new THREE.Vector3());
 
 // Largest chest-marker distance accepted with contraposition (m). The sortie fille is a regression
-// guard only: her long retreats (D1 55 cm, G2 55 cm aside) open the couple beyond the lean's reach
-// at actions 2 and 3; shortening them is the next step of #51.
+// guard only: at action 2 her G2 opens 55 cm aside, and at action 4 her feet stand 55 cm apart (D
+// still at the D/D contact, G crossed back) so her pelvis drops and her chest is lower than his.
+// Closing that gap changes the figure's choreography (owner decision, docs/spec-marche-naturelle.md).
 const cases = [
   ['sortieG line', api.SORTIE_GARCON_PAIR_DZ, 5, { movement: 'sortieG', sortieVariant: 'line' }, .075],
   ['sortieG right', api.SORTIE_GARCON_PAIR_DZ, 5, { movement: 'sortieG', sortieVariant: 'right' }, .075],
   ['quarts paire', api.QUARTS_PAIR_DZ, 16, { movement: 'quarts', quarts: true, quartsPaire: true }, .06],
-  ['sortieF hook', api.SORTIE_FILLE_PAIR_DZ, 5, { movement: 'sortieF', sortieFilleVariant: 'hook' }, .20],
-  ['sortieF back', api.SORTIE_FILLE_PAIR_DZ, 5, { movement: 'sortieF', sortieFilleVariant: 'back' }, .20],
+  ['sortieF hook', api.SORTIE_FILLE_PAIR_DZ, 5, { movement: 'sortieF', sortieFilleVariant: 'hook' }, .17],
+  ['sortieF back', api.SORTIE_FILLE_PAIR_DZ, 5, { movement: 'sortieF', sortieFilleVariant: 'back' }, .17],
 ];
 const distances = (dz, beats, options, extra) => {
   const pair = [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];

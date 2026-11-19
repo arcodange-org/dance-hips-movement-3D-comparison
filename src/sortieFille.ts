@@ -63,7 +63,9 @@ export function sampleSortieFille(beat: number, follower: boolean,
   const touch = Number.isFinite(contact) ? Math.max(0, Math.min(1, contact)) : 1;
   const halfHip = HIP_WIDTH / 2;
   const firstLeaderZ = .12;
-  const firstFollowerZ = back ? -.42 : -.55;
+  // #51: the follower's D1 retreats 45 cm in the hook (55 before) so the couple keeps its plexus
+  // contact longer; shorter, her knees meet the leader's (six styles, quinconce, measured on the GLB).
+  const firstFollowerZ = back ? -.42 : -.45;
   const secondFollowerX = back ? HIP_WIDTH : .55;
   const secondLeader: FootPoint = { x: back ? 0 : -halfHip, z: back ? -.07 : rest.L.z + firstLeaderZ - rest.R.z };
   // Align the two right ankles longitudinally. The follower's +x is the

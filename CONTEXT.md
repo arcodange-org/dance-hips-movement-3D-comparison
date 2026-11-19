@@ -15,7 +15,7 @@ talon ou pose de l'avant-pied, pivot sans glissement) ; les pas croisés ou au c
 moins latéral ; le contact des cuisses descend au tiers inférieur (s ≈ 0,87). Option `plexus`
 (app : « Plexus contre plexus », avec ou sans contraposition) : bassins rapprochés et buste penché
 vers le partenaire ; `scripts/test_plexus.mjs` mesure l'indicateur (≤ 7,5 cm garçon, ≤ 6 cm quarts ;
-sortie fille encore à 19 cm : ses longs reculs sont la suite de #51). [Spécification](docs/spec-marche-naturelle.md).
+sortie fille à 15,6 cm après un D1 de crochet raccourci : le reste dépend d'un choix chorégraphique, voir la spec). [Spécification](docs/spec-marche-naturelle.md).
 
 ## Son synthétisé #44 (19 novembre 2026)
 
