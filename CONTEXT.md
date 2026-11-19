@@ -5,6 +5,16 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Ida e volta en paire #54 (19 novembre 2026)
+
+Branche `arcodange/ida-paire`, PR #55 empilée sur #52. En paire, `idaPaire: true` (activé par l'app
+quand le placement est donné) remplace le même pas des deux danseurs par un pas balancé du couple
+(`src/idaPaire.ts`) : le leader avance pendant que le suiveur recule avec le pied opposé, dans le même
+couloir, puis retour au quinconce (temps 4 et 8). Pas de marche `gaitStep` (roulé 30 %), le pied qui
+recule part 0,5 temps avant, pied G ouvert de 2 cm, genoux et bassin du style plafonnés (0,3 / 0,06 rad) :
+0 croisement d'os. Bassins ensemble : plexus 3,3–4,9 cm avec contraposition. Base du ginga (#42).
+`scripts/test_ida_paire.mjs` dans `npm test`. [Spécification](docs/spec-ida-paire.md).
+
 ## Fin en quinconce, marche naturelle, contact des pieds D, plexus #48 #49 #50 #51 (19 novembre 2026)
 
 Branche `arcodange/marche-naturelle`. Les deux sorties finissent en position neutre (départ translaté :

@@ -39,11 +39,20 @@ Repère du couple : celui du leader (+x à gauche, +z vers le suiveur). Écartem
 | 6 → 8 | **D revient** | **G revient** | au neutre, quinconce |
 
   Le suiveur fait le pas symétrique du leader : même couloir de pieds (son D longe le G du leader, son G
-  longe le D du leader, bords au contact en quinconce), même longueur, même instant. Le couple reste
-  emboîté.
-- **Pas de marche** : chaque pas suit `gaitStep` sur un vol de 1,2 temps. Pas vers l'avant : talon qui
+  longe le D du leader, bords au contact en quinconce), même longueur. Le couple reste emboîté.
+- **Le pied qui recule libère la place** (même raisonnement que les quarts #37) : à l'aller, le pied du
+  suiveur part sur le temps et celui du leader `delay` = 0,5 temps plus tard ; au retour, c'est le pied
+  du leader (qui recule) qui part le premier et celui du suiveur qui suit. Les deux pieds se posent au
+  même moment (1,2 temps). L'intention du leader passe par le buste (`IDA_LEAD`).
+- **Pied G ouvert** : en quinconce, chaque paire de pieds qui bougent ensemble a un pied G à l'extérieur
+  (G du leader contre D du suiveur, G du suiveur contre D du leader). Le pied G qui bouge s'écarte de
+  2 cm vers sa gauche pendant le vol, pour que les deux genoux qui avancent côte à côte se croisent sans
+  se toucher.
+- **Pas de marche** : chaque pas suit `gaitStep` sur sa fenêtre de vol. Pas vers l'avant : talon qui
   se lève, passage de jambe, attaque du talon puis déroulé. Pas vers l'arrière : talon qui se lève,
   passage de jambe, pose de l'avant-pied puis du talon. Le point d'appui ne glisse pas pendant un pivot.
+  Le roulé est réduit à 30 % (pas au contact, comme les pas croisés des sorties) : à 100 %, le talon
+  qui se lève pousse les deux genoux l'un vers l'autre.
 - **Poids et bassins (pas balancé, « rock step »)** : à l'aller, le poids passe sur le pied posé
   (temps 1 → 1,5) puis revient sur le pied resté au neutre (1,5 → 2), ce qui libère le pied pour le
   retour. Au retour, le pied revient sans poids et reprend le poids en se posant. Les deux bassins se
@@ -63,36 +72,68 @@ Repère du couple : celui du leader (+x à gauche, +z vers le suiveur). Écartem
 
 1. **Neutre** : aux temps 0, 4 et 8, pieds et racines des deux danseurs sur la position neutre du
    placement (quinconce compris) ; cycle de 8 temps en boucle.
-2. **Séquence** : le leader avance quand le suiveur recule, du même pas et au même instant ; le couple
-   se déplace d'un bloc (écart des racines constant) ; le buste du leader précède de `IDA_LEAD`.
+2. **Séquence** : le leader avance quand le suiveur recule, du même pas, avec le pied opposé ; le pied
+   qui recule part le premier et garde l'avance, les deux se posent ensemble ; le couple se déplace d'un
+   bloc (écart des racines constant) ; le buste du leader précède de `IDA_LEAD`.
 3. **Marche** : pendant chaque pas, le talon se lève avant que le pied ne quitte le sol ; attaque du
    talon sur les pas vers l'avant, avant-pied d'abord sur les pas vers l'arrière ; pivot sans glissement.
 4. Six styles, amplitudes 0,5 ; 1 ; 2, quinconce et référence : semelles au-dessus du sol, cibles IK
    atteintes, longueurs osseuses constantes, pied d'appui immobile hors de sa fenêtre de vol, appui nul
    sur un pied levé, continuité.
-5. Enveloppes des quatre semelles disjointes en continu ; aucun croisement des triangles des os des
-   jambes, entre danseurs et pour chaque danseur.
+5. Enveloppes des quatre semelles disjointes en continu (quinconce, face à face, amplitudes 0,5 à 2) ;
+   aucun croisement des triangles des os des jambes, entre danseurs et pour chaque danseur (quinconce,
+   référence, et la vue par défaut de l'app : quinconce avec plexus et contraposition).
 6. **Plexus** (`scripts/test_plexus.mjs`) : avec contraposition, écart maximal des repères de poitrine
    ≤ 6 cm pendant tout le cycle (quinconce et référence, kizomba et kompa) ; sans contraposition, mesuré
    et rapporté.
 7. Solo et comparaison inchangés : oracle, empreintes et suite existante verts sans modification.
 
-## Paramètres proposés (à valider à l'œil par le propriétaire)
+## Paramètres retenus (`IDA_PAIR`, à valider à l'œil par le propriétaire)
 
-- Longueur du pas `step` = 18 cm (amplitude de la phase 8 : ±9 cm), vol de 1,2 temps.
-- Part du pas suivie par les bassins `carry` (proposition : la moitié).
-- Calibrages mesurés sur le GLB : section « Calibrage », complétée avec les mesures.
+| Paramètre | Valeur | Rôle |
+|---|---|---|
+| `step` | 18 cm | longueur du pas (amplitude de la phase 8 : ±9 cm) |
+| `flight` | 1,2 temps | fin du vol de chaque pas |
+| `delay` | 0,5 temps | retard du pied qui avance sur le pied qui recule |
+| `aside` | 2 cm | ouverture du pied G pendant son vol |
+| `carry` | 0,5 | part du pas suivie par les deux bassins (9 cm) |
+| `forwardRoll`, `backRoll` | 30 % | roulé du pas (`gaitStep`) |
+| `weight` | 1,05 → 1,4 → 1,5 → 1,95 | poids sur le pied posé, puis retour (pas balancé) |
+| `kneeCap` | 0,3 rad | flexion maximale des genoux (0,45 dans les sorties) |
+| `rotationCap` | 0,06 rad | rotation du bassin propre au style (0,12 dans les sorties) |
 
 ## Calibrage
 
-À compléter avec les mesures du GLB (six styles, trois amplitudes, deux placements).
+Mesuré sur le GLB réel (os des jambes : triangles qui se croisent, entre danseurs et pour un même
+danseur ; enveloppes des semelles), six styles, amplitudes 0,5 ; 1 ; 2, quinconce et référence, au
+huitième de temps (poses en collision) :
+
+| Étape | Poses en collision |
+|---|---|
+| Pieds synchrones, roulé complet | 325 sur 2 304 (jambes face à face en référence, genoux côte à côte en quinconce) |
+| Le pied qui recule part 0,3 temps avant | 76 (trois styles seulement) |
+| Retard 0,5, roulé à 30 % | 5 |
+| + flexion des genoux plafonnée à 0,3 rad | 2 (kompa : genou G du leader contre genou D du suiveur, décalé en quinconce) |
+| + pied G ouvert de 2 cm | 1 (tarraxinha : jambes d'appui, rotation du bassin du style) |
+| + rotation du bassin du style plafonnée à 0,06 rad | **0**, aussi au seizième de temps, en face à face et avec le plexus (avec ou sans contraposition) |
+
+Plexus (`scripts/test_plexus.mjs`, kizomba et kompa, amplitude 1) : écart maximal des repères de
+poitrine **3,3 à 4,9 cm** avec contraposition ; sans contraposition 9,1–9,2 cm en quinconce,
+3,4–4,9 cm en référence ; sans l'option plexus 8,6–9,6 cm. Les bassins se déplacent ensemble : l'écart
+reste celui du départ, contrairement aux sorties.
 
 ## Points de décision du propriétaire
 
 - La séquence « pas balancé » (aller avec transfert du poids, retour au neutre) ou une autre lecture de
   l'ida e volta (par exemple aller-retour du couple sur plusieurs pas).
 - La longueur du pas et la part suivie par les bassins.
-- Le suiveur symétrique et synchrone (aucun retard des pieds, intention par le buste du leader).
+- Le pied qui recule part le premier (0,5 temps d'avance) : le suiveur part sur le temps à l'aller, le
+  leader au retour. L'autre lecture (le suiveur répond un quart de temps après le leader) fait se
+  toucher les genoux.
+- Le roulé réduit à 30 %, le pied G ouvert de 2 cm, genoux et bassin du style plafonnés (0,3 et
+  0,06 rad) : le prix d'un couple serré qui avance et recule sans que les os se croisent.
+- Le bassin qui suit le poids de 9 cm (la moitié du pas) et le pas balancé (le poids revient avant le
+  retour du pied).
 
 ## Limites
 

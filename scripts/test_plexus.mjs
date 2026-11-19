@@ -7,7 +7,7 @@ import { unlinkSync } from "node:fs";
 import * as THREE from "three";
 import { fixture } from "./pose_fixture.mjs";
 const bundle = new URL("./.test-plexus-bundle.mjs", import.meta.url);
-buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'rigJoints', 'placement', 'quartsPaire', 'sortieGarcon', 'sortieFille']
+buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'rigJoints', 'placement', 'quartsPaire', 'idaPaire', 'sortieGarcon', 'sortieFille']
   .map(n => `export * from "./src/${n}";`).join('\n'), resolveDir: new URL('../', import.meta.url).pathname },
   bundle: true, packages: 'external', platform: 'node', format: 'esm', outfile: bundle.pathname,
   define: { 'import.meta.env.BASE_URL': '"/"' }, logLevel: 'silent' });
@@ -21,6 +21,8 @@ const cases = [
   ['sortieG line', api.SORTIE_GARCON_PAIR_DZ, 5, { movement: 'sortieG', sortieVariant: 'line' }, .075],
   ['sortieG right', api.SORTIE_GARCON_PAIR_DZ, 5, { movement: 'sortieG', sortieVariant: 'right' }, .075],
   ['quarts paire', api.QUARTS_PAIR_DZ, 16, { movement: 'quarts', quarts: true, quartsPaire: true }, .06],
+  // #54: the couple travels as a block (pelvises together), so the plexus contact holds.
+  ['ida paire', api.IDA_PAIR_DZ, 8, { movement: 'ida', ida: true, idaPaire: true }, .06],
   ['sortieF hook', api.SORTIE_FILLE_PAIR_DZ, 5, { movement: 'sortieF', sortieFilleVariant: 'hook' }, .20],
   ['sortieF back', api.SORTIE_FILLE_PAIR_DZ, 5, { movement: 'sortieF', sortieFilleVariant: 'back' }, .20],
 ];
@@ -47,4 +49,4 @@ for (const placement of ['quinconce', 'reference']) for (const [label, dz, beats
       `without ${(max(free) * 100).toFixed(1)} cm, plexus off ${(max(off) * 100).toFixed(1)} cm`);
   }
 }
-console.log('PASS plexus-to-plexus contact with contraposition (sorties garçon, quarts de tour en paire; sortie fille guarded)');
+console.log('PASS plexus-to-plexus contact with contraposition (sorties garçon, quarts de tour et ida e volta en paire; sortie fille guarded)');
