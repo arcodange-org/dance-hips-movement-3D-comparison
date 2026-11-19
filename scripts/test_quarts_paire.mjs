@@ -16,7 +16,7 @@ const wrap = a => Math.atan2(Math.sin(a), Math.cos(a));
 const world = (f, name) => f.r[name].getWorldPosition(new THREE.Vector3());
 const dz = api.QUARTS_PAIR_DZ;
 const couple = () => [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];
-const options = (i, extra = {}) => ({ movement: 'quarts', quarts: true, embrace: true, quartsPaire: true, follower: !!i, ...extra });
+const options = (i, extra = {}) => ({ movement: 'quarts', quarts: true, embrace: true, quartsPaire: true, follower: !!i, plexus: process.env.TEST_PLEXUS === '1', ...extra });
 const stanceOf = m => (m.legs.L.hipX - m.legs.L.rest.x + m.legs.R.rest.x - m.legs.R.hipX) / 2;
 const footAxis = (f, side) => { const t = f.model.legs[side].toeOut;
   return new THREE.Vector3(Math.sin(t), 0, Math.cos(t)).applyQuaternion(f.r['foot' + side].getWorldQuaternion(new THREE.Quaternion())); };
@@ -103,10 +103,13 @@ for (const styleKey of Object.keys(api.STYLES)) for (const amp of [.5, 1, 2]) {
       near(hip.distanceTo(knee), f.model.legs[side].length1);
       near(knee.distanceTo(foot), f.model.legs[side].length2);
       if (f.model.lift[side] > 1e-6) near(stats['load' + side], 0);
-      // Feet forward along the knees: the heel → ball axis turns with the foot's yaw.
+      // Feet forward along the knees: the heel → ball axis turns with the foot's yaw; #49: it only
+      // pitches (heel rise, heel strike) in the vertical plane of that yaw.
       const forward = footAxis(f, side), yaw = sample.feet[side].yaw + (i ? Math.PI : 0);
-      near(forward.x, Math.sin(yaw), 1e-6, `foot axis x ${styleKey} ${beat} ${side}`);
-      near(forward.z, Math.cos(yaw), 1e-6, `foot axis z ${styleKey} ${beat} ${side}`);
+      const pitch = sample.feet[side].pitch ?? 0, flat = Math.hypot(forward.x, forward.z);
+      near(flat, Math.cos(pitch), 1e-6, `foot pitch ${styleKey} ${beat} ${side}`);
+      near(forward.x / flat, Math.sin(yaw), 1e-6, `foot axis x ${styleKey} ${beat} ${side}`);
+      near(forward.z / flat, Math.cos(yaw), 1e-6, `foot axis z ${styleKey} ${beat} ${side}`);
     }
     poses++;
   }

@@ -5,6 +5,19 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Fin en quinconce, marche naturelle, contact des pieds D, plexus #48 #49 #50 #51 (19 novembre 2026)
+
+Branche `arcodange/marche-naturelle`. Les deux sorties finissent en position neutre (départ translaté :
+quinconce, pieds sous les hanches, stagger du D), bassins recouplés dès le compte 3 (`endCoupling`).
+`src/gait.ts` donne à chaque pas un cycle de marche (talon qui se lève, passage de jambe, attaque du
+talon ou pose de l'avant-pied, pivot sans glissement) ; les pas croisés ou au contact roulent peu
+(calibré sur le GLB, six styles). Sortie garçon : D2 bord à bord contre le D du suiveur (2,2 mm), G1
+moins latéral ; le contact des cuisses descend au tiers inférieur (s ≈ 0,87). Option `plexus`
+(app : « Plexus contre plexus », avec ou sans contraposition) : buste penché vers le partenaire
+(rapprocher les bassins croise les jambes) ; `scripts/test_plexus.mjs` mesure l'indicateur (16 cm
+garçon, 7,5–9,5 cm quarts, 15–21 cm fille : les distances des sorties restent trop grandes, #51) et
+rejoue les runners en mode plexus. [Spécification](docs/spec-marche-naturelle.md).
+
 ## Son synthétisé #44 (19 novembre 2026)
 
 Branche `arcodange/musique-synthese`, PR draft (sans fusion). Bouton « Son » éteint par défaut :

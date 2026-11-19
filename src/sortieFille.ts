@@ -1,10 +1,15 @@
 import { HIP_WIDTH } from "./anatomy";
 import type { FigureFoot, FigureFootPose, FootPoint } from "./sortieGarcon";
-import { placementOffset, startCoupling, type CouplePlacement, type PlacementOffset } from "./placement";
+import { gaitStep } from "./gait";
+import { placementOffset, startCoupling, endCoupling, type CouplePlacement, type PlacementOffset } from "./placement";
 
 export type SortieFilleVariant = "hook" | "back";
 export const SORTIE_FILLE_BEATS = 5;
 export const SORTIE_FILLE_PAIR_DZ = 0.20;
+/** #49: share of the roll of the first two (interleaved) steps: a full heel rise would push a knee into the partner's. */
+export const SORTIE_FILLE_FIRST_ROLL = 0.2;
+/** #49: share of the roll of the follower's G4, crossing in front of her planted D. */
+export const SORTIE_FILLE_CROSS_ROLL = 0.3;
 export const SORTIE_FILLE_ACTIONS = [
   "Départ · G leader / D suiveur disponibles",
   "1 · G leader avance / D suiveur recule",
@@ -67,27 +72,31 @@ export function sampleSortieFille(beat: number, follower: boolean,
     x: (back ? .22 : .28) - 2 * rest.R.x - secondLeader.x,
     z: 2 * SORTIE_FILLE_PAIR_DZ - 2 * rest.R.z - secondLeader.z,
   };
-  const returnZ = approach.z + .225;
-  const mark: FootPoint = { x: .05, z: returnZ };
-  const returnBodyZ = returnZ - .10;
   const leaderEndZ = secondLeader.z - .64;
+  // #48: the figure ends in the neutral position, the start translated along the line. The leader's
+  // last landings define the translation; the follower's mirror it exactly (her frame faces his).
+  const leaderEnd: FootPoint = { x: .065, z: leaderEndZ };
+  const returnZ = -leaderEnd.z;
+  const mark: FootPoint = { x: -leaderEnd.x, z: returnZ };
   // Positions are offsets in each dancer's own frame. For the suiveur,
   // a positive x offset therefore moves to the leader's right.
+  // After her G4 the follower's pelvis stays 12 cm behind it (measured window 0.11–0.12 on the GLB,
+  // six styles): closer, her knees meet the leader's in his lunge; further, her own legs cross.
   const steps: Action[] = follower ? [
     { foot: "R", target: { x: .07, z: firstFollowerZ }, body: { x: 0, z: firstFollowerZ * .43 } },
     { foot: "L", target: { x: secondFollowerX, z: back ? .13 : 0 }, body: { x: back ? .22 : .33, z: back ? -.005 : -.12 } },
     { foot: "R", target: approach, body: { x: mix(back ? .36 : .43, back ? .33 : .41, touch), z: back ? .44 : .30 } },
-    { foot: "L", target: mark, body: { x: .16, z: returnBodyZ },
+    { foot: "L", target: mark, body: { x: .16, z: returnZ - .12 },
       corner: { x: secondFollowerX, z: returnZ }, keep: "x", delay: .24 },
-    { foot: "R", target: mark, body: { x: mark.x, z: returnBodyZ },
+    { foot: "R", target: mark, body: { x: mark.x, z: returnZ },
       corner: { x: 0, z: approach.z }, delay: back ? .16 : 0 },
   ] : [
     { foot: "L", target: { x: 0, z: firstLeaderZ }, body: { x: 0, z: firstLeaderZ / 2 } },
     { foot: "R", target: secondLeader,
       body: { x: back ? 0 : -.095, z: back ? .02 : firstLeaderZ }, corner: back ? undefined : { x: -halfHip, z: 0 }, keep: "z" },
     { foot: "L", target: { x: 0, z: -.19 }, body: { x: back ? 0 : -.08, z: back ? -.04 : .10 } },
-    { foot: "R", target: { x: .065, z: leaderEndZ }, body: { x: .025, z: leaderEndZ } },
-    { foot: "L", target: { x: .065, z: leaderEndZ }, body: { x: 0, z: leaderEndZ } },
+    { foot: "R", target: leaderEnd, body: { x: leaderEnd.x - .04, z: leaderEnd.z } },
+    { foot: "L", target: leaderEnd, body: leaderEnd },
   ];
 
   // Couple placement (docs/spec-placements-couple.md): both feet start shifted by o. Shifted
@@ -99,11 +108,17 @@ export function sampleSortieFille(beat: number, follower: boolean,
   // From the quinconce start (knees interleaved), the follower's D1 lands on its validated target to
   // free the leader's knee; her G2 keeps its amplitude.
   const shifted = follower ? [false, true, false, false, false] : [false, false, false, false, false];
+  // #48: once the couple is back face to face on the line (actions 4 and 5), the landings are neutral
+  // again: quinconce shift, feet under the hips and the right foot's stagger, as at the start.
+  const neutral = [false, false, false, true, true];
   const shiftOf: Record<FigureFoot, number> = { L: 1, R: 1 };
-  const position = (foot: FigureFoot, offset: FootPoint, shift = 0): FootPoint =>
-    ({ x: rest[foot].x + offset.x + o.x * shift, z: rest[foot].z + offset.z + o.z * shift });
   // Initial/neutral stance: each foot `stance` further out (feet under the hips), absorbed on its first step.
   const widen = Number.isFinite(stance) ? stance : 0;
+  const position = (foot: FigureFoot, offset: FootPoint, shift = 0, home = 0): FootPoint =>
+    ({ x: rest[foot].x + offset.x + o.x * shift + (foot === "L" ? widen : -widen) * home,
+      z: rest[foot].z + offset.z + o.z * shift + (foot === "R" ? (o.stagger ?? 0) / 2 : 0) * home });
+  const landing = (i: number, action: Action) =>
+    position(action.foot, action.target, shifted[i] || neutral[i] ? 1 : 0, neutral[i] ? 1 : 0);
   const feet: Record<FigureFoot, FigureFootPose> = {
     L: { ...position("L", { x: widen, z: 0 }, 1), yaw: 0, lift: 0 },
     R: { ...position("R", { x: -widen, z: (o.stagger ?? 0) / 2 }, 1), yaw: 0, lift: 0 },
@@ -111,8 +126,8 @@ export function sampleSortieFille(beat: number, follower: boolean,
   let support: FigureFoot = follower ? "L" : "R";
   let body: FootPoint = { x: 0, z: 0 };
   steps.slice(0, index).forEach((action, i) => {
-    shiftOf[action.foot] = shifted[i] ? 1 : 0;
-    feet[action.foot] = { ...position(action.foot, action.target, shiftOf[action.foot]), yaw: 0, lift: 0 };
+    shiftOf[action.foot] = shifted[i] || neutral[i] ? 1 : 0;
+    feet[action.foot] = { ...landing(i, action), yaw: 0, lift: 0 };
     support = action.foot;
     body = action.body;
   });
@@ -120,33 +135,46 @@ export function sampleSortieFille(beat: number, follower: boolean,
   const fromShift = shiftOf[action.foot];
   // The pelvis follows the shift of the support foot (validated from the D/D arrival on).
   const weightBefore = shiftOf[support];
-  const weightAfter = index < 4 ? (shifted[index] ? 1 : 0) : weightBefore;
-  const from = feet[action.foot], to = position(action.foot, action.target, shifted[index] ? 1 : 0);
+  const weightAfter = index < 4 ? (shifted[index] || neutral[index] ? 1 : 0) : weightBefore;
+  const from = feet[action.foot], to = landing(index, action);
   // From a close start the leader's D2 touches the follower's G: her G2 opens the way first.
   const closeStart = Math.min(1, Math.hypot(o.x, o.z) / 0.05);
   const delay = action.delay ?? (!follower && index === 1 ? sortieFilleHookLead(o) : 0);
   const touchdown = !follower && index === 3 ? .48 : .68;
   const flight = Math.max(0, Math.min(1, (t - delay) / (touchdown - delay)));
-  let point = interpolate(from, to, smooth(flight));
+  // #49: a walking step (heel rise, swing, heel strike or ball landing); the marka only touches.
+  // From the interleaved quinconce a heel rise would push the knee into the partner's: the first steps
+  // and the hook (the follower's G2 opens the way, the leader's D passes her knee) leave the floor with
+  // little push-off.
+  // Her G4 crosses in front of her planted D and of the leader's retreating D: it rolls little too.
+  const interleaved = index <= 1;
+  const crossing = follower && index === 3;
+  const gait = gaitStep(flight, { x: to.x - from.x, z: to.z - from.z }, 0,
+    interleaved ? SORTIE_FILLE_FIRST_ROLL : crossing ? SORTIE_FILLE_CROSS_ROLL : 1);
+  const along = index === 4 ? flight : gait.progress;
+  let point = interpolate(from, to, smooth(along));
   if (action.corner) {
     const via = position(action.foot, action.corner);
     // The corner keeps the start's own coordinate (shift, stance and stagger included).
     if (action.keep === "x") via.x = from.x;
     if (action.keep === "z") via.z = from.z;
-    point = flight < .5 ? interpolate(from, via, smooth(flight * 2))
-      : interpolate(via, to, smooth(flight * 2 - 1));
+    point = along < .5 ? interpolate(from, via, smooth(along * 2))
+      : interpolate(via, to, smooth(along * 2 - 1));
   }
   const swing = Math.sin(Math.PI * flight) ** 2;
   // The right toe turns toward the diagonal during the follower’s flight. The ankle
   // follows one straight segment and the foot faces forward again at touchdown.
   const yaw = follower && index === 2 ? 55 * Math.PI / 180 * swing : 0;
-  feet[action.foot] = { ...point, yaw, lift: (index === 4 ? .022 : .045) * swing };
+  feet[action.foot] = { ...point, yaw, ...(index === 4 ? { lift: .022 * swing } : { lift: gait.lift, pitch: gait.pitch, pivot: gait.pivot }) };
   const transfer = index < 4 ? smooth((t - touchdown) / (1 - touchdown)) : 0;
   const loadR = mix(Number(support === "R"), Number(action.foot === "R"), transfer);
   // From a close start the follower's pelvis completes its retreat over D1 by 80 % of the step, so
   // her planted G leg never folds onto the leader's right knee between hers (measured on the GLB).
   const bodyPhase = follower && index === 1 ? (t - .25) / .75
-    : follower && index === 0 ? t / (1 - 0.2 * closeStart) : t;
+    : follower && index === 0 ? t / (1 - 0.2 * closeStart)
+    // #48: into the neutral quinconce the pelvis arrives with the marka: lagging behind it, the
+    // follower's right knee would lean onto the leader's interleaved right knee.
+    : index === 4 ? (t - delay) / (touchdown - delay) : t;
   const root = interpolate({ x: body.x + o.x * weightBefore, z: body.z + o.z * weightBefore },
     { x: action.body.x + o.x * weightAfter, z: action.body.z + o.z * weightAfter }, smooth(bodyPhase));
   // Keep the follower's pelvis over the outside support while D clears the
@@ -155,5 +183,5 @@ export function sampleSortieFille(beat: number, follower: boolean,
   // Opening of the leader's chest leads the answering rotation of the partner.
   const cue = follower ? .72 : .47;
   const chestYaw = -.20 * smooth((b - cue) / .72) * (1 - smooth((b - 2.15) / 1.1));
-  return { beat: b, feet, root, loadR, chestYaw, coupling: startCoupling(b, o) };
+  return { beat: b, feet, root, loadR, chestYaw, coupling: Math.max(startCoupling(b, o), endCoupling(b, o)) };
 }

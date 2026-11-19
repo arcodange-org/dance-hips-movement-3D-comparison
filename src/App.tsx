@@ -92,6 +92,8 @@ export default function App() {
   const [sortieGF, setSortieGF] = usePersistentState("sortieGF", false);
   const [sortieFilleVariant, setSortieFilleVariant] = usePersistentState<SortieFilleVariant>("sortieFilleVariant", "hook");
   const [placement, setPlacement] = usePersistentState<CouplePlacement>("placement", DEFAULT_PLACEMENT);
+  // #51: plexus-to-plexus contact; 1 = chest faces the partner (contraposition), 0 = aligned with the pelvis.
+  const [contraposition, setContraposition] = usePersistentState<number>("contraposition", 1);
   const [sortieVariant, setSortieVariant] = usePersistentState<SortieVariant>("sortieVariant", "line");
   const [sortieContra, setSortieContra] = usePersistentState("sortieContra", DEFAULT_SORTIE_CONTRA);
   // Phase 14 — déplacements = options NON combinables (radio) : un seul actif à la fois.
@@ -169,6 +171,7 @@ export default function App() {
     }
     if (p.has("sortieFilleVariant")) setSortieFilleVariant(sortieFilleVariantOf(p.get("sortieFilleVariant")));
     if (p.has("placement")) setPlacement(placementOf(p.get("placement")));
+    if (p.has("contra")) setContraposition(p.get("contra") === "0" ? 0 : 1);
     const figureSettings = sortieGarconSettings(p);
     if (p.has("sortieVariant")) setSortieVariant(figureSettings.variant);
     if (p.has("sortieContra")) setSortieContra(figureSettings.contra);
@@ -176,6 +179,9 @@ export default function App() {
     if (p.has("sortieBeat") && urlMode === "pair") {
       if (urlMovement === "sortieG") seekClock(clock, figureSettings.beat);
       if (urlMovement === "sortieF") seekClock(clock, sortieFilleBeat(Number(p.get("sortieBeat"))));
+      // Frame-by-frame captures of the quarter turns in pair (scripts/capture_figure_gif.mjs).
+      const quartsBeat = Number(p.get("sortieBeat"));
+      if (urlMovement === "quarts" && Number.isFinite(quartsBeat) && quartsBeat >= 0) seekClock(clock, quartsBeat);
     }
     if (p.has("ligne")) setShowLigne(p.get("ligne") !== "0");
     if (p.has("iso")) setIso(p.get("iso") !== "0");
@@ -246,6 +252,7 @@ export default function App() {
       sortieContra: isSortieGarcon ? sortieContra : undefined,
       sortieFilleVariant: isSortieFille ? sortieFilleVariant : undefined,
       placement: hasPlacement ? placement : undefined,
+      contra: hasPlacement ? contraposition : undefined,
       sortieBeat: isFiveActionFigure ? Number(clock.beat.toFixed(3)) : undefined,
       sortieF: movement === "sortieF" ? true : undefined,
       sortieGF: movement === "sortieGF" ? true : undefined,
@@ -395,6 +402,7 @@ export default function App() {
               movement={movement}
               sortieFilleVariant={sortieFilleVariant}
               placement={hasPlacement ? placement : undefined}
+              contraposition={contraposition}
               sortieVariant={sortieVariant}
               sortieContra={sortieContra}
               showAppui={showAppui}
@@ -430,6 +438,7 @@ export default function App() {
                 movement={movement}
                 sortieFilleVariant={sortieFilleVariant}
                 placement={hasPlacement ? placement : undefined}
+              contraposition={contraposition}
                 sortieVariant={sortieVariant}
                 sortieContra={sortieContra}
                 showAppui={showAppui}
@@ -582,7 +591,8 @@ export default function App() {
       {isSortieGarcon && <SortieGarconControls clock={clock} variant={sortieVariant}
         onVariant={setSortieVariant} contra={sortieContra} onContra={setSortieContra} onPlaying={setPlaying} />}
       {hasPlacement && <PlacementControl clock={clock} placement={placement}
-        onPlacement={setPlacement} onPlaying={setPlaying} quarts={isQuartsPaire} />}
+        onPlacement={setPlacement} onPlaying={setPlaying} quarts={isQuartsPaire}
+        contraposition={contraposition} onContraposition={setContraposition} />}
       {isSortieFille && <SortieFilleControls clock={clock} variant={sortieFilleVariant}
         onVariant={setSortieFilleVariant} onPlaying={setPlaying} />}
       <SoundControls
@@ -642,6 +652,7 @@ export default function App() {
               movement={movement}
               sortieFilleVariant={sortieFilleVariant}
               placement={hasPlacement ? placement : undefined}
+              contraposition={contraposition}
               sortieVariant={sortieVariant}
               sortieContra={sortieContra}
               showAppui={showAppui}
@@ -677,6 +688,7 @@ export default function App() {
                 movement={movement}
                 sortieFilleVariant={sortieFilleVariant}
                 placement={hasPlacement ? placement : undefined}
+              contraposition={contraposition}
                 sortieVariant={sortieVariant}
                 sortieContra={sortieContra}
                 showAppui={showAppui}

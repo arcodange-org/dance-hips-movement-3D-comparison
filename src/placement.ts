@@ -53,3 +53,14 @@ export function startCoupling(beat: number, offset: PlacementOffset): number {
   const t = Math.max(0, Math.min(1, beat - 1));
   return closeness * (1 - t * t * (3 - 2 * t));
 }
+
+/** #48: the figures end in the neutral quinconce; the pelvises couple again as the couple closes in
+ * on the line (fully coupled from beat 3.8, before the neutral landings). Proportional to the approach,
+ * like the start. */
+export function endCoupling(beat: number, offset: PlacementOffset): number {
+  const closeness = Math.min(1, Math.hypot(offset.x, offset.z) / 0.05);
+  // From action 4 (count 3 → 3.8): the pelvises are coupled again before the neutral landings close
+  // the couple (the quinconce interleaves the knees, as at the start).
+  const t = Math.max(0, Math.min(1, (beat - 3) / 0.8));
+  return closeness * t * t * (3 - 2 * t);
+}

@@ -33,10 +33,11 @@ assert.equal(api.placementOf(shared.searchParams.get('placement')), 'face');
 console.log('PASS placements: parsing, share parameter and amplitude fade');
 
 const figures = [
-  // arrival: the D/D relative arrival; identical: first beat where every foot is validated
-  // (in the sortie fille the follower's free G keeps its shift until its crossing lands).
-  { movement: 'sortieG', key: 'sortieVariant', variants: ['line', 'right'], dz: api.SORTIE_GARCON_PAIR_DZ, arrival: 2, identical: 2 },
-  { movement: 'sortieF', key: 'sortieFilleVariant', variants: ['hook', 'back'], dz: api.SORTIE_FILLE_PAIR_DZ, arrival: 3, identical: 4 },
+  // arrival: the D/D relative arrival; identical: beats where every foot is validated, until the
+  // neutral landings (#48) start at action 4 (in the sortie fille the follower's free G keeps its
+  // shift until then: no identical window).
+  { movement: 'sortieG', key: 'sortieVariant', variants: ['line', 'right'], dz: api.SORTIE_GARCON_PAIR_DZ, arrival: 2, identical: [2, 3] },
+  { movement: 'sortieF', key: 'sortieFilleVariant', variants: ['hook', 'back'], dz: api.SORTIE_FILLE_PAIR_DZ, arrival: 3, identical: null },
 ];
 const couple = dz => [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];
 let compared = 0;
@@ -70,8 +71,20 @@ for (const figure of figures) for (const variant of figure.variants) for (const 
       near(a.x, b.x, 1e-9, `${figure.movement} ${placement} arrival ${name}.x`); near(a.z, b.z, 1e-9, `${figure.movement} ${placement} arrival ${name}.z`);
     }
   }
+  // #48: the figure ends in the neutral position: the validated end shifted by o like the start
+  // (feet, right foot's stagger and pelvis), so the quinconce is retrieved.
+  for (const amp of [.5, 1]) for (const role of [0, 1]) {
+    const end = api.placementOffset(placement, amp), sign = role ? -1 : 1;
+    pose(pair, 5, role, { placement, amp }); pose(reference, 5, role, { placement: 'reference', amp });
+    for (const name of ['footL', 'footR', 'root']) {
+      const a = world(pair[role], name), b = world(reference[role], name);
+      near(a.x - b.x, sign * end.x, 1e-9, `${figure.movement}/${variant}/${placement} amp ${amp} neutral end ${name}.x`);
+      near(a.z - b.z, sign * (end.z + (name === 'footR' ? (end.stagger ?? 0) / 2 : 0)), 1e-9,
+        `${figure.movement}/${variant}/${placement} amp ${amp} neutral end ${name}.z`);
+    }
+  }
   // Once every foot has landed on a validated target, the figure is the validated one.
-  for (const amp of [.5, 1]) for (let tick = figure.identical * 20; tick <= 100; tick++) for (const role of [0, 1]) {
+  if (figure.identical) for (const amp of [.5, 1]) for (let tick = figure.identical[0] * 20; tick <= figure.identical[1] * 20; tick++) for (const role of [0, 1]) {
     pose(pair, tick / 20, role, { placement, amp }); pose(reference, tick / 20, role, { placement: 'reference', amp });
     const a = snapshot(pair[role].r), b = snapshot(reference[role].r);
     a.forEach((v, n) => near(v, b[n], 1e-9, `${figure.movement}/${variant}/${placement} amp ${amp} beat ${tick / 20} role ${role}`));

@@ -39,6 +39,7 @@ export interface RigProps {
   movement?: MovementKey; // phase 17 : option de déplacement exclusive (inclut les sorties)
   sortieFilleVariant?: SortieFilleVariant;
   placement?: CouplePlacement; // five-action figures only; undefined = validated spacing
+  contraposition?: number; // #51: 1 = chest faces the partner, 0 = aligned with the pelvis
   sortieVariant?: SortieVariant;
   sortieContra?: number;
   showAppui?: boolean;
@@ -75,6 +76,7 @@ export default function Rig({
   movement = "none" as MovementKey,
   sortieFilleVariant = "hook",
   placement,
+  contraposition,
   sortieVariant = "line",
   sortieContra = DEFAULT_SORTIE_CONTRA,
   showAppui = false,
@@ -186,6 +188,9 @@ export default function Rig({
       placement: placement ?? "reference",
       // #37: in pair, the quarter turns use the couple model (placement given by the app).
       quartsPaire: embrace && movement === "quarts" && placement !== undefined,
+      // #51: plexus-to-plexus contact in the pair figures.
+      plexus: embrace && placement !== undefined && (movement === "sortieG" || movement === "sortieF" || movement === "quarts"),
+      contraposition: contraposition ?? 1,
     });
     if (stats) stats.current = result;
     const { loadL, loadR } = result;

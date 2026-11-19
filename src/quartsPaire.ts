@@ -1,6 +1,7 @@
 /** Quarter turns in pair, around the leader (#37, docs/spec-quarts-paire.md).
  * GLB coordinates: left +x, forward +z. The couple frame is the leader's outer frame; the
  * follower's outer frame is translated by 2·QUARTS_PAIR_DZ along +z and turned by π. */
+import { gaitStep, GAIT } from "./gait";
 import { placementOffset, type CouplePlacement, type PlacementOffset } from "./placement";
 import type { FigureFoot, FigureFootPose, FootPoint } from "./sortieGarcon";
 
@@ -88,7 +89,7 @@ export const QUARTS_SHAPES: QuartsShapes = {
  * - knee flexion cap, style pelvis rotation cap and style bounce, softened around the `crossing`
  *   (both pairs of thighs interleaved while the leader's G lands next to the follower's standing G). */
 export const QUARTS_BODY = {
-  coupling: 1, sway: 0.5, kneeCap: 0.3, rotationCap: 0.12, dip: -0.008,
+  coupling: 1, sway: 0.5, kneeCap: 0.3, rotationCap: 0.12, dip: -0.008, roll: 0.5,
   crossing: { from: 1.0, to: 1.9, ramp: 0.3, kneeCap: 0.12, rotationCap: 0.04 },
 };
 function crossingAt(q: number): number {
@@ -137,9 +138,15 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
     // The bump is given in the dancer's frame at the start of the quarter.
     const bump = rotate(shape.bump, base);
     own = { x: own.x + bump.x * away, z: own.z + bump.z * away };
-    const lift = 0.045 * Math.sin(Math.PI * raw) ** 2;
+    // #49: the foot rolls (heel rise, swing, landing) along its calibrated arc; the arc's timing is kept.
+    const startPoint = about(c, start[side], base), endPoint = about(c, start[side], base + QUARTER);
+    const travel = rotate({ x: endPoint.x - startPoint.x, z: endPoint.z - startPoint.z }, -base);
+    // No roll around the crossing, where the interleaved knees leave no room for a heel rise.
+    const gait = gaitStep(raw, follower ? { x: -travel.x, z: -travel.z } : travel, 0, QUARTS_BODY.roll * (1 - crossingAt(now.q)));
+    const lift = raw > 0 && raw < 1 ? Math.max(gait.lift, GAIT.liftPeak * 0.35 * Math.sin(Math.PI * raw) ** 2) : 0;
     // The moving foot pivots once it has left its neighbours.
-    feet[side] = { ...own, yaw: base + QUARTER * ramp(raw, Math.max(shape.yawDelay, shape.arcDelay)), lift };
+    feet[side] = { ...own, yaw: base + QUARTER * ramp(raw, Math.max(shape.yawDelay, shape.arcDelay)), lift,
+      pitch: gait.pitch, pivot: gait.pivot };
   }
   // Weight: on the second foot at the start of a quarter; it moves to each foot as that foot lands.
   const [one, two] = now.feet;

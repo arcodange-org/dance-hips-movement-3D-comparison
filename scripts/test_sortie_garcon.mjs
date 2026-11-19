@@ -22,18 +22,28 @@ const couple = (figure = true) => {
 };
 // TEST_PLACEMENT=reference|quinconce|face replays the whole runner for one couple placement.
 const placement = process.env.TEST_PLACEMENT ?? 'reference';
-const options = { movement: 'sortieG', embrace: true, placement };
+// TEST_PLEXUS=1 replays the runner with the plexus contact the app enables with a placement (#51).
+const options = { movement: 'sortieG', embrace: true, placement, plexus: process.env.TEST_PLEXUS === '1' };
 // Owner request (19 Nov.): the middle/upper right thighs touch at the D/D arrival. Contact of the
-// illustrative 8.5 cm envelopes: gap in [-6, +3] mm, closest points on the middle/upper part
-// of both femurs (s ≤ 0.70 along hip → knee).
+// illustrative 8.5 cm envelopes: gap in [-6, +3] mm, closest points on the femurs above the patella
+// (s ≤ 0.90 along hip → knee). #50 puts the D feet edge to edge, so the legs converge downwards and
+// the contact sits on the lower third of the thighs; bringing the pelvises closer interpenetrates
+// the thighs (−57 mm) before the contact climbs back to mid-thigh.
 const thighContact = (proximity, hipA, kneeA, hipB, kneeB, label) => {
   const sA = proximity.centerA.distanceTo(hipA) / hipA.distanceTo(kneeA), sB = proximity.centerB.distanceTo(hipB) / hipB.distanceTo(kneeB);
   assert(proximity.gap >= -.006 && proximity.gap <= .003, `${label}: thighs touch (gap ${proximity.gap})`);
-  assert(sA <= .7 && sB <= .7, `${label}: contact on the middle/upper thighs (s=${sA.toFixed(2)}/${sB.toFixed(2)})`);
+  assert(sA <= .9 && sB <= .9, `${label}: contact on the thighs, above the knees (s=${sA.toFixed(2)}/${sB.toFixed(2)})`);
   return { sA, sB };
 };
 
 const o = api.placementOffset(placement);
+// Horizontal gap between two convex sole hulls (-1 when they overlap).
+const segmentDistance = (p, a, b) => { const dx = b[0] - a[0], dz = b[1] - a[1], l = dx * dx + dz * dz;
+  const t = l ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dz) / l)) : 0;
+  return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dz); };
+const hullGap = (A, B) => { if (footHullsOverlap(A, B)) return -1; let d = Infinity;
+  for (const [P, Q] of [[A, B], [B, A]]) for (const p of P) for (let i = 0; i < Q.length; i++) d = Math.min(d, segmentDistance(p, Q[i], Q[(i + 1) % Q.length]));
+  return d; };
 // Neutral stance at the start: feet under the hips (owner request), absorbed on each first step.
 const stanceOf = m => (m.legs.L.hipX - m.legs.L.rest.x + m.legs.R.rest.x - m.legs.R.hipX) / 2;
 const sign2 = i => i ? -1 : 1;
@@ -58,9 +68,10 @@ for (const sortieVariant of ['line', 'right']) {
   assert(states[1][0].L.z > states[0][0].L.z + .1, 'leader advances G');
   assert(states[1][1].R.z > states[0][1].R.z + .1, 'partner retreats D');
   assert(states[2][0].R.z > states[2][0].L.z + .05, 'leader D is in front of G');
-  assert(states[2][0].R.x > Math.max(states[2][1].R.x, states[2][1].L.x) + .1,
-    'leader feet outside partner feet, not interleaved');
-  assert(states[3][0].L.x < states[3][0].R.x - .1, 'G crosses in front of D toward initial lane');
+  assert(states[2][0].R.x > Math.max(states[2][1].R.x, states[2][1].L.x) + .05,
+    'leader D outside the partner feet (its outer edge against her D, measured below)');
+  // #50: D2 now lands against the follower's D, closer to the line: the cross is shorter sideways.
+  assert(states[3][0].L.x < states[3][0].R.x - .05, 'G crosses in front of D toward initial lane');
   assert(states[3][0].L.z > states[3][0].R.z + .15, 'cross is forward');
   for (let beat = 0; beat <= 5; beat++) {
     near(states[beat][0].stats.loadR, [1, 0, 1, 0, 1, 1][beat]);
@@ -68,25 +79,32 @@ for (const sortieVariant of ['line', 'right']) {
   }
   for (const i of [0, 1]) {
     for (const side of ['L', 'R']) {
-      // Validated final pose; the start is shifted by o and widened to the hips (neutral stance)
-      // in each dancer's frame (world sign by role).
-      const sign = i ? -1 : 1, widen = side === 'L' ? stance : -stance;
-      near(states[5][i][side].z - states[0][i][side].z, .70 - sign * (o.z + (side === 'R' ? (o.stagger ?? 0) / 2 : 0)));
-      near(states[5][i][side].x - states[0][i][side].x, (sortieVariant === 'right' ? -.1 : 0) - sign * (o.x + widen));
+      // #48: the figure ends in the neutral position (quinconce, feet under the hips): the final pose
+      // is the start translated along the line (and 10 cm aside in the right variant).
+      near(states[5][i][side].z - states[0][i][side].z, .70);
+      near(states[5][i][side].x - states[0][i][side].x, sortieVariant === 'right' ? -.1 : 0);
     }
-    near(states[5][i].L.x - states[5][i].R.x, states[0][i].L.x - states[0][i].R.x - sign2(i) * 2 * stance);
+    near(states[5][i].L.x - states[5][i].R.x, states[0][i].L.x - states[0][i].R.x);
   }
-  near(states[5][0].root.x, states[5][1].root.x);
+  // Pelvises as at the start (2o apart sideways in quinconce, aligned in the reference placement).
+  near(states[5][0].root.x - states[5][1].root.x, states[0][0].root.x - states[0][1].root.x);
 }
 const restForProgress = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
 for (const follower of [false, true]) for (const variant of ['line', 'right']) {
   let previous = api.sampleSortieGarcon(0, follower, restForProgress, variant, undefined, placement);
+  // #48: from action 4 the neutral landings close the couple again by o.z (+ the D's stagger).
+  const o = api.placementOffset(placement), back = { L: 0, R: 0 };
   for (let tick = 1; tick <= 500; tick++) {
     const current = api.sampleSortieGarcon(tick / 100, follower, restForProgress, variant, undefined, placement);
-    for (const side of ['L', 'R']) assert((current.feet[side].z - previous.feet[side].z) * (follower ? -1 : 1) >= -1e-12,
-      'the forward leader / retreating partner never make a backward excursion');
+    for (const side of ['L', 'R']) {
+      const step = (current.feet[side].z - previous.feet[side].z) * (follower ? -1 : 1);
+      if (tick <= 300) assert(step >= -1e-12, 'the forward leader / retreating partner never make a backward excursion');
+      else back[side] += Math.max(0, -step);
+    }
     previous = current;
   }
+  for (const side of ['L', 'R']) assert(back[side] <= Math.max(0, follower ? o.z + (side === 'R' ? (o.stagger ?? 0) / 2 : 0) : 0) + 1e-9,
+    `only the neutral landing comes back (${follower ? 'partner' : 'leader'} ${side}: ${back[side]})`);
 }
 console.log('PASS sortie garçon: directions, croisé, partenaire, quatre transferts et deux fins');
 
@@ -108,9 +126,10 @@ for (const styleKey of Object.keys(api.STYLES)) for (const amp of [.5, 1, 2]) fo
       near(hip.distanceTo(knee), f.model.legs[side].length1);
       near(knee.distanceTo(foot), f.model.legs[side].length2);
       if (f.model.lift[side] > 1e-6) near(stats['load' + side], 0);
-      // Neutral feet (owner request): the heel → ball axis points forward, along the knees.
-      const forward = footAxis(f, side);
-      near(forward.z, i ? -1 : 1); near(forward.x, 0);
+      // Neutral feet (owner request): the heel → ball axis points forward, along the knees (#49: the
+      // foot may roll, so the axis is checked in the horizontal plane).
+      const forward = footAxis(f, side).setY(0).normalize();
+      near(forward.z, i ? -1 : 1, 1e-6); near(forward.x, 0, 1e-6);
     }
     if (beat >= 4) near(i ? stats.loadR : stats.loadL, 0);
     poses++;
@@ -161,6 +180,11 @@ for (const sortieVariant of ['line', 'right']) for (const amp of [1, 1.5, 2]) {
   assert(proximity.direction.x < -.85, `D/D proximity is lateral, on both anatomical right flanks (${proximity.direction.x})`);
   const { sA, sB } = thighContact(proximity, world(pair[0], 'hipR'), world(pair[0], 'kneeR'), world(pair[1], 'hipR'), world(pair[1], 'kneeR'), `sortieG ${sortieVariant}`);
   console.log(sortieVariant, `D/D thigh contact ${(proximity.gap * 1000).toFixed(1)} mm at s=${sA.toFixed(2)}/${sB.toFixed(2)}`);
+  // #50: at action 2 the outer edge of the leader's D touches the outer edge of the follower's D.
+  const soleOf = (f, side) => footHull(f.model.legs[side].sole.map(p => p.clone().applyMatrix4(f.r['foot' + side].matrixWorld)));
+  const footGap = hullGap(soleOf(pair[0], 'R'), soleOf(pair[1], 'R'));
+  assert(footGap >= 0 && footGap <= .003, `${sortieVariant}: D/D feet touch edge to edge (${footGap})`);
+  console.log(sortieVariant, `D/D outer foot edges ${(footGap * 1000).toFixed(1)} mm`);
 }
 console.log('PASS swept foot hull clearance and D/D contact of the middle/upper thighs (illustrative envelopes)');
 

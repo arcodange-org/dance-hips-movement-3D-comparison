@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { fixture, minimumBoneY, snapshot } from "./pose_fixture.mjs";
 import { transformedMesh, meshIntersection, footHull, footHullsOverlap } from "./mesh_intersections.mjs";
 const bundle = new URL("./.test-sortie-fille-bundle.mjs", import.meta.url);
-buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'clock', 'rigJoints', 'sortieGarcon', 'sortieFille', 'placement', 'sortieGarconContact', 'share']
+buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'clock', 'rigJoints', 'gait', 'sortieGarcon', 'sortieFille', 'placement', 'sortieGarconContact', 'share']
   .map(n => `export * from "./src/${n}";`).join('\n'), resolveDir: new URL('../', import.meta.url).pathname },
   bundle: true, packages: 'external', platform: 'node', format: 'esm', outfile: bundle.pathname,
   define: { 'import.meta.env.BASE_URL': '"/"' }, logLevel: 'silent' });
@@ -21,7 +21,8 @@ const couple = () => {
 };
 // TEST_PLACEMENT=reference|quinconce|face replays the whole runner for one couple placement.
 const placement = process.env.TEST_PLACEMENT ?? 'reference';
-const options = { movement: 'sortieF', embrace: true, placement };
+// TEST_PLEXUS=1 replays the runner with the plexus contact the app enables with a placement (#51).
+const options = { movement: 'sortieF', embrace: true, placement, plexus: process.env.TEST_PLEXUS === '1' };
 // Owner request (19 Nov.): the middle/upper right thighs touch at the D/D arrival. Contact of the
 // illustrative 8.5 cm envelopes: gap in [-6, +3] mm, closest points on the middle/upper part
 // of both femurs (s ≤ 0.70 along hip → knee).
@@ -61,7 +62,10 @@ for (const variant of variants) {
     near(second[1].L.z, first[1].L.z);
     // Same flight fractions as the validated hook, shifted by the close-start lead.
     const lead = api.sortieFilleHookLead(o), when = f => 1 + lead + f * (.68 - lead);
-    const early = at(when(.15 / .68))[0].R, corner = at(when(.5))[0].R, late = at(when(.5 / .68 * 1))[0].R;
+    // #49: the foot travels during the swing of its (reduced) walking roll: the corner of the hook is
+    // reached half-way through that swing.
+    const roll = api.SORTIE_FILLE_FIRST_ROLL, push = api.GAIT.push * roll, land = 1 - (1 - api.GAIT.land) * roll;
+    const early = at(when(.15 / .68))[0].R, corner = at(when(push + .5 * (land - push)))[0].R, late = at(when(.5 / .68 * 1))[0].R;
     assert(early.x < first[0].R.x - .03, 'initial flight moves right');
     near(early.z, first[0].R.z);
     // The leader's D starts shifted by o (world +x = his left) and widened to the hips (−x),
@@ -93,9 +97,11 @@ for (const variant of variants) {
   let previous = 0;
   for (let tick = 1; tick <= 20; tick++) {
     const current = at(2 + tick / 20)[1].R.clone().sub(second[1].R);
-    near(current.x * diagonal.z - current.z * diagonal.x, 0);
+    // #49: the ankle leaves the line only while the foot pivots on its ball or heel (≤ 2 cm).
+    near((current.x * diagonal.z - current.z * diagonal.x) / Math.hypot(diagonal.x, diagonal.z), 0, .02);
     const progress = current.x / diagonal.x;
-    assert(progress >= previous - 1e-8 && progress <= 1 + 1e-8, 'direct diagonal is monotonic');
+    // #49: the heel strike (toes up about the heel) may draw the ankle back a few millimetres.
+    assert(progress >= previous - .03 && progress <= 1 + .03, `direct diagonal is monotonic (${previous} → ${progress})`);
     previous = progress;
   }
   assert(fourth[0].R.z < third[0].R.z - .07, 'leader D retreats on action 4');
@@ -104,40 +110,48 @@ for (const variant of variants) {
   assert(third[1].L.x < third[1].R.x && fourth[1].L.x > fourth[1].R.x, 'follower G crosses D');
   assert(fourth[1].L.z < third[1].L.z - .18, 'follower G advances on the crossing');
   assert(fourth[1].L.z < fourth[1].R.z - .18, 'follower G crosses in front of planted D');
-  assert(Math.abs(fourth[1].L.x - start[1].L.x) < .06, 'cross returns to initial lane');
-  assert(Math.abs(fifth[0].root.x - fifth[1].root.x) <= .06, 'couple returns to line');
+  // #48: the couple ends translated together (the leader's historical 6.5 cm to his left included).
+  const shiftX = fifth[0].L.x - start[0].L.x;
+  assert(Math.abs(fourth[1].L.x - start[1].L.x - shiftX) < .01, 'cross returns to the initial lane, translated with the couple');
+  // #48: pelvises as at the start (2o apart sideways in quinconce, aligned in the reference placement).
+  near(fifth[0].root.x - fifth[1].root.x, start[0].root.x - start[1].root.x, 1e-6);
   for (let role = 0; role < pair.length; role++) {
     for (const [beat, stop] of stops.entries()) near(stop[role].stats.loadR, rightLoads[role][beat]);
     const stance = moving[role][4] === 'R' ? 'L' : 'R';
     const free = moving[role][4];
     const rig = pair[role];
     near(fifth[role][stance].distanceTo(fourth[role][stance]), 0);
-    near(fifth[role][free].z - fifth[role][stance].z, (rig.model.legs[free].rest.z - rig.model.legs[stance].rest.z) * (role ? -1 : 1));
-    near(fifth[role][free].x - fifth[role][stance].x, (rig.model.legs[free].rest.x - rig.model.legs[stance].rest.x) * (role ? -1 : 1));
+    // #48: neutral end, the start translated: quinconce, feet under the hips and stagger retrieved.
+    for (const side of ['L', 'R']) for (const axis of ['x', 'z'])
+      near(fifth[role][side][axis] - start[role][side][axis], fifth[0].L[axis] - start[0].L[axis], 1e-6);
   }
 
-  // Observe the model's world thorax with style motion muted to isolate the frame cue.
-  const cueAt = beat => pair.map((f, role) => {
-    api.applyPose(f.r, f.model, beat, { ...config(role, variant), amp: 0 });
-    return f.r.chest.getWorldQuaternion(new THREE.Quaternion());
-  });
-  const before = cueAt(0), leaderCue = cueAt(.68), response = cueAt(.94);
-  assert(before[0].angleTo(leaderCue[0]) > .03, 'visible leader chest starts opening before exit');
-  near(before[1].angleTo(leaderCue[1]), 0, 1e-7);
-  assert(before[1].angleTo(response[1]) > .03, 'visible follower chest responds before lateral foot flight');
-  near(at(.94)[1].L.distanceTo(start[1].L), 0);
+  // With the plexus contact (#51) the chests face each other (contraposition) instead of
+  // playing the figure's frame cue: the cue is checked without it.
+  if (!options.plexus) {
+    // Observe the model's world thorax with style motion muted to isolate the frame cue.
+    const cueAt = beat => pair.map((f, role) => {
+      api.applyPose(f.r, f.model, beat, { ...config(role, variant), amp: 0 });
+      return f.r.chest.getWorldQuaternion(new THREE.Quaternion());
+    });
+    const before = cueAt(0), leaderCue = cueAt(.68), response = cueAt(.94);
+    assert(before[0].angleTo(leaderCue[0]) > .03, 'visible leader chest starts opening before exit');
+    near(before[1].angleTo(leaderCue[1]), 0, 1e-7);
+    assert(before[1].angleTo(response[1]) > .03, 'visible follower chest responds before lateral foot flight');
+    near(at(.94)[1].L.distanceTo(start[1].L), 0);
 
-  // Verify that the cue remains distinguishable from the Zouk style's own yaw
-  // at the highest UI amplitude, with the pelvic rotation inherited by the chest.
-  const zoukWorldCue = beat => pair.map((f, role) => {
-    api.applyPose(f.r, f.model, beat, { ...config(role, variant), styleKey: 'zouk', amp: 2, iso: false });
-    const localForward = new THREE.Vector3(0, 0, 1).applyQuaternion(f.r.chest.getWorldQuaternion(new THREE.Quaternion()))
-      .applyQuaternion(f.outer.quaternion.clone().invert());
-    return Math.atan2(localForward.x, localForward.z);
-  });
-  const cueDirections = zoukWorldCue(.68), responseDirections = zoukWorldCue(.94);
-  assert(cueDirections[0] < cueDirections[1] - .03, 'leader cue changes visible Zouk yaw');
-  assert(responseDirections[0] < responseDirections[1] - .08, 'Zouk roles remain oriented distinctly at the anticipatory cue');
+    // Verify that the cue remains distinguishable from the Zouk style's own yaw
+    // at the highest UI amplitude, with the pelvic rotation inherited by the chest.
+    const zoukWorldCue = beat => pair.map((f, role) => {
+      api.applyPose(f.r, f.model, beat, { ...config(role, variant), styleKey: 'zouk', amp: 2, iso: false });
+      const localForward = new THREE.Vector3(0, 0, 1).applyQuaternion(f.r.chest.getWorldQuaternion(new THREE.Quaternion()))
+        .applyQuaternion(f.outer.quaternion.clone().invert());
+      return Math.atan2(localForward.x, localForward.z);
+    });
+    const cueDirections = zoukWorldCue(.68), responseDirections = zoukWorldCue(.94);
+    assert(cueDirections[0] < cueDirections[1] - .03, 'leader cue changes visible Zouk yaw');
+    assert(responseDirections[0] < responseDirections[1] - .08, 'Zouk roles remain oriented distinctly at the anticipatory cue');
+  }
 
   for (const [role, f] of pair.entries()) {
     const poseAt = b => api.applyPose(f.r, f.model, b, config(role, variant));
