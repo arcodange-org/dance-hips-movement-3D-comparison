@@ -31,8 +31,9 @@ proximité des cuisses restent des illustrations paramétriques, pas une simulat
 ![Sortie garçon validée — variante à droite](docs/gifs/sortie-garcon-validee.gif)
 <details><summary>Détails & source</summary>
 
-Capture du canvas via « Exporter un cycle » : cinq temps à 90 bpm, kizomba, amplitude 1,
-variante à droite et contraposition illustrative 12°. BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
+Capture image par image (`sortieBeat`) : cinq temps à 90 bpm, kizomba, amplitude 1, placement
+quinconce (couple rapproché, demi-pointes au contact), variante à droite et contraposition
+illustrative 12°. BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 Les jauges HTML ne sont pas incluses. Le GIF boucle ; l'application conserve la pose finale.
 [Séquence et sources](docs/spec-sortie-garcon.md), [preuves et limites](docs/retrospective-sortie-garcon.md).
 </details>
@@ -61,7 +62,7 @@ Le deuxième pas accepte aussi `sortieFilleVariant=back`.
 ![Sortie fille en paire, variante crochet](docs/gifs/sortie-fille-crochet.gif)
 <details><summary>Détails et source du contrôle crochet</summary>
 
-Cinq temps à 60 bpm, kizomba d’amplitude 1. Le droit du leader dessine le crochet et le gauche
+Cinq temps à 60 bpm, kizomba d’amplitude 1, placement quinconce. Le droit du leader dessine le crochet et le gauche
 du suiveur se décale de 55 cm. L’illustration reprend la séquence décrite par le propriétaire.
 La proximité des flancs est mesurée sur des enveloppes de cuisse. Les charges affichées
 dans l’application indiquent les appuis prescrits. BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
@@ -72,9 +73,9 @@ dans l’application indiquent les appuis prescrits. BodyParts3D © DBCLS, CC BY
 ![Sortie fille en paire, variante recul](docs/gifs/sortie-fille-recul.gif)
 <details><summary>Détails et source du contrôle recul</summary>
 
-Cinq temps à 60 bpm, kizomba d’amplitude 1. Le droit du leader recule. Le gauche du suiveur
-avance de 13 cm et s’écarte de 34 cm à sa gauche. Les deux GIFs sont issus de l’export du
-canvas et bouclent. La lecture dans l’application conserve le marka final.
+Cinq temps à 60 bpm, kizomba d’amplitude 1, placement quinconce. Le droit du leader recule. Le gauche du suiveur
+avance de 13 cm et s’écarte de 34 cm à sa gauche. Les deux GIFs sont capturés image par image
+(`sortieBeat`) et bouclent. La lecture dans l’application conserve le marka final.
 BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 [Description](docs/notes-sortie-fille.md) · [Mesures et limites](docs/spec-sortie-fille.md).
 
