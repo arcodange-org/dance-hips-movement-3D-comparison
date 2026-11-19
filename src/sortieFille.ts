@@ -66,12 +66,13 @@ export function sampleSortieFille(beat: number, follower: boolean,
   // #51: the follower's D1 retreats 45 cm in the hook (55 before) so the couple keeps its plexus
   // contact longer; shorter, her knees meet the leader's (six styles, quinconce, measured on the GLB).
   const firstFollowerZ = back ? -.42 : -.45;
-  const secondFollowerX = back ? HIP_WIDTH : .55;
+  const G = globalThis as any;
+  const secondFollowerX = back ? HIP_WIDTH : G.__SX ?? .55;
   const secondLeader: FootPoint = { x: back ? 0 : -halfHip, z: back ? -.07 : rest.L.z + firstLeaderZ - rest.R.z };
   // Align the two right ankles longitudinally. The follower's +x is the
   // leader's right; the clearance is measured between those ankle targets.
   const approach: FootPoint = {
-    x: (back ? .22 : .28) - 2 * rest.R.x - secondLeader.x,
+    x: (back ? G.__AXB ?? .22 : G.__AX ?? .28) - 2 * rest.R.x - secondLeader.x,
     z: 2 * SORTIE_FILLE_PAIR_DZ - 2 * rest.R.z - secondLeader.z,
   };
   const leaderEndZ = secondLeader.z - .64;
@@ -86,7 +87,7 @@ export function sampleSortieFille(beat: number, follower: boolean,
   // six styles): closer, her knees meet the leader's in his lunge; further, her own legs cross.
   const steps: Action[] = follower ? [
     { foot: "R", target: { x: .07, z: firstFollowerZ }, body: { x: 0, z: firstFollowerZ * .43 } },
-    { foot: "L", target: { x: secondFollowerX, z: back ? .13 : 0 }, body: { x: back ? .22 : .33, z: back ? -.005 : -.12 } },
+    { foot: "L", target: { x: secondFollowerX, z: back ? .13 : 0 }, body: { x: back ? .22 : .33 * secondFollowerX / .55, z: back ? -.005 : -.12 } },
     { foot: "R", target: approach, body: { x: mix(back ? .36 : .43, back ? .33 : .41, touch), z: back ? .44 : .30 } },
     { foot: "L", target: mark, body: { x: .16, z: returnZ - .12 },
       corner: { x: secondFollowerX, z: returnZ }, keep: "x", delay: .24 },
