@@ -5,6 +5,16 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Son synthétisé #44 (19 novembre 2026)
+
+Branche `arcodange/musique-synthese`, PR draft (sans fusion). Bouton « Son » éteint par défaut :
+musique Web Audio par style d'après `docs/musique/` (grilles de 16 pas en données, niveau de
+preuve par piste), planification 120 ms à l'avance, **horloge audio maîtresse** de `clock.beat`
+quand le son est actif (`stepTransport` + pilote de `useMusic`), comportement inchangé sinon.
+Choix A/B en comparaison ; `son=1`, `musique=A|B` en URL. `scripts/test_music.mjs` + Gherkin
+`son-synthese.feature`. Choix provisoires (tempo global, 32 bpm, phases inchangées) listés dans
+[la spec](docs/spec-son-synthese.md), à valider par le propriétaire avec une écoute.
+
 ## Quarts de tour en paire #37 (19 novembre 2026)
 
 Branche `arcodange/quarts-de-tour`, PR #43. En paire, `quartsPaire: true` (activé par l'app quand

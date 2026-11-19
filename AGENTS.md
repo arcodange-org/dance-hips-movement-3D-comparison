@@ -23,6 +23,8 @@ Modules des figures en paire : [sortie garçon](docs/spec-sortie-garcon.md) (`sr
 [contrat](docs/spec-phase18-oracle.md) ; `scripts/oracle_assertions.mjs` centralise les gardes finies
 et les comparaisons de quaternions ; ne pas réintroduire une comparaison d'une fonction de mouvement
 avec elle-même comme preuve de continuité ou de chorégraphie. [Éditeur futur](docs/spec-editeur-figures.md).
+Son synthétisé : [spec](docs/spec-son-synthese.md) (`src/music/`, `scripts/test_music.mjs`) ; grilles = données
+sourcées de `docs/musique/`, chaque piste garde son niveau de preuve ; son coupé, l'horloge reste inchangée.
 
 **Lire ce fichier en premier dans toute session.** Le harness complet pour travailler sur ce projet
 en autonomie (méthode anti-amnésie, conventions, contribution agentique) est dans **[`.vibe/`](.vibe/)**
