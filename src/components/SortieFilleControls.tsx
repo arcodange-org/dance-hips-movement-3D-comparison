@@ -34,7 +34,7 @@ export default function SortieFilleControls({ clock, variant, onVariant, onPlayi
       </button>
       <label className="grid min-w-0 max-w-full gap-1">Deuxième pas du leader
         <select className="w-full min-w-0 max-w-full bg-slate-800 border border-slate-600 rounded p-2" value={variant}
-          onChange={event => onVariant(sortieFilleVariantOf(event.target.value))}>
+          onChange={event => { onVariant(sortieFilleVariantOf(event.target.value)); seek(0, false); }}>
           <option value="hook">Crochet du droit</option>
           <option value="back">Recul du droit</option>
         </select>

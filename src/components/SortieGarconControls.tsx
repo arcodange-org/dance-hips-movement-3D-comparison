@@ -26,7 +26,7 @@ export default function SortieGarconControls({ clock, variant, onVariant, contra
       }}>Rejouer la sortie garçon</button>
       <label className="grid gap-1">Fin de la sortie garçon
         <select className="bg-slate-800 border border-slate-600 rounded p-2" value={variant}
-          onChange={event => onVariant(event.target.value as SortieVariant)}>
+          onChange={event => { onVariant(event.target.value as SortieVariant); seek(0); }}>
           <option value="line">Retour sur la ligne</option>
           <option value="right">Décalage commun à droite</option>
         </select>

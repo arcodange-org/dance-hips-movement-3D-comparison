@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import type { DanceClock } from "../clock";
@@ -15,9 +15,14 @@ export default function SortieGarconContactViz({ pair, clock }: {
     geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
     const result = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: '#38bdf8' }));
     result.frustumCulled = false;
-    result.visible = !clock;
     return result;
-  }, [clock]);
+  }, []);
+  // One line for the component's lifetime: switching G/F only changes its visibility.
+  useEffect(() => { line.visible = !clock; }, [clock, line]);
+  useEffect(() => () => {
+    line.geometry.dispose();
+    (line.material as THREE.Material).dispose();
+  }, [line]);
   useFrame(() => {
     const leader = pair.current.leader, follower = pair.current.follower;
     if (!leader?.hipR || !follower?.hipR || !a.current || !b.current) return;

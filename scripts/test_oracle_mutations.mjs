@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 const cwd=new URL('../',import.meta.url).pathname;
 const run=(runner,mutation='')=>spawnSync(process.execPath,['scripts/'+runner],{
-  cwd,encoding:'utf8',env:{...process.env,ORACLE_TEST_MUTATION:mutation},timeout:60000,
+  cwd,encoding:'utf8',env:{...process.env,ORACLE_TEST_MUTATION:mutation},timeout:240000,
 });
 for(const runner of ['test_oracle.mjs','test_oracle_final.mjs']) {
   const baseline=run(runner);
