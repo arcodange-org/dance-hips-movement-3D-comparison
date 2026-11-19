@@ -11,6 +11,8 @@ Fil d'Ariane : [docs](./) › spec #48 #49 #50. Dépend de [#28, placements](spe
 - **#49** — « Actuellement on dirait plus que le leader marche sur la lune qu'il danse. On doit avoir
   l'impression qu'il marche normalement même s'il place ses pieds en réalisant une figure
   chorégraphique. »
+- **Indicateur** — « Un bon indicateur, c'est que les danseurs doivent pouvoir maintenir un contact
+  plexus contre plexus en appliquant une contraposition. »
 - **#50** — « À la position 2 de la sortie garçon, l'extérieur du pied droit est au contact de
   l'extérieur du pied droit du suiveur : on cherche le contact qui permet de guider des mouvements.
   La jambe gauche peut ainsi se décaler moins loin. »
@@ -64,7 +66,10 @@ Chaque pas d'une figure suit un cycle de marche, sur la fenêtre de vol déjà d
 3. Marche : pendant chaque pas, le talon se lève avant que le pied ne quitte le sol ; attaque du talon
    sur les pas vers l'avant ; le point d'appui ne glisse pas pendant un pivot ; flexion du genou de
    la jambe qui passe supérieure à celle de la jambe d'appui.
-4. Invariants inchangés : semelles au-dessus du sol, cibles IK atteintes, longueurs osseuses, pied
+4. **Plexus contre plexus** : pendant toute la figure (sorties, quarts de tour en paire),
+   contraposition comprise, les repères de poitrine des deux danseurs restent au contact (écart
+   mesuré et rapporté à chaque temps ; seuil fixé après le relevé de l'état actuel).
+5. Invariants inchangés : semelles au-dessus du sol, cibles IK atteintes, longueurs osseuses, pied
    d'appui immobile, continuité, semelles disjointes, aucun croisement des os des jambes (six
    styles, trois amplitudes), contacts des cuisses.
 
