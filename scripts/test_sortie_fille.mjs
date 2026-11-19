@@ -21,7 +21,8 @@ const couple = () => {
 };
 // TEST_PLACEMENT=reference|quinconce|face replays the whole runner for one couple placement.
 const placement = process.env.TEST_PLACEMENT ?? 'reference';
-const options = { movement: 'sortieF', embrace: true, placement };
+// TEST_PLEXUS=1 replays the runner with the plexus contact the app enables with a placement (#51).
+const options = { movement: 'sortieF', embrace: true, placement, plexus: process.env.TEST_PLEXUS === '1' };
 // Owner request (19 Nov.): the middle/upper right thighs touch at the D/D arrival. Contact of the
 // illustrative 8.5 cm envelopes: gap in [-6, +3] mm, closest points on the middle/upper part
 // of both femurs (s ≤ 0.70 along hip → knee).
@@ -125,28 +126,32 @@ for (const variant of variants) {
       near(fifth[role][side][axis] - start[role][side][axis], fifth[0].L[axis] - start[0].L[axis], 1e-6);
   }
 
-  // Observe the model's world thorax with style motion muted to isolate the frame cue.
-  const cueAt = beat => pair.map((f, role) => {
-    api.applyPose(f.r, f.model, beat, { ...config(role, variant), amp: 0 });
-    return f.r.chest.getWorldQuaternion(new THREE.Quaternion());
-  });
-  const before = cueAt(0), leaderCue = cueAt(.68), response = cueAt(.94);
-  assert(before[0].angleTo(leaderCue[0]) > .03, 'visible leader chest starts opening before exit');
-  near(before[1].angleTo(leaderCue[1]), 0, 1e-7);
-  assert(before[1].angleTo(response[1]) > .03, 'visible follower chest responds before lateral foot flight');
-  near(at(.94)[1].L.distanceTo(start[1].L), 0);
+  // With the plexus contact (#51) the chests face each other (contraposition) instead of
+  // playing the figure's frame cue: the cue is checked without it.
+  if (!options.plexus) {
+    // Observe the model's world thorax with style motion muted to isolate the frame cue.
+    const cueAt = beat => pair.map((f, role) => {
+      api.applyPose(f.r, f.model, beat, { ...config(role, variant), amp: 0 });
+      return f.r.chest.getWorldQuaternion(new THREE.Quaternion());
+    });
+    const before = cueAt(0), leaderCue = cueAt(.68), response = cueAt(.94);
+    assert(before[0].angleTo(leaderCue[0]) > .03, 'visible leader chest starts opening before exit');
+    near(before[1].angleTo(leaderCue[1]), 0, 1e-7);
+    assert(before[1].angleTo(response[1]) > .03, 'visible follower chest responds before lateral foot flight');
+    near(at(.94)[1].L.distanceTo(start[1].L), 0);
 
-  // Verify that the cue remains distinguishable from the Zouk style's own yaw
-  // at the highest UI amplitude, with the pelvic rotation inherited by the chest.
-  const zoukWorldCue = beat => pair.map((f, role) => {
-    api.applyPose(f.r, f.model, beat, { ...config(role, variant), styleKey: 'zouk', amp: 2, iso: false });
-    const localForward = new THREE.Vector3(0, 0, 1).applyQuaternion(f.r.chest.getWorldQuaternion(new THREE.Quaternion()))
-      .applyQuaternion(f.outer.quaternion.clone().invert());
-    return Math.atan2(localForward.x, localForward.z);
-  });
-  const cueDirections = zoukWorldCue(.68), responseDirections = zoukWorldCue(.94);
-  assert(cueDirections[0] < cueDirections[1] - .03, 'leader cue changes visible Zouk yaw');
-  assert(responseDirections[0] < responseDirections[1] - .08, 'Zouk roles remain oriented distinctly at the anticipatory cue');
+    // Verify that the cue remains distinguishable from the Zouk style's own yaw
+    // at the highest UI amplitude, with the pelvic rotation inherited by the chest.
+    const zoukWorldCue = beat => pair.map((f, role) => {
+      api.applyPose(f.r, f.model, beat, { ...config(role, variant), styleKey: 'zouk', amp: 2, iso: false });
+      const localForward = new THREE.Vector3(0, 0, 1).applyQuaternion(f.r.chest.getWorldQuaternion(new THREE.Quaternion()))
+        .applyQuaternion(f.outer.quaternion.clone().invert());
+      return Math.atan2(localForward.x, localForward.z);
+    });
+    const cueDirections = zoukWorldCue(.68), responseDirections = zoukWorldCue(.94);
+    assert(cueDirections[0] < cueDirections[1] - .03, 'leader cue changes visible Zouk yaw');
+    assert(responseDirections[0] < responseDirections[1] - .08, 'Zouk roles remain oriented distinctly at the anticipatory cue');
+  }
 
   for (const [role, f] of pair.entries()) {
     const poseAt = b => api.applyPose(f.r, f.model, b, config(role, variant));

@@ -22,7 +22,8 @@ const couple = (figure = true) => {
 };
 // TEST_PLACEMENT=reference|quinconce|face replays the whole runner for one couple placement.
 const placement = process.env.TEST_PLACEMENT ?? 'reference';
-const options = { movement: 'sortieG', embrace: true, placement };
+// TEST_PLEXUS=1 replays the runner with the plexus contact the app enables with a placement (#51).
+const options = { movement: 'sortieG', embrace: true, placement, plexus: process.env.TEST_PLEXUS === '1' };
 // Owner request (19 Nov.): the middle/upper right thighs touch at the D/D arrival. Contact of the
 // illustrative 8.5 cm envelopes: gap in [-6, +3] mm, closest points on the femurs above the patella
 // (s ≤ 0.90 along hip → knee). #50 puts the D feet edge to edge, so the legs converge downwards and
