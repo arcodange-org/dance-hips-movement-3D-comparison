@@ -9,7 +9,7 @@ la sortie fille en paire](spec-sortie-fille.md) pour sa mise en œuvre.
 | --- | --- | --- |
 | 1 | Avance G et fait reculer le suiveur | Recule D |
 | 2, variante crochet | D dessine un crochet, sans diagonale, pour arriver au même niveau que G ; D est écarté vers la droite d'une demi-distance de hanche | Décale G d'une distance de hanche complète : sortie de ligne |
-| 3 | Recule G, fait avancer le suiveur | Avance D ; D du suiveur à droite du D leader, avec contact de cuisse |
+| 3 | Recule G, fait avancer le suiveur | Avance D en diagonale directe ; D du suiveur côte à côte à droite du D leader, avec contact des flancs de cuisse |
 | 4 | Recule D et libère la place | Croise G pour retrouver la ligne |
 | 5 | Marka G | Ramène D avec un marka également |
 
