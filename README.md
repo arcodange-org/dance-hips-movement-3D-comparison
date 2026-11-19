@@ -132,6 +132,8 @@ Export depuis la pause, traînée réinitialisée et alimentée pendant l’expo
   + méthode anti-amnésie (`CONTEXT.md`).
 - [Musique des six styles](docs/musique/README.md) : tempos, instruments, rythmes et nuances,
   grilles et timbres proposés pour un son synthétisé synchronisé (#38, à valider).
+- [Cadre leader/suiveur](docs/cadre/README.md) : points de contact, actions et intentions de
+  guidage par danse et par figure, spec d'implémentation (#40, à valider).
 
 ## Attribution obligatoire (licence des maillages)
 

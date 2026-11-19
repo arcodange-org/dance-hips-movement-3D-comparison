@@ -113,6 +113,13 @@ preuve), grilles de 16 pas et timbres Web Audio proposés, confrontation avec `s
 relevés : tempo global, plein appui entre les temps (kizomba, semba, zouk), kompa quatre fois trop
 rapide, semba deux rebonds par temps, basic zouk lent-vite-vite absent. Son non implémenté : attend
 la validation du propriétaire.
+## Recherche sur le cadre #40 (19 novembre 2026)
+
+[docs/cadre/](docs/cadre/README.md) : dix points de contact, quinze actions de guidage, règle des
+hanches (recherche, répulsion, retour), application aux sorties et aux quarts de tour, spec
+d'implémentation (critères A0 à A14). Constats : le cadre actuel ne se ferme pas, aucun os au-dessus
+du bassin dans le GLB, bras absents de la fixture. Non implémenté : attend la validation du
+propriétaire et la fusion de #33 (tableaux des sorties à relire).
 
 ## Où en est le projet
 
