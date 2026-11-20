@@ -188,8 +188,10 @@ export default function Rig({
       placement: placement ?? "reference",
       // #37: in pair, the quarter turns use the couple model (placement given by the app).
       quartsPaire: embrace && movement === "quarts" && placement !== undefined,
+      // #54: in pair, the ida e volta uses the couple model (leader forward, follower back).
+      idaPaire: embrace && movement === "ida" && placement !== undefined,
       // #51: plexus-to-plexus contact in the pair figures.
-      plexus: embrace && placement !== undefined && (movement === "sortieG" || movement === "sortieF" || movement === "quarts"),
+      plexus: embrace && placement !== undefined && (movement === "sortieG" || movement === "sortieF" || movement === "quarts" || movement === "ida"),
       contraposition: contraposition ?? 1,
     });
     if (stats) stats.current = result;

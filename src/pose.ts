@@ -11,6 +11,7 @@ import { sampleSortieGarcon, DEFAULT_SORTIE_CONTRA, type SortieVariant } from ".
 
 import { sampleSortieFille, type SortieFilleVariant } from "./sortieFille";
 import { sampleQuartsPaire, QUARTS_PAIR_DZ } from "./quartsPaire";
+import { sampleIdaPaire, IDA_PAIR_DZ } from "./idaPaire";
 import { SORTIE_GARCON_PAIR_DZ } from "./sortieGarcon";
 import { SORTIE_FILLE_PAIR_DZ } from "./sortieFille";
 import { placementOffset, placementScale, type CouplePlacement } from "./placement";
@@ -33,6 +34,9 @@ export interface PoseOptions {
   placement: CouplePlacement | "reference";
   /** #37: pair quarter turns around the leader (docs/spec-quarts-paire.md); off = phase 14 model. */
   quartsPaire: boolean;
+  /** #54: pair ida e volta (docs/spec-ida-paire.md): leader forward / follower back, natural walk,
+   * neutral quinconce at each return; off = phase 8 model (both dancers mirror the same step). */
+  idaPaire: boolean;
   /** #51: in pair figures the upper bodies keep plexus-to-plexus contact (lean towards the partner). */
   plexus: boolean;
   /** #51: 1 = the chest faces the partner while the pelvis follows the feet (contraposition), 0 = the
@@ -44,7 +48,7 @@ export const DEFAULT_POSE: PoseOptions = {
   quarts: false, corridinho: false, ida: false, temps3: false, sortie: false,
   embrace: false, reverse: false, follower: false, movement: "none",
   sortieFilleVariant: "hook", sortieVariant: "line", sortieContra: DEFAULT_SORTIE_CONTRA,
-  placement: "reference", quartsPaire: false, plexus: false, contraposition: 1,
+  placement: "reference", quartsPaire: false, idaPaire: false, plexus: false, contraposition: 1,
 };
 /** Plexus-to-plexus contact (#51): chest-marker gap targeted between partners (m) and the largest
  * lean of the upper body towards the partner (rad). */
@@ -277,10 +281,13 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
     : o.movement === "sortieF" ? sampleSortieFille(beat, follower, rest, o.sortieFilleVariant, placementOffset(o.placement, o.amp), placementScale(o.amp), stance)
     // #37: in pair the couple turns rigidly around a centre on the leader's side (docs/spec-quarts-paire.md).
     : o.movement === "quarts" && o.quartsPaire ? sampleQuartsPaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance)
+    // #54: in pair the leader steps forward while the follower steps back (docs/spec-ida-paire.md).
+    : o.movement === "ida" && o.idaPaire ? sampleIdaPaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance)
     : null;
   const figure = sampleFigure(o.follower);
   // #51: the partner's pelvis, in this dancer's outer frame (partners face each other 2·dz apart).
-  const pairDz = o.movement === "sortieG" ? SORTIE_GARCON_PAIR_DZ : o.movement === "sortieF" ? SORTIE_FILLE_PAIR_DZ : QUARTS_PAIR_DZ;
+  const pairDz = o.movement === "sortieG" ? SORTIE_GARCON_PAIR_DZ : o.movement === "sortieF" ? SORTIE_FILLE_PAIR_DZ
+    : o.movement === "ida" ? IDA_PAIR_DZ : QUARTS_PAIR_DZ;
   const partnerFigure = figure && o.plexus ? sampleFigure(!o.follower) : null;
   const partnerRoot = partnerFigure ? { x: -partnerFigure.root.x, z: 2 * pairDz - partnerFigure.root.z } : null;
   // Quarter turns loop: the style keeps dancing; the five-action figures hold after their marka.

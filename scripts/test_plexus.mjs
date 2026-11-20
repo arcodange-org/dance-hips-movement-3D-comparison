@@ -8,7 +8,7 @@ import { spawnSync } from "node:child_process";
 import * as THREE from "three";
 import { fixture } from "./pose_fixture.mjs";
 const bundle = new URL("./.test-plexus-bundle.mjs", import.meta.url);
-buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'rigJoints', 'placement', 'quartsPaire', 'sortieGarcon', 'sortieFille']
+buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'rigJoints', 'placement', 'quartsPaire', 'idaPaire', 'sortieGarcon', 'sortieFille']
   .map(n => `export * from "./src/${n}";`).join('\n'), resolveDir: new URL('../', import.meta.url).pathname },
   bundle: true, packages: 'external', platform: 'node', format: 'esm', outfile: bundle.pathname,
   define: { 'import.meta.env.BASE_URL': '"/"' }, logLevel: 'silent' });
@@ -23,6 +23,9 @@ const cases = [
   ['sortieG line', api.SORTIE_GARCON_PAIR_DZ, 5, { movement: 'sortieG', sortieVariant: 'line' }, .18],
   ['sortieG right', api.SORTIE_GARCON_PAIR_DZ, 5, { movement: 'sortieG', sortieVariant: 'right' }, .18],
   ['quarts paire', api.QUARTS_PAIR_DZ, 16, { movement: 'quarts', quarts: true, quartsPaire: true }, .11],
+  // #54: the couple travels as a block (pelvises together): the plexus contact holds in quinconce
+  // (owner's indicator, 6 cm). The reference spacing keeps the pelvises 40 cm apart (guard only).
+  ['ida paire', api.IDA_PAIR_DZ, 8, { movement: 'ida', ida: true, idaPaire: true }, { quinconce: .06, reference: .10 }],
   ['sortieF hook', api.SORTIE_FILLE_PAIR_DZ, 5, { movement: 'sortieF', sortieFilleVariant: 'hook' }, .22],
   ['sortieF back', api.SORTIE_FILLE_PAIR_DZ, 5, { movement: 'sortieF', sortieFilleVariant: 'back' }, .22],
 ];
@@ -35,7 +38,8 @@ const distances = (dz, beats, options, extra) => {
   }
   return rows;
 };
-for (const placement of ['quinconce', 'reference']) for (const [label, dz, beats, options, limit] of cases) {
+for (const placement of ['quinconce', 'reference']) for (const [label, dz, beats, options, limits] of cases) {
+  const limit = typeof limits === 'number' ? limits : limits[placement];
   for (const styleKey of ['kizomba', 'kompa']) {
     const contra = distances(dz, beats, options, { placement, styleKey, amp: 1, plexus: true, contraposition: 1 });
     const free = distances(dz, beats, options, { placement, styleKey, amp: 1, plexus: true, contraposition: 0 });

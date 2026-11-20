@@ -23,6 +23,7 @@ import { resolveCam, resolveView, viewAnglesOf, SOLID_TORSO_OPACITY } from "./ca
 import { usePersistentState } from "./hooks/usePersistentState";
 import { STYLES, movementOf, movementFlags, PAIR_DZ, type ModeKey, type MovementKey } from "./styles";
 import { QUARTS_PAIR_DZ } from "./quartsPaire";
+import { IDA_PAIR_DZ } from "./idaPaire";
 import { parseVec3, buildShareUrl } from "./share";
 import { DIR_LABELS, isDiagonal } from "./directions";
 import SoundControls from "./components/SoundControls";
@@ -181,7 +182,7 @@ export default function App() {
       if (urlMovement === "sortieF") seekClock(clock, sortieFilleBeat(Number(p.get("sortieBeat"))));
       // Frame-by-frame captures of the quarter turns in pair (scripts/capture_figure_gif.mjs).
       const quartsBeat = Number(p.get("sortieBeat"));
-      if (urlMovement === "quarts" && Number.isFinite(quartsBeat) && quartsBeat >= 0) seekClock(clock, quartsBeat);
+      if ((urlMovement === "quarts" || urlMovement === "ida") && Number.isFinite(quartsBeat) && quartsBeat >= 0) seekClock(clock, quartsBeat);
     }
     if (p.has("ligne")) setShowLigne(p.get("ligne") !== "0");
     if (p.has("iso")) setIso(p.get("iso") !== "0");
@@ -218,7 +219,9 @@ export default function App() {
   const isFiveActionFigure = isSortieGarcon || isSortieFille;
   // #37: pair quarter turns share the couple placement of the five-action figures.
   const isQuartsPaire = isPair && movement === "quarts";
-  const hasPlacement = isFiveActionFigure || isQuartsPaire;
+  // #54: so does the pair ida e volta (leader forward, follower back, quinconce at each return).
+  const isIdaPaire = isPair && movement === "ida";
+  const hasPlacement = isFiveActionFigure || isQuartsPaire || isIdaPaire;
   const endBeat = isSortieFille ? SORTIE_FILLE_BEATS : SORTIE_GARCON_BEATS;
   const handlePlaying = (value: boolean) => {
     if (value && isFiveActionFigure && clock.beat >= endBeat) seekClock(clock, 0);
@@ -279,7 +282,8 @@ export default function App() {
   const ghostB = ghostSel === "A";
 
   // Les figures en cinq actions ont chacune un écartement calibré.
-  const pairDz = isSortieGarcon ? SORTIE_GARCON_PAIR_DZ : isSortieFille ? SORTIE_FILLE_PAIR_DZ : isQuartsPaire ? QUARTS_PAIR_DZ : PAIR_DZ;
+  const pairDz = isSortieGarcon ? SORTIE_GARCON_PAIR_DZ : isSortieFille ? SORTIE_FILLE_PAIR_DZ : isQuartsPaire ? QUARTS_PAIR_DZ
+    : isIdaPaire ? IDA_PAIR_DZ : PAIR_DZ;
   const offsetA: [number, number, number] = isPair ? [0, 0, -pairDz] : isCompare ? [-0.85, 0, 0] : [0, 0, 0];
   const offsetB: [number, number, number] = isPair ? [0, 0, pairDz] : [0.85, 0, 0];
 
@@ -591,7 +595,7 @@ export default function App() {
       {isSortieGarcon && <SortieGarconControls clock={clock} variant={sortieVariant}
         onVariant={setSortieVariant} contra={sortieContra} onContra={setSortieContra} onPlaying={setPlaying} />}
       {hasPlacement && <PlacementControl clock={clock} placement={placement}
-        onPlacement={setPlacement} onPlaying={setPlaying} quarts={isQuartsPaire}
+        onPlacement={setPlacement} onPlaying={setPlaying} quarts={isQuartsPaire} ida={isIdaPaire}
         contraposition={contraposition} onContraposition={setContraposition} />}
       {isSortieFille && <SortieFilleControls clock={clock} variant={sortieFilleVariant}
         onVariant={setSortieFilleVariant} onPlaying={setPlaying} />}
