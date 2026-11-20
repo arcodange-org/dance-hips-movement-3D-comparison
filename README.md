@@ -138,8 +138,9 @@ BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 ## Mode guidage — preuve de concept (#69)
 
 `?mode=pair&guidage=1` ouvre une vue où **vous êtes le leader** : une touche choisit la figure suivante
-de la suiveuse (**W** ida e volta, **D** sortie garçon, **A** sortie fille, **Q** quart de tour,
-**Espace** lecture / pause ; boutons tactiles équivalents). Elle l'exécute à la prochaine frontière de
+de la suiveuse (**W** ida e volta, **D** sortie garçon, **A** sortie fille, **Q** quart de tour ; en
+AZERTY, les mêmes positions : **Z**, **D**, **Q**, **A** ; **Espace** lecture / pause ; boutons tactiles
+équivalents, qui affichent les lettres de votre clavier). Elle l'exécute à la prochaine frontière de
 temps, toujours depuis la quinconce, avec les figures en paire existantes ; sans guidage, le couple
 danse le pas de base sur place. Chaque pression est notée par rapport au temps (Parfait, Bien, Juste,
 Raté) ; un guidage ambigu ou trop tôt laisse la suiveuse au pas de base. Le repère du couple suit les

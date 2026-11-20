@@ -12,11 +12,10 @@ import { createDanceClock, seekClock, type DanceClock } from "../clock";
 import { STYLES } from "../styles";
 import { useMusic } from "../music/useMusic";
 import {
-  GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, GUIDE_PAIR_DZ, GUIDE_DEMO, applyTransform,
+  GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, GUIDE_PAIR_DZ, GUIDE_DEMO, applyTransform, figureOfCode, keyLabel,
   type GuideFigure, type GuideOutcome, type GuideKind,
 } from "../guidage";
 
-const KEYS: Record<string, GuideFigure> = { w: "ida", z: "ida", d: "sortieG", a: "sortieF", q: "quart" };
 const KIND_LABEL = (k: GuideKind) => (k === "base" ? "Pas de base" : GUIDE_FIGURES[k].label);
 const GRADE_CLASS: Record<string, string> = {
   Parfait: "text-emerald-300", Bien: "text-sky-300", Juste: "text-amber-300", Raté: "text-rose-300",
@@ -77,6 +76,12 @@ export default function GuidageApp() {
   const pair = useRef<Record<string, any>>({});
   const last = useRef({ beat: 0, time: performance.now() });
   const paused = useRef(true);
+  // Letters of the user's layout (AZERTY shows Z Q A D): Keyboard API where available, then key presses.
+  const [layout, setLayout] = useState<Map<string, string>>(() => new Map());
+  useEffect(() => {
+    const kb = (navigator as unknown as { keyboard?: { getLayoutMap?: () => Promise<Map<string, string>> } }).keyboard;
+    kb?.getLayoutMap?.().then(map => setLayout(new Map(map))).catch(() => undefined);
+  }, []);
   paused.current = !playing;
   const music = useMusic({ clock, styleKey, bpm, playing, muted: [], volume: 0.8 });
   const [hud, setHud] = useState<{ beat: number; kind: GuideKind; next: number | null; pending: GuideFigure | null; outcome: GuideOutcome | null; streak: number }>(
@@ -98,8 +103,12 @@ export default function GuidageApp() {
     const onKey = (e: KeyboardEvent) => {
       if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.code === "Space") { e.preventDefault(); setPlaying(p => !p); return; }
-      const figure = KEYS[e.key.toLowerCase()];
-      if (figure) { e.preventDefault(); lead(figure, e.timeStamp); }
+      // Physical position (e.code): ZQSD on AZERTY = WASD on QWERTY. The letter typed teaches the layout.
+      const figure = figureOfCode(e.code);
+      if (figure) {
+        e.preventDefault(); lead(figure, e.timeStamp);
+        if (e.key.length === 1) setLayout(l => (l.get(e.code) === e.key ? l : new Map(l).set(e.code, e.key)));
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -202,7 +211,7 @@ export default function GuidageApp() {
         {GUIDE_FIGURE_KEYS.map(f => (
           <button key={f} onPointerDown={e => lead(f, e.timeStamp)} disabled={!playing}
             className="rounded-xl bg-slate-900/85 border border-slate-700 px-4 py-3 text-sm text-slate-100 hover:bg-slate-800 disabled:opacity-50">
-            {GUIDE_FIGURES[f].label} <kbd className="ml-1 text-slate-400">{GUIDE_FIGURES[f].key}</kbd>
+            {GUIDE_FIGURES[f].label} <kbd className="ml-1 text-slate-400">{keyLabel(f, layout)}</kbd>
           </button>
         ))}
       </div>

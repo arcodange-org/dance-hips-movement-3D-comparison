@@ -14,15 +14,27 @@ export type GuideFigure = "ida" | "quart" | "sortieG" | "sortieF";
 export type GuideKind = "base" | GuideFigure;
 
 /** Pair figures available to the leader: pose movement, segment length (beats) and labels. */
-export const GUIDE_FIGURES: Record<GuideFigure, { movement: MovementKey; beats: number; end: number; label: string; key: string }> = {
-  ida: { movement: "ida", beats: 8, end: 8, label: "Ida e volta", key: "W" },
-  quart: { movement: "quarts", beats: 4, end: 4, label: "Quart de tour", key: "Q" },
+/** `code` is the physical key (KeyboardEvent.code), the same place on every layout: WASD on QWERTY,
+ * ZQSD on AZERTY. `key` is its QWERTY letter, shown until the real layout is known. */
+export const GUIDE_FIGURES: Record<GuideFigure, { movement: MovementKey; beats: number; end: number; label: string; code: string; key: string }> = {
+  ida: { movement: "ida", beats: 8, end: 8, label: "Ida e volta", code: "KeyW", key: "W" },
+  quart: { movement: "quarts", beats: 4, end: 4, label: "Quart de tour", code: "KeyQ", key: "Q" },
   // The five-action figures hold their marka one beat (their style is frozen at beat 4, in phase with
   // the next segment's beat 0).
-  sortieG: { movement: "sortieG", beats: 6, end: 5, label: "Sortie garçon", key: "D" },
-  sortieF: { movement: "sortieF", beats: 6, end: 5, label: "Sortie fille", key: "A" },
+  sortieG: { movement: "sortieG", beats: 6, end: 5, label: "Sortie garçon", code: "KeyD", key: "D" },
+  sortieF: { movement: "sortieF", beats: 6, end: 5, label: "Sortie fille", code: "KeyA", key: "A" },
 };
 export const GUIDE_FIGURE_KEYS = Object.keys(GUIDE_FIGURES) as GuideFigure[];
+
+/** Figure led by a key press, by physical position (QWERTY W A Q D = AZERTY Z Q A D). */
+export function figureOfCode(code: string): GuideFigure | null {
+  return GUIDE_FIGURE_KEYS.find(f => GUIDE_FIGURES[f].code === code) ?? null;
+}
+/** Letter shown for a figure's key: the real layout's letter when known, else the QWERTY one. */
+export function keyLabel(figure: GuideFigure, layout?: { get(code: string): string | undefined } | null): string {
+  const letter = layout?.get(GUIDE_FIGURES[figure].code);
+  return (letter && letter.length === 1 ? letter : GUIDE_FIGURES[figure].key).toUpperCase();
+}
 
 /** Proposals to validate (owner):
  * - `prep`: an intention counts for a boundary at least this many beats later (0: up to the boundary

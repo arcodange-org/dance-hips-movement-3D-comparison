@@ -114,8 +114,10 @@ le même résultat.
 
 - `?mode=pair&guidage=1` (avec `style=` et `bpm=` facultatifs) ouvre une vue dédiée ; le reste de
   l'app est inchangé.
-- Touches : **W** ida e volta, **D** sortie garçon, **A** sortie fille, **Q** quart de tour,
-  **Espace** lecture / pause. Boutons tactiles équivalents.
+- Touches par **position physique** (`KeyboardEvent.code`) : **W** ida e volta, **D** sortie garçon,
+  **A** sortie fille, **Q** quart de tour en QWERTY, soit **Z**, **D**, **Q**, **A** en AZERTY ;
+  **Espace** lecture / pause. Les boutons tactiles équivalents affichent les lettres de la disposition
+  réelle (API Keyboard quand elle existe, sinon apprise à la première pression).
 - HUD : compte (1 à 8), segment en cours et intention en attente, dernière note avec l'écart en ms
   (tôt / tard), série, message d'hésitation ou de refus.
 - La caméra suit le centre du couple.

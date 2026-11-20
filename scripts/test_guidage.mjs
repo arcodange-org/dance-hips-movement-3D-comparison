@@ -55,6 +55,15 @@ const kinds = plan => plan.segments.map(s => `${s.kind}@${s.start}`).join(' ');
 }
 console.log('PASS ordonnancement : frontières, préparation, trop tôt / trop tard, ambiguïté, répétition, attente');
 
+// 1b. Keys by physical position: QWERTY W A Q D = AZERTY Z Q A D; labels follow the layout.
+{
+  assert.deepEqual(['KeyW', 'KeyA', 'KeyQ', 'KeyD', 'KeyZ'].map(api.figureOfCode), ['ida', 'sortieF', 'quart', 'sortieG', null]);
+  const azerty = new Map([['KeyW', 'z'], ['KeyA', 'q'], ['KeyQ', 'a'], ['KeyD', 'd']]);
+  assert.deepEqual(api.GUIDE_FIGURE_KEYS.map(f => api.keyLabel(f, azerty)), ['Z', 'A', 'D', 'Q']);
+  assert.deepEqual(api.GUIDE_FIGURE_KEYS.map(f => api.keyLabel(f, null)), ['W', 'Q', 'D', 'A']);
+}
+console.log('PASS touches par position physique (QWERTY W A Q D = AZERTY Z Q A D), lettres selon la disposition');
+
 // 2. Grades and streak.
 {
   const beatMs = bpm => 60000 / bpm;
