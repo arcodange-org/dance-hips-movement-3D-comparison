@@ -526,9 +526,16 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-6 space-y-4 max-w-6xl mx-auto">
       <div>
-        <h1 className="text-xl md:text-2xl font-bold tracking-tight">
-          Comparateur 3D des styles de danse
-        </h1>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-xl md:text-2xl font-bold tracking-tight">
+            Comparateur 3D des styles de danse
+          </h1>
+          {/* #69: the guide mode proof of concept (docs/spec-mode-guidage-poc.md). */}
+          <a href={`?mode=pair&guidage=1&style=${styleA}`}
+            className="rounded-xl bg-pink-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-pink-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-300">
+            Essayer le mode guidage : guidez votre partenaire
+          </a>
+        </div>
         <p className="text-xs md:text-sm text-slate-400 mt-1">
           {isSortieGarcon ? <>Sortie garçon : le leader avance et sort à sa gauche, puis rentre par un croisé.
             La partenaire recule. Les cinq actions distinguent pieds posés et transferts d’appui ;
