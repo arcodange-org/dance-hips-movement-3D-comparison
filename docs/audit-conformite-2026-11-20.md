@@ -144,9 +144,14 @@ Le glissement de la semba et du suave vient de la bascule des pieds (`extraL`, `
 de `src/pose.ts` n'est appliqué qu'aux figures) : les points de semelle porteurs frottent sur le sol.
 Cela vaut aussi en solo.
 
-| Mouvement | Poses avec os croisés, kizomba amp. 0,5 / 1 / 2 | semba amp. 1 |
+| Style | Temps3 en paire : poses avec os croisés, amp. 0,5 / 1 / 2 (sur 49) | Corridinho en paire : idem (sur 65) |
 |---|---|---|
-AUTRES_ROWS
+| kizomba | 12 / 12 / 43 | 22 / 20 / 28 |
+| semba | 6 / 37 / 25 | 14 / 32 / 34 |
+| kompa | 20 / 44 / 13 | 35 / 34 / 31 |
+| tarraxinha | 49 / 46 / 37 | 35 / 40 / 38 |
+| suave | 46 / 46 / 48 | 36 / 39 / 43 |
+| zouk | 0 / 12 / 39 | 11 / 20 / 25 |
 
 Premier croisement typique : rotule G du leader contre rotule D du suiveur, fémur contre fémur
 (kompa, semba, tarraxinha dès le temps 0). Écart des bassins constant (35 cm) mais décalage
@@ -159,7 +164,7 @@ retour « vers l'arrière, légèrement sur le côté, en s'ouvrant ».
 
 ## Couverture des tests
 
-`npm test` sur `main` : TEST_SUMMARY.
+`npm test` sur `main` (`941d754`) : **vert** (13 runners, Gherkin 82 PASS / 0 FAIL / 1 SKIP). Les écarts des repères de poitrine qu'il imprime (sortie G 16,0 cm, quarts 7,5, ida 3,4, sortie F 15,4–18,1) sont ceux de la sonde : les deux mesures concordent.
 
 | Règle | Test qui la couvre | Ce que le test garantit vraiment |
 |---|---|---|
