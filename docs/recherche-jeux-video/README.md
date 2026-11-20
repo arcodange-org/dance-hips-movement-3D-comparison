@@ -4,8 +4,8 @@
 
 Recherche documentaire du 20 novembre 2026, en anglais et en français, menée par cinq recherches
 parallèles puis relue et confrontée au code. Elle répond à deux demandes du propriétaire :
-« voir ce que l'on peut emprunter des jeux vidéo de sports comme ceux d'EA Sports (avec POOC,
-etc.) » et « un mode jeu vidéo où l'on peut guider sa partenaire ». **Elle ne modifie pas le code.**
+« voir ce que l'on peut emprunter des jeux vidéo de sports comme ceux d'EA Sports » et « un mode
+jeu vidéo où l'on peut guider sa partenaire ». **Elle ne modifie pas le code.**
 
 > [!IMPORTANT]
 > **Constats principaux**
@@ -58,15 +58,7 @@ figure, direction) ; la suiveuse les exécute **sur** le temps avec les échanti
 sur un guidage ambigu, elle reste au pas de base et hésite visiblement. Trois niveaux : (1)
 transferts guidés sur place qui déclenchent le ginga, (2) figures au choix depuis la quinconce, (3)
 guidage continu du repère du couple. Détails, commandes, retours et tests : [mode guidage](mode-guidage.md).
-
-## « POOC » = preuve de concept
-
-Le propriétaire l'a confirmé le 20 novembre 2026 : « POOC » était une **faute de frappe pour « PoC »**
-(preuve de concept). Ce n'est pas un terme technique : il n'existe ni dans la littérature d'animation
-ni chez EA. L'idée colle pourtant à ce que montre
-la recherche : EA a présenté beaucoup de démonstrations de recherche jamais livrées dans un jeu
-(Local Motion Phases au basket, superposition neuronale, DeepPhase). La suite de ce chantier est donc
-une **preuve de concept du mode guidage**, dans une PR séparée.
+Une preuve de concept du niveau 2 suit dans une PR séparée (#69).
 
 ## Pages
 
@@ -90,23 +82,22 @@ une **preuve de concept du mode guidage**, dans une PR séparée.
 
 ## Questions ouvertes au propriétaire
 
-1. ~~« POOC »~~ : réglé, preuve de concept.
-2. **Quel niveau d'abord ?** Le niveau 1 (transferts guidés + ginga) prolonge directement #42 et
+1. **Quel niveau d'abord ?** Le niveau 1 (transferts guidés + ginga) prolonge directement #42 et
    donne un jeu court ; le niveau 2 (figures au choix) en fait un jeu de guidage.
-3. **Guider avant le temps** : une intention donnée dans le demi-temps (ou le temps) qui précède
+2. **Guider avant le temps** : une intention donnée dans le demi-temps (ou le temps) qui précède
    doit-elle compter comme un bon guidage ? Quelle avance est juste en kizomba ?
-4. **Retard de la suiveuse** : garder l'avance de 0,25 temps du buste du leader comme seul retard, ou
+3. **Retard de la suiveuse** : garder l'avance de 0,25 temps du buste du leader comme seul retard, ou
    ajouter un retard propre à la suiveuse (150 à 300 ms mesurés) ?
-5. **Commandes** : clavier, manette, tactile, ou les trois ? Quel geste pour chaque figure (côté de
+4. **Commandes** : clavier, manette, tactile, ou les trois ? Quel geste pour chaque figure (côté de
    chaque sortie) ?
-6. **Que doit noter le jeu** : seulement le placement sur le temps, ou aussi la clarté (cadre tenu,
+5. **Que doit noter le jeu** : seulement le placement sur le temps, ou aussi la clarté (cadre tenu,
    intention donnée tôt) et le contact plexus ?
-7. **Interrompre une figure** (niveau 3, inertialisation) : utile en danse sociale, ou suffit-il de
+6. **Interrompre une figure** (niveau 3, inertialisation) : utile en danse sociale, ou suffit-il de
    changer de figure à la quinconce ?
-8. **Initiative de la suiveuse** : pendant une pause, peut-elle orner d'elle-même ?
-9. **Équilibre comme test** : ajouter « centre de masse du couple au-dessus des appuis » aux tests,
+7. **Initiative de la suiveuse** : pendant une pause, peut-elle orner d'elle-même ?
+8. **Équilibre comme test** : ajouter « centre de masse du couple au-dessus des appuis » aux tests,
    indépendamment du mode de jeu ?
-10. **Interactions physiques** : tolérances de #67, ordre de priorité des contraintes, distance des
+9. **Interactions physiques** : tolérances de #67, ordre de priorité des contraintes, distance des
     bassins par style, solveur hors ligne d'abord ou en direct (voir
     [interactions physiques](interactions-physiques.md#questions-ouvertes-au-propriétaire)).
 
