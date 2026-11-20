@@ -40,6 +40,8 @@ export interface PoseOptions {
   idaPaire: boolean;
   /** #61: in pair on the spot, the couple dances in the neutral quinconce (opt-in, set by the app). */
   placePaire: boolean;
+  /** #62: false keeps the on-the-spot motion on the clock's phase (guide mode). */
+  onBeat?: boolean;
   /** #51: in pair figures the upper bodies keep plexus-to-plexus contact (lean towards the partner). */
   plexus: boolean;
   /** #51: 1 = the chest faces the partner while the pelvis follows the feet (contraposition), 0 = the
@@ -285,11 +287,13 @@ function leanTowards(r: RigHandle, partner: { x: number; z: number }): void {
 /** #62 (R21, owner: « les beats correspondent aux transferts de poids ») : the styles put full weight on
  * a foot at phase x,5 (support = −S2). On the spot (solo, in pair, with lateral travel or temps3) the
  * motion runs half a beat behind the clock, so that the weight arrives on the music's beat. The figures
- * keep their own transfer timing, and so does the legacy combined sortie (oracle). */
+ * keep their own timing (aligning them is the rest of #62), and so do the legacy combined sortie
+ * (oracle) and the guide mode's basic step, which must join the figures. */
 export const ON_BEAT_SHIFT = 0.5;
-export const onBeatShift = (o: { movement: MovementKey; sortie?: boolean; embrace?: boolean }): number =>
-  // Solo, a selected sortie is the dance on the spot (the sorties exist only in pair).
-  (o.movement === "none" || o.movement === "temps3" || !o.embrace && o.movement.startsWith("sortie")) && !o.sortie ? ON_BEAT_SHIFT : 0;
+export const onBeatShift = (o: { movement: MovementKey; sortie?: boolean; embrace?: boolean; onBeat?: boolean }): number =>
+  // Solo, a selected sortie is the dance on the spot (the sorties exist only in pair). The guide mode
+  // (`onBeat: false`) keeps the clock's phase: its basic step must join the figures, which keep theirs.
+  o.onBeat !== false && (o.movement === "none" || o.movement === "temps3" || !o.embrace && o.movement.startsWith("sortie")) && !o.sortie ? ON_BEAT_SHIFT : 0;
 
 export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, options: Partial<PoseOptions>): PoseStats {
   const o = { ...DEFAULT_POSE, ...options };
@@ -373,7 +377,10 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   if (figure) {
     // The coupled follower mirrors it like her pelvis: the couple sways together in the world.
     const coupledSway = o.follower ? 1 - 2 * figure.coupling : 1;
-    r.root.position.x = figure.root.x + styleRootX * ((figure as { styleSway?: number }).styleSway ?? 0) * coupledSway;
+    // The kept sway goes to the pelvis (the hips hang from it): the guide mode's pelvis inertialization
+    // (#69) then smooths it across segment boundaries, like the rest of the pelvis pose.
+    r.root.position.x = figure.root.x;
+    r.pelvis.position.x += styleRootX * ((figure as { styleSway?: number }).styleSway ?? 0) * coupledSway;
     r.root.position.z = figure.root.z;
     if (o.rootOffset) { r.root.position.x += o.rootOffset.x; r.root.position.z += o.rootOffset.z; }
     const rootYaw = (figure as { rootYaw?: number }).rootYaw;

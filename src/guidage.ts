@@ -2,7 +2,7 @@
  * executes the chosen pair figure at the next beat boundary, always through the neutral quinconce.
  * Pure: segments, couple frame, inertialized pelvis offsets and timing grades are a function of the
  * timestamped intentions and of the beat (a session can be replayed exactly). */
-import type { MovementKey } from "./styles";
+import { movementAllowed, STYLE_MOVEMENTS, type MovementKey } from "./styles";
 import { samplePlacePaire, PLACE_PAIR_DZ } from "./placePaire";
 import { sampleIdaPaire, IDA_PAIR_DZ } from "./idaPaire";
 import { sampleQuartsPaire, QUARTS_PAIR_DZ } from "./quartsPaire";
@@ -25,6 +25,10 @@ export const GUIDE_FIGURES: Record<GuideFigure, { movement: MovementKey; beats: 
   sortieF: { movement: "sortieF", beats: 6, end: 5, label: "Sortie fille", code: "KeyA", key: "A" },
 };
 export const GUIDE_FIGURE_KEYS = Object.keys(GUIDE_FIGURES) as GuideFigure[];
+/** #62, #85: the figures a style offers in the game. Kompa, tarraxinha and zouk (on the spot and forward /
+ * backward only) offer none yet: walking forward and backward comes with the arrow keys (#89). */
+export const guideFiguresFor = (styleKey: string): GuideFigure[] =>
+  STYLE_MOVEMENTS[styleKey] ? [] : GUIDE_FIGURE_KEYS.filter(f => movementAllowed(styleKey, GUIDE_FIGURES[f].movement));
 
 /** Figure led by a key press, by physical position (QWERTY W A Q D = AZERTY Z Q A D). */
 export function figureOfCode(code: string): GuideFigure | null {
@@ -245,6 +249,8 @@ export function guidePoseOptions(s: Pick<GuideSample, "movement" | "rootOffset">
   return {
     movement: s.movement, embrace: true, follower,
     quartsPaire: s.movement === "quarts", idaPaire: s.movement === "ida", placePaire: s.movement === "none", plexus: true,
+    // #62: the basic step keeps the clock's phase so that it joins the figures continuously.
+    onBeat: false,
     rootOffset: s.rootOffset[role], partnerRootOffset: s.rootOffset[partner],
   } as const;
 }

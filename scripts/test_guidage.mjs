@@ -211,11 +211,14 @@ console.log('PASS pas de base en paire : pieds immobiles, aucun croisement d’o
   const random = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
   for (const styleKey of STYLES) {
     const intentions = [];
-    for (let beat = 2.9; beat < 60; beat += 4) intentions.push(I(beat + random() * .9, api.GUIDE_FIGURE_KEYS[Math.floor(random() * 4)]));
-    intentions.push(I(2.5, 'sortieG'));
+    // #62: each style draws from the figures it offers (kompa: the ida e volta only).
+    const offered = api.guideFiguresFor(styleKey);
+    if (!offered.length) continue; // basic step only (tested above)
+    for (let beat = 2.9; beat < 60; beat += 4) intentions.push(I(beat + random() * .9, offered[Math.floor(random() * offered.length)]));
+    if (offered.includes('sortieG')) intentions.push(I(2.5, 'sortieG'));
     const plan = api.planGuide(intentions, motions, 70);
     const boundaries = plan.segments.slice(1).map(s => s.start);
-    assert.ok(new Set(plan.segments.map(s => s.kind)).size >= 4, `${styleKey}: varied session ${kinds(plan)}`);
+    assert.ok(new Set(plan.segments.map(s => s.kind)).size >= Math.min(4, offered.length + 1), `${styleKey}: varied session ${kinds(plan)}`);
     const pair = couple();
     for (const boundary of boundaries) for (let beat = boundary - .5; beat <= boundary + api.GUIDE.inertia + .25; beat += .125) {
       pose(pair, api.sampleGuide(plan, beat), { styleKey, amp: 1 });

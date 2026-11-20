@@ -402,8 +402,11 @@ export type MovementKey = "none" | "corridinho" | "quarts" | "temps3" | "ida" | 
 
 // Priorité d'exclusivité si plusieurs flags sont positionnés (ex. URL artisanale).
 /** Owner (20 Nov.): « on peut laisser le style konpa faire uniquement le sur place et le avant /
- * arrière (pas de marka en konpa) ». Styles listed here only offer these movements. */
-export const STYLE_MOVEMENTS: Partial<Record<string, MovementKey[]>> = { kompa: ["none", "ida"] };
+ * arrière (pas de marka en konpa) », then « gère tarraxinha et zouk comme avec le konpa » (focus on
+ * kizomba and semba). Styles listed here only offer these movements. */
+export const STYLE_MOVEMENTS: Partial<Record<string, MovementKey[]>> = {
+  kompa: ["none", "ida"], tarraxinha: ["none", "ida"], zouk: ["none", "ida"],
+};
 export function movementAllowed(styleKey: string, movement: MovementKey): boolean {
   const allowed = STYLE_MOVEMENTS[styleKey];
   return !allowed || allowed.includes(movement);

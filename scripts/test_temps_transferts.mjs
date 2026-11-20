@@ -43,8 +43,9 @@ console.log('PASS temps et transferts : kompa, pas sur 1 et 3, touche sur 2 et 4
 // (pas de marka en konpa) » : kompa offers on the spot and ida e volta only; the other styles everything.
 for (const m of ['none', 'ida']) assert(api.movementAllowed('kompa', m), `kompa: ${m} offered`);
 for (const m of ['temps3', 'corridinho', 'quarts', 'sortieG', 'sortieF', 'sortieGF']) assert(!api.movementAllowed('kompa', m), `kompa: no ${m}`);
-for (const k of Object.keys(api.STYLES).filter(k => k !== 'kompa')) assert(api.movementAllowed(k, 'sortieF'), `${k}: every movement`);
-console.log('PASS kompa : sur place et ida e volta seulement, sans marka');
+for (const k of ['tarraxinha', 'zouk']) for (const m of ['quarts', 'sortieG', 'sortieF', 'temps3']) assert(!api.movementAllowed(k, m), `${k}: no ${m} (like kompa)`);
+for (const k of ['kizomba', 'semba', 'suave']) assert(api.movementAllowed(k, 'sortieF'), `${k}: every movement`);
+console.log('PASS kompa, tarraxinha, zouk : sur place et ida e volta seulement, sans marka');
 
 // The five-action figures already land each transfer on a whole beat (audit 20 Nov.): kept.
 {

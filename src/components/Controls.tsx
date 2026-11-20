@@ -194,7 +194,7 @@ export default function Controls(props: ControlsProps) {
             max="1"
             step="0.05"
             disabled={isFiveActionFigure || !shownStyles.every(travelAllowed)}
-            title={shownStyles.every(travelAllowed) ? undefined : "Kompa : sur place et ida e volta seulement"}
+            title={shownStyles.every(travelAllowed) ? undefined : `${shownStyles.filter(sk => !travelAllowed(sk)).map(sk => STYLES[sk].label).join(", ")} : sur place et ida e volta seulement`}
             value={travel}
             onChange={(e) => onTravel(Number(e.target.value))}
             className="accent-sky-400"

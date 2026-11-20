@@ -31,14 +31,17 @@ de l'horloge (`src/music/scheduler.ts`).
 - **Kompa** : un transfert tous les deux temps. Le poids arrive sur 1 et 3 et reste pendant la touche
   sans poids sur 2 et 4 ; il passe sur l'autre pied dans les 0,4 temps qui précèdent le pas
   (`kompaSupport`). Le hip check se fait sur la touche.
-- **Kompa, sur place et avant-arrière seulement** (demande du propriétaire du 20 novembre : « on peut
-  laisser le style konpa faire uniquement le sur place et le avant / arrière (pas de marka en konpa) ») :
-  en kompa, l'app ne propose que « sur place » et l'ida e volta (`STYLE_MOVEMENTS`) ; les sorties
+- **Kompa, tarraxinha et zouk : sur place et avant-arrière seulement** (demandes du propriétaire du
+  20 novembre : « on peut laisser le style konpa faire uniquement le sur place et le avant / arrière (pas
+  de marka en konpa) », puis « gère tarraxinha et zouk comme avec le konpa », priorité au kizomba et au
+  semba) : dans ces styles, l'app ne propose que « sur place » et l'ida e volta (`STYLE_MOVEMENTS`) ; les sorties
   (qui finissent par une marka), les quarts, le corridinho et la marka en 3 temps sont grisés, de même
   que le déplacement latéral (son balancement latéral est le style lui-même) ; un réglage enregistré
-  retombe sur « sur place ». Les tests des figures ne parcourent plus le kompa
-  là où il n'est pas proposé. Avec son nouveau rythme, il croisait les fémurs dans la sortie fille
-  (14 poses sur 918).
+  retombe sur « sur place ». Les tests des figures ne parcourent plus ces styles là
+  où ils ne sont pas proposés. Avec son nouveau rythme, le kompa croisait les fémurs dans la sortie
+  fille (14 poses sur 918). Dans le mode jeu, ces trois styles ne proposent pas encore de figure
+  (avancer et reculer viendront avec les flèches, #89), et le pas de base y garde la phase de
+  l'horloge pour rejoindre les figures sans saut (`onBeat: false`).
 
 ## Reste à faire (même issue)
 
