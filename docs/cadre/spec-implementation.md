@@ -337,3 +337,4 @@ sortie fille) ».
   - Quarts, ida, sur place : contacts gardés, au plus 1,5 cm.
 - Tests : `test_plexus.mjs` (tronc ≤ 8°, buste ≤ 18° dans toutes les figures en paire),
   `test_cadre.mjs`.
+- GIF de profil (kizomba, quinconce) : [sortie fille, danseurs droits](../gifs/sortie-fille-droits.gif).
