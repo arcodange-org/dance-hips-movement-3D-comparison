@@ -6,7 +6,7 @@
  * residual, before the leg IK; the feet keep their targets. */
 import { applyPose, type PoseModel, type PoseOptions, type PoseStats } from "./pose";
 import type { RigHandle } from "./anatomy";
-import { endBeatOf, guidePoseOptions, movementOf, type GuideKind, type GuideSample } from "./guidage";
+import { endBeatOf, guidePoseOptions, guideStyleOf, movementOf, type GuideKind, type GuideSample } from "./guidage";
 
 export type GuidePoseBase = Partial<Pick<PoseOptions, "styleKey" | "amp" | "iso" | "cadre" | "placement" | "contraposition">>;
 /** Pelvis residuals by transition, style, amplitude and role (pure in those keys). */
@@ -16,10 +16,12 @@ type Offset = { x: number; z: number };
 const STILL = { x: 0, z: 0 };
 
 function poseAt(r: RigHandle, model: PoseModel, kind: GuideKind, beat: number, base: GuidePoseBase, follower: boolean,
-  planar: Offset = STILL, pelvis: number[] | null = null) {
+  planar: Offset = STILL, pelvis: number[] | null = null, blendFrom: GuideKind | null = null) {
   const offsets = follower ? { leader: STILL, follower: planar } : { leader: planar, follower: STILL };
+  const styleKey = guideStyleOf(kind, base.styleKey ?? "kizomba");
   applyPose(r, model, beat, {
-    ...base, ...guidePoseOptions({ movement: movementOf(kind), rootOffset: offsets }, follower),
+    ...base, styleKey, styleBlend: blendFrom ? { key: guideStyleOf(blendFrom, base.styleKey ?? "kizomba"), weight: 1 } : null,
+    ...guidePoseOptions({ movement: movementOf(kind), rootOffset: offsets }, follower),
     pelvisOffset: pelvis ? { position: [pelvis[1], pelvis[2], pelvis[3]], rotation: [pelvis[4], pelvis[5], pelvis[6]] } : null,
   });
   const p = r.pelvis.position, q = r.pelvis.rotation;
@@ -35,9 +37,10 @@ export function pelvisResidual(r: RigHandle, model: PoseModel, from: GuideKind, 
   const key = `${from}>${to}:${base.styleKey}:${base.amp}:${base.placement}:${base.contraposition}:${base.iso}:${base.cadre}:${follower}`;
   let residual = cache.get(key);
   if (!residual) {
-    const a = poseAt(r, model, from, endBeatOf(from), base, follower), b = poseAt(r, model, to, 0, base, follower);
+    // The style change itself is blended (#85): the residual only carries the figures' difference.
+    const a = poseAt(r, model, from, endBeatOf(from), base, follower), b = poseAt(r, model, to, 0, base, follower, STILL, null, from);
     residual = a.map((v, k) => v - b[k]);
-    const height = poseAt(r, model, to, 0, base, follower, planar, residual)[0];
+    const height = poseAt(r, model, to, 0, base, follower, planar, residual, from)[0];
     residual[0] = a[0] - height;
     cache.set(key, residual);
   }
@@ -50,8 +53,11 @@ export function applyGuidePose(r: RigHandle, model: PoseModel, sample: GuideSamp
   const previous = sample.segment.previous;
   const w = previous !== null ? sample.inertia : 0;
   const d = w > 0 ? pelvisResidual(r, model, previous!, sample.kind, base, follower, sample.segment.residual[role], cache).map(v => v * w) : null;
+  const styleKey = guideStyleOf(sample.kind, base.styleKey ?? "kizomba");
+  const blendKey = previous !== null ? guideStyleOf(previous, base.styleKey ?? "kizomba") : null;
   return applyPose(r, model, sample.localBeat, {
-    ...base, ...guidePoseOptions(sample, follower),
+    ...base, styleKey, styleBlend: blendKey && blendKey !== styleKey && w > 0 ? { key: blendKey, weight: w } : null,
+    ...guidePoseOptions(sample, follower),
     rootOffset: { ...sample.rootOffset[role], y: d ? d[0] : 0 },
     pelvisOffset: d ? { position: [d[1], d[2], d[3]], rotation: [d[4], d[5], d[6]] } : null,
   });
