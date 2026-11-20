@@ -247,7 +247,7 @@ export default function GuidageApp() {
       <div className="absolute bottom-2 inset-x-3 flex flex-col items-center gap-1.5">
         <div className="flex flex-wrap justify-center gap-1.5">
           {/* #89: the ida variants are led by an arrow held with its key (hint below), not by buttons. */}
-          {offered.filter(f => !GUIDE_FIGURES[f].ida && !GUIDE_FIGURES[f].chain).map(f => (
+          {offered.filter(f => !GUIDE_FIGURES[f].ida && !GUIDE_FIGURES[f].chain && !GUIDE_FIGURES[f].insert).map(f => (
             <button key={f} onPointerDown={e => lead(f, e.timeStamp)} disabled={!playing}
               className="rounded-lg bg-slate-900/85 border border-slate-700 px-2.5 py-1.5 text-xs text-slate-100 hover:bg-slate-800 disabled:opacity-50 sm:px-4 sm:py-2.5 sm:text-sm">
               {GUIDE_FIGURES[f].label} <kbd className="ml-1 text-slate-400">{keyLabel(f, layout)}</kbd>
@@ -257,6 +257,7 @@ export default function GuidageApp() {
         {offered.includes("idaD") && <p className="text-center text-[11px] text-slate-400">
           → ou ↓ maintenue + {keyLabel("ida", layout)} : ida e volta jambe droite, en arrière d'abord · ↑ ↑ : double et marka
           {offered.includes("sortieFG") && <> · ↑ pendant la sortie fille : fin de la sortie garçon</>}
+          {offered.includes("sortieGI") && <> · {keyLabel("ida", layout)} au début d'une sortie : ida e volta inséré</>}
         </p>}
         <p className="self-stretch text-[10px] text-slate-500">
           Anatomie : BodyParts3D, © The Database Center for Life Science, licence CC BY-SA 2.1 Japan. Animation
