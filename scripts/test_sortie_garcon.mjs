@@ -62,7 +62,7 @@ for (const sortieVariant of ['line', 'right']) {
       return { L: world(f, 'footL'), R: world(f, 'footR'), root: world(f, 'root'), stats };
     }));
   }
-  // Owner request: step 1 is more forward than sideways. Every landing is validated, so the
+  // Owner request: step 1 is more forward than sideways (#110: one foot length or so on each axis). Every landing is validated, so the
   // first step of each foot also absorbs the placement shift.
   const exitX = states[1][0].L.x - states[0][0].L.x, exitZ = states[1][0].L.z - states[0][0].L.z;
   assert(exitX > .2 - o.x, 'leader exits to own left');
@@ -191,14 +191,16 @@ for (const sortieVariant of ['line', 'right']) for (const amp of [1, 1.5, 2]) {
   assert(proximity.direction.x < -.85, `D/D proximity is lateral, on both anatomical right flanks (${proximity.direction.x})`);
   const { sA, sB } = thighContact(proximity, world(pair[0], 'hipR'), world(pair[0], 'kneeR'), world(pair[1], 'hipR'), world(pair[1], 'kneeR'), `sortieG ${sortieVariant}`);
   console.log(sortieVariant, `D/D thigh contact ${(proximity.gap * 1000).toFixed(1)} mm at s=${sA.toFixed(2)}/${sB.toFixed(2)}`);
-  // #50: at action 2 the outer edge of the leader's D touches the outer edge of the follower's D.
-  // #104 (owner: « la hanche est au dessus du pied ») : and the leader's pelvis stands over his D.
+  // #104 (owner: « la hanche est au dessus du pied ») : the leader's pelvis stands over his D. #110 (« le
+  // suiveur ne fait que des marche arrière […] c'est au leader de gérer l'espace ») : the follower walks
+  // straight back and the leader makes the room, so the D feet no longer touch edge to edge (R9, #50):
+  // with his pelvis over his D, feet edge to edge put the right femurs through each other.
   const soleOf = (f, side) => footHull(f.model.legs[side].sole.map(p => p.clone().applyMatrix4(f.r['foot' + side].matrixWorld)));
   const footGap = hullGap(soleOf(pair[0], 'R'), soleOf(pair[1], 'R'));
-  assert(footGap >= 0 && footGap <= .003, `${sortieVariant}: D/D feet touch edge to edge (${footGap})`);
+  assert(footGap > 0 && footGap < .15, `${sortieVariant}: D feet close, apart (${footGap})`);
   const pelvisOverFoot = world(pair[0], 'pelvis').x - world(pair[0], 'footR').x;
   assert(Math.abs(pelvisOverFoot) < .04, `${sortieVariant}: leader's pelvis over his D (${pelvisOverFoot})`);
-  console.log(sortieVariant, `D/D outer foot edges ${(footGap * 1000).toFixed(1)} mm, leader's pelvis ${(pelvisOverFoot * 100).toFixed(1)} cm from his D`);
+  console.log(sortieVariant, `D feet ${(footGap * 100).toFixed(1)} cm apart, leader's pelvis ${(pelvisOverFoot * 100).toFixed(1)} cm from his D`);
 }
 console.log('PASS swept foot hull clearance and D/D contact of the middle/upper thighs (illustrative envelopes)');
 
