@@ -67,14 +67,16 @@ export function sampleSortieFille(beat: number, follower: boolean,
   // 2 cm (hook) or 3 cm (back) closer to the leader's; `contact` fades this above amplitude 1.
   const touch = Number.isFinite(contact) ? Math.max(0, Math.min(1, contact)) : 1;
   const halfHip = HIP_WIDTH / 2;
-  const firstLeaderZ = .12;
+  const E = (globalThis as { process?: { env?: Record<string, string> } }).process?.env ?? {};
+  const U = E.UNITS === '1', FOOT = 0.212, STAG = Number(E.STAG ?? 0.10);
+  const firstLeaderZ = U ? FOOT : .12;
   // #51: the follower's D1 retreats 45 cm in the hook (55 before) so the couple keeps its plexus
   // contact longer; shorter, her knees meet the leader's (six styles, quinconce, measured on the GLB).
-  const firstFollowerZ = back ? -.42 : -.45;
+  const firstFollowerZ = U ? -FOOT : back ? -.42 : -.45;
   // #51 (owner choice: shorter opening): the follower's G2 opens 45 cm in the hook (55 before), 6 cm
   // behind her line so that her D3 passes in front of it; her pelvis follows the opening. Like the
   // contacts, the shorter opening fades back above amplitude 1 (`touch`).
-  const secondFollowerX = back ? HIP_WIDTH : mix(.55, .45, touch);
+  const secondFollowerX = U ? HIP_WIDTH : back ? HIP_WIDTH : mix(.55, .45, touch);
   const secondLeader: FootPoint = { x: back ? 0 : -halfHip, z: back ? -.07 : rest.L.z + firstLeaderZ - rest.R.z };
   // Align the two right ankles longitudinally. The follower's +x is the
   // leader's right; the clearance is measured between those ankle targets.
@@ -82,9 +84,9 @@ export function sampleSortieFille(beat: number, follower: boolean,
     // #51: the D/D contact of action 3 is 7 cm closer to the line in the hook (shorter opening);
     // like the thigh contact it fades back above amplitude 1.
     x: (back ? .22 : mix(.28, .21, touch)) - 2 * rest.R.x - secondLeader.x,
-    z: 2 * SORTIE_FILLE_PAIR_DZ - 2 * rest.R.z - secondLeader.z,
+    z: 2 * SORTIE_FILLE_PAIR_DZ - 2 * rest.R.z - secondLeader.z - (U ? STAG : 0),
   };
-  const leaderEndZ = secondLeader.z - .64;
+  const leaderEndZ = secondLeader.z - (U ? FOOT : .64);
   // #48: the figure ends in the neutral position, the start translated along the line. The leader's
   // last landings define the translation; the follower's mirror it exactly (her frame faces his).
   const leaderEnd: FootPoint = { x: .065, z: leaderEndZ };
@@ -97,7 +99,7 @@ export function sampleSortieFille(beat: number, follower: boolean,
   const steps: Action[] = follower ? [
     { foot: "R", target: { x: .07, z: firstFollowerZ }, body: { x: 0, z: firstFollowerZ * .43 } },
     { foot: "L", target: { x: secondFollowerX, z: back ? .13 : -.06 * touch }, body: { x: back ? .22 : .33 * secondFollowerX / .55, z: back ? -.005 : -.12 } },
-    { foot: "R", target: approach, body: { x: mix(back ? .36 : .43, back ? .33 : .41, touch), z: back ? .44 : .30 } },
+    { foot: "R", target: approach, body: { x: mix(back ? .36 : .43, back ? .33 : .41, touch), z: U ? approach.z : back ? .44 : .30 } },
     { foot: "L", target: mark, body: { x: .16, z: returnZ - .12 },
       corner: { x: secondFollowerX, z: returnZ }, keep: "x", delay: .24 },
     { foot: "R", target: mark, body: { x: mark.x, z: returnZ },
@@ -106,7 +108,7 @@ export function sampleSortieFille(beat: number, follower: boolean,
     { foot: "L", target: { x: 0, z: firstLeaderZ }, body: { x: 0, z: firstLeaderZ / 2 } },
     { foot: "R", target: secondLeader,
       body: { x: back ? 0 : -.095, z: back ? .02 : firstLeaderZ }, corner: back ? undefined : { x: -halfHip, z: 0 }, keep: "z" },
-    { foot: "L", target: { x: 0, z: -.19 }, body: { x: back ? 0 : -.08, z: back ? -.04 : .10 } },
+    { foot: "L", target: { x: 0, z: U ? firstLeaderZ - FOOT : -.19 }, body: { x: back ? 0 : -.08, z: U ? firstLeaderZ / 2 : back ? -.04 : .10 } },
     { foot: "R", target: leaderEnd, body: { x: leaderEnd.x - .04, z: leaderEnd.z } },
     { foot: "L", target: leaderEnd, body: leaderEnd },
   ];
@@ -155,7 +157,7 @@ export function sampleSortieFille(beat: number, follower: boolean,
   // first, sortieFilleHookLead earlier).
   const delay = action.delay ?? (index === 1 ? sortieFilleHookLead(o) : 0);
   // #88: synced with his hook, her G2 lands sooner to open the way in time.
-  const touchdown = !follower && index === 3 ? .48 : follower && index === 1 ? SORTIE_FILLE_SYNC.g2touchdown : .68;
+  const touchdown = !follower && index === 3 ? .48 : follower && index === 1 ? SORTIE_FILLE_SYNC.g2touchdown : follower && index === 0 && U ? Number(E.FTD1 ?? .45) : .68;
   const flight = Math.max(0, Math.min(1, (t - delay) / (touchdown - delay)));
   // #49: a walking step (heel rise, swing, heel strike or ball landing); the marka only touches.
   // From the interleaved quinconce a heel rise would push the knee into the partner's: the first steps
