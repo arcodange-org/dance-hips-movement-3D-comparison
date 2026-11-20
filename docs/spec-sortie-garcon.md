@@ -120,3 +120,33 @@ leader (`SORTIE_GARCON_SYNC.lag` = 0) et se pose au même moment. Au pas 4, le D
 le G4 du suiveur part avec lui mais vole plus vite (`g4span` = 0,3 temps) : il libère la place avant que
 le D4 n'arrive (les variantes plus lentes faisaient se chevaucher ces deux pieds : 8 à 63 poses). Les
 empreintes historiques du suiveur (sortieG) sont régénérées ; celles du leader sont inchangées.
+
+## Position 2 : bassin au-dessus du pied D, contact des hanches sur le côté (#104, 20 novembre 2026)
+
+Retour du propriétaire : « le pied droit est bien positionné en position 2 mais pas les hanches et épaules […] :
+la hanche est au dessus du pied : contact cuisse cuisse : hanche juste devant celle du suiveur, contact
+possible sur le côté ou en diago », « on reste au dessus du pied droit et la moitié droite du buste du
+leader peut être devant la moitié droite du buste du suiveur ».
+
+- Avant : en position 2, le bassin du leader était à 40 cm sur sa gauche, au-delà de son pied G (29 cm).
+  Son pied D est à 15 cm.
+- Désormais :
+  - son bassin est au-dessus de son D (0,0 cm), et son buste suit ;
+  - le G2 du suiveur s'ouvre de 20 cm vers sa gauche, c'est-à-dire vers la droite du leader. Il recule
+    de 25 cm, autant que le D2 du leader avance (R22). Son bassin suit son G. Les hanches et les cuisses
+    droites se rencontrent sur le côté ;
+  - les pieds D restent bord à bord (R9).
+- En chemin, le bassin du leader passe 5 cm sur sa gauche au milieu du pas. Tout droit, en face à face,
+  il rencontrerait la cuisse droite du suiveur (suave).
+- Variantes écartées (mesurées sur le GLB) :
+
+  | Variante | Résultat |
+  |---|---|
+  | Bassin au-dessus du D sans écarter le suiveur | 182 croisements d'os |
+  | Pas du suiveur allongés sans écart latéral | 158 croisements d'os |
+  | Son D1 écarté aussi | Il croise derrière son propre G |
+  | D1 de 19 cm | Il gêne le D2 du leader |
+
+- Mesures : enveloppes des cuisses droites 3,1 cm l'une dans l'autre (contact franc, bande du test
+  élargie à 3,5 cm), aucun croisement d'os des jambes. Les empreintes historiques sortieG (leader et
+  suiveur) sont régénérées.

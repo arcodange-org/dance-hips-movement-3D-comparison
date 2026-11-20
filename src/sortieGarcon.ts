@@ -21,6 +21,17 @@ const STEP1_LEAD = 0.1;
  * rest ankles. At action 2 the outer edge of his D touches the outer edge of the follower's D (guiding
  * contact), so his G1 does not need to open as far. */
 export const SORTIE_GARCON_EXIT = { step1X: 0.22, step2X: 0.224, body0X: 0.15, body1X: 0.40, aside: 0.06, back: 0.05 };
+/** #104 (owner, 20 Nov.: « la hanche est au dessus du pied : contact cuisse cuisse : hanche juste devant
+ * celle du suiveur, contact possible sur le côté ou en diago » ; « on reste au dessus du pied droit »):
+ * at position 2 the leader's pelvis stands over his D. The follower's G2 opens `aside` (m, her own frame:
+ * to her left, towards the leader's right) and goes back `g2` (m from her rest ankle: his D2's length,
+ * R22); her pelvis follows it, so that the right hips and thighs meet on the side. Her D1 keeps `d1` and
+ * stays on the line: the D feet keep their edge-to-edge contact (R9); a longer D1 (his G1's 20 cm) is in
+ * the way of his D2, and shifting it aside crosses it behind her own G. `pass`: on his way over his D the
+ * leader's pelvis passes this much to his left mid-step (face to face, straight ahead it meets her right
+ * thigh, suave). Measured on the GLB: right thigh envelopes 3.1 cm into each other (firm contact), no
+ * leg-bone crossing. */
+export const SORTIE_GARCON_POS2 = { aside: 0.20, d1: 0.16, g2: 0.25, pass: 0.05 };
 const STEP3_LEAD = 0.2;
 /** #56: progression of the couple along the line after each action (m, validated figure), and the
  * share of it kept. Steps of about one foot length: only the common translation shrinks, the
@@ -67,7 +78,7 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   // Absolute offsets from the initial ankle positions, in each dancer's local frame.
   // The follower retreats with D/G/D/G; it never copies the leader's exit or crossing.
   const steps: [FigureFoot, FootPoint][] = follower ? [
-    ["R", { x: 0, z: -0.16 }], ["L", { x: 0, z: mix(-0.40, -0.22, touch) }],
+    ["R", { x: 0, z: -SORTIE_GARCON_POS2.d1 }], ["L", { x: SORTIE_GARCON_POS2.aside, z: mix(-0.40, -SORTIE_GARCON_POS2.g2, touch) }],
     ["R", { x: 0, z: -0.70 }], ["L", { x: shift, z: -0.70 }],
     ["R", { x: shift, z: -0.70 }],
   ] : [
@@ -113,7 +124,9 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   // D follows would over-stretch that leg and force G's knee into the partner.
   const bodyAt = (action: number, offset: FootPoint): FootPoint =>
     !follower && action === 0 ? { x: SORTIE_GARCON_EXIT.body0X, z: 0.18 }
-    : !follower && action === 1 ? { x: mix(0.34, SORTIE_GARCON_EXIT.body1X, touch), z: offset.z }
+    // #104 (owner: « la hanche est au dessus du pied : contact cuisse cuisse : hanche juste devant celle du
+    // suiveur ») : at position 2 the pelvis stands over the D, which carries the weight.
+    : !follower && action === 1 ? { x: rest.R.x + SORTIE_GARCON_EXIT.step2X, z: offset.z }
     : !follower && action === 2 ? { x: 0.17, z: mix(0.55, 0.62, touch) }
     // #56: closer to the leader after the shorter progression, the partner's pelvis stays 1.5 cm behind
     // her G4: over it, her G thigh meets his D thigh in the interleaved quinconce (right variant).
@@ -197,6 +210,9 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
     ? interpolate(shiftedBody(body, weightBefore), shiftedBody(bodyAfter(index, offset), weightAfter),
       smooth((t - lead) / (1 - lead)))
     : shiftedBody(body, weightBefore);
+  // #104: on his way to stand over his D, the leader's pelvis passes a little to his left while the
+  // follower's pelvis opens with her G2 (face to face, straight ahead it meets her right thigh mid-step).
+  if (!follower && index === 1) root.x += SORTIE_GARCON_POS2.pass * Math.sin(Math.PI * Math.max(0, Math.min(1, (t - lead) / (1 - lead)))) ** 2;
   // Same local yaw for both partners, whose outer frames differ by π.
   const exit = b < 1 ? smooth(b) : b < 2 ? 1 : b < 3 ? 1 - smooth(b - 2) : 0;
   const contra = Number.isFinite(contraDegrees) ? Math.max(0, Math.min(30, contraDegrees)) : DEFAULT_SORTIE_CONTRA;
