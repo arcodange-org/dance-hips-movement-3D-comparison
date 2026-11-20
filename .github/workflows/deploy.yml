@@ -11,9 +11,11 @@ permissions:
   pages: write
   id-token: write
 
+# #30: one group per pull request or branch. A new push cancels only the previous run of the same
+# pull request; runs of other branches and of main are never cancelled by it.
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   # Garantie de non-régression : tests numériques + Gherkin (npm test) + build TypeScript.
@@ -54,6 +56,10 @@ jobs:
     needs: build
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
+    # Pages deployments run one at a time, in order, and are never cancelled.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
