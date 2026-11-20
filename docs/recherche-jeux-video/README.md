@@ -61,8 +61,9 @@ guidage continu du repère du couple. Détails, commandes, retours et tests : [m
 
 ## « POOC » = preuve de concept
 
-Le propriétaire l'a confirmé le 20 novembre 2026 : « POOC » voulait dire **PoC, preuve de concept**.
-Le terme n'existe ni dans la littérature d'animation ni chez EA, mais l'idée colle à ce que montre
+Le propriétaire l'a confirmé le 20 novembre 2026 : « POOC » était une **faute de frappe pour « PoC »**
+(preuve de concept). Ce n'est pas un terme technique : il n'existe ni dans la littérature d'animation
+ni chez EA. L'idée colle pourtant à ce que montre
 la recherche : EA a présenté beaucoup de démonstrations de recherche jamais livrées dans un jeu
 (Local Motion Phases au basket, superposition neuronale, DeepPhase). La suite de ce chantier est donc
 une **preuve de concept du mode guidage**, dans une PR séparée.
