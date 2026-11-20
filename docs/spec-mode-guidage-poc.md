@@ -8,8 +8,7 @@ Fil d'Ariane : [docs](./) › spec #69. Dépend de la [recherche jeux vidéo #63
 ## Demande du propriétaire (20 novembre 2026)
 
 - « J'imagine même un mode jeux vidéo où on peut guider sa partenaire. »
-- « POOC » = « proof of concept (PoC) » ; « vu que PoC est établi, après la documentation enchaîne
-  avec du code ».
+- « Vu que PoC est établi, après la documentation enchaîne avec du code. »
 
 ## Constat mesuré sur le code
 
