@@ -135,6 +135,22 @@ contraposition, vue de profil, 8 temps à 90 bpm, amplitude 1. Base de déplacem
 BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 </details>
 
+### Tarraxinha sur place en paire
+
+En paire sans déplacement, le couple danse en quinconce : chaque pied droit entre les pieds du
+partenaire, pieds plantés, bassin du suiveur couplé en miroir. La tarraxinha y montre l'intention de la
+hanche vers l'avant (lacet dominant), la hanche qui revient s'ouvrant sur son côté. Testé sur le GLB :
+aucun croisement des os des jambes (six styles, trois amplitudes, avec ou sans plexus).
+
+![Tarraxinha sur place en paire, quinconce, cadre](docs/gifs/tarraxinha-sur-place-paire.gif)
+<details><summary>Détails & source</summary>
+
+Capture image par image (`scripts/capture_figure_gif.mjs`) : tarraxinha, paire, quinconce, cadre des
+bras, vue de trois quarts, 4 temps à 90 bpm, amplitude 1.
+[Spécification](docs/spec-sur-place-paire.md), [cadre](docs/cadre/spec-implementation.md).
+BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
+</details>
+
 ## Mode guidage — preuve de concept (#69)
 
 Le bouton « Essayer le mode guidage » en haut de l'app (ou `?mode=pair&guidage=1`) ouvre une vue où

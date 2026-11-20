@@ -183,7 +183,7 @@ export default function App() {
       if (urlMovement === "sortieF") seekClock(clock, sortieFilleBeat(Number(p.get("sortieBeat"))));
       // Frame-by-frame captures of the quarter turns in pair (scripts/capture_figure_gif.mjs).
       const quartsBeat = Number(p.get("sortieBeat"));
-      if ((urlMovement === "quarts" || urlMovement === "ida") && Number.isFinite(quartsBeat) && quartsBeat >= 0) seekClock(clock, quartsBeat);
+      if ((urlMovement === "quarts" || urlMovement === "ida" || urlMovement === "none") && Number.isFinite(quartsBeat) && quartsBeat >= 0) seekClock(clock, quartsBeat);
     }
     if (p.has("ligne")) setShowLigne(p.get("ligne") !== "0");
     if (p.has("iso")) setIso(p.get("iso") !== "0");
