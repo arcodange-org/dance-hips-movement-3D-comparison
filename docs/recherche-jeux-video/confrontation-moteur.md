@@ -1,6 +1,6 @@
 # Confrontation avec le moteur du comparateur
 
-[Hub de la recherche](README.md) · [Animation de sport](animation-sport.md) · [Physique, IK, procédural](physique-ik-procedural.md) · [Interactions à deux](interactions-a-deux.md) · [Rythme et commande](rythme-et-commande.md) · [Mode guidage](mode-guidage.md)
+[Hub de la recherche](README.md) · [Animation de sport](animation-sport.md) · [Physique, IK, procédural](physique-ik-procedural.md) · [Interactions à deux](interactions-a-deux.md) · [Rythme et timing](rythme-et-timing.md) · [Guidage et commande](guidage-et-commande.md) · [Mode guidage](mode-guidage.md)
 
 Cette page relit le code au 20 novembre 2026 (`main` à 941d754, plus la spec du ginga de la PR #59).
 Elle dit, pour chaque emprunt, s'il s'adapte au moteur, ce qu'il remplacerait et ce qu'il coûterait.
