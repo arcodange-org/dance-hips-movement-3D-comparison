@@ -383,7 +383,9 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   resetRig(r);
   for (const s of SIDES) r["foot" + s].rotation.set(0, 0, 0);
   // A marka moves the free foot without starting another body's weight oscillation.
-  const styleTime = figure && !cyclic ? Math.min(beat, 4) : beat;
+  // #107: a cyclic figure started later in its cycle (the ida e volta's variants) gives its offset, so that
+  // the style runs in phase with the cycle: the variants are then the cycle's own poses.
+  const styleTime = figure && !cyclic ? Math.min(beat, 4) : beat + ((figure as { styleOffset?: number } | null)?.styleOffset ?? 0);
   // #42: a figure that drives the ginga gives the style its phase (one beat per support transfer) and
   // the dancer's share of it; otherwise the style runs on the clock.
   // Kompa's own rhythm (one transfer every two beats, #62) is not the period-2 pattern the ginga phase maps.
