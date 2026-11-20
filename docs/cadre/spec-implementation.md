@@ -278,3 +278,33 @@ faire valider. Les autres découlent des règles.
 - [S16] West K. (10 mars 2026). *Improve Leading with an Effective Dance Frame.* CSULB. <https://home.csulb.edu/~kwest/wido/articles/dance-frame.pdf>
 - [S17] West K., Caves L. (15 juillet 2025). *Harmonious Movement – Semi-Closed / Promenade.* CSULB. <https://home.csulb.edu/~kwest/wido/articles/harmony-semi.pdf>
 - Code et documents du dépôt lus : `src/anatomy.ts`, `src/styles.ts`, `src/pose.ts`, `src/rigJoints.ts`, `src/muscles.ts`, `src/ik.ts`, `src/sortieGarcon.ts`, `src/sortieFille.ts`, `src/sortieGarconContact.ts`, `src/components/Rig.tsx`, `src/components/ContactViz.tsx`, `scripts/pose_fixture.mjs`, `public/anatomy.glb` (liste des nœuds), [phase 15](../spec-phase15-paire.md), [phase 16](../spec-phase16-contact-fit.md).
+
+## Implémentation, option A (20 novembre 2026)
+
+Demande du propriétaire : « si la recherche a été faite il est temps de le matérialiser : ces points de
+contact vont ajouter des contraintes qui vont aider à converger vers les bons mouvements de danse ».
+
+- **Constantes partagées** : `ARM_JOINTS` (`src/rigJoints.ts`), utilisées par le JSX et par la fixture
+  GLB, qui place désormais les bras. Les noms sont rendus anatomiques : `armUL`/`armFL` est le bras
+  gauche (côté +x) ; les angles historiques de `applyDanceFrame` et `applyFollowerFrame` sont reportés
+  sur les mêmes bras physiques, donc le rendu hors paire est inchangé.
+- **IK des bras** (`src/cadre.ts`) : `solveArm` (deux segments analytiques, longueurs constantes, pôle
+  du coude, cible hors de portée bornée sur la ligne de l'épaule et signalée `clamped`) ; `solveFrame`
+  résout les deux bras d'un danseur contre la poitrine du partenaire, déjà posée.
+- **Sites et pôles** : main D du leader sur l'omoplate G du suiveur, au bord du dos (`scapulaL`), coude
+  vers ses côtes D ; main G du suiveur sur l'omoplate D du leader (`scapulaR`), coude relevé vers
+  l'extérieur ; mains jointes au milieu des épaules G du leader et D du suiveur, 6 cm plus bas. Visée au
+  milieu de l'omoplate, l'avant-bras traversait le torse du partenaire (5,7 cm) ; au bord du dos, il
+  longe son flanc.
+- **Rendu** : chaque `Rig` résout ses bras après sa pose, avec la poitrine du partenaire de sa dernière
+  pose (au plus une image de décalage) ; hors paire ou avec `cadre=0`, rien ne change.
+- **Mesures** (`scripts/test_cadre.mjs`, quinconce, plexus) : mains sur leurs sites quand elles sont à
+  portée ; bras bornés 1/84 (sortie garçon), 7/84 (sortie fille, le couple s'ouvre), 0 (quarts, ida,
+  sur place) ; avant-bras au plus 1,4 cm dans la boîte de torse du partenaire (sur place, où le style
+  balance les bassins ; 0,5 à 0,8 cm dans les figures) ; pose du corps (pieds, bassins, poitrines)
+  inchangée par le cadre. Les omoplates sont visées à 15 cm de l'axe, au bord du dos : à 14 cm,
+  l'avant-bras entrait de 2 cm sur place.
+
+Suite : les contacts comme **contraintes** sur les bustes et les bassins (le cadre qui retient ou
+transmet), les `CueEvent` des figures et la visualisation des intentions.
+
