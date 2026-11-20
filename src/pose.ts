@@ -70,7 +70,12 @@ export const DEFAULT_POSE: PoseOptions = {
 // pelvisPull 0: pulling the pelvises together (even down to 45 cm apart) or lowering the couple
 // together makes the leg bones of the partners cross (measured on the GLB, six styles): only the
 // upper body leans towards the partner.
-export const PLEXUS = { gap: 0.08, maxLean: 0.35, marker: 0.16, pelvisDistance: 0.34, pelvisPull: 0 };
+/** #51, revised (owner, 20 Nov.: « la contraposition et l'inclinaison vers l'avant en permanence ont été
+ * mal interprétées (on dirait des lutteurs de sumo et non des danseurs parfois) ») : the upper body leans
+ * at most `maxLean` towards the partner, and only in a close couple: the lean fades out between `open`
+ * and `open + fade` of missing distance (an open position does not chase the plexus contact). The chest
+ * turns towards the partner by at most `facing` (rad). */
+export const PLEXUS = { gap: 0.08, maxLean: 0.08, open: 0.06, fade: 0.08, facing: 0.3, marker: 0.16, pelvisDistance: 0.34, pelvisPull: 0 };
 interface Leg {
   length1: number; length2: number; f0: THREE.Vector3; t0: THREE.Vector3;
   hip: THREE.Vector3; rest: THREE.Vector3; sole: THREE.Vector3[];
@@ -259,6 +264,7 @@ function leanTowards(r: RigHandle, partner: { x: number; z: number }): void {
     const forward = new THREE.Vector3(0, 0, PLEXUS.marker).applyQuaternion(chest.getWorldQuaternion(new THREE.Quaternion()));
     return outer.worldToLocal(chest.getWorldPosition(new THREE.Vector3()).add(forward));
   };
+  let leaned = 0, fadeOut = 1;
   for (let iteration = 0; iteration < 2; iteration++) {
     const own = r.root.position, plexus = marker();
     const dx = partner.x - own.x, dz = partner.z - own.z, distance = Math.hypot(dx, dz);
@@ -269,9 +275,12 @@ function leanTowards(r: RigHandle, partner: { x: number; z: number }): void {
     const ahead = (plexus.x - own.x) * ux + (plexus.z - own.z) * uz;
     const missing = reach - ahead;
     if (missing <= 1e-4) return;
+    if (iteration === 0) { const t = Math.max(0, Math.min(1, (missing - PLEXUS.open) / PLEXUS.fade)); fadeOut = 1 - t * t * (3 - 2 * t); }
     const pivot = outer.worldToLocal(spine.getWorldPosition(new THREE.Vector3()));
     const arm = Math.max(0.1, plexus.distanceTo(pivot));
-    const angle = Math.min(PLEXUS.maxLean, Math.asin(Math.min(1, missing / arm)));
+    const angle = Math.min(PLEXUS.maxLean * fadeOut - leaned, Math.asin(Math.min(1, missing / arm)));
+    if (angle <= 1e-6) return;
+    leaned += angle;
     // Rotate the spine in world space about (up × towards-partner), expressed in the outer frame.
     const axisLocal = new THREE.Vector3(uz, 0, -ux);
     const outerQ = outer.getWorldQuaternion(new THREE.Quaternion());
@@ -403,7 +412,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   // #51: with plexus contact the chest turns towards the partner (contraposition share) instead of
   // the figure's own chest yaw; the lean towards the partner is applied once the frame is set.
   const facing = partnerRoot ? Math.atan2(partnerRoot.x - r.root.position.x, partnerRoot.z - r.root.position.z) : 0;
-  if (figure && partnerRoot) r.chest.rotation.y += o.contraposition * angleDelta(r.root.rotation.y, facing);
+  if (figure && partnerRoot) r.chest.rotation.y += o.contraposition * Math.max(-PLEXUS.facing, Math.min(PLEXUS.facing, angleDelta(r.root.rotation.y, facing)));
   else if (figure) r.chest.rotation.y += figure.chestYaw;
   if (o.quarts && !figure) {
     const qs = quartTurnStep(beat, o.reverse);

@@ -36,7 +36,7 @@ const cases = [
 ];
 for (const [label, dz, beats, opt] of cases) {
   const pair = [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];
-  let worst = 0, clamped = 0, solved = 0, depth = 0;
+  let worst = 0, clamped = 0, solved = 0, depth = 0, released = 0;
   for (let b = 0; b <= beats; b += .25) {
     pair.forEach((f, i) => api.applyPose(f.r, f.model, b, { ...opt, embrace: true, placement: 'quinconce', follower: !!i, styleKey: 'kizomba', amp: 1, plexus: true }));
     const before = pair.map(f => snapshot(f.r));
@@ -47,6 +47,7 @@ for (const [label, dz, beats, opt] of cases) {
         assert(Math.abs(S.distanceTo(E) - 0.26) < 1e-9 && Math.abs(E.distanceTo(res[s].hand) - 0.24) < 1e-9, `${label} ${b}: arm lengths`);
         // The hand sphere is where the solver put it.
         assert(f.r['armF' + s].localToWorld(new THREE.Vector3(...api.ARM_JOINTS.hand)).distanceTo(res[s].hand) < 1e-9, `${label} ${b}: hand placed`);
+        if (res[s].released) released++;
         if (res[s].clamped) clamped++; else worst = Math.max(worst, res[s].hand.distanceTo(res[s].target));
         solved++;
         const pts = [];
@@ -60,7 +61,12 @@ for (const [label, dz, beats, opt] of cases) {
     pair.forEach((f, i) => snapshot(f.r).forEach((v, n) => assert(Math.abs(v - before[i][n]) < 1e-12, `${label} ${b}: frame leaves the body pose`)));
   }
   assert(worst < 1e-6, `${label}: hands on their sites when in reach (${worst})`);
-  assert(clamped <= .1 * solved, `${label}: few clamped arms (${clamped}/${solved})`);
-  assert(depth <= .015, `${label}: forearms along the partner's flank, at most 1.5 cm into the torso box (${depth})`);
-  console.log(`PASS cadre ${label} : mains sur leurs sites, ${clamped}/${solved} bras bornés, au plus ${(depth * 100).toFixed(1)} cm dans le torse du partenaire`);
+  // In the sorties the couple opens (no chasing of the plexus contact by leaning, #93): the frame
+  // stretches and more arms reach their length.
+  assert(clamped <= (label.startsWith('sortie') ? .25 : .1) * solved, `${label}: few clamped arms (${clamped}/${solved})`);
+  // In the open sorties an arm at its length may graze the partner's side (#93).
+  const deep = label.startsWith('sortie') ? .03 : .015;
+  assert(depth <= deep, `${label}: forearms along the partner's flank, at most ${deep * 100} cm into the torso box (${depth})`);
+  assert(released <= (label.startsWith('sortie') ? .2 : 0) * solved, `${label}: released hands (${released}/${solved})`);
+  console.log(`PASS cadre ${label} : mains sur leurs sites, ${clamped}/${solved} bras bornés, ${released} mains lâchées, au plus ${(depth * 100).toFixed(1)} cm dans le torse du partenaire`);
 }

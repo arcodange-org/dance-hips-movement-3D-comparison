@@ -308,3 +308,30 @@ contact vont ajouter des contraintes qui vont aider à converger vers les bons m
 Suite : les contacts comme **contraintes** sur les bustes et les bassins (le cadre qui retient ou
 transmet), les `CueEvent` des figures et la visualisation des intentions.
 
+
+## Buste droit, cadre qui s'ouvre (#93, 20 novembre 2026)
+
+Retour du propriétaire : « la contraposition et l'inclinaison vers l'avant en permanence ont été mal
+interprétées (on dirait des lutteurs de sumo et non des danseurs parfois) (très accentué lors de la
+sortie fille) ».
+
+- **Inclinaison du contact plexus** (`PLEXUS`, `src/pose.ts`) : au plus 0,08 rad, et seulement en couple
+  rapproché. Elle s'efface quand il manque plus de 6 à 14 cm pour que les plexus se touchent (position
+  ouverte). Avant : jusqu'à 2 × 0,35 rad.
+- **Buste tourné vers le partenaire** : au plus 0,3 rad (avant : tout le buste, jusqu'à 90°).
+- Mesures (kizomba, plexus, quinconce) :
+
+  | Figure | Tronc max (avant → après) | Buste contre bassin (avant → après) |
+  |---|---|---|
+  | sortie garçon | 15,0° → 6,6° | 68° → 17° |
+  | sortie fille | 18,4–20,3° → 6,8° | 90° → 17° |
+  | quarts, ida, sur place | ≤ 8,4° → ≤ 6,8° | 18–30° → 17° |
+
+- **Cadre** : sans buste tourné, la main qui vise l'omoplate traverserait le torse du partenaire.
+  - Elle glisse le long de son dos vers son côté, jusqu'à 20 cm.
+  - Si le bras la traverse encore (elle passe à côté de lui), la main lâche et le bras revient le long
+    du corps du danseur : le contact est relâché, le cadre s'ouvre.
+  - Sorties : bras tendus jusqu'à 25 %, mains lâchées jusqu'à 20 %, au plus 3 cm dans le torse.
+  - Quarts, ida, sur place : contacts gardés, au plus 1,5 cm.
+- Tests : `test_plexus.mjs` (tronc ≤ 8°, buste ≤ 18° dans toutes les figures en paire),
+  `test_cadre.mjs`.
