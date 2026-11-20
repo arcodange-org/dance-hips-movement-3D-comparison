@@ -29,6 +29,11 @@ export const GUIDE_FIGURE_KEYS = Object.keys(GUIDE_FIGURES) as GuideFigure[];
  * backward only) offer none yet: walking forward and backward comes with the arrow keys (#89). */
 export const guideFiguresFor = (styleKey: string): GuideFigure[] =>
   STYLE_MOVEMENTS[styleKey] ? [] : GUIDE_FIGURE_KEYS.filter(f => movementAllowed(styleKey, GUIDE_FIGURES[f].movement));
+/** #85 (owner: « dans le mode jeu la position de base doit être le suave (sauf en konpa) »): the basic
+ * step is danced in suave, the figures in the chosen style; kompa (and the styles handled like it) keep
+ * their own style throughout. */
+export const guideStyleOf = (kind: GuideKind, styleKey: string): string =>
+  kind === "base" && !STYLE_MOVEMENTS[styleKey] ? "suave" : styleKey;
 
 /** Figure led by a key press, by physical position (QWERTY W A Q D = AZERTY Z Q A D). */
 export function figureOfCode(code: string): GuideFigure | null {

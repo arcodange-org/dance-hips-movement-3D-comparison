@@ -165,6 +165,14 @@ const GUIDE_JUMP = 0.0002;
   console.log(`PASS squelette continu aux frontières (six styles, 25 enchaînements) : saut max ${(worst.jump * 1000).toFixed(3)} mm sur 1e-6 temps (${worst.styleKey} ${worst.a}→${worst.b}, ${worst.joint}) < ${GUIDE_JUMP * 1000} mm`);
 }
 
+// #85 (owner: « dans le mode jeu la position de base doit être le suave (sauf en konpa) »): the basic
+// step in suave, the figures in the chosen style; kompa (and tarraxinha, zouk, handled like it) keep theirs.
+{
+  for (const k of ['kizomba', 'semba', 'suave']) { assert.equal(api.guideStyleOf('base', k), 'suave'); assert.equal(api.guideStyleOf('ida', k), k); }
+  for (const k of ['kompa', 'tarraxinha', 'zouk']) assert.equal(api.guideStyleOf('base', k), k);
+  console.log('PASS pas de base du mode jeu en suave (figures dans le style choisi ; kompa, tarraxinha, zouk gardent le leur), styles mélangés sur le temps d’inertie');
+}
+
 // 5. GLB: the basic step and seeded random sessions, both dancers in the couple frame.
 const boneNames = ['Femur', 'Tibia', 'Fibula', 'Patella'].flatMap(name => ['L', 'R'].map(side => name + '_' + side));
 const couple = () => [fixture(api), fixture(api)].map(f => ({ ...f, cache: new Map() }));

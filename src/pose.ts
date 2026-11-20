@@ -42,6 +42,8 @@ export interface PoseOptions {
   placePaire: boolean;
   /** #62: false keeps the on-the-spot motion on the clock's phase (guide mode). */
   onBeat?: boolean;
+  /** #85: blend towards another style (`weight` 1 = entirely the other one). */
+  styleBlend?: { key: string; weight: number } | null;
   /** #51: in pair figures the upper bodies keep plexus-to-plexus contact (lean towards the partner). */
   plexus: boolean;
   /** #51: 1 = the chest faces the partner while the pelvis follows the feet (contraposition), 0 = the
@@ -298,6 +300,20 @@ function leanTowards(r: RigHandle, partner: { x: number; z: number }): void {
   }
 }
 
+/** #85: the local transforms a style sets (positions, rotations, knee extras), to blend two styles. */
+const STYLE_NODES = ["root", "pelvis", "spine", "lumbar", "thoracic", "chest", "head", "hipL", "hipR", "kneeL", "kneeR"] as const;
+function styleState(r: RigHandle) {
+  return { nodes: STYLE_NODES.map(n => [r[n].position.clone(), r[n].rotation.clone()] as const), extraL: r.extraL, extraR: r.extraR };
+}
+function mixStyleState(r: RigHandle, a: ReturnType<typeof styleState>, b: ReturnType<typeof styleState>, w: number) {
+  STYLE_NODES.forEach((n, k) => {
+    const [pa, ra] = a.nodes[k], [pb, rb] = b.nodes[k];
+    r[n].position.lerpVectors(pa, pb, w);
+    r[n].rotation.set(ra.x + (rb.x - ra.x) * w, ra.y + (rb.y - ra.y) * w, ra.z + (rb.z - ra.z) * w);
+  });
+  r.extraL = a.extraL + (b.extraL - a.extraL) * w; r.extraR = a.extraR + (b.extraR - a.extraR) * w;
+}
+
 /** The single final-pose pipeline used by React and GLB integration tests. */
 /** #62 (R21, owner: « les beats correspondent aux transferts de poids ») : the styles put full weight on
  * a foot at phase x,5 (support = −S2). On the spot (solo, in pair, with lateral travel or temps3) the
@@ -352,7 +368,18 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   resetRig(r);
   for (const s of SIDES) r["foot" + s].rotation.set(0, 0, 0);
   // A marka moves the free foot without starting another body's weight oscillation.
-  STYLES[o.styleKey].apply(r, figure && !cyclic ? Math.min(beat, 4) : beat, o.amp);
+  const styleTime = figure && !cyclic ? Math.min(beat, 4) : beat;
+  STYLES[o.styleKey].apply(r, styleTime, o.amp);
+  // #85: blend towards another style's pose (the guide mode changes style at a boundary: the basic step
+  // in suave, the figures in the chosen style); `weight` 1 = the other style entirely.
+  const blend = o.styleBlend && o.styleBlend.weight > 0 && STYLES[o.styleBlend.key] && o.styleBlend.key !== o.styleKey ? o.styleBlend : null;
+  if (blend) {
+    const mine = styleState(r);
+    resetRig(r);
+    for (const s of SIDES) r["foot" + s].rotation.set(0, 0, 0);
+    STYLES[blend.key].apply(r, styleTime, o.amp);
+    mixStyleState(r, mine, styleState(r), blend.weight);
+  }
   // #61: a figure may keep a share of the style's lateral hip shift on top of its own pelvis path.
   const styleRootX = r.root.position.x;
   if (figure) {
@@ -387,7 +414,8 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   // two opposing knees through one another. Leg reach still determines pelvis height.
   const styleY = figure ? Math.max((figure as { dip?: number }).dip ?? -0.008, r.root.position.y * 0.25) : r.root.position.y;
   const desiredKnee = { L: r.kneeL.rotation.x, R: r.kneeR.rotation.x };
-  const posture = STYLES[o.styleKey].posture;
+  const ownPosture = STYLES[o.styleKey].posture, otherPosture = blend ? STYLES[blend.key].posture : ownPosture, bw = blend?.weight ?? 0;
+  const posture = { lean: ownPosture.lean + (otherPosture.lean - ownPosture.lean) * bw, knee: ownPosture.knee + (otherPosture.knee - ownPosture.knee) * bw };
   const feet = figure?.feet ?? plannedFeet(beat, o, model);
   if (figure) {
     // The coupled follower mirrors it like her pelvis: the couple sways together in the world.
