@@ -160,7 +160,7 @@ gérer l'espace de son décalage à gauche pour être le plus proche possible sa
 - Le suiveur recule en ligne droite : l'écart latéral de son G2 (#104) est retiré. Son G2 recule de
   25 cm, autant que le D2 du leader avance (R22).
 - Le leader fait la place lui-même :
-  - son G1 s'ouvre de 0,30 m et avance de 0,40 m (toujours plus en avant que sur le côté) ;
+  - son G1 s'ouvre de 0,28 m et avance de 0,42 m (plus en avant que sur le côté, dans tous les placements) ;
   - son D2 se pose à 0,34 m à gauche de sa cheville de repos ;
   - en position 2, son bassin reste au-dessus de son D.
 - Mesures : cuisses droites au contact sur le côté, à mi-cuisse (enveloppes 3,2 cm l'une dans l'autre),

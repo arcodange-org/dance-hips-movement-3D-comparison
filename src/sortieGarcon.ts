@@ -19,12 +19,12 @@ export const DEFAULT_SORTIE_CONTRA = 12;
 const STEP1_LEAD = 0.1;
 /** Lateral geometry of the exit (#50, #110, calibrated on the GLB): offsets in the leader's frame from his
  * rest ankles. #110: the leader alone makes the room for his exit (G1 one hip width, D2 0.30 m). */
-export const SORTIE_GARCON_EXIT = { step1X: 0.30, step2X: 0.34, body0X: 0.15, body1X: 0.40, aside: 0, back: 0.05 };
+export const SORTIE_GARCON_EXIT = { step1X: 0.28, step2X: 0.34, body0X: 0.15, body1X: 0.40, aside: 0, back: 0.05 };
 /** #104 (owner, 20 Nov.: « la hanche est au dessus du pied : contact cuisse cuisse ») and #110 (« le suiveur
  * ne fait que des marche arrière sans être dérangé par le leader qui est le seul à sortir puis revenir sur
  * la ligne de danse. C'est au leader de gérer l'espace de son décalage à gauche pour être le plus proche
  * possible sans gêner le suiveur »): at position 2 the leader's pelvis stands over his D, and he makes
- * the room himself: his G1 opens 0.30 m (and goes 0.40 m forward, still more forward than sideways), his
+ * the room himself: his G1 opens 0.28 m (and goes 0.42 m forward, more forward than sideways in every placement), his
  * D2 lands 0.34 m to the left of his rest ankle. The follower walks straight back: D1 `d1`, G2 `g2` (his
  * D2's length, R22). `pass`: on his way over his D the leader's pelvis passes this much to his left
  * mid-step. Measured on the GLB: right thighs in side contact (envelopes 3.2 cm into each other), no
@@ -82,7 +82,7 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
     ["R", { x: 0, z: -0.70 }], ["L", { x: shift, z: -0.70 }],
     ["R", { x: shift, z: -0.70 }],
   ] : [
-    ["L", { x: mix(0.30, SORTIE_GARCON_EXIT.step1X, touch), z: 0.40 }], ["R", { x: mix(0.34, SORTIE_GARCON_EXIT.step2X, touch), z: mix(0.40, 0.46, touch) }],
+    ["L", { x: mix(0.30, SORTIE_GARCON_EXIT.step1X, touch), z: 0.42 }], ["R", { x: mix(0.34, SORTIE_GARCON_EXIT.step2X, touch), z: mix(0.40, 0.46, touch) }],
     ["L", { x: 0, z: 0.70 }], ["R", { x: -shift, z: 0.70 }],
     ["L", { x: -shift, z: 0.70 }],
   ];
