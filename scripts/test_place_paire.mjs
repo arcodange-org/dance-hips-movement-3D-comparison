@@ -71,7 +71,7 @@ const bonesClear = (pair, label) => {
 {
   let count = 0;
   for (const [movement, travel] of [['none', .5], ['none', 1], ['temps3', 0], ['temps3', .5]])
-    for (const styleKey of Object.keys(api.STYLES)) for (const amp of [.5, 1, 2]) {
+    for (const styleKey of Object.keys(api.STYLES).filter(k => api.movementAllowed(k, movement) && (travel === 0 || api.travelAllowed(k)))) for (const amp of [.5, 1, 2]) {
       const pair = couple();
       for (let beat = 0; beat < 6; beat += .25) {
         pair.forEach((f, i) => api.applyPose(f.r, f.model, beat, options(i, { movement, temps3: movement === 'temps3', travel,

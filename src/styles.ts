@@ -25,6 +25,18 @@ export interface StyleDef {
 // En mode Face à face, les « sorties garçon / fille » (5 temps, aller-retour latéral)
 // sont ajoutées par le rig (voir sortie dans Rig.tsx).
 
+
+/** #62: kompa support (+1 = full right), period 4 beats: the weight moves to the left foot over the
+ * 0.4 beat before beat 1, holds through the touch on 2, moves to the right foot before beat 3 and holds
+ * through 4. `b` is the motion beat (clock − 0,5). */
+export const KOMPA = { transition: 0.4 };
+export function kompaSupport(b: number): number {
+  const c = ((((b + 0.5) % 4) + 4) % 4), d = KOMPA.transition;
+  const s = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * (3 - 2 * t); };
+  const toLeft = s((c - 1 + d) / d), toRight = s((c - 3 + d) / d);
+  return 1 - 2 * toLeft + 2 * toRight;
+}
+
 export const STYLES: Record<string, StyleDef> = {
   kizomba: {
     label: "Kizomba",
@@ -82,15 +94,17 @@ export const STYLES: Record<string, StyleDef> = {
     color: "#f87171",
     posture: { lean: 0.08, knee: 0.2 },
     bullets: [
-      "Balancier latéral sur place : un transfert de poids par temps",
+      "Balancier latéral sur place : pas sur 1 et 3, touche sans poids sur 2 et 4 (un transfert tous les deux temps)",
       "Hip check / pause marquée sur le temps 4",
       "Genoux fléchis en continu, niveau bas, pieds glissés plein appui",
       "Tout le mouvement sous la ceinture, épaules immobiles",
     ],
-    support: (b) => -Math.tanh(2.2 * S1(b)),
+    // #62 (R21; docs/musique/kompa.md, Haitian Music Zone: step 1, touch 2, step 3, touch 4): one
+    // transfer every two beats, the weight landing on 1 and 3 (motion beats 0,5 and 2,5, see ON_BEAT_SHIFT).
+    support: (b) => kompaSupport(b),
     apply: (r, b, a) => {
-      const w = S1(b);
-      const sw = 0.9 * Math.tanh(2.2 * w);
+      const w = -kompaSupport(b);
+      const sw = 0.9 * w;
       r.root.position.x = 0.09 * sw * a;
       r.root.position.y = -0.06 * a;
       r.pelvis.position.x = 0.02 * sw * a;
@@ -101,7 +115,8 @@ export const STYLES: Record<string, StyleDef> = {
       r.kneeL.rotation.x = (0.28 + 0.08 * pos(w)) * a;
       r.kneeR.rotation.x = (0.28 + 0.08 * pos(-w)) * a;
       r.chest.rotation.z = -0.035 * sw * a;
-      if (b % 4 >= 3) r.pelvis.position.x += 0.008 * S1(b) * a;
+      // Hip check on the touch (2 and 4).
+      if (((b + 0.5) % 2 + 2) % 2 >= 1.5) r.pelvis.position.x += 0.008 * S1(b) * a;
     },
   },
   tarraxinha: {
@@ -386,6 +401,20 @@ export const PAIR_DZ = 0.175;
 export type MovementKey = "none" | "corridinho" | "quarts" | "temps3" | "ida" | "sortieG" | "sortieF" | "sortieGF";
 
 // Priorité d'exclusivité si plusieurs flags sont positionnés (ex. URL artisanale).
+/** Owner (20 Nov.): « on peut laisser le style konpa faire uniquement le sur place et le avant /
+ * arrière (pas de marka en konpa) », then « gère tarraxinha et zouk comme avec le konpa » (focus on
+ * kizomba and semba). Styles listed here only offer these movements. */
+export const STYLE_MOVEMENTS: Partial<Record<string, MovementKey[]>> = {
+  kompa: ["none", "ida"], tarraxinha: ["none", "ida"], zouk: ["none", "ida"],
+};
+export function movementAllowed(styleKey: string, movement: MovementKey): boolean {
+  const allowed = STYLE_MOVEMENTS[styleKey];
+  return !allowed || allowed.includes(movement);
+}
+/** Lateral travel (« Déplacement ») is not « sur place » nor « avant / arrière »: not offered in kompa,
+ * whose lateral balance is the style itself. */
+export const travelAllowed = (styleKey: string): boolean => !STYLE_MOVEMENTS[styleKey];
+
 export function movementOf(o: { corridinho?: boolean; quarts?: boolean; temps3?: boolean; ida?: boolean; sortieG?: boolean; sortieF?: boolean; sortieGF?: boolean }): MovementKey {
   if (o.corridinho) return "corridinho";
   if (o.quarts) return "quarts";

@@ -12,7 +12,7 @@ import { createDanceClock, seekClock, type DanceClock } from "../clock";
 import { STYLES } from "../styles";
 import { useMusic } from "../music/useMusic";
 import {
-  GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, GUIDE_PAIR_DZ, GUIDE_DEMO, applyTransform, figureOfCode, keyLabel,
+  GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, guideFiguresFor, GUIDE_PAIR_DZ, GUIDE_DEMO, applyTransform, figureOfCode, keyLabel,
   type GuideFigure, type GuideOutcome, type GuideKind,
 } from "../guidage";
 
@@ -109,7 +109,10 @@ export default function GuidageApp() {
     // Same 0.1 s cap per frame as the transport (src/clock.ts): a press never runs ahead of the clock.
     return playing ? beat + Math.min(0.1, Math.max(0, time - at) / 1000) * bpm / 60 : beat;
   };
+  // #62: the style offers some figures only (kompa: ida e volta).
+  const offered = guideFiguresFor(styleKey);
   const lead = (figure: GuideFigure, time = performance.now()) => {
+    if (!offered.includes(figure)) return;
     if (!playing) return;
     session.press(beatAt(time), figure, bpm);
   };
@@ -228,7 +231,7 @@ export default function GuidageApp() {
       </div>
 
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-wrap justify-center gap-2 px-3">
-        {GUIDE_FIGURE_KEYS.map(f => (
+        {offered.map(f => (
           <button key={f} onPointerDown={e => lead(f, e.timeStamp)} disabled={!playing}
             className="rounded-xl bg-slate-900/85 border border-slate-700 px-4 py-3 text-sm text-slate-100 hover:bg-slate-800 disabled:opacity-50">
             {GUIDE_FIGURES[f].label} <kbd className="ml-1 text-slate-400">{keyLabel(f, layout)}</kbd>

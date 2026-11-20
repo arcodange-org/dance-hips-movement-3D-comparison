@@ -118,7 +118,7 @@ for (const follower of [false, true]) for (const variant of ['line', 'right']) {
 console.log('PASS sortie garçon: directions, croisé, partenaire, quatre transferts et deux fins');
 
 let poses = 0, minY = Infinity, maxAnkleError = 0;
-for (const styleKey of Object.keys(api.STYLES)) for (const amp of [.5, 1, 2]) for (const sortieVariant of ['line', 'right']) {
+for (const styleKey of Object.keys(api.STYLES).filter(k => api.movementAllowed(k, 'sortieG'))) for (const amp of [.5, 1, 2]) for (const sortieVariant of ['line', 'right']) {
   const pair = couple();
   for (let tick = 0; tick <= 100; tick++) for (const [i, f] of pair.entries()) {
     const beat = tick / 20;
@@ -210,7 +210,7 @@ assert.equal(meshIntersection(cube(.1), cube(.1, .2)), null);
 const boneNames = ['Femur', 'Tibia', 'Fibula', 'Patella'].flatMap(name => ['L', 'R'].map(side => name + '_' + side));
 const collisionBeats = [...new Set([...Array.from({ length: 51 }, (_, i) => i / 10), .26, 2.83, 3.07, 4.25, 4.42, 4.87])].sort((a, b) => a - b);
 let collisionPoses = 0;
-for (const styleKey of Object.keys(api.STYLES)) for (const amp of [.5, 1, 2]) for (const sortieVariant of ['line', 'right']) {
+for (const styleKey of Object.keys(api.STYLES).filter(k => api.movementAllowed(k, 'sortieG'))) for (const amp of [.5, 1, 2]) for (const sortieVariant of ['line', 'right']) {
   const pair = couple();
   for (const beat of collisionBeats) {
     pair.forEach((f, i) => api.applyPose(f.r, f.model, beat, { ...options, styleKey, amp, sortieVariant, follower: !!i }));

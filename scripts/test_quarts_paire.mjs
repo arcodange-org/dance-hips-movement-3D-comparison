@@ -85,7 +85,7 @@ console.log('PASS quarts en paire: rotation rigide du couple autour du centre, f
 // 4–5. GLB pose invariants: floor, IK targets, bone lengths, functional foot axis, loads, planted foot,
 // continuity and loop.
 let poses = 0, minY = Infinity, maxAnkleError = 0;
-for (const styleKey of Object.keys(api.STYLES)) for (const amp of [.5, 1, 2]) {
+for (const styleKey of Object.keys(api.STYLES).filter(k => api.movementAllowed(k, 'quarts'))) for (const amp of [.5, 1, 2]) {
   const pair = couple();
   for (let tick = 0; tick <= 64; tick++) for (const [i, f] of pair.entries()) {
     const beat = tick / 4;
@@ -163,7 +163,7 @@ console.log('PASS enveloppes des quatre pieds disjointes (quinconce, face à fac
 // Leg bones: no crossing between partners nor between one dancer's legs (six styles, three amplitudes).
 const boneNames = ['Femur', 'Tibia', 'Fibula', 'Patella'].flatMap(name => ['L', 'R'].map(side => name + '_' + side));
 let collisionPoses = 0;
-for (const placement of ['quinconce', 'face']) for (const styleKey of Object.keys(api.STYLES)) for (const amp of [.5, 1, 2]) {
+for (const placement of ['quinconce', 'face']) for (const styleKey of Object.keys(api.STYLES).filter(k => api.movementAllowed(k, 'quarts'))) for (const amp of [.5, 1, 2]) {
   const pair = couple();
   // One quarter is enough: the others are the same up to the rotation (checked above).
   for (let beat = 0; beat < 4; beat += .125) {

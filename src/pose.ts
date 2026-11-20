@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { resetRig, groundDip, type RigHandle } from "./anatomy";
 import {
-  STYLES, supportOf, travelOffset, corridinhoPath, reversePath, quartTurnStep,
+  STYLES, supportOf, travelOffset, travelAllowed, corridinhoPath, reversePath, quartTurnStep,
   idaEVoltaStep, idaContra, sortieEnvelope, sortieActive, lockUpperTrunk,
   applyDanceFrame, applyFollowerFrame, swingLift, type MovementKey,
 } from "./styles";
@@ -40,6 +40,8 @@ export interface PoseOptions {
   idaPaire: boolean;
   /** #61: in pair on the spot, the couple dances in the neutral quinconce (opt-in, set by the app). */
   placePaire: boolean;
+  /** #62: false keeps the on-the-spot motion on the clock's phase (guide mode). */
+  onBeat?: boolean;
   /** #51: in pair figures the upper bodies keep plexus-to-plexus contact (lean towards the partner). */
   plexus: boolean;
   /** #51: 1 = the chest faces the partner while the pelvis follows the feet (contraposition), 0 = the
@@ -282,8 +284,23 @@ function leanTowards(r: RigHandle, partner: { x: number; z: number }): void {
 }
 
 /** The single final-pose pipeline used by React and GLB integration tests. */
-export function applyPose(r: RigHandle, model: PoseModel, beat: number, options: Partial<PoseOptions>): PoseStats {
+/** #62 (R21, owner: « les beats correspondent aux transferts de poids ») : the styles put full weight on
+ * a foot at phase x,5 (support = −S2). On the spot (solo, in pair, with lateral travel or temps3) the
+ * motion runs half a beat behind the clock, so that the weight arrives on the music's beat. The figures
+ * keep their own timing (aligning them is the rest of #62), and so do the legacy combined sortie
+ * (oracle) and the guide mode's basic step, which must join the figures. */
+export const ON_BEAT_SHIFT = 0.5;
+export const onBeatShift = (o: { movement: MovementKey; sortie?: boolean; embrace?: boolean; onBeat?: boolean }): number =>
+  // Solo, a selected sortie is the dance on the spot (the sorties exist only in pair). The guide mode
+  // (`onBeat: false`) keeps the clock's phase: its basic step must join the figures, which keep theirs.
+  o.onBeat !== false && (o.movement === "none" || o.movement === "temps3" || !o.embrace && o.movement.startsWith("sortie")) && !o.sortie ? ON_BEAT_SHIFT : 0;
+
+export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, options: Partial<PoseOptions>): PoseStats {
   const o = { ...DEFAULT_POSE, ...options };
+  // + 12 beats (a multiple of every on-the-spot period: styles 4, temps3 12) keeps the motion beat positive
+  // for the styles' `b % n` without changing the pose.
+  const shift = onBeatShift(o);
+  let beat = shift ? clockBeat - shift + 12 : clockBeat;
   const rest = { L: model.legs.L.rest, R: model.legs.R.rest };
   // Owner request (19 Nov.): in the five-action figures the feet point forward along the knees'
   // axis (the GLB foot is natively turned out by ≈25°), and the initial/neutral stance has the
@@ -300,7 +317,7 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
     // travel is on the spot); the pair corridinho is the validated couple turn of #37, a circle on the
     // floor in 16 beats (docs/spec-paire-sans-figure.md).
     : (o.movement === "none" || o.movement === "temps3") && o.placePaire ? samplePlacePaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance,
-      { travel: o.travel, dir: o.dir, length: o.movement === "temps3" ? 3 : 1 })
+      { travel: travelAllowed(o.styleKey) ? o.travel : 0, dir: o.dir, length: o.movement === "temps3" ? 3 : 1 })
     : o.movement === "corridinho" && o.placePaire ? sampleQuartsPaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance)
     : null;
   const figure = sampleFigure(o.follower);
@@ -360,7 +377,10 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
   if (figure) {
     // The coupled follower mirrors it like her pelvis: the couple sways together in the world.
     const coupledSway = o.follower ? 1 - 2 * figure.coupling : 1;
-    r.root.position.x = figure.root.x + styleRootX * ((figure as { styleSway?: number }).styleSway ?? 0) * coupledSway;
+    // The kept sway goes to the pelvis (the hips hang from it): the guide mode's pelvis inertialization
+    // (#69) then smooths it across segment boundaries, like the rest of the pelvis pose.
+    r.root.position.x = figure.root.x;
+    r.pelvis.position.x += styleRootX * ((figure as { styleSway?: number }).styleSway ?? 0) * coupledSway;
     r.root.position.z = figure.root.z;
     if (o.rootOffset) { r.root.position.x += o.rootOffset.x; r.root.position.z += o.rootOffset.z; }
     const rootYaw = (figure as { rootYaw?: number }).rootYaw;
@@ -497,7 +517,7 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
   const up = new THREE.Vector3(0, 1, 0).applyQuaternion(chestQ);
   const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(chestQ);
   const pos = r.root.getWorldPosition(new THREE.Vector3());
-  return { beat, loadR, loadL, kneeL: kneeAngle(r, "L"), kneeR: kneeAngle(r, "R"),
+  return { beat: figure ? beat : clockBeat, loadR, loadL, kneeL: kneeAngle(r, "L"), kneeR: kneeAngle(r, "R"),
     roll: r.pelvis.rotation.z * 180 / Math.PI,
     trunkTilt: Math.acos(Math.max(-1, Math.min(1, up.y))) * 180 / Math.PI,
     facing: facingSector(Math.atan2(forward.x, forward.z)), posX: pos.x, posZ: pos.z };
