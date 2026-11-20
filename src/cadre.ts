@@ -20,9 +20,9 @@ export const CADRE_SITES = {
   /** Leader's right hand on the follower's left shoulder blade, at the edge of her back: reached from
    * the side, the forearm lies along her flank instead of going through her torso (measured: at most
    * 1.4 cm into the torso box, against 5.7 cm on the middle of the shoulder blade). */
-  scapulaL: [0.14, 0.03, -0.1] as Vec3,
+  scapulaL: [0.15, 0.03, -0.1] as Vec3,
   /** Follower's left hand on the leader's right shoulder blade (same reasoning). */
-  scapulaR: [-0.14, 0.03, -0.1] as Vec3,
+  scapulaR: [-0.15, 0.03, -0.1] as Vec3,
   /** Leader's right elbow kept towards his right ribs (owner gesture: elbow to the ribs). */
   ribsR: [-0.15, -0.10, 0] as Vec3,
 };

@@ -5,7 +5,7 @@ import { unlinkSync } from "node:fs";
 import * as THREE from "three";
 import { fixture, snapshot } from "./pose_fixture.mjs";
 const bundle = new URL("./.test-cadre-bundle.mjs", import.meta.url);
-buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'rigJoints', 'placement', 'quartsPaire', 'sortieGarcon', 'sortieFille', 'idaPaire', 'cadre']
+buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'rigJoints', 'placement', 'quartsPaire', 'sortieGarcon', 'sortieFille', 'idaPaire', 'placePaire', 'cadre']
   .map(n => `export * from "./src/${n}";`).join('\n'), resolveDir: new URL('../', import.meta.url).pathname },
   bundle: true, packages: 'external', platform: 'node', format: 'esm', outfile: bundle.pathname,
   define: { 'import.meta.env.BASE_URL': '"/"' }, logLevel: 'silent' });
@@ -32,6 +32,7 @@ const cases = [
   ['sortieF', api.SORTIE_FILLE_PAIR_DZ, 5, { movement: 'sortieF' }],
   ['quarts', api.QUARTS_PAIR_DZ, 16, { movement: 'quarts', quarts: true, quartsPaire: true }],
   ['ida', api.IDA_PAIR_DZ, 8, { movement: 'ida', ida: true, idaPaire: true }],
+  ['sur place', api.PLACE_PAIR_DZ, 4, { movement: 'none', placePaire: true }],
 ];
 for (const [label, dz, beats, opt] of cases) {
   const pair = [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];

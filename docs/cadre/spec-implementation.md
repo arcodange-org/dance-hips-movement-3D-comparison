@@ -295,12 +295,15 @@ contact vont ajouter des contraintes qui vont aider à converger vers les bons m
   vers ses côtes D ; main G du suiveur sur l'omoplate D du leader (`scapulaR`), coude relevé vers
   l'extérieur ; mains jointes au milieu des épaules G du leader et D du suiveur, 6 cm plus bas. Visée au
   milieu de l'omoplate, l'avant-bras traversait le torse du partenaire (5,7 cm) ; au bord du dos, il
-  longe son flanc (au plus 1,4 cm dans la boîte de torse).
+  longe son flanc.
 - **Rendu** : chaque `Rig` résout ses bras après sa pose, avec la poitrine du partenaire de sa dernière
   pose (au plus une image de décalage) ; hors paire ou avec `cadre=0`, rien ne change.
 - **Mesures** (`scripts/test_cadre.mjs`, quinconce, plexus) : mains sur leurs sites quand elles sont à
-  portée ; bras bornés 2/84 (sortie garçon), 7/84 (sortie fille, le couple s'ouvre), 0 (quarts, ida) ;
-  pose du corps (pieds, bassins, poitrines) inchangée par le cadre.
+  portée ; bras bornés 1/84 (sortie garçon), 7/84 (sortie fille, le couple s'ouvre), 0 (quarts, ida,
+  sur place) ; avant-bras au plus 1,4 cm dans la boîte de torse du partenaire (sur place, où le style
+  balance les bassins ; 0,5 à 0,8 cm dans les figures) ; pose du corps (pieds, bassins, poitrines)
+  inchangée par le cadre. Les omoplates sont visées à 15 cm de l'axe, au bord du dos : à 14 cm,
+  l'avant-bras entrait de 2 cm sur place.
 
 Suite : les contacts comme **contraintes** sur les bustes et les bassins (le cadre qui retient ou
 transmet), les `CueEvent` des figures et la visualisation des intentions.
