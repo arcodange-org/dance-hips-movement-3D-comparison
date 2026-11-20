@@ -267,8 +267,9 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Cycle de marche des pas de figure (`src/gait.ts`), sorties et quarts de tour en paire (#49).
 - [x] Sortie garçon : pieds D bord à bord au temps 2, G1 moins latéral (#50).
 - [x] Option plexus contre plexus, avec ou sans contraposition, et mesure de l'indicateur (#51).
-- [ ] Sortie fille : raccourcir les reculs du suiveur pour tenir le contact plexus (#51, 19 cm).
+- [x] Sortie fille : D1 du crochet raccourci (45 cm) et ouverture plus courte (45 cm), écart plexus 17,5 → 15,4 cm (#51).
 - [x] Ida e volta : marche et contact plexus (#51, #54, voir ci-dessous).
+- [ ] Pas d'environ une longueur de pied dans la plupart des figures (#56 ; D3 du suiveur de la sortie garçon à décider).
 - [ ] Captures GIF mises à jour et validation à l'œil par le propriétaire.
 
 ## Ida e volta en paire (#54)

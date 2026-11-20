@@ -59,7 +59,8 @@ for (const variant of variants) {
   assert(first[1].L.x - second[1].L.x >= api.HIP_WIDTH - stanceOf(pair[1].model) - 1e-8, 'G opens at least one hip width');
 
   if (variant === 'hook') {
-    near(second[1].L.z, first[1].L.z);
+    // #51 (shorter opening): her G2 lands 6 cm behind her line (world +z for the follower).
+    near(second[1].L.z, first[1].L.z + .06);
     // Same flight fractions as the validated hook, shifted by the close-start lead.
     const lead = api.sortieFilleHookLead(o), when = f => 1 + lead + f * (.68 - lead);
     // #49: the foot travels during the swing of its (reduced) walking roll: the corner of the hook is

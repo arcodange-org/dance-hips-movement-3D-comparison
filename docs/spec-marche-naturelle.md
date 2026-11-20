@@ -102,6 +102,24 @@ Chaque pas d'une figure suit un cycle de marche, sur la fenêtre de vol déjà d
 - Les runners des sorties et des quarts en paire sont rejoués en mode plexus (`TEST_PLEXUS=1`,
   quinconce), le mode que l'application active dès qu'un placement est choisi.
 
+### Sortie fille et plexus (suite de #51)
+
+- Le D1 du suiveur recule de 45 cm dans le crochet (55 cm avant) : écart au temps 1 13 → 10 cm.
+  Plus court, ses genoux rencontrent ceux du leader (quinconce, kompa). Dans la variante recul, aucun
+  raccourcissement sans collision ne gagne plus de 1 cm : le D1 reste à 42 cm.
+- Plexus par le buste seul (voir plus haut) : écart maximal 17,5 cm (crochet), 18,1 cm (recul).
+  - **Action 2** : le bassin du suiveur est à 33 cm sur le côté pendant que son G2 s'ouvre de 55 cm.
+  - **Action 4** : son D reste au contact D/D pendant que son G recroise ; pieds écartés de 55 cm,
+    bassin plus bas de 12 cm. Faire descendre le couple ensemble croise les jambes (mesuré).
+- **Choix du propriétaire : ouverture plus courte** (appliqué). Dans le crochet, le G2 du suiveur
+  s'ouvre de 45 cm (55 avant), 6 cm en arrière pour que son D3 passe devant ; son bassin suit
+  l'ouverture ; le contact D/D de l'action 3 est rapproché de 7 cm ; le crochet du leader part
+  0,06 temps plus tard (le genou G du suiveur est plus près) ; son D3, qui ferme le contact D/D,
+  roule à 30 % (le genou passait contre celui du leader). Comme les contacts, ce raccourci
+  s'estompe au-delà de l'amplitude 1. Écart maximal des plexus 17,5 → 15,4 cm, sans collision
+  (six styles, trois placements, pas de 0,02 temps, avec et sans plexus). Une ouverture de 40 cm (14,1 cm) fait
+  se chevaucher les pieds du suiveur.
+
 ## Limites
 
 Pas de simulation de forces ni de contact de peau ; les pas restent illustratifs. Les amplitudes du
