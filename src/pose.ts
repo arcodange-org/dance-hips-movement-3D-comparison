@@ -74,8 +74,9 @@ export const DEFAULT_POSE: PoseOptions = {
  * mal interprétées (on dirait des lutteurs de sumo et non des danseurs parfois) ») : the upper body leans
  * at most `maxLean` towards the partner, and only in a close couple: the lean fades out between `open`
  * and `open + fade` of missing distance (an open position does not chase the plexus contact). The chest
- * turns towards the partner by at most `facing` (rad). */
-export const PLEXUS = { gap: 0.08, maxLean: 0.08, open: 0.06, fade: 0.08, facing: 0.3, marker: 0.16, pelvisDistance: 0.34, pelvisPull: 0 };
+ * turns towards the partner by at most `facing` (rad). The lean stops once the trunk (pelvis → head, the
+ * style's own posture included) is `maxTrunk` (rad) from the vertical. */
+export const PLEXUS = { gap: 0.08, maxLean: 0.08, maxTrunk: 0.13, open: 0.06, fade: 0.08, facing: 0.3, marker: 0.16, pelvisDistance: 0.34, pelvisPull: 0 };
 interface Leg {
   length1: number; length2: number; f0: THREE.Vector3; t0: THREE.Vector3;
   hip: THREE.Vector3; rest: THREE.Vector3; sole: THREE.Vector3[];
@@ -275,7 +276,12 @@ function leanTowards(r: RigHandle, partner: { x: number; z: number }): void {
     const ahead = (plexus.x - own.x) * ux + (plexus.z - own.z) * uz;
     const missing = reach - ahead;
     if (missing <= 1e-4) return;
-    if (iteration === 0) { const t = Math.max(0, Math.min(1, (missing - PLEXUS.open) / PLEXUS.fade)); fadeOut = 1 - t * t * (3 - 2 * t); }
+    if (iteration === 0) {
+      const t = Math.max(0, Math.min(1, (missing - PLEXUS.open) / PLEXUS.fade)); fadeOut = 1 - t * t * (3 - 2 * t);
+      // Style posture first: a style already leaning forward (suave) keeps less room for the lean.
+      const trunk = r.head.getWorldPosition(new THREE.Vector3()).sub(r.pelvis.getWorldPosition(new THREE.Vector3()));
+      fadeOut = Math.min(fadeOut, Math.max(0, PLEXUS.maxTrunk - trunk.angleTo(new THREE.Vector3(0, 1, 0))) / PLEXUS.maxLean);
+    }
     const pivot = outer.worldToLocal(spine.getWorldPosition(new THREE.Vector3()));
     const arm = Math.max(0.1, plexus.distanceTo(pivot));
     const angle = Math.min(PLEXUS.maxLean * fadeOut - leaned, Math.asin(Math.min(1, missing / arm)));

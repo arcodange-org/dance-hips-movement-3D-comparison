@@ -317,7 +317,9 @@ sortie fille) ».
 
 - **Inclinaison du contact plexus** (`PLEXUS`, `src/pose.ts`) : au plus 0,08 rad, et seulement en couple
   rapproché. Elle s'efface quand il manque plus de 6 à 14 cm pour que les plexus se touchent (position
-  ouverte). Avant : jusqu'à 2 × 0,35 rad.
+  ouverte). Avant : jusqu'à 2 × 0,35 rad. Elle s'arrête quand le tronc (bassin → tête, posture du style
+  comprise) atteint 0,13 rad (7,5°) : le suave, déjà penché par son style (6,6°), s'incline à peine
+  (sortie fille : 10,8° → 7,4°).
 - **Buste tourné vers le partenaire** : au plus 0,3 rad (avant : tout le buste, jusqu'à 90°).
 - Mesures (kizomba, plexus, quinconce) :
 
