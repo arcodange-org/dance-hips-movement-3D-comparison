@@ -22,7 +22,8 @@ Modules des figures en paire : [sortie garçon](docs/spec-sortie-garcon.md) (`sr
 `scripts/test_quarts_paire.mjs`), [ida e volta en paire](docs/spec-ida-paire.md) (`src/idaPaire.ts`,
 `scripts/test_ida_paire.mjs`), [marche en paire et flèches du mode jeu](docs/spec-jeu-fleches.md)
 (`src/marchePaire.ts`, `scripts/test_marche_paire.mjs`), [enchaînement sortie fille → sortie garçon](docs/spec-enchainements.md)
-(`src/enchainement.ts`, `scripts/test_enchainement.mjs`). Marche des pas de figure, fin en quinconce et plexus :
+(`src/enchainement.ts`, `scripts/test_enchainement.mjs`), [ida inséré dans les sorties](docs/spec-insertion-ida.md)
+(`src/insertion.ts`, `scripts/test_insertion.mjs`). Marche des pas de figure, fin en quinconce et plexus :
 [spec](docs/spec-marche-naturelle.md) (`src/gait.ts`, `scripts/test_plexus.mjs`). Le combiné `sortieGF` reste historique. Oracle :
 [contrat](docs/spec-phase18-oracle.md) ; `scripts/oracle_assertions.mjs` centralise les gardes finies
 et les comparaisons de quaternions ; ne pas réintroduire une comparaison d'une fonction de mouvement

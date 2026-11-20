@@ -10,9 +10,10 @@ import { sampleQuartsPaire, QUARTS_PAIR_DZ } from "./quartsPaire";
 import { sampleSortieGarcon, SORTIE_GARCON_PAIR_DZ, DEFAULT_SORTIE_CONTRA, type FigureFoot, type FootPoint } from "./sortieGarcon";
 import { sampleSortieFille, SORTIE_FILLE_PAIR_DZ } from "./sortieFille";
 import { sampleSortieFG, CHAIN_BEATS, CHAIN_FROM } from "./enchainement";
+import { sampleInserted, INSERTED_BEATS, INSERTION_AT } from "./insertion";
 import { placementOffset, placementScale, type CouplePlacement } from "./placement";
 
-export type GuideFigure = "ida" | "idaD" | "idaArr" | "idaArrD" | "quart" | "sortieG" | "sortieF" | "sortieFG" | "avance" | "recule" | "double";
+export type GuideFigure = "ida" | "idaD" | "idaArr" | "idaArrD" | "quart" | "sortieG" | "sortieF" | "sortieFG" | "sortieFI" | "sortieGI" | "avance" | "recule" | "double";
 export type GuideKind = "base" | GuideFigure;
 
 interface GuideFigureDef {
@@ -27,6 +28,8 @@ interface GuideFigureDef {
   ida?: IdaVariant; marche?: MarcheKind;
   /** #90: led during another figure (no key or button of its own). */
   chain?: boolean;
+  /** #91: the sortie with an ida e volta inserted at its position 2 (led during the sortie). */
+  insert?: boolean;
 }
 /** Pair figures available to the leader: pose movement, segment length (beats) and labels. */
 export const GUIDE_FIGURES: Record<GuideFigure, GuideFigureDef> = {
@@ -44,6 +47,11 @@ export const GUIDE_FIGURES: Record<GuideFigure, GuideFigureDef> = {
   // #90: ↑ during the sortie fille, before her G retakes the line: she advances into the sortie garçon's
   // position 2 and the couple finishes the sortie garçon (marka held one beat, as the sorties).
   sortieFG: { movement: "sortieF", beats: CHAIN_BEATS + 1, end: CHAIN_BEATS, label: "Sortie fille → fin de la sortie garçon", code: "", key: "↑", chain: true },
+  // #91: the ida's key during a sortie, before its position 2: the leader's G goes and returns (backwards
+  // in the sortie fille, forwards in the sortie garçon: the direction of his next step), then the sortie
+  // resumes.
+  sortieFI: { movement: "sortieF", beats: INSERTED_BEATS + 1, end: INSERTED_BEATS, label: "Sortie fille avec ida e volta", code: "", key: "W", insert: true },
+  sortieGI: { movement: "sortieG", beats: INSERTED_BEATS + 1, end: INSERTED_BEATS, label: "Sortie garçon avec ida e volta", code: "", key: "W", insert: true },
   // #89: « haut = avancer (PG puis PD) ; bas = reculer » ; « haut + haut successif rapidement : PG + PD
   // en 1 temps + marka 1 temps ».
   avance: { movement: "ida", beats: 2, end: 2, label: "Avancer", code: "ArrowUp", key: "↑", marche: "avance" },
@@ -81,9 +89,9 @@ export function keyLabel(figure: GuideFigure, layout?: { get(code: string): stri
   return (letter && letter.length === 1 ? letter : def.key).toUpperCase();
 }
 /** Pose options of a segment kind's figure (#89: ida variant, walk). */
-export function figureOptions(kind: GuideKind): { idaVariant: IdaVariant; marche: MarcheKind | null; sortieChain: boolean } {
+export function figureOptions(kind: GuideKind): { idaVariant: IdaVariant; marche: MarcheKind | null; sortieChain: boolean; sortieInsert: boolean } {
   const f = kind === "base" ? null : GUIDE_FIGURES[kind];
-  return { idaVariant: f?.ida ?? IDA_DEFAULT, marche: f?.marche ?? null, sortieChain: !!f?.chain };
+  return { idaVariant: f?.ida ?? IDA_DEFAULT, marche: f?.marche ?? null, sortieChain: !!f?.chain, sortieInsert: !!f?.insert };
 }
 
 /** Proposals to validate (owner):
@@ -95,7 +103,8 @@ export function figureOptions(kind: GuideKind): { idaVariant: IdaVariant; marche
  * - `double`: a second ↑ within this many beats of the first turns the walk into the double (#89);
  * - `chord`: the ida's key pressed this many beats after ↓ (held) replaces the walk backwards (#89);
  * - `chain`: ↑ pressed during the sortie fille from this beat on (and before her position 3) chains it
- *   into the end of the sortie garçon (#90).
+ *   into the end of the sortie garçon (#90); the ida's key during a sortie from this beat on (and before
+ *   its position 2) inserts an ida e volta (#91).
  */
 export const GUIDE = { prep: 0, baseGrid: 4, window: 2, inertia: 1, double: 0.5, chord: 1, chain: 1 };
 
@@ -167,6 +176,8 @@ export function sampleKind(kind: GuideKind, beat: number, follower: boolean, g: 
     case "sortieG": return sampleSortieGarcon(beat, follower, g.rest, "line", DEFAULT_SORTIE_CONTRA, o, placementScale(g.amp), g.stance);
     case "sortieF": return sampleSortieFille(beat, follower, g.rest, "hook", o, placementScale(g.amp), g.stance);
     case "sortieFG": return sampleSortieFG(beat, follower, g.rest, o, placementScale(g.amp), g.stance);
+    case "sortieFI": return sampleInserted("sortieF", beat, follower, g.rest, o, placementScale(g.amp), g.stance);
+    case "sortieGI": return sampleInserted("sortieG", beat, follower, g.rest, o, placementScale(g.amp), g.stance);
   }
 }
 
@@ -232,6 +243,19 @@ export function planGuide(intentions: GuideIntention[], motions: GuideMotions, u
   for (let guard = 0; guard < 100000; guard++) {
     // #90: ↑ during the sortie fille, before her position 3, chains it into the end of the sortie garçon
     // (the poses up to position 3 are the sortie fille's: the segment changes kind without a jump).
+    // #91: the ida's key (any variant) during a sortie, before its position 2, inserts the ida e volta
+    // there (the poses up to position 2 are the sortie's).
+    if (current.kind === "sortieF" || current.kind === "sortieG") {
+      const from = current.start + GUIDE.chain, to = current.start + INSERTION_AT;
+      for (let i = next; i < list.length && list[i].intention.beat < to; i++) {
+        const { beat, figure } = list[i].intention;
+        if (GUIDE_FIGURES[figure].movement !== "ida" || GUIDE_FIGURES[figure].marche || beat < from || consumed.has(i)) continue;
+        current.kind = current.kind === "sortieF" ? "sortieFI" : "sortieGI";
+        consumed.add(i);
+        settle(i, "accepté", to);
+        break;
+      }
+    }
     if (current.kind === "sortieF") {
       const from = current.start + GUIDE.chain, to = current.start + CHAIN_FROM;
       for (let i = next; i < list.length && list[i].intention.beat < to; i++) {
@@ -343,6 +367,12 @@ export const GUIDE_DEMO_ARROWS: { beat: number; figure: GuideFigure }[] = [
 /** #90 demonstration (`?guidage=1&demo=enchainement`): sortie fille, ↑ at its beat 2, end of the sortie garçon. */
 export const GUIDE_DEMO_CHAIN: { beat: number; figure: GuideFigure }[] = [
   { beat: 3.9, figure: "sortieF" }, { beat: 5.95, figure: "avance" },
+];
+
+/** #91 demonstration (`?guidage=1&demo=insertion`): sortie garçon with an ida e volta inserted at its
+ * position 2, then sortie fille with one (backwards). */
+export const GUIDE_DEMO_INSERT: { beat: number; figure: GuideFigure }[] = [
+  { beat: 3.9, figure: "sortieG" }, { beat: 5.5, figure: "ida" }, { beat: 11.9, figure: "sortieF" }, { beat: 13.5, figure: "ida" },
 ];
 
 /** Live wrapper used by the view: intentions are appended as keys are pressed. */

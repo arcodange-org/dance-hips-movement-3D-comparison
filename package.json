@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "capture": "node scripts/capture_gifs.mjs",
-    "test": "node scripts/test_styles.mjs && node scripts/test_features.mjs && node scripts/test_oracle.mjs && node scripts/test_poses.mjs && node scripts/test_oracle_final.mjs && node scripts/test_oracle_mutations.mjs && node scripts/test_sortie_garcon.mjs && node scripts/test_sortie_fille.mjs && node scripts/test_placements.mjs && node scripts/test_quarts_paire.mjs && node scripts/test_ida_paire.mjs && node scripts/test_marche_paire.mjs && node scripts/test_enchainement.mjs && node scripts/test_place_paire.mjs && node scripts/test_music.mjs && node scripts/test_temps_transferts.mjs && node scripts/test_cadre.mjs && node scripts/test_plexus.mjs && node scripts/test_guidage.mjs"
+    "test": "node scripts/test_styles.mjs && node scripts/test_features.mjs && node scripts/test_oracle.mjs && node scripts/test_poses.mjs && node scripts/test_oracle_final.mjs && node scripts/test_oracle_mutations.mjs && node scripts/test_sortie_garcon.mjs && node scripts/test_sortie_fille.mjs && node scripts/test_placements.mjs && node scripts/test_quarts_paire.mjs && node scripts/test_ida_paire.mjs && node scripts/test_marche_paire.mjs && node scripts/test_enchainement.mjs && node scripts/test_insertion.mjs && node scripts/test_place_paire.mjs && node scripts/test_music.mjs && node scripts/test_temps_transferts.mjs && node scripts/test_cadre.mjs && node scripts/test_plexus.mjs && node scripts/test_guidage.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
