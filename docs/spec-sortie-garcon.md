@@ -150,3 +150,30 @@ leader peut être devant la moitié droite du buste du suiveur ».
 - Mesures : enveloppes des cuisses droites 3,1 cm l'une dans l'autre (contact franc, bande du test
   élargie à 3,5 cm), aucun croisement d'os des jambes. Les empreintes historiques sortieG (leader et
   suiveur) sont régénérées.
+
+## Le suiveur recule droit, le leader gère seul son décalage (#110, 20 novembre 2026)
+
+Correction du propriétaire sur #104 : « le principe est que le suiveur ne fait que des marche arrière sans
+être dérangé par le leader qui est le seul à sortir puis revenir sur la ligne de danse. C'est au leader de
+gérer l'espace de son décalage à gauche pour être le plus proche possible sans "gêner" le suiveur ».
+
+- Le suiveur recule en ligne droite : l'écart latéral de son G2 (#104) est retiré. Son G2 recule de
+  25 cm, autant que le D2 du leader avance (R22).
+- Le leader fait la place lui-même :
+  - son G1 s'ouvre de 0,30 m et avance de 0,40 m (toujours plus en avant que sur le côté) ;
+  - son D2 se pose à 0,34 m à gauche de sa cheville de repos ;
+  - en position 2, son bassin reste au-dessus de son D.
+- Mesures : cuisses droites au contact sur le côté, à mi-cuisse (enveloppes 3,2 cm l'une dans l'autre),
+  aucun croisement d'os, semelles disjointes.
+- Variantes écartées :
+
+  | Variante | Résultat |
+  |---|---|
+  | D2 à 0,30 m | Les cuisses se serrent de 7 cm |
+  | D2 à 0,22 m (avant) | 541 croisements d'os |
+
+- **Conflit de règles à trancher** : avec le bassin au-dessus du D et le suiveur qui recule droit, les
+  pieds D ne peuvent plus être bord à bord (R9) ; ils sont à 12 cm. Bord à bord, les fémurs droits se
+  traversent.
+- Le D4 du leader part 0,25 temps après le début de son action (0,2 avant), et le G4 du suiveur avec lui.
+  Plus tôt, depuis sa sortie plus large, son genou D frôle son tibia G.
