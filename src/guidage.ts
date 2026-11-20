@@ -369,6 +369,12 @@ export const GUIDE_DEMO_CHAIN: { beat: number; figure: GuideFigure }[] = [
   { beat: 3.9, figure: "sortieF" }, { beat: 5.95, figure: "avance" },
 ];
 
+/** #91 demonstration (`?guidage=1&demo=insertion`): sortie garçon with an ida e volta inserted at its
+ * position 2, then sortie fille with one (backwards). */
+export const GUIDE_DEMO_INSERT: { beat: number; figure: GuideFigure }[] = [
+  { beat: 3.9, figure: "sortieG" }, { beat: 5.5, figure: "ida" }, { beat: 11.9, figure: "sortieF" }, { beat: 13.5, figure: "ida" },
+];
+
 /** Live wrapper used by the view: intentions are appended as keys are pressed. */
 export class GuideSession {
   intentions: GuideIntention[] = [];

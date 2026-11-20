@@ -55,9 +55,9 @@ const options = (host, i, extra = {}) => ({ movement: host, embrace: true, sorti
       // The moving foot: his G, her D; forward or back as his next step.
       const moving = i ? 'R' : 'L', held = s(AT);
       const way = (host === 'sortieF' ? -1 : 1) * (i ? -1 : 1);
-      check((s(AT + 1.3).feet[moving].z - held.feet[moving].z) * way > .1, `${host}: ${i ? 'her D' : 'his G'} goes ${way > 0 ? 'forward' : 'back'}`);
+      check((s(AT + 1).feet[moving].z - held.feet[moving].z) * way > .1, `${host}: ${i ? 'her D' : 'his G'} goes ${way > 0 ? 'forward' : 'back'}`);
       // Touch: during the return the weight stays on the support.
-      for (let t = AT + 2; t <= END; t += .1) near(s(t).loadR, held.loadR, 1e-12, `${host}: return without weight at ${t}`);
+      for (let t = AT + 1.25; t <= END; t += .05) near(s(t).loadR, held.loadR, 1e-12, `${host}: return without weight at ${t}`);
     }
     const leaves = (i, f, side) => { const s = t => api.sampleInserted(host, t, !!i, restOf(f), o, 1, stanceOf(f.model));
       for (let t = AT; t <= END; t += .005) if (Math.abs(s(t).feet[side].z - s(AT).feet[side].z) > 1e-9) return t; return Infinity; };

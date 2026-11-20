@@ -72,6 +72,20 @@ console.log('PASS ordonnancement : frontières, préparation, trop tôt / trop t
   assert.equal(api.figureOptions('sortieF').sortieChain, false);
 }
 console.log('PASS enchaînement : ↑ pendant la sortie fille (temps 1 à 3) → fin de la sortie garçon');
+// 1d. #91: the ida's key (any variant) during a sortie, between its beats 1 and 2, inserts the ida e volta
+// at its position 2 (one segment, which changes kind without changing its start).
+{
+  let plan = api.planGuide([I(3.9, 'sortieG'), I(5.5, 'ida')], motions, 30);
+  assert.equal(kinds(plan), 'base@0 sortieGI@4 base@12');
+  assert.deepEqual(plan.outcomes.map(o => [o.verdict, o.boundary]), [['accepté', 4], ['accepté', 6]]);
+  plan = api.planGuide([I(3.9, 'sortieF'), I(5.2, 'idaArr')], motions, 30);
+  assert.equal(kinds(plan), 'base@0 sortieFI@4 base@12', 'any ida variant inserts the adapted ida');
+  plan = api.planGuide([I(3.9, 'sortieG'), I(6.5, 'ida')], motions, 30);
+  assert.equal(kinds(plan), 'base@0 sortieG@4 base@10', 'after position 2: no insertion');
+  assert.equal(api.figureOptions('sortieGI').sortieInsert, true);
+}
+console.log('PASS insertion : touche de l\'ida pendant une sortie (temps 1 à 2) → ida e volta inséré en position 2');
+
 
 
 // 1b. Keys by physical position: QWERTY W A Q D = AZERTY Z Q A D; labels follow the layout.
