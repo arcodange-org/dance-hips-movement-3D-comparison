@@ -28,6 +28,9 @@ const STEP3_LEAD = 0.2;
 export const SORTIE_GARCON_LINE = [0, 0.17, 0.34, 0.66, 0.70, 0.70];
 export const SORTIE_GARCON_TRAVEL = { share: 0.7, leader: [2, 2, 2, 4, 5], follower: [2, 2, 2, 4, 5], behind: 0.015 };
 const STEP4_LEAD = 0.2;
+/** #88: the follower's delay after the leader's step (beats) and the share of it taken from her flight
+ * (1: she lands as before). */
+export const SORTIE_GARCON_SYNC = { lag: 0, keepLanding: 1, step4: 0.2, d4: "aside" as "aside" | "back" | "diagonal", g4span: 0.3 };
 const smooth = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * (3 - 2 * t); };
 const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 const interpolate = (a: FootPoint, b: FootPoint, t: number): FootPoint => ({ x: mix(a.x, b.x, t), z: mix(a.z, b.z, t) });
@@ -140,9 +143,15 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   // partner's D1, so his knee never meets her thigh before she retreats (face-à-face placement).
   // #50: the leader's G3 crosses once the follower's D3 has stepped out of the D/D foot contact; at
   // 0.2 beat his G shin passes in front of his D knee once the pelvis has made room (six styles).
-  const lead = !follower && index === 0 ? STEP1_LEAD : !follower && index === 2 ? STEP3_LEAD : !follower && index === 3 ? STEP4_LEAD : 0;
+  // #88 (owner: « le suiveur est soit en même temps que le leader soit très légèrement en retard, il ne
+  // peut pas être en avance »): the follower's step leaves when the leader's does, `SORTIE_GARCON_SYNC`
+  // later (her span is shortened by as much, so she still lands on time).
+  const leaderLead = index === 0 ? STEP1_LEAD : index === 2 ? STEP3_LEAD : index === 3 ? SORTIE_GARCON_SYNC.step4 : 0;
+  const lead = follower ? leaderLead + SORTIE_GARCON_SYNC.lag : leaderLead;
   // D4 returns behind the planted G once the partner's G4 has left (same 0.65 touchdown).
-  const span = !follower && index === 3 ? 0.65 - STEP4_LEAD : 0.6;
+  const span = !follower && index === 3 ? 0.65 - SORTIE_GARCON_SYNC.step4
+    : follower && index === 3 && SORTIE_GARCON_SYNC.g4span > 0 ? SORTIE_GARCON_SYNC.g4span
+    : follower ? Math.max(0.3, 0.6 - lead * SORTIE_GARCON_SYNC.keepLanding) : 0.6;
   const flight = Math.max(0, Math.min(1, (t - lead) / span));
   // #49: a walking step (heel rise, swing, heel strike or ball landing); the marka only touches.
   // Crossing (G3 in front of D) and uncrossing (D4) roll little: a heel strike with the toes up would
@@ -167,7 +176,7 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
     : !follower && index === 1 ? [{ x: from.x, z: from.z - SORTIE_GARCON_EXIT.back }, { x: to.x + aside, z: from.z - SORTIE_GARCON_EXIT.back }, { x: to.x + aside, z: to.z }]
     : follower && index === 2 ? [{ x: from.x + aside, z: mix(from.z, to.z, 0.3) }]
     : !follower && index === 2 ? [{ x: from.x, z: to.z }]
-    : !follower && index === 3 ? [{ x: to.x, z: from.z }]
+    : !follower && index === 3 ? (SORTIE_GARCON_SYNC.d4 === "back" ? [{ x: from.x, z: to.z }] : SORTIE_GARCON_SYNC.d4 === "diagonal" ? [] : [{ x: to.x, z: from.z }])
     // #48: into the neutral quinconce the marka feet move sideways first, then slide along their own
     // axis into the interleave (forefeet side by side).
     : index === 4 && Math.abs(to.x - from.x) > 1e-6 ? [{ x: to.x, z: from.z }] : [];

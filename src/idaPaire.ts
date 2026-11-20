@@ -15,8 +15,8 @@ export const IDA_LEAD = 0.25;
 /** Proposals to validate by eye (owner), calibrated on the GLB (docs/spec-ida-paire.md, Calibrage):
  * - `step`: length of the forward/backward step (m), the phase 8 amplitude (±9 cm);
  * - `flight`: end of the flight window of each step (beats, from the start of its 2-beat slot);
- * - `delay`: the foot stepping forward leaves `delay` after the foot stepping back, which clears the
- *   lane first (the partner's knee comes forward into the place it leaves);
+ * - `delay`: on a return, the follower's forward foot leaves `delay` after the leader's backward foot,
+ *   which clears the lane first (on an outgoing step see `IDA_PAIR_SYNC`, #88);
  * - `forwardRoll`, `backRoll`: share of the walking roll (src/gait.ts) of forward and backward steps;
  * - `aside`: a moving left foot (the outer lane of each pair of feet in quinconce: the leader's G next to
  *   the follower's D, the follower's G next to the leader's D) opens this far to its left during its
@@ -32,6 +32,11 @@ export const IDA_PAIR = {
   weight: { on: 1.2, full: 1.5, back: 1.55, home: 1.95 },
   pelvisYaw: 0.5, coupling: 1, kneeCap: 0.3, rotationCap: 0.05, dip: -0.008, sway: 1,
 };
+
+/** #88: the follower never leaves before the leader. On an outgoing step both moving feet leave at
+ * `start` (beats into the slot); her backward foot lands `backFlight` later, clearing the lane before his
+ * forward foot (which keeps landing at `IDA_PAIR.flight`). */
+export const IDA_PAIR_SYNC = { start: .3, backFlight: .5 };
 
 const smooth = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * (3 - 2 * t); };
 const other = (s: FigureFoot): FigureFoot => (s === "L" ? "R" : "L");
@@ -98,8 +103,12 @@ export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<Fig
   const from = now.out ? 0 : step, to = now.out ? step : 0;
   // Forward in the dancer's own frame: the leader's outgoing steps, the follower's returns.
   const ahead = to - from > 0;
-  const start = ahead ? IDA_PAIR.delay : 0;
-  const raw = Math.max(0, Math.min(1, (now.q - start) / (IDA_PAIR.flight - start)));
+  // #88: on an outgoing step the follower's back step leaves with the leader's forward step (never
+  // before) and clears the lane faster; on a return the leader's back step leads and she follows.
+  const sync = IDA_PAIR_SYNC;
+  const start = now.out ? sync.start : ahead ? IDA_PAIR.delay : 0;
+  const end = now.out && follower ? sync.start + sync.backFlight : IDA_PAIR.flight;
+  const raw = Math.max(0, Math.min(1, (now.q - start) / (end - start)));
   const gait = gaitStep(raw, { x: 0, z: to - from }, 0, ahead ? IDA_PAIR.forwardRoll : IDA_PAIR.backRoll);
   const feet = {} as Record<FigureFoot, FigureFootPose>;
   for (const side of ["L", "R"] as FigureFoot[]) {

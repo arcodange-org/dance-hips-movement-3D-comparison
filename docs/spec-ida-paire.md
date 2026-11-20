@@ -44,10 +44,13 @@ Repère du couple : celui du leader (+x à gauche, +z vers le suiveur). Écartem
 
   Le suiveur fait le pas symétrique du leader : même couloir de pieds (son D longe le G du leader, son G
   longe le D du leader, bords au contact en quinconce), même longueur. Le couple reste emboîté.
-- **Le pied qui recule libère la place** (même raisonnement que les quarts #37) : à l'aller, le pied du
-  suiveur part sur le temps et celui du leader `delay` = 0,5 temps plus tard ; au retour, c'est le pied
-  du leader (qui recule) qui part le premier et celui du suiveur qui suit. Les deux pieds se posent au
-  même moment (1,2 temps). L'intention du leader passe par le buste (`IDA_LEAD`).
+- **Le pied qui recule libère la place** (même raisonnement que les quarts #37), **sans que le suiveur
+  parte avant le leader** (#88, « il est soit en même temps que le leader soit très légèrement en retard,
+  il ne peut pas être en avance ») : à l'aller, les deux pieds partent ensemble à 0,3 temps
+  (`IDA_PAIR_SYNC.start`) ; le pied du suiveur, qui recule, se pose 0,5 temps plus tard et libère le
+  couloir, celui du leader se pose à 1,2 temps. Au retour, le pied du leader (qui recule) part le premier
+  et celui du suiveur suit `delay` = 0,5 temps plus tard ; les deux se posent à 1,2 temps. L'intention
+  du leader passe par le buste (`IDA_LEAD`).
 - **Pied G ouvert** : en quinconce, chaque paire de pieds qui bougent ensemble a un pied G à l'extérieur
   (G du leader contre D du suiveur, G du suiveur contre D du leader). Le pied G qui bouge s'écarte de
   2 cm vers sa gauche pendant le vol, pour que les deux genoux qui avancent côte à côte se croisent sans
@@ -109,7 +112,8 @@ Repère du couple : celui du leader (+x à gauche, +z vers le suiveur). Écartem
 |---|---|---|
 | `step` | 18 cm | longueur du pas (amplitude de la phase 8 : ±9 cm) |
 | `flight` | 1,2 temps | fin du vol de chaque pas |
-| `delay` | 0,5 temps | retard du pied qui avance sur le pied qui recule |
+| `delay` | 0,5 temps | au retour, retard du pied du suiveur (qui avance) sur celui du leader (qui recule) |
+| `IDA_PAIR_SYNC` | départ 0,3 temps, vol du suiveur 0,5 temps | à l'aller, départ commun ; le pied du suiveur qui recule se pose avant celui du leader (#88) |
 | `aside` | 2 cm | ouverture du pied G pendant son vol |
 | `carry` | 0,5 | part du pas suivie par les deux bassins (9 cm) |
 | `forwardRoll`, `backRoll` | 30 % | roulé du pas (`gaitStep`) |

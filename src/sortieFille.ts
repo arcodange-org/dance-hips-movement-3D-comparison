@@ -24,6 +24,9 @@ export function sortieFilleVariantOf(value: string | null): SortieFilleVariant {
   return value === "back" ? "back" : "hook";
 }
 
+/** #88: the follower's G2 leaves with the leader's hook and lands sooner. */
+export const SORTIE_FILLE_SYNC = { g2touchdown: .5 };
+
 /** Delay (in beats) of the leader's D2 after the follower's G2, proportional to the close start. */
 export function sortieFilleHookLead(offset: PlacementOffset): number {
   // #51: 0.06 beat more since the shorter opening keeps her G knee closer to his hooked D.
@@ -148,8 +151,11 @@ export function sampleSortieFille(beat: number, follower: boolean,
   const from = feet[action.foot], to = landing(index, action);
   // From a close start the leader's D2 touches the follower's G: her G2 opens the way first.
   const closeStart = Math.min(1, Math.hypot(o.x, o.z) / 0.05);
-  const delay = action.delay ?? (!follower && index === 1 ? sortieFilleHookLead(o) : 0);
-  const touchdown = !follower && index === 3 ? .48 : .68;
+  // #88: the follower never leaves before the leader: her G2 waits for his hook (it used to open the way
+  // first, sortieFilleHookLead earlier).
+  const delay = action.delay ?? (index === 1 ? sortieFilleHookLead(o) : 0);
+  // #88: synced with his hook, her G2 lands sooner to open the way in time.
+  const touchdown = !follower && index === 3 ? .48 : follower && index === 1 ? SORTIE_FILLE_SYNC.g2touchdown : .68;
   const flight = Math.max(0, Math.min(1, (t - delay) / (touchdown - delay)));
   // #49: a walking step (heel rise, swing, heel strike or ball landing); the marka only touches.
   // From the interleaved quinconce a heel rise would push the knee into the partner's: the first steps
