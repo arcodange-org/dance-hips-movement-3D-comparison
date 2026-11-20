@@ -17,7 +17,8 @@ import { placementOffset, type CouplePlacement, type PlacementOffset } from "./p
 /** Beat of the sortie fille where the chain leaves it, beat of the sortie garçon where it joins it. */
 export const CHAIN_FROM = 3, CHAIN_TO = 2;
 /** Bridge windows (beats from `CHAIN_FROM`), proposals to validate by eye (owner):
- * - leader: weight onto his planted D (`shift`), then his G placed (`leader`);
+ * - leader: weight onto his planted D (`shift`), then his G placed (`leader`); his pelvis travels over
+ *   `leaderBody` (#104: it ends over his D, next to her right thigh, so it waits for her D to clear);
  * - follower: her advanced G would land where her D stands, so her D goes first: weight onto her G in
  *   place (`toG`), her D placed with his G (never before it, R24: `herD`), weight onto it (`toD`), her G
  *   placed (`herG`) and weighted on the beat (`onG`);
@@ -28,7 +29,7 @@ export const CHAIN_FROM = 3, CHAIN_TO = 2;
  * smaller: otherwise the suave's wide hips press the right thighs together (amplitude 2, measured on the
  * GLB; each measure alone leaves crossings). */
 export const CHAIN_BRIDGE = {
-  beats: 2, shift: [0, 0.12], leader: [0.12, 1.1],
+  beats: 2, shift: [0, 0.12], leader: [0.12, 1.1], leaderBody: [0.6, 1.5],
   toG: [0, 0.15], herD: [0.16, 0.7], toD: [1.1, 1.3], herG: [1.3, 1.85], onG: [1.8, 2],
   roll: 0.3, rotationCap: 0.06, sway: 0.6, kneeCap: 0.3,
 } as const;
@@ -85,7 +86,7 @@ export function sampleSortieFG(beat: number, follower: boolean, rest: Record<Fig
     ? mix(mix(mix(from.loadR, 0, smooth(window01(u, w.toG))), 1, smooth(window01(u, w.toD))), to.loadR, smooth(window01(u, w.onG)))
     : mix(from.loadR, to.loadR, smooth(window01(u, w.shift)));
   // The pelvis follows the moving feet (the leader over his whole bridge, the follower over hers).
-  const body = smooth(follower ? window01(u, [w.herD[0], w.herG[1]]) : window01(u, [w.shift[0], w.leader[1]]));
+  const body = smooth(follower ? window01(u, [w.herD[0], w.herG[1]]) : window01(u, w.leaderBody));
   const root = { x: mix(from.root.x, to.root.x, body), z: mix(from.root.z, to.root.z, body) };
   const turn = smooth(u / w.beats);
   const hold = Math.sin(Math.PI * u / w.beats) ** 2;
