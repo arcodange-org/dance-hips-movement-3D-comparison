@@ -47,15 +47,17 @@ C, exprimée dans le repère du leader (+x à gauche, +z vers l'avant) :
 
 | Temps du quart | Suiveur | Leader |
 |---|---|---|
-| 0 → 1,45 | **D** : recule de 32 cm (il est coincé entre les pieds du leader, avant-pieds au contact), puis tourne autour de C et revient en glissant le long de son axe, à côté du G du leader | buste en avance (intention) |
-| 0,8 → 1,4 | | **G** : glisse de 7 cm vers l'avant dans la place laissée par le D du suiveur et se pose talon au bout du D, en angle droit, juste avant que le D du suiveur n'arrive à côté |
-| 1,45 → 3,1 | **G** : part dès que le D est posé (jamais les deux pieds en l'air), recule de 18 cm, arc 35 % plus large | |
-| 1,8 → 2,9 | | **D** : contourne le talon du G (arc 40 % plus large) et pivote dans la seconde moitié du vol, parallèle au G |
+| 0,4 → 1 | **D** : recule de 32 cm (il est coincé entre les pieds du leader, avant-pieds au contact), puis tourne autour de C et revient en glissant le long de son axe, à côté du G du leader ; posé sur le 1 | **G** : part **avec** le D du suiveur, glisse de 7 cm vers l'avant dans la place que ce D libère et se pose sur le 1, talon au bout du D, en angle droit ; son buste s'engage avec lui |
+| 1,45 → 3 | **G** : part dès que le D est posé (jamais les deux pieds en l'air), recule de 18 cm, arc 35 % plus large ; posé sur le 3 | |
+| 1,8 → 2,9 | | **D** : contourne le talon du G (arc 40 % plus large) et pivote dans la seconde moitié du vol, parallèle au G (posé sur le 3, il chevaucherait le G du suiveur) |
 
-- **Anticipation** : les bustes suivent une même courbe d'intention, celle du premier pas du
-  suiveur ; le buste du leader la joue 0,25 temps plus tôt (`QUARTS_LEAD`). Les pieds ne peuvent
-  pas partir en avance : depuis le quinconce, le G du leader ne peut prendre que la place que le D
-  du suiveur libère. L'intention passe donc par le buste et le cadre ; le suiveur pose sur le temps.
+- **Départs simultanés, buste du leader engagé avec son G** (#82, propriétaire, 20 novembre : « le
+  suiveur "anticipe" et bouge en avance (ça doit se faire en simultané). Et le leader engage le buste
+  avec son pied gauche ») : avant, le D du suiveur partait à 0 et le G du leader à 0,8. Désormais les
+  deux partent à 0,4 et se posent sur le 1. Le D du suiveur recule toujours d'abord le long de son
+  chemin, ce qui laisse sa place au G du leader. Les bustes suivent une même courbe d'intention, celle
+  du G du leader ; le buste du suiveur y répond 0,25 temps plus tard (`QUARTS_LEAD`) : elle ne
+  l'anticipe plus (R24).
 - Le haut du corps suit le premier pied, le bas du corps le second (règle de la phase 14).
 - **Bassins** : chacun tourne autour de C avec son **second pied** (le D du leader, le G du suiveur),
   pour qu'aucune jambe d'appui ne se couche en travers du pied que le partenaire pose. Bassins
