@@ -18,6 +18,9 @@ export const CAM_PRESETS: Record<string, CamPreset> = {
   // Vue plongeante légèrement de côté : pour lire le lacet des pieds (vírgula) par rapport
   // à la boussole fixe au repère.
   top: { position: [0.9, 4.4, 1.6], target: [0, 0.35, 0] },
+  // #87 : point de vue du guideur, derrière son épaule gauche (+x), regardant la suiveuse (paire : le
+  // guideur en z < 0, face à +z). Pour les GIF des figures en paire (`?cam=guideur`).
+  guideur: { position: [0.45, 1.95, -2.8], target: [0, 0.75, 0.3] },
 };
 
 // Buste plus opaque en capture (`?solid=1`) : on lit des corps, pas des squelettes.
