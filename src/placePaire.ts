@@ -13,7 +13,7 @@ export const PLACE_PAIR_DZ = 0.20;
 /** Proposals calibrated on the GLB (six styles, three amplitudes): `rotationCap` bounds the pelvis
  * rotations, `kneeCap` the knee flexion of the reach, `styleSway` the share of the style's lateral
  * hip shift kept on top of the planted feet, `dip` the lowest pelvis level. */
-export const PLACE_PAIR = { coupling: 1, rotationCap: 0.2, kneeCap: 0.45, styleSway: 1, dip: -0.03 };
+export const PLACE_PAIR = { coupling: 1, rotationCap: 0.16, kneeCap: 0.35, styleSway: 0.5, dip: -0.03 };
 
 export function samplePlacePaire(beat: number, follower: boolean, rest: Record<FigureFoot, FootPoint>,
   placement: CouplePlacement | "reference" | PlacementOffset = "reference", stance = 0) {
