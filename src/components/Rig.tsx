@@ -6,7 +6,8 @@ import { ANATOMY_URL, HIP_Y, TRAIL_MAX, BODY, BODY_DARK, TORSO_OPACITY, makeTrai
 import { STYLES, type MovementKey } from "../styles";
 import { applyPose, bindSkeleton, createPoseModel, type PoseModel, type Side } from "../pose";
 import { type DanceClock } from "../clock";
-import { TORSO_JOINTS } from "../rigJoints";
+import { TORSO_JOINTS, ARM_JOINTS } from "../rigJoints";
+import { solveFrame, hasArms } from "../cadre";
 import type { SortieFilleVariant } from "../sortieFille";
 import type { CouplePlacement } from "../placement";
 import { DEFAULT_SORTIE_CONTRA, type SortieVariant } from "../sortieGarcon";
@@ -169,7 +170,7 @@ export default function Rig({
   useEffect(() => {
     if (pair && side) {
       pair.current[side] = { chest: r.contactChest, pelvis: r.contactPelvis, kneeL: r.contactKneeL, kneeR: r.contactKneeR,
-        hipR: r.hipR, femurKneeR: r.kneeR };
+        hipR: r.hipR, femurKneeR: r.kneeR, rig: r };
       return () => {
         pair.current[side] = null;
       };
@@ -196,6 +197,10 @@ export default function Rig({
       plexus: embrace && placement !== undefined && (movement === "sortieG" || movement === "sortieF" || movement === "quarts" || movement === "ida" || movement === "none"),
       contraposition: contraposition ?? 1,
     });
+    // #40: in pair with the frame, the arms reach contact sites on the partner (pure IK, src/cadre.ts);
+    // the partner's chest is the one of its latest pose (at most one frame old).
+    const partner = pair && side ? pair.current[side === "leader" ? "follower" : "leader"]?.rig : null;
+    if (embrace && cadre && hasArms(r) && hasArms(partner)) solveFrame(r, partner, side === "follower");
     if (stats) stats.current = result;
     const { loadL, loadR } = result;
     if (r.padR && r.padL) {
@@ -369,8 +374,9 @@ export default function Rig({
                   {[-1, 1].map((sxi) => (
                     <group
                       key={sxi}
-                      ref={reg(sxi < 0 ? "armUL" : "armUR")}
-                      position={[0.19 * sxi, 0.1, 0]}
+                      // #40: armUL is the anatomical left arm, on the +x side (GLB: +x = left).
+                      ref={reg(sxi < 0 ? "armUR" : "armUL")}
+                      position={sxi < 0 ? ARM_JOINTS.shoulderR : ARM_JOINTS.shoulderL}
                       rotation={[0, 0, -0.12 * sxi]}
                     >
                       <mesh userData={{ part: "torso" }} position={[0, -0.13, 0]}>
@@ -382,7 +388,7 @@ export default function Rig({
                           opacity={torsoOp}
                         />
                       </mesh>
-                      <group ref={reg(sxi < 0 ? "armFL" : "armFR")} position={[0, -0.26, 0]}>
+                      <group ref={reg(sxi < 0 ? "armFR" : "armFL")} position={ARM_JOINTS.elbow}>
                         <mesh userData={{ part: "torso" }} position={[0, -0.11, 0]}>
                           <cylinderGeometry args={[0.028, 0.024, 0.22, 10]} />
                           <meshStandardMaterial
