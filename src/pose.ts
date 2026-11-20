@@ -11,7 +11,8 @@ import { sampleSortieGarcon, DEFAULT_SORTIE_CONTRA, type SortieVariant } from ".
 
 import { sampleSortieFille, type SortieFilleVariant } from "./sortieFille";
 import { sampleQuartsPaire, QUARTS_PAIR_DZ } from "./quartsPaire";
-import { sampleIdaPaire, IDA_PAIR_DZ } from "./idaPaire";
+import { sampleIdaPaire, IDA_PAIR_DZ, IDA_DEFAULT, type IdaVariant } from "./idaPaire";
+import { sampleMarchePaire, type MarcheKind } from "./marchePaire";
 import { samplePlacePaire, PLACE_PAIR_DZ } from "./placePaire";
 import { SORTIE_GARCON_PAIR_DZ } from "./sortieGarcon";
 import { SORTIE_FILLE_PAIR_DZ } from "./sortieFille";
@@ -38,6 +39,9 @@ export interface PoseOptions {
   /** #54: pair ida e volta (docs/spec-ida-paire.md): leader forward / follower back, natural walk,
    * neutral quinconce at each return; off = phase 8 model (both dancers mirror the same step). */
   idaPaire: boolean;
+  /** #89: ida e volta variant (starting leg, backwards first) and, in its place, a walk in pair. */
+  idaVariant: IdaVariant;
+  marche: MarcheKind | null;
   /** #61: in pair on the spot, the couple dances in the neutral quinconce (opt-in, set by the app). */
   placePaire: boolean;
   /** #62: false keeps the on-the-spot motion on the clock's phase (guide mode). */
@@ -67,7 +71,7 @@ export const DEFAULT_POSE: PoseOptions = {
   quarts: false, corridinho: false, ida: false, temps3: false, sortie: false,
   embrace: false, reverse: false, follower: false, movement: "none",
   sortieFilleVariant: "hook", sortieVariant: "line", sortieContra: DEFAULT_SORTIE_CONTRA,
-  placement: "reference", quartsPaire: false, idaPaire: false, placePaire: false, plexus: false, contraposition: 1,
+  placement: "reference", quartsPaire: false, idaPaire: false, idaVariant: IDA_DEFAULT, marche: null, placePaire: false, plexus: false, contraposition: 1,
   rootOffset: null, partnerRootOffset: null, pelvisOffset: null, trunkOffset: null,
 };
 /** Plexus-to-plexus contact (#51): chest-marker gap targeted between partners (m) and the largest
@@ -348,7 +352,9 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     // #37: in pair the couple turns rigidly around a centre on the leader's side (docs/spec-quarts-paire.md).
     : o.movement === "quarts" && o.quartsPaire ? sampleQuartsPaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance)
     // #54: in pair the leader steps forward while the follower steps back (docs/spec-ida-paire.md).
-    : o.movement === "ida" && o.idaPaire ? sampleIdaPaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance)
+    // #89: the game mode's walks share the ida's couple and lanes.
+    : o.movement === "ida" && o.idaPaire && o.marche ? sampleMarchePaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance, o.marche)
+    : o.movement === "ida" && o.idaPaire ? sampleIdaPaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance, o.idaVariant)
     // #61, #71: in pair without a figure the couple stays in the neutral quinconce (temps3 without
     // travel is on the spot); the pair corridinho is the validated couple turn of #37, a circle on the
     // floor in 16 beats (docs/spec-paire-sans-figure.md).

@@ -96,24 +96,32 @@ function weightOut(q: number): number {
   return smooth((q - w.on) / (w.full - w.on)) * (1 - smooth((q - w.back) / (w.home - w.back)));
 }
 
+/** #89 (game mode arrows): the leg that starts (`side`, the leader's; left by default) and whether the
+ * leader starts backwards (`back`). The right-leg ida is the same 8-beat cycle started at beat 4 (neutral
+ * at 0, 4 and 8): same poses. Backwards first, the leader steps back on the outgoing steps. */
+export interface IdaVariant { side: FigureFoot; back: boolean }
+export const IDA_DEFAULT: IdaVariant = { side: "L", back: false };
+
 export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<FigureFoot, FootPoint>,
-  placement: CouplePlacement | "reference" | PlacementOffset = "reference", stance = 0) {
-  const b = Number.isFinite(beat) ? beat : 0;
+  placement: CouplePlacement | "reference" | PlacementOffset = "reference", stance = 0, variant: IdaVariant = IDA_DEFAULT) {
+  const b = (Number.isFinite(beat) ? beat : 0) + (variant.side === "R" ? IDA_BEATS / 2 : 0);
   const o = placementOffset(placement);
   const neutral = idaNeutral(rest, o, stance);
   const now = idaStepAt(b);
   // The follower takes the symmetric step: her opposite foot, backwards, on the same lane.
   const moving: FigureFoot = follower ? other(now.side) : now.side;
-  const forward = follower ? -1 : 1;
+  const way = variant.back ? -1 : 1;
+  const forward = (follower ? -1 : 1) * way;
   const step = IDA_PAIR.step * forward;
   const from = now.out ? 0 : step, to = now.out ? step : 0;
   // Forward in the dancer's own frame: the leader's outgoing steps, the follower's returns.
   const ahead = to - from > 0;
-  // #88: on an outgoing step the follower's back step leaves with the leader's forward step (never
-  // before) and clears the lane faster; on a return the leader's back step leads and she follows.
+  // #88: when the follower steps back, her foot leaves with the leader's (never before) and clears the
+  // lane faster; when the leader steps back, his foot leads and hers follows `delay` later.
   const sync = IDA_PAIR_SYNC;
-  const start = now.out ? sync.start : ahead ? IDA_PAIR.delay : 0;
-  const end = now.out && follower ? sync.start + sync.backFlight : IDA_PAIR.flight;
+  const followerBack = now.out !== variant.back;
+  const start = followerBack ? sync.start : ahead ? IDA_PAIR.delay : 0;
+  const end = followerBack && follower ? sync.start + sync.backFlight : IDA_PAIR.flight;
   const raw = Math.max(0, Math.min(1, (now.q - start) / (end - start)));
   const gait = gaitStep(raw, { x: 0, z: to - from }, 0, ahead ? IDA_PAIR.forwardRoll : IDA_PAIR.backRoll);
   const feet = {} as Record<FigureFoot, FigureFootPose>;
@@ -135,14 +143,14 @@ export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<Fig
   const root = { x: neutral.root.x, z: neutral.root.z + forward * carried };
   // Phase 15 contraposition on the dancer's own moving foot (the follower mirrors the leader: opposite
   // world yaws, like the coupled pelvises). The leader's upper body leads by IDA_LEAD.
-  const sign = follower ? -1 : 1;
+  const sign = (follower ? -1 : 1) * way;
   const lower = sign * IDA_PAIR.pelvisYaw * idaContra(b).lowerYaw;
   const upper = sign * idaContra(follower ? b : b + IDA_LEAD).upperYaw;
   // The support transfer under way (explicit for the ginga #42), with its progress.
   const p = ((b % IDA_BEATS) + IDA_BEATS) % IDA_BEATS;
   const current = idaTransfers(follower).find(t => p >= t.start && p < t.end);
   const transfer = current ? { ...current, progress: smooth((p - current.start) / (current.end - current.start)) } : null;
-  return { beat: b, action: now.index, moving, feet, root, rootYaw: lower, chestYaw: upper - lower,
+  return { beat: Number.isFinite(beat) ? beat : 0, action: now.index, moving, feet, root, rootYaw: lower, chestYaw: upper - lower,
     // Coupled pelvises (quinconce): the follower's style mirrors the leader's, so she follows his phase
     // (her transfers are his, mirrored); her lateral hip shift goes to her own support (opposite sign).
     gingaBeat: idaGingaBeat(b, follower && IDA_GINGA.mode === "own"),
