@@ -112,7 +112,7 @@ export const STYLES: Record<string, StyleDef> = {
       "Sur place : isolations du bassin (8, cercles), blocages nets",
       "Haut du corps strictement immobile, guidage par contact des hanches",
       "Pas quasi nuls, plein appui, genoux souples",
-      "La plus « collée serr yakın » des variantes kizomba",
+      "La plus « collé-serré » (« kolé séré » en créole antillais) des variantes kizomba",
     ],
     support: (b) => -0.5 * S2(b),
     apply: (r, b, a) => {
