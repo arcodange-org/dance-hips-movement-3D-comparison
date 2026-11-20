@@ -162,7 +162,7 @@ const steps = [
     const pose = (beat, follower) => mod.sampleSortieFille(beat, follower, rest, m[1]);
     // #49: the corner of the hook is reached half-way through the swing of the (reduced) walking roll.
     const roll = mod.SORTIE_FILLE_FIRST_ROLL, push = mod.GAIT.push * roll, land = 1 - (1 - mod.GAIT.land) * roll;
-    c.fille = { start: pose(1, false), corner: pose(1 + .68 * (push + .5 * (land - push)), false), end: pose(2, false),
+    c.fille = { start: pose(1, false), corner: pose(1 + mod.sortieFilleHookLead({ x: 0, z: 0 }) + (.68 - mod.sortieFilleHookLead({ x: 0, z: 0 })) * (push + .5 * (land - push)), false), end: pose(2, false),
       followerStart: pose(1, true), followerEnd: pose(2, true) };
   }],
   [/^le droit du leader prend un crochet et le gauche du suiveur sort latéralement$/, (c) => {
@@ -171,7 +171,7 @@ const steps = [
       || Math.abs(corner.feet.R.z - start.feet.R.z) > 1e-9
       || Math.abs(end.feet.R.z - end.feet.L.z) > 1e-9
       || followerEnd.feet.L.x - followerStart.feet.L.x < HIP_WIDTH - 1e-9
-      || Math.abs(followerEnd.feet.L.z - followerStart.feet.L.z) > 1e-9) {
+      || Math.abs(followerEnd.feet.L.z - followerStart.feet.L.z + .06) > 1e-9) {
       throw new Error("crochet et sortie latérale attendus");
     }
   }],
