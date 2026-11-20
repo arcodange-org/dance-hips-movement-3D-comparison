@@ -12,7 +12,7 @@ import { createDanceClock, seekClock, type DanceClock } from "../clock";
 import { STYLES } from "../styles";
 import { useMusic } from "../music/useMusic";
 import {
-  GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, guideFiguresFor, GUIDE_PAIR_DZ, GUIDE_DEMO, applyTransform, figureOfCode, keyLabel,
+  GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, guideFiguresFor, guideStyleOf, GUIDE_PAIR_DZ, GUIDE_DEMO, applyTransform, figureOfCode, keyLabel,
   type GuideFigure, type GuideOutcome, type GuideKind,
 } from "../guidage";
 
@@ -192,7 +192,7 @@ export default function GuidageApp() {
           <h1 className="text-sm font-semibold text-slate-100">Mode guidage <span className="text-slate-400 font-normal">· preuve de concept</span></h1>
           <p className="text-xs text-slate-400 mt-1">
             Vous êtes le leader : choisissez la figure suivante juste avant le temps. La suiveuse la danse à la
-            prochaine frontière, depuis la quinconce. {STYLES[styleKey].label ?? styleKey}, {bpm} bpm.
+            prochaine frontière, depuis la quinconce. Pas de base en {STYLES[guideStyleOf("base", styleKey)].label}, figures en {STYLES[styleKey].label ?? styleKey}, {bpm} bpm.
           </p>
           <div className="mt-2 flex items-center gap-3 text-xs">
             <span className="text-2xl font-semibold tabular-nums text-slate-100" aria-label="compte">{count}</span>
