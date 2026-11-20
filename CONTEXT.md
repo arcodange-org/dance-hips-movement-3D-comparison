@@ -5,6 +5,16 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Preuve de concept du mode guidage #69 (20 novembre 2026)
+
+Branche `arcodange/mode-guidage-poc`, PR #70 empilée sur #65 (Draft). `?mode=pair&guidage=1` : le joueur
+(leader) choisit au clavier la figure suivante ; elle part à la prochaine frontière depuis la quinconce
+(pas de base = sur place en paire `src/placePaire.ts`, #61 ; sortie tous les 4 temps). `src/guidage.ts` (pur) : intentions horodatées
+→ segments, repère du couple composé, notes de placement, rejeu exact. `src/guidagePose.ts` : écarts de
+bassin (racine, hauteur, pose) aux frontières mesurés sur le danseur et effacés en 1 temps avant l'IK
+(sans cela, 3 cm au genou en tarraxinha : les figures n'ont pas la même hauteur de bassin, à relier à #67).
+`scripts/test_guidage.mjs` dans `npm test`. [Spécification et rapport](docs/spec-mode-guidage-poc.md).
+
 ## Recherche jeux vidéo et mode guidage #63 (20 novembre 2026)
 
 Documentation seule (#63, PR #65, Draft : porte de compréhension). `docs/recherche-jeux-video/` :

@@ -45,6 +45,15 @@ export interface PoseOptions {
   /** #51: 1 = the chest faces the partner while the pelvis follows the feet (contraposition), 0 = the
    * chest stays aligned with the pelvis. */
   contraposition: number;
+  /** #69 guide mode: offset (own frame, m) added to the figure's pelvis root, e.g. the residual of a
+   * transition being inertialized; `y` is added to the pelvis height found by the leg reach. The feet
+   * keep their targets (the leg IK absorbs it). */
+  rootOffset: { x: number; z: number; y?: number } | null;
+  /** #69 guide mode: residual of the pelvis's own pose (position m, Euler rad) at a boundary being
+   * inertialized; added after the figure's bounds and before the leg IK. */
+  pelvisOffset: { position: [number, number, number]; rotation: [number, number, number] } | null;
+  /** #69: the partner's `rootOffset` (its own frame), for the plexus lean towards the partner. */
+  partnerRootOffset: { x: number; z: number } | null;
 }
 export const DEFAULT_POSE: PoseOptions = {
   styleKey: "kizomba", amp: 1, travel: 0, dir: 1, plant: true, iso: true, cadre: true,
@@ -52,6 +61,7 @@ export const DEFAULT_POSE: PoseOptions = {
   embrace: false, reverse: false, follower: false, movement: "none",
   sortieFilleVariant: "hook", sortieVariant: "line", sortieContra: DEFAULT_SORTIE_CONTRA,
   placement: "reference", quartsPaire: false, idaPaire: false, placePaire: false, plexus: false, contraposition: 1,
+  rootOffset: null, partnerRootOffset: null, pelvisOffset: null,
 };
 /** Plexus-to-plexus contact (#51): chest-marker gap targeted between partners (m) and the largest
  * lean of the upper body towards the partner (rad). */
@@ -299,7 +309,8 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
     : o.movement === "ida" ? IDA_PAIR_DZ
     : o.movement === "none" || o.movement === "temps3" ? PLACE_PAIR_DZ : QUARTS_PAIR_DZ;
   const partnerFigure = figure && o.plexus ? sampleFigure(!o.follower) : null;
-  const partnerRoot = partnerFigure ? { x: -partnerFigure.root.x, z: 2 * pairDz - partnerFigure.root.z } : null;
+  const partnerOffset = o.partnerRootOffset ?? { x: 0, z: 0 };
+  const partnerRoot = partnerFigure ? { x: -(partnerFigure.root.x + partnerOffset.x), z: 2 * pairDz - (partnerFigure.root.z + partnerOffset.z) } : null;
   // Quarter turns loop: the style keeps dancing; the five-action figures hold after their marka.
   const cyclic = !!figure && "cyclic" in figure;
   if (figure) {
@@ -335,6 +346,11 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
     const sway = (figure as { sway?: number }).sway ?? 1;
     r.pelvis.position.x *= sway; r.pelvis.position.z *= sway;
   }
+  if (o.pelvisOffset) {
+    const { position: p, rotation: q } = o.pelvisOffset;
+    r.pelvis.position.x += p[0]; r.pelvis.position.y += p[1]; r.pelvis.position.z += p[2];
+    r.pelvis.rotation.x += q[0]; r.pelvis.rotation.y += q[1]; r.pelvis.rotation.z += q[2];
+  }
   // The close-couple figure limits extra bounce/flexion; generic deep pulses can put
   // two opposing knees through one another. Leg reach still determines pelvis height.
   const styleY = figure ? Math.max((figure as { dip?: number }).dip ?? -0.008, r.root.position.y * 0.25) : r.root.position.y;
@@ -346,6 +362,7 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
     const coupledSway = o.follower ? 1 - 2 * figure.coupling : 1;
     r.root.position.x = figure.root.x + styleRootX * ((figure as { styleSway?: number }).styleSway ?? 0) * coupledSway;
     r.root.position.z = figure.root.z;
+    if (o.rootOffset) { r.root.position.x += o.rootOffset.x; r.root.position.z += o.rootOffset.z; }
     const rootYaw = (figure as { rootYaw?: number }).rootYaw;
     if (rootYaw !== undefined) r.root.rotation.y = rootYaw;
     // #51: the pelvises seek each other: each closes half the gap beyond the plexus distance (the leg
@@ -439,7 +456,7 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
       const horizontal2 = (target.x - hip.x) ** 2 + (target.z - hip.z) ** 2;
       height = Math.min(height, target.y + Math.sqrt(Math.max(0, reach2 - horizontal2)) - hip.y);
     }
-    r.root.position.y = height + Math.min(0, styleY);
+    r.root.position.y = height + Math.min(0, styleY) + (o.rootOffset?.y ?? 0);
     r.root.updateWorldMatrix(true, true);
     const skeleton = r["Skeleton"] as THREE.Object3D;
     const outerQ = r.root.parent!.getWorldQuaternion(new THREE.Quaternion());
