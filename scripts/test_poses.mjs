@@ -100,7 +100,8 @@ for (const styleKey of Object.keys(api.STYLES)) {
   }
 }
 const walk = fixture(api);
-const walkStats = api.applyPose(walk.r, walk.model, 0.3, { travel: 1 });
+// #62: the on-the-spot motion runs ON_BEAT_SHIFT behind the clock (weight on the beat).
+const walkStats = api.applyPose(walk.r, walk.model, 0.3 + api.ON_BEAT_SHIFT, { travel: 1 });
 near(walk.model.lift.L, 0.05, 1e-10, "regression: lifted left foot");
 near(walkStats.loadL, 0, 0, "regression: no 90% load on lifted foot");
 console.log("PASS legacy free-foot floor and audited airborne-load regression");

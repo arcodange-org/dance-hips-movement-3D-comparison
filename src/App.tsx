@@ -21,7 +21,7 @@ import LineOfDance from "./components/LineOfDance";
 import CompassRose from "./components/CompassRose";
 import { resolveCam, resolveView, viewAnglesOf, SOLID_TORSO_OPACITY } from "./cameras";
 import { usePersistentState } from "./hooks/usePersistentState";
-import { STYLES, movementOf, movementFlags, PAIR_DZ, type ModeKey, type MovementKey } from "./styles";
+import { STYLES, movementOf, movementFlags, movementAllowed, travelAllowed, PAIR_DZ, type ModeKey, type MovementKey } from "./styles";
 import { QUARTS_PAIR_DZ } from "./quartsPaire";
 import { IDA_PAIR_DZ } from "./idaPaire";
 import { PLACE_PAIR_DZ } from "./placePaire";
@@ -72,7 +72,7 @@ export default function App() {
   // exact du guideur (phaseOffset 0), même style ; la comparaison de styles différents se fait
   // en mode « Comparaison côte à côte » (styleB), pas avec un suiveur retardé.
   const [showContacts, setShowContacts] = usePersistentState("showContacts", true);
-  const [travel, setTravel] = usePersistentState("travel", 0);
+  const [chosenTravel, setTravel] = usePersistentState("travel", 0);
   const [showTorso, setShowTorso] = usePersistentState("showTorso", true);
   const [showMuscles, setShowMuscles] = usePersistentState("showMuscles", false);
   const [showRepere, setShowRepere] = usePersistentState("repere", true);
@@ -99,7 +99,12 @@ export default function App() {
   const [sortieVariant, setSortieVariant] = usePersistentState<SortieVariant>("sortieVariant", "line");
   const [sortieContra, setSortieContra] = usePersistentState("sortieContra", DEFAULT_SORTIE_CONTRA);
   // Phase 14 — déplacements = options NON combinables (radio) : un seul actif à la fois.
-  const movement = movementOf({ corridinho, quarts, temps3, ida, sortieG, sortieF, sortieGF });
+  const chosenMovement = movementOf({ corridinho, quarts, temps3, ida, sortieG, sortieF, sortieGF });
+  // A style may offer only some movements (kompa: on the spot and ida e volta); otherwise on the spot.
+  const shownStyles = mode === "compare" ? [styleA, styleB] : [styleA];
+  const movement = shownStyles.every(k => movementAllowed(k, chosenMovement)) ? chosenMovement : "none";
+  // Kompa: no lateral travel either (on the spot and ida e volta only).
+  const travel = shownStyles.every(travelAllowed) ? chosenTravel : 0;
   const setMovement = (m: MovementKey) => {
     if ((m === "sortieG" || (mode === "pair" && m === "sortieF")) && m !== movement) seekClock(clock, 0);
     const f = movementFlags(m);

@@ -38,7 +38,9 @@ function check(f, beat, expected, config, label) {
   angleNear(f.r.root.rotation.y,expected.rootLocalYaw,1e-9,label+' root local');
   angleNear(f.r.chest.rotation.y,expected.chestLocalYaw,1e-9,label+' chest local');
   quaternionNear(worldQuaternion(f.r.root).toArray(),outer.clone().multiply(eulerQ(0,expected.rootLocalYaw,0)).toArray(),1e-7,label+' root world');
-  quaternionNear(worldQuaternion(f.r.chest).toArray(),expectedChestWorld(outer,beat,expected).toArray(),1e-7,label+' chest world');
+  // #62: on the spot the style runs ON_BEAT_SHIFT behind the clock (weight on the beat).
+  const styleBeat=beat-api.onBeatShift({movement:'none',embrace:true,...config});
+  quaternionNear(worldQuaternion(f.r.chest).toArray(),expectedChestWorld(outer,styleBeat,expected).toArray(),1e-7,label+' chest world');
   worldChecks+=4;
   // This is a nominal path with no style sway or reach projection. Keep its historical
   // 8 cm approximation bound separate from the exact ankle/orientation comparisons.
