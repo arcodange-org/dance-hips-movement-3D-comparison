@@ -61,24 +61,19 @@ export type QuartsShapes = Record<"leader" | "follower", [QuartsStepShape, Quart
 const still: QuartsStepShape = { start: 0, end: 1.2, bump: { x: 0, z: 0 }, bumpPeak: 0.4, arcDelay: 0, bulge: 0, yawDelay: 0 };
 /** Calibrated on the GLB soles and leg bones over the first quarter (all quarters are the same up to
  * the rotation), docs/spec-quarts-paire.md, Calibrage. In quinconce each first foot stands between the
- * partner's feet, forefeet in contact; the order of arrivals makes the turn possible:
- * 1. follower D (beats 0–1.7): retreats 32 cm first, then arcs and slides back along its own axis next
- *    to the leader's G;
- * 2. leader G (0.9–1.6): slides 7 cm forward into the place the follower's D left and lands, heel at
- *    his D's toe, before
- *    the follower's D arrives beside it (it approaches sideways, so it must land first);
- * 3. follower G (1.7–3): leaves as soon as her D has landed (never both feet in the air), retreats
- *    18 cm and lands on an arc 20 % wider;
- * 4. leader D (1.8–2.9): circles 40 % wide around the heel of his G and pivots in the second half of
- *    its flight, sliding along its axis beside the follower's G. */
+ * partner's feet, forefeet in contact. #82 (owner, 20 Nov.: « ça doit se faire en simultané »): the
+ * follower's D and the leader's G leave together (0.4) and land together on beat 1 (#62, weight on the
+ * beat); her D still retreats first along its path (bump) before arcing, which leaves his G its place;
+ * then her G (1.45–3, on beat 3) and his D (1.8–2.9: landing on 3 would overlap her G), which circles
+ * 40 % wide around the heel of his G and pivots in the second half of its flight. */
 export const QUARTS_SHAPES: QuartsShapes = {
   leader: [
-    { ...still, start: 0.8, end: 1.4, bump: { x: 0, z: 0.07 }, bumpPeak: 0.6, arcDelay: 0.1, bulge: -0.3 },
+    { ...still, start: 0.4, end: 1.0, bump: { x: 0, z: 0.07 }, bumpPeak: 0.6, arcDelay: 0.1, bulge: -0.3 },
     { ...still, start: 1.8, end: 2.9, arcDelay: 0.3, bulge: 0.4, yawDelay: 0.5 },
   ],
   follower: [
-    { ...still, end: 1.45, bump: { x: 0, z: -0.32 }, bumpPeak: 0.5, arcDelay: 0.3 },
-    { ...still, start: 1.45, end: 3.1, bump: { x: 0, z: -0.18 }, bumpPeak: 0.2, arcDelay: 0.1, bulge: 0.35 },
+    { ...still, start: 0.4, end: 1.0, bump: { x: 0, z: -0.32 }, bumpPeak: 0.5, arcDelay: 0.3 },
+    { ...still, start: 1.45, end: 3.0, bump: { x: 0, z: -0.18 }, bumpPeak: 0.2, arcDelay: 0.1, bulge: 0.35 },
   ],
 };
 /** Pelvis and style during the pair quarter turns (calibrated, docs/spec-quarts-paire.md):
@@ -90,7 +85,7 @@ export const QUARTS_SHAPES: QuartsShapes = {
  *   (both pairs of thighs interleaved while the leader's G lands next to the follower's standing G). */
 export const QUARTS_BODY = {
   coupling: 1, sway: 0.5, kneeCap: 0.3, rotationCap: 0.12, dip: -0.008, roll: 0.5,
-  crossing: { from: 1.0, to: 1.9, ramp: 0.3, kneeCap: 0.12, rotationCap: 0.04 },
+  crossing: { from: 0.6, to: 1.6, ramp: 0.3, kneeCap: 0.12, rotationCap: 0.04 },
 };
 function crossingAt(q: number): number {
   const { from, to, ramp: r } = QUARTS_BODY.crossing;
@@ -156,15 +151,16 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
   const rootAngle = base + QUARTER * two.arc;
   const rootPoint = about(c, start.root, rootAngle);
   const root = follower ? toFollower(rootPoint) : rootPoint;
-  // Upper bodies share one intention curve (the follower's first turn): the follower's chest turns
-  // with her first foot, the leader's QUARTS_LEAD earlier, whatever his feet are doing.
+  // #82 (owner, 20 Nov.: « le leader engage le buste avec son pied gauche »): upper bodies share one
+  // intention curve, the leader's first step (his G). His chest turns with his G; the follower's
+  // answers QUARTS_LEAD later (he leads, she does not anticipate).
   const intention = (time: number) => {
     const p = ((time % QUARTS_BEATS) + QUARTS_BEATS) % QUARTS_BEATS;
-    const quarter = Math.min(3, Math.floor(p / 4)), shape = shapes.follower[0];
+    const quarter = Math.min(3, Math.floor(p / 4)), shape = shapes.leader[0];
     const raw = Math.max(0, Math.min(1, (p - quarter * 4 - shape.start) / (shape.end - shape.start)));
     return quarter * QUARTER + QUARTER * ramp(raw, shape.arcDelay);
   };
-  const upper = intention(follower ? b : b + QUARTS_LEAD);
+  const upper = intention(follower ? b - QUARTS_LEAD : b);
   const crossing = crossingAt(now.q);
   const lower = angle[order[1]];
   const moving = two.flying || two.raw >= 1 ? order[1] : order[0];

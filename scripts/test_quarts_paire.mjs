@@ -64,23 +64,30 @@ console.log('PASS quarts en paire: rotation rigide du couple autour du centre, f
   console.log(`PASS boussole: pieds du leader dans les 4 quarts ; bassin du leader ${leader.toFixed(2)} m, du suiveur ${follower.toFixed(2)} m par tour`);
 }
 
-// 3. Sequence and lead: the follower's D leaves first (on the beat) and her G follows; the leader's G
-// lands in the place her D left, then his D; the leader's upper body runs QUARTS_LEAD ahead of hers.
+// 3. Sequence and lead (#82, owner: « le suiveur anticipe [...] ça doit se faire en simultané » ; « le
+// leader engage le buste avec son pied gauche »): the follower's D and the leader's G leave together and
+// land together on beat 1; then her G and his D. The leader's chest turns with his G, the follower's
+// QUARTS_LEAD later (she never anticipates him).
 {
   const rest = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
   const S = api.QUARTS_SHAPES;
-  assert.equal(S.follower[0].start, 0, 'the follower answers on the beat');
-  assert(S.follower[1].start > S.follower[0].start && S.leader[0].start > S.follower[0].start, 'follower D first');
-  assert(S.leader[0].end < S.follower[0].end, 'the leader G lands before the follower D slides in beside it');
-  assert(S.leader[1].start >= S.leader[0].end, 'leader G then D');
+  assert.equal(S.follower[0].start, S.leader[0].start, 'first feet leave together');
+  assert.equal(S.follower[0].end, 1, 'the follower D lands on beat 1');
+  assert.equal(S.leader[0].end, 1, 'the leader G lands on beat 1');
+  assert(S.leader[1].start >= S.leader[0].end && S.follower[1].start >= S.follower[0].end, 'G then D (leader), D then G (follower)');
   const yaw = s => s.rootYaw + s.chestYaw;
   for (let tick = 0; tick < 1600; tick++) {
     const b = tick / 100;
     const L = api.sampleQuartsPaire(b, false, rest, 'quinconce'), F = api.sampleQuartsPaire(b + api.QUARTS_LEAD, true, rest, 'quinconce');
     near(wrap(yaw(L) - yaw(F)), 0, 1e-9, `leader upper body leads by ${api.QUARTS_LEAD} at ${b}`);
   }
-  console.log('PASS séquence : D puis G du suiveur, G puis D du leader, buste du leader en avance de', api.QUARTS_LEAD, 'temps');
+  // The leader's chest starts turning with his G (not before), whatever the follower does.
+  const chest = b => yaw(api.sampleQuartsPaire(b, false, rest, 'quinconce'));
+  near(wrap(chest(S.leader[0].start - 0.01) - chest(0)), 0, 1e-9, 'leader chest still before his G');
+  assert(Math.abs(wrap(chest(S.leader[0].end) - chest(0))) > 0.5, 'leader chest turned with his G');
+  console.log('PASS séquence : D du suiveur et G du leader ensemble (posés sur le 1), buste du leader engagé avec son G, suiveur', api.QUARTS_LEAD, 'temps après');
 }
+
 
 // 4–5. GLB pose invariants: floor, IK targets, bone lengths, functional foot axis, loads, planted foot,
 // continuity and loop.
