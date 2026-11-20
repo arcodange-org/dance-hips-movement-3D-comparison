@@ -28,6 +28,8 @@ avec elle-même comme preuve de continuité ou de chorégraphie. [Éditeur futur
 Son synthétisé : [spec](docs/spec-son-synthese.md) (`src/music/`, `scripts/test_music.mjs`) ; grilles = données
 sourcées de `docs/musique/`, chaque piste garde son niveau de preuve ; son coupé, l'horloge reste inchangée.
 
+Règles de mouvement du propriétaire, consolidées et vérifiables : [`docs/regles-proprietaire.md`](docs/regles-proprietaire.md).
+
 **Lire ce fichier en premier dans toute session.** Le harness complet pour travailler sur ce projet
 en autonomie (méthode anti-amnésie, conventions, contribution agentique) est dans **[`.vibe/`](.vibe/)**
 — commencer par [`.vibe/HARNESS.md`](.vibe/HARNESS.md), puis [`.vibe/CONTRIBUTING.md`](.vibe/CONTRIBUTING.md)
