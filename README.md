@@ -172,6 +172,21 @@ Capture image par image de la session de démonstration (`?mode=pair&guidage=1&d
 [Spécification et rapport](docs/spec-mode-guidage-poc.md). BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 </details>
 
+### Ginga en paire : déhanché déclenché par les transferts d'appui
+
+Dans l'ida e volta en paire, le déhanché du style ne suit plus l'horloge : chaque transfert d'appui
+(six par cycle de 8 temps) déclenche un demi-cycle du style, du pied quitté vers le pied posé. Le suiveur
+danse la phase du leader en miroir (bassins couplés) ; le leader transmet à 70 %. Testé sur le GLB :
+appui du style = appui de la figure, aucun croisement des os des jambes.
+
+![Ginga dans l'ida e volta en paire](docs/gifs/ginga-ida-paire.gif)
+<details><summary>Détails & source</summary>
+
+Capture image par image (`scripts/capture_figure_gif.mjs`) : kizomba, paire, quinconce, vue de trois
+quarts, 8 temps à 90 bpm, amplitude 1. [Spécification et calibrage](docs/spec-ginga.md).
+BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
+</details>
+
 ## Vérifications de l’oracle
 
 Les contrôles de l'oracle distinguent désormais les poses évaluées, les cibles et les rotations

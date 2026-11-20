@@ -9,7 +9,8 @@ export interface StyleDef {
   // de base des genoux (rad). Kizomba/tarraxinha : buste légèrement en avant + genoux bien
   // fléchis (« lean slightly forward », « slightly bent knees », SOS Dance) ; zouk = cambré.
   posture: { lean: number; knee: number };
-  apply: (r: RigHandle, b: number, a: number) => void;
+  /** `w` (#42): beat of the slow 4-beat waves (suave, zouk), kept on the clock when the ginga drives `b`. */
+  apply: (r: RigHandle, b: number, a: number, w?: number) => void;
   // Charge sur le pied DROIT dans [-1, 1] (+1 = plein appui droit, -1 = plein appui gauche).
   // Sert à la visualisation des appuis (pastilles de charge, chaîne pied→genou→hanche).
   // Côté droit du rig à x < 0 : un déplacement root.x > 0 = appui qui passe à gauche.
@@ -155,17 +156,17 @@ export const STYLES: Record<string, StyleDef> = {
       "Transferts partiels 60/40, talons au sol, aucun rise-and-fall",
     ],
     support: (b) => -0.2 * S2(b),
-    apply: (r, b, a) => {
+    apply: (r, b, a, w = b) => {
       r.root.position.y = -0.035;
       r.pelvis.position.x = 0.03 * S2(b) * a;
-      r.pelvis.position.z = 0.022 * S4(b) * a;
-      r.pelvis.rotation.x = 0.05 * Math.sin((TAU * b) / 4 + 1.57) * a;
+      r.pelvis.position.z = 0.022 * S4(w) * a;
+      r.pelvis.rotation.x = 0.05 * Math.sin((TAU * w) / 4 + 1.57) * a;
       r.pelvis.rotation.z = 0.03 * S2(b) * a;
-      r.spine.rotation.x = 0.09 * Math.sin((TAU * b) / 4 - 0.5) * a;
-      r.lumbar.rotation.x = 0.1 * Math.sin((TAU * b) / 4 - 0.9) * a;
-      r.thoracic.rotation.x = 0.1 * Math.sin((TAU * b) / 4 - 1.4) * a;
-      r.chest.rotation.x = 0.08 * Math.sin((TAU * b) / 4 - 1.1) * a;
-      r.head.rotation.x = 0.06 * Math.sin((TAU * b) / 4 - 1.7) * a;
+      r.spine.rotation.x = 0.09 * Math.sin((TAU * w) / 4 - 0.5) * a;
+      r.lumbar.rotation.x = 0.1 * Math.sin((TAU * w) / 4 - 0.9) * a;
+      r.thoracic.rotation.x = 0.1 * Math.sin((TAU * w) / 4 - 1.4) * a;
+      r.chest.rotation.x = 0.08 * Math.sin((TAU * w) / 4 - 1.1) * a;
+      r.head.rotation.x = 0.06 * Math.sin((TAU * w) / 4 - 1.7) * a;
       r.kneeL.rotation.x = (0.14 + 0.1 * S2(b)) * a;
       r.kneeR.rotation.x = (0.14 - 0.1 * S2(b)) * a;
       r.extraL = 0.15 * pos(S1(b)) * a;
@@ -183,10 +184,10 @@ export const STYLES: Record<string, StyleDef> = {
       "En couple : sorties et variations de niveau (rise and fall)",
     ],
     support: (b) => -S2(b),
-    apply: (r, b, a) => {
+    apply: (r, b, a, w = b) => {
       const s = S2(b);
       r.root.position.x = 0.05 * s * a;
-      r.root.position.y = (-0.03 + 0.03 * S4(b)) * a;
+      r.root.position.y = (-0.03 + 0.03 * S4(w)) * a;
       r.pelvis.rotation.y = 0.18 * s * a;
       r.pelvis.rotation.x = 0.07 * s * a;
       r.pelvis.rotation.z = 0.05 * s * a;
@@ -195,10 +196,10 @@ export const STYLES: Record<string, StyleDef> = {
       r.kneeL.rotation.x = (0.12 + 0.28 * pos(s)) * a;
       r.kneeR.rotation.x = (0.12 + 0.28 * pos(-s)) * a;
       r.chest.rotation.y = 0.14 * Math.sin((TAU * b) / 2 - 1.0) * a;
-      r.chest.rotation.x = -0.14 * (0.5 + 0.5 * S4(b)) * a;
-      r.lumbar.rotation.x = -0.1 * (0.5 + 0.5 * S4(b)) * a;
-      r.thoracic.rotation.x = -0.08 * (0.5 + 0.5 * S4(b + 0.5)) * a;
-      r.head.rotation.x = -0.08 * (0.5 + 0.5 * Math.sin((TAU * b) / 4 - 0.8)) * a;
+      r.chest.rotation.x = -0.14 * (0.5 + 0.5 * S4(w)) * a;
+      r.lumbar.rotation.x = -0.1 * (0.5 + 0.5 * S4(w)) * a;
+      r.thoracic.rotation.x = -0.08 * (0.5 + 0.5 * S4(w + 0.5)) * a;
+      r.head.rotation.x = -0.08 * (0.5 + 0.5 * Math.sin((TAU * w) / 4 - 0.8)) * a;
     },
   },
 };
