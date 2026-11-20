@@ -124,3 +124,7 @@ Chaque pas d'une figure suit un cycle de marche, sur la fenêtre de vol déjà d
 
 Pas de simulation de forces ni de contact de peau ; les pas restent illustratifs. Les amplitudes du
 déroulé (angles, hauteurs) sont des propositions à valider à l'œil par le propriétaire.
+
+## Règle ajoutée le 20 novembre 2026 (#67)
+
+Distance bassin-bassin quasi constante une fois le décalage latéral retiré, et pas de « monter-descendre » permanent : voir [règles du propriétaire](regles-proprietaire.md) (R2, R3). Critère à mesurer sur le GLB pour cette figure.

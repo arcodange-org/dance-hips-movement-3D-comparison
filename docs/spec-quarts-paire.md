@@ -107,3 +107,7 @@ Mené sur le GLB réel, au premier quart (les autres s'en déduisent par rotatio
 - Piste notée : un algorithme génétique pourrait explorer d'autres solutions sur ces mêmes
   contraintes (semelles, os, contacts, distance) ; ici, le raisonnement a été plus efficace que le hasard.
 - Ces tests ne constituent pas une validation chorégraphique.
+
+## Règle ajoutée le 20 novembre 2026 (#67)
+
+Distance bassin-bassin quasi constante une fois le décalage latéral retiré, et pas de « monter-descendre » permanent : voir [règles du propriétaire](regles-proprietaire.md) (R2, R3). Critère à mesurer sur le GLB pour cette figure.
