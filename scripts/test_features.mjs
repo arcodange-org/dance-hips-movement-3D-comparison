@@ -197,7 +197,8 @@ const steps = [
     const cross = c.figure[0][3], final = c.figure[0][5];
     if (!(cross.feet.L.x < cross.feet.R.x && cross.feet.L.z > cross.feet.R.z)) throw new Error("croisé avant absent");
     if (final.loadL !== 0 || final.feet.L.lift > 1e-8) throw new Error("marka gauche incorrect");
-    if (!(final.root.z > .5 && c.figure[1][5].root.z < -.5)) throw new Error("progression du couple perdue");
+    // #56: the couple progresses 49 cm (70 % of the validated 70 cm) along the line.
+    if (!(final.root.z > .4 && c.figure[1][5].root.z < -.4)) throw new Error("progression du couple perdue");
   }],
   [/^le style "([^"]+)"$/, (c, m) => { if (!STYLES[m[1]]) throw new Error("style inconnu: " + m[1]); c.style = m[1]; }],
   [/^on applique le style sur (\d+) temps à amplitude ([\d.]+) sans déplacement$/, (c, m) => {

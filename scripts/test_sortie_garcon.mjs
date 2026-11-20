@@ -66,8 +66,9 @@ for (const sortieVariant of ['line', 'right']) {
   assert(exitX > .2 - o.x, 'leader exits to own left');
   assert(exitZ > exitX, `step 1 is more forward (${exitZ}) than sideways (${exitX})`);
   assert(states[1][0].L.z > states[0][0].L.z + .1, 'leader advances G');
-  assert(states[1][1].R.z > states[0][1].R.z + .1, 'partner retreats D');
-  assert(states[2][0].R.z > states[2][0].L.z + .05, 'leader D is in front of G');
+  // #56: steps of about one foot length; the partner's D1 only retreats ~11 cm.
+  assert(states[1][1].R.z > states[0][1].R.z + .05, 'partner retreats D');
+  assert(states[2][0].R.z > states[2][0].L.z, 'leader D is level with or in front of G');
   assert(states[2][0].R.x > Math.max(states[2][1].R.x, states[2][1].L.x) + .05,
     'leader D outside the partner feet (its outer edge against her D, measured below)');
   // #50: D2 now lands against the follower's D, closer to the line: the cross is shorter sideways.
@@ -80,8 +81,9 @@ for (const sortieVariant of ['line', 'right']) {
   for (const i of [0, 1]) {
     for (const side of ['L', 'R']) {
       // #48: the figure ends in the neutral position (quinconce, feet under the hips): the final pose
-      // is the start translated along the line (and 10 cm aside in the right variant).
-      near(states[5][i][side].z - states[0][i][side].z, .70);
+      // is the start translated along the line (#56: half of the validated 70 cm; and 10 cm aside in
+      // the right variant).
+      near(states[5][i][side].z - states[0][i][side].z, api.SORTIE_GARCON_TRAVEL.share * api.SORTIE_GARCON_LINE[5]);
       near(states[5][i][side].x - states[0][i][side].x, sortieVariant === 'right' ? -.1 : 0);
     }
     near(states[5][i].L.x - states[5][i].R.x, states[0][i].L.x - states[0][i].R.x);
@@ -93,17 +95,24 @@ const restForProgress = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
 for (const follower of [false, true]) for (const variant of ['line', 'right']) {
   let previous = api.sampleSortieGarcon(0, follower, restForProgress, variant, undefined, placement);
   // #48: from action 4 the neutral landings close the couple again by o.z (+ the D's stagger).
-  const o = api.placementOffset(placement), back = { L: 0, R: 0 };
+  const o = api.placementOffset(placement), back = { L: 0, R: 0 }, early = { L: 0, R: 0 };
   for (let tick = 1; tick <= 500; tick++) {
     const current = api.sampleSortieGarcon(tick / 100, follower, restForProgress, variant, undefined, placement);
     for (const side of ['L', 'R']) {
       const step = (current.feet[side].z - previous.feet[side].z) * (follower ? -1 : 1);
-      if (tick <= 300) assert(step >= -1e-12, 'the forward leader / retreating partner never make a backward excursion');
+      if (tick <= 300) early[side] += Math.max(0, -step);
       else back[side] += Math.max(0, -step);
     }
     previous = current;
   }
-  for (const side of ['L', 'R']) assert(back[side] <= Math.max(0, follower ? o.z + (side === 'R' ? (o.stagger ?? 0) / 2 : 0) : 0) + 1e-9,
+  // #56: only the leader's D2 steps back (5 cm) to go round the partner's D1 before advancing.
+  for (const side of ['L', 'R']) assert(early[side] <= (!follower && side === 'R' ? api.SORTIE_GARCON_EXIT.back : 0) + 1e-9,
+    `the forward leader / retreating partner never make a backward excursion (${follower ? 'partner' : 'leader'} ${side}: ${early[side]})`);
+  // #56: the marka foot (leader G, partner D) last landed at action 3 with the progression of action
+  // 2, ahead of the neutral end: it comes back by the progression left out between them.
+  const travel = api.SORTIE_GARCON_TRAVEL, table = follower ? travel.follower : travel.leader, lineAt = i => api.SORTIE_GARCON_LINE[i];
+  const marka = follower ? 'R' : 'L', markaBack = (1 - travel.share) * (lineAt(table[4]) - lineAt(table[2]));
+  for (const side of ['L', 'R']) assert(back[side] <= (follower ? o.z + (side === 'R' ? (o.stagger ?? 0) / 2 : 0) : 0) + (side === marka ? markaBack : 0) + 1e-9,
     `only the neutral landing comes back (${follower ? 'partner' : 'leader'} ${side}: ${back[side]})`);
 }
 console.log('PASS sortie garçon: directions, croisé, partenaire, quatre transferts et deux fins');

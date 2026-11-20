@@ -269,7 +269,8 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Option plexus contre plexus, avec ou sans contraposition, et mesure de l'indicateur (#51).
 - [x] Sortie fille : D1 du crochet raccourci (45 cm) et ouverture plus courte (45 cm), écart plexus 17,5 → 15,4 cm (#51).
 - [x] Ida e volta : marche et contact plexus (#51, #54, voir ci-dessous).
-- [ ] Pas d'environ une longueur de pied dans la plupart des figures (#56 ; D3 du suiveur de la sortie garçon à décider).
+- [x] Sortie garçon : progression du couple réduite (70 %), pas de 17 à 33 cm hors croisé (#56, [spec](spec-pas-courts.md)).
+- [ ] Passage du suiveur pendant le croisé (D3 54 cm) et sortie fille avec des pas d'une longueur de pied (#56, décision du propriétaire).
 - [ ] Captures GIF mises à jour et validation à l'œil par le propriétaire.
 
 ## Ida e volta en paire (#54)
