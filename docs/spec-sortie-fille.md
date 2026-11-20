@@ -72,3 +72,10 @@ et le [recul](gifs/sortie-fille-recul.gif).
 ## Règle ajoutée le 20 novembre 2026 (#67)
 
 Distance bassin-bassin quasi constante une fois le décalage latéral retiré, et pas de « monter-descendre » permanent : voir [règles du propriétaire](regles-proprietaire.md) (R2, R3). Critère à mesurer sur le GLB pour cette figure.
+
+## Le suiveur ne part jamais avant le leader (#88, 20 novembre 2026)
+
+Avant : départs du leader 0 · 1,14 · 2 · 3 · 4, du suiveur 0 · 1 · 2 · 3,24 · 4. Son G2 « ouvrait le
+passage » avant le crochet du leader (`sortieFilleHookLead`), ce qui la mettait en avance. Désormais
+son G2 part avec le crochet et se pose plus tôt (`SORTIE_FILLE_SYNC.g2touchdown` = 0,5 du temps au lieu
+de 0,68) : il libère la place à temps, en quinconce compris. Son G4 (3,24) reste un léger retard, permis.

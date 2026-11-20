@@ -110,3 +110,13 @@ rendu sortieF est décrit dans [sa spécification](spec-sortie-fille.md). [Rétr
 ## Règle ajoutée le 20 novembre 2026 (#67)
 
 Distance bassin-bassin quasi constante une fois le décalage latéral retiré, et pas de « monter-descendre » permanent : voir [règles du propriétaire](regles-proprietaire.md) (R2, R3). Critère à mesurer sur le GLB pour cette figure.
+
+## Le suiveur ne part jamais avant le leader (#88, 20 novembre 2026)
+
+« Corriger l'anticipation du suiveur : il est soit en même temps que le leader soit très légèrement en
+retard, il ne peut pas être en avance. » Avant : départs du leader 0,1 · 1 · 2,2 · 3,2 · 4, du suiveur
+0 · 1 · 2 · 3 · 4 (en avance aux pas 1, 3 et 4). Désormais chaque pas du suiveur part avec celui du
+leader (`SORTIE_GARCON_SYNC.lag` = 0) et se pose au même moment. Au pas 4, le D4 du leader part à 3,2 et
+le G4 du suiveur part avec lui mais vole plus vite (`g4span` = 0,3 temps) : il libère la place avant que
+le D4 n'arrive (les variantes plus lentes faisaient se chevaucher ces deux pieds : 8 à 63 poses). Les
+empreintes historiques du suiveur (sortieG) sont régénérées ; celles du leader sont inchangées.

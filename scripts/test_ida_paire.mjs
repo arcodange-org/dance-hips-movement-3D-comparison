@@ -67,10 +67,13 @@ console.log('PASS neutre : quinconce (ou placement) retrouvé aux temps 0, 4 et 
     // Same step length: at the end of each flight both feet are out (or back) by the same amount.
     const { q, out } = api.idaStepAt(b), S = api.IDA_PAIR.step;
     if (q >= api.IDA_PAIR.flight) { near(dl, out ? S : 0, 1e-12, `leader landed at ${b}`); near(df, out ? -S : 0, 1e-12, `follower landed at ${b}`); }
-    // The foot stepping back leaves first and keeps ahead; the foot stepping forward waits `delay`.
+    // #88: the follower never leaves before the leader. Outgoing step: both feet leave together at
+    // IDA_PAIR_SYNC.start, her backward foot clears the lane faster. Return: his backward foot leads and
+    // her forward foot waits `delay`.
     // Progress of each moving foot along its step, 0 → 1.
     const back = out ? -df / S : 1 - dl / S, fwd = out ? dl / S : 1 + df / S;
-    if (q <= api.IDA_PAIR.delay) near(fwd, 0, 1e-12, `forward foot waits at ${b}`);
+    if (out && q <= api.IDA_PAIR_SYNC.start) { near(fwd, 0, 1e-12, `leader waits at ${b}`); near(back, 0, 1e-12, `follower waits for the leader at ${b}`); }
+    if (!out && q <= api.IDA_PAIR.delay) near(fwd, 0, 1e-12, `forward foot waits at ${b}`);
     assert(back >= fwd - 1e-12, `backward foot clears the lane first at ${b}`);
     // Roots in the couple (world) frame: leader -dz + z, follower dz - z: constant gap.
     near((dz - F.root.z) - (-dz + L.root.z), 2 * dz - 2 * o.z, 1e-12, `couple block at ${b}`);
