@@ -242,22 +242,25 @@ export default function GuidageApp() {
         </div>
       </div>
 
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-wrap justify-center gap-2 px-3">
-        {/* #89: the ida variants are led by an arrow held with its key (hint below), not by buttons. */}
-        {offered.filter(f => !GUIDE_FIGURES[f].ida).map(f => (
-          <button key={f} onPointerDown={e => lead(f, e.timeStamp)} disabled={!playing}
-            className="rounded-xl bg-slate-900/85 border border-slate-700 px-4 py-3 text-sm text-slate-100 hover:bg-slate-800 disabled:opacity-50">
-            {GUIDE_FIGURES[f].label} <kbd className="ml-1 text-slate-400">{keyLabel(f, layout)}</kbd>
-          </button>
-        ))}
+      {/* Bottom panel, full width: figure buttons (wrapping rows), the arrows hint, the attribution. */}
+      <div className="absolute bottom-2 inset-x-3 flex flex-col items-center gap-1.5">
+        <div className="flex flex-wrap justify-center gap-1.5">
+          {/* #89: the ida variants are led by an arrow held with its key (hint below), not by buttons. */}
+          {offered.filter(f => !GUIDE_FIGURES[f].ida).map(f => (
+            <button key={f} onPointerDown={e => lead(f, e.timeStamp)} disabled={!playing}
+              className="rounded-lg bg-slate-900/85 border border-slate-700 px-2.5 py-1.5 text-xs text-slate-100 hover:bg-slate-800 disabled:opacity-50 sm:px-4 sm:py-2.5 sm:text-sm">
+              {GUIDE_FIGURES[f].label} <kbd className="ml-1 text-slate-400">{keyLabel(f, layout)}</kbd>
+            </button>
+          ))}
+        </div>
+        {offered.includes("idaD") && <p className="text-center text-[11px] text-slate-400">
+          → ou ↓ maintenue + {keyLabel("ida", layout)} : ida e volta jambe droite, en arrière d'abord · ↑ ↑ : double et marka
+        </p>}
+        <p className="self-stretch text-[10px] text-slate-500">
+          Anatomie : BodyParts3D, © The Database Center for Life Science, licence CC BY-SA 2.1 Japan. Animation
+          paramétrique illustrative, sans validation chorégraphique.
+        </p>
       </div>
-      {offered.includes("idaD") && <p className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[11px] text-slate-400">
-        → ou ↓ maintenue + {keyLabel("ida", layout)} : ida e volta jambe droite, en arrière d'abord · ↑ ↑ : double et marka
-      </p>}
-      <p className="absolute bottom-2 left-3 right-3 text-[10px] text-slate-500">
-        Anatomie : BodyParts3D, © The Database Center for Life Science, licence CC BY-SA 2.1 Japan. Animation
-        paramétrique illustrative, sans validation chorégraphique.
-      </p>
       </>}
     </div>
   );

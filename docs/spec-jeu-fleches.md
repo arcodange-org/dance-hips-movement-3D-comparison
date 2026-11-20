@@ -69,6 +69,11 @@ Les flèches maintenues modifient la figure guidée au moment de l'appui ; seule
 - `scripts/test_guidage.mjs` : touches et flèches → figures, double appui, continuité du squelette à toutes
   les frontières avec les nouvelles figures.
 
+## Démonstration
+
+`?mode=pair&guidage=1&demo=fleches` : avancer, double et marka, reculer, puis ida e volta en arrière
+d'abord, jambe droite (vue du guideur) : [GIF](gifs/jeu-fleches.gif).
+
 ## Hors périmètre
 
 - Marche continue sans fermer les pas (le pied porteur passe d'un segment à l'autre).
