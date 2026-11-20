@@ -22,6 +22,9 @@ etc.) » et « un mode jeu vidéo où l'on peut guider sa partenaire ». **Elle 
 > - **Aucun jeu trouvé ne note le guidage en couple.** Le mode guidage serait nouveau. La science du
 >   guidage donne des repères chiffrés : forces de 5 à 15 N en moyenne (des signaux, pas une poussée),
 >   un bon suiveur à environ 224 ms de retard, un guidage qui commence au pas précédent.
+> - **Les interactions physiques s'écrivent comme des contraintes** (contact, distance des bassins,
+>   hauteur, non-pénétration, équilibre) que les jeux résolvent par projection de positions
+>   (PBD, XPBD) : d'abord pour calibrer les figures hors ligne, ensuite en direct si besoin.
 > - **L'avance de 0,25 temps du buste du leader**, déjà dans le code, tombe dans la plage de retard
 >   mesurée pour un bon suiveur (167 ms à 90 bpm).
 
@@ -56,21 +59,13 @@ sur un guidage ambigu, elle reste au pas de base et hésite visiblement. Trois n
 transferts guidés sur place qui déclenchent le ginga, (2) figures au choix depuis la quinconce, (3)
 guidage continu du repère du couple. Détails, commandes, retours et tests : [mode guidage](mode-guidage.md).
 
-## « POOC »
+## « POOC » = preuve de concept
 
-Aucune utilisation du terme « POOC » n'a été trouvée dans la littérature d'animation, les
-conférences GDC, les technologies nommées d'EA (ANT, Ignite, Real Player Motion, HyperMotion,
-ML-Flow, HyperMotionV) ni la recherche académique. Lectures possibles, de la plus probable à la moins
-probable :
-
-1. **« PoC », preuve de concept** : jargon courant en français. EA a montré de nombreuses
-   démonstrations de recherche jamais livrées dans un jeu (Local Motion Phases au basket, superposition
-   neuronale, DeepPhase) ; Sebastian Starke le disait en 2021.
-2. **« Pose trajectory matching »**, le nom qu'EA donnait à Real Player Motion (FIFA 18) : un souvenir
-   déformé d'un terme EA.
-3. **Motion matching** ou **animation physique** en général.
-
-Cette recherche couvre les trois lectures. **Question au propriétaire** : laquelle était visée ?
+Le propriétaire l'a confirmé le 20 novembre 2026 : « POOC » voulait dire **PoC, preuve de concept**.
+Le terme n'existe ni dans la littérature d'animation ni chez EA, mais l'idée colle à ce que montre
+la recherche : EA a présenté beaucoup de démonstrations de recherche jamais livrées dans un jeu
+(Local Motion Phases au basket, superposition neuronale, DeepPhase). La suite de ce chantier est donc
+une **preuve de concept du mode guidage**, dans une PR séparée.
 
 ## Pages
 
@@ -84,6 +79,9 @@ Cette recherche couvre les trois lectures. **Question au propriétaire** : laque
   calibration, indulgence, *Dance Central*.
 - [Guidage et commande](guidage-et-commande.md) : gestes de manette (EA FC, Skate, Fight Night),
   partenaires pilotés (*Ico*, compagnons), science du guidage en couple, kizomba.
+- [Interactions physiques des corps](interactions-physiques.md) : contacts du cadre,
+  non-pénétration, équilibre, bassins couplés, distance des bassins et hauteur (#67) écrits comme des
+  contraintes ; projection de positions (PBD, XPBD), IK à deux personnages, calibration hors ligne.
 - [Confrontation avec le moteur](confrontation-moteur.md) : ce que chaque emprunt remplacerait ou
   compléterait, son coût, ce qu'il ne faut pas casser.
 - [Concept du mode guidage](mode-guidage.md) : boucle de jeu, niveaux, commandes, suiveuse, retours,
@@ -91,7 +89,7 @@ Cette recherche couvre les trois lectures. **Question au propriétaire** : laque
 
 ## Questions ouvertes au propriétaire
 
-1. **« POOC »** : preuve de concept, terme EA déformé, ou autre chose ?
+1. ~~« POOC »~~ : réglé, preuve de concept.
 2. **Quel niveau d'abord ?** Le niveau 1 (transferts guidés + ginga) prolonge directement #42 et
    donne un jeu court ; le niveau 2 (figures au choix) en fait un jeu de guidage.
 3. **Guider avant le temps** : une intention donnée dans le demi-temps (ou le temps) qui précède
@@ -107,6 +105,9 @@ Cette recherche couvre les trois lectures. **Question au propriétaire** : laque
 8. **Initiative de la suiveuse** : pendant une pause, peut-elle orner d'elle-même ?
 9. **Équilibre comme test** : ajouter « centre de masse du couple au-dessus des appuis » aux tests,
    indépendamment du mode de jeu ?
+10. **Interactions physiques** : tolérances de #67, ordre de priorité des contraintes, distance des
+    bassins par style, solveur hors ligne d'abord ou en direct (voir
+    [interactions physiques](interactions-physiques.md#questions-ouvertes-au-propriétaire)).
 
 ## Méthode et limites
 
