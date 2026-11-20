@@ -3,13 +3,15 @@ import { PLACEMENT_LABELS, placementOf, type CouplePlacement } from "../placemen
 
 /** Couple placement of the five-action figures (docs/spec-placements-couple.md). */
 export default function PlacementControl({ clock, placement, onPlacement, onPlaying, quarts = false,
-  contraposition = 1, onContraposition }: {
+  ida = false, contraposition = 1, onContraposition }: {
   clock: DanceClock;
   /** #51: plexus-to-plexus contact, chest facing the partner (1) or aligned with the pelvis (0). */
   contraposition?: number;
   onContraposition?: (value: number) => void;
   /** Pair quarter turns (#37): the placement is found again at the end of each quarter. */
   quarts?: boolean;
+  /** Pair ida e volta (#54): the placement is found again at each return. */
+  ida?: boolean;
   placement: CouplePlacement;
   onPlacement: (value: CouplePlacement) => void;
   onPlaying: (value: boolean) => void;
@@ -37,6 +39,7 @@ export default function PlacementControl({ clock, placement, onPlacement, onPlay
       En quinconce, les demi-pointes se touchent, les genoux droits se croisent et le bassin du suiveur
       suit celui du leader. {quarts
         ? "Pendant les quarts de tour, le couple tourne autour du leader et retrouve le quinconce à la fin de chaque quart."
+        : ida ? "Pendant l’ida e volta, le leader avance quand le suiveur recule : le couple se déplace d’un bloc et retrouve le quinconce à chaque retour."
         : "Les pas suivants rejoignent la figure validée avant l’arrivée D/D."} Le rapprochement est
       complet jusqu’à l’amplitude 1, puis diminue jusqu’à l’amplitude 2.
     </p>

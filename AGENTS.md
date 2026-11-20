@@ -19,7 +19,8 @@ Ces consignes remplacent les anciennes procédures « ff-push sur `main` » des 
 Modules des figures en paire : [sortie garçon](docs/spec-sortie-garcon.md) (`src/sortieGarcon.ts`,
 `scripts/test_sortie_garcon.mjs`), [sortie fille](docs/spec-sortie-fille.md) (`src/sortieFille.ts`,
 `scripts/test_sortie_fille.mjs`), [quarts de tour en paire](docs/spec-quarts-paire.md) (`src/quartsPaire.ts`,
-`scripts/test_quarts_paire.mjs`). Marche des pas de figure, fin en quinconce et plexus :
+`scripts/test_quarts_paire.mjs`), [ida e volta en paire](docs/spec-ida-paire.md) (`src/idaPaire.ts`,
+`scripts/test_ida_paire.mjs`). Marche des pas de figure, fin en quinconce et plexus :
 [spec](docs/spec-marche-naturelle.md) (`src/gait.ts`, `scripts/test_plexus.mjs`). Le combiné `sortieGF` reste historique. Oracle :
 [contrat](docs/spec-phase18-oracle.md) ; `scripts/oracle_assertions.mjs` centralise les gardes finies
 et les comparaisons de quaternions ; ne pas réintroduire une comparaison d'une fonction de mouvement

@@ -115,6 +115,26 @@ Export du canvas depuis la pause (« Exporter un cycle ») : kizomba, paire, qui
 BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 </details>
 
+## Ida e volta en paire — le couple avance et recule d'un bloc
+
+Le leader avance son G pendant que le suiveur recule son D dans le même couloir, puis les deux
+reviennent au quinconce ; même chose avec le D du leader et le G du suiveur (8 temps). Chaque pas est un
+pas de marche (talon qui se lève, passage de jambe, attaque du talon en avant, avant-pied d'abord en
+arrière). Le pied qui recule part le premier et libère la place, et les deux bassins suivent le poids
+ensemble : le contact plexus contre plexus tient avec la contraposition (3,4 cm en quinconce). Les six
+transferts d'appui du cycle sont explicites, point d'accroche du ginga (#42). Testé sur le GLB :
+semelles disjointes, aucun croisement des os des jambes (six styles, trois amplitudes, trois placements,
+avec ou sans plexus).
+
+![Ida e volta en paire, quinconce, plexus contre plexus](docs/gifs/ida-paire-couple.gif)
+<details><summary>Détails & source</summary>
+
+Capture image par image (`scripts/capture_figure_gif.mjs`) : kizomba, paire, quinconce, plexus avec
+contraposition, vue de profil, 8 temps à 90 bpm, amplitude 1. Base de déplacement du ginga (#42).
+[Spécification, calibrage et points à valider](docs/spec-ida-paire.md).
+BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
+</details>
+
 ## Vérifications de l’oracle
 
 Les contrôles de l'oracle distinguent désormais les poses évaluées, les cibles et les rotations
