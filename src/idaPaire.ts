@@ -30,7 +30,7 @@ export const IDA_LEAD = 0.25;
 export const IDA_PAIR = {
   step: 0.18, flight: 1.2, delay: 0.5, aside: 0.02, carry: 0.5, forwardRoll: 0.3, backRoll: 0.3,
   weight: { on: 1.2, full: 1.5, back: 1.55, home: 1.95 },
-  pelvisYaw: 0.5, coupling: 1, kneeCap: 0.3, rotationCap: 0.06, dip: -0.008, sway: 1,
+  pelvisYaw: 0.5, coupling: 1, kneeCap: 0.3, rotationCap: 0.05, dip: -0.008, sway: 1,
 };
 
 const smooth = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * (3 - 2 * t); };
