@@ -19,17 +19,19 @@ function poseAt(r: RigHandle, model: PoseModel, kind: GuideKind, beat: number, b
   planar: Offset = STILL, pelvis: number[] | null = null, blendFrom: GuideKind | null = null) {
   const offsets = follower ? { leader: STILL, follower: planar } : { leader: planar, follower: STILL };
   const styleKey = guideStyleOf(kind, base.styleKey ?? "kizomba");
-  applyPose(r, model, beat, {
+  const stats = applyPose(r, model, beat, {
     ...base, styleKey, styleBlend: blendFrom ? { key: guideStyleOf(blendFrom, base.styleKey ?? "kizomba"), weight: 1 } : null,
     ...guidePoseOptions({ movement: movementOf(kind), rootOffset: offsets }, follower),
     pelvisOffset: pelvis ? { position: [pelvis[1], pelvis[2], pelvis[3]], rotation: [pelvis[4], pelvis[5], pelvis[6]] } : null,
+    trunkOffset: pelvis ? pelvis.slice(7, 16) : null,
   });
   const p = r.pelvis.position, q = r.pelvis.rotation;
-  return [r.root.position.y, p.x, p.y, p.z, q.x, q.y, q.z];
+  return [r.root.position.y, p.x, p.y, p.z, q.x, q.y, q.z, ...stats.trunk];
 }
 
 /** Residual (end of `from` − start of `to`) of the pelvis pose, measured on the rig, cached:
- * [root height, pelvis x, y, z, pelvis Euler x, y, z]. The pelvis's own pose is compared as the styles
+ * [root height, pelvis x, y, z, pelvis Euler x, y, z, spine, chest and head Euler x, y, z]. The upper
+ * trunk joins it with the ginga (#42): the style phase it drives differs from the clock's at a boundary. The pelvis's own pose is compared as the styles
  * produce it; the height is measured again with the planar and pelvis residuals applied in full, since
  * they move the pelvis height the leg reach finds (exact at the boundary, where the fade is 1). */
 export function pelvisResidual(r: RigHandle, model: PoseModel, from: GuideKind, to: GuideKind, base: GuidePoseBase,
@@ -40,8 +42,11 @@ export function pelvisResidual(r: RigHandle, model: PoseModel, from: GuideKind, 
     // The style change itself is blended (#85): the residual only carries the figures' difference.
     const a = poseAt(r, model, from, endBeatOf(from), base, follower), b = poseAt(r, model, to, 0, base, follower, STILL, null, from);
     residual = a.map((v, k) => v - b[k]);
-    const height = poseAt(r, model, to, 0, base, follower, planar, residual, from)[0];
-    residual[0] = a[0] - height;
+    const withOffsets = poseAt(r, model, to, 0, base, follower, planar, residual, from);
+    residual[0] = a[0] - withOffsets[0];
+    // The chest turns towards the partner (contraposition) and the trunk counters the pelvis: both
+    // depend on the planar and pelvis residuals, measured with them like the height.
+    for (let k = 7; k < 16; k++) residual[k] = a[k] - withOffsets[k];
     cache.set(key, residual);
   }
   return residual;
@@ -60,5 +65,6 @@ export function applyGuidePose(r: RigHandle, model: PoseModel, sample: GuideSamp
     ...guidePoseOptions(sample, follower),
     rootOffset: { ...sample.rootOffset[role], y: d ? d[0] : 0 },
     pelvisOffset: d ? { position: [d[1], d[2], d[3]], rotation: [d[4], d[5], d[6]] } : null,
+    trunkOffset: d ? d.slice(7, 16) : null,
   });
 }

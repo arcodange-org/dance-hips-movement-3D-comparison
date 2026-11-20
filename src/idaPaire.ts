@@ -30,13 +30,19 @@ export const IDA_LEAD = 0.25;
 export const IDA_PAIR = {
   step: 0.18, flight: 1.2, delay: 0.5, aside: 0.02, carry: 0.5, forwardRoll: 0.3, backRoll: 0.3,
   weight: { on: 1.2, full: 1.5, back: 1.55, home: 1.95 },
-  pelvisYaw: 0.5, coupling: 1, kneeCap: 0.3, rotationCap: 0.05, dip: -0.008, sway: 1,
+  pelvisYaw: 0.5, coupling: 1, kneeCap: 0.22, rotationCap: 0.035, dip: -0.008, sway: 1,
 };
 
 /** #88: the follower never leaves before the leader. On an outgoing step both moving feet leave at
  * `start` (beats into the slot); her backward foot lands `backFlight` later, clearing the lane before his
  * forward foot (which keeps landing at `IDA_PAIR.flight`). */
 export const IDA_PAIR_SYNC = { start: .3, backFlight: .5 };
+
+/** #42 (docs/spec-ginga.md): the ginga is triggered at each support transfer. The style's own hip
+ * pattern (one transfer per beat, `S2`) is driven by the figure's transfers instead of the clock;
+ * `sway` adds that share of the style's lateral hip shift to the figure's pelvis, `leader` scales the
+ * leader's ginga (he transmits it, the follower pronounces it). Proposals to validate by eye. */
+export const IDA_GINGA = { sway: 0.25, leader: 0.7, follower: 1, mode: "leaderPhase" as "leaderPhase" | "own" };
 
 const smooth = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * (3 - 2 * t); };
 const other = (s: FigureFoot): FigureFoot => (s === "L" ? "R" : "L");
@@ -137,7 +143,28 @@ export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<Fig
   const current = idaTransfers(follower).find(t => p >= t.start && p < t.end);
   const transfer = current ? { ...current, progress: smooth((p - current.start) / (current.end - current.start)) } : null;
   return { beat: b, action: now.index, moving, feet, root, rootYaw: lower, chestYaw: upper - lower,
+    // Coupled pelvises (quinconce): the follower's style mirrors the leader's, so she follows his phase
+    // (her transfers are his, mirrored); her lateral hip shift goes to her own support (opposite sign).
+    gingaBeat: idaGingaBeat(b, follower && IDA_GINGA.mode === "own"),
+    gingaAmp: follower ? IDA_GINGA.follower : IDA_GINGA.leader,
+    gingaSway: (follower && IDA_GINGA.mode !== "own" ? -1 : 1) * IDA_GINGA.sway,
     loadR, loadL: 1 - loadR, support: (loadR >= 0.5 ? "R" : "L") as FigureFoot, transfer, cyclic: true as const,
-    coupling: IDA_PAIR.coupling * Math.min(1, Math.hypot(o.x, o.z) / 0.05),
+    coupling: IDA_GINGA.mode === "own" ? 0 : IDA_PAIR.coupling * Math.min(1, Math.hypot(o.x, o.z) / 0.05),
     kneeCap: IDA_PAIR.kneeCap, rotationCap: IDA_PAIR.rotationCap, dip: IDA_PAIR.dip, sway: IDA_PAIR.sway };
+}
+
+/** #42: phase of the style's hip pattern driven by the support transfers. The style puts full weight on
+ * the left foot at phase 0.5 and on the right at 1.5 (support = -S2): each transfer advances the phase by
+ * one beat with its progress, and it holds on the support between transfers. Continuous over cycles
+ * (six transfers per 8-beat cycle). */
+export function idaGingaBeat(beat: number, follower: boolean): number {
+  const b = Number.isFinite(beat) ? beat : 0;
+  const cycle = Math.floor(b / IDA_BEATS), p = b - cycle * IDA_BEATS;
+  const transfers = idaTransfers(follower);
+  let phase = transfers[0].from === "R" ? 1.5 : 0.5;
+  for (const t of transfers) {
+    if (p >= t.end) phase += 1;
+    else if (p > t.start) phase += smooth((p - t.start) / (t.end - t.start));
+  }
+  return cycle * transfers.length + phase;
 }

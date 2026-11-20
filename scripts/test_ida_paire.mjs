@@ -90,6 +90,37 @@ console.log('PASS neutre : quinconce (ou placement) retrouvé aux temps 0, 4 et 
   console.log(`PASS séquence : leader en avant, suiveur en arrière (pied opposé, même pas, le pied qui recule part en premier), couple d'un bloc (${(travel * 100).toFixed(1)} cm), buste du leader en avance de ${api.IDA_LEAD} temps`);
 }
 
+// 2c. Ginga (#42, docs/spec-ginga.md): the style's hip pattern is triggered by each transfer. Its phase
+// is continuous and non-decreasing, advances one half-cycle per transfer (six per 8-beat cycle) and holds
+// on the support between transfers; once a transfer has ended, the style's support is the figure's
+// (the coupled follower dances the leader's phase mirrored, i.e. on her own mirrored feet). The leader
+// transmits at 70 %, the follower pronounces it fully.
+{
+  const rest = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
+  for (const styleKey of Object.keys(api.STYLES).filter(k => k !== 'kompa')) {
+    const support = api.STYLES[styleKey].support;
+    for (const follower of [false, true]) {
+      let previous = -Infinity;
+      for (let b = 0; b <= 16; b += 0.01) {
+        const g = api.sampleIdaPaire(b, follower, rest, 'quinconce').gingaBeat;
+        assert(g >= previous - 1e-9, `${styleKey}: ginga phase non-decreasing at ${b.toFixed(2)}`);
+        previous = g;
+      }
+      const s0 = api.sampleIdaPaire(0, follower, rest, 'quinconce').gingaBeat, s8 = api.sampleIdaPaire(8, follower, rest, 'quinconce').gingaBeat;
+      assert(Math.abs(s8 - s0 - 6) < 1e-9, `${styleKey}: six half-cycles per cycle (${s8 - s0})`);
+      for (const t of api.idaTransfers(follower)) {
+        const f = api.sampleIdaPaire(t.end + 0.02, follower, rest, 'quinconce');
+        const side = Math.sign(support(f.gingaBeat)) * (follower ? -1 : 1);
+        assert.equal(side, t.to === 'R' ? 1 : -1, `${styleKey} ${follower ? 'follower' : 'leader'}: style support = figure support after ${t.from}→${t.to}@${t.end}`);
+        assert.equal(f.support, t.to);
+      }
+    }
+  }
+  const lead = api.sampleIdaPaire(1, false, rest, 'quinconce'), foll = api.sampleIdaPaire(1, true, rest, 'quinconce');
+  assert(Math.abs(lead.gingaAmp / foll.gingaAmp - 0.7) < 1e-9, 'leader at 70 % of the follower');
+  console.log('PASS ginga : phase déclenchée par chaque transfert (six demi-cycles par cycle, continue), appui du style = appui de la figure, leader à 70 %');
+}
+
 // 2b. Support transfers, explicit for the ginga (#42, « transferts de poids […] à chaque alternance ») :
 // six per cycle, alternating feet, the same instants for both dancers with mirrored feet; the load
 // only changes inside a transfer and ends fully on its target foot.

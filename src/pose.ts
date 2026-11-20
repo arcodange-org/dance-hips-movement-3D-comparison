@@ -56,6 +56,9 @@ export interface PoseOptions {
   /** #69 guide mode: residual of the pelvis's own pose (position m, Euler rad) at a boundary being
    * inertialized; added after the figure's bounds and before the leg IK. */
   pelvisOffset: { position: [number, number, number]; rotation: [number, number, number] } | null;
+  /** Guide mode (#69, #42): Euler offsets added to the spine, chest and head (9 values), faded residual
+   * of the upper trunk between two segments. */
+  trunkOffset: number[] | null;
   /** #69: the partner's `rootOffset` (its own frame), for the plexus lean towards the partner. */
   partnerRootOffset: { x: number; z: number } | null;
 }
@@ -65,7 +68,7 @@ export const DEFAULT_POSE: PoseOptions = {
   embrace: false, reverse: false, follower: false, movement: "none",
   sortieFilleVariant: "hook", sortieVariant: "line", sortieContra: DEFAULT_SORTIE_CONTRA,
   placement: "reference", quartsPaire: false, idaPaire: false, placePaire: false, plexus: false, contraposition: 1,
-  rootOffset: null, partnerRootOffset: null, pelvisOffset: null,
+  rootOffset: null, partnerRootOffset: null, pelvisOffset: null, trunkOffset: null,
 };
 /** Plexus-to-plexus contact (#51): chest-marker gap targeted between partners (m) and the largest
  * lean of the upper body towards the partner (rad). */
@@ -97,6 +100,8 @@ export interface PoseModel {
 export interface PoseStats {
   beat: number; loadR: number; loadL: number; kneeR: number; kneeL: number;
   roll: number; trunkTilt: number; facing: number; posX: number; posZ: number;
+  /** Spine, chest and head Euler angles where `trunkOffset` adds to them (guide mode residuals). */
+  trunk: number[];
 }
 export function bindSkeleton(r: RigHandle, skeleton: THREE.Object3D): void {
   skeleton.traverse(o => { if (o.name) r[o.name] = o; });
@@ -369,7 +374,19 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   for (const s of SIDES) r["foot" + s].rotation.set(0, 0, 0);
   // A marka moves the free foot without starting another body's weight oscillation.
   const styleTime = figure && !cyclic ? Math.min(beat, 4) : beat;
-  STYLES[o.styleKey].apply(r, styleTime, o.amp);
+  // #42: a figure that drives the ginga gives the style its phase (one beat per support transfer) and
+  // the dancer's share of it; otherwise the style runs on the clock.
+  // Kompa's own rhythm (one transfer every two beats, #62) is not the period-2 pattern the ginga phase maps.
+  type Ginga = { gingaBeat?: number; gingaAmp?: number; gingaSway?: number } | null;
+  const gingaOf = (key: typeof o.styleKey): Ginga => (key === "kompa" ? null : figure as Ginga);
+  const ginga = gingaOf(o.styleKey);
+  // The slow 4-beat waves stay on the clock (styleTime): the guide mode restarts a figure's local beat
+  // every cycle.
+  const applyStyle = (key: typeof o.styleKey) => {
+    const g = gingaOf(key);
+    STYLES[key].apply(r, g?.gingaBeat ?? styleTime, o.amp * (g?.gingaAmp ?? 1), styleTime);
+  };
+  applyStyle(o.styleKey);
   // #85: blend towards another style's pose (the guide mode changes style at a boundary: the basic step
   // in suave, the figures in the chosen style); `weight` 1 = the other style entirely.
   const blend = o.styleBlend && o.styleBlend.weight > 0 && STYLES[o.styleBlend.key] && o.styleBlend.key !== o.styleKey ? o.styleBlend : null;
@@ -377,10 +394,11 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     const mine = styleState(r);
     resetRig(r);
     for (const s of SIDES) r["foot" + s].rotation.set(0, 0, 0);
-    STYLES[blend.key].apply(r, styleTime, o.amp);
+    applyStyle(blend.key);
     mixStyleState(r, mine, styleState(r), blend.weight);
   }
-  // #61: a figure may keep a share of the style's lateral hip shift on top of its own pelvis path.
+  // #61: a figure may keep a share of the style's lateral hip shift on top of its own pelvis path;
+  // #42: the ginga's shift towards the support joins it.
   const styleRootX = r.root.position.x;
   if (figure) {
     // The on-the-spot isolations need a smaller envelope while feet follow a fixed
@@ -422,8 +440,9 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     const coupledSway = o.follower ? 1 - 2 * figure.coupling : 1;
     // The kept sway goes to the pelvis (the hips hang from it): the guide mode's pelvis inertialization
     // (#69) then smooths it across segment boundaries, like the rest of the pelvis pose.
+    const kept = ((figure as { styleSway?: number }).styleSway ?? 0) * coupledSway + (ginga?.gingaSway ?? 0);
     r.root.position.x = figure.root.x;
-    r.pelvis.position.x += styleRootX * ((figure as { styleSway?: number }).styleSway ?? 0) * coupledSway;
+    r.pelvis.position.x += styleRootX * kept;
     r.root.position.z = figure.root.z;
     if (o.rootOffset) { r.root.position.x += o.rootOffset.x; r.root.position.z += o.rootOffset.z; }
     const rootYaw = (figure as { rootYaw?: number }).rootYaw;
@@ -460,6 +479,11 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     const ic = idaContra(beat);
     r.root.rotation.y += ic.lowerYaw;
     r.chest.rotation.y += ic.upperYaw - ic.lowerYaw;
+  }
+  const trunk = [r.spine, r.chest, r.head].flatMap(n => [n.rotation.x, n.rotation.y, n.rotation.z]);
+  if (o.trunkOffset) {
+    const t = o.trunkOffset;
+    [r.spine, r.chest, r.head].forEach((node, k) => { node.rotation.x += t[3 * k]; node.rotation.y += t[3 * k + 1]; node.rotation.z += t[3 * k + 2]; });
   }
   applyDanceFrame(r, o.cadre);
   if (o.follower) applyFollowerFrame(r, o.cadre);
@@ -560,7 +584,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   const up = new THREE.Vector3(0, 1, 0).applyQuaternion(chestQ);
   const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(chestQ);
   const pos = r.root.getWorldPosition(new THREE.Vector3());
-  return { beat: figure ? beat : clockBeat, loadR, loadL, kneeL: kneeAngle(r, "L"), kneeR: kneeAngle(r, "R"),
+  return { trunk, beat: figure ? beat : clockBeat, loadR, loadL, kneeL: kneeAngle(r, "L"), kneeR: kneeAngle(r, "R"),
     roll: r.pelvis.rotation.z * 180 / Math.PI,
     trunkTilt: Math.acos(Math.max(-1, Math.min(1, up.y))) * 180 / Math.PI,
     facing: facingSector(Math.atan2(forward.x, forward.z)), posX: pos.x, posZ: pos.z };

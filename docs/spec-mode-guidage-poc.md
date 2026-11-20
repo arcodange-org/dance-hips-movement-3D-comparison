@@ -145,6 +145,10 @@ le même résultat.
   hanches, genoux, pieds, buste, tête) : saut maximal **0,001 mm** sur 10⁻⁶ temps (seuil du test
   0,2 mm), contre 30 mm au genou sans l'inertialisation de la pose du bassin et 3,6 mm quand la hauteur
   était mesurée sans les autres écarts (relevé par la relecture de code).
+- Haut du tronc (#42) : le ginga donne au style sa phase dans l'ida e volta, différente de celle de
+  l'horloge au pas de base ; la colonne, le buste et la tête entrent dans l'écart inertialisé (angles
+  relevés là où `trunkOffset` s'ajoute, avec les écarts plan et du bassin, puisque le buste se tourne vers
+  le partenaire). Avant : 1,3 cm à la tête (suave, base → ida).
 - Pas de base : pieds immobiles, aucun croisement d'os, os au-dessus du sol (six styles, amplitudes
   0,5, 1 et 2, plexus). Sessions aléatoires (graine fixe, six styles) : 1 626 poses autour des
   frontières sans croisement d'os.
