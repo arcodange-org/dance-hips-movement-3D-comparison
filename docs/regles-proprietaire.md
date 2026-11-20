@@ -21,10 +21,12 @@ vérifiable.
 | # | Règle (verbatim) | Critère vérifiable | Spec | État |
 |---|---|---|---|---|
 | R7 | « On doit avoir l'impression qu'il marche normalement même s'il place ses pieds en réalisant une figure chorégraphique » (fini la « marche sur la lune ») | Talon qui se lève, passage de jambe, attaque du talon ou pose de l'avant-pied, pivot sans glissement | [marche naturelle](spec-marche-naturelle.md) (#49) | oui (`src/gait.ts`) |
-| R8 | « Faire des déplacements plus petits (longueur de pied) pour la plupart des figures » | Pas ≈ 21–25 cm sauf exceptions justifiées | [pas courts](spec-pas-courts.md) (#56) | sortie garçon 17–33 cm (D3 54) ; sortie fille jusqu'à 98 cm |
+| R8 | « Faire des déplacements plus petits (longueur de pied) pour la plupart des figures » ; puis (20 nov.) « le suiveur doit également faire de plus petits pas (l'unité de référence c'est la longueur du pied en longueur et la longueur de la hanche en largeur) » | Pas ≤ 1 pied (21,2 cm) en longueur et ≤ 1 hanche (34 cm) en largeur, pour les deux rôles, sauf exceptions justifiées | [pas courts](spec-pas-courts.md) (#56) | non : sortie garçon D3 du suiveur 2,55 pieds (imposé par le croisé, décision demandée sur #56) ; sortie fille jusqu'à 4,2 pieds ; quarts G du suiveur 1,22 hanche |
 | R9 | Sortie garçon, temps 2 : « l'extérieur du pied droit est au contact avec l'extérieur du pied droit suiveur [...] La jambe gauche peut ainsi se décaler moins loin » | Bords externes des pieds D ≤ 3 mm | [marche naturelle](spec-marche-naturelle.md) (#50) | oui |
 | R10 | Sortie fille : ouverture plus courte (choix du propriétaire) | G2 du crochet raccourci | [marche naturelle](spec-marche-naturelle.md) | 45 cm (55 avant) |
 | R11 | Quarts de tour : « le leader ne fait pas de sur-place. Il remplit tous les quarts de la boussole. Le suiveur fait plus de distance » ; placement retrouvé à chaque fin de quart ; le leader « anticipe » d'environ un quart de temps | Rotation autour du leader, quinconce à chaque quart, buste du leader en avance de 0,25 temps | [quarts en paire](spec-quarts-paire.md) (#37) | oui |
+| R22 | « Son pas avance autant que le suiveur recule (c'est lui qui fait reculer le suiveur) » (20 nov.) | Dans les figures avant-arrière (sorties, ida e volta), chaque pas en avant du leader égale le pas en arrière qu'il provoque chez le suiveur ; les rotations (R11) restent à part : le suiveur y fait plus de distance | [pas courts](spec-pas-courts.md) (#56) | ida e volta oui (18/18 cm) ; sortie garçon non (20/17, 25/18, **34/54**, 24/31 cm) |
+| R23 | « Le guideur ne se baisse pas autant » (20 nov.) | Hauteur du bassin du leader stable pendant les figures ; les grands pas abaissent le bassin (hauteur donnée par la portée de la jambe) | [pas courts](spec-pas-courts.md), R3 | mesuré : leader Δ6 cm (sortie garçon, quarts), Δ7 (sortie fille) ; suiveur Δ16 (sortie garçon, au D3 de 54 cm), Δ14 (sortie fille) |
 
 ## Ginga, hanches et styles
 
@@ -34,7 +36,7 @@ vérifiable.
 | R13 | « On n'oublie pas les transferts de poids avec le ginga déclenché à chaque alternance droite/gauche, gauche/droite » | Phase du déhanché pilotée par les transferts d'appui | [ginga](spec-ginga.md) | en cours (#59, ida e volta) |
 | R14 | Le suiveur prononce davantage le ginga ; le leader le fait aussi, pour transmettre | Amplitude du leader ≈ 70 % | [ginga](spec-ginga.md) | en cours |
 | R15 | Hanches « joyeuses et sensuelles » activant fessiers et jambes ; « chercher l'énergie du sol » des danses afro-caribéennes | Déhanché visible, appuis ancrés | [ginga angolana](ginga-angolana.md) | à évaluer |
-| R16 | Tarraxinha sur place : pas de genoux qui traversent ceux du partenaire ; « l'intention de la hanche vers l'avant (qui repart vers l'arrière légèrement sur le côté en s'ouvrant mais surtout en permettant à la hanche opposée d'aller vers l'avant) » | Aucun croisement d'os en paire sur place ; alternance des hanches dans le plan horizontal | #61 | non |
+| R16 | Tarraxinha sur place : pas de genoux qui traversent ceux du partenaire ; « l'intention de la hanche vers l'avant (qui repart vers l'arrière légèrement sur le côté en s'ouvrant mais surtout en permettant à la hanche opposée d'aller vers l'avant) » | Aucun croisement d'os en paire sur place ; alternance des hanches dans le plan horizontal | #61 | oui (#78 : quinconce sur place, lacet dominant ; #79 : paire sans figure) |
 | R17 | « Les hanches se cherchent (suiveur) et se repoussent à l'initiative du leader » | Bassins couplés en quinconce | [cadre](cadre/README.md) (#40), [placements](spec-placements-couple.md) | partiel (bassins couplés au départ des figures) |
 | R18 | Isolations du bas du corps : au-dessus du bassin, le haut du tronc compense le roulis (`iso=1`) | Roulis résiduel du buste faible | [ginga angolana](ginga-angolana.md) | oui (tests de styles) |
 
@@ -42,7 +44,7 @@ vérifiable.
 
 | # | Règle (verbatim) | Critère vérifiable | Spec | État |
 |---|---|---|---|---|
-| R19 | Cadre leader/suiveur : points de contact (avant-bras, biceps, omoplate, bassin, aisselle, coude, épaule, plexus) et intentions de guidage | Mains qui se rejoignent, main D du leader sur l'omoplate du suiveur, contraintes de contact | [cadre](cadre/spec-implementation.md) (#40) | recherche faite, non implémenté |
+| R19 | Cadre leader/suiveur : points de contact (avant-bras, biceps, omoplate, bassin, aisselle, coude, épaule, plexus) et intentions de guidage | Mains qui se rejoignent, main D du leader sur l'omoplate du suiveur, contraintes de contact | [cadre](cadre/spec-implementation.md) (#40) | oui pour les bras (#77 : mains sur l'omoplate et mains jointes, IK) ; contraintes sur bustes et bassins à venir |
 | R20 | « Ces points de contact vont ajouter des contraintes qui vont aider à converger vers les bons mouvements de danse » | Les contacts contraignent bras, bustes et bassins | [cadre](cadre/spec-implementation.md) | non |
 
 ## Musique
