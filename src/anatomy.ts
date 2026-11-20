@@ -72,8 +72,9 @@ export function resetRig(r: RigHandle): void {
   r.hipR.rotation.set(0, 0, 0);
   r.kneeL.rotation.set(0, 0, 0);
   r.kneeR.rotation.set(0, 0, 0);
-  if (r.armUL) r.armUL.rotation.set(0, 0, 0.12);
-  if (r.armUR) r.armUR.rotation.set(0, 0, -0.12);
+  // #40: armUL is the anatomical left arm (+x); same physical rest angles as before the renaming.
+  if (r.armUL) r.armUL.rotation.set(0, 0, -0.12);
+  if (r.armUR) r.armUR.rotation.set(0, 0, 0.12);
   if (r.armFL) r.armFL.rotation.set(0, 0, 0);
   if (r.armFR) r.armFR.rotation.set(0, 0, 0);
   r.extraL = 0;

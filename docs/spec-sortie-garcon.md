@@ -106,3 +106,7 @@ Les bras et les collisions de tous les tissus musculaires restent hors du modèl
 Le chantier #27 prolonge la régression avec 504 empreintes sortieG
 de `fa551c3` et conserve les 288 empreintes historiques sortieGF de `2621e59`. Le nouveau
 rendu sortieF est décrit dans [sa spécification](spec-sortie-fille.md). [Rétrospective](retrospective-sortie-garcon.md).
+
+## Règle ajoutée le 20 novembre 2026 (#67)
+
+Distance bassin-bassin quasi constante une fois le décalage latéral retiré, et pas de « monter-descendre » permanent : voir [règles du propriétaire](regles-proprietaire.md) (R2, R3). Critère à mesurer sur le GLB pour cette figure.

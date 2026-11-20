@@ -303,7 +303,7 @@ export default function Controls(props: ControlsProps) {
           Marche arrière (dir=-1)
         </label>
         {isPair && (
-          <label className="flex items-center gap-2 text-xs text-slate-400" title={isFiveActionFigure ? "Couloir initial de progression : avant du leader, axe z" : "Ligne de danse (axe x au repère fixe) : la sortie est perpendiculaire à la ligne, aller-retour"}>
+          <label className="flex items-center gap-2 text-xs text-slate-400" title="Ligne de danse (axe x au repère fixe), perpendiculaire aux bustes du couple face à face">
             <input
               type="checkbox"
               checked={showLigne}
@@ -373,7 +373,7 @@ export default function Controls(props: ControlsProps) {
         >
           {copied ? "✓ Lien copié !" : "🔗 Partager la vue (URL)"}
         </button>
-        <label className="flex items-center gap-2 text-xs text-slate-400" title={isFiveActionFigure ? "Boussole fixe ; la figure progresse selon l’axe N-S" : "Boussole 8 directions au repère fixe (4 cardinales + 4 diago ; E-W = ligne de danse) ; la direction du buste et la position relative au repère s'affichent dans le HUD"}>
+        <label className="flex items-center gap-2 text-xs text-slate-400" title="Boussole 8 directions au repère fixe (4 cardinales + 4 diago ; E-W = ligne de danse) ; la direction du buste et la position relative au repère s'affichent dans le HUD">
           <input
             type="checkbox"
             checked={showBoussole}

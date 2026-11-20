@@ -3,7 +3,7 @@
  * Pure: segments, couple frame, inertialized pelvis offsets and timing grades are a function of the
  * timestamped intentions and of the beat (a session can be replayed exactly). */
 import type { MovementKey } from "./styles";
-import { sampleBasePaire } from "./basePaire";
+import { samplePlacePaire, PLACE_PAIR_DZ } from "./placePaire";
 import { sampleIdaPaire, IDA_PAIR_DZ } from "./idaPaire";
 import { sampleQuartsPaire, QUARTS_PAIR_DZ } from "./quartsPaire";
 import { sampleSortieGarcon, SORTIE_GARCON_PAIR_DZ, DEFAULT_SORTIE_CONTRA, type FigureFoot, type FootPoint } from "./sortieGarcon";
@@ -104,7 +104,7 @@ export interface GuideRig { rest: Record<FigureFoot, FootPoint>; stance: number;
 export function sampleKind(kind: GuideKind, beat: number, follower: boolean, g: GuideRig) {
   const o = placementOffset(g.placement, g.amp);
   switch (kind) {
-    case "base": return sampleBasePaire(beat, follower, g.rest, o, g.stance);
+    case "base": return samplePlacePaire(beat, follower, g.rest, o, g.stance);
     case "ida": return sampleIdaPaire(beat, follower, g.rest, o, g.stance);
     case "quart": return sampleQuartsPaire(beat, follower, g.rest, o, g.stance);
     case "sortieG": return sampleSortieGarcon(beat, follower, g.rest, "line", DEFAULT_SORTIE_CONTRA, o, placementScale(g.amp), g.stance);
@@ -114,7 +114,7 @@ export function sampleKind(kind: GuideKind, beat: number, follower: boolean, g: 
 
 /** Couple motion and pelvis residuals of every segment kind, measured on the samplers. */
 export function guideMotions(g: GuideRig): GuideMotions {
-  if (new Set([IDA_PAIR_DZ, QUARTS_PAIR_DZ, SORTIE_GARCON_PAIR_DZ, SORTIE_FILLE_PAIR_DZ]).size !== 1)
+  if (new Set([IDA_PAIR_DZ, QUARTS_PAIR_DZ, SORTIE_GARCON_PAIR_DZ, SORTIE_FILLE_PAIR_DZ, PLACE_PAIR_DZ]).size !== 1)
     throw new Error("guide mode: the pair figures must share one couple spacing");
   const motions = {} as GuideMotions;
   for (const kind of ["base", ...GUIDE_FIGURE_KEYS] as GuideKind[]) {
@@ -244,7 +244,7 @@ export function guidePoseOptions(s: Pick<GuideSample, "movement" | "rootOffset">
   const role = follower ? "follower" : "leader", partner = follower ? "leader" : "follower";
   return {
     movement: s.movement, embrace: true, follower,
-    quartsPaire: s.movement === "quarts", idaPaire: s.movement === "ida", basePaire: true, plexus: true,
+    quartsPaire: s.movement === "quarts", idaPaire: s.movement === "ida", placePaire: s.movement === "none", plexus: true,
     rootOffset: s.rootOffset[role], partnerRootOffset: s.rootOffset[partner],
   } as const;
 }

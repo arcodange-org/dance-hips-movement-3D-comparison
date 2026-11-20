@@ -24,6 +24,7 @@ import { usePersistentState } from "./hooks/usePersistentState";
 import { STYLES, movementOf, movementFlags, PAIR_DZ, type ModeKey, type MovementKey } from "./styles";
 import { QUARTS_PAIR_DZ } from "./quartsPaire";
 import { IDA_PAIR_DZ } from "./idaPaire";
+import { PLACE_PAIR_DZ } from "./placePaire";
 import { parseVec3, buildShareUrl } from "./share";
 import { DIR_LABELS, isDiagonal } from "./directions";
 import SoundControls from "./components/SoundControls";
@@ -221,7 +222,9 @@ export default function App() {
   const isQuartsPaire = isPair && movement === "quarts";
   // #54: so does the pair ida e volta (leader forward, follower back, quinconce at each return).
   const isIdaPaire = isPair && movement === "ida";
-  const hasPlacement = isFiveActionFigure || isQuartsPaire || isIdaPaire;
+  // #61: in pair on the spot, the couple dances in the neutral quinconce too.
+  const isPlacePaire = isPair && movement === "none";
+  const hasPlacement = isFiveActionFigure || isQuartsPaire || isIdaPaire || isPlacePaire;
   const endBeat = isSortieFille ? SORTIE_FILLE_BEATS : SORTIE_GARCON_BEATS;
   const handlePlaying = (value: boolean) => {
     if (value && isFiveActionFigure && clock.beat >= endBeat) seekClock(clock, 0);
@@ -283,7 +286,7 @@ export default function App() {
 
   // Les figures en cinq actions ont chacune un écartement calibré.
   const pairDz = isSortieGarcon ? SORTIE_GARCON_PAIR_DZ : isSortieFille ? SORTIE_FILLE_PAIR_DZ : isQuartsPaire ? QUARTS_PAIR_DZ
-    : isIdaPaire ? IDA_PAIR_DZ : PAIR_DZ;
+    : isIdaPaire ? IDA_PAIR_DZ : isPlacePaire ? PLACE_PAIR_DZ : PAIR_DZ;
   const offsetA: [number, number, number] = isPair ? [0, 0, -pairDz] : isCompare ? [-0.85, 0, 0] : [0, 0, 0];
   const offsetB: [number, number, number] = isPair ? [0, 0, pairDz] : [0.85, 0, 0];
 
@@ -383,7 +386,8 @@ export default function App() {
           <GridFloor />
           <OriginMarker visible={showRepere} />
           <CompassRose visible={showBoussole && showRepere} />
-          <LineOfDance visible={ligneVisible} forward={isFiveActionFigure} />
+          {/* #60: the line of dance is perpendicular to the dancers' torsos in every view. */}
+          <LineOfDance visible={ligneVisible} />
           <React.Suspense fallback={null}>
             {isFiveActionFigure && <DanceTransport clock={clock} bpm={bpm} playing={playing}
               endBeat={endBeat} onEnd={() => setPlaying(false)} />}
@@ -539,11 +543,11 @@ export default function App() {
         <p className="text-xs md:text-sm text-slate-400 mt-1">
           {isSortieGarcon ? <>Sortie garçon : le leader avance et sort à sa gauche, puis rentre par un croisé.
             La partenaire recule. Les cinq actions distinguent pieds posés et transferts d’appui ;
-            le marka final laisse le gauche du leader disponible. La ligne rose suit la progression du couple.</> : isSortieFille ? <>
+            le marka final laisse le gauche du leader disponible. La ligne rose est la ligne de danse, perpendiculaire aux bustes.</> : isSortieFille ? <>
             Le buste du leader ouvre le cadre pour guider le pas gauche du suiveur hors de la ligne.
             Au troisième pas, le droit du suiveur avance en diagonale et se place à côté du droit du leader.
             Le leader libère ensuite le passage au croisé.
-            La ligne rose indique l’axe de progression.</> : <>
+            La ligne rose est la ligne de danse, perpendiculaire aux bustes.</> : <>
           Anatomie du bassin au pied (BodyParts3D), animation paramétrique illustrative. Le
           curseur « Déplacement » passe du sur place à une amplitude latérale d'une largeur de
           hanche (les pieds marchent quand Déplacement &gt; 0). Le tracé coloré visualise l'orbite
@@ -640,7 +644,8 @@ export default function App() {
           <GridFloor />
           <OriginMarker visible={showRepere} />
           <CompassRose visible={showBoussole && showRepere} />
-          <LineOfDance visible={ligneVisible} forward={isFiveActionFigure} />
+          {/* #60: the line of dance is perpendicular to the dancers' torsos in every view. */}
+          <LineOfDance visible={ligneVisible} />
           <React.Suspense fallback={null}>
             {isFiveActionFigure && <DanceTransport clock={clock} bpm={bpm} playing={playing}
               endBeat={endBeat} onEnd={() => setPlaying(false)} driver={music.driver} />}

@@ -82,10 +82,10 @@ un constat pour #67 : les figures ne partagent pas la même hauteur de bassin.
 
 ### Pas de base en paire
 
-Quinconce neutre (`idaNeutral`), pieds immobiles, déhanché du style à l'horloge locale, mêmes
-plafonds que l'ida e volta (genoux, rotation du bassin, couplage des bassins). Appuis illustratifs :
-leader `loadR = (1 + cos πb) / 2` (appui D aux temps pairs, G aux temps impairs), suiveuse en miroir.
-Provisoire : le ginga déclenché par les transferts (#42) remplacera ce rythme d'horloge.
+Le sur place en paire de `main` (#61, `src/placePaire.ts`) : quinconce neutre (même pose que le départ
+des figures), pieds plantés, déhanché du style, bassins couplés, cadre des bras (#40). Ses appuis sont
+ceux du style. Une première version de cette PoC avait son propre pas de base ; elle a été remplacée
+par celui de #61 à la fusion de `main`.
 
 ### Jugement du placement
 

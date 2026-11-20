@@ -112,15 +112,18 @@ export const STYLES: Record<string, StyleDef> = {
       "Sur place : isolations du bassin (8, cercles), blocages nets",
       "Haut du corps strictement immobile, guidage par contact des hanches",
       "Pas quasi nuls, plein appui, genoux souples",
-      "La plus « collée serr yakın » des variantes kizomba",
+      "La plus « collé-serré » (« kolé séré » en créole antillais) des variantes kizomba",
     ],
     support: (b) => -0.5 * S2(b),
     apply: (r, b, a) => {
       r.root.position.y = -0.03;
-      r.pelvis.rotation.z = 0.16 * S2(b) * a;
+      // #61 (owner): the hip's intention goes forward, then the hip comes back opening slightly to its
+      // side, which lets the opposite hip go forward. Yaw leads (one hip forward), the lateral shift
+      // follows in quadrature (the returning hip opens to its side); roll stays secondary.
+      r.pelvis.rotation.z = 0.08 * S2(b) * a;
       r.pelvis.rotation.x = 0.14 * Math.sin((TAU * b) / 2 + 1.3) * a;
-      r.pelvis.rotation.y = 0.12 * Math.cos((TAU * b) / 2) * a;
-      r.pelvis.position.x = 0.015 * S2(b) * a;
+      r.pelvis.rotation.y = 0.22 * Math.cos((TAU * b) / 2) * a;
+      r.pelvis.position.x = 0.03 * S2(b) * a;
       r.pelvis.position.z = 0.012 * Math.cos((TAU * b) / 2) * a;
       r.kneeL.rotation.x = (0.12 + 0.06 * S2(b)) * a;
       r.kneeR.rotation.x = (0.12 - 0.06 * S2(b)) * a;
@@ -312,10 +315,12 @@ export function applyDanceFrame(
   cadre: boolean
 ): void {
   if (!cadre) return;
-  if (r.armUL) r.armUL.rotation.set(DANCE_FRAME.upperArm.x, DANCE_FRAME.upperArm.y, DANCE_FRAME.upperArm.z);
-  if (r.armUR) r.armUR.rotation.set(DANCE_FRAME.upperArm.x, DANCE_FRAME.upperArm.y, -DANCE_FRAME.upperArm.z);
-  if (r.armFL) r.armFL.rotation.set(DANCE_FRAME.forearmLeft.x, DANCE_FRAME.forearmLeft.y, DANCE_FRAME.forearmLeft.z);
-  if (r.armFR) r.armFR.rotation.set(DANCE_FRAME.forearmRight.x, DANCE_FRAME.forearmRight.y, DANCE_FRAME.forearmRight.z);
+  // #40: armUL/armFL are now the anatomical left arm (+x side); the historical angles were tuned on
+  // the swapped names, so each value goes to the same physical arm as before.
+  if (r.armUR) r.armUR.rotation.set(DANCE_FRAME.upperArm.x, DANCE_FRAME.upperArm.y, DANCE_FRAME.upperArm.z);
+  if (r.armUL) r.armUL.rotation.set(DANCE_FRAME.upperArm.x, DANCE_FRAME.upperArm.y, -DANCE_FRAME.upperArm.z);
+  if (r.armFR) r.armFR.rotation.set(DANCE_FRAME.forearmLeft.x, DANCE_FRAME.forearmLeft.y, DANCE_FRAME.forearmLeft.z);
+  if (r.armFL) r.armFL.rotation.set(DANCE_FRAME.forearmRight.x, DANCE_FRAME.forearmRight.y, DANCE_FRAME.forearmRight.z);
 }
 
 // Cadre de la SUIVEUSE en paire (demande 2026-11-18, non prioritaire) : coude gauche levé à
@@ -333,10 +338,11 @@ export function applyFollowerFrame(
   cadre: boolean
 ): void {
   if (!cadre) return;
-  if (r.armUL) r.armUL.rotation.set(DANCE_FRAME_FOLLOWER.upperLeft.x, DANCE_FRAME_FOLLOWER.upperLeft.y, DANCE_FRAME_FOLLOWER.upperLeft.z);
-  if (r.armFL) r.armFL.rotation.set(DANCE_FRAME_FOLLOWER.foreLeft.x, DANCE_FRAME_FOLLOWER.foreLeft.y, DANCE_FRAME_FOLLOWER.foreLeft.z);
-  if (r.armUR) r.armUR.rotation.set(DANCE_FRAME_FOLLOWER.upperRight.x, DANCE_FRAME_FOLLOWER.upperRight.y, DANCE_FRAME_FOLLOWER.upperRight.z);
-  if (r.armFR) r.armFR.rotation.set(DANCE_FRAME_FOLLOWER.foreRight.x, DANCE_FRAME_FOLLOWER.foreRight.y, DANCE_FRAME_FOLLOWER.foreRight.z);
+  // Same physical arms as before the #40 renaming (see applyDanceFrame).
+  if (r.armUR) r.armUR.rotation.set(DANCE_FRAME_FOLLOWER.upperLeft.x, DANCE_FRAME_FOLLOWER.upperLeft.y, DANCE_FRAME_FOLLOWER.upperLeft.z);
+  if (r.armFR) r.armFR.rotation.set(DANCE_FRAME_FOLLOWER.foreLeft.x, DANCE_FRAME_FOLLOWER.foreLeft.y, DANCE_FRAME_FOLLOWER.foreLeft.z);
+  if (r.armUL) r.armUL.rotation.set(DANCE_FRAME_FOLLOWER.upperRight.x, DANCE_FRAME_FOLLOWER.upperRight.y, DANCE_FRAME_FOLLOWER.upperRight.z);
+  if (r.armFL) r.armFL.rotation.set(DANCE_FRAME_FOLLOWER.foreRight.x, DANCE_FRAME_FOLLOWER.foreRight.y, DANCE_FRAME_FOLLOWER.foreRight.z);
 }
 
 // ---------------------------------------------------------------------------

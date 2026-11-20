@@ -68,3 +68,7 @@ amplitude 1), sur environ cinq secondes chacun. La pose et la pause d'origine on
 restaurées après chaque export. Les GIFs montrent le [crochet](gifs/sortie-fille-crochet.gif)
 et le [recul](gifs/sortie-fille-recul.gif).
 [Rétrospective M4](retrospective-sortie-fille.md).
+
+## Règle ajoutée le 20 novembre 2026 (#67)
+
+Distance bassin-bassin quasi constante une fois le décalage latéral retiré, et pas de « monter-descendre » permanent : voir [règles du propriétaire](regles-proprietaire.md) (R2, R3). Critère à mesurer sur le GLB pour cette figure.
