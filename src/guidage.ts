@@ -9,9 +9,10 @@ import { sampleMarchePaire, MARCHE_PAIR_DZ, type MarcheKind } from "./marchePair
 import { sampleQuartsPaire, QUARTS_PAIR_DZ } from "./quartsPaire";
 import { sampleSortieGarcon, SORTIE_GARCON_PAIR_DZ, DEFAULT_SORTIE_CONTRA, type FigureFoot, type FootPoint } from "./sortieGarcon";
 import { sampleSortieFille, SORTIE_FILLE_PAIR_DZ } from "./sortieFille";
+import { sampleSortieFG, CHAIN_BEATS, CHAIN_FROM } from "./enchainement";
 import { placementOffset, placementScale, type CouplePlacement } from "./placement";
 
-export type GuideFigure = "ida" | "idaD" | "idaArr" | "idaArrD" | "quart" | "sortieG" | "sortieF" | "avance" | "recule" | "double";
+export type GuideFigure = "ida" | "idaD" | "idaArr" | "idaArrD" | "quart" | "sortieG" | "sortieF" | "sortieFG" | "avance" | "recule" | "double";
 export type GuideKind = "base" | GuideFigure;
 
 interface GuideFigureDef {
@@ -24,6 +25,8 @@ interface GuideFigureDef {
   key: string;
   /** #89: ida e volta variant, or a walk in its place. */
   ida?: IdaVariant; marche?: MarcheKind;
+  /** #90: led during another figure (no key or button of its own). */
+  chain?: boolean;
 }
 /** Pair figures available to the leader: pose movement, segment length (beats) and labels. */
 export const GUIDE_FIGURES: Record<GuideFigure, GuideFigureDef> = {
@@ -38,6 +41,9 @@ export const GUIDE_FIGURES: Record<GuideFigure, GuideFigureDef> = {
   // the next segment's beat 0).
   sortieG: { movement: "sortieG", beats: 6, end: 5, label: "Sortie garçon", code: "KeyD", key: "D" },
   sortieF: { movement: "sortieF", beats: 6, end: 5, label: "Sortie fille", code: "KeyA", key: "A" },
+  // #90: ↑ during the sortie fille, before her G retakes the line: she advances into the sortie garçon's
+  // position 2 and the couple finishes the sortie garçon (marka held one beat, as the sorties).
+  sortieFG: { movement: "sortieF", beats: CHAIN_BEATS + 1, end: CHAIN_BEATS, label: "Sortie fille → fin de la sortie garçon", code: "", key: "↑", chain: true },
   // #89: « haut = avancer (PG puis PD) ; bas = reculer » ; « haut + haut successif rapidement : PG + PD
   // en 1 temps + marka 1 temps ».
   avance: { movement: "ida", beats: 2, end: 2, label: "Avancer", code: "ArrowUp", key: "↑", marche: "avance" },
@@ -75,9 +81,9 @@ export function keyLabel(figure: GuideFigure, layout?: { get(code: string): stri
   return (letter && letter.length === 1 ? letter : def.key).toUpperCase();
 }
 /** Pose options of a segment kind's figure (#89: ida variant, walk). */
-export function figureOptions(kind: GuideKind): { idaVariant: IdaVariant; marche: MarcheKind | null } {
+export function figureOptions(kind: GuideKind): { idaVariant: IdaVariant; marche: MarcheKind | null; sortieChain: boolean } {
   const f = kind === "base" ? null : GUIDE_FIGURES[kind];
-  return { idaVariant: f?.ida ?? IDA_DEFAULT, marche: f?.marche ?? null };
+  return { idaVariant: f?.ida ?? IDA_DEFAULT, marche: f?.marche ?? null, sortieChain: !!f?.chain };
 }
 
 /** Proposals to validate (owner):
@@ -87,9 +93,11 @@ export function figureOptions(kind: GuideKind): { idaVariant: IdaVariant; marche
  * - `window`: during a figure, intentions are taken in its last `window` beats only;
  * - `inertia`: beats over which a pelvis residual at a boundary fades out (quintic, no overshoot);
  * - `double`: a second ↑ within this many beats of the first turns the walk into the double (#89);
- * - `chord`: the ida's key pressed this many beats after ↓ (held) replaces the walk backwards (#89).
+ * - `chord`: the ida's key pressed this many beats after ↓ (held) replaces the walk backwards (#89);
+ * - `chain`: ↑ pressed during the sortie fille from this beat on (and before her position 3) chains it
+ *   into the end of the sortie garçon (#90).
  */
-export const GUIDE = { prep: 0, baseGrid: 4, window: 2, inertia: 1, double: 0.5, chord: 1 };
+export const GUIDE = { prep: 0, baseGrid: 4, window: 2, inertia: 1, double: 0.5, chord: 1, chain: 1 };
 
 /** Grades of a press against the nearest beat: ±min(ms, share of a beat). */
 export const GUIDE_GRADES = [
@@ -158,6 +166,7 @@ export function sampleKind(kind: GuideKind, beat: number, follower: boolean, g: 
     case "quart": return sampleQuartsPaire(beat, follower, g.rest, o, g.stance);
     case "sortieG": return sampleSortieGarcon(beat, follower, g.rest, "line", DEFAULT_SORTIE_CONTRA, o, placementScale(g.amp), g.stance);
     case "sortieF": return sampleSortieFille(beat, follower, g.rest, "hook", o, placementScale(g.amp), g.stance);
+    case "sortieFG": return sampleSortieFG(beat, follower, g.rest, o, placementScale(g.amp), g.stance);
   }
 }
 
@@ -219,13 +228,27 @@ export function planGuide(intentions: GuideIntention[], motions: GuideMotions, u
     outcomes[list[index].order] = { intention, ...g, verdict, boundary, streak };
   };
   let previousBoundary = 0;
+  const consumed = new Set<number>();
   for (let guard = 0; guard < 100000; guard++) {
+    // #90: ↑ during the sortie fille, before her position 3, chains it into the end of the sortie garçon
+    // (the poses up to position 3 are the sortie fille's: the segment changes kind without a jump).
+    if (current.kind === "sortieF") {
+      const from = current.start + GUIDE.chain, to = current.start + CHAIN_FROM;
+      for (let i = next; i < list.length && list[i].intention.beat < to; i++) {
+        const { beat, figure } = list[i].intention;
+        if (figure !== "avance" || beat < from || consumed.has(i)) continue;
+        current.kind = "sortieFG";
+        consumed.add(i);
+        settle(i, "accepté", to);
+        break;
+      }
+    }
     const boundary = current.kind === "base"
       ? current.start + GUIDE.baseGrid * Math.max(1, Math.ceil((previousBoundary - current.start + 1e-9) / GUIDE.baseGrid))
       : current.start + GUIDE_FIGURES[current.kind].beats;
     // Intentions whose preparation ends by this boundary.
     const taken: number[] = [];
-    while (next < list.length && list[next].intention.beat + GUIDE.prep <= boundary + 1e-9) taken.push(next++);
+    while (next < list.length && list[next].intention.beat + GUIDE.prep <= boundary + 1e-9) { if (!consumed.has(next)) taken.push(next); next++; }
     // During a figure, a lead is prepared in its last beats: earlier presses are refused (just after
     // its start: late for the previous boundary; later: too early for this one).
     const refused = (i: number) => current.kind !== "base" && list[i].intention.beat < boundary - GUIDE.window;
@@ -242,7 +265,7 @@ export function planGuide(intentions: GuideIntention[], motions: GuideMotions, u
     }
     if (!reached) {
       // Pressed but meant for a later boundary.
-      for (let i = next; i < list.length; i++) settle(i, "en attente", null);
+      for (let i = next; i < list.length; i++) if (!consumed.has(i)) settle(i, "en attente", null);
       break;
     }
     previousBoundary = boundary;
@@ -315,6 +338,11 @@ export const GUIDE_DEMO: { beat: number; figure: GuideFigure }[] = [
  * backwards first. */
 export const GUIDE_DEMO_ARROWS: { beat: number; figure: GuideFigure }[] = [
   { beat: 3.9, figure: "avance" }, { beat: 5.9, figure: "double" }, { beat: 7.9, figure: "recule" }, { beat: 11.9, figure: "idaArrD" },
+];
+
+/** #90 demonstration (`?guidage=1&demo=enchainement`): sortie fille, ↑ at its beat 2, end of the sortie garçon. */
+export const GUIDE_DEMO_CHAIN: { beat: number; figure: GuideFigure }[] = [
+  { beat: 3.9, figure: "sortieF" }, { beat: 5.95, figure: "avance" },
 ];
 
 /** Live wrapper used by the view: intentions are appended as keys are pressed. */
