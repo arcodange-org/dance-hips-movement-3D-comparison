@@ -25,13 +25,15 @@ const placement = process.env.TEST_PLACEMENT ?? 'reference';
 // TEST_PLEXUS=1 replays the runner with the plexus contact the app enables with a placement (#51).
 const options = { movement: 'sortieG', embrace: true, placement, plexus: process.env.TEST_PLEXUS === '1' };
 // Owner request (19 Nov.): the middle/upper right thighs touch at the D/D arrival. Contact of the
-// illustrative 8.5 cm envelopes: gap in [-6, +3] mm, closest points on the femurs above the patella
+// illustrative 8.5 cm envelopes: gap in [-35, +3] mm (#104), closest points on the femurs above the patella
 // (s ≤ 0.90 along hip → knee). #50 puts the D feet edge to edge, so the legs converge downwards and
 // the contact sits on the lower third of the thighs; bringing the pelvises closer interpenetrates
 // the thighs (−57 mm) before the contact climbs back to mid-thigh.
 const thighContact = (proximity, hipA, kneeA, hipB, kneeB, label) => {
   const sA = proximity.centerA.distanceTo(hipA) / hipA.distanceTo(kneeA), sB = proximity.centerB.distanceTo(hipB) / hipB.distanceTo(kneeB);
-  assert(proximity.gap >= -.006 && proximity.gap <= .003, `${label}: thighs touch (gap ${proximity.gap})`);
+  // #104: with the leader's pelvis over his D the right thighs press on the side; the bones stay clear
+  // (leg-bone test below), the illustrative envelopes overlap by up to 3.5 cm.
+  assert(proximity.gap >= -.035 && proximity.gap <= .003, `${label}: thighs touch (gap ${proximity.gap})`);
   assert(sA <= .9 && sB <= .9, `${label}: contact on the thighs, above the knees (s=${sA.toFixed(2)}/${sB.toFixed(2)})`);
   return { sA, sB };
 };
@@ -190,10 +192,13 @@ for (const sortieVariant of ['line', 'right']) for (const amp of [1, 1.5, 2]) {
   const { sA, sB } = thighContact(proximity, world(pair[0], 'hipR'), world(pair[0], 'kneeR'), world(pair[1], 'hipR'), world(pair[1], 'kneeR'), `sortieG ${sortieVariant}`);
   console.log(sortieVariant, `D/D thigh contact ${(proximity.gap * 1000).toFixed(1)} mm at s=${sA.toFixed(2)}/${sB.toFixed(2)}`);
   // #50: at action 2 the outer edge of the leader's D touches the outer edge of the follower's D.
+  // #104 (owner: « la hanche est au dessus du pied ») : and the leader's pelvis stands over his D.
   const soleOf = (f, side) => footHull(f.model.legs[side].sole.map(p => p.clone().applyMatrix4(f.r['foot' + side].matrixWorld)));
   const footGap = hullGap(soleOf(pair[0], 'R'), soleOf(pair[1], 'R'));
   assert(footGap >= 0 && footGap <= .003, `${sortieVariant}: D/D feet touch edge to edge (${footGap})`);
-  console.log(sortieVariant, `D/D outer foot edges ${(footGap * 1000).toFixed(1)} mm`);
+  const pelvisOverFoot = world(pair[0], 'pelvis').x - world(pair[0], 'footR').x;
+  assert(Math.abs(pelvisOverFoot) < .04, `${sortieVariant}: leader's pelvis over his D (${pelvisOverFoot})`);
+  console.log(sortieVariant, `D/D outer foot edges ${(footGap * 1000).toFixed(1)} mm, leader's pelvis ${(pelvisOverFoot * 100).toFixed(1)} cm from his D`);
 }
 console.log('PASS swept foot hull clearance and D/D contact of the middle/upper thighs (illustrative envelopes)');
 
