@@ -3,19 +3,18 @@ import * as THREE from "three";
 
 // Ligne de danse : axe x monde passant par le repère fixe (origine). Le couple en mode
 // paire est placé SUR cette ligne (face à face selon z) ; la sortie est perpendiculaire
-// à la ligne (axe x) : sortir de la ligne puis revenir dessus.
+// à la ligne (axe x) : sortir de la ligne puis revenir dessus. Elle reste perpendiculaire aux
+// bustes dans toutes les vues, figures comprises (#60).
 // Rendu en rubans (boxes) et non en THREE.Line : les lignes WebGL font 1 px et
 // disparaissent au rééchantillonnage des GIFs ; les boxes restent lisibles.
 export default function LineOfDance({
   visible = true,
   color = "#f472b6",
   halfLength = 1.3,
-  forward = false,
 }: {
   visible?: boolean;
   color?: string;
   halfLength?: number;
-  forward?: boolean;
 }) {
   const dashes = useMemo(() => {
     const g = new THREE.Group();
@@ -34,5 +33,5 @@ export default function LineOfDance({
     return g;
   }, [color, halfLength]);
   if (!visible) return null;
-  return <group rotation-y={forward ? Math.PI / 2 : 0}><primitive object={dashes} /></group>;
+  return <primitive object={dashes} />;
 }
