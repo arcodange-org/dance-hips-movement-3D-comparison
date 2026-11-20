@@ -3,6 +3,9 @@
 [Accueil](../README.md) · [Règles du propriétaire](regles-proprietaire.md) · [Cadre](cadre/spec-implementation.md) ·
 [Mode guidage](spec-mode-guidage-poc.md) · Issues #94 (expliquer les transitions), #90 et #91 (enchaînements)
 
+> Usage concret : [ADR 004](adr/004-ontologie-source-des-figures.md) (données typées lues par l'app, les tests
+> et le mode jeu).
+>
 > Statut : **proposition à relire par le propriétaire** (barrière de compréhension). Rien n'est codé.
 > Les explications ci-dessous sont des hypothèses rédigées à partir des specs existantes : chaque
 > ligne marquée « à valider » demande la confirmation du propriétaire.
