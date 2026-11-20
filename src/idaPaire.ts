@@ -120,7 +120,8 @@ export const IDA_DEFAULT: IdaVariant = { side: "L", back: false };
 
 export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<FigureFoot, FootPoint>,
   placement: CouplePlacement | "reference" | PlacementOffset = "reference", stance = 0, variant: IdaVariant = IDA_DEFAULT) {
-  const b = (Number.isFinite(beat) ? beat : 0) + (variant.side === "R" ? 4 : 0) + (variant.back ? 2 : 0);
+  const styleOffset = (variant.side === "R" ? 4 : 0) + (variant.back ? 2 : 0);
+  const b = (Number.isFinite(beat) ? beat : 0) + styleOffset;
   const o = placementOffset(placement);
   const neutral = idaNeutral(rest, o, stance);
   const now = idaStepAt(b);
@@ -168,7 +169,7 @@ export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<Fig
   const p = ((b % IDA_BEATS) + IDA_BEATS) % IDA_BEATS;
   const current = idaTransfers(follower).find(t => p >= t.start && p < t.end);
   const transfer = current ? { ...current, progress: smooth((p - current.start) / (current.end - current.start)) } : null;
-  return { beat: Number.isFinite(beat) ? beat : 0, action: now.index, moving, feet, root, rootYaw: lower, chestYaw: upper - lower,
+  return { beat: Number.isFinite(beat) ? beat : 0, action: now.index, moving, feet, root, rootYaw: lower, chestYaw: upper - lower, styleOffset,
     // Coupled pelvises (quinconce): the follower's style mirrors the leader's, so she follows his phase
     // (her transfers are his, mirrored); her lateral hip shift goes to her own support (opposite sign).
     gingaBeat: idaGingaBeat(b, follower && IDA_GINGA.mode === "own"),

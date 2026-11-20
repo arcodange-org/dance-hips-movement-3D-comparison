@@ -84,7 +84,7 @@ const options = (i, extra = {}) => ({ movement: 'ida', ida: true, embrace: true,
     const c = api.sampleIdaPaire(b + 4, false, restOf(lead), o, stanceOf(lead.model));
     for (const side of ['L', 'R']) { near(a.feet[side].x, c.feet[side].x, 1e-12, 'ida R = ida + 4'); near(a.feet[side].z, c.feet[side].z, 1e-12, 'ida R = ida + 4'); }
   }
-  const back = api.sampleIdaPaire(1.5, false, restOf(lead), o, stanceOf(lead.model), { side: 'L', back: true });
+  const back = api.sampleIdaPaire(1, false, restOf(lead), o, stanceOf(lead.model), { side: 'L', back: true });
   check(back.feet.L.z < api.idaNeutral(restOf(lead), o, stanceOf(lead.model)).L.z - .1, 'ida arrière: the leader steps back first');
   console.log('PASS marche : directions, même pas, suiveur jamais en avance, appuis sur les temps, un pas de couple ; ida jambe droite = cycle décalé de 4 temps, ida en arrière d\'abord');
 }

@@ -37,7 +37,8 @@ Fil d'Ariane : [docs](./) › spec #42. Dépend de [l'ida e volta en paire #54](
 ## Critères (GLB réel)
 
 1. Le déhanché suit les transferts : appui du style = appui de la figure aux pieds posés, phase
-   continue et croissante, un demi-cycle par transfert (six par cycle de 8 temps).
+   continue et croissante, un demi-cycle par transfert (dix par cycle de 8 temps depuis le cycle à quatre
+   allers-retours de #107 ; six avant).
 2. Amplitude du leader ≈ 70 % de celle du suiveur.
 3. Invariants : aucun croisement d'os de jambe (six styles, trois amplitudes, placements, avec et sans
    plexus), semelles au-dessus du sol, cibles IK atteintes, pied d'appui immobile.
