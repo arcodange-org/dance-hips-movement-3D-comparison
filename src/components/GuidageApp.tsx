@@ -12,7 +12,7 @@ import { createDanceClock, seekClock, type DanceClock } from "../clock";
 import { STYLES } from "../styles";
 import { useMusic } from "../music/useMusic";
 import {
-  GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, guideFiguresFor, guideStyleOf, GUIDE_PAIR_DZ, GUIDE_DEMO, applyTransform, figureOfCode, keyLabel,
+  GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, guideFiguresFor, guideStyleOf, GUIDE_PAIR_DZ, GUIDE_DEMO, GUIDE_DEMO_ARROWS, applyTransform, figureOfCode, keyLabel, type HeldArrows,
   type GuideFigure, type GuideOutcome, type GuideKind,
 } from "../guidage";
 
@@ -86,6 +86,7 @@ export default function GuidageApp() {
   // that beat, paused, for frame-by-frame captures.
   useMemo(() => {
     if (params.get("demo") === "1") session.intentions = GUIDE_DEMO.map(i => ({ ...i, bpm }));
+    if (params.get("demo") === "fleches") session.intentions = GUIDE_DEMO_ARROWS.map(i => ({ ...i, bpm }));
     const frame = Number(params.get("beat") ?? params.get("sortieBeat"));
     if (params.has("beat") || params.has("sortieBeat")) if (Number.isFinite(frame)) seekClock(clock, Math.max(0, frame));
   }, [params, session, clock]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -111,6 +112,7 @@ export default function GuidageApp() {
   };
   // #62: the style offers some figures only (kompa: ida e volta).
   const offered = guideFiguresFor(styleKey);
+  const held = useRef<HeldArrows>({});
   const lead = (figure: GuideFigure, time = performance.now()) => {
     if (!offered.includes(figure)) return;
     if (!playing) return;
@@ -120,17 +122,27 @@ export default function GuidageApp() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (e.code === "ArrowRight" || e.code === "ArrowDown") held.current[e.code === "ArrowRight" ? "right" : "down"] = true;
       if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.code === "Space") { e.preventDefault(); setPlaying(p => !p); return; }
+      if (e.code === "ArrowRight") { e.preventDefault(); return; }
       // Physical position (e.code): ZQSD on AZERTY = WASD on QWERTY. The letter typed teaches the layout.
-      const figure = figureOfCode(e.code);
+      // #89: the arrows held adapt a compatible figure (→ right leg, ↓ backwards first).
+      const figure = figureOfCode(e.code, held.current);
       if (figure) {
         e.preventDefault(); lead(figure, e.timeStamp);
         if (e.key.length === 1) setLayout(l => (l.get(e.code) === e.key ? l : new Map(l).set(e.code, e.key)));
       }
     };
+    const onUp = (e: KeyboardEvent) => {
+      if (e.code === "ArrowRight") held.current.right = false;
+      if (e.code === "ArrowDown") held.current.down = false;
+    };
+    const onBlur = () => { held.current = {}; };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("keyup", onUp);
+    window.addEventListener("blur", onBlur);
+    return () => { window.removeEventListener("keydown", onKey); window.removeEventListener("keyup", onUp); window.removeEventListener("blur", onBlur); };
   });
 
   useEffect(() => {
@@ -230,18 +242,25 @@ export default function GuidageApp() {
         </div>
       </div>
 
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-wrap justify-center gap-2 px-3">
-        {offered.map(f => (
-          <button key={f} onPointerDown={e => lead(f, e.timeStamp)} disabled={!playing}
-            className="rounded-xl bg-slate-900/85 border border-slate-700 px-4 py-3 text-sm text-slate-100 hover:bg-slate-800 disabled:opacity-50">
-            {GUIDE_FIGURES[f].label} <kbd className="ml-1 text-slate-400">{keyLabel(f, layout)}</kbd>
-          </button>
-        ))}
+      {/* Bottom panel, full width: figure buttons (wrapping rows), the arrows hint, the attribution. */}
+      <div className="absolute bottom-2 inset-x-3 flex flex-col items-center gap-1.5">
+        <div className="flex flex-wrap justify-center gap-1.5">
+          {/* #89: the ida variants are led by an arrow held with its key (hint below), not by buttons. */}
+          {offered.filter(f => !GUIDE_FIGURES[f].ida).map(f => (
+            <button key={f} onPointerDown={e => lead(f, e.timeStamp)} disabled={!playing}
+              className="rounded-lg bg-slate-900/85 border border-slate-700 px-2.5 py-1.5 text-xs text-slate-100 hover:bg-slate-800 disabled:opacity-50 sm:px-4 sm:py-2.5 sm:text-sm">
+              {GUIDE_FIGURES[f].label} <kbd className="ml-1 text-slate-400">{keyLabel(f, layout)}</kbd>
+            </button>
+          ))}
+        </div>
+        {offered.includes("idaD") && <p className="text-center text-[11px] text-slate-400">
+          → ou ↓ maintenue + {keyLabel("ida", layout)} : ida e volta jambe droite, en arrière d'abord · ↑ ↑ : double et marka
+        </p>}
+        <p className="self-stretch text-[10px] text-slate-500">
+          Anatomie : BodyParts3D, © The Database Center for Life Science, licence CC BY-SA 2.1 Japan. Animation
+          paramétrique illustrative, sans validation chorégraphique.
+        </p>
       </div>
-      <p className="absolute bottom-2 left-3 right-3 text-[10px] text-slate-500">
-        Anatomie : BodyParts3D, © The Database Center for Life Science, licence CC BY-SA 2.1 Japan. Animation
-        paramétrique illustrative, sans validation chorégraphique.
-      </p>
       </>}
     </div>
   );

@@ -4,45 +4,80 @@
  * timestamped intentions and of the beat (a session can be replayed exactly). */
 import { movementAllowed, STYLE_MOVEMENTS, type MovementKey } from "./styles";
 import { samplePlacePaire, PLACE_PAIR_DZ } from "./placePaire";
-import { sampleIdaPaire, IDA_PAIR_DZ } from "./idaPaire";
+import { sampleIdaPaire, IDA_PAIR_DZ, IDA_DEFAULT, type IdaVariant } from "./idaPaire";
+import { sampleMarchePaire, MARCHE_PAIR_DZ, type MarcheKind } from "./marchePaire";
 import { sampleQuartsPaire, QUARTS_PAIR_DZ } from "./quartsPaire";
 import { sampleSortieGarcon, SORTIE_GARCON_PAIR_DZ, DEFAULT_SORTIE_CONTRA, type FigureFoot, type FootPoint } from "./sortieGarcon";
 import { sampleSortieFille, SORTIE_FILLE_PAIR_DZ } from "./sortieFille";
 import { placementOffset, placementScale, type CouplePlacement } from "./placement";
 
-export type GuideFigure = "ida" | "quart" | "sortieG" | "sortieF";
+export type GuideFigure = "ida" | "idaD" | "idaArr" | "idaArrD" | "quart" | "sortieG" | "sortieF" | "avance" | "recule" | "double";
 export type GuideKind = "base" | GuideFigure;
 
+interface GuideFigureDef {
+  movement: MovementKey; beats: number; end: number; label: string;
+  /** Physical key (KeyboardEvent.code), the same place on every layout: WASD on QWERTY, ZQSD on AZERTY;
+   * "" for a figure led by a combination (#89: an arrow held with the ida's key, ↑ ↑). */
+  code: string;
+  /** Its QWERTY letter (or arrow), shown until the real layout is known; for an ida variant, the arrows
+   * held with the ida's key. */
+  key: string;
+  /** #89: ida e volta variant, or a walk in its place. */
+  ida?: IdaVariant; marche?: MarcheKind;
+}
 /** Pair figures available to the leader: pose movement, segment length (beats) and labels. */
-/** `code` is the physical key (KeyboardEvent.code), the same place on every layout: WASD on QWERTY,
- * ZQSD on AZERTY. `key` is its QWERTY letter, shown until the real layout is known. */
-export const GUIDE_FIGURES: Record<GuideFigure, { movement: MovementKey; beats: number; end: number; label: string; code: string; key: string }> = {
+export const GUIDE_FIGURES: Record<GuideFigure, GuideFigureDef> = {
   ida: { movement: "ida", beats: 8, end: 8, label: "Ida e volta", code: "KeyW", key: "W" },
+  // #89 (owner: « Ida e volta + droite = ida e volta jambe droite ; ida e volta + arrière : on commence
+  // en arrière »): an arrow held while the ida's key is pressed.
+  idaD: { movement: "ida", beats: 8, end: 8, label: "Ida e volta jambe droite", code: "", key: "→", ida: { side: "R", back: false } },
+  idaArr: { movement: "ida", beats: 8, end: 8, label: "Ida e volta en arrière", code: "", key: "↓", ida: { side: "L", back: true } },
+  idaArrD: { movement: "ida", beats: 8, end: 8, label: "Ida e volta en arrière, jambe droite", code: "", key: "↓ →", ida: { side: "R", back: true } },
   quart: { movement: "quarts", beats: 4, end: 4, label: "Quart de tour", code: "KeyQ", key: "Q" },
   // The five-action figures hold their marka one beat (their style is frozen at beat 4, in phase with
   // the next segment's beat 0).
   sortieG: { movement: "sortieG", beats: 6, end: 5, label: "Sortie garçon", code: "KeyD", key: "D" },
   sortieF: { movement: "sortieF", beats: 6, end: 5, label: "Sortie fille", code: "KeyA", key: "A" },
+  // #89: « haut = avancer (PG puis PD) ; bas = reculer » ; « haut + haut successif rapidement : PG + PD
+  // en 1 temps + marka 1 temps ».
+  avance: { movement: "ida", beats: 2, end: 2, label: "Avancer", code: "ArrowUp", key: "↑", marche: "avance" },
+  recule: { movement: "ida", beats: 2, end: 2, label: "Reculer", code: "ArrowDown", key: "↓", marche: "recule" },
+  double: { movement: "ida", beats: 2, end: 2, label: "Double et marka", code: "", key: "↑ ↑", marche: "double" },
 };
 export const GUIDE_FIGURE_KEYS = Object.keys(GUIDE_FIGURES) as GuideFigure[];
-/** #62, #85: the figures a style offers in the game. Kompa, tarraxinha and zouk (on the spot and forward /
- * backward only) offer none yet: walking forward and backward comes with the arrow keys (#89). */
+/** #89: the walks, offered in every style. */
+export const GUIDE_WALKS: GuideFigure[] = ["avance", "recule", "double"];
+/** #62, #85, #89: the figures a style offers in the game. Kompa, tarraxinha and zouk (on the spot and
+ * forward / backward only: « le konpa ne propose rien à part avancer et reculer ») offer the walks only. */
 export const guideFiguresFor = (styleKey: string): GuideFigure[] =>
-  STYLE_MOVEMENTS[styleKey] ? [] : GUIDE_FIGURE_KEYS.filter(f => movementAllowed(styleKey, GUIDE_FIGURES[f].movement));
+  STYLE_MOVEMENTS[styleKey] ? GUIDE_WALKS : GUIDE_FIGURE_KEYS.filter(f => movementAllowed(styleKey, GUIDE_FIGURES[f].movement));
 /** #85 (owner: « dans le mode jeu la position de base doit être le suave (sauf en konpa) »): the basic
  * step is danced in suave, the figures in the chosen style; kompa (and the styles handled like it) keep
  * their own style throughout. */
 export const guideStyleOf = (kind: GuideKind, styleKey: string): string =>
   kind === "base" && !STYLE_MOVEMENTS[styleKey] ? "suave" : styleKey;
 
-/** Figure led by a key press, by physical position (QWERTY W A Q D = AZERTY Z Q A D). */
-export function figureOfCode(code: string): GuideFigure | null {
-  return GUIDE_FIGURE_KEYS.find(f => GUIDE_FIGURES[f].code === code) ?? null;
+/** Arrows held while a key is pressed (#89). */
+export interface HeldArrows { right?: boolean; down?: boolean }
+/** Figure led by a key press, by physical position (QWERTY W A Q D = AZERTY Z Q A D), adapted by the
+ * arrows held: → the right leg, ↓ backwards first (compatible figure: the ida e volta). */
+export function figureOfCode(code: string, held: HeldArrows = {}): GuideFigure | null {
+  if (!code) return null;
+  const figure = GUIDE_FIGURE_KEYS.find(f => GUIDE_FIGURES[f].code === code) ?? null;
+  if (figure === "ida") return held.down ? (held.right ? "idaArrD" : "idaArr") : held.right ? "idaD" : "ida";
+  return figure;
 }
 /** Letter shown for a figure's key: the real layout's letter when known, else the QWERTY one. */
 export function keyLabel(figure: GuideFigure, layout?: { get(code: string): string | undefined } | null): string {
-  const letter = layout?.get(GUIDE_FIGURES[figure].code);
-  return (letter && letter.length === 1 ? letter : GUIDE_FIGURES[figure].key).toUpperCase();
+  const def = GUIDE_FIGURES[figure];
+  if (def.ida) return `${def.key} + ${keyLabel("ida", layout)}`;
+  const letter = def.code ? layout?.get(def.code) : undefined;
+  return (letter && letter.length === 1 ? letter : def.key).toUpperCase();
+}
+/** Pose options of a segment kind's figure (#89: ida variant, walk). */
+export function figureOptions(kind: GuideKind): { idaVariant: IdaVariant; marche: MarcheKind | null } {
+  const f = kind === "base" ? null : GUIDE_FIGURES[kind];
+  return { idaVariant: f?.ida ?? IDA_DEFAULT, marche: f?.marche ?? null };
 }
 
 /** Proposals to validate (owner):
@@ -50,8 +85,11 @@ export function keyLabel(figure: GuideFigure, layout?: { get(code: string): stri
  *   itself, so a press on the beat of the boundary is taken; the leader's chest still leads by 0.25 beat);
  * - `baseGrid`: the basic step can be left every `baseGrid` beats (style periods divide 4);
  * - `window`: during a figure, intentions are taken in its last `window` beats only;
- * - `inertia`: beats over which a pelvis residual at a boundary fades out (quintic, no overshoot). */
-export const GUIDE = { prep: 0, baseGrid: 4, window: 2, inertia: 1 };
+ * - `inertia`: beats over which a pelvis residual at a boundary fades out (quintic, no overshoot);
+ * - `double`: a second ↑ within this many beats of the first turns the walk into the double (#89);
+ * - `chord`: the ida's key pressed this many beats after ↓ (held) replaces the walk backwards (#89).
+ */
+export const GUIDE = { prep: 0, baseGrid: 4, window: 2, inertia: 1, double: 0.5, chord: 1 };
 
 /** Grades of a press against the nearest beat: ±min(ms, share of a beat). */
 export const GUIDE_GRADES = [
@@ -114,7 +152,9 @@ export function sampleKind(kind: GuideKind, beat: number, follower: boolean, g: 
   const o = placementOffset(g.placement, g.amp);
   switch (kind) {
     case "base": return samplePlacePaire(beat, follower, g.rest, o, g.stance);
-    case "ida": return sampleIdaPaire(beat, follower, g.rest, o, g.stance);
+    case "ida": case "idaD": case "idaArr": case "idaArrD":
+      return sampleIdaPaire(beat, follower, g.rest, o, g.stance, figureOptions(kind).idaVariant);
+    case "avance": case "recule": case "double": return sampleMarchePaire(beat, follower, g.rest, o, g.stance, kind);
     case "quart": return sampleQuartsPaire(beat, follower, g.rest, o, g.stance);
     case "sortieG": return sampleSortieGarcon(beat, follower, g.rest, "line", DEFAULT_SORTIE_CONTRA, o, placementScale(g.amp), g.stance);
     case "sortieF": return sampleSortieFille(beat, follower, g.rest, "hook", o, placementScale(g.amp), g.stance);
@@ -123,7 +163,7 @@ export function sampleKind(kind: GuideKind, beat: number, follower: boolean, g: 
 
 /** Couple motion and pelvis residuals of every segment kind, measured on the samplers. */
 export function guideMotions(g: GuideRig): GuideMotions {
-  if (new Set([IDA_PAIR_DZ, QUARTS_PAIR_DZ, SORTIE_GARCON_PAIR_DZ, SORTIE_FILLE_PAIR_DZ, PLACE_PAIR_DZ]).size !== 1)
+  if (new Set([IDA_PAIR_DZ, MARCHE_PAIR_DZ, QUARTS_PAIR_DZ, SORTIE_GARCON_PAIR_DZ, SORTIE_FILLE_PAIR_DZ, PLACE_PAIR_DZ]).size !== 1)
     throw new Error("guide mode: the pair figures must share one couple spacing");
   const motions = {} as GuideMotions;
   for (const kind of ["base", ...GUIDE_FIGURE_KEYS] as GuideKind[]) {
@@ -249,10 +289,10 @@ export function movementOf(kind: GuideKind): MovementKey {
 
 /** Pose options of one dancer for a guide sample (shared by the view and the GLB tests): the pair
  * figure models, plexus contact, and the inertialized pelvis offsets of both dancers. */
-export function guidePoseOptions(s: Pick<GuideSample, "movement" | "rootOffset">, follower: boolean) {
+export function guidePoseOptions(s: Pick<GuideSample, "movement" | "rootOffset"> & { kind?: GuideKind }, follower: boolean) {
   const role = follower ? "follower" : "leader", partner = follower ? "leader" : "follower";
   return {
-    movement: s.movement, embrace: true, follower,
+    movement: s.movement, embrace: true, follower, ...figureOptions(s.kind ?? "base"),
     quartsPaire: s.movement === "quarts", idaPaire: s.movement === "ida", placePaire: s.movement === "none", plexus: true,
     // #62: the basic step keeps the clock's phase so that it joins the figures continuously.
     onBeat: false,
@@ -271,6 +311,12 @@ export const GUIDE_DEMO: { beat: number; figure: GuideFigure }[] = [
   { beat: 2.9, figure: "ida" }, { beat: 10.9, figure: "sortieG" }, { beat: 20.9, figure: "quart" }, { beat: 24.95, figure: "sortieF" },
 ];
 
+/** #89 demonstration (`?guidage=1&demo=fleches`): walk forward, double, walk backward, ida e volta right leg
+ * backwards first. */
+export const GUIDE_DEMO_ARROWS: { beat: number; figure: GuideFigure }[] = [
+  { beat: 3.9, figure: "avance" }, { beat: 5.9, figure: "double" }, { beat: 7.9, figure: "recule" }, { beat: 11.9, figure: "idaArrD" },
+];
+
 /** Live wrapper used by the view: intentions are appended as keys are pressed. */
 export class GuideSession {
   intentions: GuideIntention[] = [];
@@ -278,7 +324,17 @@ export class GuideSession {
   boundKey: string | null = null;
   private cache: { key: string; plan: GuidePlan } | null = null;
   bind(g: GuideRig, key = "") { this.motions = guideMotions(g); this.boundKey = key; this.cache = null; }
-  press(beat: number, figure: GuideFigure, bpm: number) { this.intentions.push({ beat, figure, bpm }); this.cache = null; }
+  press(beat: number, figure: GuideFigure, bpm: number) {
+    // #89: ↑ ↑ in quick succession leads the double (one intention, graded on the first press).
+    // ↓ held then the ida's key: the ↓ press was a walk backwards until the key came; the ida variant
+    // replaces it (graded on the key).
+    const last = this.intentions[this.intentions.length - 1];
+    if (figure === "avance" && last?.figure === "avance" && beat - last.beat <= GUIDE.double) last.figure = "double";
+    else if ((figure === "idaArr" || figure === "idaArrD") && last?.figure === "recule" && beat - last.beat <= GUIDE.chord)
+      Object.assign(last, { beat, figure, bpm });
+    else this.intentions.push({ beat, figure, bpm });
+    this.cache = null;
+  }
   reset() { this.intentions = []; this.cache = null; }
   plan(beat: number): GuidePlan | null {
     if (!this.motions) return null;

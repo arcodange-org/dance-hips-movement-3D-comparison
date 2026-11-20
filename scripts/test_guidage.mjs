@@ -56,13 +56,28 @@ const kinds = plan => plan.segments.map(s => `${s.kind}@${s.start}`).join(' ');
 console.log('PASS ordonnancement : frontières, préparation, trop tôt / trop tard, ambiguïté, répétition, attente');
 
 // 1b. Keys by physical position: QWERTY W A Q D = AZERTY Z Q A D; labels follow the layout.
+// #89: arrows held adapt the ida (→ right leg, ↓ backwards first); ↑ and ↓ alone lead the walks.
 {
-  assert.deepEqual(['KeyW', 'KeyA', 'KeyQ', 'KeyD', 'KeyZ'].map(api.figureOfCode), ['ida', 'sortieF', 'quart', 'sortieG', null]);
+  assert.deepEqual(['KeyW', 'KeyA', 'KeyQ', 'KeyD', 'KeyZ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', ''].map(c => api.figureOfCode(c)),
+    ['ida', 'sortieF', 'quart', 'sortieG', null, 'avance', 'recule', null, null]);
+  assert.deepEqual([{ right: true }, { down: true }, { down: true, right: true }].map(h => api.figureOfCode('KeyW', h)), ['idaD', 'idaArr', 'idaArrD']);
+  assert.equal(api.figureOfCode('KeyD', { right: true }), 'sortieG');
   const azerty = new Map([['KeyW', 'z'], ['KeyA', 'q'], ['KeyQ', 'a'], ['KeyD', 'd']]);
-  assert.deepEqual(api.GUIDE_FIGURE_KEYS.map(f => api.keyLabel(f, azerty)), ['Z', 'A', 'D', 'Q']);
-  assert.deepEqual(api.GUIDE_FIGURE_KEYS.map(f => api.keyLabel(f, null)), ['W', 'Q', 'D', 'A']);
+  const letters = ['ida', 'quart', 'sortieG', 'sortieF'];
+  assert.deepEqual(letters.map(f => api.keyLabel(f, azerty)), ['Z', 'A', 'D', 'Q']);
+  assert.deepEqual(letters.map(f => api.keyLabel(f, null)), ['W', 'Q', 'D', 'A']);
+  assert.deepEqual(['idaD', 'idaArr', 'idaArrD', 'avance', 'recule', 'double'].map(f => api.keyLabel(f, azerty)), ['→ + Z', '↓ + Z', '↓ → + Z', '↑', '↓', '↑ ↑']);
+  // ↑ ↑ within half a beat: one intention, the double; ↓ then the ida's key: the backwards ida.
+  const s = new api.GuideSession();
+  s.press(1, 'avance', 90); s.press(1.4, 'avance', 90);
+  s.press(5, 'avance', 90); s.press(5.6, 'avance', 90);
+  s.press(9, 'recule', 90); s.press(9.3, 'idaArrD', 90);
+  assert.deepEqual(s.intentions.map(i => [i.beat, i.figure]), [[1, 'double'], [5, 'avance'], [5.6, 'avance'], [9.3, 'idaArrD']]);
+  // Kompa, tarraxinha and zouk offer the walks only; kizomba everything.
+  for (const k of ['kompa', 'tarraxinha', 'zouk']) assert.deepEqual(api.guideFiguresFor(k), ['avance', 'recule', 'double']);
+  assert.deepEqual(api.guideFiguresFor('kizomba'), api.GUIDE_FIGURE_KEYS);
 }
-console.log('PASS touches par position physique (QWERTY W A Q D = AZERTY Z Q A D), lettres selon la disposition');
+console.log('PASS touches par position physique (QWERTY W A Q D = AZERTY Z Q A D), lettres selon la disposition ; flèches : marche, variantes de l\'ida, double');
 
 // 2. Grades and streak.
 {
@@ -162,7 +177,7 @@ const GUIDE_JUMP = 0.0002;
     }
   }
   assert.ok(worst.jump < GUIDE_JUMP, `joint jump at a boundary ${JSON.stringify(worst)}`);
-  console.log(`PASS squelette continu aux frontières (six styles, 25 enchaînements) : saut max ${(worst.jump * 1000).toFixed(3)} mm sur 1e-6 temps (${worst.styleKey} ${worst.a}→${worst.b}, ${worst.joint}) < ${GUIDE_JUMP * 1000} mm`);
+  console.log(`PASS squelette continu aux frontières (six styles, ${(1 + api.GUIDE_FIGURE_KEYS.length) ** 2} enchaînements) : saut max ${(worst.jump * 1000).toFixed(3)} mm sur 1e-6 temps (${worst.styleKey} ${worst.a}→${worst.b}, ${worst.joint}) < ${GUIDE_JUMP * 1000} mm`);
 }
 
 // #85 (owner: « dans le mode jeu la position de base doit être le suave (sauf en konpa) »): the basic
