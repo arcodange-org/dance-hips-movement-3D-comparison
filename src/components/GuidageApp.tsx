@@ -12,7 +12,7 @@ import { createDanceClock, seekClock, type DanceClock } from "../clock";
 import { STYLES } from "../styles";
 import { useMusic } from "../music/useMusic";
 import {
-  GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, guideFiguresFor, guideStyleOf, GUIDE_PAIR_DZ, GUIDE_DEMO, GUIDE_DEMO_ARROWS, applyTransform, figureOfCode, keyLabel, type HeldArrows,
+  GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, guideFiguresFor, guideStyleOf, GUIDE_PAIR_DZ, GUIDE_DEMO, GUIDE_DEMO_ARROWS, GUIDE_DEMO_CHAIN, applyTransform, figureOfCode, keyLabel, type HeldArrows,
   type GuideFigure, type GuideOutcome, type GuideKind,
 } from "../guidage";
 
@@ -87,6 +87,7 @@ export default function GuidageApp() {
   useMemo(() => {
     if (params.get("demo") === "1") session.intentions = GUIDE_DEMO.map(i => ({ ...i, bpm }));
     if (params.get("demo") === "fleches") session.intentions = GUIDE_DEMO_ARROWS.map(i => ({ ...i, bpm }));
+    if (params.get("demo") === "enchainement") session.intentions = GUIDE_DEMO_CHAIN.map(i => ({ ...i, bpm }));
     const frame = Number(params.get("beat") ?? params.get("sortieBeat"));
     if (params.has("beat") || params.has("sortieBeat")) if (Number.isFinite(frame)) seekClock(clock, Math.max(0, frame));
   }, [params, session, clock]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -246,7 +247,7 @@ export default function GuidageApp() {
       <div className="absolute bottom-2 inset-x-3 flex flex-col items-center gap-1.5">
         <div className="flex flex-wrap justify-center gap-1.5">
           {/* #89: the ida variants are led by an arrow held with its key (hint below), not by buttons. */}
-          {offered.filter(f => !GUIDE_FIGURES[f].ida).map(f => (
+          {offered.filter(f => !GUIDE_FIGURES[f].ida && !GUIDE_FIGURES[f].chain).map(f => (
             <button key={f} onPointerDown={e => lead(f, e.timeStamp)} disabled={!playing}
               className="rounded-lg bg-slate-900/85 border border-slate-700 px-2.5 py-1.5 text-xs text-slate-100 hover:bg-slate-800 disabled:opacity-50 sm:px-4 sm:py-2.5 sm:text-sm">
               {GUIDE_FIGURES[f].label} <kbd className="ml-1 text-slate-400">{keyLabel(f, layout)}</kbd>
@@ -255,6 +256,7 @@ export default function GuidageApp() {
         </div>
         {offered.includes("idaD") && <p className="text-center text-[11px] text-slate-400">
           → ou ↓ maintenue + {keyLabel("ida", layout)} : ida e volta jambe droite, en arrière d'abord · ↑ ↑ : double et marka
+          {offered.includes("sortieFG") && <> · ↑ pendant la sortie fille : fin de la sortie garçon</>}
         </p>}
         <p className="self-stretch text-[10px] text-slate-500">
           Anatomie : BodyParts3D, © The Database Center for Life Science, licence CC BY-SA 2.1 Japan. Animation

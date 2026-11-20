@@ -54,6 +54,25 @@ const kinds = plan => plan.segments.map(s => `${s.kind}@${s.start}`).join(' ');
   assert.ok(plan.outcomes.every(o => o.verdict === 'accepté'));
 }
 console.log('PASS ordonnancement : frontières, préparation, trop tôt / trop tard, ambiguïté, répétition, attente');
+// 1c. #90: ↑ during the sortie fille, between its beats 1 and 3, chains it into the end of the sortie
+// garçon (one segment, which changes kind without changing its start); before beat 1 or after beat 3 the
+// press keeps its usual meaning.
+{
+  let plan = api.planGuide([I(3.9, 'sortieF'), I(6, 'avance')], motions, 30);
+  assert.equal(kinds(plan), 'base@0 sortieFG@4 base@13');
+  assert.deepEqual(plan.outcomes.map(o => [o.verdict, o.boundary]), [['accepté', 4], ['accepté', 7]]);
+  plan = api.planGuide([I(3.9, 'sortieF'), I(6, 'avance')], motions, 6.5);
+  assert.equal(kinds(plan), 'base@0 sortieFG@4', 'chained as soon as pressed (replay)');
+  plan = api.planGuide([I(3.9, 'sortieF'), I(4.5, 'avance')], motions, 30);
+  assert.equal(kinds(plan), 'base@0 sortieF@4 base@10', 'too early in the sortie fille');
+  assert.equal(plan.outcomes[1].verdict, 'trop tôt');
+  plan = api.planGuide([I(3.9, 'sortieF'), I(8.5, 'avance')], motions, 30);
+  assert.equal(kinds(plan), 'base@0 sortieF@4 avance@10 base@12', 'after the sortie fille: the next walk');
+  assert.equal(api.figureOptions('sortieFG').sortieChain, true);
+  assert.equal(api.figureOptions('sortieF').sortieChain, false);
+}
+console.log('PASS enchaînement : ↑ pendant la sortie fille (temps 1 à 3) → fin de la sortie garçon');
+
 
 // 1b. Keys by physical position: QWERTY W A Q D = AZERTY Z Q A D; labels follow the layout.
 // #89: arrows held adapt the ida (→ right leg, ↓ backwards first); ↑ and ↓ alone lead the walks.
