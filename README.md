@@ -135,6 +135,25 @@ contraposition, vue de profil, 8 temps à 90 bpm, amplitude 1. Base de déplacem
 BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 </details>
 
+## Mode guidage — preuve de concept (#69)
+
+`?mode=pair&guidage=1` ouvre une vue où **vous êtes le leader** : une touche choisit la figure suivante
+de la suiveuse (**W** ida e volta, **D** sortie garçon, **A** sortie fille, **Q** quart de tour,
+**Espace** lecture / pause ; boutons tactiles équivalents). Elle l'exécute à la prochaine frontière de
+temps, toujours depuis la quinconce, avec les figures en paire existantes ; sans guidage, le couple
+danse le pas de base sur place. Chaque pression est notée par rapport au temps (Parfait, Bien, Juste,
+Raté) ; un guidage ambigu ou trop tôt laisse la suiveuse au pas de base. Le repère du couple suit les
+déplacements des figures, et les écarts de bassin entre deux figures sont effacés en un temps
+(inertialisation). Testé sur le GLB : continuité aux 25 enchaînements, aucun croisement d'os.
+
+![Mode guidage : ida e volta, sortie garçon, quart de tour, sortie fille](docs/gifs/mode-guidage-demo.gif)
+<details><summary>Détails & source</summary>
+
+Capture image par image de la session de démonstration (`?mode=pair&guidage=1&demo=1&beat=…`), kizomba,
+90 bpm. Recherche et concept : [docs/recherche-jeux-video/](docs/recherche-jeux-video/README.md).
+[Spécification et rapport](docs/spec-mode-guidage-poc.md). BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
+</details>
+
 ## Vérifications de l’oracle
 
 Les contrôles de l'oracle distinguent désormais les poses évaluées, les cibles et les rotations
@@ -220,7 +239,7 @@ npm test          # courbes, Gherkin et poses finales du GLB réel
 Paramètres d'URL (utilisés par les captures, prioritaires sur localStorage) :
 `?mode=solo|observe|compare|pair&style=kizomba&styleB=zouk&bpm=90&travel=0.6&bare=1`
 (`bare=1` : canvas plein écran sans l'interface) + `&muscles=1` (couche musculaire),
-`&sortieG=1` / `&sortieF=1` / `&sortieGF=1` (sortie garçon / fille / combinée G→F, options exclusives, mode paire ; `&sortie=1` legacy = garçon), `&repere=0` (masque le repère fixe),
+`&guidage=1` (mode guidage, paire ; `&demo=1&beat=12` : session de démonstration figée à un temps), `&sortieG=1` / `&sortieF=1` / `&sortieGF=1` (sortie garçon / fille / combinée G→F, options exclusives, mode paire ; `&sortie=1` legacy = garçon), `&repere=0` (masque le repère fixe),
 `&appui=1` (appuis & transmission), `&ligne=1` (force la ligne de danse en solo),
 `&corridinho=1` (1/4 tour D puis G, puis cercle au repère fixe), `&plant=0` (ancien rendu glissé ;
 par défaut les pieds restent plantés au sol sur place, `plant=1`), `&solid=1` (buste opaque pour les

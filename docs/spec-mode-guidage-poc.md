@@ -32,22 +32,25 @@ Une partie est une suite de **segments** sur l'horloge commune `clock.beat` :
 
 | Segment | Durée | Temps local | Sortie possible |
 | --- | --- | --- | --- |
-| `base` : pas de base en paire | ouverte | `beat − début` | à chaque temps pair du segment |
+| `base` : pas de base en paire | ouverte | `beat − début` | tous les 4 temps du segment (les styles ont des périodes de 1, 2 ou 4 temps : le déhanché reste continu) |
 | `ida` : ida e volta en paire | 8 temps | 0 → 8 | à la fin |
 | `quart` : un quart de tour en paire | 4 temps | 0 → 4 (premier quart) | à la fin |
 | `sortieG` : sortie garçon | 5 temps, fin arrondie à 6 | 0 → 5 puis tenue | à la fin |
 | `sortieF` : sortie fille | 5 temps, fin arrondie à 6 | 0 → 5 puis tenue | à la fin |
 
 Les figures s'enchaînent **toujours par la quinconce** : à la fin d'une figure, si une intention
-attend, la figure suivante commence ; sinon le couple revient au pas de base. Les durées des sorties
-sont arrondies à un nombre pair de temps pour garder la carrure de deux temps du pas de base.
+attend, la figure suivante commence ; sinon le couple revient au pas de base. Les sorties tiennent
+leur marka un temps (durée 6) ; leur déhanché est figé au temps 4, en phase avec le temps 0 du
+segment suivant.
 
 ### Intentions
 
 - Une intention est `{ beat, figure }`, horodatée sur l'horloge des temps au moment de la pression.
-- Elle vaut pour la **prochaine frontière** qui suit d'au moins `PREP` temps (0,25 temps : la
-  préparation, l'avance du buste du leader) ; plus tard, elle attend la frontière suivante (mémoire
-  tampon d'une seule intention).
+- Elle vaut pour la **prochaine frontière**, jusqu'au temps de la frontière inclus (`PREP` = 0 : une
+  pression sur le temps de la frontière est prise ; le buste du leader garde son avance de 0,25 temps
+  dans la figure) ; juste après, elle attend la frontière suivante (mémoire tampon d'une seule
+  intention). Une première version demandait 0,25 temps de préparation : une pression « Parfait » sur
+  le temps de la frontière était alors reportée, ce qui contredisait la note.
 - Deux intentions **différentes** pour la même frontière : guidage ambigu, la suiveuse reste au pas
   de base (retour « hésitation »), comme le recommande la recherche (ne jamais faire une mauvaise
   figure). La même intention répétée est ignorée.
@@ -67,7 +70,16 @@ Si, à une frontière, la racine d'un danseur (dans le repère du couple) diffè
 précédent et le début du suivant, l'écart (x, z) est ajouté à la racine du nouveau segment puis
 effacé sur `INERTIA` temps (1 temps) par une courbe de degré 5 sans dépassement (Bollo). Seule la
 racine bouge : les cibles des pieds restent celles de l'échantillonneur, l'IK des jambes s'applique
-après. Cas concerné aujourd'hui : la fin de la sortie garçon (1,5 cm, suiveuse).
+après. Cas concerné : la fin de la sortie garçon (1,5 cm, suiveuse).
+
+Les figures en paire bornent différemment la flexion des genoux, la rotation et le balancement du
+bassin (`kneeCap`, `rotationCap`, `sway`) : à pieds identiques, la **hauteur du bassin** et sa pose
+propre changent d'une figure à l'autre (mesuré : jusqu'à 3 cm au genou en tarraxinha). Ces écarts
+(hauteur, position et rotation du bassin) sont mesurés une fois par enchaînement sur le danseur
+lui-même (`src/guidagePose.ts`) et effacés de la même façon, **avant** l'IK des jambes. La hauteur
+est remesurée avec les écarts plan et de bassin appliqués en entier, car ils déplacent la hauteur que
+trouve la portée des jambes : l'écart est exact à la frontière. C'est aussi
+un constat pour #67 : les figures ne partagent pas la même hauteur de bassin.
 
 ### Pas de base en paire
 
@@ -87,7 +99,8 @@ Chaque pression est notée par son écart au temps le plus proche, `b` = durée 
 | Juste | ±min(160 ms ; 0,25 b) |
 | Raté | au-delà |
 
-Série : +1 par Parfait ou Bien ; un Raté la divise par deux (indulgence de *Beat Saber*). La figure
+Série : +1 par guidage **reçu** (accepté) noté Parfait ou Bien ; un Raté la divise par deux
+(indulgence de *Beat Saber*) ; un guidage refusé, ambigu ou répété ne la fait pas monter. La figure
 s'exécute toujours sur le temps, quelle que soit la note (*Hi-Fi Rush*). Pas de calibration de
 latence dans cette PoC.
 
@@ -109,7 +122,7 @@ le même résultat.
 
 ## Critères (tests)
 
-1. **Ordonnancement** (pur) : frontières, préparation, mémoire tampon, ambiguïté, refus trop tôt,
+1. **Ordonnancement** (pur) : frontières, pression sur le temps de la frontière, mémoire tampon, ambiguïté, refus trop tôt,
    rejeu identique, accès direct à un temps identique à l'accès séquentiel.
 2. **Notes** : fenêtres et série conformes au tableau, à 72 et 120 bpm.
 3. **Continuité aux frontières** (GLB) : pour chaque enchaînement de deux segments parmi les cinq,
@@ -122,6 +135,23 @@ le même résultat.
    au-dessus du sol, pieds immobiles. Séquences d'intentions aléatoires (graine fixe) : aucun
    croisement pendant les transitions et l'inertialisation.
 6. **Non-régression** : sans `guidage`, aucune pose ni empreinte ne change (`npm test` inchangé).
+
+## Rapport (20 novembre 2026)
+
+- `scripts/test_guidage.mjs` (dans `npm test`, environ 45 s) : ordonnancement, notes, rejeu, repère du
+  couple, continuité, GLB.
+- Continuité aux 25 enchaînements, six styles : pieds et racines < 1 mm ; squelette entier (bassin,
+  hanches, genoux, pieds, buste, tête) : saut maximal **0,001 mm** sur 10⁻⁶ temps (seuil du test
+  0,2 mm), contre 30 mm au genou sans l'inertialisation de la pose du bassin et 3,6 mm quand la hauteur
+  était mesurée sans les autres écarts (relevé par la relecture de code).
+- Pas de base : pieds immobiles, aucun croisement d'os, os au-dessus du sol (six styles, amplitudes
+  0,5, 1 et 2, plexus). Sessions aléatoires (graine fixe, six styles) : 1 626 poses autour des
+  frontières sans croisement d'os.
+- La traînée du bassin est masquée en mode guidage (elle est tracée en coordonnées du monde et serait
+  déplacée une seconde fois par le repère du couple).
+- Limite connue : le contrôle de continuité du pied G du leader est en partie tautologique (il définit
+  le déplacement du couple) ; le pied D, les pieds de la suiveuse, les racines et le squelette sont
+  des contrôles indépendants.
 
 ## Hors périmètre
 

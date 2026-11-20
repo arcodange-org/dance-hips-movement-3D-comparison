@@ -2,7 +2,7 @@
 
 [Hub de la recherche](README.md) · [Confrontation avec le moteur](confrontation-moteur.md) · [Guidage et commande](guidage-et-commande.md) · [Rythme et timing](rythme-et-timing.md) · [Interactions à deux](interactions-a-deux.md) · [Ginga #42](https://github.com/arcodange-org/dance-hips-movement-3D-comparison/issues/42)
 
-**Statut : concept à discuter, aucun code.** Le propriétaire imagine « un mode jeu vidéo où l'on
+**Statut : concept à discuter.** Une preuve de concept du niveau 2 existe : [spec #69](../spec-mode-guidage-poc.md), `?mode=pair&guidage=1`. Le propriétaire imagine « un mode jeu vidéo où l'on
 peut guider sa partenaire ». Cette page propose une forme qui réutilise le moteur tel qu'il est,
 par niveaux, du plus simple au plus ambitieux. Les valeurs sont des propositions issues de la
 recherche, à valider à l'œil et à l'oreille.

@@ -6,6 +6,8 @@ import { ANATOMY_URL, HIP_Y, TRAIL_MAX, BODY, BODY_DARK, TORSO_OPACITY, makeTrai
 import { STYLES, type MovementKey } from "../styles";
 import { applyPose, bindSkeleton, createPoseModel, type PoseModel, type Side } from "../pose";
 import { type DanceClock } from "../clock";
+import type { GuideSession } from "../guidage";
+import { applyGuidePose, type PelvisCache } from "../guidagePose";
 import { TORSO_JOINTS } from "../rigJoints";
 import type { SortieFilleVariant } from "../sortieFille";
 import type { CouplePlacement } from "../placement";
@@ -54,6 +56,8 @@ export interface RigProps {
   dir?: number;
   temps3?: boolean;
   ida?: boolean;
+  /** #69 guide mode: the session picks the pair figure and its local beat (docs/spec-mode-guidage-poc.md). */
+  guide?: GuideSession | null;
 }
 
 export default function Rig({
@@ -91,6 +95,7 @@ export default function Rig({
   dir = 1,
   temps3 = false,
   ida = false,
+  guide = null,
 }: RigProps) {
   const torsoOp = torsoOpacity ?? TORSO_OPACITY;
   const r = useRef({} as RigHandle).current;
@@ -98,6 +103,7 @@ export default function Rig({
     r[n] = el;
   };
   const poseModel = useRef<PoseModel | null>(null);
+  const guideHeights = useRef<PelvisCache>(new Map());
   const count = useRef(0);
   const trailRevision = useRef(clock.revision);
   const trailExporting = useRef(false);
@@ -182,18 +188,33 @@ export default function Rig({
       count.current = 0; trail.geometry.setDrawRange(0, 0);
     }
     trailRevision.current = clock.revision;
-    const result = applyPose(r, poseModel.current, clock.beat + phaseOffset, {
-      styleKey, amp, travel, dir, movement, embrace, corridinho, reverse, quarts,
-      iso, ida, cadre, plant, temps3, follower: side === "follower", sortieVariant, sortieContra, sortieFilleVariant,
-      placement: placement ?? "reference",
-      // #37: in pair, the quarter turns use the couple model (placement given by the app).
-      quartsPaire: embrace && movement === "quarts" && placement !== undefined,
-      // #54: in pair, the ida e volta uses the couple model (leader forward, follower back).
-      idaPaire: embrace && movement === "ida" && placement !== undefined,
-      // #51: plexus-to-plexus contact in the pair figures.
-      plexus: embrace && placement !== undefined && (movement === "sortieG" || movement === "sortieF" || movement === "quarts" || movement === "ida"),
-      contraposition: contraposition ?? 1,
-    });
+    // #69 guide mode: the session chooses the figure (through the neutral quinconce) and its local beat;
+    // the leader binds the session to the GLB's rest stance once.
+    const model = poseModel.current;
+    if (guide && side === "leader") {
+      const key = `${placement ?? "reference"}:${amp}`;
+      if (guide.boundKey !== key) {
+        const rest = { L: model.legs.L.rest, R: model.legs.R.rest };
+        const stance = (model.legs.L.hipX - rest.L.x + rest.R.x - model.legs.R.hipX) / 2;
+        guide.bind({ rest, stance, placement: placement ?? "quinconce", amp }, key);
+      }
+    }
+    const guided = guide && side && placement !== undefined ? guide.sample(clock.beat) : null;
+    const result = guided
+      ? applyGuidePose(r, model, guided, { styleKey, amp, iso, cadre, placement, contraposition: contraposition ?? 1 },
+        side === "follower", guideHeights.current)
+      : applyPose(r, model, clock.beat + phaseOffset, {
+        styleKey, amp, travel, dir, movement, embrace, corridinho, reverse, quarts,
+        iso, ida, cadre, plant, temps3, follower: side === "follower", sortieVariant, sortieContra, sortieFilleVariant,
+        placement: placement ?? "reference",
+        // #37: in pair, the quarter turns use the couple model (placement given by the app).
+        quartsPaire: embrace && movement === "quarts" && placement !== undefined,
+        // #54: in pair, the ida e volta uses the couple model (leader forward, follower back).
+        idaPaire: embrace && movement === "ida" && placement !== undefined,
+        // #51: plexus-to-plexus contact in the pair figures.
+        plexus: embrace && placement !== undefined && (movement === "sortieG" || movement === "sortieF" || movement === "quarts" || movement === "ida"),
+        contraposition: contraposition ?? 1,
+      });
     if (stats) stats.current = result;
     const { loadL, loadR } = result;
     if (r.padR && r.padL) {
@@ -450,7 +471,8 @@ export default function Rig({
         </>
       )}
       </group>
-      <primitive object={trail} />
+      {/* #69: the guide mode moves the couple frame; a world-space trail would be transformed twice. */}
+      {!guide && <primitive object={trail} />}
     </>
   );
 }

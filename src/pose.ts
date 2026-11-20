@@ -12,6 +12,7 @@ import { sampleSortieGarcon, DEFAULT_SORTIE_CONTRA, type SortieVariant } from ".
 import { sampleSortieFille, type SortieFilleVariant } from "./sortieFille";
 import { sampleQuartsPaire, QUARTS_PAIR_DZ } from "./quartsPaire";
 import { sampleIdaPaire, IDA_PAIR_DZ } from "./idaPaire";
+import { sampleBasePaire } from "./basePaire";
 import { SORTIE_GARCON_PAIR_DZ } from "./sortieGarcon";
 import { SORTIE_FILLE_PAIR_DZ } from "./sortieFille";
 import { placementOffset, placementScale, type CouplePlacement } from "./placement";
@@ -42,6 +43,18 @@ export interface PoseOptions {
   /** #51: 1 = the chest faces the partner while the pelvis follows the feet (contraposition), 0 = the
    * chest stays aligned with the pelvis. */
   contraposition: number;
+  /** #69 guide mode: with no movement, the pair dances the basic step in the neutral quinconce
+   * (src/basePaire.ts), the hub every pair figure starts from and returns to. */
+  basePaire: boolean;
+  /** #69 guide mode: offset (own frame, m) added to the figure's pelvis root, e.g. the residual of a
+   * transition being inertialized; `y` is added to the pelvis height found by the leg reach. The feet
+   * keep their targets (the leg IK absorbs it). */
+  rootOffset: { x: number; z: number; y?: number } | null;
+  /** #69 guide mode: residual of the pelvis's own pose (position m, Euler rad) at a boundary being
+   * inertialized; added after the figure's bounds and before the leg IK. */
+  pelvisOffset: { position: [number, number, number]; rotation: [number, number, number] } | null;
+  /** #69: the partner's `rootOffset` (its own frame), for the plexus lean towards the partner. */
+  partnerRootOffset: { x: number; z: number } | null;
 }
 export const DEFAULT_POSE: PoseOptions = {
   styleKey: "kizomba", amp: 1, travel: 0, dir: 1, plant: true, iso: true, cadre: true,
@@ -49,6 +62,7 @@ export const DEFAULT_POSE: PoseOptions = {
   embrace: false, reverse: false, follower: false, movement: "none",
   sortieFilleVariant: "hook", sortieVariant: "line", sortieContra: DEFAULT_SORTIE_CONTRA,
   placement: "reference", quartsPaire: false, idaPaire: false, plexus: false, contraposition: 1,
+  basePaire: false, rootOffset: null, partnerRootOffset: null, pelvisOffset: null,
 };
 /** Plexus-to-plexus contact (#51): chest-marker gap targeted between partners (m) and the largest
  * lean of the upper body towards the partner (rad). */
@@ -283,13 +297,16 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
     : o.movement === "quarts" && o.quartsPaire ? sampleQuartsPaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance)
     // #54: in pair the leader steps forward while the follower steps back (docs/spec-ida-paire.md).
     : o.movement === "ida" && o.idaPaire ? sampleIdaPaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance)
+    // #69: the guide mode's basic step in pair (neutral quinconce, feet still).
+    : o.movement === "none" && o.basePaire ? sampleBasePaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance)
     : null;
   const figure = sampleFigure(o.follower);
   // #51: the partner's pelvis, in this dancer's outer frame (partners face each other 2·dz apart).
   const pairDz = o.movement === "sortieG" ? SORTIE_GARCON_PAIR_DZ : o.movement === "sortieF" ? SORTIE_FILLE_PAIR_DZ
     : o.movement === "ida" ? IDA_PAIR_DZ : QUARTS_PAIR_DZ;
   const partnerFigure = figure && o.plexus ? sampleFigure(!o.follower) : null;
-  const partnerRoot = partnerFigure ? { x: -partnerFigure.root.x, z: 2 * pairDz - partnerFigure.root.z } : null;
+  const partnerOffset = o.partnerRootOffset ?? { x: 0, z: 0 };
+  const partnerRoot = partnerFigure ? { x: -(partnerFigure.root.x + partnerOffset.x), z: 2 * pairDz - (partnerFigure.root.z + partnerOffset.z) } : null;
   // Quarter turns loop: the style keeps dancing; the five-action figures hold after their marka.
   const cyclic = !!figure && "cyclic" in figure;
   if (figure) {
@@ -323,6 +340,11 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
     const sway = (figure as { sway?: number }).sway ?? 1;
     r.pelvis.position.x *= sway; r.pelvis.position.z *= sway;
   }
+  if (o.pelvisOffset) {
+    const { position: p, rotation: q } = o.pelvisOffset;
+    r.pelvis.position.x += p[0]; r.pelvis.position.y += p[1]; r.pelvis.position.z += p[2];
+    r.pelvis.rotation.x += q[0]; r.pelvis.rotation.y += q[1]; r.pelvis.rotation.z += q[2];
+  }
   // The close-couple figure limits extra bounce/flexion; generic deep pulses can put
   // two opposing knees through one another. Leg reach still determines pelvis height.
   const styleY = figure ? Math.max((figure as { dip?: number }).dip ?? -0.008, r.root.position.y * 0.25) : r.root.position.y;
@@ -331,6 +353,7 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
   const feet = figure?.feet ?? plannedFeet(beat, o, model);
   if (figure) {
     r.root.position.x = figure.root.x; r.root.position.z = figure.root.z;
+    if (o.rootOffset) { r.root.position.x += o.rootOffset.x; r.root.position.z += o.rootOffset.z; }
     const rootYaw = (figure as { rootYaw?: number }).rootYaw;
     if (rootYaw !== undefined) r.root.rotation.y = rootYaw;
     // #51: the pelvises seek each other: each closes half the gap beyond the plexus distance (the leg
@@ -424,7 +447,7 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
       const horizontal2 = (target.x - hip.x) ** 2 + (target.z - hip.z) ** 2;
       height = Math.min(height, target.y + Math.sqrt(Math.max(0, reach2 - horizontal2)) - hip.y);
     }
-    r.root.position.y = height + Math.min(0, styleY);
+    r.root.position.y = height + Math.min(0, styleY) + (o.rootOffset?.y ?? 0);
     r.root.updateWorldMatrix(true, true);
     const skeleton = r["Skeleton"] as THREE.Object3D;
     const outerQ = r.root.parent!.getWorldQuaternion(new THREE.Quaternion());
