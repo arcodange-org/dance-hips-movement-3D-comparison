@@ -12,7 +12,7 @@ import { createDanceClock, seekClock, type DanceClock } from "../clock";
 import { STYLES } from "../styles";
 import { useMusic } from "../music/useMusic";
 import {
-  GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, guideFiguresFor, guideStyleOf, GUIDE_PAIR_DZ, GUIDE_DEMO, applyTransform, figureOfCode, keyLabel, type HeldArrows,
+  GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, guideFiguresFor, guideStyleOf, GUIDE_PAIR_DZ, GUIDE_DEMO, GUIDE_DEMO_ARROWS, applyTransform, figureOfCode, keyLabel, type HeldArrows,
   type GuideFigure, type GuideOutcome, type GuideKind,
 } from "../guidage";
 
@@ -86,6 +86,7 @@ export default function GuidageApp() {
   // that beat, paused, for frame-by-frame captures.
   useMemo(() => {
     if (params.get("demo") === "1") session.intentions = GUIDE_DEMO.map(i => ({ ...i, bpm }));
+    if (params.get("demo") === "fleches") session.intentions = GUIDE_DEMO_ARROWS.map(i => ({ ...i, bpm }));
     const frame = Number(params.get("beat") ?? params.get("sortieBeat"));
     if (params.has("beat") || params.has("sortieBeat")) if (Number.isFinite(frame)) seekClock(clock, Math.max(0, frame));
   }, [params, session, clock]); // eslint-disable-line react-hooks/exhaustive-deps

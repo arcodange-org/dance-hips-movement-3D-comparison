@@ -115,7 +115,9 @@ le même résultat.
   l'app est inchangé.
 - Touches par **position physique** (`KeyboardEvent.code`) : **W** ida e volta, **D** sortie garçon,
   **A** sortie fille, **Q** quart de tour en QWERTY, soit **Z**, **D**, **Q**, **A** en AZERTY ;
-  **Espace** lecture / pause. Les boutons tactiles équivalents affichent les lettres de la disposition
+  **Espace** lecture / pause. Flèches (#89, [spec](spec-jeu-fleches.md)) : **↑** avancer, **↓** reculer,
+  **↑ ↑** double et marka ; **→** ou **↓** maintenue avec la touche de l'ida : jambe droite, en arrière
+  d'abord. Kompa, tarraxinha et zouk ne proposent que la marche. Les boutons tactiles équivalents affichent les lettres de la disposition
   réelle (API Keyboard quand elle existe, sinon apprise à la première pression).
 - HUD : compte (1 à 8), segment en cours et intention en attente, dernière note avec l'écart en ms
   (tôt / tard), série, message d'hésitation ou de refus.

@@ -311,6 +311,12 @@ export const GUIDE_DEMO: { beat: number; figure: GuideFigure }[] = [
   { beat: 2.9, figure: "ida" }, { beat: 10.9, figure: "sortieG" }, { beat: 20.9, figure: "quart" }, { beat: 24.95, figure: "sortieF" },
 ];
 
+/** #89 demonstration (`?guidage=1&demo=fleches`): walk forward, double, walk backward, ida e volta right leg
+ * backwards first. */
+export const GUIDE_DEMO_ARROWS: { beat: number; figure: GuideFigure }[] = [
+  { beat: 3.9, figure: "avance" }, { beat: 5.9, figure: "double" }, { beat: 7.9, figure: "recule" }, { beat: 11.9, figure: "idaArrD" },
+];
+
 /** Live wrapper used by the view: intentions are appended as keys are pressed. */
 export class GuideSession {
   intentions: GuideIntention[] = [];

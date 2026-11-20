@@ -177,7 +177,7 @@ const GUIDE_JUMP = 0.0002;
     }
   }
   assert.ok(worst.jump < GUIDE_JUMP, `joint jump at a boundary ${JSON.stringify(worst)}`);
-  console.log(`PASS squelette continu aux frontières (six styles, 25 enchaînements) : saut max ${(worst.jump * 1000).toFixed(3)} mm sur 1e-6 temps (${worst.styleKey} ${worst.a}→${worst.b}, ${worst.joint}) < ${GUIDE_JUMP * 1000} mm`);
+  console.log(`PASS squelette continu aux frontières (six styles, ${(1 + api.GUIDE_FIGURE_KEYS.length) ** 2} enchaînements) : saut max ${(worst.jump * 1000).toFixed(3)} mm sur 1e-6 temps (${worst.styleKey} ${worst.a}→${worst.b}, ${worst.joint}) < ${GUIDE_JUMP * 1000} mm`);
 }
 
 // #85 (owner: « dans le mode jeu la position de base doit être le suave (sauf en konpa) »): the basic
