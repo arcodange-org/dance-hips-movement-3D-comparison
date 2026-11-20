@@ -286,12 +286,18 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
     : o.movement === "quarts" && o.quartsPaire ? sampleQuartsPaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance)
     // #54: in pair the leader steps forward while the follower steps back (docs/spec-ida-paire.md).
     : o.movement === "ida" && o.idaPaire ? sampleIdaPaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance)
-    : o.movement === "none" && o.placePaire ? samplePlacePaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance)
+    // #61, #71: in pair without a figure the couple stays in the neutral quinconce (temps3 without
+    // travel is on the spot); the pair corridinho is the validated couple turn of #37, a circle on the
+    // floor in 16 beats (docs/spec-paire-sans-figure.md).
+    : (o.movement === "none" || o.movement === "temps3") && o.placePaire ? samplePlacePaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance,
+      { travel: o.travel, dir: o.dir, length: o.movement === "temps3" ? 3 : 1 })
+    : o.movement === "corridinho" && o.placePaire ? sampleQuartsPaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance)
     : null;
   const figure = sampleFigure(o.follower);
   // #51: the partner's pelvis, in this dancer's outer frame (partners face each other 2·dz apart).
   const pairDz = o.movement === "sortieG" ? SORTIE_GARCON_PAIR_DZ : o.movement === "sortieF" ? SORTIE_FILLE_PAIR_DZ
-    : o.movement === "ida" ? IDA_PAIR_DZ : o.movement === "none" ? PLACE_PAIR_DZ : QUARTS_PAIR_DZ;
+    : o.movement === "ida" ? IDA_PAIR_DZ
+    : o.movement === "none" || o.movement === "temps3" ? PLACE_PAIR_DZ : QUARTS_PAIR_DZ;
   const partnerFigure = figure && o.plexus ? sampleFigure(!o.follower) : null;
   const partnerRoot = partnerFigure ? { x: -partnerFigure.root.x, z: 2 * pairDz - partnerFigure.root.z } : null;
   // Quarter turns loop: the style keeps dancing; the five-action figures hold after their marka.

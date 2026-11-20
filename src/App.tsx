@@ -222,9 +222,11 @@ export default function App() {
   const isQuartsPaire = isPair && movement === "quarts";
   // #54: so does the pair ida e volta (leader forward, follower back, quinconce at each return).
   const isIdaPaire = isPair && movement === "ida";
-  // #61: in pair on the spot, the couple dances in the neutral quinconce too.
-  const isPlacePaire = isPair && movement === "none";
-  const hasPlacement = isFiveActionFigure || isQuartsPaire || isIdaPaire || isPlacePaire;
+  // #61, #71: in pair without a figure (lateral travel, temps3), the couple dances in the neutral quinconce.
+  const isPlacePaire = isPair && (movement === "none" || movement === "temps3");
+  // #71: the pair corridinho is the validated couple turn of #37 (a circle on the floor in 16 beats).
+  const isCorridinhoPaire = isPair && movement === "corridinho";
+  const hasPlacement = isFiveActionFigure || isQuartsPaire || isIdaPaire || isPlacePaire || isCorridinhoPaire;
   const endBeat = isSortieFille ? SORTIE_FILLE_BEATS : SORTIE_GARCON_BEATS;
   const handlePlaying = (value: boolean) => {
     if (value && isFiveActionFigure && clock.beat >= endBeat) seekClock(clock, 0);
@@ -285,7 +287,7 @@ export default function App() {
   const ghostB = ghostSel === "A";
 
   // Les figures en cinq actions ont chacune un écartement calibré.
-  const pairDz = isSortieGarcon ? SORTIE_GARCON_PAIR_DZ : isSortieFille ? SORTIE_FILLE_PAIR_DZ : isQuartsPaire ? QUARTS_PAIR_DZ
+  const pairDz = isSortieGarcon ? SORTIE_GARCON_PAIR_DZ : isSortieFille ? SORTIE_FILLE_PAIR_DZ : isQuartsPaire || isCorridinhoPaire ? QUARTS_PAIR_DZ
     : isIdaPaire ? IDA_PAIR_DZ : isPlacePaire ? PLACE_PAIR_DZ : PAIR_DZ;
   const offsetA: [number, number, number] = isPair ? [0, 0, -pairDz] : isCompare ? [-0.85, 0, 0] : [0, 0, 0];
   const offsetB: [number, number, number] = isPair ? [0, 0, pairDz] : [0.85, 0, 0];

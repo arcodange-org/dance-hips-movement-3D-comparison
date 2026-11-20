@@ -190,10 +190,12 @@ export default function Rig({
       quartsPaire: embrace && movement === "quarts" && placement !== undefined,
       // #54: in pair, the ida e volta uses the couple model (leader forward, follower back).
       idaPaire: embrace && movement === "ida" && placement !== undefined,
-      // #61: in pair on the spot, the couple dances in the neutral quinconce.
-      placePaire: embrace && movement === "none" && placement !== undefined,
+      // #61, #71: in pair without a figure the couple dances in the neutral quinconce (with its lateral
+      // travel, in 3 beats with temps3); the pair corridinho is the couple turn of #37.
+      placePaire: embrace && placement !== undefined
+        && (movement === "none" || movement === "temps3" || movement === "corridinho"),
       // #51: plexus-to-plexus contact in the pair figures.
-      plexus: embrace && placement !== undefined && (movement === "sortieG" || movement === "sortieF" || movement === "quarts" || movement === "ida" || movement === "none"),
+      plexus: embrace && placement !== undefined && (movement === "sortieG" || movement === "sortieF" || movement === "quarts" || movement === "ida" || movement === "none" || movement === "temps3" || movement === "corridinho"),
       contraposition: contraposition ?? 1,
     });
     if (stats) stats.current = result;
