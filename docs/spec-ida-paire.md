@@ -57,6 +57,7 @@ Repère du couple : celui du leader (+x à gauche, +z vers le suiveur). Écartem
   d'abord +2, les deux +6). Le décalage (`styleOffset`) est aussi donné au style, dont la vague lente
   (suave, zouk) suit alors le cycle : mêmes poses, donc mêmes garanties. Sans lui, « en arrière d'abord »
   croisait les fémurs droits en suave, la vague décalée de 2 temps.
+- GIF (vue du guideur, kizomba, quinconce, contraposition) : [ida e volta en 8 temps](gifs/ida-paire-8temps.gif).
 - Ancien cycle (avant #107) : un seul aller-retour par jambe, G aller 0 → 2, G retour 2 → 4, D aller
   4 → 6, D retour 6 → 8.
 - **Pied G ouvert** : en quinconce, chaque paire de pieds qui bougent ensemble a un pied G à l'extérieur
