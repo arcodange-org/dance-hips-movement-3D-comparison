@@ -17,6 +17,14 @@ ensemble : contact plexus tenu avec contraposition. Six transferts d'appui expli
 (`idaTransfers`, `support`, `transfer`) : point d'accroche du ginga (#42).
 `scripts/test_ida_paire.mjs` dans `npm test`. [Spécification](docs/spec-ida-paire.md).
 
+## Pas plus courts #56 (20 novembre 2026)
+
+Sortie garçon : seule la progression du couple le long de la ligne est réduite (70 %, tables
+d'affectation par atterrissage dans `SORTIE_GARCON_TRAVEL`), sans pied qui glisse. Pas du leader 27 à
+31 cm (G3 croisé 40 cm), du suiveur 17 à 33 cm (D3 54 cm) ; plus court, pieds ou os se croisent
+(`scripts/search_pas_courts.mjs`). Le passage du suiveur pendant le croisé est une décision
+chorégraphique en attente. [Spécification](docs/spec-pas-courts.md).
+
 ## Fin en quinconce, marche naturelle, contact des pieds D, plexus #48 #49 #50 #51 (19 novembre 2026)
 
 Branche `arcodange/marche-naturelle`. Les deux sorties finissent en position neutre (départ translaté :

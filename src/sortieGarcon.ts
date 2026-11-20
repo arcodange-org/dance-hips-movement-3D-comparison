@@ -20,8 +20,13 @@ const STEP1_LEAD = 0.1;
 /** Lateral geometry of the exit (#50, calibrated on the GLB): offsets in the leader's frame from his
  * rest ankles. At action 2 the outer edge of his D touches the outer edge of the follower's D (guiding
  * contact), so his G1 does not need to open as far. */
-export const SORTIE_GARCON_EXIT = { step1X: 0.22, step2X: 0.224, body0X: 0.15, body1X: 0.40, aside: 0.06 };
+export const SORTIE_GARCON_EXIT = { step1X: 0.22, step2X: 0.224, body0X: 0.15, body1X: 0.40, aside: 0.06, back: 0.05 };
 const STEP3_LEAD = 0.2;
+/** #56: progression of the couple along the line after each action (m, validated figure), and the
+ * share of it kept. Steps of about one foot length: only the common translation shrinks, the
+ * relative geometry (D/D contact, crossing, neutral end) is unchanged. */
+export const SORTIE_GARCON_LINE = [0, 0.17, 0.34, 0.66, 0.70, 0.70];
+export const SORTIE_GARCON_TRAVEL = { share: 0.7, leader: [2, 2, 2, 4, 5], follower: [2, 2, 2, 4, 5], behind: 0.015 };
 const STEP4_LEAD = 0.2;
 const smooth = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * (3 - 2 * t); };
 const mix = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -83,18 +88,37 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   // Initial/neutral stance: each foot `stance` further out (feet under the hips), absorbed on its first step.
   const widen = Number.isFinite(stance) ? stance : 0;
   const stagger = (o.stagger ?? 0) / 2;
+  // #56: each landing of action i takes back (1 - share) of the couple's progression along the
+  // line (forward for the leader, backward in the follower's own frame): planted feet never slide.
+  // Which progression each landing takes (measured on the GLB, six styles, three placements): the
+  // follower's D1 and the leader's G1 that of action 2 (her D and his D2 keep their edge-to-edge
+  // contact, his G knee clears her D thigh), his crossing G3 that of his D2 (it still crosses in
+  // front of it); the couple then progresses at action 4.
+  const lineIndex = follower ? SORTIE_GARCON_TRAVEL.follower : SORTIE_GARCON_TRAVEL.leader;
+  const progression = (at: number) => {
+    const k = Math.min(SORTIE_GARCON_LINE.length - 2, Math.floor(at));
+    return SORTIE_GARCON_LINE[k] + (SORTIE_GARCON_LINE[k + 1] - SORTIE_GARCON_LINE[k]) * (at - k);
+  };
+  const line = (i: number) => (follower ? 1 : -1) * (1 - SORTIE_GARCON_TRAVEL.share) * progression(lineIndex[i]);
   const target = (i: number, side: FigureFoot, offset: FootPoint): FootPoint => {
     const shift = shifted[i] || neutral[i] ? 1 : 0, home = neutral[i] ? 1 : 0;
     return { x: rest[side].x + offset.x + o.x * shift + (side === "L" ? widen : -widen) * home,
-      z: rest[side].z + offset.z + o.z * shift + (side === "R" ? stagger : 0) * home };
+      z: rest[side].z + offset.z + o.z * shift + (side === "R" ? stagger : 0) * home + line(i) };
   };
   const positions = { L: { x: rest.L.x + widen + o.x, z: rest.L.z + o.z }, R: { x: rest.R.x - widen + o.x, z: rest.R.z + o.z + stagger } };
   // At the crossing the pelvis stays between the feet; returning it to x=0 before
   // D follows would over-stretch that leg and force G's knee into the partner.
-  const bodyAfter = (action: number, offset: FootPoint): FootPoint =>
+  const bodyAt = (action: number, offset: FootPoint): FootPoint =>
     !follower && action === 0 ? { x: SORTIE_GARCON_EXIT.body0X, z: 0.18 }
     : !follower && action === 1 ? { x: mix(0.34, SORTIE_GARCON_EXIT.body1X, touch), z: offset.z }
-    : !follower && action === 2 ? { x: 0.17, z: mix(0.55, 0.62, touch) } : offset;
+    : !follower && action === 2 ? { x: 0.17, z: mix(0.55, 0.62, touch) }
+    // #56: closer to the leader after the shorter progression, the partner's pelvis stays 1.5 cm behind
+    // her G4: over it, her G thigh meets his D thigh in the interleaved quinconce (right variant).
+    : follower && action === 3 ? { x: offset.x, z: offset.z - SORTIE_GARCON_TRAVEL.behind } : offset;
+  const bodyAfter = (action: number, offset: FootPoint): FootPoint => {
+    const point = bodyAt(action, offset);
+    return { x: point.x, z: point.z + line(action) };
+  };
   let support: FigureFoot = follower ? "L" : "R";
   let body: FootPoint = { x: 0, z: 0 };
   for (let i = 0; i < index; i++) {
@@ -124,8 +148,9 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   // Crossing (G3 in front of D) and uncrossing (D4) roll little: a heel strike with the toes up would
   // bring the leader's G shin against his D thigh, a full heel rise his D knee into his G leg. The D2
   // closes into the D/D foot contact: it is placed flat, not rolled (the rolling knee would cross the
-  // partner's D thigh). The partner's D1 leaves at once, before the leader's G1 heel rise reaches her.
-  const gait = gaitStep(flight, { x: to.x - from.x, z: to.z - from.z }, 0, !follower && (index === 2 || index === 3) || follower && index === 0 ? 0.3 : !follower && index === 1 ? 0 : 1);
+  // partner's D thigh). The partner's D1 leaves at once, before the leader's G1 heel rise reaches her;
+  // #56: with her shorter D1 his G1 rolls little too (a full heel rise pushes his knee into her thigh).
+  const gait = gaitStep(flight, { x: to.x - from.x, z: to.z - from.z }, 0, !follower && (index === 0 || index === 2 || index === 3) || follower && index === 0 ? 0.3 : !follower && index === 1 ? 0 : 1);
   const along = index === 4 ? flight : gait.progress;
   let point = interpolate(from, to, smooth(along));
   // D2 slides sideways past the partner's right knee, then advances; G crosses in front of the planted D.
@@ -137,7 +162,9 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   // The detour widens only with the contact: the looser arrival keeps its narrower path past G1.
   const aside = mix(0.03, SORTIE_GARCON_EXIT.aside, touch);
   const vias: FootPoint[] = follower && index < 2 && Math.abs(to.x - from.x) > 1e-6 ? [{ x: from.x, z: to.z }]
-    : !follower && index === 1 ? [{ x: to.x + aside, z: from.z }, { x: to.x + aside, z: to.z }]
+    // #56: with the shorter progression the partner's D1 is only 11 cm back: his D2 first steps 5 cm
+    // back so that the forefeet clear each other while it goes round.
+    : !follower && index === 1 ? [{ x: from.x, z: from.z - SORTIE_GARCON_EXIT.back }, { x: to.x + aside, z: from.z - SORTIE_GARCON_EXIT.back }, { x: to.x + aside, z: to.z }]
     : follower && index === 2 ? [{ x: from.x + aside, z: mix(from.z, to.z, 0.3) }]
     : !follower && index === 2 ? [{ x: from.x, z: to.z }]
     : !follower && index === 3 ? [{ x: to.x, z: from.z }]
