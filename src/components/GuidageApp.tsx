@@ -33,17 +33,31 @@ function CoupleFrame({ session, clock, children }: { session: GuideSession; cloc
   return <group ref={group}>{children}</group>;
 }
 
-/** Keeps the orbit target on the couple's centre; the camera follows by the same displacement. */
-function CameraFollow({ session, clock, paused }: { session: GuideSession; clock: DanceClock; paused: React.MutableRefObject<boolean> }) {
+/** #87 (owner: « proposer le point de vue du guideur ») : the camera stands behind the leader, over his
+ * shoulder, in the couple frame (it turns with the couple), looking at the follower. Couple frame: the
+ * leader at z = −GUIDE_PAIR_DZ facing +z. */
+export const LEADER_VIEW = { eye: { x: 0.45, y: 1.95, z: -GUIDE_PAIR_DZ - 2.6 }, target: { x: 0, y: 0.75, z: 0.3 } };
+
+/** Keeps the orbit target on the couple's centre; the camera follows by the same displacement. In the
+ * leader's view, it follows the couple frame, yaw included. */
+function CameraFollow({ session, clock, paused, leaderView }: { session: GuideSession; clock: DanceClock; paused: React.MutableRefObject<boolean>; leaderView: boolean }) {
   const controls = useThree(s => s.controls) as unknown as { target: THREE.Vector3; update: () => void } | null;
   const camera = useThree(s => s.camera);
   useFrame(() => {
     const s = session.sample(clock.beat);
     if (!controls || !s) return;
+    // Frame-by-frame captures (paused at a given beat) jump straight to the couple.
+    const rate = clock.exportFrame === null && !paused.current ? 0.06 : 1;
+    if (leaderView) {
+      const eye = applyTransform(s.couple, LEADER_VIEW.eye), target = applyTransform(s.couple, LEADER_VIEW.target);
+      camera.position.lerp(new THREE.Vector3(eye.x, LEADER_VIEW.eye.y, eye.z), rate);
+      controls.target.lerp(new THREE.Vector3(target.x, LEADER_VIEW.target.y, target.z), rate);
+      controls.update();
+      return;
+    }
     const centre = applyTransform(s.couple, { x: 0, z: 0 });
     const goal = new THREE.Vector3(centre.x, 0.8, centre.z);
-    // Frame-by-frame captures (paused at a given beat) jump straight to the couple.
-    const step = goal.sub(controls.target).multiplyScalar(clock.exportFrame === null && !paused.current ? 0.06 : 1);
+    const step = goal.sub(controls.target).multiplyScalar(rate);
     controls.target.add(step); camera.position.add(step); controls.update();
   });
   return null;
@@ -61,6 +75,8 @@ export default function GuidageApp() {
   const styleKey = STYLES[params.get("style") ?? ""] ? params.get("style")! : "kizomba";
   // `bare=1`: canvas and a one-line caption only (GIF captures).
   const bare = params.get("bare") === "1";
+  // #87: the leader's point of view by default (`vue=libre` for the free orbit view).
+  const [leaderView, setLeaderView] = useState(params.get("vue") !== "libre");
   const initialBpm = Number(params.get("bpm"));
   const [bpm, setBpm] = useState(Number.isFinite(initialBpm) && initialBpm >= 40 && initialBpm <= 130 ? initialBpm : 60);
   const [playing, setPlaying] = useState(false);
@@ -138,7 +154,7 @@ export default function GuidageApp() {
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-slate-950 text-slate-200">
-      <Canvas camera={{ position: [2.7, 1.5, 3.4], fov: 40 }} dpr={[1, 2]}>
+      <Canvas camera={{ position: leaderView ? [LEADER_VIEW.eye.x, LEADER_VIEW.eye.y, LEADER_VIEW.eye.z] : [2.7, 1.5, 3.4], fov: 40 }} dpr={[1, 2]}>
         <DanceTransport clock={clock} bpm={bpm} playing={playing} driver={music.driver} />
         <FrameClock clock={clock} last={last} />
         <color attach="background" args={["#0b1220"]} />
@@ -155,8 +171,8 @@ export default function GuidageApp() {
             ))}
           </CoupleFrame>
         </React.Suspense>
-        <OrbitControls makeDefault target={[0, 0.8, 0]} enableDamping dampingFactor={0.08} minDistance={1.4} maxDistance={7} />
-        <CameraFollow session={session} clock={clock} paused={paused} />
+        <OrbitControls makeDefault target={leaderView ? [LEADER_VIEW.target.x, LEADER_VIEW.target.y, LEADER_VIEW.target.z] : [0, 0.8, 0]} enableDamping dampingFactor={0.08} minDistance={1.4} maxDistance={7} />
+        <CameraFollow session={session} clock={clock} paused={paused} leaderView={leaderView} />
       </Canvas>
 
       {bare && (
@@ -196,6 +212,10 @@ export default function GuidageApp() {
             {playing ? "Pause" : clock.beat === 0 ? "Démarrer" : "Reprendre"} <kbd className="text-slate-500">Espace</kbd>
           </button>
           <button className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" onClick={restart}>Recommencer</button>
+          <button className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" aria-pressed={leaderView} onClick={() => setLeaderView(v => !v)}
+            title="Point de vue du guideur (derrière son épaule) ou vue libre">
+            Vue : {leaderView ? "guideur" : "libre"}
+          </button>
           <button className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" aria-pressed={music.status === "on"} onClick={() => void music.toggle()}>
             Son {music.status === "on" ? "actif" : "coupé"}
           </button>
