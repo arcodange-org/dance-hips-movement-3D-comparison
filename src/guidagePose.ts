@@ -21,7 +21,7 @@ function poseAt(r: RigHandle, model: PoseModel, kind: GuideKind, beat: number, b
   const styleKey = guideStyleOf(kind, base.styleKey ?? "kizomba");
   const stats = applyPose(r, model, beat, {
     ...base, styleKey, styleBlend: blendFrom ? { key: guideStyleOf(blendFrom, base.styleKey ?? "kizomba"), weight: 1 } : null,
-    ...guidePoseOptions({ movement: movementOf(kind), rootOffset: offsets }, follower),
+    ...guidePoseOptions({ kind, movement: movementOf(kind), rootOffset: offsets }, follower),
     pelvisOffset: pelvis ? { position: [pelvis[1], pelvis[2], pelvis[3]], rotation: [pelvis[4], pelvis[5], pelvis[6]] } : null,
     trunkOffset: pelvis ? pelvis.slice(7, 16) : null,
   });
