@@ -117,10 +117,13 @@ export const STYLES: Record<string, StyleDef> = {
     support: (b) => -0.5 * S2(b),
     apply: (r, b, a) => {
       r.root.position.y = -0.03;
-      r.pelvis.rotation.z = 0.16 * S2(b) * a;
+      // #61 (owner): the hip's intention goes forward, then the hip comes back opening slightly to its
+      // side, which lets the opposite hip go forward. Yaw leads (one hip forward), the lateral shift
+      // follows in quadrature (the returning hip opens to its side); roll stays secondary.
+      r.pelvis.rotation.z = 0.08 * S2(b) * a;
       r.pelvis.rotation.x = 0.14 * Math.sin((TAU * b) / 2 + 1.3) * a;
-      r.pelvis.rotation.y = 0.12 * Math.cos((TAU * b) / 2) * a;
-      r.pelvis.position.x = 0.015 * S2(b) * a;
+      r.pelvis.rotation.y = 0.22 * Math.cos((TAU * b) / 2) * a;
+      r.pelvis.position.x = 0.03 * S2(b) * a;
       r.pelvis.position.z = 0.012 * Math.cos((TAU * b) / 2) * a;
       r.kneeL.rotation.x = (0.12 + 0.06 * S2(b)) * a;
       r.kneeR.rotation.x = (0.12 - 0.06 * S2(b)) * a;

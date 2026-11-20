@@ -12,6 +12,7 @@ import { sampleSortieGarcon, DEFAULT_SORTIE_CONTRA, type SortieVariant } from ".
 import { sampleSortieFille, type SortieFilleVariant } from "./sortieFille";
 import { sampleQuartsPaire, QUARTS_PAIR_DZ } from "./quartsPaire";
 import { sampleIdaPaire, IDA_PAIR_DZ } from "./idaPaire";
+import { samplePlacePaire, PLACE_PAIR_DZ } from "./placePaire";
 import { SORTIE_GARCON_PAIR_DZ } from "./sortieGarcon";
 import { SORTIE_FILLE_PAIR_DZ } from "./sortieFille";
 import { placementOffset, placementScale, type CouplePlacement } from "./placement";
@@ -37,6 +38,8 @@ export interface PoseOptions {
   /** #54: pair ida e volta (docs/spec-ida-paire.md): leader forward / follower back, natural walk,
    * neutral quinconce at each return; off = phase 8 model (both dancers mirror the same step). */
   idaPaire: boolean;
+  /** #61: in pair on the spot, the couple dances in the neutral quinconce (opt-in, set by the app). */
+  placePaire: boolean;
   /** #51: in pair figures the upper bodies keep plexus-to-plexus contact (lean towards the partner). */
   plexus: boolean;
   /** #51: 1 = the chest faces the partner while the pelvis follows the feet (contraposition), 0 = the
@@ -48,7 +51,7 @@ export const DEFAULT_POSE: PoseOptions = {
   quarts: false, corridinho: false, ida: false, temps3: false, sortie: false,
   embrace: false, reverse: false, follower: false, movement: "none",
   sortieFilleVariant: "hook", sortieVariant: "line", sortieContra: DEFAULT_SORTIE_CONTRA,
-  placement: "reference", quartsPaire: false, idaPaire: false, plexus: false, contraposition: 1,
+  placement: "reference", quartsPaire: false, idaPaire: false, placePaire: false, plexus: false, contraposition: 1,
 };
 /** Plexus-to-plexus contact (#51): chest-marker gap targeted between partners (m) and the largest
  * lean of the upper body towards the partner (rad). */
@@ -283,11 +286,12 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
     : o.movement === "quarts" && o.quartsPaire ? sampleQuartsPaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance)
     // #54: in pair the leader steps forward while the follower steps back (docs/spec-ida-paire.md).
     : o.movement === "ida" && o.idaPaire ? sampleIdaPaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance)
+    : o.movement === "none" && o.placePaire ? samplePlacePaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance)
     : null;
   const figure = sampleFigure(o.follower);
   // #51: the partner's pelvis, in this dancer's outer frame (partners face each other 2·dz apart).
   const pairDz = o.movement === "sortieG" ? SORTIE_GARCON_PAIR_DZ : o.movement === "sortieF" ? SORTIE_FILLE_PAIR_DZ
-    : o.movement === "ida" ? IDA_PAIR_DZ : QUARTS_PAIR_DZ;
+    : o.movement === "ida" ? IDA_PAIR_DZ : o.movement === "none" ? PLACE_PAIR_DZ : QUARTS_PAIR_DZ;
   const partnerFigure = figure && o.plexus ? sampleFigure(!o.follower) : null;
   const partnerRoot = partnerFigure ? { x: -partnerFigure.root.x, z: 2 * pairDz - partnerFigure.root.z } : null;
   // Quarter turns loop: the style keeps dancing; the five-action figures hold after their marka.
@@ -300,6 +304,8 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
   for (const s of SIDES) r["foot" + s].rotation.set(0, 0, 0);
   // A marka moves the free foot without starting another body's weight oscillation.
   STYLES[o.styleKey].apply(r, figure && !cyclic ? Math.min(beat, 4) : beat, o.amp);
+  // #61: a figure may keep a share of the style's lateral hip shift on top of its own pelvis path.
+  const styleRootX = r.root.position.x;
   if (figure) {
     // The on-the-spot isolations need a smaller envelope while feet follow a fixed
     // close-couple path. Preserve their proportions, with a geometric clearance cap.
@@ -330,7 +336,10 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
   const posture = STYLES[o.styleKey].posture;
   const feet = figure?.feet ?? plannedFeet(beat, o, model);
   if (figure) {
-    r.root.position.x = figure.root.x; r.root.position.z = figure.root.z;
+    // The coupled follower mirrors it like her pelvis: the couple sways together in the world.
+    const coupledSway = o.follower ? 1 - 2 * figure.coupling : 1;
+    r.root.position.x = figure.root.x + styleRootX * ((figure as { styleSway?: number }).styleSway ?? 0) * coupledSway;
+    r.root.position.z = figure.root.z;
     const rootYaw = (figure as { rootYaw?: number }).rootYaw;
     if (rootYaw !== undefined) r.root.rotation.y = rootYaw;
     // #51: the pelvises seek each other: each closes half the gap beyond the plexus distance (the leg
@@ -458,7 +467,7 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
       lowest = Math.min(lowest, v.copy(p).applyMatrix4(foot.matrixWorld).y);
     grounded[s] = lowest <= 0.0001;
   }
-  const prescribedR = figure?.loadR ?? (supportOf(o.styleKey, r, beat) + 1) / 2;
+  const prescribedR = (figure as { loadR?: number } | null)?.loadR ?? (supportOf(o.styleKey, r, beat) + 1) / 2;
   const loadR = grounded.R ? (grounded.L ? prescribedR : 1) : 0;
   const loadL = grounded.L ? (grounded.R ? 1 - prescribedR : 1) : 0;
   const chestQ = r.chest.getWorldQuaternion(new THREE.Quaternion());

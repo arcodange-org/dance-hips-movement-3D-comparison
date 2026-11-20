@@ -116,7 +116,7 @@ Repère du couple : celui du leader (+x à gauche, +z vers le suiveur). Écartem
 | `weight` | 1,2 → 1,5 → 1,55 → 1,95 | poids sur le pied posé (deux pieds au sol), puis retour (pas balancé) |
 | `pelvisYaw` | 0,5 | part du lacet de bassin de la phase 15 gardée en paire |
 | `kneeCap` | 0,3 rad | flexion maximale des genoux (0,45 dans les sorties) |
-| `rotationCap` | 0,06 rad | rotation du bassin propre au style (0,12 dans les sorties) |
+| `rotationCap` | 0,05 rad | rotation du bassin propre au style (0,12 dans les sorties ; 0,06 avant #61, abaissé quand le lacet de la tarraxinha est devenu dominant) |
 
 ## Calibrage
 
@@ -131,7 +131,7 @@ huitième de temps (poses en collision) :
 | Retard 0,5, roulé à 30 % | 5 |
 | + flexion des genoux plafonnée à 0,3 rad | 2 (kompa : genou G du leader contre genou D du suiveur, décalé en quinconce) |
 | + pied G ouvert de 2 cm | 1 (tarraxinha : jambes d'appui, rotation du bassin du style) |
-| + rotation du bassin du style plafonnée à 0,06 rad | 0 |
+| + rotation du bassin du style plafonnée à 0,06 rad (0,05 depuis #61) | 0 |
 | Poids reporté après la pose (1,2) et plexus sans traction des bassins (#52) | 2 (tarraxinha : cuisses d'appui, lacet du bassin) |
 | + lacet du bassin réduit de moitié | **0**, aussi au seizième de temps, trois placements, plexus coupé, avec et sans contraposition |
 
