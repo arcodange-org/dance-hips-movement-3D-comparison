@@ -172,6 +172,9 @@ Export depuis la pause, traînée réinitialisée et alimentée pendant l’expo
 - [Recherche biomécanique](docs/recherche-biomecanique/README.md) : podologie, biomécanique,
   kinésithérapie et ostéopathie (sources FR/EN), puis confrontation des paramètres du modèle
   à la littérature, avec verdicts et points à valider.
+- [Recherche jeux vidéo](docs/recherche-jeux-video/README.md) : ce que le comparateur peut
+  emprunter aux jeux de sport (motion matching, EA, inertialisation, jeux de rythme) et concept
+  d'un mode « guider sa partenaire » (#63).
 - [Différences biomécaniques entre les six styles](docs/styles-de-danse.md) (leviers du
   déhanché, ancrage, tableau comparatif, tempos).
 - [ADR 001 — rig paramétrique biodynamique](docs/adr/001-rig-parametrique-biodynamique.md)
