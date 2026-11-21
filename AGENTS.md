@@ -23,7 +23,9 @@ Modules des figures en paire : [sortie garçon](docs/spec-sortie-garcon.md) (`sr
 `scripts/test_ida_paire.mjs`), [marche en paire et flèches du mode jeu](docs/spec-jeu-fleches.md)
 (`src/marchePaire.ts`, `scripts/test_marche_paire.mjs`), [enchaînement sortie fille → sortie garçon](docs/spec-enchainements.md)
 (`src/enchainement.ts`, `scripts/test_enchainement.mjs`), [ida inséré dans les sorties](docs/spec-insertion-ida.md)
-(`src/insertion.ts`, `scripts/test_insertion.mjs`). Marche des pas de figure, fin en quinconce et plexus :
+(`src/insertion.ts`, `scripts/test_insertion.mjs`), [ida e volta à tout pas qui avance ou recule](docs/spec-ida-partout.md)
+(#144, R27 : `sampleTouched`, table `TOUCH_POSITIONS` des positions validées sur le GLB, `scripts/test_touches.mjs` ;
+un segment du mode jeu porte ses allers-retours, il n'y a plus de figure « sortie avec ida »). Marche des pas de figure, fin en quinconce et plexus :
 [spec](docs/spec-marche-naturelle.md) (`src/gait.ts`, `scripts/test_plexus.mjs`). Le combiné `sortieGF` reste historique. Virgula du leader
 (pied G posé perpendiculaire, #127) : premier pas de la sortie fille crochet, sonde de calibrage `scripts/search_virgula.mjs` ; en option dans
 l'ida e volta en paire (#128, `virgula=1`, `scripts/test_ida_virgula.mjs`). Oracle :
@@ -42,7 +44,8 @@ capture image par image avec `film=1` — `src/film.ts`, `src/components/FilmDri
 narration ne dit que ce que porte la fiche de faits `docs/video/faits-pas-de-base.md` ; la vidéo elle-même n'est pas versionnée.
 Mode jeu (#140, [spec](docs/spec-jeu-file-auto.md)) : les commandes s'empilent dans une file (plus de note ni
 de refus), Espace bascule entre l'écoute et la danse automatique (tirage reproductible par graine) ; un plan
-ne réécrit jamais son passé.
+ne réécrit jamais son passé. Hasard tenu (#152) : le tirage se souvient des figures et des paires récentes
+(`GUIDE_VARIETY`, `hasard=libre|tenu|strict`), toujours fonction pure de la graine et de l'historique.
 Mode guidage (PoC #69) : [spec](docs/spec-mode-guidage-poc.md) (`src/guidage.ts` pur, `src/guidagePose.ts`,
 vue `src/components/GuidageApp.tsx`, `scripts/test_guidage.mjs`) ; recherche : [jeux vidéo](docs/recherche-jeux-video/README.md).
 

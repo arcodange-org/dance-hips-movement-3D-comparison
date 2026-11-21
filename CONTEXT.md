@@ -84,6 +84,21 @@ et les specs. Résumé de la journée du 21 :
   reproductible `graine=N`, `auto=1`). `src/guidage.ts` : `planGuide(commandes, motions, until, { modes,
   seed, offered })`, `GUIDE_AUTO`, `autoFigure` ; un plan ne réécrit jamais son passé
   ([spec](docs/spec-jeu-file-auto.md)).
+- **#144 (PR #145)** : règle R27 du propriétaire, « chaque pied qui avance ou qui recule peut devenir un "ida e
+  volta" (un simple aller retour du pied, en virgula ou non) ». `src/insertion.ts` : `sampleTouched` ajoute un
+  aller-retour (2 temps, en touche) avant un pas d'une figure ; `TOUCH_POSITIONS` liste les 13 pas validés sur le
+  GLB (plus 3 positions de l'enchaînement) avec leurs ajustements. Mode jeu : un segment porte ses allers-retours
+  (`segment.touches`), la touche de l'ida vise le prochain pas possible (figure en cours, sinon figure en attente),
+  Maj = virgula, la danse seule tire les mêmes choix. Restent à trancher par le propriétaire les pieds de la
+  suiveuse (le même pied que le leader ou le pied opposé, issue #86 ; et ce qu'elle fait quand elle allait de
+  côté) : voir « Questions en attente » de [la spec](docs/spec-ida-partout.md) ; le D4 de la sortie
+  garçon n'est pas proposé (jambes croisées).
+- **#152 (PR #154)** : hasard tenu de la danse seule. `autoFigure` reçoit l'historique des figures ; `GUIDE_VARIETY`
+  (`libre`, `tenu` par défaut, `strict`) pèse les figures et les paires dansées récemment et borne les séries.
+  Mesures avant et après dans [la spec](docs/spec-jeu-file-auto.md). Le propriétaire doit élire le réglage en
+  regardant (`?auto=1&graine=7&hasard=…`).
+- **Élection #86 (PR brouillon #153)** : pieds de la suiveuse dans l'ida e volta, deux questions en GIF
+  (`docs/elections/suiveuse-ida.md` sur la branche `arcodange/election-suiveuse`), en attente de son vote.
 - PR brouillon en relecture du propriétaire : #117 (ontologie), #76 (audit).
 - Pièges : `npm test` complet dure 25 min ou plus en local. Lancer ses scripts en parallèle, un journal
   par script, le ramène à une dizaine de minutes ; `test_placements` et `test_plexus` rejouent d'autres

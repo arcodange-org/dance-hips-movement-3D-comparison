@@ -238,7 +238,13 @@ existantes. La file vide, le couple danse le pas de base sur place. **Espace** l
 seul** : à chaque position neutre le simulateur commence une figure du style, aux jonctions d'une sortie
 il choisit entre commencer une figure et terminer la sortie, et il cherche une position neutre toutes
 les 32 temps sans se l'imposer (81 % des fins de phrase sur les sessions testées) ; Espace de nouveau
-rend la main. Le repère du couple suit les déplacements des figures, et les écarts de bassin entre deux
+rend la main. **Tout pas qui avance ou recule peut devenir un ida e volta** (#144) : la touche de l'ida
+pressée pendant une figure, ou quand une figure attend, transforme son prochain pas en aller-retour du
+pied (deux temps de plus, le poids reste sur l'autre pied), avec **Maj** en virgula quand le pied gauche
+avance depuis la position neutre ; la danse seule tire les mêmes choix
+([spec](docs/spec-ida-partout.md)). Le hasard de la danse seule est **tenu** (#152) : le tirage se
+souvient des figures et des paires de figures qui viennent d'être dansées, jamais trois fois de suite la
+même (`&hasard=libre`, `tenu` ou `strict` pour comparer). Le repère du couple suit les déplacements des figures, et les écarts de bassin entre deux
 figures sont effacés en un temps (inertialisation). Testé sur le GLB : continuité aux enchaînements,
 aucun croisement d'os. [Spec de la file et de la danse automatique](docs/spec-jeu-file-auto.md).
 
@@ -248,6 +254,16 @@ aucun croisement d'os. [Spec de la file et de la danse automatique](docs/spec-je
 Capture image par image de la session de démonstration (`?mode=pair&guidage=1&demo=1&muscles=1&beat=…`),
 kizomba, 90 bpm, couche des muscles, vue du guideur. Recherche et concept : [docs/recherche-jeux-video/](docs/recherche-jeux-video/README.md).
 [Spécification et rapport](docs/spec-mode-guidage-poc.md). BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
+</details>
+
+![Aller-retour du pied : G1 de la sortie garçon en virgula, puis D4 de la sortie fille](docs/gifs/aller-retour.gif)
+<details><summary>Détails & source</summary>
+
+Règle R27 du propriétaire (#144) : « chaque pied qui avance ou qui recule peut devenir un "ida e volta" (un
+simple aller retour du pied, en virgula ou non) ». Ses deux exemples : le premier pas de la sortie garçon
+(ici en virgula), puis le retour de la sortie fille (D4). Session `?mode=pair&guidage=1&demo=allerretour&muscles=1&beat=…`,
+kizomba, 90 bpm, vue du guideur. [Spécification et rapport](docs/spec-ida-partout.md).
+BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 </details>
 
 ### Ginga en paire : déhanché déclenché par les transferts d'appui
@@ -327,7 +343,7 @@ npm test          # courbes, Gherkin et poses finales du GLB réel
 Paramètres d'URL (utilisés par les captures, prioritaires sur localStorage) :
 `?mode=solo|observe|compare|pair&style=kizomba&styleB=zouk&bpm=90&travel=0.6&bare=1`
 (`bare=1` : canvas plein écran sans l'interface) + `&muscles=1` (couche musculaire),
-`&guidage=1` (mode guidage, paire ; `&demo=1&beat=12` : session de démonstration figée à un temps ; `&auto=1` : danse automatique, `&graine=N` : graine de son tirage), `&sortieG=1` / `&sortieF=1` / `&sortieGF=1` (sortie garçon / fille / combinée G→F, options exclusives, mode paire ; `&sortie=1` legacy = garçon), `&repere=0` (masque le repère fixe),
+`&guidage=1` (mode guidage, paire ; `&demo=1&beat=12` : session de démonstration figée à un temps, `&demo=allerretour` : les allers-retours de #144 ; `&auto=1` : danse automatique, `&graine=N` : graine de son tirage), `&sortieG=1` / `&sortieF=1` / `&sortieGF=1` (sortie garçon / fille / combinée G→F, options exclusives, mode paire ; `&sortie=1` legacy = garçon), `&repere=0` (masque le repère fixe),
 `&appui=1` (appuis & transmission), `&ligne=1` (force la ligne de danse en solo),
 `&corridinho=1` (1/4 tour D puis G, puis cercle au repère fixe), `&plant=0` (ancien rendu glissé ;
 par défaut les pieds restent plantés au sol sur place, `plant=1`), `&solid=1` (buste opaque pour les

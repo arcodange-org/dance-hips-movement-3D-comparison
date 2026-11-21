@@ -14,7 +14,7 @@ import { sampleQuartsPaire, QUARTS_PAIR_DZ } from "./quartsPaire";
 import { sampleIdaPaire, IDA_PAIR_DZ, IDA_DEFAULT, type IdaVariant } from "./idaPaire";
 import { sampleMarchePaire, type MarcheKind } from "./marchePaire";
 import { sampleSortieFG } from "./enchainement";
-import { sampleInserted } from "./insertion";
+import { sampleInserted, sampleTouched, type Touch } from "./insertion";
 import { samplePlacePaire, PLACE_PAIR_DZ } from "./placePaire";
 import { SORTIE_GARCON_PAIR_DZ } from "./sortieGarcon";
 import { SORTIE_FILLE_PAIR_DZ } from "./sortieFille";
@@ -50,6 +50,8 @@ export interface PoseOptions {
   sortieChain: boolean;
   /** #91: an ida e volta (the leader's G, go and return) inserted at the sortie's position 2 (game mode). */
   sortieInsert: boolean;
+  /** #144: touches (a foot's go-and-return before one of the figure's steps, docs/spec-ida-partout.md). */
+  touches: Touch[];
   /** #61: in pair on the spot, the couple dances in the neutral quinconce (opt-in, set by the app). */
   placePaire: boolean;
   /** #62: false keeps the on-the-spot motion on the clock's phase (guide mode). */
@@ -79,7 +81,7 @@ export const DEFAULT_POSE: PoseOptions = {
   quarts: false, corridinho: false, ida: false, temps3: false, sortie: false,
   embrace: false, reverse: false, follower: false, movement: "none",
   sortieFilleVariant: "hook", sortieVariant: "line", sortieContra: DEFAULT_SORTIE_CONTRA, sortieVirgula: true,
-  placement: "reference", quartsPaire: false, idaPaire: false, idaVariant: IDA_DEFAULT, marche: null, sortieChain: false, sortieInsert: false, placePaire: false, plexus: false, contraposition: 1,
+  placement: "reference", quartsPaire: false, idaPaire: false, idaVariant: IDA_DEFAULT, marche: null, sortieChain: false, sortieInsert: false, touches: [], placePaire: false, plexus: false, contraposition: 1,
   rootOffset: null, partnerRootOffset: null, pelvisOffset: null, trunkOffset: null,
 };
 /** Plexus-to-plexus contact (#51): chest-marker gap targeted between partners (m) and the largest
@@ -354,8 +356,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   // axis (the GLB foot is natively turned out by ≈25°), and the initial/neutral stance has the
   // feet under the hips; each foot joins the validated path on its first step.
   const stance = (model.legs.L.hipX - rest.L.x + rest.R.x - model.legs.R.hipX) / 2;
-  const sampleFigure = (follower: boolean) => !o.embrace ? null
-    : (o.movement === "sortieG" || o.movement === "sortieF") && o.sortieInsert ? sampleInserted(o.movement, beat, follower, rest, placementOffset(o.placement, o.amp), placementScale(o.amp), stance, o.sortieContra)
+  const hostFigure = (beat: number, follower: boolean) => !o.embrace ? null
     : o.movement === "sortieG" ? sampleSortieGarcon(beat, follower, rest, o.sortieVariant, o.sortieContra, placementOffset(o.placement, o.amp), placementScale(o.amp), stance)
     : o.movement === "sortieF" && o.sortieChain ? sampleSortieFG(beat, follower, rest, placementOffset(o.placement, o.amp), placementScale(o.amp), stance, o.sortieContra)
     : o.movement === "sortieF" ? sampleSortieFille(beat, follower, rest, o.sortieFilleVariant, placementOffset(o.placement, o.amp), placementScale(o.amp), stance, o.sortieVirgula)
@@ -372,6 +373,11 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
       { travel: travelAllowed(o.styleKey) ? o.travel : 0, dir: o.dir, length: o.movement === "temps3" ? 3 : 1 })
     : o.movement === "corridinho" && o.placePaire ? sampleQuartsPaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance)
     : null;
+  // #144: touches go on top of whichever pair figure is danced; #91's inserted ida is their first case.
+  const sampleFigure = (follower: boolean) => !o.embrace ? null
+    : (o.movement === "sortieG" || o.movement === "sortieF") && o.sortieInsert ? sampleInserted(o.movement, beat, follower, rest, placementOffset(o.placement, o.amp), placementScale(o.amp), stance, o.sortieContra)
+    : o.touches.length && hostFigure(0, follower) ? sampleTouched(b => hostFigure(b, follower)!, o.touches, beat, follower, rest, placementOffset(o.placement, o.amp), stance)
+    : hostFigure(beat, follower);
   const figure = sampleFigure(o.follower);
   // #51: the partner's pelvis, in this dancer's outer frame (partners face each other 2·dz apart).
   const pairDz = o.movement === "sortieG" ? SORTIE_GARCON_PAIR_DZ : o.movement === "sortieF" ? SORTIE_FILLE_PAIR_DZ
