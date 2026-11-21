@@ -11,6 +11,36 @@ movements hips down are the dominant ones, not the upper body movements »).
 
 **🌐 Site déployé (GitHub Pages) : https://arcodange-org.github.io/dance-hips-movement-3D-comparison/**
 
+## Vitrine : la danse seule, en musique (#150)
+
+**Lien direct : https://arcodange-org.github.io/dance-hips-movement-3D-comparison/?vitrine=1**
+
+Le couple danse seul sur la piste enregistrée du style, à son tempo, avec les muscles et un buste
+lisible ; la vue tourne lentement. Un bouton lance la musique (un navigateur ne démarre pas le son
+sans clic), un autre copie le lien, qui garde le style et la graine : la même danse se rejoue.
+Pour l'intégrer dans une autre page :
+
+```html
+<iframe src="https://arcodange-org.github.io/dance-hips-movement-3D-comparison/?vitrine=1"
+        title="Kizomba en 3D" allow="autoplay" loading="lazy"
+        style="width:100%;aspect-ratio:16/9;border:0"></iframe>
+```
+
+Dans le mode jeu, la danse automatique (Espace) prend aussi le tempo de la piste et affiche les
+muscles. [Spécification](docs/spec-vitrine-danse-auto.md).
+
+## Musique enregistrée, générée par IA (#142)
+
+Quand un style a une piste, le bouton **« Son »** joue une **boucle enregistrée générée par IA**
+(Eleven Music, ElevenLabs) au lieu de la synthèse. La boucle est calée sur le temps de la danse :
+le tempo, l'instant du temps 1 et la longueur de la boucle sont **mesurés** sur le fichier, et
+l'horloge audio pilote la danse. Le curseur de tempo règle la vitesse de lecture (la hauteur suit) ;
+un bouton ramène au tempo de la piste. Piste publiée : **kizomba** (fusion kizomba et semba,
+102 bpm, boucle de 96 temps), validée à l'écoute par le propriétaire ; une première prise, trop
+proche d'une musique électronique de danse, avait été refusée. Les autres styles jouent la
+synthèse, qui reste aussi une source au choix (`source=synthese`).
+[Spécification](docs/spec-musique-elevenlabs.md) · [provenance et prompts](docs/musique/enregistrements.md).
+
 ## Son synthétisé synchronisé (#44)
 
 Le bouton **« Son »** (éteint par défaut) joue une musique **synthétisée dans le navigateur**
@@ -218,30 +248,6 @@ locales/monde. Ils vérifient les limites de trajectoire, les derniers pas inver
 de cinq erreurs injectées, en plus des poses GLB. [Contrat de l'oracle](docs/spec-phase18-oracle.md),
 [corrections #25 et preuves](docs/retrospective-oracle-corrections.md).
 Les cellules historiques G/F décrivent les anciennes trajectoires. Les figures en cinq actions ont leurs propres tests GLB.
-
-## Captures après correction de l’audit #17
-
-Le rendu et les tests utilisent le même moteur de pose (`src/pose.ts`) et une horloge commune.
-Les jambes gardent leurs longueurs GLB ; le bassin descend pour permettre la flexion. Les angles
-HUD proviennent des poses finales. Les appuis restent illustratifs, avec 0 % sur un pied levé.
-La proximité des repères ne représente pas une force ni un contact de surfaces.
-
-![Comparaison synchronisée semba / kizomba](docs/gifs/audit-comparaison.gif)
-<details><summary>Détails & source</summary>
-
-Capture du canvas local corrigé via « Exporter un cycle », depuis la pause : 4 temps à 90 bpm,
-semba à gauche, kizomba à droite, amplitude 1, pieds plantés. BodyParts3D © DBCLS,
-CC BY-SA 2.1 Japan. Le HUD HTML n’est pas inclus dans l’export du canvas.
-</details>
-
-![Quarts de tour en paire — cycle complet](docs/gifs/audit-quarts-paire.gif)
-<details><summary>Détails & source</summary>
-
-Capture du même moteur : kizomba, paire, quarts de tour, 16 temps à 90 bpm, amplitude 1.
-Export depuis la pause, traînée réinitialisée et alimentée pendant l’export.
-[Spécification et limites](docs/spec-audit-poses-finales.md),
-[rétrospective et vérifications](docs/retrospective-audit-poses.md).
-</details>
 
 ## Docs
 

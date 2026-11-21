@@ -2,6 +2,9 @@
 
 Fil d'Ariane : [docs](./) › **spec son synthèse** · recherche : [docs/musique/](musique/README.md)
 
+> Depuis #142 ([spec](spec-musique-elevenlabs.md)), une boucle enregistrée générée par IA joue par
+> défaut quand le style en a une ; la synthèse décrite ici est le repli et une source au choix.
+
 ## Objectif
 
 Activer le son : chaque style danse en rythme avec une musique **synthétisée dans le

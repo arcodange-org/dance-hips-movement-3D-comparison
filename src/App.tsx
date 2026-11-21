@@ -30,7 +30,8 @@ import { parseVec3, buildShareUrl } from "./share";
 import { parseShareParams } from "./shareParams";
 import { DIR_LABELS, isDiagonal } from "./directions";
 import SoundControls from "./components/SoundControls";
-import { useMusic } from "./music/useMusic";
+import { useMusic, type MusicSource } from "./music/useMusic";
+import { recordingOf } from "./music/recordings";
 
 function readParams(): URLSearchParams {
   if (typeof window === "undefined") return new URLSearchParams();
@@ -126,6 +127,8 @@ export default function App() {
   const [musicSide, setMusicSide] = usePersistentState<"A" | "B">("musique", "A");
   const [musicMuted, setMusicMuted] = usePersistentState<string[]>("musiqueMuted", []);
   const [musicVolume, setMusicVolume] = usePersistentState("musiqueVolume", 0.7);
+  // #142 (docs/spec-musique-elevenlabs.md) : boucle enregistrée par défaut, synthèse au choix.
+  const [musicSource, setMusicSource] = usePersistentState<MusicSource>("musiqueSource", "enregistrement");
   const [soundWanted, setSoundWanted] = useState(false);
   const [copied, setCopied] = useState(false);
   const controlsRef = useRef<any>(null);
@@ -178,6 +181,7 @@ export default function App() {
     if (s.contacts !== undefined) setShowContacts(s.contacts);
     if (s.musique) setMusicSide(s.musique);
     if (s.son) setSoundWanted(true);
+    if (s.source) setMusicSource(s.source);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -221,7 +225,7 @@ export default function App() {
   // Comparaison : la musique de A ou de B ; sinon celle du style A.
   const musicStyleKey = isCompare && musicSide === "B" ? styleB : styleA;
   const music = useMusic({ clock, styleKey: musicStyleKey, bpm, playing: playing && !exporting,
-    muted: musicMuted, volume: musicVolume });
+    muted: musicMuted, volume: musicVolume, source: musicSource });
   const soundOn = music.status === "on";
 
   // Partage de la vue : URL avec tous les paramètres d'état + l'angle caméra (campos/camtgt).
@@ -251,6 +255,7 @@ export default function App() {
       plant, corridinho, ligne: showLigne, iso, cadre, quarts, temps3, ida, dir,
       ghost: ghostSel, boussole: showBoussole, contacts: showContacts,
       son: soundOn ? true : undefined, musique: soundOn && isCompare ? musicSide : undefined,
+      source: soundOn && musicSource === "synthese" && recordingOf(musicStyleKey) ? "synthese" : undefined,
       cam: params.get("cam") ?? undefined, demo: params.get("demo") ?? undefined,
       bare: params.get("bare") ?? undefined, solid: params.get("solid") ?? undefined,
     }, camPos, camTgt, view);
@@ -624,6 +629,12 @@ export default function App() {
         onMuted={setMusicMuted}
         volume={musicVolume}
         onVolume={setMusicVolume}
+        recording={music.recording}
+        hasRecording={recordingOf(musicStyleKey) !== undefined}
+        source={musicSource}
+        onSource={setMusicSource}
+        unavailable={music.unavailable}
+        loading={music.loading}
       />
       </fieldset>
       {exporting && <p role="status">Export du cycle complet en cours…</p>}
