@@ -247,6 +247,13 @@ avec et sans plexus) : 5 508 poses de couple, 0 croisement d'os, 0 chevauchement
    des jambes (six styles, trois amplitudes, quinconce, référence, quinconce avec plexus).
 8. `virgula=1` est écrit dans l'URL de partage et relu.
 
+### Capture
+
+![Ida e volta avec la virgula du leader, vue rapprochée derrière son épaule gauche](gifs/ida-paire-virgula.gif)
+
+Quatre temps à 90 bpm, kizomba, quinconce, couche des muscles : le G du leader avance et se pose
+perpendiculaire, revient, puis recule droit (second créneau, inchangé).
+
 ### Mesures (GLB, kizomba, amplitude 1, temps 1)
 
 | Placement | Talon du G au D | Ouverture du bassin | Genou G | Écart du buste |

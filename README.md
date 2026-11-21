@@ -137,6 +137,15 @@ avec ou sans plexus).
 son G avance, il se pose perpendiculaire, pointe à gauche, talon près de son D ; son bassin s'ouvre et son
 buste garde sa direction. Le pas du suiveur ne change pas.
 
+![Ida e volta en paire avec la virgula du leader, vue rapprochée](docs/gifs/ida-paire-virgula.gif)
+<details><summary>Détails & source</summary>
+
+Capture image par image (`scripts/capture_figure_gif.mjs`) : kizomba, paire, quinconce, `virgula=1`, couche
+des muscles, vue rapprochée derrière l'épaule gauche du leader, 4 temps à 90 bpm.
+[Spécification](docs/spec-ida-paire.md#virgula-du-leader-effet-de-style-128-21-novembre-2026).
+BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
+</details>
+
 ![Ida e volta en paire, quinconce, plexus contre plexus](docs/gifs/ida-paire-couple.gif)
 <details><summary>Détails & source</summary>
 
