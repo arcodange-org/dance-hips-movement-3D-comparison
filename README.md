@@ -187,8 +187,8 @@ déplacements des figures, et les écarts de bassin entre deux figures sont effa
 ![Mode guidage : ida e volta, sortie garçon, quart de tour, sortie fille](docs/gifs/mode-guidage-demo.gif)
 <details><summary>Détails & source</summary>
 
-Capture image par image de la session de démonstration (`?mode=pair&guidage=1&demo=1&beat=…`), kizomba,
-90 bpm. Recherche et concept : [docs/recherche-jeux-video/](docs/recherche-jeux-video/README.md).
+Capture image par image de la session de démonstration (`?mode=pair&guidage=1&demo=1&muscles=1&beat=…`),
+kizomba, 90 bpm, couche des muscles, vue du guideur. Recherche et concept : [docs/recherche-jeux-video/](docs/recherche-jeux-video/README.md).
 [Spécification et rapport](docs/spec-mode-guidage-poc.md). BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 </details>
 
@@ -202,8 +202,9 @@ appui du style = appui de la figure, aucun croisement des os des jambes.
 ![Ginga dans l'ida e volta en paire](docs/gifs/ginga-ida-paire.gif)
 <details><summary>Détails & source</summary>
 
-Capture image par image (`scripts/capture_figure_gif.mjs`) : kizomba, paire, quinconce, vue de trois
-quarts, 8 temps à 90 bpm, amplitude 1. [Spécification et calibrage](docs/spec-ginga.md).
+Capture image par image (`scripts/capture_figure_gif.mjs`) : kizomba, paire, quinconce, couche des muscles,
+vue de trois quarts rapprochée (derrière l'épaule gauche du leader), 8 temps à 90 bpm, amplitude 1.
+[Spécification et calibrage](docs/spec-ginga.md).
 BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 </details>
 
