@@ -29,6 +29,11 @@
 Les flèches maintenues modifient la figure guidée au moment de l'appui ; seules les figures compatibles
 (l'ida e volta) ont des variantes. Une flèche seule (sans touche de figure) guide la marche.
 
+Depuis #140 ([spec](spec-jeu-file-auto.md)), chaque appui est une commande de la file. Le second ↑ ne
+transforme la marche en double, et la touche de l'ida ne remplace le ↓ qui la précède, que si cette
+première commande attend encore dans la file. Une marche déjà commencée reste une marche : l'appui
+suivant est une commande à part.
+
 ## Modèle
 
 - **Toujours par le quinconce neutre** (architecture du mode jeu, #69) : chaque segment commence et

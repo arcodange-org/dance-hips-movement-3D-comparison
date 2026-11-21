@@ -101,6 +101,10 @@ longueur de pas au niveau 3).
 
 ## Retours au joueur
 
+> Décision du propriétaire (#140, 21 novembre 2026) : le retour « Placement » et la série sont retirés de
+> l'app. Le joueur n'a plus le défi d'être synchronisé ; ses commandes s'empilent dans une file
+> ([spec](../spec-jeu-file-auto.md)). Le tableau ci-dessous reste la proposition issue de la recherche.
+
 | Retour | Ce qu'il montre | D'où vient la mesure |
 | --- | --- | --- |
 | **Placement** | Jauge de temps (tôt / tard), note Parfait / Bien / Juste / Raté | Fenêtres de [rythme et timing](rythme-et-timing.md), horloge audio |

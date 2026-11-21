@@ -56,10 +56,12 @@ aux fins d'action (aucun des deux ne tourne : les pieds gardent leur orientation
 
 ## Mode jeu
 
-**↑** pendant la sortie fille, entre ses temps 1 et 3, enchaîne la fin de la sortie garçon. Le segment
-change de nature sans changer de début : les poses jusqu'à la position 3 sont celles de la sortie
-fille, donc sans saut. Avant le temps 1, la pression est refusée (trop tôt). Après la position 3, ↑ garde
-son sens habituel (la marche après la sortie). Démo : `?mode=pair&guidage=1&demo=enchainement`
+**↑** pendant la sortie fille, de son début à sa position 3, enchaîne la fin de la sortie garçon. Le
+segment change de nature sans changer de début : les poses jusqu'à la position 3 sont celles de la sortie
+fille, donc sans saut. À partir de la position 3, ou pressée avant que la sortie commence, ↑ est une
+commande ordinaire de la file (la marche après la sortie). Depuis #140 la fenêtre ne commence plus au
+temps 1 : cette borne servait à refuser les pressions « trop tôt », qui n'existent plus
+([spec #140](spec-jeu-file-auto.md)). La danse automatique tire le même choix à la position 3. Démo : `?mode=pair&guidage=1&demo=enchainement`
 ([GIF](gifs/enchainement.gif), avec les muscles, vue du guideur ; la sortie fille commence par la virgula
 du leader, #127).
 

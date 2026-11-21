@@ -306,27 +306,33 @@ export function planGuide(intentions: GuideIntention[], motions: GuideMotions, u
     // Junctions of the sortie under way: position 2 (#91, ida e volta inserted), then position 3 of the
     // sortie fille (#90, end of the sortie garçon). The poses up to the junction are the sortie's: the
     // segment changes kind without a jump. A command pressed during the sortie decides; else the
-    // automatic dance draws, once the junction is reached.
+    // automatic dance draws, once the junction is reached. The decisions are taken in the order of the
+    // clock (the draw at position 2 before a command pressed after it): a plan never rewrites its past.
     if (current.kind === "sortieF" || current.kind === "sortieG") {
       const host = current.kind, insertAt = current.start + INSERTION_AT, chainAt = current.start + CHAIN_FROM;
       const junction = host === "sortieF" ? chainAt : insertAt;
+      const A = GUIDE_AUTO, stay = current.start + GUIDE_FIGURES[host].beats;
+      const inserted: GuideFigure = host === "sortieF" ? "sortieFI" : "sortieGI";
+      let drawn = false;
+      const drawInsertion = () => {
+        drawn = true;
+        if (current.kind !== host || until < insertAt || !autoAt(insertAt) || !offered.includes(inserted)) return;
+        const p = plain ? A.junction : onPhrase(current.start + GUIDE_FIGURES[inserted].beats) ? A.junctionFit : onPhrase(stay) ? A.junctionStay : A.junction;
+        if (guideDraw(seed, Math.round(insertAt * 8) * 4 + 1) < p) { current.kind = inserted; current.by = "auto"; }
+      };
       for (let i = next; i < list.length && list[i].intention.beat < junction; i++) {
         const { beat, figure } = list[i].intention;
         if (consumed.has(i)) continue;
+        if (beat >= insertAt && !drawn) { drawInsertion(); if (current.kind !== host) break; }
         const def = GUIDE_FIGURES[figure];
-        if (def.movement === "ida" && !def.marche && beat < insertAt && offered.includes(host === "sortieF" ? "sortieFI" : "sortieGI")) {
-          current.kind = host === "sortieF" ? "sortieFI" : "sortieGI"; consumed.add(i); settle(i, "insérée", insertAt); break;
+        if (def.movement === "ida" && !def.marche && beat < insertAt && offered.includes(inserted)) {
+          current.kind = inserted; consumed.add(i); settle(i, "insérée", insertAt); break;
         }
         if (figure === "avance" && host === "sortieF" && offered.includes("sortieFG")) {
           current.kind = "sortieFG"; consumed.add(i); settle(i, "enchaînée", chainAt); break;
         }
       }
-      const A = GUIDE_AUTO, stay = current.start + GUIDE_FIGURES[host].beats;
-      const inserted: GuideFigure = host === "sortieF" ? "sortieFI" : "sortieGI";
-      if (current.kind === host && until >= insertAt && autoAt(insertAt) && offered.includes(inserted)) {
-        const p = plain ? A.junction : onPhrase(current.start + GUIDE_FIGURES[inserted].beats) ? A.junctionFit : onPhrase(stay) ? A.junctionStay : A.junction;
-        if (guideDraw(seed, Math.round(insertAt * 8) * 4 + 1) < p) { current.kind = inserted; current.by = "auto"; }
-      }
+      if (!drawn) drawInsertion();
       if (current.kind === "sortieF" && until >= chainAt && autoAt(chainAt) && offered.includes("sortieFG")) {
         const p = plain ? A.junction : offBeat(current.start) ? A.chainOdd : A.chainEven;
         if (guideDraw(seed, Math.round(chainAt * 8) * 4 + 2) < p) { current.kind = "sortieFG"; current.by = "auto"; }
@@ -446,12 +452,20 @@ export class GuideSession {
   press(beat: number, figure: GuideFigure) {
     // #89: ↑ ↑ in quick succession leads the double (one command). ↓ held then the ida's key: the ↓ press
     // was a walk backwards until the key came; the ida variant replaces it.
+    // #140: only a command still waiting in the queue is rewritten this way; one already started (or that
+    // changed the sortie under way) is final, and the new press is a command of its own.
     const last = this.intentions[this.intentions.length - 1];
-    if (figure === "avance" && last?.figure === "avance" && beat - last.beat <= GUIDE.double) last.figure = "double";
-    else if ((figure === "idaArr" || figure === "idaArrD") && last?.figure === "recule" && beat - last.beat <= GUIDE.chord)
+    const waiting = !!last && this.waiting(last, beat);
+    if (waiting && figure === "avance" && last.figure === "avance" && beat - last.beat <= GUIDE.double) last.figure = "double";
+    else if (waiting && (figure === "idaArr" || figure === "idaArrD") && last.figure === "recule" && beat - last.beat <= GUIDE.chord)
       Object.assign(last, { beat, figure });
     else this.intentions.push({ beat, figure });
     this.cache = null;
+  }
+  /** The command has not started yet (an unbound session cannot tell: it waits). */
+  private waiting(intention: GuideIntention, beat: number): boolean {
+    const outcome = this.plan(beat)?.outcomes.find(o => o?.intention === intention);
+    return !outcome || outcome.status === "en file";
   }
   /** The automatic dance is on (after the last mode change). */
   get auto(): boolean { return this.modes.length ? this.modes[this.modes.length - 1].auto : false; }
