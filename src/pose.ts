@@ -14,7 +14,7 @@ import { sampleQuartsPaire, QUARTS_PAIR_DZ } from "./quartsPaire";
 import { sampleIdaPaire, IDA_PAIR_DZ, IDA_DEFAULT, type IdaVariant } from "./idaPaire";
 import { sampleMarchePaire, type MarcheKind } from "./marchePaire";
 import { sampleSortieFG } from "./enchainement";
-import { sampleInserted, sampleTouched, type Touch } from "./insertion";
+import { sampleInserted, sampleTouched, FOLLOWER_VARIANT, type Touch } from "./insertion";
 import { samplePlacePaire, PLACE_PAIR_DZ } from "./placePaire";
 import { SORTIE_GARCON_PAIR_DZ } from "./sortieGarcon";
 import { SORTIE_FILLE_PAIR_DZ } from "./sortieFille";
@@ -365,7 +365,9 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     // #54: in pair the leader steps forward while the follower steps back (docs/spec-ida-paire.md).
     // #89: the game mode's walks share the ida's couple and lanes.
     : o.movement === "ida" && o.idaPaire && o.marche ? sampleMarchePaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance, o.marche)
-    : o.movement === "ida" && o.idaPaire ? sampleIdaPaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance, o.idaVariant)
+    // Election prototype (#86): the follower moves the same foot as the leader.
+    : o.movement === "ida" && o.idaPaire ? sampleIdaPaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance,
+      follower && FOLLOWER_VARIANT.sameFoot ? { ...o.idaVariant, side: o.idaVariant.side === "L" ? "R" : "L" } : o.idaVariant)
     // #61, #71: in pair without a figure the couple stays in the neutral quinconce (temps3 without
     // travel is on the spot); the pair corridinho is the validated couple turn of #37, a circle on the
     // floor in 16 beats (docs/spec-paire-sans-figure.md).

@@ -12,6 +12,7 @@ import { createDanceClock, seekClock, type DanceClock } from "../clock";
 import { STYLES } from "../styles";
 import { useMusic } from "../music/useMusic";
 import TransitionCard from "./TransitionCard";
+import { FOLLOWER_VARIANT } from "../insertion";
 import { transitionAt } from "../transitions";
 import {
   GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, guideFiguresFor, guideStyleOf, GUIDE_PAIR_DZ, GUIDE_DEMO, GUIDE_DEMO_ARROWS, GUIDE_DEMO_CHAIN, GUIDE_DEMO_INSERT, GUIDE_DEMO_TOUCH, applyTransform, figureOfCode, keyLabel, type HeldArrows,
@@ -109,7 +110,10 @@ export default function GuidageApp() {
     if (params.get("demo") === "enchainement") session.intentions = GUIDE_DEMO_CHAIN.map(i => ({ ...i }));
     if (params.get("demo") === "insertion") session.intentions = GUIDE_DEMO_INSERT.map(i => ({ ...i }));
     if (params.get("demo") === "allerretour") session.intentions = GUIDE_DEMO_TOUCH.map(i => ({ ...i }));
-    const frame = Number(params.get("beat") ?? params.get("sortieBeat"));
+    // Election prototypes (#86, #144): `suiveuse=memePied|immobile`; `debut=N` starts the captures at beat N.
+    FOLLOWER_VARIANT.sameFoot = params.get("suiveuse") === "memePied";
+    FOLLOWER_VARIANT.still = params.get("suiveuse") === "immobile";
+    const frame = Number(params.get("beat") ?? params.get("sortieBeat")) + (Number(params.get("debut")) || 0);
     if (capture && Number.isFinite(frame)) seekClock(clock, Math.max(0, frame));
   }, [params, session, clock]); // eslint-disable-line react-hooks/exhaustive-deps
   const pair = useRef<Record<string, any>>({});
@@ -187,13 +191,16 @@ export default function GuidageApp() {
     return () => clearInterval(id);
   }, [clock, session]);
 
+  // Captures: `cam=x,y,z` places the free view's camera (it then follows the couple).
+  const cam = (params.get("cam") ?? "").split(",").map(Number);
+  const freeCamera: [number, number, number] = cam.length === 3 && cam.every(Number.isFinite) ? [cam[0], cam[1], cam[2]] : [2.7, 1.5, 3.4];
   const count = Math.floor(hud.beat) % 8 + 1;
   const queueText = hud.queue.map((f, k) => GUIDE_FIGURES[f].label + (hud.queueTouches[k] ? ` (${hud.queueTouches[k]} aller-retour${hud.queueTouches[k] > 1 ? "s" : ""})` : "")).join(" → ");
   const now = hud.now;
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-slate-950 text-slate-200">
-      <Canvas camera={{ position: leaderView ? [LEADER_VIEW.eye.x, LEADER_VIEW.eye.y, LEADER_VIEW.eye.z] : [2.7, 1.5, 3.4], fov: 40 }} dpr={[1, 2]}>
+      <Canvas camera={{ position: leaderView ? [LEADER_VIEW.eye.x, LEADER_VIEW.eye.y, LEADER_VIEW.eye.z] : freeCamera, fov: 40 }} dpr={[1, 2]}>
         <DanceTransport clock={clock} bpm={bpm} playing={playing} driver={music.driver} />
         <FrameClock clock={clock} last={last} />
         <color attach="background" args={["#0b1220"]} />
@@ -220,6 +227,7 @@ export default function GuidageApp() {
           {now.touch && <span className="text-amber-300"> · {touchLabel(now)}</span>}
           {hud.queue.length > 0 && <span className="text-sky-300"> → {queueText}</span>}
           {auto && <span className="ml-2 text-emerald-300">danse seule</span>}
+          {params.get("etiquette") && <span className="block text-base font-semibold text-emerald-300">{params.get("etiquette")}</span>}
           <span className="block text-[10px] text-slate-500">Mode jeu · BodyParts3D © DBCLS, CC BY-SA 2.1 Japan</span>
         </div>
       )}
