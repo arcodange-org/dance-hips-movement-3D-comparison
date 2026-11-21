@@ -3,7 +3,7 @@ import { buildSync } from "esbuild";
 import { unlinkSync } from "node:fs";
 import * as THREE from "three";
 import { fixture, minimumBoneY, snapshot } from "./pose_fixture.mjs";
-import { transformedMesh, meshIntersection, footHull, footHullsOverlap } from "./mesh_intersections.mjs";
+import { transformedMesh, meshIntersection, footHull, footHullsOverlap, hullGap } from "./mesh_intersections.mjs";
 const bundle = new URL("./.test-sortie-fille-bundle.mjs", import.meta.url);
 buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'clock', 'rigJoints', 'gait', 'sortieGarcon', 'sortieFille', 'placement', 'sortieGarconContact', 'share']
   .map(n => `export * from "./src/${n}";`).join('\n'), resolveDir: new URL('../', import.meta.url).pathname },
@@ -83,6 +83,58 @@ for (const variant of variants) {
     assert(second[1].L.z < first[1].L.z - .10, 'follower G advances diagonally in the alternate');
     near(second[0].R.x, first[0].R.x - o.x + stanceOf(pair[0].model));
     assert(second[0].R.z < first[0].R.z - .05, 'alternate D leader retreats');
+  }
+  if (variant === 'hook') {
+    // #127 (owner, 21 Nov.: « aller vers l'avant avec le pied gauche perpendiculaire s'appelle une virgula
+    // […] en gardant le buste du suiveur stable grâce à la contraposition du leader »): the leader's G1
+    // is a virgula. Compared with the straight G1 (`sortieVirgula: false`, the figure before #127).
+    const yawOf = (f, side) => { const a = footAxis(f, side); return Math.atan2(a.x, a.z); };
+    const yawQ = q => { const v = new THREE.Vector3(0, 0, 1).applyQuaternion(q); return Math.atan2(v.x, v.z); };
+    const sample = (beat, sortieVirgula) => pair.map((f, role) => {
+      api.applyPose(f.r, f.model, beat, { ...config(role, variant), sortieVirgula });
+      return { L: world(f, 'footL'), R: world(f, 'footR'), footYaw: yawOf(f, 'L'), pelvis: yawQ(f.r.root.getWorldQuaternion(new THREE.Quaternion())),
+        chest: yawQ(f.r.chest.getWorldQuaternion(new THREE.Quaternion())), kneeL: yawQ(f.r.kneeL.getWorldQuaternion(new THREE.Quaternion())),
+        kneeR: yawQ(f.r.kneeR.getWorldQuaternion(new THREE.Quaternion())), snapshot: snapshot(f.r) };
+    });
+    // The G lands at a right angle (toes to his left) and stays so while his D hooks; it faces forward
+    // again once it has gone back (position 3).
+    near(sample(1, true)[0].footYaw, Math.PI / 2, 1e-6);
+    near(sample(2, true)[0].footYaw, Math.PI / 2, 1e-6);
+    near(sample(3, true)[0].footYaw, 0, 1e-6);
+    near(sample(0, true)[0].footYaw, 0, 1e-6);
+    // It goes as far forward as the straight step (one foot, R22), in its own lane: the heel ends next to
+    // the inner edge of his D, or just in front of its tip from the reference placement (soles less than
+    // 5 cm apart, never overlapping).
+    const on = sample(1, true), off = sample(1, false);
+    near(on[0].L.z, off[0].L.z);
+    assert(Math.abs(on[0].L.x - start[0].L.x) <= api.HIP_WIDTH / 2, `virgula: at most half a hip sideways (${on[0].L.x - start[0].L.x})`);
+    sample(1, true);
+    const soleOf = (f, side) => footHull(f.model.legs[side].sole.map(point => point.clone().applyMatrix4(f.r['foot' + side].matrixWorld)));
+    const heelGap = hullGap(soleOf(pair[0], 'L'), soleOf(pair[0], 'R'));
+    assert(heelGap > 0 && heelGap < .05, `virgula: heel next to his D (${heelGap})`);
+    // His pelvis opens with the foot, his G knee points out between the pelvis and the foot, his D knee
+    // keeps facing forward.
+    assert(on[0].pelvis > 8 * Math.PI / 180 && on[0].pelvis < 17 * Math.PI / 180, `virgula: pelvis opens to his left (${on[0].pelvis})`);
+    assert(on[0].kneeL > on[0].pelvis + .2 && on[0].kneeL < on[0].footYaw - .2, `virgula: G knee between pelvis and foot (${on[0].kneeL})`);
+    assert(Math.abs(on[0].kneeR) < .12, `virgula: D knee faces forward (${on[0].kneeR})`);
+    let chestDrift = 0, pelvisPeak = 0;
+    for (let tick = 0; tick <= 250; tick++) {
+      const beat = tick / 50, a = sample(beat, true), b = sample(beat, false);
+      // The follower dances exactly the same figure: her chest is not turned (contraposition of the leader).
+      a[1].snapshot.forEach((value, i) => near(value, b[1].snapshot[i], 1e-9));
+      // The leader's chest keeps its direction while his pelvis opens (with the plexus contact the
+      // facing cap may hold it back by less than a degree).
+      chestDrift = Math.max(chestDrift, Math.abs(a[0].chest - b[0].chest));
+      pelvisPeak = Math.max(pelvisPeak, a[0].pelvis - b[0].pelvis);
+      // His D follows the same path; from the landing of his G3 on, the whole leader is unchanged.
+      near(a[0].R.distanceTo(b[0].R), 0, 1e-9);
+      if (beat >= 2.7) a[0].snapshot.forEach((value, i) => near(value, b[0].snapshot[i], 1e-9));
+      // R24: the follower never leaves before the leader (both leave at once, as before #127).
+      if (beat > 0 && beat <= .2) assert(a[0].L.distanceTo(start[0].L) > 0 || a[1].R.distanceTo(start[1].R) === 0, `virgula: the leader's G leaves with the follower's D (${beat})`);
+    }
+    assert(chestDrift < 1 * Math.PI / 180, `virgula: leader's chest keeps its direction (${chestDrift})`);
+    assert(pelvisPeak > 8 * Math.PI / 180, `virgula: pelvis opening (${pelvisPeak})`);
+    console.log(`virgula (${placement}${options.plexus ? ', plexus' : ''}): G at 90°, heel ${(heelGap * 100).toFixed(1)} cm from his D, pelvis ${(pelvisPeak * 180 / Math.PI).toFixed(1)}°, G knee ${(on[0].kneeL * 180 / Math.PI).toFixed(1)}°, chest drift ${(chestDrift * 180 / Math.PI).toFixed(2)}°, follower unchanged`);
   }
   assert(third[0].L.z < second[0].L.z - .2, 'leader G retreats on action 3');
   assert(third[1].R.z < second[1].R.z - .2, 'follower D advances on action 3');

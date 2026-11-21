@@ -17,6 +17,8 @@ export interface ShareParams {
   seek?: number;
   ligne?: boolean; iso?: boolean; cadre?: boolean; dir?: 1 | -1; boussole?: boolean; ghost?: string; contacts?: boolean;
   musique?: "A" | "B"; son?: boolean;
+  /** #128: the leader's virgula in the pair ida e volta (`virgula=1`). */
+  virgula?: boolean;
 }
 
 /** `current`: the state the URL is applied to (the seek depends on the mode and movement in force). */
@@ -54,7 +56,7 @@ export function parseShareParams(p: URLSearchParams, current: { mode: ModeKey; m
     // Frame-by-frame captures of the pair figures (scripts/capture_figure_gif.mjs).
     else if ((urlMovement === "quarts" || urlMovement === "ida" || urlMovement === "none") && Number.isFinite(raw) && raw >= 0) s.seek = raw;
   }
-  flag("ligne"); flag("iso"); flag("cadre");
+  flag("ligne"); flag("iso"); flag("cadre"); flag("virgula");
   if (p.has("dir")) { const d = num("dir"); if (d === 1 || d === -1) s.dir = d; }
   flag("boussole");
   // `delay` (follower delay) was removed in phase 15: ignored when present.

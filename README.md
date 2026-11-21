@@ -59,9 +59,10 @@ proximité des cuisses restent des illustrations paramétriques, pas une simulat
 ![Sortie garçon validée — variante à droite](docs/gifs/sortie-garcon-validee.gif)
 <details><summary>Détails & source</summary>
 
-Capture du canvas via « Exporter un cycle » : cinq temps à 90 bpm, kizomba, amplitude 1,
-variante à droite et contraposition illustrative 12°. BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
-Les jauges HTML ne sont pas incluses. Le GIF boucle ; l'application conserve la pose finale.
+Capture image par image (`scripts/capture_figure_gif.mjs`) : cinq temps à 90 bpm, kizomba, paire,
+quinconce, amplitude 1, variante à droite, couche des muscles, vue du guideur. En position 2, les pieds D
+sont tout près (4 cm) et le bassin du leader reste légèrement en arrière de son D (#130).
+BodyParts3D © DBCLS, CC BY-SA 2.1 Japan. Le GIF boucle ; l'application conserve la pose finale.
 [Séquence et sources](docs/spec-sortie-garcon.md), [preuves et limites](docs/retrospective-sortie-garcon.md).
 </details>
 
@@ -77,8 +78,11 @@ validé à l'amplitude 2, pour que les os des genoux ne se croisent pas. Partage
 
 ## Sortie fille — cinq actions en paire
 
-Le leader avance G puis dessine un crochet du droit. Le suiveur recule D puis sort à gauche.
-Dans la variante recul, le leader recule D pendant que le suiveur avance G en diagonale gauche.
+Le leader avance G en **virgula** (pied posé perpendiculaire, pointe à gauche, #127) puis dessine un
+crochet du droit. Le suiveur recule D puis sort à gauche. Pendant la virgula, le bassin du leader
+s'ouvre à gauche et son buste garde sa direction (contraposition) : le buste du suiveur ne tourne pas.
+Dans la variante recul, le leader avance G droit puis recule D pendant que le suiveur avance G en
+diagonale gauche.
 L’ouverture du buste du leader guide la sortie dans le cadre. Le droit du suiveur avance en
 diagonale et arrive à côté du droit du leader. Le leader dégage ensuite le passage au croisé. Au marka, le leader
 reste sur D et le suiveur sur G. La lecture conserve cette pose finale.
@@ -90,8 +94,10 @@ Le deuxième pas accepte aussi `sortieFilleVariant=back`.
 ![Sortie fille en paire, variante crochet](docs/gifs/sortie-fille-crochet.gif)
 <details><summary>Détails et source du contrôle crochet</summary>
 
-Cinq temps à 60 bpm, kizomba d’amplitude 1. Le droit du leader dessine le crochet et le gauche
-du suiveur se décale de 55 cm. L’illustration reprend la séquence décrite par le propriétaire.
+Capture image par image (`scripts/capture_figure_gif.mjs`) : cinq temps à 75 bpm, kizomba d’amplitude 1,
+paire, quinconce, couche des muscles, vue du guideur. Le gauche du leader se pose en virgula (#127), son
+droit dessine le crochet et le gauche du suiveur se décale d’une hanche et demie (51 cm, #105). L’illustration reprend la séquence décrite par
+le propriétaire.
 La proximité des flancs est mesurée sur des enveloppes de cuisse. Les charges affichées
 dans l’application indiquent les appuis prescrits. BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 [Description](docs/notes-sortie-fille.md) · [Mesures et limites](docs/spec-sortie-fille.md).
@@ -101,9 +107,9 @@ dans l’application indiquent les appuis prescrits. BodyParts3D © DBCLS, CC BY
 ![Sortie fille en paire, variante recul](docs/gifs/sortie-fille-recul.gif)
 <details><summary>Détails et source du contrôle recul</summary>
 
-Cinq temps à 60 bpm, kizomba d’amplitude 1. Le droit du leader recule. Le gauche du suiveur
-avance de 13 cm et s’écarte de 34 cm à sa gauche. Les deux GIFs sont capturés image par image
-(placement quinconce) et finissent en quinconce. La lecture dans l’application conserve le marka final.
+Cinq temps à 75 bpm, kizomba d’amplitude 1, couche des muscles, vue du guideur. Le droit du leader
+recule. Le gauche du suiveur avance de 13 cm et s’écarte de 34 cm à sa gauche. Les deux GIFs sont
+capturés image par image (placement quinconce) et finissent en quinconce. La lecture dans l’application conserve le marka final.
 BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 [Description](docs/notes-sortie-fille.md) · [Mesures et limites](docs/spec-sortie-fille.md).
 
@@ -138,11 +144,24 @@ transferts d'appui du cycle sont explicites, point d'accroche du ginga (#42). Te
 semelles disjointes, aucun croisement des os des jambes (six styles, trois amplitudes, trois placements,
 avec ou sans plexus).
 
+**Virgula du leader (effet de style, #128)** : case à cocher sous le placement, ou `virgula=1`. Quand
+son G avance, il se pose perpendiculaire, pointe à gauche, talon près de son D ; son bassin s'ouvre et son
+buste garde sa direction. Le pas du suiveur ne change pas.
+
+![Ida e volta en paire avec la virgula du leader, vue rapprochée](docs/gifs/ida-paire-virgula.gif)
+<details><summary>Détails & source</summary>
+
+Capture image par image (`scripts/capture_figure_gif.mjs`) : kizomba, paire, quinconce, `virgula=1`, couche
+des muscles, vue rapprochée derrière l'épaule gauche du leader, 4 temps à 90 bpm.
+[Spécification](docs/spec-ida-paire.md#virgula-du-leader-effet-de-style-128-21-novembre-2026).
+BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
+</details>
+
 ![Ida e volta en paire, quinconce, plexus contre plexus](docs/gifs/ida-paire-couple.gif)
 <details><summary>Détails & source</summary>
 
 Capture image par image (`scripts/capture_figure_gif.mjs`) : kizomba, paire, quinconce, plexus avec
-contraposition, vue de profil, 8 temps à 90 bpm, amplitude 1. Base de déplacement du ginga (#42).
+contraposition, couche des muscles, vue du guideur, 8 temps à 90 bpm, amplitude 1. Base de déplacement du ginga (#42).
 [Spécification, calibrage et points à valider](docs/spec-ida-paire.md).
 BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 </details>
@@ -158,7 +177,7 @@ aucun croisement des os des jambes (six styles, trois amplitudes, avec ou sans p
 <details><summary>Détails & source</summary>
 
 Capture image par image (`scripts/capture_figure_gif.mjs`) : tarraxinha, paire, quinconce, cadre des
-bras, vue de trois quarts, 4 temps à 90 bpm, amplitude 1.
+bras, couche des muscles, vue du guideur, 4 temps à 90 bpm, amplitude 1.
 [Spécification](docs/spec-sur-place-paire.md), [cadre](docs/cadre/spec-implementation.md).
 BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 </details>
@@ -179,8 +198,8 @@ déplacements des figures, et les écarts de bassin entre deux figures sont effa
 ![Mode guidage : ida e volta, sortie garçon, quart de tour, sortie fille](docs/gifs/mode-guidage-demo.gif)
 <details><summary>Détails & source</summary>
 
-Capture image par image de la session de démonstration (`?mode=pair&guidage=1&demo=1&beat=…`), kizomba,
-90 bpm. Recherche et concept : [docs/recherche-jeux-video/](docs/recherche-jeux-video/README.md).
+Capture image par image de la session de démonstration (`?mode=pair&guidage=1&demo=1&muscles=1&beat=…`),
+kizomba, 90 bpm, couche des muscles, vue du guideur. Recherche et concept : [docs/recherche-jeux-video/](docs/recherche-jeux-video/README.md).
 [Spécification et rapport](docs/spec-mode-guidage-poc.md). BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 </details>
 
@@ -194,8 +213,9 @@ appui du style = appui de la figure, aucun croisement des os des jambes.
 ![Ginga dans l'ida e volta en paire](docs/gifs/ginga-ida-paire.gif)
 <details><summary>Détails & source</summary>
 
-Capture image par image (`scripts/capture_figure_gif.mjs`) : kizomba, paire, quinconce, vue de trois
-quarts, 8 temps à 90 bpm, amplitude 1. [Spécification et calibrage](docs/spec-ginga.md).
+Capture image par image (`scripts/capture_figure_gif.mjs`) : kizomba, paire, quinconce, couche des muscles,
+vue de trois quarts rapprochée (derrière l'épaule gauche du leader), 8 temps à 90 bpm, amplitude 1.
+[Spécification et calibrage](docs/spec-ginga.md).
 BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 </details>
 
@@ -293,7 +313,7 @@ stable et vertical au-dessus du bassin), `&cadre=0` (bras le long du corps — `
 cadre de bras de danseur), `&quarts=1` (quarts de tour : 4 = tour complet ; en paire le suiveur en
 marche arrière), `&dir=-1` (marche arrière le long de la ligne de danse), `&temps3=1` (marka
 « 3 temps » : un pas tous les 3 temps avec Déplacement), `&ida=1` (ida e volta : G avant/arrière
-puis D avant/arrière, 8 temps), `&demo=<clé>&cam=default|hip|fixed|wide|diag|front|back|top` (captures motion design :
+puis D avant/arrière, 8 temps), `&virgula=1` (en paire : virgula du leader quand son G avance, #128), `&demo=<clé>&cam=default|hip|fixed|wide|diag|front|back|top` (captures motion design :
 `hip` = gros plan bassin, `fixed`/`wide` = repère fixe conservé pour les déplacements, `diag` = vue
 diagonale par défaut en paire pour lire la sortie, `front`/`back` = de face/dos, `top` = vue
 plongeante pour lire le lacet des pieds/vírgula), `&campos=x,y,z&camtgt=x,y,z` (angle de la caméra

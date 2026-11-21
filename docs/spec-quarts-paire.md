@@ -67,8 +67,11 @@ C, exprimée dans le repère du leader (+x à gauche, +z vers l'avant) :
   pivote autour de ce côté : le reste du corps le rattrape. Les deux danseurs suivent la même règle.
   Le bassin ne fait que 65 % (leader) et 58 % (suiveur) du chemin entre la rotation rigide autour de C
   et cette règle : la règle entière laisse le pied arrière si loin derrière la hanche que le bassin
-  s'abaisse et que le genou avant part vers le partenaire. Le bloc tourne sur les 30 derniers pour cent
-  du vol du premier pied, une fois le pied du partenaire dégagé. La règle de la phase 14 (haut du
+  s'abaisse et que le genou avant part vers le partenaire. Le bassin tourne sur les 60 derniers pour cent
+  du vol du premier pied (30 % avant #126). Le buste le suit **0,25 temps plus tard**, le temps du
+  transfert de poids (#126, propriétaire, 21 novembre : « le quart de tour est bien, il faut simplement
+  fluidifier le début (le buste peut avoir un léger retard sur le pied : le temps de transfert) »). Mesuré :
+  0 croisement ; un départ à 30 % du vol avec 0,3 temps de retard donne 2 poses croisées. La règle de la phase 14 (haut du
   corps avec le premier pied, bas du corps avec le second) et le retard du buste du suiveur
   (`QUARTS_LEAD`) sont abandonnés.
 - **Bassins couplés** pendant tout le tour ; balancement du style réduit de moitié.

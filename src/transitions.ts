@@ -34,10 +34,10 @@ const SORTIE_G: Entry[] = [
     contacts: "Plexus en compression, main D sur l'omoplate ; le bassin du leader commence à quitter l'axe.",
     sources: ["S16", "Pr", "#110", "R24"] },
   { title: "2 · D du leader hors ligne, flancs droits",
-    leader: "Avance son D à l'extérieur du D du suiveur, bassin au-dessus de ce pied ; le buste reste face (contre-corps).",
+    leader: "Avance son D tout près du D du suiveur, à l'extérieur ; son bassin reste légèrement en arrière de ce pied et le buste reste face (contre-corps).",
     follower: "Recule son G, droit : on ne lui guide que la marche arrière.",
-    contacts: "Cuisses D au contact sur le côté ; la moitié droite des bustes se fait face ; pieds D à 12 cm environ.",
-    sources: ["Pr", "#104", "#110"] },
+    contacts: "Pieds D tout près (4 cm environ), genoux D proches, cuisses D côte à côte ; la moitié droite des bustes se fait face ; pas de contact frontal des bassins.",
+    sources: ["Pr", "#104", "#110", "#130"] },
   { title: "3 · G du leader croisé, retour vers la ligne",
     leader: "Croise son G devant son D et revient vers la ligne en continuant d'avancer ; le contre-corps se relâche.",
     follower: "Recule son D ; son torse revient face.",
@@ -61,6 +61,12 @@ const SORTIE_F_1: Entry = { title: "1 · G du leader avance d'un pied",
   follower: "Recule son D d'un pied ; son torse commence à répondre, jamais avant le leader.",
   contacts: "La poitrine se déconnecte légèrement ; l'ouverture du buste s'annonce.",
   sources: ["S8", "#105", "R24"] };
+// #127: in the hook variant the leader's G1 is a virgula.
+const SORTIE_F_1_HOOK: Entry = { title: "1 · G du leader en virgula",
+  leader: "Avance son G d'un pied et le pose perpendiculaire, pointe à gauche, talon près de son D : son bassin s'ouvre à gauche, son buste garde sa direction (contraposition) ; sa main D commence à glisser vers sa droite.",
+  follower: "Recule son D d'un pied ; son buste reste stable, il ne suit pas le bassin du leader, et commence à répondre, jamais avant le leader.",
+  contacts: "La poitrine se déconnecte légèrement ; l'ouverture du buste s'annonce ; le bassin du leader tourne sous un buste qui ne tourne pas.",
+  sources: ["Pr", "S8", "#105", "#127", "R24"] };
 const SORTIE_F_2_HOOK: Entry = { title: "2 · Crochet du leader, le suiveur sort à gauche",
   leader: "Crochet de son D vers sa droite ; le cadre (bras D) ou le buste, en contraposition, ouvre un couloir à sa droite.",
   follower: "Pas latéral de son G vers sa gauche (une hanche et demie), torse tourné vers le leader.",
@@ -181,7 +187,7 @@ const CHAIN_BRIDGE_ENTRY: Entry = { title: "Pont : le suiveur avance en position
 const span = (entries: Entry[], start: number, beat: number, end?: number): Transition[] =>
   entries.map((e, i) => ({ ...e, from: start + i * beat, to: i === entries.length - 1 && end !== undefined ? end : start + (i + 1) * beat }));
 
-const sortieF = (variant: "hook" | "back") => [SORTIE_F_1, variant === "back" ? SORTIE_F_2_BACK : SORTIE_F_2_HOOK, ...SORTIE_F_REST];
+const sortieF = (variant: "hook" | "back") => variant === "back" ? [SORTIE_F_1, SORTIE_F_2_BACK, ...SORTIE_F_REST] : [SORTIE_F_1_HOOK, SORTIE_F_2_HOOK, ...SORTIE_F_REST];
 const SORTIE_BEATS = 5 + MARKA_HOLD;
 
 const TABLE: Record<TransitionKey, Transition[]> = {

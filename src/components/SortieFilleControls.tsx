@@ -27,7 +27,8 @@ export default function SortieFilleControls({ clock, variant, onVariant, onPlayi
           onChange={event => seek(Number(event.target.value), false)}>
           <option value="progress" disabled>En cours · action {Math.ceil(beat)}</option>
           {SORTIE_FILLE_ACTIONS.map((action, index) => <option key={index} value={index}>
-            {index === 2 && variant === "back" ? "2 · Recul D leader / Diagonale avant G suiveur" : action}
+            {index === 2 && variant === "back" ? "2 · Recul D leader / Diagonale avant G suiveur"
+              : index === 1 && variant !== "back" ? "1 · G leader en virgula / D suiveur recule" : action}
           </option>)}
         </select>
       </label>
