@@ -23,8 +23,10 @@ et les specs. Résumé de la journée du 21 :
 - **#128** : la même virgula en option dans l'ida e volta en paire (`virgula=1`, case à cocher),
   `scripts/test_ida_virgula.mjs` ([spec](docs/spec-ida-paire.md)).
 - PR brouillon en relecture du propriétaire : #117 (ontologie), #76 (audit).
-- Pièges : `npm test` complet dure 25 min ou plus en local ; lancer les scripts en parallèle, un journal
-  par script. Les captures GIF échouent si la machine est très chargée : les lancer une par une.
+- Pièges : `npm test` complet dure 25 min ou plus en local. Lancer ses scripts en parallèle, un journal
+  par script, le ramène à une dizaine de minutes ; `test_placements` et `test_plexus` rejouent d'autres
+  scripts sous les mêmes noms de bundle : une erreur d'import peut être une collision, relancer le script
+  seul. Les captures GIF échouent si la machine est très chargée : les lancer une par une.
 
 ## Preuve de concept du mode guidage #69 (20 novembre 2026)
 
