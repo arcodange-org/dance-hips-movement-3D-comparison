@@ -231,30 +231,6 @@ de cinq erreurs injectées, en plus des poses GLB. [Contrat de l'oracle](docs/sp
 [corrections #25 et preuves](docs/retrospective-oracle-corrections.md).
 Les cellules historiques G/F décrivent les anciennes trajectoires. Les figures en cinq actions ont leurs propres tests GLB.
 
-## Captures après correction de l’audit #17
-
-Le rendu et les tests utilisent le même moteur de pose (`src/pose.ts`) et une horloge commune.
-Les jambes gardent leurs longueurs GLB ; le bassin descend pour permettre la flexion. Les angles
-HUD proviennent des poses finales. Les appuis restent illustratifs, avec 0 % sur un pied levé.
-La proximité des repères ne représente pas une force ni un contact de surfaces.
-
-![Comparaison synchronisée semba / kizomba](docs/gifs/audit-comparaison.gif)
-<details><summary>Détails & source</summary>
-
-Capture du canvas local corrigé via « Exporter un cycle », depuis la pause : 4 temps à 90 bpm,
-semba à gauche, kizomba à droite, amplitude 1, pieds plantés. BodyParts3D © DBCLS,
-CC BY-SA 2.1 Japan. Le HUD HTML n’est pas inclus dans l’export du canvas.
-</details>
-
-![Quarts de tour en paire — cycle complet](docs/gifs/audit-quarts-paire.gif)
-<details><summary>Détails & source</summary>
-
-Capture du même moteur : kizomba, paire, quarts de tour, 16 temps à 90 bpm, amplitude 1.
-Export depuis la pause, traînée réinitialisée et alimentée pendant l’export.
-[Spécification et limites](docs/spec-audit-poses-finales.md),
-[rétrospective et vérifications](docs/retrospective-audit-poses.md).
-</details>
-
 ## Docs
 
 - [Recherche biomécanique](docs/recherche-biomecanique/README.md) : podologie, biomécanique,
