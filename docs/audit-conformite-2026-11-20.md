@@ -34,9 +34,11 @@ Lecture :
   varie de 3 à 4 cm : c'est le pivot de bassin sur la hanche d'appui (#84).
 - **R3** s'améliore un peu dans les sorties (suiveur 11 à 15,5 cm, contre 13 à 17 cm).
 - **R4 se dégrade dans les sorties**, surtout la sortie fille en crochet : les repères de poitrine
-  s'écartent jusqu'à 36–44 cm. Les pas raccourcis aux unités du propriétaire (#105) ont changé la
-  géométrie. La garde de `test_plexus.mjs` (41 cm, kizomba et kompa seulement) ne l'a pas signalé. C'est
-  l'écart au contact plexus que #75 demande de tester avec le seuil de la règle.
+  s'écartent jusqu'à 36–44 cm. La cause est #93 (« danseurs droits, sans posture de lutteur de sumo »,
+  demande du propriétaire) : sans l'inclinaison vers l'avant, les bustes ne comblent plus l'écart des
+  bassins. La garde de `test_plexus.mjs` est alors passée de 22 à 41 cm pour la sortie fille. Les deux
+  demandes (R4 et danseurs droits) se contraignent l'une l'autre ; c'est l'écart que #75 demande de
+  rendre visible avec le seuil de la règle.
 - **Décalage latéral de l'ida** : la sonde le mesure dans l'axe du bassin du leader, que le pivot de #84
   tourne. Dans l'axe de ses pieds, le couple reste en quinconce (`scripts/test_ontologie.mjs`, PR #117).
 - **Glissement des pieds porteurs** : la mesure de la sonde (barycentre des sommets de semelle au sol)
