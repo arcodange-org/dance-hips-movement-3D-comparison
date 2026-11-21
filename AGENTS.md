@@ -41,7 +41,8 @@ Vitrine (#150) : [spec](docs/spec-vitrine-danse-auto.md) (`src/vitrine.ts` pur, 
 automatique, en musique, au tempo de la piste ; `scripts/test_vitrine.mjs`).
 Mode jeu (#140, [spec](docs/spec-jeu-file-auto.md)) : les commandes s'empilent dans une file (plus de note ni
 de refus), Espace bascule entre l'écoute et la danse automatique (tirage reproductible par graine) ; un plan
-ne réécrit jamais son passé.
+ne réécrit jamais son passé. Hasard tenu (#152) : le tirage se souvient des figures et des paires récentes
+(`GUIDE_VARIETY`, `hasard=libre|tenu|strict`), toujours fonction pure de la graine et de l'historique.
 Mode guidage (PoC #69) : [spec](docs/spec-mode-guidage-poc.md) (`src/guidage.ts` pur, `src/guidagePose.ts`,
 vue `src/components/GuidageApp.tsx`, `scripts/test_guidage.mjs`) ; recherche : [jeux vidéo](docs/recherche-jeux-video/README.md).
 

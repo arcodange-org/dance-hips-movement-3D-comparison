@@ -217,7 +217,9 @@ rend la main. **Tout pas qui avance ou recule peut devenir un ida e volta** (#14
 pressée pendant une figure, ou quand une figure attend, transforme son prochain pas en aller-retour du
 pied (deux temps de plus, le poids reste sur l'autre pied), avec **Maj** en virgula quand le pied gauche
 avance depuis la position neutre ; la danse seule tire les mêmes choix
-([spec](docs/spec-ida-partout.md)). Le repère du couple suit les déplacements des figures, et les écarts de bassin entre deux
+([spec](docs/spec-ida-partout.md)). Le hasard de la danse seule est **tenu** (#152) : le tirage se
+souvient des figures et des paires de figures qui viennent d'être dansées, jamais trois fois de suite la
+même (`&hasard=libre`, `tenu` ou `strict` pour comparer). Le repère du couple suit les déplacements des figures, et les écarts de bassin entre deux
 figures sont effacés en un temps (inertialisation). Testé sur le GLB : continuité aux enchaînements,
 aucun croisement d'os. [Spec de la file et de la danse automatique](docs/spec-jeu-file-auto.md).
 

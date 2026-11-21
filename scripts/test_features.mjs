@@ -288,6 +288,26 @@ const steps = [
     }
     c.jeu = { share: neutral / ends };
   }],
+  // #152: the draw remembers the figures and the pairs danced lately.
+  [/^le couple danse seul pendant (\d+) temps avec les graines (\d+) à (\d+) et le hasard "(\w+)"$/, (c, m) => {
+    let figures = 0, longest = 0, pairs = 0;
+    for (let seed = Number(m[2]); seed <= Number(m[3]); seed++) {
+      const plan = mod.guidage.planGuide([], guideMotionsOf(), Number(m[1]), { modes: [{ beat: 0, auto: true }], seed, variety: m[4] });
+      const ids = plan.segments.slice(1).map(s => mod.guidage.guideIdentityOf(s.kind));
+      let run = 1;
+      ids.forEach((id, i) => {
+        figures++; run = i > 0 && id === ids[i - 1] ? run + 1 : 1; longest = Math.max(longest, run);
+        if (i > 0) for (let j = Math.max(1, i - 8); j < i; j++) if (ids[j - 1] === ids[i - 1] && ids[j] === id) { pairs++; break; }
+      });
+    }
+    c.jeu = { longest, pairs: pairs / figures };
+  }],
+  [/^la plus longue série de la même figure est de (\d+) au plus$/, (c, m) => {
+    if (c.jeu.longest > Number(m[1])) throw new Error(`série de ${c.jeu.longest}`);
+  }],
+  [/^une paire de figures déjà enchaînée parmi les 8 précédentes revient moins d'une fois sur (\d+)$/, (c, m) => {
+    if (!(c.jeu.pairs < 1 / Number(m[1]))) throw new Error(`part ${c.jeu.pairs}`);
+  }],
   [/^une position neutre tombe sur plus de (\d+) % des fins de phrase, et pas sur toutes$/, (c, m) => {
     if (!(c.jeu.share > Number(m[1]) / 100 && c.jeu.share < 1)) throw new Error(`part ${c.jeu.share}`);
   }],

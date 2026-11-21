@@ -131,8 +131,24 @@ export interface GuideOutcome {
 }
 /** #140: Space switches between listening to the commands (`auto: false`, the default) and the automatic dance. */
 export interface GuideModeChange { beat: number; auto: boolean }
+/** #152 (owner: « ajoute un peu de contrôle dans le hasard pour ne pas enchaîner trop de fois les mêmes
+ * figures ou combinaisons de figures »): how tightly the automatic dance's draw is held.
+ * - `again`: weight of a figure for each time it was danced among the last `GUIDE_MEMORY.figures`;
+ * - `pair`: weight of a figure when « the previous figure → this one » was already danced among the last
+ *   `GUIDE_MEMORY.pairs`;
+ * - `streak`: a figure already danced that many times in a row is set aside (unless it is the only one).
+ * `libre` is the draw before #152. Proposals to try by eye (`?hasard=libre|tenu|strict`). */
+export type GuideVariety = "libre" | "tenu" | "strict";
+export const GUIDE_VARIETY: Record<GuideVariety, { again: number; pair: number; streak: number }> = {
+  libre: { again: 1, pair: 1, streak: Infinity },
+  tenu: { again: 0.45, pair: 0.35, streak: 2 },
+  strict: { again: 0.2, pair: 0.1, streak: 1 },
+};
+export const GUIDE_MEMORY = { figures: 4, pairs: 8 };
 export interface GuideOptions {
   modes?: GuideModeChange[];
+  /** #152: how tightly the draw avoids repeating figures and pairs of figures (`tenu` by default). */
+  variety?: GuideVariety;
   /** Seed of the automatic dance (same seed, same dance). */
   seed?: number;
   /** Figures the style offers (the automatic dance draws from them). */
@@ -254,9 +270,20 @@ const onPhrase = (beat: number) => { const m = ((beat % GUIDE_AUTO.phrase) + GUI
 /** The dance is one beat off the bars (after an odd number of chains): its boundaries fall on odd beats. */
 const offBeat = (beat: number) => Math.abs((((beat % 2) + 2) % 2) - 1) < 1e-6;
 
-/** #140: figure the automatic dance starts at a neutral position (`boundary`), after `previous`. */
-export function autoFigure(seed: number, boundary: number, previous: GuideKind, offered: GuideFigure[], plain = false): GuideFigure | null {
-  const A = GUIDE_AUTO;
+/** #152: what one sees as « the same figure »: the ida e volta whatever its variant, the sortie fille
+ * chained or not; every other figure is itself (the three walks are three figures). */
+export const guideIdentityOf = (kind: GuideKind): string =>
+  kind === "base" ? "base" : kind === "sortieFG" ? "sortieF" : GUIDE_FIGURES[kind].movement === "ida" && !GUIDE_FIGURES[kind].marche ? "ida" : kind;
+
+/** #140: figure the automatic dance starts at a neutral position (`boundary`). `history`: the figures
+ * danced so far, the last one last (#152: the draw remembers them; it stays a pure function of the seed,
+ * the beat and this history). */
+export function autoFigure(seed: number, boundary: number, history: GuideKind[], offered: GuideFigure[], plain = false, variety: GuideVariety = "tenu"): GuideFigure | null {
+  const A = GUIDE_AUTO, V = GUIDE_VARIETY[variety];
+  const previous: GuideKind = history[history.length - 1] ?? "base";
+  const identities = history.map(guideIdentityOf), last = identities[identities.length - 1];
+  const recent = identities.slice(-GUIDE_MEMORY.figures), pairs = identities.slice(-(GUIDE_MEMORY.pairs + 1));
+  const streak = Number.isFinite(V.streak) ? identities.slice(-V.streak) : [];
   const candidates = offered.filter(f => !GUIDE_FIGURES[f].chain);
   if (!candidates.length) return null;
   const into = ((boundary % A.phrase) + A.phrase) % A.phrase, remaining = A.phrase - into;
@@ -270,8 +297,15 @@ export function autoFigure(seed: number, boundary: number, previous: GuideKind, 
     else if (beats > remaining) w *= A.overshoot;
     if (family === guideFamilyOf(previous)) w *= A.repeat;
     if (f === "sortieF" && offBeat(boundary) && offered.includes("sortieFG")) w *= A.realign;
+    // #152: the figures and the pairs of figures danced lately.
+    const identity = guideIdentityOf(f);
+    w *= V.again ** recent.filter(x => x === identity).length;
+    if (pairs.some((x, k) => k > 0 && pairs[k - 1] === last && x === identity)) w *= V.pair;
     return w;
   });
+  // A figure danced `streak` times in a row is set aside, unless nothing else is offered.
+  const held = candidates.map((f, k) => (streak.length >= V.streak && streak.every(x => x === guideIdentityOf(f)) ? 0 : weights[k]));
+  if (!plain && held.some(w => w > 0)) held.forEach((w, k) => { weights[k] = w; });
   const total = weights.reduce((a, w) => a + w, 0);
   let u = guideDraw(seed, Math.round(boundary * 8) * 4) * total;
   for (let i = 0; i < candidates.length; i++) { u -= weights[i]; if (u < 0) return candidates[i]; }
@@ -303,8 +337,9 @@ export function planGuide(intentions: GuideIntention[], motions: GuideMotions, u
     .map((intention, order) => ({ intention, order })).sort((a, b) => a.intention.beat - b.intention.beat || a.order - b.order);
   const modes = (options.modes ?? []).filter(m => Number.isFinite(m.beat) && m.beat <= until).sort((a, b) => a.beat - b.beat);
   const autoAt = (beat: number) => { let auto = false; for (const m of modes) { if (m.beat <= beat + 1e-9) auto = m.auto; else break; } return auto; };
-  const offered = options.offered ?? GUIDE_FIGURE_KEYS, seed = options.seed ?? 0, plain = !!options.plain;
+  const offered = options.offered ?? GUIDE_FIGURE_KEYS, seed = options.seed ?? 0, plain = !!options.plain, variety = options.variety ?? "tenu";
   const A = GUIDE_AUTO;
+  const figures: GuideSegment[] = []; // #152: the figures danced, for the memory of the draw
   const outcomes: GuideOutcome[] = new Array(list.length);
   const segments: GuideSegment[] = [];
   let current: GuideSegment = { kind: "base", start: 0, end: Infinity, couple: IDENTITY, residual: { leader: ZERO, follower: ZERO }, previous: null, touches: [] };
@@ -401,7 +436,7 @@ export function planGuide(intentions: GuideIntention[], motions: GuideMotions, u
     previousBoundary = boundary;
     const head = queue.shift();
     const choice: GuideFigure | null = head !== undefined ? list[head].intention.figure
-      : autoAt(boundary) ? autoFigure(seed, boundary, current.kind, offered, plain) : null;
+      : autoAt(boundary) ? autoFigure(seed, boundary, figures.slice(-(GUIDE_MEMORY.pairs + 1)).map(s => s.kind), offered, plain, variety) : null;
     if (current.kind === "base" && !choice) continue; // keep dancing the basic step
     const motion = motions[current.kind], previous = current;
     previous.end = boundary;
@@ -411,6 +446,7 @@ export function planGuide(intentions: GuideIntention[], motions: GuideMotions, u
       ...(choice ? { by: head !== undefined ? "commande" as const : "auto" as const } : {}) };
     decided = new Set(touches.map(t => `t${t.at}`));
     segments.push(current);
+    if (choice) figures.push(current);
     if (head !== undefined) started.set(head, current);
   }
   for (const [index, segment] of started) settle(index, segment === current ? "en cours" : "dansée", segment.start);
@@ -516,6 +552,8 @@ export class GuideSession {
   /** #140: switches between listening (the default) and the automatic dance. */
   modes: GuideModeChange[] = [];
   seed = 1;
+  /** #152: how tightly the automatic dance avoids repetitions. */
+  variety: GuideVariety = "tenu";
   offered: GuideFigure[] = GUIDE_FIGURE_KEYS;
   motions: GuideMotions | null = null;
   boundKey: string | null = null;
@@ -546,7 +584,7 @@ export class GuideSession {
   plan(beat: number): GuidePlan | null {
     if (!this.motions) return null;
     const key = `${this.intentions.length}:${this.modes.length}:${Math.floor(beat * 8)}`;
-    if (this.cache?.key !== key) this.cache = { key, plan: planGuide(this.intentions, this.motions, beat, { modes: this.modes, seed: this.seed, offered: this.offered }) };
+    if (this.cache?.key !== key) this.cache = { key, plan: planGuide(this.intentions, this.motions, beat, { modes: this.modes, seed: this.seed, offered: this.offered, variety: this.variety }) };
     return this.cache.plan;
   }
   sample(beat: number): GuideSample | null {

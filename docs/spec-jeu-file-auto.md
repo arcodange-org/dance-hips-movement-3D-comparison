@@ -130,6 +130,76 @@ sont paires sauf l'enchaînement. Après un enchaînement, les frontières tombe
 la fin de phrase devient inatteignable ; un second enchaînement recale la danse. D'où les deux dernières
 lignes : le simulateur enchaîne peu, et cherche à enchaîner de nouveau quand il est décalé.
 
+### Un hasard mieux tenu (#152)
+
+Demande du propriétaire (21 novembre 2026), en regardant la danse automatique en vitrine :
+
+> ajoute un peu de controle dans le hasard pour ne pas enchainer trop de fois les mêmes figure ou
+> combinaison de figures
+
+**Constat mesuré** (40 graines × 320 temps). Le tirage ne regardait que la figure précédente, et par
+famille : avancer, reculer et le double comptaient pour une seule famille.
+
+| Mesure | Kizomba | Kompa (marche seule) |
+|---|---|---|
+| Plus longue série de la même figure | 3 | 9 |
+| Figure déjà dansée parmi les 3 précédentes | 38 % | 69 % |
+| Paire de figures déjà enchaînée parmi les 8 précédentes | 18 % | 60 % |
+| Suite A B A B | 3,5 % | 7,8 % |
+
+**Ce qui est ajouté.** Le tirage garde en mémoire les figures qui viennent d'être dansées. Une « figure »
+est ici ce que l'on voit : l'ida e volta (ses quatre variantes comptent pour une), le quart de tour, la
+sortie garçon, la sortie fille (enchaînée ou non), avancer, reculer, le double.
+
+| Règle | Effet sur le poids d'une figure candidate |
+|---|---|
+| Déjà dansée parmi les 4 dernières | × `again` par fois |
+| La paire « figure précédente → candidate » a déjà été enchaînée parmi les 8 dernières | × `pair` |
+| Les `streak` dernières figures sont déjà celle-ci | écartée, sauf s'il ne reste qu'elle |
+
+La préférence de phrase (× 4 quand la figure finit juste sur la phrase) reste appliquée par-dessus : le
+hasard est tenu, pas remplacé.
+
+**Trois réglages**, à voir plutôt qu'à lire (`?mode=pair&guidage=1&auto=1&hasard=…`) :
+
+| Réglage | `again` | `pair` | `streak` | Ce que l'on voit |
+|---|---|---|---|---|
+| `libre` | 1 | 1 | sans limite | le tirage d'avant #152 |
+| `tenu` (par défaut) | 0,45 | 0,35 | 2 | les retours rapides et les paires répétées deviennent rares |
+| `strict` | 0,2 | 0,1 | 1 | jamais deux fois de suite la même figure, presque jamais la même paire |
+
+Le tirage reste une fonction de la graine et de ce qui a déjà été dansé : même graine, mêmes commandes,
+même réglage, même danse.
+
+**Mesures après** (`scripts/test_guidage.mjs`, 40 graines × 320 temps, kizomba) :
+
+| Mesure | `libre` | `tenu` | `strict` |
+|---|---|---|---|
+| Plus longue série de la même figure | 3 | 2 | 1 |
+| Figure déjà dansée parmi les 3 précédentes | 38 % | 25 % | 14 % |
+| Paire déjà enchaînée parmi les 8 précédentes | 18 % | 8 % | 2 % |
+| Suite A B A B | 3,5 % | 0,5 % | 0 % |
+| Fin de phrase en position neutre | 77 % | 79 % | 76 % |
+
+En marche seule (kompa, tarraxinha, zouk : trois figures), la plus longue série de la même marche passe
+de 9 à 2 (`tenu`) et à 1 (`strict`). Avec trois figures seulement, les paires se répètent forcément :
+`strict` y tourne en rond (74 % de paires déjà vues), `tenu` y est le meilleur compromis (49 %, contre
+60 % en `libre`).
+
+**La même graine sous les trois réglages** (graine 7, kizomba ; SG, SF : sorties garçon et fille ;
+SF→G : sortie fille enchaînée ; Av, Rec, Dbl : avancer, reculer, double) :
+
+- `libre` : SG · Quart · SF · SG · Quart · SF→G · Quart · Ida · Quart · Dbl · Quart · Av · SF · SF · Ida ·
+  SF→G · Ida · Quart · Ida · Quart · Quart · Quart · SF · Dbl · Ida · SF · Quart · SF · Dbl · SG · SF
+- `tenu` : SG · Quart · SF · SF · Quart · Av · SG · Ida · SF→G · Quart · Rec · Dbl · SF · Ida · SG · SF→G ·
+  Quart · Av · Ida · Dbl · Quart · Quart · SF · Dbl · Ida · SG · Quart · Av · SF · Ida
+- `strict` : SG · Quart · SF · Av · Rec · SG · SF→G · Ida · SF→G · SG · Dbl · Ida · Quart · SF · Quart · SG ·
+  Av · SG · SF · Ida · SF→G · Quart · Ida · SG · Ida · Av · SF→G · Dbl · SG · Quart
+
+**À voir par le propriétaire** : les trois réglages sur la même graine, dans l'app :
+`?mode=pair&guidage=1&auto=1&graine=7&hasard=libre`, `&hasard=tenu`, `&hasard=strict`. `tenu` est le
+réglage par défaut proposé ; son choix (et son commentaire) fixera la valeur.
+
 ### Tirage reproductible
 
 Le tirage est une fonction de la graine et du temps de la décision. Une partie reste **une liste de

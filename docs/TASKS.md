@@ -335,3 +335,9 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] `scripts/test_vitrine.mjs` et `vitrine.feature` dans `npm test` ; contrôle navigateur.
 - [ ] Essai par le propriétaire ; intégration sur le site d'Arcodange ; mascottes Rémi et Corinne (hors périmètre de #150).
 
+## Danse automatique : un hasard mieux tenu (#152)
+
+- [x] Issue #152 avec les mots du propriétaire ; complément de spec poussé en premier ([spec](spec-jeu-file-auto.md)).
+- [x] Tirage avec mémoire des figures et des paires (`GUIDE_VARIETY`, `GUIDE_MEMORY`), trois réglages.
+- [x] Mesures avant et après dans `scripts/test_guidage.mjs` ; scénario Gherkin.
+- [ ] Choix du réglage par le propriétaire (`hasard=libre|tenu|strict` sur la même graine).
