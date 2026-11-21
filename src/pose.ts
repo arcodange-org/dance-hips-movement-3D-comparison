@@ -566,7 +566,11 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     for (const s of SIDES) {
       const leg = model.legs[s];
       const target = skeleton.worldToLocal(r.root.parent!.localToWorld(model.targets[s].clone()));
-      const solution = solveLeg3D(leg.hip, target, leg.length1, leg.length2, leg.f0, leg.t0);
+      // #84: a figure may keep the knees from following its own pelvis yaw (`kneeYaw`, rad): the knee
+      // pole turns back by that much, so the knees stay over the feet instead of swinging sideways.
+      const kneeYaw = figure ? (figure as { kneeYaw?: number }).kneeYaw ?? 0 : 0;
+      const pole = kneeYaw !== 0 ? new THREE.Vector3(-Math.sin(kneeYaw), 0, Math.cos(kneeYaw)) : undefined;
+      const solution = solveLeg3D(leg.hip, target, leg.length1, leg.length2, leg.f0, leg.t0, pole);
       r["hip" + s].quaternion.copy(solution.qHip);
       r["knee" + s].rotation.x = solution.beta;
       r["knee" + s].updateWorldMatrix(true, true);

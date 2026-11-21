@@ -152,6 +152,48 @@ par défaut de l'app) ; 9,2 cm sans contraposition ; 9,6 cm sans l'option plexus
 bassins restent à 40 cm : 8,3–9,2 cm (garde de non-régression à 10 cm). Les bassins se déplacent
 ensemble : l'écart reste celui du départ, contrairement aux sorties.
 
+## La hanche du pied qui bouge avance, l'autre reste (#84, 21 novembre 2026)
+
+Demande du propriétaire (20 nov.) : « un côté de la hanche avance/recule et l'autre côté reste » ; « on
+apprécie aussi voir la contraposition (pas obligatoire) où l'épaule opposée va dans le sens opposé du
+pied ».
+
+- **Bassin** : il pivote autour de la hanche d'appui. La hanche du pied qui bouge avance (ou recule) de
+  `hip` = 15 % du pas du leader, soit 2,7 cm au plus ; l'autre reste. Le suiveur fait le pivot en miroir,
+  sur le pas du leader, si bien que l'écart entre les bassins ne change pas. Ce pivot remplace le lacet de
+  bassin de la phase 15 (`idaContra`). Le bassin continue aussi d'accompagner le poids (`carry`).
+- **Genoux** : ils ne suivent pas ce pivot. Le pôle du genou de l'IK (`solveLeg3D`, paramètre `poleDir`)
+  tourne en sens inverse de `kneeFoot` = 1,2 fois le pivot (`kneeYaw`). À 1, le genou resterait au-dessus
+  du pied ; à 1,2, il va un peu plus loin. Sans cela, le genou suit le bassin et part de côté, même sur la
+  jambe d'appui. Les deux cuisses D, côte à côte en quinconce, n'ont qu'environ 1 cm de marge.
+- **Contraposition** : sans contact plexus, le buste garde sa contraposition de la phase 15. Avec le
+  contact, le buste se tourne vers le partenaire. L'ajout de la contraposition propre de la figure a été
+  essayé et retiré : pivot et plexus font déjà tourner le buste d'environ 17,9° contre le bassin. Or la
+  règle « des danseurs, pas des lutteurs » plafonne cette rotation à 18°. Une part de 0,15 donne déjà
+  18,6°. À trancher par le propriétaire : desserrer ce plafond pour l'ida, ou garder la contraposition
+  visible sans contact seulement.
+- **Insertion** (#91) : l'ida inséré dans les sorties reprend le pivot et la consigne des genoux.
+
+Mesures sur le GLB (poses de couple qui se croisent, sur 1 296 : six styles, trois amplitudes, quinconce,
+référence et quinconce avec plexus) :
+
+| Part du pas suivie par la hanche | 0,15 | 0,2 | 0,3 |
+| --- | --- | --- | --- |
+| Genoux qui suivent le bassin | 656 | 750 | 818 |
+| Genoux au-dessus des pieds (`kneeFoot` 1) | 8 | 8 | 20 |
+| `kneeFoot` 1,2 (retenu) | **0** | 0 | 2 |
+
+Zone sans croisement : `kneeFoot` de 1,1 à 1,3 avec `hip` de 0,15 à 0,25. Le contact plexus (R4, 6 cm au
+plus avec contraposition) fixe la borne haute : avec le pivot, les deux bassins tournent dans le même sens
+et les bustes, face à face, s'écartent de côté. Écart maximal des repères de poitrine : 3,1 cm sans pivot,
+4,2 cm à 0,1, **5,5 cm à 0,15 (retenu)**, 7,0 cm à 0,2. Décaler les bassins de côté, ou
+alléger `carry`, n'aide pas. Dans les tests complets : 0 croisement sur 3 456 poses d'ida, 918 poses
+d'insertion et 2 181 poses du mode jeu ; pas de saut aux frontières, car `kneeYaw` est nul quand il n'y a
+pas de pivot.
+
+À valider à l'œil : l'amplitude du pivot (2,7 cm), et les genoux un peu tournés en dehors du pied
+pendant le pivot.
+
 ## Points de décision du propriétaire
 
 - La séquence « pas balancé » (aller avec transfert du poids, retour au neutre) ou une autre lecture de

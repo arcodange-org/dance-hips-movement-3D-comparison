@@ -9,10 +9,12 @@ export interface LegSolution {
 const clamp1 = (v: number) => Math.min(1, Math.max(-1, v));
 
 /** Exact two-link solve with GLB rest vectors and a local-X knee hinge.
- * Lengths never change; the pelvis must move when a target is unreachable. */
+ * Lengths never change; the pelvis must move when a target is unreachable.
+ * `poleDir` (same space as H and A): the direction the knee points to, projected across the hip → ankle
+ * axis; default +z, the skeleton's (so the pelvis's) forward. */
 export function solveLeg3D(
   H: THREE.Vector3, A: THREE.Vector3, L1: number, L2: number,
-  f0: THREE.Vector3, t0: THREE.Vector3
+  f0: THREE.Vector3, t0: THREE.Vector3, poleDir?: THREE.Vector3
 ): LegSolution {
   const v = A.clone().sub(H);
   const rawD = v.length();
@@ -32,7 +34,8 @@ export function solveLeg3D(
   const qHip = new THREE.Quaternion().setFromUnitVectors(end.normalize(), u);
   const knee = f0.clone().applyQuaternion(qHip);
   knee.addScaledVector(u, -knee.dot(u));
-  const pole = new THREE.Vector3(0, 0, 1).addScaledVector(u, -u.z);
+  const forward = poleDir ?? new THREE.Vector3(0, 0, 1);
+  const pole = forward.clone().addScaledVector(u, -u.dot(forward));
   if (knee.lengthSq() > 1e-12 && pole.lengthSq() > 1e-12) {
     knee.normalize(); pole.normalize();
     const twist = Math.atan2(u.dot(knee.clone().cross(pole)), clamp1(knee.dot(pole)));
