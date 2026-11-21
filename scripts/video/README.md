@@ -93,3 +93,10 @@ Une phrase :
 Chaque extrait coûte des crédits ElevenLabs : `musique.mjs --generer` ne se lance qu'avec l'accord du
 propriétaire, la clé dans l'environnement (`node --env-file=<fichier>`), jamais écrite. Un style sans extrait
 est filmé à son tempo prévu, en silence ; le rapport le signale.
+
+**Les fichiers son ne sont pas dans le dépôt.** `pistes/pistes.json` garde la provenance de chaque extrait
+(plan de composition, modèle, date, tempo mesuré, partie pleine) ; les `.mp3` sont ignorés par git et restent
+sur la machine qui les a générés (`scripts/video/pistes/`, ou le dossier donné par `VIDEO_PISTES`). Raison :
+les conditions d'Eleven Music (version du 9 octobre 2026, offre Starter) interdisent de mettre une collection
+de morceaux à la disposition de tiers, payante ou non (« Music Library », § 4.2 et 4.8(f)) ; les garder pour
+son propre usage reste permis. `musique.mjs --mesurer` remesure les extraits présents, sans rien racheter.

@@ -220,13 +220,15 @@ const durees = existsSync(FICHE_DUREES) ? JSON.parse(readFileSync(FICHE_DUREES, 
   for (const style of Object.keys(STYLES).filter((s) => s !== "kizomba")) {
     assert.ok(VARIANTES[style]?.[VARIANTE_VIDEO], `${style} : plan de composition de la vidéo`);
     const p = fiche[style];
-    assert.ok(p && existsSync(`${DOSSIER_PISTES}/${p.fichier}`), `${style} : extrait versionné`);
+    assert.ok(p?.fichier, `${style} : provenance de l'extrait versionnée (le fichier son reste hors du dépôt)`);
     assert.ok(Math.abs(p.bpm - tempoPrevu(style)) / tempoPrevu(style) < 0.04, `${style} : tempo mesuré ${p.bpm} proche du tempo demandé`);
     assert.ok(p.derive < 0.015 && p.confiance >= 0.3, `${style} : tempo stable`);
     assert.ok(p.lufs > -40, `${style} : pas une prise silencieuse`);
     assert.ok(p.depuis >= 0 && p.jusque - p.depuis >= 24, `${style} : au moins 24 s de partie pleine`);
     assert.ok(p.modele && p.genereLe && p.demande.styles.length > 5 && p.demande.aEviter.includes("techno"), `${style} : provenance`);
-    assert.deepEqual([P[style].premierTemps, P[style].duree], [p.depuis, p.jusque], `${style} : le film n'utilise que la partie pleine`);
+    // Sur une machine qui a les extraits, le film n'en utilise que la partie pleine ; ailleurs, le style est filmé en silence.
+    if (existsSync(`${DOSSIER_PISTES}/${p.fichier}`)) assert.deepEqual([P[style].premierTemps, P[style].duree], [p.depuis, p.jusque], `${style} : partie pleine`);
+    else assert.equal(P[style], undefined, `${style} : pas de piste sans fichier`);
   }
   // Partie pleine : une entrée faible et une fin qui s'éteint sont écartées ; le départ tombe sur un début de phrase.
   const niveaux = [...Array(16).fill(-30), ...Array(60).fill(-15), ...Array(8).fill(-40)];
@@ -239,5 +241,7 @@ const durees = existsSync(FICHE_DUREES) ? JSON.parse(readFileSync(FICHE_DUREES, 
   const sinus = Float32Array.from({ length: 11025 * 4 }, (_, i) => (i < 11025 * 2 ? 0 : 0.5 * Math.sin(i / 5)));
   const n = niveauxDe(sinus, 11025);
   assert.ok(n[0] < -100 && n.at(-1) > -12, "niveaux : silence puis son");
-  console.log("PASS musiques : extraits versionnés, tempo, provenance, partie pleine");
+  // Les fichiers son générés pour la vidéo ne sont pas versionnés (conditions d'Eleven Music).
+  assert.match(readFileSync(new URL("../.gitignore", import.meta.url), "utf8"), /^scripts\/video\/pistes\/\*\.mp3$/m, "extraits hors du dépôt");
+  console.log("PASS musiques : provenance des extraits, tempo, partie pleine, fichiers son hors du dépôt");
 }

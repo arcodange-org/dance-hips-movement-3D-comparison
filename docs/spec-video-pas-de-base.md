@@ -60,11 +60,16 @@ Tout est reproductible : on relance, la vidéo suit les progrès du moteur.
 | Plans | `capturer.mjs` | Filme l'application image par image, au tempo de la musique. |
 | Habillage | `habillage.mjs` | Titres, cartouches, légendes et crédits rendus en images. |
 | Montage | `monter.mjs` | Assemble image, voix, musique et sous-titres ; niveau final à −16 LUFS. |
-| Tout | `generer_video.mjs` | Enchaîne les étapes ; `--apercu` pour un essai rapide. |
+| Contrôle | `controle.mjs` | Vérifie le scénario : structure, faits cités, attributions, durée. |
+| Tout | `generer_video.mjs` | Enchaîne les étapes ; `--chapitres` pour n'en refaire qu'un. |
 
 - **Rien de lourd n'est versionné** : la vidéo et les fichiers intermédiaires vont dans `essais/video/`
-  (ignoré par git). Les textes, le scénario, les scripts et les extraits de musique (quelques centaines de
-  kilo-octets chacun, avec leur provenance) le sont, pour pouvoir remonter la vidéo sans racheter de musique.
+  (ignoré par git). Les textes, le scénario et les scripts le sont.
+- **Les extraits de musique restent hors du dépôt** : seule leur provenance est versionnée
+  (`scripts/video/pistes/pistes.json`). Les conditions d'Eleven Music (version du 9 octobre 2026, offre
+  Starter) interdisent de mettre une collection de morceaux à la disposition de tiers, payante ou non
+  (« Music Library », § 4.2 et 4.8(f)) ; un dépôt public en serait une. Les fichiers restent sur la machine du
+  propriétaire : on remonte la vidéo sans racheter de musique tant qu'ils y sont.
 - **La musique ne se génère jamais par accident** : `musique.mjs` n'appelle ElevenLabs que sur demande
   explicite (`--generer`), avec la clé lue dans l'environnement, jamais écrite. Sans cela, il réutilise les
   extraits du dépôt.

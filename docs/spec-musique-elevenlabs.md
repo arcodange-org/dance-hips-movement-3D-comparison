@@ -323,6 +323,32 @@ interdite ; l'utilisateur vérifie lui-même que la sortie est utilisable. Les p
 **publiques** (dépôt GitHub et site Pages) : ce point est à valider par le propriétaire avant
 publication. L'app et la documentation indiquent que la musique est générée par IA.
 
+**Relecture à la source le 21 novembre 2026** (page « ElevenLabs Music terms », mise à jour le
+9 octobre 2026, tableau « Music Commercial Rights », colonne Starter) :
+
+- « Music Library Creation and Distribution » : interdit (§ 4.2). Le § 4.8(f) appelle « Music Library »
+  toute collection de sorties, en tout ou partie, mise à la disposition de tiers pour qu'ils l'utilisent,
+  la téléchargent ou l'intègrent à leurs contenus, **payante ou non**. Le texte ne fixe pas de nombre
+  minimal de morceaux. Seules les offres Enterprise, ou une autorisation écrite d'ElevenLabs, la permettent.
+  Garder les sorties pour son propre usage, sans les rendre accessibles à des tiers, reste permis.
+- Diffusion sur une plateforme de streaming musical : interdite sur Starter, permise à partir de Creator.
+- Droits média : tout usage commercial en ligne et hors ligne, sauf film, télévision, radio et jeux de
+  studio. Aucune attribution exigée.
+- « For Individual Use Only » : la page ne définit pas l'expression ; les offres Scale et Business sont les
+  premières à nommer des organisations.
+- Limites mensuelles de l'offre : 17 minutes générées, 30 minutes téléchargées.
+
+Conséquences, **à trancher par le propriétaire** :
+
+- La piste kizomba est servie par le site et téléchargeable depuis le dépôt public. Le texte ne dit pas si
+  un morceau unique, joué comme accompagnement d'une application, forme une « collection ».
+- Publier les cinq autres pistes (#146) ferait une collection de six morceaux accessibles à tous : c'est ce
+  que le § 4.8(f) décrit. Sans offre Enterprise ni autorisation écrite, elles ne doivent pas être publiées.
+- Les extraits de la vidéo éducative (#155) restent hors du dépôt pour cette raison
+  (`scripts/video/README.md`) ; s'en servir comme bande-son d'une vidéo relève des droits média.
+
+Ce relevé rapporte le texte ; ce n'est pas un avis juridique.
+
 ## Critères d'acceptation
 
 1. Son coupé : comportement strictement inchangé (aucun contexte audio, aucun téléchargement).

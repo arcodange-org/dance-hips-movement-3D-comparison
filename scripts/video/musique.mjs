@@ -2,7 +2,10 @@
 // Les musiques du film (#155) : un extrait par style, généré par Eleven Music (ElevenLabs), mesuré.
 //
 // La kizomba réutilise la piste de l'application (public/musique/kizomba.mp3, #142). Les autres styles ont
-// un extrait dans scripts/video/pistes/, versionné avec sa provenance : remonter la vidéo ne rachète rien.
+// un extrait dans scripts/video/pistes/ (ou le dossier `VIDEO_PISTES`). Seule leur provenance (pistes.json) est
+// versionnée : les fichiers son restent hors du dépôt, parce que les conditions d'Eleven Music interdisent, sur
+// l'offre Starter, de mettre une collection de morceaux à la disposition de tiers (« Music Library », § 4.2 et
+// 4.8(f), version du 9 octobre 2026). Les garder sur sa machine pour remonter la vidéo reste permis.
 //
 // RIEN n'est généré sans `--generer` : chaque seconde coûte des crédits (accord du propriétaire).
 //   node scripts/video/musique.mjs                          état des pistes
@@ -17,8 +20,8 @@ import { CREDITS_PAR_MINUTE, MODELE, PROMPTS, VARIANTES, planContinu } from "../
 import { RACINE, arguments_, dossier, ecrireJson, lireJson } from "./outils.mjs";
 
 const ICI = dirname(fileURLToPath(import.meta.url));
-export const DOSSIER_PISTES = join(ICI, "pistes");
-export const FICHE_PISTES = join(DOSSIER_PISTES, "pistes.json");
+export const DOSSIER_PISTES = process.env.VIDEO_PISTES ?? join(ICI, "pistes");
+export const FICHE_PISTES = join(ICI, "pistes", "pistes.json");
 /** Variante (plan de composition) retenue pour la vidéo, par style. */
 export const VARIANTE_VIDEO = "V";
 
