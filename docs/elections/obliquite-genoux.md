@@ -77,4 +77,15 @@ une personne.
 
 ## Résultat
 
-En attente du vote du propriétaire.
+**B élu**, le 21 novembre 2026. Le vote et le commentaire du propriétaire, mot pour mot :
+
+> B, genoux chevauchés
+>
+> c'est bien de montrer les 2, mais pour la danse on veut B
+
+Ce que cela entraîne ([spec, D15](../spec-atlas-anatomique.md)) :
+
+- « Genoux chevauchés » devient la règle de la planche `bassin-obliquite`, qui est régénérée.
+- Les deux restent montrés : « genoux en relais » devient la variante de la planche, et le GIF
+  comparatif reste sur sa page.
+- La règle est consignée dans les [règles du propriétaire](../regles-proprietaire.md) (R28).

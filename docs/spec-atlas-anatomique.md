@@ -373,6 +373,35 @@ celle du relais.
   2,2 Mo, vues de face et de trois-quarts, cadrées du bassin aux pieds. Les planches versionnées
   n'ont pas été régénérées : leurs mesures recalculées sont identiques (contrôle de fraîcheur).
 
+### D15 — Vote du propriétaire : B, genoux chevauchés ; les deux restent montrés
+
+Vote du 21 novembre 2026, mot pour mot : « B, genoux chevauchés » ; « c'est bien de montrer les 2,
+mais pour la danse on veut B ». D15 remplace, dans D14, ce qui décrivait l'état d'avant le vote.
+
+- **Règle de la planche.** `bassin-obliquite` est posée en genoux chevauchés : bassin tenu à sa
+  hauteur la plus basse de la ROM. La planche est régénérée (45 images, 5 GIF, planche,
+  `meta.json`, page). Ses limites disent que la hauteur est tenue constante et ce que cela coûte
+  (au centre, aucune jambe n'est presque tendue).
+- **Les deux restent montrés.** « Genoux en relais » devient la variante :
+  `?atlas=bassin-obliquite&variante=relais`. Le GIF comparatif est régénéré, lettres inchangées
+  (A relais, B chevauchés, comme au vote), la règle de la planche y est marquée. La page de la
+  planche a une section « Règle de pose et variante » avec ce GIF et le lien vers l'élection.
+- **Modèle.** `ATLAS_ELECTIONS[<mouvement>] = { id, question, regles: [{ id, lettre, label, regle }],
+  retenue }` remplace `ATLAS_VARIANTES`. `applyAtlasPose(…, variante)` : sans variante, la règle
+  retenue ; avec, la règle nommée. Un mouvement sans élection n'a pas de variante. Le vote
+  lui-même vit dans la page d'élection, pas dans le code.
+- **Fichiers.** GIF comparatif : `docs/gifs/election-<id de l'élection>.gif`, ici
+  `election-obliquite-genoux.gif`, par `node scripts/capture_atlas.mjs --mouvement
+  bassin-obliquite --variante relais`. `meta.json` gagne un champ `regle` (règle retenue,
+  variantes, élection) pour un mouvement qui a une élection ; les autres planches ne changent pas.
+- **Test.** La règle par défaut est mesurée comme en D14 (hauteur constante, deux genoux du même
+  angle au centre, sens inverse sans palier) ; la variante `relais` retrouve le rebond et les
+  jambes presque tendues au centre ; même angle de bassin dans les deux ; variantes inconnues
+  refusées ; GIF et page d'élection présents.
+- **Portée.** L'atlas seulement. Le comparateur n'est pas modifié : la stabilité de la hauteur du
+  danseur y relève déjà de R12 ([ginga](spec-ginga.md), #59 en cours). Le vote est consigné comme
+  R28 dans [`regles-proprietaire.md`](regles-proprietaire.md).
+
 ## Tâches
 
 Voir `docs/TASKS.md`, section « Atlas anatomique ouvert (#132) ».
