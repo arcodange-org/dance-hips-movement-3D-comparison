@@ -308,3 +308,28 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [ ] Fiches muscles industrialisées depuis le prototype `~/Work/Danse/anatomie-3d/` (Blender, Z-Anatomy CC BY-SA 4.0) → `docs/atlas/muscles/`.
 - [ ] Sourcer les ROM du manifeste dans `docs/recherche-biomecanique/` (passage « proposition » → « documenté »).
 - [ ] Viewer `?atlas=<id>&vue=<…>&frame=<n>` + branchement oracle (`src/oracle.ts`) et specs de styles.
+
+## Mode jeu : file de commandes, écoute par défaut, danse automatique (#140)
+
+- [x] Spécification poussée en premier ([spec](spec-jeu-file-auto.md)), issue #140, PR #141.
+- [x] Planificateur `src/guidage.ts` : file de commandes, bascules écoute / danse automatique, tirage par graine.
+- [x] Vue `src/components/GuidageApp.tsx` : le couple danse dès l'ouverture, file affichée, Espace bascule, bouton Pause.
+- [x] `scripts/test_guidage.mjs` réécrit : file, jonctions, danse automatique, phrase, rejeu, GLB.
+- [x] `docs/features/mode-jeu.feature` : sept scénarios dans `npm test`.
+- [x] GIFs du mode jeu recapturés avec les muscles.
+- [ ] Essai par le propriétaire : poids du tirage (`GUIDE_AUTO`), part des fins de phrase en position neutre.
+
+## Musique enregistrée générée par ElevenLabs (#142)
+
+- [x] Issue #142 et spécification poussée en premier ([spec](spec-musique-elevenlabs.md)), PR brouillon #143.
+- [x] Lecteur de boucle synchronisé (`src/music/loop.ts`, `loopOutput.ts`), repli sur la synthèse, interface.
+- [x] Script de génération et analyse de tempo (`scripts/generer_musique.mjs`, `scripts/tempo.mjs`).
+- [x] `scripts/test_musique_enregistree.mjs` et `musique-enregistree.feature` dans `npm test` ; contrôle navigateur.
+- [x] Kizomba, prise 1 (prompt du propriétaire) : générée, mesurée, **refusée à l'écoute** (« techno »), retirée.
+- [x] Signature rythmique dans l'analyse ; variantes A, B, C en plans de composition ; mode `--essais`.
+- [x] Extraits d'essai de la kizomba (variantes A, B, C, 15 s chacun) générés avec l'accord du propriétaire.
+- [x] Variante C retenue à l'oreille par le propriétaire.
+- [x] Prise complète de la variante C, première demande : fichier silencieux (échec de génération) ; garde-fou et plan en sections de 32 temps.
+- [x] Prise complète de la variante C redemandée en sections de 32 temps : générée, mesurée (101,996 bpm, boucle de 96 temps), contrôlée dans le navigateur.
+- [x] Écoute de validation par le propriétaire : « Oui, elle convient » (21 novembre 2026).
+- [ ] Autres styles (semba, kompa, tarraxinha, suave, zouk brésilien) : même méthode, PR à part, accord du propriétaire pour les crédits.

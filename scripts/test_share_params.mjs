@@ -45,4 +45,5 @@ assert.deepEqual(bad, {}, `invalid values ignored: ${JSON.stringify(bad)}`);
 assert.equal(parse('/?quarts=1&ida=1').movement, parse('/?ida=1&quarts=1').movement, 'one exclusive movement, order-independent');
 assert.equal(parse('/?quarts=0').movement, 'none', 'a movement switched off');
 assert.equal(parse('/?musique=B&son=1').musique, 'B'); assert.equal(parse('/?son=1').son, true);
+assert.equal(parse('/?source=synthese').source, 'synthese'); assert.equal(parse('/?source=radio').source, undefined);
 console.log('PASS partage : valeurs invalides ignorées, mouvements exclusifs');

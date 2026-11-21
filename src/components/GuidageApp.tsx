@@ -1,6 +1,6 @@
-/** Guide mode proof of concept (#69, docs/spec-mode-guidage-poc.md): `?mode=pair&guidage=1`.
- * The player leads: a key chooses the follower's next pair figure, executed at the next beat boundary
- * through the neutral quinconce. The rest of the app is unchanged. */
+/** Game mode (#69, docs/spec-mode-guidage-poc.md; #140, docs/spec-jeu-file-auto.md): `?mode=pair&guidage=1`.
+ * The player leads: each key queues a pair figure for the follower; the figures are danced in order, each
+ * from the neutral quinconce. Space lets the couple dance by itself. The rest of the app is unchanged. */
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
@@ -15,13 +15,10 @@ import TransitionCard from "./TransitionCard";
 import { transitionAt } from "../transitions";
 import {
   GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, guideFiguresFor, guideStyleOf, GUIDE_PAIR_DZ, GUIDE_DEMO, GUIDE_DEMO_ARROWS, GUIDE_DEMO_CHAIN, GUIDE_DEMO_INSERT, applyTransform, figureOfCode, keyLabel, type HeldArrows,
-  type GuideFigure, type GuideOutcome, type GuideKind,
+  type GuideFigure, type GuideKind,
 } from "../guidage";
 
 const KIND_LABEL = (k: GuideKind) => (k === "base" ? "Pas de base" : GUIDE_FIGURES[k].label);
-const GRADE_CLASS: Record<string, string> = {
-  Parfait: "text-emerald-300", Bien: "text-sky-300", Juste: "text-amber-300", Raté: "text-rose-300",
-};
 
 /** Moves the couple frame (both dancers) with the composed motion of the figures already danced. */
 function CoupleFrame({ session, clock, children }: { session: GuideSession; clock: DanceClock; children: React.ReactNode }) {
@@ -83,18 +80,30 @@ export default function GuidageApp() {
   const [leaderView, setLeaderView] = useState(params.get("vue") !== "libre");
   const initialBpm = Number(params.get("bpm"));
   const [bpm, setBpm] = useState(Number.isFinite(initialBpm) && initialBpm >= 40 && initialBpm <= 130 ? initialBpm : 60);
-  const [playing, setPlaying] = useState(false);
+  // #140 (owner: « par défaut le simulateur "écoute" (pas besoin d'appuyer sur espace) »): the couple dances
+  // and the keys are listened to as soon as the view opens. `beat=` (or `sortieBeat=`,
+  // scripts/capture_figure_gif.mjs) shows that beat, paused, for frame-by-frame captures.
+  const capture = params.has("beat") || params.has("sortieBeat");
+  const [playing, setPlaying] = useState(!capture);
   const clock = useMemo(() => createDanceClock(), []);
   const session = useMemo(() => new GuideSession(), []);
-  // `demo=1`: the demonstration session; `beat=` (or `sortieBeat=`, scripts/capture_figure_gif.mjs) shows
-  // that beat, paused, for frame-by-frame captures.
+  // #140: Space switches between listening to the commands and the automatic dance (`auto=1` opens in
+  // it; `graine=N` fixes its seed: same seed, same dance).
+  const [auto, setAuto] = useState(params.get("auto") === "1");
+  // #62: the style offers some figures only (kompa: the walks).
+  const offered = guideFiguresFor(styleKey);
   useMemo(() => {
-    if (params.get("demo") === "1") session.intentions = GUIDE_DEMO.map(i => ({ ...i, bpm }));
-    if (params.get("demo") === "fleches") session.intentions = GUIDE_DEMO_ARROWS.map(i => ({ ...i, bpm }));
-    if (params.get("demo") === "enchainement") session.intentions = GUIDE_DEMO_CHAIN.map(i => ({ ...i, bpm }));
-    if (params.get("demo") === "insertion") session.intentions = GUIDE_DEMO_INSERT.map(i => ({ ...i, bpm }));
+    const seed = Number(params.get("graine"));
+    session.seed = params.has("graine") && Number.isFinite(seed) ? Math.trunc(seed) : Date.now() % 2147483647;
+    session.offered = guideFiguresFor(styleKey);
+    session.reset(params.get("auto") === "1");
+    // `demo=…`: the demonstration sessions (commands already pressed).
+    if (params.get("demo") === "1") session.intentions = GUIDE_DEMO.map(i => ({ ...i }));
+    if (params.get("demo") === "fleches") session.intentions = GUIDE_DEMO_ARROWS.map(i => ({ ...i }));
+    if (params.get("demo") === "enchainement") session.intentions = GUIDE_DEMO_CHAIN.map(i => ({ ...i }));
+    if (params.get("demo") === "insertion") session.intentions = GUIDE_DEMO_INSERT.map(i => ({ ...i }));
     const frame = Number(params.get("beat") ?? params.get("sortieBeat"));
-    if (params.has("beat") || params.has("sortieBeat")) if (Number.isFinite(frame)) seekClock(clock, Math.max(0, frame));
+    if (capture && Number.isFinite(frame)) seekClock(clock, Math.max(0, frame));
   }, [params, session, clock]); // eslint-disable-line react-hooks/exhaustive-deps
   const pair = useRef<Record<string, any>>({});
   const last = useRef({ beat: 0, time: performance.now() });
@@ -107,8 +116,7 @@ export default function GuidageApp() {
   }, []);
   paused.current = !playing;
   const music = useMusic({ clock, styleKey, bpm, playing, muted: [], volume: 0.8 });
-  const [hud, setHud] = useState<{ beat: number; local: number; kind: GuideKind; next: number | null; pending: GuideFigure | null; outcome: GuideOutcome | null; streak: number }>(
-    { beat: 0, local: 0, kind: "base", next: null, pending: null, outcome: null, streak: 0 });
+  const [hud, setHud] = useState<{ beat: number; local: number; kind: GuideKind; queue: GuideFigure[] }>({ beat: 0, local: 0, kind: "base", queue: [] });
 
   // Beat of a press: the last frame's beat plus the time elapsed since (the clock advances per frame).
   const beatAt = (time: number) => {
@@ -116,21 +124,30 @@ export default function GuidageApp() {
     // Same 0.1 s cap per frame as the transport (src/clock.ts): a press never runs ahead of the clock.
     return playing ? beat + Math.min(0.1, Math.max(0, time - at) / 1000) * bpm / 60 : beat;
   };
-  // #62: the style offers some figures only (kompa: ida e volta).
-  const offered = guideFiguresFor(styleKey);
   const held = useRef<HeldArrows>({});
+  // #140: every command joins the queue (no timing grade, nothing refused); in the automatic dance the
+  // figure keys are not listened to.
   const lead = (figure: GuideFigure, time = performance.now()) => {
-    if (!offered.includes(figure)) return;
-    if (!playing) return;
-    session.press(beatAt(time), figure, bpm);
+    if (!offered.includes(figure) || auto) return;
+    session.press(beatAt(time), figure);
   };
-  const restart = () => { session.reset(); seekClock(clock, 0); last.current = { beat: 0, time: performance.now() }; setPlaying(true); };
+  const toggleAuto = (time = performance.now()) => {
+    const next = !session.auto;
+    session.setAuto(beatAt(time), next);
+    setAuto(next);
+  };
+  const restart = () => {
+    // Without `graine=`, the automatic dance draws another dance each time.
+    if (!params.has("graine")) session.seed = Date.now() % 2147483647;
+    session.reset(auto); seekClock(clock, 0); last.current = { beat: 0, time: performance.now() }; setPlaying(true);
+  };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.code === "ArrowRight" || e.code === "ArrowDown") held.current[e.code === "ArrowRight" ? "right" : "down"] = true;
       if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.code === "Space") { e.preventDefault(); setPlaying(p => !p); return; }
+      // #140: Space no longer pauses: it switches between listening and the automatic dance.
+      if (e.code === "Space") { e.preventDefault(); toggleAuto(e.timeStamp); return; }
       if (e.code === "ArrowRight") { e.preventDefault(); return; }
       // Physical position (e.code): ZQSD on AZERTY = WASD on QWERTY. The letter typed teaches the layout.
       // #89: the arrows held adapt a compatible figure (→ right leg, ↓ backwards first).
@@ -156,23 +173,14 @@ export default function GuidageApp() {
       const plan = session.plan(clock.beat);
       if (!plan) return;
       const s = plan.segments[plan.segments.length - 1];
-      const waiting = plan.outcomes.filter(o => o && o.verdict === "en attente" && o.boundary !== null);
-      const latest = plan.outcomes.length ? plan.outcomes[plan.outcomes.length - 1] : null;
       const active = s.start <= clock.beat ? s : plan.segments[plan.segments.length - 2] ?? s;
-      const kind = active.kind;
-      const next = s.kind === "base" ? null : s.start + GUIDE_FIGURES[s.kind].beats;
-      setHud({ beat: clock.beat, local: Math.max(0, clock.beat - active.start), kind, next, pending: waiting.length ? waiting[waiting.length - 1].intention.figure : null,
-        outcome: latest ?? null, streak: latest?.streak ?? 0 });
+      setHud({ beat: clock.beat, local: Math.max(0, clock.beat - active.start), kind: active.kind, queue: plan.queue });
     }, 80);
     return () => clearInterval(id);
   }, [clock, session]);
 
   const count = Math.floor(hud.beat) % 8 + 1;
-  const o = hud.outcome;
-  const verdictText = o ? ({
-    accepté: "guidage reçu", ambigu: "guidage ambigu : elle reste au pas de base", "trop tôt": "trop tôt dans la figure",
-    "trop tard": "trop tard pour cette frontière", répété: "déjà reçu", "en attente": "en attente de la prochaine frontière",
-  } as const)[o.verdict] : "";
+  const queueText = hud.queue.map(f => GUIDE_FIGURES[f].label).join(" → ");
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-slate-950 text-slate-200">
@@ -200,41 +208,39 @@ export default function GuidageApp() {
       {bare && (
         <div className="absolute top-2 left-3 right-3 text-sm text-slate-200">
           <span className="text-xl font-semibold tabular-nums mr-2">{count}</span>{KIND_LABEL(hud.kind)}
-          {hud.pending && <span className="text-sky-300"> → {GUIDE_FIGURES[hud.pending].label}</span>}
-          {o && <span className={"ml-2 " + GRADE_CLASS[o.grade]}>{o.grade}</span>}
-          <span className="block text-[10px] text-slate-500">Mode guidage (preuve de concept) · BodyParts3D © DBCLS, CC BY-SA 2.1 Japan</span>
+          {hud.queue.length > 0 && <span className="text-sky-300"> → {queueText}</span>}
+          {auto && <span className="ml-2 text-emerald-300">danse seule</span>}
+          <span className="block text-[10px] text-slate-500">Mode jeu · BodyParts3D © DBCLS, CC BY-SA 2.1 Japan</span>
         </div>
       )}
       {!bare && <>
       <div className="absolute top-3 left-3 right-3 flex flex-wrap items-start justify-between gap-3 pointer-events-none">
         <div className="rounded-2xl bg-slate-900/80 border border-slate-800 px-4 py-3 max-w-md pointer-events-auto">
-          <h1 className="text-sm font-semibold text-slate-100">Mode guidage <span className="text-slate-400 font-normal">· preuve de concept</span></h1>
+          <h1 className="text-sm font-semibold text-slate-100">Mode jeu <span className="text-slate-400 font-normal">· {auto ? "danse seule" : "écoute"}</span></h1>
           <p className="text-xs text-slate-400 mt-1">
-            Vous êtes le leader : choisissez la figure suivante juste avant le temps. La suiveuse la danse à la
-            prochaine frontière, depuis la quinconce. Pas de base en {STYLES[guideStyleOf("base", styleKey)].label}, figures en {STYLES[styleKey].label ?? styleKey}, {bpm} bpm.
+            Vous êtes le leader : chaque commande s'ajoute à la file, et la suiveuse danse les figures dans
+            l'ordre, depuis la quinconce. Espace laisse le couple danser seul. Pas de base en {STYLES[guideStyleOf("base", styleKey)].label}, figures en {STYLES[styleKey].label ?? styleKey}, {bpm} bpm.
           </p>
           <div className="mt-2 flex items-center gap-3 text-xs">
             <span className="text-2xl font-semibold tabular-nums text-slate-100" aria-label="compte">{count}</span>
-            <span>
-              <span className="text-slate-100">{KIND_LABEL(hud.kind)}</span>
-              {hud.pending && <span className="text-sky-300"> → {GUIDE_FIGURES[hud.pending].label}</span>}
-            </span>
+            <span className="text-slate-100">{KIND_LABEL(hud.kind)}</span>
           </div>
-          <div className="mt-1 text-xs min-h-[1.25rem]" aria-live="polite">
-            {o && <>
-              <span className={GRADE_CLASS[o.grade]}>{o.grade}</span>
-              <span className="text-slate-400"> {Math.abs(o.errorMs).toFixed(0)} ms {o.errorMs < 0 ? "tôt" : o.errorMs > 0 ? "tard" : ""}</span>
-              <span className="text-slate-300"> · {verdictText}</span>
-            </>}
+          <div className="mt-1 text-xs min-h-[1.25rem]" aria-live="polite" aria-label="file de commandes">
+            {hud.queue.length > 0
+              ? <><span className="text-slate-400">File : </span><span className="text-sky-300">{queueText}</span></>
+              : <span className="text-slate-400">{auto ? "Danse seule : le simulateur choisit la suite." : "File vide : pas de base."}</span>}
           </div>
-          <div className="text-xs text-slate-400">Série : <span className="text-slate-100 tabular-nums">{hud.streak}</span></div>
           {hud.kind !== "base" && <div className="mt-2 border-t border-slate-800 pt-2">
             <TransitionCard transition={transitionAt(hud.kind, hud.local)} compact />
           </div>}
         </div>
         <div className="rounded-2xl bg-slate-900/80 border border-slate-800 px-3 py-2 text-xs flex flex-wrap gap-2 pointer-events-auto">
-          <button className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" onClick={() => playing ? setPlaying(false) : (clock.beat === 0 ? restart() : setPlaying(true))}>
-            {playing ? "Pause" : clock.beat === 0 ? "Démarrer" : "Reprendre"} <kbd className="text-slate-500">Espace</kbd>
+          <button className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" onClick={() => setPlaying(p => !p)}>
+            {playing ? "Pause" : "Reprendre"}
+          </button>
+          <button className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" aria-pressed={auto} onClick={e => toggleAuto(e.timeStamp)}
+            title="Écoute : vos commandes s'ajoutent à la file. Danse seule : le simulateur choisit les figures.">
+            {auto ? "Danse seule" : "Écoute"} <kbd className="text-slate-500">Espace</kbd>
           </button>
           <button className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" onClick={restart}>Recommencer</button>
           <button className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" aria-pressed={leaderView} onClick={() => setLeaderView(v => !v)}
@@ -257,7 +263,7 @@ export default function GuidageApp() {
         <div className="flex flex-wrap justify-center gap-1.5">
           {/* #89: the ida variants are led by an arrow held with its key (hint below), not by buttons. */}
           {offered.filter(f => !GUIDE_FIGURES[f].ida && !GUIDE_FIGURES[f].chain && !GUIDE_FIGURES[f].insert).map(f => (
-            <button key={f} onPointerDown={e => lead(f, e.timeStamp)} disabled={!playing}
+            <button key={f} onPointerDown={e => lead(f, e.timeStamp)} disabled={auto}
               className="rounded-lg bg-slate-900/85 border border-slate-700 px-2.5 py-1.5 text-xs text-slate-100 hover:bg-slate-800 disabled:opacity-50 sm:px-4 sm:py-2.5 sm:text-sm">
               {GUIDE_FIGURES[f].label} <kbd className="ml-1 text-slate-400">{keyLabel(f, layout)}</kbd>
             </button>

@@ -29,6 +29,18 @@ paramétriquement, sans capture de mouvement ni photo de modèle.
 
 [![Planche de l'atlas : obliquité du bassin, 5 vues](docs/atlas/mouvements/bassin-obliquite/planche.png)](docs/atlas/mouvements/bassin-obliquite/README.md)
 
+## Musique enregistrée, générée par IA (#142)
+
+Quand un style a une piste, le bouton **« Son »** joue une **boucle enregistrée générée par IA**
+(Eleven Music, ElevenLabs) au lieu de la synthèse. La boucle est calée sur le temps de la danse :
+le tempo, l'instant du temps 1 et la longueur de la boucle sont **mesurés** sur le fichier, et
+l'horloge audio pilote la danse. Le curseur de tempo règle la vitesse de lecture (la hauteur suit) ;
+un bouton ramène au tempo de la piste. Piste publiée : **kizomba** (fusion kizomba et semba,
+102 bpm, boucle de 96 temps), validée à l'écoute par le propriétaire ; une première prise, trop
+proche d'une musique électronique de danse, avait été refusée. Les autres styles jouent la
+synthèse, qui reste aussi une source au choix (`source=synthese`).
+[Spécification](docs/spec-musique-elevenlabs.md) · [provenance et prompts](docs/musique/enregistrements.md).
+
 ## Son synthétisé synchronisé (#44)
 
 Le bouton **« Son »** (éteint par défaut) joue une musique **synthétisée dans le navigateur**
@@ -189,18 +201,21 @@ bras, couche des muscles, vue du guideur, 4 temps à 90 bpm, amplitude 1.
 BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 </details>
 
-## Mode guidage — preuve de concept (#69)
+## Mode guidage — mode jeu (#69, #140)
 
 Le bouton « Essayer le mode guidage » en haut de l'app (ou `?mode=pair&guidage=1`) ouvre une vue où
-**vous êtes le leader** : une touche choisit la figure suivante
-de la suiveuse (**W** ida e volta, **D** sortie garçon, **A** sortie fille, **Q** quart de tour ; en
-AZERTY, les mêmes positions : **Z**, **D**, **Q**, **A** ; **Espace** lecture / pause ; boutons tactiles
-équivalents, qui affichent les lettres de votre clavier). Elle l'exécute à la prochaine frontière de
-temps, toujours depuis la quinconce, avec les figures en paire existantes ; sans guidage, le couple
-danse le pas de base sur place. Chaque pression est notée par rapport au temps (Parfait, Bien, Juste,
-Raté) ; un guidage ambigu ou trop tôt laisse la suiveuse au pas de base. Le repère du couple suit les
-déplacements des figures, et les écarts de bassin entre deux figures sont effacés en un temps
-(inertialisation). Testé sur le GLB : continuité aux 25 enchaînements, aucun croisement d'os.
+**vous êtes le leader** : chaque touche commande une figure à la suiveuse (**W** ida e volta, **D** sortie
+garçon, **A** sortie fille, **Q** quart de tour ; en AZERTY, les mêmes positions : **Z**, **D**, **Q**,
+**A** ; flèches pour la marche ; boutons tactiles équivalents, qui affichent les lettres de votre
+clavier). Le couple danse dès l'ouverture. Les commandes **s'empilent dans une file** : aucune n'est
+refusée ni notée, elles se dansent dans l'ordre, chacune depuis la quinconce, avec les figures en paire
+existantes. La file vide, le couple danse le pas de base sur place. **Espace** laisse le couple **danser
+seul** : à chaque position neutre le simulateur commence une figure du style, aux jonctions d'une sortie
+il choisit entre commencer une figure et terminer la sortie, et il cherche une position neutre toutes
+les 32 temps sans se l'imposer (81 % des fins de phrase sur les sessions testées) ; Espace de nouveau
+rend la main. Le repère du couple suit les déplacements des figures, et les écarts de bassin entre deux
+figures sont effacés en un temps (inertialisation). Testé sur le GLB : continuité aux enchaînements,
+aucun croisement d'os. [Spec de la file et de la danse automatique](docs/spec-jeu-file-auto.md).
 
 ![Mode guidage : ida e volta, sortie garçon, quart de tour, sortie fille](docs/gifs/mode-guidage-demo.gif)
 <details><summary>Détails & source</summary>
@@ -233,30 +248,6 @@ locales/monde. Ils vérifient les limites de trajectoire, les derniers pas inver
 de cinq erreurs injectées, en plus des poses GLB. [Contrat de l'oracle](docs/spec-phase18-oracle.md),
 [corrections #25 et preuves](docs/retrospective-oracle-corrections.md).
 Les cellules historiques G/F décrivent les anciennes trajectoires. Les figures en cinq actions ont leurs propres tests GLB.
-
-## Captures après correction de l’audit #17
-
-Le rendu et les tests utilisent le même moteur de pose (`src/pose.ts`) et une horloge commune.
-Les jambes gardent leurs longueurs GLB ; le bassin descend pour permettre la flexion. Les angles
-HUD proviennent des poses finales. Les appuis restent illustratifs, avec 0 % sur un pied levé.
-La proximité des repères ne représente pas une force ni un contact de surfaces.
-
-![Comparaison synchronisée semba / kizomba](docs/gifs/audit-comparaison.gif)
-<details><summary>Détails & source</summary>
-
-Capture du canvas local corrigé via « Exporter un cycle », depuis la pause : 4 temps à 90 bpm,
-semba à gauche, kizomba à droite, amplitude 1, pieds plantés. BodyParts3D © DBCLS,
-CC BY-SA 2.1 Japan. Le HUD HTML n’est pas inclus dans l’export du canvas.
-</details>
-
-![Quarts de tour en paire — cycle complet](docs/gifs/audit-quarts-paire.gif)
-<details><summary>Détails & source</summary>
-
-Capture du même moteur : kizomba, paire, quarts de tour, 16 temps à 90 bpm, amplitude 1.
-Export depuis la pause, traînée réinitialisée et alimentée pendant l’export.
-[Spécification et limites](docs/spec-audit-poses-finales.md),
-[rétrospective et vérifications](docs/retrospective-audit-poses.md).
-</details>
 
 ## Docs
 
@@ -311,7 +302,7 @@ npm test          # courbes, Gherkin et poses finales du GLB réel
 Paramètres d'URL (utilisés par les captures, prioritaires sur localStorage) :
 `?mode=solo|observe|compare|pair&style=kizomba&styleB=zouk&bpm=90&travel=0.6&bare=1`
 (`bare=1` : canvas plein écran sans l'interface) + `&muscles=1` (couche musculaire),
-`&guidage=1` (mode guidage, paire ; `&demo=1&beat=12` : session de démonstration figée à un temps), `&sortieG=1` / `&sortieF=1` / `&sortieGF=1` (sortie garçon / fille / combinée G→F, options exclusives, mode paire ; `&sortie=1` legacy = garçon), `&repere=0` (masque le repère fixe),
+`&guidage=1` (mode guidage, paire ; `&demo=1&beat=12` : session de démonstration figée à un temps ; `&auto=1` : danse automatique, `&graine=N` : graine de son tirage), `&sortieG=1` / `&sortieF=1` / `&sortieGF=1` (sortie garçon / fille / combinée G→F, options exclusives, mode paire ; `&sortie=1` legacy = garçon), `&repere=0` (masque le repère fixe),
 `&appui=1` (appuis & transmission), `&ligne=1` (force la ligne de danse en solo),
 `&corridinho=1` (1/4 tour D puis G, puis cercle au repère fixe), `&plant=0` (ancien rendu glissé ;
 par défaut les pieds restent plantés au sol sur place, `plant=1`), `&solid=1` (buste opaque pour les

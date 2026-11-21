@@ -15,7 +15,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const bundle = join(root, "scripts", ".test-features-bundle.mjs");
 esbuild.buildSync({
   stdin: {
-    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon"; export * from "../src/sortieFille"; export * from "../src/idaPaire"; export * from "../src/gait"; export * from "../src/music/patterns"; export * from "../src/music/scheduler";',
+    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon"; export * from "../src/sortieFille"; export * from "../src/idaPaire"; export * from "../src/gait"; export * from "../src/music/patterns"; export * from "../src/music/scheduler"; export * as guidage from "../src/guidage"; export * from "../src/music/loop";',
     resolveDir: join(root, "scripts"),
     loader: "ts",
   },
@@ -32,6 +32,10 @@ const { STYLES, supportOf, sortieEnvelope, sortieOffset, plantBlend, corridinhoP
 const { Group } = await import(
   pathToFileURL(join(root, "node_modules", "three", "build", "three.module.js")).href
 );
+
+/** #140: couple motions of the game mode figures, on a rest stance close to the GLB's. */
+let guideMotionsCache = null;
+const guideMotionsOf = () => guideMotionsCache ??= mod.guidage.guideMotions({ rest: { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } }, stance: 0.02, placement: "quinconce", amp: 1 });
 
 // ---------- parsing Gherkin ----------
 function parseFeature(text) {
@@ -150,6 +154,29 @@ const steps = [
     const b = mod.beatAt(tr, Number(m[2]) + Number(m[3]));
     if (Math.abs(b - Number(m[4])) > 1e-9) throw new Error(`temps ${b}, attendu ${m[4]}`);
   }],
+  // Musique enregistrée (#142, docs/spec-musique-elevenlabs.md)
+  [/^une piste enregistrée à ([\d.]+) bpm dont le temps 1 est à ([\d.]+) s et la boucle fait (\d+) temps$/, (c, m) => {
+    c.rec = { style: "kizomba", file: "kizomba.mp3", bpm: Number(m[1]), firstBeat: Number(m[2]), beats: Number(m[3]) };
+  }],
+  [/^le temps (-?[\d.]+) de la danse se lit à ([\d.]+) s dans le fichier$/, (c, m) => {
+    const p = mod.positionOfBeat(c.rec, Number(m[1]));
+    if (Math.abs(p - Number(m[2])) > 5e-4) throw new Error(`position ${p}, attendu ${m[2]}`);
+  }],
+  [/^au tempo (\d+) la piste est jouée à ([\d.]+) fois sa vitesse$/, (c, m) => {
+    const r = mod.rateOf(c.rec, Number(m[1]));
+    if (Math.abs(r - Number(m[2])) > 5e-4) throw new Error(`vitesse ${r}, attendu ${m[2]}`);
+  }],
+  [/^la boucle dure ([\d.]+) s dans le fichier$/, (c, m) => {
+    const d = mod.loopSeconds(c.rec);
+    if (Math.abs(d - Number(m[1])) > 5e-4) throw new Error(`durée ${d}, attendu ${m[1]}`);
+  }],
+  [/^on construit l'URL de partage avec son=true et source=synthese$/, (c) => {
+    c.url = buildShareUrl("/app/", { mode: "pair", son: true, source: "synthese" }, null, null);
+  }],
+  [/^l'URL contient son=1 et source=synthese$/, (c) => {
+    const q = new URL(c.url, "https://exemple.test").searchParams;
+    if (q.get("son") !== "1" || q.get("source") !== "synthese") throw new Error(c.url);
+  }],
   [/^on construit l'URL de partage avec son=true et musique=B$/, (c) => {
     c.url = buildShareUrl("/app/", { mode: "compare", son: true, musique: "B" }, null, null);
   }],
@@ -201,6 +228,62 @@ const steps = [
   [/^le gauche du leader reste pointé vers l'avant$/, (c) => {
     const { on, off } = c.virgula;
     if (on.feet.L.yaw !== 0 || JSON.stringify(on) !== JSON.stringify(off)) throw new Error("la variante recul ne doit pas changer");
+  }],
+  // #140: game mode, command queue and automatic dance (docs/spec-jeu-file-auto.md).
+  [/^le joueur commande "([^"]*)" aux temps "([^"]*)"$/, (c, m) => {
+    const figures = m[1].split(",").map(f => f.trim()).filter(Boolean), beats = m[2].split(",").map(b => b.trim()).filter(Boolean).map(Number);
+    c.jeu = { plan: mod.guidage.planGuide(figures.map((figure, k) => ({ beat: beats[k], figure })), guideMotionsOf(), 60) };
+  }],
+  [/^les segments du mode jeu sont "([^"]*)"$/, (c, m) => {
+    const got = c.jeu.plan.segments.map(s => `${s.kind}@${s.start}`).join(" ");
+    if (got !== m[1]) throw new Error(`segments ${got}`);
+  }],
+  [/^aucune commande n'est refusée ni perdue$/, (c) => {
+    const { outcomes, queue } = c.jeu.plan;
+    if (queue.length || !outcomes.every(o => o.status === "dansée")) throw new Error(JSON.stringify(outcomes.map(o => o.status)));
+  }],
+  [/^le couple danse seul pendant (\d+) temps avec la graine (\d+)$/, (c, m) => {
+    const auto = seed => mod.guidage.planGuide([], guideMotionsOf(), Number(m[1]), { modes: [{ beat: 0, auto: true }], seed });
+    c.jeu = { plan: auto(Number(m[2])), again: auto(Number(m[2])), other: auto(Number(m[2]) + 1) };
+  }],
+  [/^chaque segment après le pas de base du début est une figure choisie par le simulateur$/, (c) => {
+    const [first, ...rest] = c.jeu.plan.segments;
+    if (first.kind !== "base" || first.end !== 4) throw new Error(`début ${first.kind} jusqu'à ${first.end}`);
+    if (rest.length < 30) throw new Error(`${rest.length} figures seulement`);
+    for (const s of rest) if (s.by !== "auto" || !mod.guidage.GUIDE_FIGURE_KEYS.includes(s.kind)) throw new Error(`${s.kind} par ${s.by} au temps ${s.start}`);
+    rest.forEach((s, k) => { if (s.start !== (k ? rest[k - 1].end : 4)) throw new Error(`trou avant le temps ${s.start}`); });
+  }],
+  [/^la même graine redonne la même danse, une autre graine une autre danse$/, (c) => {
+    const text = plan => plan.segments.map(s => `${s.kind}@${s.start}`).join(" ");
+    if (text(c.jeu.plan) !== text(c.jeu.again)) throw new Error("même graine, danse différente");
+    if (text(c.jeu.plan) === text(c.jeu.other)) throw new Error("deux graines, même danse");
+  }],
+  [/^le couple danse seul pendant (\d+) temps avec les graines (\d+) à (\d+)$/, (c, m) => {
+    const until = Number(m[1]), phrase = mod.guidage.GUIDE_AUTO.phrase;
+    let ends = 0, neutral = 0;
+    for (let seed = Number(m[2]); seed <= Number(m[3]); seed++) {
+      const starts = new Set(mod.guidage.planGuide([], guideMotionsOf(), until + 10, { modes: [{ beat: 0, auto: true }], seed }).segments.map(s => s.start));
+      for (let end = phrase; end <= until; end += phrase) { ends++; if (starts.has(end)) neutral++; }
+    }
+    c.jeu = { share: neutral / ends };
+  }],
+  [/^une position neutre tombe sur plus de (\d+) % des fins de phrase, et pas sur toutes$/, (c, m) => {
+    if (!(c.jeu.share > Number(m[1]) / 100 && c.jeu.share < 1)) throw new Error(`part ${c.jeu.share}`);
+  }],
+  [/^le couple danse seul avec la graine (\d+) et le joueur commande "([^"]*)" au temps ([\d.]+)$/, (c, m) => {
+    const options = { modes: [{ beat: 0, auto: true }], seed: Number(m[1]) };
+    c.jeu = { beat: Number(m[3]), figure: m[2],
+      plan: mod.guidage.planGuide([{ beat: Number(m[3]), figure: m[2] }], guideMotionsOf(), 80, options),
+      alone: mod.guidage.planGuide([], guideMotionsOf(), 80, options) };
+  }],
+  [/^la commande est dansée à la position neutre qui suit, puis le simulateur reprend$/, (c) => {
+    const { plan, alone, beat, figure } = c.jeu;
+    const at = plan.segments.findIndex(s => s.by === "commande");
+    const s = plan.segments[at], before = plan.segments[at - 1], after = plan.segments[at + 1];
+    if (!s || s.kind !== figure) throw new Error("commande non dansée");
+    if (!(before.start <= beat && s.start === before.end && s.start >= beat)) throw new Error(`commande au temps ${s.start}`);
+    if (after?.by !== "auto") throw new Error("le tirage ne reprend pas");
+    for (let k = 0; k < at; k++) if (plan.segments[k].kind !== alone.segments[k].kind) throw new Error("la danse d'avant a changé");
   }],
   // #128: the virgula as a style effect in the pair ida e volta (docs/spec-ida-paire.md).
   [/^on échantillonne l'ida e volta en paire avec la virgula du leader$/, (c) => {
