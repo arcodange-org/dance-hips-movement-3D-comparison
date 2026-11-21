@@ -93,7 +93,7 @@ hanche (flexion, extension, abduction, adduction, rotations médiale/latérale),
 cheville (dorsiflexion, flexion plantaire), tronc (rotation, flexion latérale, flexion/extension,
 respiration).
 
-## Pipeline de génération (à construire, prochaine contribution)
+## Pipeline de génération
 
 1. `scripts/capture_atlas.mjs --mouvement <id> [--vues …]` : charge `public/anatomy.glb`, pose
    le rig via le moteur `pose.ts` (pose neutre + balayage de la ROM en N frames), rend chaque
@@ -103,6 +103,115 @@ respiration).
 2. Fiches muscle : industrialiser le prototype Blender `~/Work/Danse/anatomie-3d/scripts/fiche.py`
    (Z-Anatomy) en `scripts/fiche_muscle.py`, sortie `docs/atlas/muscles/<id>/`.
 3. Viewer : page statique `?atlas=…` lisant le manifeste + les planches (chantier ultérieur).
+
+## Chaîne de génération des planches « mouvements » (preuve sur `bassin-obliquite`)
+
+Contribution du 2026-11-21 : la chaîne complète est construite et prouvée sur **un** mouvement
+(`bassin-obliquite`, priorité 1). Les quinze autres suivront par la même chaîne (voir Tâches).
+
+### D7 — Pose neutre anatomique par le moteur
+
+- `applyPose` reçoit une option `neutral` (défaut `false`, comportement inchangé) : aucun mouvement
+  de style, aucune posture de danse (`lean = 0`, `knee = 0`). Tout le reste du moteur est celui de
+  l'application : bornes, isolation du haut du tronc (`iso=1`), IK des jambes, pieds à plat,
+  hauteur du bassin donnée par la portée des jambes.
+- Sans cette option, la « pose de départ » la plus neutre atteignable est un style à amplitude
+  nulle, qui garde sa posture de danse (mesuré sur le GLB, kizomba à `amp=0` : genoux à 30,6°,
+  thorax incliné de 5,7°). Ce n'est pas une position anatomique de référence.
+- Mouvements du bassin (`articulation: "Pelvis"`) : chaîne fermée, **pieds plantés**. L'angle
+  est appliqué au bassin par `pelvisOffset.rotation` autour de l'axe du manifeste. Les jambes
+  suivent par IK : la hanche qui descend fait fléchir son genou. Le haut du tronc compense
+  (`iso=1`), comme dans le comparateur.
+- Bras : cadre de danse par défaut (`cadre=1`), déterministe, et qui dégage le bassin de profil.
+- Les autres articulations (hanche, genou, cheville en chaîne ouverte ; buste) demandent leur
+  propre règle de pose. Tant qu'elle n'existe pas, `applyAtlasPose` et le script **refusent** le
+  mouvement avec un message explicite, au lieu de produire une planche fausse.
+
+### D8 — Module pur `src/atlas.ts`
+
+- `atlasAngles(mouvement, frames)` : angles régulièrement espacés de `romDeg[0]` à `romDeg[1]`
+  (N impair recommandé pour passer par 0 quand la ROM est symétrique ; défaut 9).
+- `applyAtlasPose(r, model, mouvement, angleDeg)` : pose le rig par `applyPose` (D7).
+- `measureAtlasPose(r, model, mouvement, reference)` : mesures sur le rig posé (voir D11).
+- Lecture typée du manifeste (`docs/atlas/manifest.json`), source de vérité unique pour le
+  script, le test et la vue.
+
+### D9 — Cinq vues
+
+`ATLAS_VIEWS` dans `src/cameras.ts` : azimuts autour de la cible du preset `hip` (bassin et
+jambes), élévation et distance du preset conservées (`resolveView`).
+
+| Vue | Azimut | Lecture |
+| --- | --- | --- |
+| `face` | 0° | caméra devant le sujet (+z) |
+| `troisQuarts` | 45° | trois-quarts avant |
+| `profil` | 90° | profil |
+| `troisQuartsDos` | 135° | trois-quarts arrière |
+| `dos` | 180° | caméra derrière le sujet |
+
+Pour un mouvement d'un seul côté (`cote: "R"`), les azimuts sont inversés : la caméra passe du
+côté du membre qui bouge (le côté droit du sujet est en x < 0).
+
+### D10 — Vue de capture `?atlas=`
+
+- `?atlas=<id>&vue=<vue>&frame=<n>&frames=<N>&muscles=0|1` ouvre une vue dédiée
+  (`src/components/AtlasApp.tsx`, morceau séparé comme le mode guidage) : un seul rig, posé par
+  `applyAtlasPose`, caméra de la vue, légende rendue par la page (libellé, vue, angle,
+  attribution), car ffmpeg-static n'a pas `drawtext`.
+- L'URL est l'interface : le script change de frame et de vue par `history.replaceState` +
+  `popstate`, sans recharger la page (le GLB n'est chargé qu'une fois par mouvement).
+- Signal de rendu : `document.documentElement.dataset.atlasRendu = "<id>|<vue>|<frame>/<frames>"`
+  une fois la pose appliquée **et** une image complète rendue avec cet état. Le script attend ce
+  signal avant chaque capture (aucune attente fixe).
+- Cette vue est le socle du futur viewer (tâche « Viewer `?atlas=` ») ; elle n'a pour l'instant
+  ni navigation ni contrôle de caméra.
+
+### D11 — Fichiers produits et `meta.json`
+
+`node scripts/capture_atlas.mjs --mouvement <id> [--frames 9] [--vues face,profil] [--meta-seul]`
+écrit dans `docs/atlas/mouvements/<id>/` :
+
+- `<vue>-<nn>.png` : une image par vue et par frame ;
+- `<vue>.gif` : aller-retour de la ROM par vue ;
+- `planche.png` : planche composite, une ligne par vue, une colonne par frame ;
+- `meta.json` : mesures et provenance.
+
+Assets servis, copiés à l'identique dans `public/atlas/mouvements/<id>/` : `meta.json`,
+`planche.png`, les GIF. Les PNG par frame restent dans `docs/` (le viewer rendra la 3D en direct).
+
+`meta.json` est **déterministe** (ni date ni machine) et calculé hors navigateur, sur le GLB réel,
+par le même moteur que l'application (`scripts/atlas_meta.mjs`) :
+
+- provenance : « généré paramétriquement sur squelette réel », ni mocap, ni photos de modèles,
+  ni relecture par un professeur d'anatomie ; niveau de preuve repris du manifeste ; licences ;
+- articulation, axe local, axe monde mesuré, convention de signe ;
+- `romDeg` du manifeste et ROM **mesurée** : angle signé du quaternion monde du nœud GLB, relatif
+  à la frame neutre (angle 0), autour de l'axe monde mesuré ;
+- par frame : angle commandé, angle mesuré, écart de hauteur des centres de hanche, flexion des
+  genoux, inclinaison du thorax, hauteur du bassin, sommet osseux le plus bas ;
+- vues (azimut, position et cible de la caméra), fichiers, paramètres de capture.
+
+### D12 — Test `scripts/test_atlas_planches.mjs` (dans `npm test`, sans navigateur)
+
+Pour chaque planche présente dans `docs/atlas/mouvements/` :
+
+1. la ROM mesurée sur le quaternion monde du nœud égale la ROM du manifeste (≤ 0,01°) ;
+2. preuve indépendante de l'orientation, par les **positions** : pour l'obliquité, une hanche
+   monte et l'autre descend, de `distance inter-hanches × sin(angle)` ; l'axe monde mesuré est
+   antéro-postérieur. Un axe erroné dans le manifeste fait échouer ce contrôle ;
+3. conventions verrouillées après pose : sommets osseux au-dessus du sol, chevilles sur leurs
+   cibles, longueurs des segments constantes, thorax vertical (`iso=1`) ;
+4. `meta.json` versionné = `meta.json` recalculé (tolérances 0,05° et 0,5 mm) : une planche
+   périmée par un changement du moteur ou du manifeste est signalée, avec la commande à relancer ;
+5. fichiers listés présents, signatures PNG/GIF et dimensions cohérentes, copies `public/`
+   identiques, attribution DBCLS et mention de provenance présentes.
+
+### Correction du manifeste (axes du bassin)
+
+Vérifié sur le GLB par le moteur : le sujet regarde +z, son côté droit est en x < 0. L'obliquité
+(plan frontal) est donc une rotation autour de **z** (c'est `pelvis.rotation.z`, le `roll` du
+HUD) et l'antéversion (plan sagittal) une rotation autour de **x**. Le manifeste v1 les avait
+inversées ; il est corrigé, et le contrôle 2 du test l'empêche de revenir.
 
 ## Tâches
 
