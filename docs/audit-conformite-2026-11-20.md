@@ -53,6 +53,23 @@ Lecture :
 - **R9** : en position 2 de la sortie garçon, les pieds D sont maintenant à 12 cm (#110), et non plus bord
   à bord. Décision du propriétaire attendue.
 
+### Depuis cette mise à jour (21 novembre, après-midi)
+
+Fusions postérieures à la relance de la sonde ; les tableaux ne sont pas recalculés.
+
+- **R9, tranchée par le propriétaire (#130)** : « avoir le pied (voire le genou) en contact possible (donc
+  très proche) sur D2 est important, quitte à reculer légèrement le bassin ». Semelles D à 3,8 cm, genoux
+  D à 11,1 cm, bassin du leader 6 cm derrière son D, 0 croisement d'os (`test_sortie_garcon.mjs`). Le
+  buste « légèrement en avant tout le temps » reste à traiter avec #93.
+- **Quarts de tour (#126)** : début fluidifié, le buste suit le bassin 0,25 temps plus tard.
+- **R26, nouvelle règle (#127, #128)** : la virgula, pied G du leader posé perpendiculaire. Premier pas de
+  la sortie fille crochet, et option de l'ida e volta. Suiveur inchangé, buste du leader à moins de 1° de
+  sa direction. Le talon se pose contre le bord intérieur du D, pas exactement à son bout : écart à
+  valider par le propriétaire.
+- **Écarts chiffrés** (`scripts/test_ecarts_regles.mjs`, #75 et #62) : R4, R8 et R21 sont maintenant
+  mesurés à leur seuil dans `npm test`. Avec #130, dans la sortie garçon, le plus grand pas latéral du
+  leader passe de 31,3 à 28 cm et l'écart des plexus de 27,1 à 27,3 cm. #127 ne change aucune valeur.
+
 ## Méthode
 
 - Sonde indépendante [`scripts/audit_conformite.mjs`](../scripts/audit_conformite.mjs) (hors
