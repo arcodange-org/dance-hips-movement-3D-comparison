@@ -15,9 +15,31 @@ Feature: Mode jeu : file de commandes, écoute par défaut, danse automatique
     When le joueur commande "" aux temps ""
     Then les segments du mode jeu sont "base@0"
 
-  Scenario: La touche de l'ida pressée pendant une sortie y insère l'ida e volta
-    When le joueur commande "sortieG, ida" aux temps "3.9, 4.1"
-    Then les segments du mode jeu sont "base@0 sortieGI@4 base@12"
+  Scenario: La touche de l'ida pendant une figure transforme son prochain pas en aller-retour
+    Règle R27 (#144) : « chaque pied qui avance ou qui recule peut devenir un "ida e volta" (un simple
+    aller retour du pied, en virgula ou non) ». La figure dure deux temps de plus.
+    When le joueur commande "sortieG, ida" aux temps "3.9, 5.5"
+    Then les segments du mode jeu sont "base@0 sortieG+2@4 base@12"
+
+  Scenario: Le premier pas d'une figure qui attend peut devenir un aller-retour
+    « Une sortie garçon (G1) peut être remplacée par une ida volta et reprendre ensuite. »
+    When le joueur commande "sortieG, ida" aux temps "1, 2"
+    Then les segments du mode jeu sont "base@0 sortieG+0@4 base@12"
+
+  Scenario: Un retour de sortie fille (D4) peut être un aller-retour
+    When le joueur commande "sortieF, ida" aux temps "3.9, 6.5"
+    Then les segments du mode jeu sont "base@0 sortieF+3@4 base@12"
+
+  Scenario: Sans figure en cours ni en attente, la touche de l'ida commande l'ida e volta de 8 temps
+    When le joueur commande "ida, ida" aux temps "1, 2"
+    Then les segments du mode jeu sont "base@0 ida@4 ida@12 base@20"
+
+  Scenario: Pendant un aller-retour le poids reste sur l'autre pied
+    « Si c'est le pied gauche qui sort et revient le poids reste à droite au début et à la fin et c'est
+    encore au pied gauche de bouger ensuite. »
+    When on échantillonne chaque aller-retour proposé par le mode jeu
+    Then le pied part dans le sens de son pas et revient où il était
+    And le poids est sur l'autre pied au début et à la fin, et la figure reprend avec le même pied
 
   Scenario: En danse automatique, une figure du style commence à chaque position neutre
     When le couple danse seul pendant 320 temps avec la graine 7

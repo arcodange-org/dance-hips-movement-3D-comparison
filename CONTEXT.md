@@ -28,10 +28,14 @@ et les specs. Résumé de la journée du 21 :
   reproductible `graine=N`, `auto=1`). `src/guidage.ts` : `planGuide(commandes, motions, until, { modes,
   seed, offered })`, `GUIDE_AUTO`, `autoFigure` ; un plan ne réécrit jamais son passé
   ([spec](docs/spec-jeu-file-auto.md)).
-- **#144 (spec seule, PR brouillon)** : règle R27 du propriétaire, « chaque pied qui avance ou qui recule peut
-  devenir un "ida e volta" (un simple aller retour du pied, en virgula ou non) ». Relevé des 16 pas du leader
-  concernés, modèle proposé (prolonge l'ida inséré #91) et six questions pour le propriétaire dans
-  [la spec](docs/spec-ida-partout.md). Ne rien coder avant ses réponses.
+- **#144 (PR #145)** : règle R27 du propriétaire, « chaque pied qui avance ou qui recule peut devenir un "ida e
+  volta" (un simple aller retour du pied, en virgula ou non) ». `src/insertion.ts` : `sampleTouched` ajoute un
+  aller-retour (2 temps, en touche) avant un pas d'une figure ; `TOUCH_POSITIONS` liste les 13 pas validés sur le
+  GLB (plus 3 positions de l'enchaînement) avec leurs ajustements. Mode jeu : un segment porte ses allers-retours
+  (`segment.touches`), la touche de l'ida vise le prochain pas possible (figure en cours, sinon figure en attente),
+  Maj = virgula, la danse seule tire les mêmes choix. Reste à trancher par le propriétaire : ce que fait la
+  suiveuse quand elle allait de côté (question 4 de [la spec](docs/spec-ida-partout.md)) ; le D4 de la sortie
+  garçon n'est pas proposé (jambes croisées).
 - PR brouillon en relecture du propriétaire : #117 (ontologie), #76 (audit).
 - Pièges : `npm test` complet dure 25 min ou plus en local. Lancer ses scripts en parallèle, un journal
   par script, le ramène à une dizaine de minutes ; `test_placements` et `test_plexus` rejouent d'autres

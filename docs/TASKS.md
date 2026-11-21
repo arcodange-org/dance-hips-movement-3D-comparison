@@ -304,6 +304,9 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 
 - [x] Issue #144 avec les mots du propriétaire ; règle R27 dans `docs/regles-proprietaire.md`.
 - [x] Spec poussée en premier ([spec](spec-ida-partout.md)) : relevé des pas, modèle proposé, questions.
-- [ ] Réponses du propriétaire aux six questions (durée, poids, pas concernés, suiveur, virgula, commande).
-- [ ] Échantillonneur généralisé (`src/insertion.ts`), segments du mode jeu, tests GLB par point d'insertion.
-- [ ] Danse automatique : choix à chaque pas possible ; GIFs avec les muscles.
+- [x] Réponses du propriétaire (durée, poids, pas concernés, virgula, commande) ; question 4 (suiveur de côté) reposée.
+- [x] Échantillonneur généralisé (`sampleTouched`, `TOUCH_POSITIONS`), segments du mode jeu avec allers-retours.
+- [x] `scripts/test_touches.mjs` (GLB par position), `scripts/test_guidage.mjs`, `docs/features/mode-jeu.feature`.
+- [x] Danse automatique : choix à chaque pas possible ; virgula ; démonstration `demo=allerretour` et GIF.
+- [ ] Réponse du propriétaire à la question 4 ; essai des poids du tirage et de la commande (figure en attente).
+- [ ] D4 de la sortie garçon (jambes croisées) : aller-retour dans la direction du pas, à étudier.

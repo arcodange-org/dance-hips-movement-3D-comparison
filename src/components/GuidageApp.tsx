@@ -14,11 +14,17 @@ import { useMusic } from "../music/useMusic";
 import TransitionCard from "./TransitionCard";
 import { transitionAt } from "../transitions";
 import {
-  GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, guideFiguresFor, guideStyleOf, GUIDE_PAIR_DZ, GUIDE_DEMO, GUIDE_DEMO_ARROWS, GUIDE_DEMO_CHAIN, GUIDE_DEMO_INSERT, applyTransform, figureOfCode, keyLabel, type HeldArrows,
-  type GuideFigure, type GuideKind,
+  GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, guideFiguresFor, guideStyleOf, GUIDE_PAIR_DZ, GUIDE_DEMO, GUIDE_DEMO_ARROWS, GUIDE_DEMO_CHAIN, GUIDE_DEMO_INSERT, GUIDE_DEMO_TOUCH, applyTransform, figureOfCode, keyLabel, type HeldArrows,
+  type GuideFigure, type GuideKind, type GuideSample,
 } from "../guidage";
 
 const KIND_LABEL = (k: GuideKind) => (k === "base" ? "Pas de base" : GUIDE_FIGURES[k].label);
+/** #144: what the HUD shows of the figure under way: its touches, and the one being danced. */
+type Now = Pick<GuideSample, "kind" | "touch" | "touchBeat" | "figureBeat"> & { touches: number };
+const START: Now = { kind: "base", touch: null, touchBeat: 0, figureBeat: 0, touches: 0 };
+/** The ida e volta's slot a touch dances: the same foot, the same direction. */
+const touchKey = (now: Now) => (now.touch!.back ? (now.touch!.side === "R" ? "idaArrD" : "idaArr") : now.touch!.side === "R" ? "idaD" : "ida") as GuideFigure;
+const touchLabel = (now: Now) => `aller-retour du ${now.touch!.side === "L" ? "pied gauche" : "pied droit"} ${now.touch!.back ? "en arrière" : "en avant"}${now.touch!.virgula ? ", en virgula" : ""}`;
 
 /** Moves the couple frame (both dancers) with the composed motion of the figures already danced. */
 function CoupleFrame({ session, clock, children }: { session: GuideSession; clock: DanceClock; children: React.ReactNode }) {
@@ -102,6 +108,7 @@ export default function GuidageApp() {
     if (params.get("demo") === "fleches") session.intentions = GUIDE_DEMO_ARROWS.map(i => ({ ...i }));
     if (params.get("demo") === "enchainement") session.intentions = GUIDE_DEMO_CHAIN.map(i => ({ ...i }));
     if (params.get("demo") === "insertion") session.intentions = GUIDE_DEMO_INSERT.map(i => ({ ...i }));
+    if (params.get("demo") === "allerretour") session.intentions = GUIDE_DEMO_TOUCH.map(i => ({ ...i }));
     const frame = Number(params.get("beat") ?? params.get("sortieBeat"));
     if (capture && Number.isFinite(frame)) seekClock(clock, Math.max(0, frame));
   }, [params, session, clock]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -116,7 +123,9 @@ export default function GuidageApp() {
   }, []);
   paused.current = !playing;
   const music = useMusic({ clock, styleKey, bpm, playing, muted: [], volume: 0.8 });
-  const [hud, setHud] = useState<{ beat: number; local: number; kind: GuideKind; queue: GuideFigure[] }>({ beat: 0, local: 0, kind: "base", queue: [] });
+  const [hud, setHud] = useState<{ beat: number; now: Now; queue: GuideFigure[]; queueTouches: number[] }>({ beat: 0, now: START, queue: [], queueTouches: [] });
+  // #144: the virgula, asked with Shift held (or this toggle on a touch screen) when a touch is commanded.
+  const [virgula, setVirgula] = useState(false);
 
   // Beat of a press: the last frame's beat plus the time elapsed since (the clock advances per frame).
   const beatAt = (time: number) => {
@@ -127,9 +136,9 @@ export default function GuidageApp() {
   const held = useRef<HeldArrows>({});
   // #140: every command joins the queue (no timing grade, nothing refused); in the automatic dance the
   // figure keys are not listened to.
-  const lead = (figure: GuideFigure, time = performance.now()) => {
+  const lead = (figure: GuideFigure, time = performance.now(), comma = virgula) => {
     if (!offered.includes(figure) || auto) return;
-    session.press(beatAt(time), figure);
+    session.press(beatAt(time), figure, comma);
   };
   const toggleAuto = (time = performance.now()) => {
     const next = !session.auto;
@@ -153,7 +162,7 @@ export default function GuidageApp() {
       // #89: the arrows held adapt a compatible figure (→ right leg, ↓ backwards first).
       const figure = figureOfCode(e.code, held.current);
       if (figure) {
-        e.preventDefault(); lead(figure, e.timeStamp);
+        e.preventDefault(); lead(figure, e.timeStamp, e.shiftKey || virgula);
         if (e.key.length === 1) setLayout(l => (l.get(e.code) === e.key ? l : new Map(l).set(e.code, e.key)));
       }
     };
@@ -170,17 +179,17 @@ export default function GuidageApp() {
 
   useEffect(() => {
     const id = setInterval(() => {
-      const plan = session.plan(clock.beat);
-      if (!plan) return;
-      const s = plan.segments[plan.segments.length - 1];
-      const active = s.start <= clock.beat ? s : plan.segments[plan.segments.length - 2] ?? s;
-      setHud({ beat: clock.beat, local: Math.max(0, clock.beat - active.start), kind: active.kind, queue: plan.queue });
+      const plan = session.plan(clock.beat), sample = session.sample(clock.beat);
+      if (!plan || !sample) return;
+      setHud({ beat: clock.beat, queue: plan.queue, queueTouches: plan.queueTouches,
+        now: { kind: sample.kind, touch: sample.touch, touchBeat: sample.touchBeat, figureBeat: sample.figureBeat, touches: sample.touches.length } });
     }, 80);
     return () => clearInterval(id);
   }, [clock, session]);
 
   const count = Math.floor(hud.beat) % 8 + 1;
-  const queueText = hud.queue.map(f => GUIDE_FIGURES[f].label).join(" → ");
+  const queueText = hud.queue.map((f, k) => GUIDE_FIGURES[f].label + (hud.queueTouches[k] ? ` (${hud.queueTouches[k]} aller-retour${hud.queueTouches[k] > 1 ? "s" : ""})` : "")).join(" → ");
+  const now = hud.now;
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-slate-950 text-slate-200">
@@ -207,7 +216,8 @@ export default function GuidageApp() {
 
       {bare && (
         <div className="absolute top-2 left-3 right-3 text-sm text-slate-200">
-          <span className="text-xl font-semibold tabular-nums mr-2">{count}</span>{KIND_LABEL(hud.kind)}
+          <span className="text-xl font-semibold tabular-nums mr-2">{count}</span>{KIND_LABEL(now.kind)}
+          {now.touch && <span className="text-amber-300"> · {touchLabel(now)}</span>}
           {hud.queue.length > 0 && <span className="text-sky-300"> → {queueText}</span>}
           {auto && <span className="ml-2 text-emerald-300">danse seule</span>}
           <span className="block text-[10px] text-slate-500">Mode jeu · BodyParts3D © DBCLS, CC BY-SA 2.1 Japan</span>
@@ -223,15 +233,16 @@ export default function GuidageApp() {
           </p>
           <div className="mt-2 flex items-center gap-3 text-xs">
             <span className="text-2xl font-semibold tabular-nums text-slate-100" aria-label="compte">{count}</span>
-            <span className="text-slate-100">{KIND_LABEL(hud.kind)}</span>
+            <span className="text-slate-100">{KIND_LABEL(now.kind)}</span>
+            {now.touch && <span className="text-amber-300">{touchLabel(now)}</span>}
           </div>
           <div className="mt-1 text-xs min-h-[1.25rem]" aria-live="polite" aria-label="file de commandes">
             {hud.queue.length > 0
               ? <><span className="text-slate-400">File : </span><span className="text-sky-300">{queueText}</span></>
               : <span className="text-slate-400">{auto ? "Danse seule : le simulateur choisit la suite." : "File vide : pas de base."}</span>}
           </div>
-          {hud.kind !== "base" && <div className="mt-2 border-t border-slate-800 pt-2">
-            <TransitionCard transition={transitionAt(hud.kind, hud.local)} compact />
+          {now.kind !== "base" && <div className="mt-2 border-t border-slate-800 pt-2">
+            <TransitionCard transition={now.touch ? transitionAt(touchKey(now), now.touchBeat) : transitionAt(now.kind, now.figureBeat)} compact />
           </div>}
         </div>
         <div className="rounded-2xl bg-slate-900/80 border border-slate-800 px-3 py-2 text-xs flex flex-wrap gap-2 pointer-events-auto">
@@ -261,8 +272,13 @@ export default function GuidageApp() {
       {/* Bottom panel, full width: figure buttons (wrapping rows), the arrows hint, the attribution. */}
       <div className="absolute bottom-2 inset-x-3 flex flex-col items-center gap-1.5">
         <div className="flex flex-wrap justify-center gap-1.5">
+          {offered.includes("ida") && <button onClick={() => setVirgula(v => !v)} aria-pressed={virgula} disabled={auto}
+            title="Le prochain aller-retour commandé se fait en virgula (pied gauche posé perpendiculaire), quand le pas le permet"
+            className={`rounded-lg border px-2.5 py-1.5 text-xs disabled:opacity-50 sm:px-4 sm:py-2.5 sm:text-sm ${virgula ? "bg-amber-500/20 border-amber-400 text-amber-200" : "bg-slate-900/85 border-slate-700 text-slate-100 hover:bg-slate-800"}`}>
+            Virgula <kbd className="ml-1 text-slate-400">Maj</kbd>
+          </button>}
           {/* #89: the ida variants are led by an arrow held with its key (hint below), not by buttons. */}
-          {offered.filter(f => !GUIDE_FIGURES[f].ida && !GUIDE_FIGURES[f].chain && !GUIDE_FIGURES[f].insert).map(f => (
+          {offered.filter(f => !GUIDE_FIGURES[f].ida && !GUIDE_FIGURES[f].chain).map(f => (
             <button key={f} onPointerDown={e => lead(f, e.timeStamp)} disabled={auto}
               className="rounded-lg bg-slate-900/85 border border-slate-700 px-2.5 py-1.5 text-xs text-slate-100 hover:bg-slate-800 disabled:opacity-50 sm:px-4 sm:py-2.5 sm:text-sm">
               {GUIDE_FIGURES[f].label} <kbd className="ml-1 text-slate-400">{keyLabel(f, layout)}</kbd>
@@ -272,7 +288,10 @@ export default function GuidageApp() {
         {offered.includes("idaD") && <p className="text-center text-[11px] text-slate-400">
           → ou ↓ maintenue + {keyLabel("ida", layout)} : ida e volta jambe droite, en arrière d'abord · ↑ ↑ : double et marka
           {offered.includes("sortieFG") && <> · ↑ pendant la sortie fille : fin de la sortie garçon</>}
-          {offered.includes("sortieGI") && <> · {keyLabel("ida", layout)} au début d'une sortie : ida e volta inséré</>}
+        </p>}
+        {/* #144: every step that goes forward or backward can become a touch (the foot goes and returns). */}
+        {offered.includes("ida") && <p className="text-center text-[11px] text-slate-400">
+          {keyLabel("ida", layout)} pendant une figure, ou quand une figure attend : son prochain pas devient un aller-retour (le pied part et revient) · Maj + {keyLabel("ida", layout)} : en virgula
         </p>}
         <p className="self-stretch text-[10px] text-slate-500">
           Anatomie : BodyParts3D, © The Database Center for Life Science, licence CC BY-SA 2.1 Japan. Animation

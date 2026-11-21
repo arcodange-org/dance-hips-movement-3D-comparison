@@ -4,8 +4,9 @@
 [Mode jeu](spec-jeu-file-auto.md) (#140) · [Virgula](virgula.md) · [Règles du propriétaire](regles-proprietaire.md) ·
 [Issue #144](https://github.com/arcodange-org/dance-hips-movement-3D-comparison/issues/144)
 
-**Statut : modèle validé par le propriétaire le 21 novembre 2026** (réponses ci-dessous), sauf le
-comportement du suiveur quand il va de côté (question 4, reposée).
+**Statut : livré dans le mode jeu** (PR #145). Modèle validé par le propriétaire le 21 novembre 2026
+(réponses ci-dessous), sauf le comportement du suiveur quand il va de côté (question 4, reposée) : la
+spec applique le miroir de l'ida e volta en paire en attendant.
 
 ## Demande du propriétaire (21 novembre 2026)
 
@@ -93,21 +94,55 @@ Il prolonge l'ida inséré de #91.
    la géométrie de #127. Sans effet sur le suiveur.
 7. **Plusieurs fois** : chaque pas possible d'une même figure peut devenir un aller-retour, une fois.
 
+### Le temps du style
+
+Pendant un aller-retour, le style (déhanché, flexions) garde le temps de la figure : il s'arrête sur la
+position tenue, puis reprend avec le pas. Toute pose en dehors d'un aller-retour est donc une pose de la
+figure, déjà contrôlée par ses propres tests ; un aller-retour ajoute les déplacements de l'ida e volta à
+une pose de la figure. L'ida inséré de #91 laissait le style avancer pendant l'aller-retour : le mode jeu
+ne le fait plus (à la position D2 de la sortie garçon, cela croisait des fémurs en suave à l'amplitude 2).
+
 ### Positions retenues
 
-| Figure | Positions | Pas du leader qui devient l'aller-retour |
-|---|---|---|
-| Avancer, double | 0 | G en avant |
-| Avancer | 1 | D en avant |
-| Reculer | 0, 1 | G, puis D, en arrière |
-| Quart de tour | 0, 1 | G, puis D, en avant |
-| Sortie garçon | 0, 1, 2, 3 | G1, D2, G3, D4, en avant |
-| Sortie fille | 0, 2, 3, 4 | G1 en avant ; G3, D4, G5 en arrière |
-| Enchaînement (#90) | celles de la sortie fille jusqu'à sa position 3, puis le pont et la fin de la sortie garçon | |
+Une position n'est gardée que si ses contrôles sur le GLB passent dans les trois styles qui proposent
+l'ida e volta (kizomba, semba, suave), aux amplitudes 0,5, 1 et 2, dans la configuration du mode jeu
+(quinconce, plexus). Table : `TOUCH_POSITIONS` (`src/insertion.ts`).
 
-Non retenus : le D2 de la sortie fille (de côté), le G5 de la sortie garçon (fermeture), le second pas
-du double (il tombe à un demi-temps). Une position n'est gardée que si ses contrôles sur le GLB passent
-(critère 3) ; celles qui croisent des os sont listées dans le rapport avec leur mesure.
+| Figure | Position | Pas du leader | Ajustement mesuré |
+|---|---|---|---|
+| Avancer | 0 | G en avant | |
+| Avancer | 1 | D en avant | |
+| Reculer | 0 | G en arrière | |
+| Reculer | 1 | D en arrière | pied levé à 50 % (à pleine hauteur, deux rotules se touchent en suave à l'amplitude 2, sur une pose) |
+| Double | 0 | G en avant | |
+| Quart de tour | 0 | G en avant | |
+| Sortie garçon | 0 | G1 en avant | pied levé à 50 % (en virgula et à pleine hauteur, deux rotules se touchent en semba à l'amplitude 2, sur une pose) |
+| Sortie garçon | 1 | D2 en avant | aller-retour à 80 % de sa longueur, 14 cm (en entier, le fémur droit du leader croise celui du suiveur en semba) |
+| Sortie garçon | 2 | G3 en avant | D du suiveur ouvert de 3 cm (#91) |
+| Sortie fille | 0 | G1 en avant | pied levé à 50 % |
+| Sortie fille | 2 | G3 en arrière | (#91) |
+| Sortie fille | 3 | D4 en arrière | |
+| Sortie fille | 4 | G5 en arrière | |
+| Enchaînement (#90) | 0, 2 | comme la sortie fille | |
+| Enchaînement (#90) | 5 | G en avant (le G3 de la sortie garçon) | |
+
+Soit 13 pas, plus 3 positions de l'enchaînement.
+
+**Virgula** : proposée quand le G du leader avance depuis la position neutre (position 0 d'avancer, du
+double, du quart de tour et des sorties). C'est la géométrie validée de #127 et #128.
+
+**Non retenus**, avec leur mesure :
+
+| Pas | Raison |
+|---|---|
+| Sortie garçon, D4 (position 3) | Le leader a les jambes croisées ; son D, en partant droit devant, traverse sa jambe gauche : 12 poses sur 25 dans chaque style et à chaque amplitude |
+| Quart de tour, D (position 1) | Le couple est en train de tourner : les semelles du leader se recouvrent (13 poses sur 25) et ses jambes se croisent |
+| Double, second pas | Il tombe à un demi-temps |
+| Sortie fille, D2 | Pas de côté (exclu par le propriétaire) |
+| Sortie garçon, G5 | Fermeture (exclue par le propriétaire) |
+
+Pour le D4 de la sortie garçon, une piste : faire partir le pied dans la direction de son pas (en
+diagonale) plutôt que droit devant. Non fait.
 
 ## Mode jeu et danse automatique
 
@@ -118,17 +153,26 @@ du double (il tombe à un demi-temps). Une position n'est gardée que si ses con
   accessible le G1 d'une figure (« sortie garçon (G1) peut être remplacée par une ida volta ») ; en
   contrepartie, pour danser un ida e volta de 8 temps après une figure, il faut le commander quand elle
   n'a plus de pas possible devant elle.
+- Une pression sur le temps même d'une position arrive trop tard pour elle : c'est la suivante qui est
+  prise.
 - **Sens** : l'aller-retour suit le sens du pas qu'il précède. Les flèches maintenues (jambe droite,
   arrière d'abord) ne le changent pas.
-- **Virgula** : une touche maintenue (Maj) avec la touche de l'ida, quand le pas visé est un G du leader
-  qui avance. Sur écran tactile : un bouton à bascule « Virgula ».
+- **Virgula** : **Maj** maintenue avec la touche de l'ida, quand le pas visé la propose. Sur écran
+  tactile : le bouton à bascule « Virgula ». Ailleurs l'aller-retour se fait sans virgula.
+- **Segments** : la figure garde son nom et son début ; chaque aller-retour lui ajoute 2 temps et décale
+  les positions suivantes. Les anciennes figures « sortie avec ida e volta » (#91) disparaissent : ce sont
+  des sorties avec un aller-retour à la position 2.
+- **Enchaînement** (#90) : une sortie fille peut être à la fois ornée d'allers-retours et enchaînée. Un
+  aller-retour à partir de sa position 3 (D4, G5) la continue : ↑ redevient alors une commande ordinaire.
 - **Danse automatique** : « à chaque position le choix de faire le début d'une figure si possible ou de
-  terminer l'actuelle » (#140). Chaque position retenue devient un choix : faire le pas, ou
-  l'aller-retour d'abord. Le tirage de #140 s'y applique (probabilité plus forte quand l'aller-retour
-  amène une position neutre sur la fin de phrase, plus faible quand il l'en éloigne). La virgula est
-  tirée quand elle est possible.
-- Les deux insertions de #91 (position 2 des sorties) deviennent deux cas de ce modèle. Une sortie fille
-  peut désormais être à la fois ornée d'allers-retours et enchaînée (#90).
+  terminer l'actuelle » (#140). À chaque position retenue le simulateur tire : faire le pas, ou
+  l'aller-retour d'abord. Probabilité 0,12 ; 0,8 quand l'aller-retour amène une position neutre sur la fin
+  de phrase ; 0,05 quand la figure y arrive sans lui. La virgula est tirée 3 fois sur 10 quand elle est
+  possible (`GUIDE_AUTO.touch`, `.virgula`).
+- **Styles** : un aller-retour est un ida e volta. Il n'existe que dans les styles qui proposent l'ida e
+  volta (kizomba, semba, suave), pas en kompa, tarraxinha ni zouk.
+- Démonstration : `?mode=pair&guidage=1&demo=allerretour` (les deux exemples du propriétaire : G1 de la
+  sortie garçon, en virgula ; D4 de la sortie fille).
 
 ## Question reposée au propriétaire
 
@@ -141,12 +185,44 @@ du double (il tombe à un demi-temps). Une position n'est gardée que si ses con
 
 ## Critères (tests)
 
+`scripts/test_touches.mjs`, `scripts/test_guidage.mjs`, `docs/features/mode-jeu.feature`, dans `npm test`.
+
 1. Avant l'aller-retour, la figure est inchangée ; après, elle reprend à l'identique, décalée de 2 temps.
-2. Le pied part dans le sens de son pas ; le retour se fait sans poids ; le suiveur n'est jamais en
-   avance (R24).
-3. GLB, pour chaque point d'insertion, six styles qui proposent la figure, amplitudes 0,5 à 2 :
-   continuité, semelles au-dessus du sol et disjointes, aucun croisement d'os des jambes.
-4. Mode jeu : fenêtre de la commande, rejeu exact, danse automatique reproductible.
+2. Le pied part dans le sens de son pas et revient ; le poids est sur l'autre pied au début et à la fin ;
+   le retour se fait sans poids ; le pied d'appui ne bouge pas ; le suiveur fait le miroir et n'est jamais
+   en avance (R24).
+3. GLB, pour chaque position, styles qui proposent la figure et l'ida e volta, amplitudes 0,5 à 2 :
+   os au-dessus du sol, cibles des pieds atteintes, semelles disjointes, aucun croisement d'os des jambes
+   (entre danseurs ni pour un même danseur), de une demi-temps avant à une demi-temps après l'aller-retour.
+4. Squelette continu au début et à la fin de chaque aller-retour ; poses de la figure inchangées en dehors.
+5. Mode jeu : prochain pas possible (figure en cours, figure en attente), virgula, enchaînement, rejeu
+   exact, danse automatique reproductible, chaque position tirée.
+
+## Rapport (21 novembre 2026)
+
+- **Positions** : 16 proposées (13 pas, plus 3 positions de l'enchaînement), 6 d'entre elles aussi en
+  virgula : 22 cas. Trois ajustements mesurés (tableau des positions) ; deux pas écartés avec leur mesure.
+- **Échantillonnage** (`scripts/test_touches.mjs`) : pour les 22 cas, figure inchangée avant, reprise à
+  l'identique après, continuité aux deux bouts, pied dans le sens de son pas (plus de 10 cm), pied d'appui
+  immobile, poids sur l'autre pied au début et à la fin (plus de 95 %), retour sans poids, suiveur en
+  miroir et jamais en avance.
+- **GLB** : 4 482 poses de couple (kizomba, semba, suave ; amplitudes 0,5, 1, 2 ; quinconce et plexus) :
+  os au-dessus du sol, cibles des pieds atteintes, semelles disjointes, aucun croisement des os des
+  jambes.
+- **Mode jeu** (`scripts/test_guidage.mjs`) : poses de la figure inchangées hors de l'aller-retour
+  (654 poses, écart nul) ; squelette continu au début et à la fin des allers-retours (saut de 0,001 mm) ;
+  rejeu de 12 séances en direct (448 appuis, 4 727 instants d'aller-retour) identique au plan calculé d'un
+  coup ; aucun croisement d'os sur 2 181 poses des séances commandées et 1 005 poses de la danse
+  automatique.
+- **Danse automatique**, 40 graines × 320 temps en kizomba : 510 allers-retours tirés, dont 73 en virgula,
+  dans 443 figures ; chaque position proposée est tirée au moins une fois ; entre 10 % et 50 % des
+  figures en portent un. Une position neutre tombe sur **77 %** des fins de phrase (81 % avant #144,
+  25 % avec un tirage à poids égaux).
+- **Gherkin** : cinq scénarios de plus dans `docs/features/mode-jeu.feature` (12 en tout).
+
+Limites : la suiveuse fait toujours le miroir, y compris quand elle allait de côté (question 4, en
+attente). L'aller-retour part droit devant ou droit derrière, pas dans la diagonale du pas. Ces tests ne
+valident pas la chorégraphie.
 
 ## Hors périmètre
 

@@ -40,24 +40,23 @@ rejeu exact d'une partie.
   commande pressée trois fois se danse trois fois.
 - La file est affichée : figure en cours, puis les figures en attente, dans l'ordre.
 
-### Commandes prises pendant une sortie (#90, #91)
+### Commandes prises pendant une figure (#90, #91, #144)
 
-Deux commandes gardent un sens particulier quand elles arrivent **pendant** une sortie, avant sa
-jonction. Elles modifient la sortie en cours au lieu d'entrer dans la file :
+Deux commandes gardent un sens particulier. Elles modifient une figure au lieu d'entrer dans la file :
 
-| Pendant | Commande | Avant | Effet |
-|---|---|---|---|
-| sortie fille | ↑ (avancer) | sa position 3 | enchaîne la fin de la sortie garçon (#90) |
-| sortie garçon ou fille | ida e volta (toute variante) | sa position 2 | insère l'ida e volta à la position 2 (#91) |
+| Commande | Effet |
+|---|---|
+| ↑ (avancer) pendant la sortie fille, avant sa position 3 | enchaîne la fin de la sortie garçon (#90) |
+| ida e volta (toute variante) | le prochain pas possible de la danse devient un aller-retour du pied (#144) |
 
-- La fenêtre va du début de la sortie à la jonction. Elle commençait au temps 1 : cette borne servait à
-  refuser les pressions « trop tôt », elle n'a plus d'objet.
-- Pressée avant que la sortie commence (elle est encore dans la file), la même commande reste une
-  commande ordinaire : elle se danse après la sortie.
-- Une sortie ne reçoit qu'une modification : insérée, elle n'est plus enchaînée. Une seconde pression
-  de ↑ ou de l'ida est alors une commande ordinaire.
+- **Depuis #144** ([spec](spec-ida-partout.md), règle R27), l'ida inséré de #91 n'est plus limité à la
+  position 2 des sorties : tout pas qui avance ou recule peut devenir un aller-retour. La touche de l'ida
+  vise le prochain pas possible de la figure en cours, sinon le premier pas possible de la figure qui
+  attend en tête de file ; sans l'une ni l'autre, elle commande l'ida e volta de 8 temps. Une figure peut
+  recevoir plusieurs allers-retours, et une sortie fille peut être à la fois ornée et enchaînée.
+- ↑ pressée avant que la sortie fille commence reste une commande ordinaire : la marche après la sortie.
 - Les décisions sont prises dans l'ordre de l'horloge. La modification vaut dès la pression, mais les
-  poses jusqu'à la jonction restent celles de la sortie : rien ne saute.
+  poses jusqu'à la jonction restent celles de la figure : rien ne saute.
 
 ### Commande déjà commencée
 
@@ -84,12 +83,12 @@ Le moteur connaît deux sortes de positions où une figure peut commencer :
 
 1. **La position neutre** (quinconce) : à la fin d'une figure et tous les 4 temps du pas de base. Le
    simulateur y commence toujours une figure, tirée parmi celles du style.
-2. **Les jonctions d'une sortie** : la position 2 (ida e volta inséré) et, dans la sortie fille, la
-   position 3 (fin de la sortie garçon). Le simulateur y choisit entre commencer cette figure et
-   terminer la sortie.
+2. **Les jonctions d'une figure** : avant chaque pas qui avance ou recule (un aller-retour du pied, #144)
+   et, dans la sortie fille, la position 3 (fin de la sortie garçon, #90). Le simulateur y choisit entre
+   commencer cette figure et continuer celle qui se danse.
 
-Les autres positions d'une figure n'ont pas de départ possible aujourd'hui : la figure se termine.
-L'ontologie des figures (#95) pourra en déclarer d'autres.
+Le propriétaire a précisé ce point le 21 novembre : « chaque pied qui avance ou qui recule peut devenir
+un "ida e volta" » ([spec #144](spec-ida-partout.md)). Les positions sont celles que le GLB valide.
 
 ### Position neutre toutes les 32 temps
 
@@ -116,17 +115,17 @@ Tirage à une jonction :
 
 | Cas | Probabilité de commencer la figure |
 |---|---|
-| Par défaut | 0,3 |
-| La figure commencée finit juste sur la phrase | 0,8 |
-| Terminer la sortie finit juste sur la phrase | 0,05 |
+| Aller-retour, par défaut | 0,12 (0,3 avant #144, quand il n'y avait qu'une position par sortie) |
+| L'aller-retour fait finir la figure juste sur la phrase | 0,8 |
+| Sans lui, la figure finit juste sur la phrase | 0,05 |
 | Enchaînement, danse sur un temps pair | 0,15 |
 | Enchaînement, danse décalée d'un temps | 0,9 |
 
-Les trois premières lignes valent pour l'ida inséré (position 2). L'enchaînement (position 3 de la sortie
+Les trois premières lignes valent pour l'aller-retour. L'enchaînement (position 3 de la sortie
 fille) n'utilise que les deux dernières : sa durée impaire décale la danse, la phrase ne peut pas le
 guider autrement.
 
-Durées : marche 2, quart 4, sorties 6, ida 8, sortie avec ida inséré 8, sortie fille enchaînée 9. Toutes
+Durées : marche 2, quart 4, sorties 6, ida 8, sortie fille enchaînée 9, plus 2 par aller-retour. Toutes
 sont paires sauf l'enchaînement. Après un enchaînement, les frontières tombent sur les temps impairs et
 la fin de phrase devient inatteignable ; un second enchaînement recale la danse. D'où les deux dernières
 lignes : le simulateur enchaîne peu, et cherche à enchaîner de nouveau quand il est décalé.
@@ -163,6 +162,10 @@ graine : même liste, même danse. Revenir en arrière dans le temps redonne le 
    (six styles), en plus des contrôles existants.
 
 ## Rapport (21 novembre 2026)
+
+Les mesures ci-dessous sont celles de #140, à sa fusion. Depuis #144 les allers-retours s'ajoutent au
+tirage : la part des fins de phrase en position neutre est de 77 % (25 % sans préférence), voir
+[le rapport de #144](spec-ida-partout.md#rapport-21-novembre-2026).
 
 `scripts/test_guidage.mjs` et sept scénarios Gherkin (`docs/features/mode-jeu.feature`), dans `npm test` :
 

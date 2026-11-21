@@ -10,10 +10,10 @@ import { sampleQuartsPaire, QUARTS_PAIR_DZ } from "./quartsPaire";
 import { sampleSortieGarcon, SORTIE_GARCON_PAIR_DZ, DEFAULT_SORTIE_CONTRA, type FigureFoot, type FootPoint } from "./sortieGarcon";
 import { sampleSortieFille, SORTIE_FILLE_PAIR_DZ } from "./sortieFille";
 import { sampleSortieFG, CHAIN_BEATS, CHAIN_FROM } from "./enchainement";
-import { sampleInserted, INSERTED_BEATS, INSERTION_AT } from "./insertion";
+import { sampleTouched, touchedBeat, touchVirgula, TOUCH_BEATS, TOUCH_POSITIONS, type Touch } from "./insertion";
 import { placementOffset, placementScale, type CouplePlacement } from "./placement";
 
-export type GuideFigure = "ida" | "idaD" | "idaArr" | "idaArrD" | "quart" | "sortieG" | "sortieF" | "sortieFG" | "sortieFI" | "sortieGI" | "avance" | "recule" | "double";
+export type GuideFigure = "ida" | "idaD" | "idaArr" | "idaArrD" | "quart" | "sortieG" | "sortieF" | "sortieFG" | "avance" | "recule" | "double";
 export type GuideKind = "base" | GuideFigure;
 
 interface GuideFigureDef {
@@ -28,8 +28,6 @@ interface GuideFigureDef {
   ida?: IdaVariant; marche?: MarcheKind;
   /** #90: led during another figure (no key or button of its own). */
   chain?: boolean;
-  /** #91: the sortie with an ida e volta inserted at its position 2 (led during the sortie). */
-  insert?: boolean;
 }
 /** Pair figures available to the leader: pose movement, segment length (beats) and labels. */
 export const GUIDE_FIGURES: Record<GuideFigure, GuideFigureDef> = {
@@ -47,11 +45,8 @@ export const GUIDE_FIGURES: Record<GuideFigure, GuideFigureDef> = {
   // #90: ↑ during the sortie fille, before her G retakes the line: she advances into the sortie garçon's
   // position 2 and the couple finishes the sortie garçon (marka held one beat, as the sorties).
   sortieFG: { movement: "sortieF", beats: CHAIN_BEATS + 1, end: CHAIN_BEATS, label: "Sortie fille → fin de la sortie garçon", code: "", key: "↑", chain: true },
-  // #91: the ida's key during a sortie, before its position 2: the leader's G goes and returns (backwards
-  // in the sortie fille, forwards in the sortie garçon: the direction of his next step), then the sortie
-  // resumes.
-  sortieFI: { movement: "sortieF", beats: INSERTED_BEATS + 1, end: INSERTED_BEATS, label: "Sortie fille avec ida e volta", code: "", key: "W", insert: true },
-  sortieGI: { movement: "sortieG", beats: INSERTED_BEATS + 1, end: INSERTED_BEATS, label: "Sortie garçon avec ida e volta", code: "", key: "W", insert: true },
+  // #91, #144: the ida's key during a figure adds a touch to it (a foot's go-and-return before one of its
+  // steps): no kind of its own, the segment carries its touches.
   // #89: « haut = avancer (PG puis PD) ; bas = reculer » ; « haut + haut successif rapidement : PG + PD
   // en 1 temps + marka 1 temps ».
   avance: { movement: "ida", beats: 2, end: 2, label: "Avancer", code: "ArrowUp", key: "↑", marche: "avance" },
@@ -89,10 +84,12 @@ export function keyLabel(figure: GuideFigure, layout?: { get(code: string): stri
   return (letter && letter.length === 1 ? letter : def.key).toUpperCase();
 }
 /** Pose options of a segment kind's figure (#89: ida variant, walk). */
-export function figureOptions(kind: GuideKind): { idaVariant: IdaVariant; marche: MarcheKind | null; sortieChain: boolean; sortieInsert: boolean } {
+export function figureOptions(kind: GuideKind): { idaVariant: IdaVariant; marche: MarcheKind | null; sortieChain: boolean } {
   const f = kind === "base" ? null : GUIDE_FIGURES[kind];
-  return { idaVariant: f?.ida ?? IDA_DEFAULT, marche: f?.marche ?? null, sortieChain: !!f?.chain, sortieInsert: !!f?.insert };
+  return { idaVariant: f?.ida ?? IDA_DEFAULT, marche: f?.marche ?? null, sortieChain: !!f?.chain };
 }
+/** #144: positions of a figure where a touch may be added (docs/spec-ida-partout.md). */
+export const touchPositionsOf = (kind: GuideKind): Touch[] => TOUCH_POSITIONS[kind] ?? [];
 
 /** Proposals to validate (owner):
  * - `baseGrid`: the basic step can be left every `baseGrid` beats (style periods divide 4);
@@ -111,16 +108,19 @@ export const GUIDE = { baseGrid: 4, inertia: 1, double: 0.5, chord: 1 };
  *   quarter turn and the two sorties, `walk` for each walk; × `fit` when the figure ends exactly on the
  *   phrase, × `overshoot` when it runs past it, × `repeat` for the family just danced, × `realign` for
  *   the sortie fille when the dance is one beat off (its chain is the only odd figure);
- * - at a junction of a sortie, probability of starting the other figure: `junction`, `junctionFit` when
- *   it then ends exactly on the phrase, `junctionStay` when finishing the sortie does; for the chain
- *   (9 beats, it shifts the dance by one beat): `chainEven` on the beat, `chainOdd` when already off. */
+ * - #144, before a step that may become a touch (a foot's go-and-return, 2 beats more): probability
+ *   `touch`, `junctionFit` when the figure then ends exactly on the phrase, `junctionStay` when it does
+ *   without the touch; `virgula`: share of the touches danced as a virgula, where it is offered;
+ * - the chain (9 beats, it shifts the dance by one beat): `chainEven` on the beat, `chainOdd` when
+ *   already off (`junction` for the test draw that ignores the phrase). */
 export const GUIDE_AUTO = {
   phrase: 32, family: 3, walk: 1, fit: 4, overshoot: 0.25, repeat: 0.3, realign: 3,
-  junction: 0.3, junctionFit: 0.8, junctionStay: 0.05, chainEven: 0.15, chainOdd: 0.9,
+  touch: 0.12, virgula: 0.3, junction: 0.3, junctionFit: 0.8, junctionStay: 0.05, chainEven: 0.15, chainOdd: 0.9,
 };
 
-/** A command: the figure asked for, dated on the beat clock. */
-export interface GuideIntention { beat: number; figure: GuideFigure }
+/** A command: the figure asked for, dated on the beat clock. #144: `virgula` (a key held with the ida's)
+ * asks for the touch as a virgula, where the step offers it. */
+export interface GuideIntention { beat: number; figure: GuideFigure; virgula?: boolean }
 /** #140: what became of a command. « en file »: waiting behind others; « en cours »: being danced;
  * « dansée »: done; « insérée », « enchaînée »: it changed the sortie under way (#91, #90). */
 export type GuideStatus = "en file" | "en cours" | "dansée" | "insérée" | "enchaînée";
@@ -153,7 +153,15 @@ export interface GuideSegment {
   previous: GuideKind | null;
   /** #140: a command of the player, or a choice of the automatic dance (the basic step: neither). */
   by?: "commande" | "auto";
+  /** #144: touches of the figure (a foot's go-and-return before one of its steps), sorted by position;
+   * each adds `TOUCH_BEATS` to the segment. */
+  touches?: Touch[];
+  /** Touches of the segment danced before this one (they set its length, hence the style's time at its end). */
+  previousTouches?: Touch[];
 }
+/** Length (beats) of a segment: the figure and its touches. */
+export const segmentBeats = (kind: GuideKind, touches: Touch[] = []): number =>
+  (kind === "base" ? GUIDE.baseGrid : GUIDE_FIGURES[kind].beats) + TOUCH_BEATS * touches.length;
 /** Motion of one figure: couple transform from its start to its end, and the pelvis residual of each
  * dancer (own frame) the next segment starts with. */
 export interface FigureMotion { couple: CoupleTransform; residual: { leader: Offset; follower: Offset } }
@@ -196,9 +204,12 @@ export function sampleKind(kind: GuideKind, beat: number, follower: boolean, g: 
     case "sortieG": return sampleSortieGarcon(beat, follower, g.rest, "line", DEFAULT_SORTIE_CONTRA, o, placementScale(g.amp), g.stance);
     case "sortieF": return sampleSortieFille(beat, follower, g.rest, "hook", o, placementScale(g.amp), g.stance);
     case "sortieFG": return sampleSortieFG(beat, follower, g.rest, o, placementScale(g.amp), g.stance);
-    case "sortieFI": return sampleInserted("sortieF", beat, follower, g.rest, o, placementScale(g.amp), g.stance);
-    case "sortieGI": return sampleInserted("sortieG", beat, follower, g.rest, o, placementScale(g.amp), g.stance);
   }
+}
+/** #144: samples a figure with its touches at a local beat of the segment. */
+export function sampleSegment(kind: GuideKind, touches: Touch[], beat: number, follower: boolean, g: GuideRig) {
+  return touches.length ? sampleTouched(b => sampleKind(kind, b, follower, g), touches, beat, follower, g.rest, placementOffset(g.placement, g.amp), g.stance)
+    : sampleKind(kind, beat, follower, g);
 }
 
 /** Couple motion and pelvis residuals of every segment kind, measured on the samplers. */
@@ -246,7 +257,7 @@ const offBeat = (beat: number) => Math.abs((((beat % 2) + 2) % 2) - 1) < 1e-6;
 /** #140: figure the automatic dance starts at a neutral position (`boundary`), after `previous`. */
 export function autoFigure(seed: number, boundary: number, previous: GuideKind, offered: GuideFigure[], plain = false): GuideFigure | null {
   const A = GUIDE_AUTO;
-  const candidates = offered.filter(f => !GUIDE_FIGURES[f].chain && !GUIDE_FIGURES[f].insert);
+  const candidates = offered.filter(f => !GUIDE_FIGURES[f].chain);
   if (!candidates.length) return null;
   const into = ((boundary % A.phrase) + A.phrase) % A.phrase, remaining = A.phrase - into;
   const size: Record<string, number> = {};
@@ -269,8 +280,8 @@ export function autoFigure(seed: number, boundary: number, previous: GuideKind, 
 
 export interface GuidePlan {
   segments: GuideSegment[]; outcomes: GuideOutcome[];
-  /** #140: figures waiting in the queue, in order. */
-  queue: GuideFigure[];
+  /** #140: figures waiting in the queue, in order; #144: touches already asked for each of them. */
+  queue: GuideFigure[]; queueTouches: number[];
   /** #140: the automatic dance is on at `until`. */
   auto: boolean;
 }
@@ -280,90 +291,138 @@ export interface GuidePlan {
  * - At each boundary (end of a figure, every `baseGrid` beats of the basic step) the first command of the
  *   queue starts; the queue empty, the automatic dance draws a figure when it is on, else the basic step
  *   goes on.
- * - During a sortie, before its junction, two commands change the sortie instead of being queued: the
- *   ida's key (any variant) inserts the ida e volta at its position 2 (#91), ↑ chains the sortie fille
- *   into the end of the sortie garçon at its position 3 (#90). The automatic dance draws the same choice
- *   at each junction (« le début d'une figure si possible ou terminer l'actuelle »). */
+ * - #144: the ida's key (any variant) turns the next possible step of the dance into a touch (the foot
+ *   goes and returns, then the figure resumes): in the figure under way, else in the figure waiting first
+ *   in the queue; with neither, it is the 8-beat ida e volta, queued like any command.
+ * - #90: ↑ during the sortie fille, before its position 3, chains it into the end of the sortie garçon.
+ * - The automatic dance draws the same choices at each junction (« le début d'une figure si possible ou
+ *   terminer l'actuelle »). Every decision is taken in the order of the clock: a plan never rewrites its
+ *   past, and the poses up to a junction are those of the figure. */
 export function planGuide(intentions: GuideIntention[], motions: GuideMotions, until: number, options: GuideOptions = {}): GuidePlan {
   const list = intentions.filter(i => Number.isFinite(i.beat) && i.beat <= until)
     .map((intention, order) => ({ intention, order })).sort((a, b) => a.intention.beat - b.intention.beat || a.order - b.order);
   const modes = (options.modes ?? []).filter(m => Number.isFinite(m.beat) && m.beat <= until).sort((a, b) => a.beat - b.beat);
   const autoAt = (beat: number) => { let auto = false; for (const m of modes) { if (m.beat <= beat + 1e-9) auto = m.auto; else break; } return auto; };
   const offered = options.offered ?? GUIDE_FIGURE_KEYS, seed = options.seed ?? 0, plain = !!options.plain;
+  const A = GUIDE_AUTO;
   const outcomes: GuideOutcome[] = new Array(list.length);
   const segments: GuideSegment[] = [];
-  let current: GuideSegment = { kind: "base", start: 0, end: Infinity, couple: IDENTITY, residual: { leader: ZERO, follower: ZERO }, previous: null };
+  let current: GuideSegment = { kind: "base", start: 0, end: Infinity, couple: IDENTITY, residual: { leader: ZERO, follower: ZERO }, previous: null, touches: [] };
   segments.push(current);
   let next = 0; // first command not yet read
   const queue: number[] = []; // commands waiting, in order
+  const pending = new Map<number, Touch[]>(); // #144: touches asked for a command still waiting
   const started = new Map<number, GuideSegment>(); // command → the segment it started
+  const touching: { index: number; host: number; touch: Touch }[] = []; // touch commands on a waiting figure
   const settle = (index: number, status: GuideStatus, start: number | null) => {
     outcomes[list[index].order] = { intention: list[index].intention, status, start };
   };
   let previousBoundary = 0;
-  const consumed = new Set<number>();
-  for (let guard = 0; guard < 100000; guard++) {
-    // Junctions of the sortie under way: position 2 (#91, ida e volta inserted), then position 3 of the
-    // sortie fille (#90, end of the sortie garçon). The poses up to the junction are the sortie's: the
-    // segment changes kind without a jump. A command pressed during the sortie decides; else the
-    // automatic dance draws, once the junction is reached. The decisions are taken in the order of the
-    // clock (the draw at position 2 before a command pressed after it): a plan never rewrites its past.
-    if (current.kind === "sortieF" || current.kind === "sortieG") {
-      const host = current.kind, insertAt = current.start + INSERTION_AT, chainAt = current.start + CHAIN_FROM;
-      const junction = host === "sortieF" ? chainAt : insertAt;
-      const A = GUIDE_AUTO, stay = current.start + GUIDE_FIGURES[host].beats;
-      const inserted: GuideFigure = host === "sortieF" ? "sortieFI" : "sortieGI";
-      let drawn = false;
-      const drawInsertion = () => {
-        drawn = true;
-        if (current.kind !== host || until < insertAt || !autoAt(insertAt) || !offered.includes(inserted)) return;
-        const p = plain ? A.junction : onPhrase(current.start + GUIDE_FIGURES[inserted].beats) ? A.junctionFit : onPhrase(stay) ? A.junctionStay : A.junction;
-        if (guideDraw(seed, Math.round(insertAt * 8) * 4 + 1) < p) { current.kind = inserted; current.by = "auto"; }
-      };
-      for (let i = next; i < list.length && list[i].intention.beat < junction; i++) {
-        const { beat, figure } = list[i].intention;
-        if (consumed.has(i)) continue;
-        if (beat >= insertAt && !drawn) { drawInsertion(); if (current.kind !== host) break; }
-        const def = GUIDE_FIGURES[figure];
-        if (def.movement === "ida" && !def.marche && beat < insertAt && offered.includes(inserted)) {
-          current.kind = inserted; consumed.add(i); settle(i, "insérée", insertAt); break;
-        }
-        if (figure === "avance" && host === "sortieF" && offered.includes("sortieFG")) {
-          current.kind = "sortieFG"; consumed.add(i); settle(i, "enchaînée", chainAt); break;
-        }
-      }
-      if (!drawn) drawInsertion();
-      if (current.kind === "sortieF" && until >= chainAt && autoAt(chainAt) && offered.includes("sortieFG")) {
-        const p = plain ? A.junction : offBeat(current.start) ? A.chainOdd : A.chainEven;
-        if (guideDraw(seed, Math.round(chainAt * 8) * 4 + 2) < p) { current.kind = "sortieFG"; current.by = "auto"; }
-      }
+  /** Junctions of the segment under way already decided (`t<position>`, `chain`). */
+  let decided = new Set<string>();
+  const drawKey = (beat: number, k: number) => Math.round(beat * 8) * 4 + k;
+  const touchesOf = (s: GuideSegment) => s.touches ?? [];
+  /** Beat of a position of the segment: the touches before it have each added their beats. */
+  const junctionOf = (s: GuideSegment, at: number) => s.start + at + TOUCH_BEATS * touchesOf(s).filter(t => t.at < at).length;
+  // A touch is an ida e volta: offered where the style offers the ida e volta (not in the walk-only styles).
+  const touchable = offered.includes("ida");
+  const freePositions = (s: GuideSegment) => touchable ? touchPositionsOf(s.kind).filter(p => !decided.has(`t${p.at}`)) : [];
+  const addTouch = (s: GuideSegment, position: Touch, virgula: boolean): Touch => {
+    const touch: Touch = { ...position, ...(virgula && touchVirgula(s.kind, position) ? { virgula: true } : {}) };
+    s.touches = [...touchesOf(s), touch].sort((a, b) => a.at - b.at);
+    decided.add(`t${position.at}`);
+    return touch;
+  };
+  /** #90: the sortie fille can still be chained (a touch from its position 3 on continues it instead). */
+  const chainable = (s: GuideSegment) => s.kind === "sortieF" && offered.includes("sortieFG") && !decided.has("chain") && !touchesOf(s).some(t => t.at >= CHAIN_FROM);
+  const boundaryOf = (s: GuideSegment) => s.kind === "base"
+    ? s.start + GUIDE.baseGrid * Math.max(1, Math.ceil((previousBoundary - s.start + 1e-9) / GUIDE.baseGrid))
+    : s.start + segmentBeats(s.kind, touchesOf(s));
+  /** Next junction of the figure under way not decided yet: the chain, or a position (the chain first on a tie). */
+  const nextJunction = (s: GuideSegment): { beat: number; position: Touch | null } | null => {
+    if (s.kind === "base") return null;
+    let best: { beat: number; position: Touch | null } | null = chainable(s) ? { beat: junctionOf(s, CHAIN_FROM), position: null } : null;
+    for (const position of freePositions(s)) {
+      const beat = junctionOf(s, position.at);
+      if (!best || beat < best.beat - 1e-9) best = { beat, position };
     }
-    const boundary = current.kind === "base"
-      ? current.start + GUIDE.baseGrid * Math.max(1, Math.ceil((previousBoundary - current.start + 1e-9) / GUIDE.baseGrid))
-      : current.start + GUIDE_FIGURES[current.kind].beats;
-    // Commands pressed by this boundary join the queue (a press on the beat of the boundary included).
-    while (next < list.length && list[next].intention.beat <= boundary + 1e-9) { if (!consumed.has(next)) queue.push(next); next++; }
+    return best;
+  };
+  for (let guard = 0; guard < 400000; guard++) {
+    const boundary = boundaryOf(current);
+    const junction = nextJunction(current);
+    const command = next < list.length ? list[next].intention : null;
+    // 1. A junction of the figure under way: the commands pressed before it have been read; the automatic
+    // dance draws (a command pressed on the beat of the junction comes too late for it).
+    if (junction && junction.beat <= until && (!command || junction.beat <= command.beat)) {
+      const { beat, position } = junction;
+      if (!position) {
+        decided.add("chain");
+        if (autoAt(beat) && guideDraw(seed, drawKey(beat, 2)) < (plain ? A.junction : offBeat(current.start) ? A.chainOdd : A.chainEven)) {
+          current.kind = "sortieFG"; current.by = "auto";
+        }
+      } else {
+        decided.add(`t${position.at}`);
+        if (autoAt(beat)) {
+          const end = boundaryOf(current);
+          const p = plain ? A.touch : onPhrase(end + TOUCH_BEATS) ? A.junctionFit : onPhrase(end) ? A.junctionStay : A.touch;
+          if (guideDraw(seed, drawKey(beat, 1)) < p) addTouch(current, position, guideDraw(seed, drawKey(beat, 3)) < A.virgula);
+        }
+      }
+      continue;
+    }
+    // 2. A command pressed by the boundary (a press on the beat of the boundary included).
+    if (command && command.beat <= boundary + 1e-9) {
+      const index = next++;
+      const def = GUIDE_FIGURES[command.figure];
+      if (def.movement === "ida" && !def.marche) {
+        // #144: the next possible step of the dance becomes a touch.
+        const position = freePositions(current)[0];
+        if (position) { addTouch(current, position, !!command.virgula); settle(index, "insérée", junctionOf(current, position.at)); continue; }
+        const host = queue[0];
+        if (host !== undefined && touchable) {
+          const figure = list[host].intention.figure, taken = pending.get(host) ?? [];
+          const spot = touchPositionsOf(figure).find(q => !taken.some(t => t.at === q.at));
+          if (spot) {
+            const touch: Touch = { ...spot, ...(command.virgula && touchVirgula(figure, spot) ? { virgula: true } : {}) };
+            pending.set(host, [...taken, touch]); touching.push({ index, host, touch });
+            continue;
+          }
+        }
+      } else if (command.figure === "avance" && chainable(current)) {
+        current.kind = "sortieFG"; decided.add("chain"); settle(index, "enchaînée", junctionOf(current, CHAIN_FROM));
+        continue;
+      }
+      queue.push(index);
+      continue;
+    }
+    // 3. The boundary: the first command of the queue, else the automatic dance, else the basic step.
     if (boundary > until) break;
     previousBoundary = boundary;
-    const command = queue.shift();
-    const choice: GuideFigure | null = command !== undefined ? list[command].intention.figure
+    const head = queue.shift();
+    const choice: GuideFigure | null = head !== undefined ? list[head].intention.figure
       : autoAt(boundary) ? autoFigure(seed, boundary, current.kind, offered, plain) : null;
     if (current.kind === "base" && !choice) continue; // keep dancing the basic step
-    const motion = motions[current.kind];
-    const couple = compose(current.couple, motion.couple);
-    current.end = boundary;
-    current = { kind: choice ?? "base", start: boundary, end: Infinity, couple, residual: motion.residual, previous: current.kind,
-      ...(choice ? { by: command !== undefined ? "commande" as const : "auto" as const } : {}) };
+    const motion = motions[current.kind], previous = current;
+    previous.end = boundary;
+    const touches = head !== undefined ? [...(pending.get(head) ?? [])].sort((a, b) => a.at - b.at) : [];
+    current = { kind: choice ?? "base", start: boundary, end: Infinity, couple: compose(previous.couple, motion.couple), residual: motion.residual,
+      previous: previous.kind, previousTouches: touchesOf(previous), touches,
+      ...(choice ? { by: head !== undefined ? "commande" as const : "auto" as const } : {}) };
+    decided = new Set(touches.map(t => `t${t.at}`));
     segments.push(current);
-    if (command !== undefined) started.set(command, current);
+    if (head !== undefined) started.set(head, current);
   }
   for (const [index, segment] of started) settle(index, segment === current ? "en cours" : "dansée", segment.start);
+  // A touch asked for a figure still waiting starts with it.
+  for (const { index, host, touch } of touching) {
+    const segment = started.get(host);
+    settle(index, "insérée", segment ? segment.start + touch.at + TOUCH_BEATS * touchesOf(segment).filter(t => t.at < touch.at).length : null);
+  }
   // The head of the queue starts at the next boundary; the others wait behind it.
-  const ahead = current.kind === "base"
-    ? current.start + GUIDE.baseGrid * Math.max(1, Math.ceil((previousBoundary - current.start + 1e-9) / GUIDE.baseGrid))
-    : current.start + GUIDE_FIGURES[current.kind].beats;
+  const ahead = boundaryOf(current);
   queue.forEach((index, k) => settle(index, "en file", k === 0 ? ahead : null));
-  return { segments, outcomes, queue: queue.map(index => list[index].intention.figure), auto: autoAt(until) };
+  return { segments, outcomes, queue: queue.map(index => list[index].intention.figure), queueTouches: queue.map(index => pending.get(index)?.length ?? 0), auto: autoAt(until) };
 }
 
 /** Quintic fade of an inertialized residual (Bollo): 1 → 0 over `GUIDE.inertia` beats, flat at both ends. */
@@ -374,6 +433,10 @@ export function inertiaWeight(elapsed: number): number {
 
 export interface GuideSample {
   segment: GuideSegment; kind: GuideKind; movement: MovementKey; localBeat: number;
+  /** #144: touches of the segment, and the one under way at this beat (with its beats elapsed). */
+  touches: Touch[]; touch: Touch | null; touchBeat: number;
+  /** Beat of the figure itself (the touches taken out; held on its position during a touch). */
+  figureBeat: number;
   couple: CoupleTransform; rootOffset: { leader: Offset; follower: Offset };
   /** Share (1 → 0) of a boundary residual still applied (quintic fade). */
   inertia: number;
@@ -384,8 +447,10 @@ export function sampleGuide(plan: GuidePlan, beat: number): GuideSample {
   const localBeat = Math.max(0, beat - segment.start);
   const w = inertiaWeight(localBeat);
   const scaled = (o: Offset) => ({ x: o.x * w, z: o.z * w });
+  const touches = segment.touches ?? [], where = touchedBeat(touches, localBeat);
   return {
     segment, kind: segment.kind, localBeat, couple: segment.couple,
+    touches, touch: where.touch, touchBeat: where.t, figureBeat: where.hostBeat,
     movement: movementOf(segment.kind),
     rootOffset: { leader: scaled(segment.residual.leader), follower: scaled(segment.residual.follower) },
     inertia: segment.previous === null ? 0 : w,
@@ -399,10 +464,10 @@ export function movementOf(kind: GuideKind): MovementKey {
 
 /** Pose options of one dancer for a guide sample (shared by the view and the GLB tests): the pair
  * figure models, plexus contact, and the inertialized pelvis offsets of both dancers. */
-export function guidePoseOptions(s: Pick<GuideSample, "movement" | "rootOffset"> & { kind?: GuideKind }, follower: boolean) {
+export function guidePoseOptions(s: Pick<GuideSample, "movement" | "rootOffset"> & { kind?: GuideKind; touches?: Touch[] }, follower: boolean) {
   const role = follower ? "follower" : "leader", partner = follower ? "leader" : "follower";
   return {
-    movement: s.movement, embrace: true, follower, ...figureOptions(s.kind ?? "base"),
+    movement: s.movement, embrace: true, follower, ...figureOptions(s.kind ?? "base"), touches: s.touches ?? [],
     quartsPaire: s.movement === "quarts", idaPaire: s.movement === "ida", placePaire: s.movement === "none", plexus: true,
     // #62: the basic step keeps the clock's phase so that it joins the figures continuously.
     onBeat: false,
@@ -438,6 +503,13 @@ export const GUIDE_DEMO_INSERT: { beat: number; figure: GuideFigure }[] = [
   { beat: 3.9, figure: "sortieG" }, { beat: 5.5, figure: "ida" }, { beat: 11.9, figure: "sortieF" }, { beat: 13.5, figure: "ida" },
 ];
 
+/** #144 demonstration (`?guidage=1&demo=allerretour`): the owner's two examples. A sortie garçon whose G1
+ * is first a go-and-return, as a virgula (the ida's key with Shift while the sortie waits); then a sortie
+ * fille whose return (D4) is one (the ida's key before its position 3). */
+export const GUIDE_DEMO_TOUCH: GuideIntention[] = [
+  { beat: 1, figure: "sortieG" }, { beat: 2, figure: "ida", virgula: true }, { beat: 10, figure: "sortieF" }, { beat: 14.6, figure: "ida" },
+];
+
 /** Live wrapper used by the view: commands are appended as keys are pressed, mode changes as Space is. */
 export class GuideSession {
   intentions: GuideIntention[] = [];
@@ -449,7 +521,7 @@ export class GuideSession {
   boundKey: string | null = null;
   private cache: { key: string; plan: GuidePlan } | null = null;
   bind(g: GuideRig, key = "") { this.motions = guideMotions(g); this.boundKey = key; this.cache = null; }
-  press(beat: number, figure: GuideFigure) {
+  press(beat: number, figure: GuideFigure, virgula = false) {
     // #89: ↑ ↑ in quick succession leads the double (one command). ↓ held then the ida's key: the ↓ press
     // was a walk backwards until the key came; the ida variant replaces it.
     // #140: only a command still waiting in the queue is rewritten this way; one already started (or that
@@ -459,7 +531,7 @@ export class GuideSession {
     if (waiting && figure === "avance" && last.figure === "avance" && beat - last.beat <= GUIDE.double) last.figure = "double";
     else if (waiting && (figure === "idaArr" || figure === "idaArrD") && last.figure === "recule" && beat - last.beat <= GUIDE.chord)
       Object.assign(last, { beat, figure });
-    else this.intentions.push({ beat, figure });
+    else this.intentions.push({ beat, figure, ...(virgula ? { virgula: true } : {}) });
     this.cache = null;
   }
   /** The command has not started yet (an unbound session cannot tell: it waits). */
