@@ -26,6 +26,7 @@ import { QUARTS_PAIR_DZ } from "./quartsPaire";
 import { IDA_PAIR_DZ } from "./idaPaire";
 import { PLACE_PAIR_DZ } from "./placePaire";
 import { parseVec3, buildShareUrl } from "./share";
+import { parseShareParams } from "./shareParams";
 import { DIR_LABELS, isDiagonal } from "./directions";
 import SoundControls from "./components/SoundControls";
 import { useMusic } from "./music/useMusic";
@@ -137,69 +138,40 @@ export default function App() {
   // Paramètres d'URL (?style=&styleB=&mode=&bpm=&travel=&amp=&playing=&torso=&muscles=&sortie=&bare=)
   // prioritaires sur localStorage : utilisé par les captures automatisées (scripts/capture_gifs.mjs).
   useEffect(() => {
-    const p = params;
-    const num = (k: string) => (p.has(k) ? Number(p.get(k)) : null);
-    const str = (k: string) => p.get(k);
-    if (str("mode") && ["solo", "observe", "compare", "pair"].includes(str("mode")!)) setMode(str("mode") as ModeKey);
-    if (str("style") && STYLES[str("style")!]) setStyleA(str("style")!);
-    if (str("styleB") && STYLES[str("styleB")!]) setStyleB(str("styleB")!);
-    const b = num("bpm"); if (b !== null && b >= 24 && b <= 140) setBpm(b);
-    const tr = num("travel"); if (tr !== null && tr >= 0 && tr <= 1) setTravel(tr);
-    const am = num("amp"); if (am !== null && am >= 0.5 && am <= 2) setAmp(am);
-    if (p.has("playing")) setPlaying(p.get("playing") !== "0");
-    if (p.has("torso")) setShowTorso(p.get("torso") !== "0");
-    if (p.has("muscles")) setShowMuscles(p.get("muscles") !== "0");
-    if (p.has("repere")) setShowRepere(p.get("repere") !== "0");
-    if (p.has("appui")) setShowAppui(p.get("appui") !== "0");
-    if (p.has("plant")) setPlant(p.get("plant") !== "0");
-    let urlMovement = movement;
-    if (p.has("corridinho") || p.has("quarts") || p.has("temps3") || p.has("ida")
-        || p.has("sortie") || p.has("sortieG") || p.has("sortieF") || p.has("sortieGF")) {
-      // options exclusives : si plusieurs params sont présents, un seul est retenu (movementOf).
-      // `sortie=1` (legacy) = sortie garçon ; `sortieF=1` = sortie fille ; `sortieGF=1` = combiné.
-      const m = movementOf({
-        corridinho: p.has("corridinho") && p.get("corridinho") !== "0",
-        quarts: p.has("quarts") && p.get("quarts") !== "0",
-        temps3: p.has("temps3") && p.get("temps3") !== "0",
-        ida: p.has("ida") && p.get("ida") !== "0",
-        sortieG: (p.has("sortie") && p.get("sortie") !== "0") || (p.has("sortieG") && p.get("sortieG") !== "0"),
-        sortieF: p.has("sortieF") && p.get("sortieF") !== "0",
-        sortieGF: p.has("sortieGF") && p.get("sortieGF") !== "0",
-      });
-      urlMovement = m;
-      const f = movementFlags(m);
-      setCorridinho(f.corridinho);
-      setQuarts(f.quarts);
-      setTemps3(f.temps3);
-      setIda(f.ida);
-      setSortieG(f.sortieG);
-      setSortieF(f.sortieF);
-      setSortieGF(f.sortieGF);
+    // #31: the parsing is pure (src/shareParams.ts, tested with buildShareUrl); here it is only applied.
+    const s = parseShareParams(params, { mode, movement });
+    if (s.mode) setMode(s.mode);
+    if (s.styleA) setStyleA(s.styleA);
+    if (s.styleB) setStyleB(s.styleB);
+    if (s.bpm !== undefined) setBpm(s.bpm);
+    if (s.travel !== undefined) setTravel(s.travel);
+    if (s.amp !== undefined) setAmp(s.amp);
+    if (s.playing !== undefined) setPlaying(s.playing);
+    if (s.torso !== undefined) setShowTorso(s.torso);
+    if (s.muscles !== undefined) setShowMuscles(s.muscles);
+    if (s.repere !== undefined) setShowRepere(s.repere);
+    if (s.appui !== undefined) setShowAppui(s.appui);
+    if (s.plant !== undefined) setPlant(s.plant);
+    if (s.movement !== undefined) {
+      const f = movementFlags(s.movement);
+      setCorridinho(f.corridinho); setQuarts(f.quarts); setTemps3(f.temps3); setIda(f.ida);
+      setSortieG(f.sortieG); setSortieF(f.sortieF); setSortieGF(f.sortieGF);
     }
-    if (p.has("sortieFilleVariant")) setSortieFilleVariant(sortieFilleVariantOf(p.get("sortieFilleVariant")));
-    if (p.has("placement")) setPlacement(placementOf(p.get("placement")));
-    if (p.has("contra")) setContraposition(p.get("contra") === "0" ? 0 : 1);
-    const figureSettings = sortieGarconSettings(p);
-    if (p.has("sortieVariant")) setSortieVariant(figureSettings.variant);
-    if (p.has("sortieContra")) setSortieContra(figureSettings.contra);
-    const urlMode = ["solo", "observe", "compare", "pair"].includes(p.get("mode") ?? "") ? p.get("mode") : mode;
-    if (p.has("sortieBeat") && urlMode === "pair") {
-      if (urlMovement === "sortieG") seekClock(clock, figureSettings.beat);
-      if (urlMovement === "sortieF") seekClock(clock, sortieFilleBeat(Number(p.get("sortieBeat"))));
-      // Frame-by-frame captures of the quarter turns in pair (scripts/capture_figure_gif.mjs).
-      const quartsBeat = Number(p.get("sortieBeat"));
-      if ((urlMovement === "quarts" || urlMovement === "ida" || urlMovement === "none") && Number.isFinite(quartsBeat) && quartsBeat >= 0) seekClock(clock, quartsBeat);
-    }
-    if (p.has("ligne")) setShowLigne(p.get("ligne") !== "0");
-    if (p.has("iso")) setIso(p.get("iso") !== "0");
-    if (p.has("cadre")) setCadre(p.get("cadre") !== "0");
-    if (p.has("dir")) { const d = num("dir"); if (d !== null && (d === 1 || d === -1)) setDir(d); }
-    if (p.has("boussole")) setShowBoussole(p.get("boussole") !== "0");
-    // `delay` (retard du suiveur) supprimé en phase 15 : ignoré s'il est présent dans l'URL.
-    if (["none", "A", "B"].includes(p.get("ghost") ?? "")) setGhostSel(p.get("ghost")!);
-    if (p.has("contacts")) setShowContacts(p.get("contacts") !== "0");
-    if (p.get("musique") === "A" || p.get("musique") === "B") setMusicSide(p.get("musique") as "A" | "B");
-    if (p.get("son") === "1") setSoundWanted(true);
+    if (s.sortieFilleVariant) setSortieFilleVariant(s.sortieFilleVariant);
+    if (s.placement) setPlacement(s.placement);
+    if (s.contraposition !== undefined) setContraposition(s.contraposition);
+    if (s.sortieVariant) setSortieVariant(s.sortieVariant);
+    if (s.sortieContra !== undefined) setSortieContra(s.sortieContra);
+    if (s.seek !== undefined) seekClock(clock, s.seek);
+    if (s.ligne !== undefined) setShowLigne(s.ligne);
+    if (s.iso !== undefined) setIso(s.iso);
+    if (s.cadre !== undefined) setCadre(s.cadre);
+    if (s.dir !== undefined) setDir(s.dir);
+    if (s.boussole !== undefined) setShowBoussole(s.boussole);
+    if (s.ghost) setGhostSel(s.ghost);
+    if (s.contacts !== undefined) setShowContacts(s.contacts);
+    if (s.musique) setMusicSide(s.musique);
+    if (s.son) setSoundWanted(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -381,108 +353,113 @@ export default function App() {
     }
   };
 
+  // #31: one scene for the bare (captures) and the full view; the bare view keeps its own clock (no music
+  // driver) and no pan.
+  const renderScene = (bare: boolean, driver: typeof music.driver | null) => (
+    <Canvas camera={{ position: camPosParam ?? cam.position, fov: 42 }} dpr={[1, 2]}>
+      {!isFiveActionFigure && <DanceTransport clock={clock} bpm={bpm} playing={playing} driver={driver} />}
+      <color attach="background" args={["#0b1220"]} />
+      <ambientLight intensity={0.65} />
+      <directionalLight position={[3, 5, 4]} intensity={1.3} />
+      <directionalLight position={[-3, 2, -3]} intensity={0.4} color="#93c5fd" />
+      <GridFloor />
+      <OriginMarker visible={showRepere} />
+      <CompassRose visible={showBoussole && showRepere} />
+      {/* #60: the line of dance is perpendicular to the dancers' torsos in every view. */}
+      <LineOfDance visible={ligneVisible} />
+      <React.Suspense fallback={null}>
+        {isFiveActionFigure && <DanceTransport clock={clock} bpm={bpm} playing={playing}
+          endBeat={endBeat} onEnd={() => setPlaying(false)} driver={driver} />}
+        <Rig
+          styleKey={styleA}
+          bpm={bpm}
+          clock={clock}
+          amp={amp}
+          playing={playing}
+          offset={offsetA}
+          rotationY={0}
+          ghost={ghostA}
+          embrace={isPair}
+          pair={isPair ? pairRef : null}
+          side={isPair ? "leader" : null}
+          showContacts={isPair && showContacts && !hasPlacement}
+          travel={travel}
+          showTorso={showTorso}
+          showMuscles={showMuscles}
+          movement={movement}
+          sortieFilleVariant={sortieFilleVariant}
+          placement={hasPlacement ? placement : undefined}
+          contraposition={contraposition}
+          sortieVariant={sortieVariant}
+          sortieContra={sortieContra}
+          showAppui={showAppui}
+          stats={statsRef}
+          plant={plant}
+          corridinho={corridinho}
+          torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
+          iso={iso}
+          cadre={cadre}
+          quarts={quarts}
+          reverse={false}
+          dir={dir}
+          temps3={temps3}
+          ida={ida}
+        />
+        {(isCompare || isPair) && (
+          <Rig
+            styleKey={isPair ? styleA : styleB}
+            bpm={bpm}
+            clock={clock}
+            amp={amp}
+            playing={playing}
+            offset={offsetB}
+            rotationY={isPair ? Math.PI : 0}
+            ghost={ghostB}
+            embrace={isPair}
+            pair={isPair ? pairRef : null}
+            side={isPair ? "follower" : null}
+            showContacts={isPair && showContacts && !hasPlacement}
+            travel={travel}
+            showTorso={showTorso}
+            showMuscles={showMuscles}
+            movement={movement}
+            sortieFilleVariant={sortieFilleVariant}
+            placement={hasPlacement ? placement : undefined}
+          contraposition={contraposition}
+            sortieVariant={sortieVariant}
+            sortieContra={sortieContra}
+            showAppui={showAppui}
+            stats={statsBRef}
+            plant={plant}
+            corridinho={corridinho}
+            torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
+          iso={iso}
+          cadre={cadre}
+          quarts={quarts}
+          reverse={reverseB}
+          dir={dir}
+          temps3={temps3}
+          ida={ida}
+          />
+        )}
+        {isPair && showContacts && (isFiveActionFigure
+          ? <SortieGarconContactViz pair={pairRef} clock={isSortieFille ? clock : undefined} /> : <ContactViz pair={pairRef} />)}
+      </React.Suspense>
+      <OrbitControls
+        ref={controlsRef}
+        target={camTgtParam ?? cam.target}
+        enableDamping
+        dampingFactor={0.08}
+        minDistance={1.8}
+        maxDistance={7}
+        {...(bare ? { enablePan: false } : {})}
+      />
+    </Canvas>
+  );
   if (bare) {
     return (
       <div className="relative w-screen h-screen overflow-hidden bg-slate-950">
-        <Canvas camera={{ position: camPosParam ?? cam.position, fov: 42 }} dpr={[1, 2]}>
-          {!isFiveActionFigure && <DanceTransport clock={clock} bpm={bpm} playing={playing} />}
-          <color attach="background" args={["#0b1220"]} />
-          <ambientLight intensity={0.65} />
-          <directionalLight position={[3, 5, 4]} intensity={1.3} />
-          <directionalLight position={[-3, 2, -3]} intensity={0.4} color="#93c5fd" />
-          <GridFloor />
-          <OriginMarker visible={showRepere} />
-          <CompassRose visible={showBoussole && showRepere} />
-          {/* #60: the line of dance is perpendicular to the dancers' torsos in every view. */}
-          <LineOfDance visible={ligneVisible} />
-          <React.Suspense fallback={null}>
-            {isFiveActionFigure && <DanceTransport clock={clock} bpm={bpm} playing={playing}
-              endBeat={endBeat} onEnd={() => setPlaying(false)} />}
-            <Rig
-              styleKey={styleA}
-              bpm={bpm}
-              clock={clock}
-              amp={amp}
-              playing={playing}
-              offset={offsetA}
-              rotationY={0}
-              ghost={ghostA}
-              embrace={isPair}
-              pair={isPair ? pairRef : null}
-              side={isPair ? "leader" : null}
-              showContacts={isPair && showContacts && !hasPlacement}
-              travel={travel}
-              showTorso={showTorso}
-              showMuscles={showMuscles}
-              movement={movement}
-              sortieFilleVariant={sortieFilleVariant}
-              placement={hasPlacement ? placement : undefined}
-              contraposition={contraposition}
-              sortieVariant={sortieVariant}
-              sortieContra={sortieContra}
-              showAppui={showAppui}
-              stats={statsRef}
-              plant={plant}
-              corridinho={corridinho}
-              torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
-              iso={iso}
-              cadre={cadre}
-              quarts={quarts}
-              reverse={false}
-              dir={dir}
-              temps3={temps3}
-              ida={ida}
-            />
-            {(isCompare || isPair) && (
-              <Rig
-                styleKey={isPair ? styleA : styleB}
-                bpm={bpm}
-                clock={clock}
-                amp={amp}
-                playing={playing}
-                offset={offsetB}
-                rotationY={isPair ? Math.PI : 0}
-                ghost={ghostB}
-                embrace={isPair}
-                pair={isPair ? pairRef : null}
-                side={isPair ? "follower" : null}
-                showContacts={isPair && showContacts && !hasPlacement}
-                travel={travel}
-                showTorso={showTorso}
-                showMuscles={showMuscles}
-                movement={movement}
-                sortieFilleVariant={sortieFilleVariant}
-                placement={hasPlacement ? placement : undefined}
-              contraposition={contraposition}
-                sortieVariant={sortieVariant}
-                sortieContra={sortieContra}
-                showAppui={showAppui}
-                stats={statsBRef}
-                plant={plant}
-                corridinho={corridinho}
-                torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
-              iso={iso}
-              cadre={cadre}
-              quarts={quarts}
-              reverse={reverseB}
-              dir={dir}
-              temps3={temps3}
-              ida={ida}
-              />
-            )}
-            {isPair && showContacts && (isFiveActionFigure
-              ? <SortieGarconContactViz pair={pairRef} clock={isSortieFille ? clock : undefined} /> : <ContactViz pair={pairRef} />)}
-          </React.Suspense>
-          <OrbitControls
-            ref={controlsRef}
-            target={camTgtParam ?? cam.target}
-            enableDamping
-            dampingFactor={0.08}
-            minDistance={1.8}
-            maxDistance={7}
-            enablePan={false}
-          />
-        </Canvas>
+        {renderScene(true, null)}
         {showAppui && (isCompare || isFiveActionFigure) && hud && hudB && (
           <div className="absolute top-3 right-3 pointer-events-none bg-slate-900/70 rounded-md px-2 py-1 space-y-1.5 max-w-[90%]">
             <Gauge label={`${isFiveActionFigure ? "Leader" : "A"} · ${STYLES[styleA].label}`} color={STYLES[styleA].color} hud={hud} />
@@ -642,104 +619,7 @@ export default function App() {
         className="relative rounded-2xl overflow-hidden border border-slate-800"
         style={{ height: 540 }}
       >
-        <Canvas camera={{ position: camPosParam ?? cam.position, fov: 42 }} dpr={[1, 2]}>
-          {!isFiveActionFigure && <DanceTransport clock={clock} bpm={bpm} playing={playing} driver={music.driver} />}
-          <color attach="background" args={["#0b1220"]} />
-          <ambientLight intensity={0.65} />
-          <directionalLight position={[3, 5, 4]} intensity={1.3} />
-          <directionalLight position={[-3, 2, -3]} intensity={0.4} color="#93c5fd" />
-          <GridFloor />
-          <OriginMarker visible={showRepere} />
-          <CompassRose visible={showBoussole && showRepere} />
-          {/* #60: the line of dance is perpendicular to the dancers' torsos in every view. */}
-          <LineOfDance visible={ligneVisible} />
-          <React.Suspense fallback={null}>
-            {isFiveActionFigure && <DanceTransport clock={clock} bpm={bpm} playing={playing}
-              endBeat={endBeat} onEnd={() => setPlaying(false)} driver={music.driver} />}
-            <Rig
-              styleKey={styleA}
-              bpm={bpm}
-              clock={clock}
-              amp={amp}
-              playing={playing}
-              offset={offsetA}
-              rotationY={0}
-              ghost={ghostA}
-              embrace={isPair}
-              pair={isPair ? pairRef : null}
-              side={isPair ? "leader" : null}
-              showContacts={isPair && showContacts && !hasPlacement}
-              travel={travel}
-              showTorso={showTorso}
-              showMuscles={showMuscles}
-              movement={movement}
-              sortieFilleVariant={sortieFilleVariant}
-              placement={hasPlacement ? placement : undefined}
-              contraposition={contraposition}
-              sortieVariant={sortieVariant}
-              sortieContra={sortieContra}
-              showAppui={showAppui}
-              stats={statsRef}
-              plant={plant}
-              corridinho={corridinho}
-              torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
-              iso={iso}
-              cadre={cadre}
-              quarts={quarts}
-              reverse={false}
-              dir={dir}
-              temps3={temps3}
-              ida={ida}
-            />
-            {(isCompare || isPair) && (
-              <Rig
-                styleKey={isPair ? styleA : styleB}
-                bpm={bpm}
-                clock={clock}
-                amp={amp}
-                playing={playing}
-                offset={offsetB}
-                rotationY={isPair ? Math.PI : 0}
-                ghost={ghostB}
-                embrace={isPair}
-                pair={isPair ? pairRef : null}
-                side={isPair ? "follower" : null}
-                showContacts={isPair && showContacts && !hasPlacement}
-                travel={travel}
-                showTorso={showTorso}
-                showMuscles={showMuscles}
-                movement={movement}
-                sortieFilleVariant={sortieFilleVariant}
-                placement={hasPlacement ? placement : undefined}
-              contraposition={contraposition}
-                sortieVariant={sortieVariant}
-                sortieContra={sortieContra}
-                showAppui={showAppui}
-                stats={statsBRef}
-                plant={plant}
-                corridinho={corridinho}
-                torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
-              iso={iso}
-              cadre={cadre}
-              quarts={quarts}
-              reverse={reverseB}
-              dir={dir}
-              temps3={temps3}
-              ida={ida}
-              />
-            )}
-            {isPair && showContacts && (isFiveActionFigure
-              ? <SortieGarconContactViz pair={pairRef} clock={isSortieFille ? clock : undefined} /> : <ContactViz pair={pairRef} />)}
-          </React.Suspense>
-          <OrbitControls
-            ref={controlsRef}
-            target={camTgtParam ?? cam.target}
-            enableDamping
-            dampingFactor={0.08}
-            minDistance={1.8}
-            maxDistance={7}
-          />
-        </Canvas>
+        {renderScene(false, music.driver)}
         <div className="absolute bottom-3 left-3 flex gap-2 pointer-events-none">
           <span
             className="px-2 py-0.5 rounded-md text-[11px] font-semibold text-slate-950"

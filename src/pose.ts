@@ -518,7 +518,9 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     model.lift[s] = feet[s].lift;
     // #49: a rolling foot pivots on its ball or heel: that sole point stays where it is when flat.
     let x = feet[s].x, z = feet[s].z;
-    const pivot = feet[s].pivot;
+    // #73: outside figures the style's own foot rock (`extraL`, `extraR`) also pivots on a ground point,
+    // the ball when the heel rises, the heel when the toes rise: the support foot no longer slides.
+    const pivot = figure ? feet[s].pivot : extra > 0 ? "ball" : extra < 0 ? "heel" : null;
     if (pivot && extra !== 0) {
       const point = model.legs[s][pivot];
       const shift = point.clone().applyQuaternion(flat).sub(point.clone().applyQuaternion(q));
@@ -566,7 +568,11 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     for (const s of SIDES) {
       const leg = model.legs[s];
       const target = skeleton.worldToLocal(r.root.parent!.localToWorld(model.targets[s].clone()));
-      const solution = solveLeg3D(leg.hip, target, leg.length1, leg.length2, leg.f0, leg.t0);
+      // #84: a figure may keep the knees from following its own pelvis yaw (`kneeYaw`, rad): the knee
+      // pole turns back by that much, so the knees stay over the feet instead of swinging sideways.
+      const kneeYaw = figure ? (figure as { kneeYaw?: number }).kneeYaw ?? 0 : 0;
+      const pole = kneeYaw !== 0 ? new THREE.Vector3(-Math.sin(kneeYaw), 0, Math.cos(kneeYaw)) : undefined;
+      const solution = solveLeg3D(leg.hip, target, leg.length1, leg.length2, leg.f0, leg.t0, pole);
       r["hip" + s].quaternion.copy(solution.qHip);
       r["knee" + s].rotation.x = solution.beta;
       r["knee" + s].updateWorldMatrix(true, true);

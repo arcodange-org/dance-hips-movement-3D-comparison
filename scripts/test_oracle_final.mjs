@@ -42,9 +42,11 @@ function check(f, beat, expected, config, label) {
   const styleBeat=beat-api.onBeatShift({movement:'none',embrace:true,...config});
   quaternionNear(worldQuaternion(f.r.chest).toArray(),expectedChestWorld(outer,styleBeat,expected).toArray(),1e-7,label+' chest world');
   worldChecks+=4;
-  // This is a nominal path with no style sway or reach projection. Keep its historical
-  // 8 cm approximation bound separate from the exact ankle/orientation comparisons.
-  maxNominalRootError=Math.max(maxNominalRootError,near(f.r.root.position.x,expected.nominalRootX,.08,label+' nominal root'));
+  // #31: the root is the oracle's nominal path plus kizomba's own lateral hip shift (0.07·sway at
+  // amplitude 1, re-derived here like the chest above), exact on both axes; no reach projection occurs.
+  maxNominalRootError=Math.max(maxNominalRootError,
+    near(f.r.root.position.x,expected.nominalRootX+.07*Math.sin(Math.PI*styleBeat),1e-6,label+' nominal root x'),
+    near(f.r.root.position.z,expected.nominalRootZ,1e-6,label+' nominal root z'));
   poses++;
 }
 function checkContinuity(f, times, config, label) {

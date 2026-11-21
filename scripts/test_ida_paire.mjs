@@ -94,7 +94,27 @@ console.log('PASS neutre : quinconce (ou placement) retrouvé aux temps 0, 4 et 
     const L = api.sampleIdaPaire(b, false, rest, 'quinconce'), F = api.sampleIdaPaire(b + api.IDA_LEAD, true, rest, 'quinconce');
     near(L.rootYaw + L.chestYaw, -(F.rootYaw + F.chestYaw), 1e-12, `leader chest leads by ${api.IDA_LEAD} at ${b}`);
   }
-  near(travel, api.IDA_PAIR.carry * api.IDA_PAIR.step, 1e-3, 'pelvises travel carry·step');
+  // #84 (owner: « un côté de la hanche avance/recule et l'autre côté reste ») : the pelvis pivots about the
+  // standing hip; the moving foot's hip is ahead of it (in the dancer's step direction) by `hip` times the
+  // leader's step; the knees do not follow the pivot (kneeYaw = kneeFoot · pivot).
+  {
+    const span = rest.L.x - rest.R.x;
+    let peak = 0;
+    for (let tick = 0; tick < 800; tick++) for (const follower of [false, true]) {
+      const b = tick / 100, x = api.sampleIdaPaire(b, follower, rest, 'quinconce'), lead = api.sampleIdaPaire(b, false, rest, 'quinconce');
+      const leadOffset = lead.feet[lead.moving].z - api.sampleIdaPaire(0, false, rest, 'quinconce').feet[lead.moving].z;
+      // Advance of the moving hip over the standing one, in the dancer's own frame (z forward).
+      const ahead = (x.moving === 'L' ? -1 : 1) * span * Math.sin(x.rootYaw);
+      near(ahead, api.IDA_PAIR.hip * (follower ? -leadOffset : leadOffset), 2e-3, `#84 moving hip ahead at ${b} (${follower ? 'follower' : 'leader'})`);
+      near(x.kneeYaw, api.IDA_PAIR.kneeFoot * x.rootYaw, 1e-12, `#84 knees do not follow the pivot at ${b}`);
+      peak = Math.max(peak, Math.abs(ahead));
+    }
+    assert(peak > 0.02, `#84: the moving hip leads by a few centimetres (${peak})`);
+    console.log(`PASS #84 : bassin qui pivote sur la hanche d’appui, hanche du pied qui bouge en avance de ${(peak * 100).toFixed(1)} cm au plus ; genoux au-dessus des pieds`);
+  }
+  // #84: the pelvis travels with the weight (carry) plus half of the moving hip's advance (hip).
+  assert(travel >= api.IDA_PAIR.carry * api.IDA_PAIR.step - 1e-3 && travel <= (api.IDA_PAIR.carry + api.IDA_PAIR.hip / 2) * api.IDA_PAIR.step + 1e-3,
+    `pelvises travel between carry·step and (carry + hip/2)·step (${travel})`);
   // #89: the variants are the cycle started later (right leg +4, backwards first +2).
   for (const [v, shift] of [[{ side: 'R', back: false }, 4], [{ side: 'L', back: true }, 2], [{ side: 'R', back: true }, 6]])
     for (let b = 0; b < 8; b += .25) { const x = api.sampleIdaPaire(b, false, rest, 'quinconce', 0, v), y = api.sampleIdaPaire(b + shift, false, rest, 'quinconce');
