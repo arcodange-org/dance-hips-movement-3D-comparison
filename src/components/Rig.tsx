@@ -14,6 +14,7 @@ import type { SortieFilleVariant } from "../sortieFille";
 import type { CouplePlacement } from "../placement";
 import { DEFAULT_SORTIE_CONTRA, type SortieVariant } from "../sortieGarcon";
 import { IDA_DEFAULT, type IdaVariant } from "../idaPaire";
+import { applyAtlasPose, type AtlasMouvement } from "../atlas";
 import {
   MUSCLES_URL,
   DRACO_DECODER_PATH,
@@ -64,6 +65,8 @@ export interface RigProps {
   ida?: boolean;
   /** #69 guide mode: the session picks the pair figure and its local beat (docs/spec-mode-guidage-poc.md). */
   guide?: GuideSession | null;
+  /** #132 atlas: the rig holds one joint movement of the manifest at `angleDeg` (docs/spec-atlas-anatomique.md). */
+  atlas?: { mouvement: AtlasMouvement; angleDeg: number } | null;
 }
 
 export default function Rig({
@@ -103,6 +106,7 @@ export default function Rig({
   temps3 = false,
   ida = false,
   guide = null,
+  atlas = null,
 }: RigProps) {
   const torsoOp = torsoOpacity ?? TORSO_OPACITY;
   const r = useRef({} as RigHandle).current;
@@ -207,7 +211,7 @@ export default function Rig({
       }
     }
     const guided = guide && side && placement !== undefined ? guide.sample(clock.beat) : null;
-    const result = guided
+    const result = atlas ? applyAtlasPose(r, model, atlas.mouvement, atlas.angleDeg) : guided
       ? applyGuidePose(r, model, guided, { styleKey, amp, iso, cadre, placement, contraposition: contraposition ?? 1 },
         side === "follower", guideHeights.current)
       : applyPose(r, model, clock.beat + phaseOffset, {

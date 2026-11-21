@@ -19,12 +19,12 @@
       "labelEn": "Pelvic obliquity (roll)",
       "rig": "glb",
       "articulation": "Pelvis",
-      "axeLocal": "x",
+      "axeLocal": "z",
       "romDeg": [-10, 10],
       "cote": "les deux",
       "priorite": 1,
-      "preuve": "documente (marche : 6-9 deg crete a crete, docs/recherche-biomecanique/bassin-et-dissociation.md) ; proposition au-dela",
-      "notes": "Coeur du comparateur : roulis du bassin des six styles (kizomba ±2,9 deg, tarraxinha ±9 deg mesures du modele)."
+      "preuve": "documenté pour la marche : 6 à 9° crête à crête, soit ±3 à ±4,5° (docs/recherche-biomecanique/bassin-et-dissociation.md, tableau 1) ; proposition au-delà, jusqu'à ±10°",
+      "notes": "Cœur du comparateur : roulis du bassin des six styles (kizomba ±2,9°, tarraxinha ±9°, mesures du modèle)."
     },
     {
       "id": "bassin-rotation",
@@ -45,7 +45,7 @@
       "labelEn": "Pelvic tilt (pitch)",
       "rig": "glb",
       "articulation": "Pelvis",
-      "axeLocal": "z",
+      "axeLocal": "x",
       "romDeg": [-15, 15],
       "cote": "les deux",
       "priorite": 2,
