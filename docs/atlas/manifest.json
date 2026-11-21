@@ -37,7 +37,7 @@
       "cote": "les deux",
       "priorite": 1,
       "preuve": "proposition",
-      "notes": "Lacet du zouk ±10 deg dans le modele ; contre-rotation du thorax via lockUpperTrunk (iso=1)."
+      "notes": "Lacet du zouk ±10° dans le modèle. Dans la planche, le thorax reste de face : la colonne contre-tourne du même angle (règle propre à l'atlas ; lockUpperTrunk ne compense que le roulis et le tangage)."
     },
     {
       "id": "bassin-anteversion",

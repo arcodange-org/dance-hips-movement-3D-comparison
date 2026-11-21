@@ -80,6 +80,45 @@ function signConvention(mouvement, measured) {
   return `angle positif : le haut du bassin bascule vers l'${sens}`;
 }
 
+const fr = (value, digits = 1) => value.toFixed(digits).replace(".", ",").replace("-", "−");
+
+/** D13 — ce que la chaîne fermée du bassin montre et ne montre pas, par axe du mouvement. */
+const LIMITES_BASSIN = {
+  z: [
+    "Bassin en chaîne fermée, pieds plantés : la hanche qui descend fait fléchir son genou. D'autres stratégies (demi-pointe, translation du bassin) ne sont pas montrées.",
+    "Hauteur du bassin : la plus haute que les jambes permettent. Les genoux fléchissent donc à tour de rôle et le bassin remonte au passage par le centre (colonne « Hauteur du bassin »). La variante à hauteur constante, les deux genoux fléchis ensemble, n'est pas montrée : question ouverte dans la spécification.",
+  ],
+  y: [
+    "Bassin en chaîne fermée, pieds plantés : les pieds ne pivotent pas, les hanches absorbent la rotation.",
+    "Le thorax reste de face parce que la colonne contre-tourne du même angle. C'est une règle propre à l'atlas : l'isolation du comparateur compense le roulis et le tangage du bassin, pas le lacet.",
+  ],
+  x: [
+    "Bassin en chaîne fermée, pieds plantés : la bascule se fait autour de l'axe des centres de hanche, les jambes ne bougent pas.",
+    "Le buste reste vertical et se décale d'avant en arrière avec le haut du bassin. La courbure lombaire qui accompagne la bascule chez une personne n'est pas montrée.",
+  ],
+};
+
+/** D13 — repère de position d'une planche du bassin : la mesure qui varie avec le mouvement, par axe.
+ * `titre` et `note` servent au tableau de la page, `phrase` à la légende de la planche. */
+const REPERES = {
+  z: {
+    titre: "Hanche gauche − droite", note: "Hanche : écart de hauteur des centres articulaires.",
+    valeur: f => f.mesure.ecartHanchesMm,
+    phrase: f => `hanche gauche ${fr(f.mesure.ecartHanchesMm)} mm par rapport à la droite`,
+  },
+  y: {
+    titre: "Hanche gauche, avancée", note: "Hanche : avancée du centre articulaire gauche par rapport au droit (positif : gauche devant).",
+    valeur: f => f.mesure.avanceHanchesMm,
+    phrase: f => `hanche gauche ${fr(Math.abs(f.mesure.avanceHanchesMm))} mm ${f.mesure.avanceHanchesMm >= 0 ? "devant" : "derrière"} la droite`,
+  },
+  x: {
+    titre: "Sacrum, hauteur", note: "Sacrum : hauteur du centre du sacrum au-dessus de l'axe des centres de hanche.",
+    valeur: f => f.mesure.sacrumHauteurMm,
+    phrase: f => `centre du sacrum ${fr(f.mesure.sacrumHauteurMm)} mm au-dessus de l'axe des hanches`,
+  },
+};
+export const atlasRepere = (meta) => REPERES[meta.articulation.axeLocal];
+
 /** Le `meta.json` d'une planche : provenance, mesures sur le GLB, vues, fichiers. */
 export function buildAtlasMeta(api, manifest, id, { frames = api.ATLAS_FRAMES, vues = manifest.views, muscles = true } = {}) {
   const mouvement = manifest.mouvements.find(m => m.id === id);
@@ -105,7 +144,7 @@ export function buildAtlasMeta(api, manifest, id, { frames = api.ATLAS_FRAMES, v
     limites: [
       "Illustratif : aucune validation médicale ni chorégraphique.",
       "Pose neutre du moteur : pieds à l'écartement et à l'ouverture natifs du squelette, genoux fléchis d'au moins 0,12 rad par l'IK (jambe jamais verrouillée).",
-      "Bassin en chaîne fermée, pieds plantés : la hanche qui descend fait fléchir son genou. D'autres stratégies (demi-pointe, translation du bassin) ne sont pas montrées.",
+      ...LIMITES_BASSIN[mouvement.axeLocal],
       "Buste et bras : volumes stylisés, pas un maillage anatomique. Le haut du tronc compense le bassin (iso=1), bras en cadre de danse.",
     ],
     articulation: {
@@ -128,8 +167,12 @@ export function buildAtlasMeta(api, manifest, id, { frames = api.ATLAS_FRAMES, v
         angleDeg: round(s.mesure.angleDeg, 4),
         horsAxeDeg: round(s.mesure.horsAxeDeg, 4),
         ecartHanchesMm: round(s.mesure.ecartHanchesMm, 2),
+        avanceHanchesMm: round(s.mesure.hanches[2] * 1000, 2),
+        sacrumHauteurMm: round(s.mesure.sacrum[1] * 1000, 2),
+        sacrumAvanceMm: round(s.mesure.sacrum[2] * 1000, 2),
         genouDeg: { R: round(s.mesure.genouDeg.R, 2), L: round(s.mesure.genouDeg.L, 2) },
         thoraxDeg: round(s.mesure.thoraxDeg, 3),
+        thoraxRotationDeg: round(s.mesure.thoraxRotationDeg, 3),
         bassinMm: round(s.mesure.bassinMm, 2),
         solMm: round(s.solMm, 3),
       },
@@ -137,8 +180,12 @@ export function buildAtlasMeta(api, manifest, id, { frames = api.ATLAS_FRAMES, v
     unites: {
       angleDeg: "degrés", horsAxeDeg: "écart entre l'axe de rotation mesuré et l'axe monde attendu, degrés",
       ecartHanchesMm: "hauteur du centre de hanche gauche moins celle du droit, mm",
+      avanceHanchesMm: "avancée du centre de hanche gauche par rapport au droit, mm (positif : gauche devant)",
+      sacrumHauteurMm: "hauteur du centre du sacrum au-dessus du milieu des centres de hanche, mm",
+      sacrumAvanceMm: "avancée du centre du sacrum par rapport au milieu des centres de hanche, mm (négatif : derrière)",
       genouDeg: "flexion du genou, degrés (0 = jambe tendue)",
       thoraxDeg: "inclinaison du thorax par rapport à la verticale, degrés",
+      thoraxRotationDeg: "rotation du thorax par rapport à la pose neutre, tous axes confondus, degrés",
       bassinMm: "hauteur du centre du bassin au-dessus du sol, mm",
       solMm: "hauteur du sommet osseux le plus bas, mm (0 = au sol)",
     },
@@ -168,13 +215,12 @@ export function buildAtlasMeta(api, manifest, id, { frames = api.ATLAS_FRAMES, v
 
 export const serializeMeta = (meta) => JSON.stringify(meta, null, 2) + "\n";
 
-const fr = (value, digits = 1) => value.toFixed(digits).replace(".", ",").replace("-", "−");
-
 /** Page Markdown de la planche, entièrement dérivée de `meta.json` (déterministe). */
 export function buildPlancheReadme(api, meta) {
-  const m = meta.mouvement, a = meta.articulation;
+  const m = meta.mouvement, a = meta.articulation, repere = atlasRepere(meta);
+  const thorax = Math.max(...meta.frames.map(f => f.mesure.thoraxRotationDeg));
   const rows = meta.frames.map(f => `| ${f.index + 1} | ${api.atlasAngleLabel(f.angleDeg)} | ${api.atlasAngleLabel(f.mesure.angleDeg)} | ${
-    fr(f.mesure.ecartHanchesMm)} mm | ${fr(f.mesure.genouDeg.R)}° | ${fr(f.mesure.genouDeg.L)}° | ${fr(f.mesure.thoraxDeg)}° | ${fr(f.mesure.bassinMm)} mm |`);
+    fr(repere.valeur(f))} mm | ${fr(f.mesure.genouDeg.R)}° | ${fr(f.mesure.genouDeg.L)}° | ${fr(f.mesure.thoraxDeg)}° | ${fr(f.mesure.bassinMm)} mm |`);
   return [
     `# ${m.label}`,
     "",
@@ -190,6 +236,7 @@ export function buildPlancheReadme(api, meta) {
     "## Lecture",
     "",
     `- Convention de signe : ${a.signe}.`,
+    `- Thorax : il garde l'orientation de la pose neutre sur toute la course (rotation maximale ${fr(thorax)}°, tous axes confondus).`,
     `- Provenance : ${meta.generation}`,
     `- Niveau de preuve : ${meta.niveauDePreuve}.`,
     "",
@@ -198,11 +245,11 @@ export function buildPlancheReadme(api, meta) {
     "Mesures prises sur le GLB réel posé par le moteur de l'application, hors navigateur",
     `(${meta.romDeg.methode}). ROM mesurée : ${api.atlasAngleLabel(meta.romDeg.mesuree[0])} à ${api.atlasAngleLabel(meta.romDeg.mesuree[1])}.`,
     "",
-    "| Image | Angle commandé | Angle mesuré | Hanche gauche − droite | Genou droit | Genou gauche | Thorax | Hauteur du bassin |",
+    `| Image | Angle commandé | Angle mesuré | ${repere.titre} | Genou droit | Genou gauche | Thorax | Hauteur du bassin |`,
     "| --- | --- | --- | --- | --- | --- | --- | --- |",
     ...rows,
     "",
-    "Hanche : écart de hauteur des centres articulaires. Genou : flexion, 0° = jambe tendue. Thorax : inclinaison par rapport à la verticale.",
+    `${repere.note} Genou : flexion, 0° = jambe tendue. Thorax : inclinaison par rapport à la verticale.`,
     "",
     "## Vues animées",
     "",

@@ -22,7 +22,7 @@ import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
-  ATLAS_CAPTURE, DOCS_DIR, META_FILE, PLANCHE_FILE, PUBLIC_DIR, README_FILE, ROOT, buildAtlasMeta, buildPlancheReadme,
+  ATLAS_CAPTURE, DOCS_DIR, META_FILE, PLANCHE_FILE, PUBLIC_DIR, README_FILE, ROOT, atlasRepere, buildAtlasMeta, buildPlancheReadme,
   frameFile, gifFile, gifSequence, loadAtlasApi, readManifest, serializeMeta,
 } from "./atlas_meta.mjs";
 
@@ -100,7 +100,7 @@ function plancheHtml(api, meta, dir) {
   const rows = meta.vues.map(v => `<tr><th class="vue">${escapeHtml(v.label)}<small>azimut ${v.azimutDeg}°</small></th>${
     meta.fichiers.images[v.id].map(file => `<td><div class="cell"><img src="${dataUri(file)}" alt=""></div></td>`).join("")}</tr>`).join("");
   const resume = [meta.frames[0], meta.frames[meta.frames.length - 1]].map(f =>
-    `à ${api.atlasAngleLabel(f.angleDeg)}, hanche gauche ${fr(f.mesure.ecartHanchesMm)} mm par rapport à la droite, genou droit fléchi de ${
+    `à ${api.atlasAngleLabel(f.angleDeg)}, ${atlasRepere(meta).phrase(f)}, genou droit fléchi de ${
       fr(f.mesure.genouDeg.R)}°, gauche de ${fr(f.mesure.genouDeg.L)}°`).join(" ; ");
   const thorax = Math.max(...meta.frames.map(f => f.mesure.thoraxDeg));
   return `<!doctype html><meta charset="utf-8"><style>

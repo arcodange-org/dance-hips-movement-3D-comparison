@@ -2,7 +2,7 @@
 // réel, par le moteur de l'application (src/pose.ts). Module pur (aucun accès au DOM), partagé par la
 // vue de capture, scripts/capture_atlas.mjs et scripts/test_atlas_planches.mjs.
 // Le manifeste lui-même est lu par src/atlasManifest.ts (vue) ou sur le disque (scripts) : ce module
-// reste hors du chargement de l'application principale. Spécification : docs/spec-atlas-anatomique.md (D7 à D12).
+// reste hors du chargement de l'application principale. Spécification : docs/spec-atlas-anatomique.md (D7 à D13).
 import * as THREE from "three";
 import { applyPose, type PoseModel, type PoseStats } from "./pose";
 import type { RigHandle } from "./anatomy";
@@ -41,15 +41,19 @@ const AXIS = { x: 0, y: 1, z: 2 } as const;
 const UNIT: Record<AtlasAxis, [number, number, number]> = { x: [1, 0, 0], y: [0, 1, 0], z: [0, 0, 1] };
 
 /** Pose le rig à `angleDeg` du mouvement, depuis la pose neutre anatomique du moteur (D7).
- * Bassin : chaîne fermée, pieds plantés ; les jambes suivent par IK et le haut du tronc compense. */
+ * Bassin : chaîne fermée, pieds plantés ; les jambes suivent par IK et le thorax garde son orientation
+ * neutre (D13). L'isolation du moteur (`iso`) compense le roulis et le tangage du bassin, pas le lacet :
+ * pour l'axe `y`, la colonne contre-tourne du même angle. */
 export function applyAtlasPose(r: RigHandle, model: PoseModel, m: AtlasMouvement, angleDeg: number): PoseStats {
   const support = atlasSupport(m);
   if (!support.ok) throw new Error(`atlas ${m.id} : ${support.raison}`);
   const rotation: [number, number, number] = [0, 0, 0];
-  rotation[AXIS[m.axeLocal]] = angleDeg * Math.PI / 180;
+  const radians = angleDeg * Math.PI / 180;
+  rotation[AXIS[m.axeLocal]] = radians;
   return applyPose(r, model, 0, {
     neutral: true, amp: 0, travel: 0, plant: true, iso: true, cadre: true,
     pelvisOffset: { position: [0, 0, 0], rotation },
+    trunkOffset: m.axeLocal === "y" ? [0, -radians, 0, 0, 0, 0, 0, 0, 0] : null,
   });
 }
 
@@ -60,15 +64,18 @@ export function atlasNode(r: RigHandle, m: Pick<AtlasMouvement, "articulation">)
   return node;
 }
 
-export interface AtlasReference { quaternion: THREE.Quaternion; axe: THREE.Vector3 }
+export interface AtlasReference { quaternion: THREE.Quaternion; axe: THREE.Vector3; thorax: THREE.Quaternion }
 
-/** Référence de mesure : orientation monde du nœud à la pose neutre (angle 0) et axe monde attendu
- * (l'axe local du manifeste porté par cette orientation). */
+/** Référence de mesure : orientation monde du nœud à la pose neutre (angle 0), axe monde attendu
+ * (l'axe local du manifeste porté par cette orientation) et orientation monde du thorax. */
 export function atlasReference(r: RigHandle, model: PoseModel, m: AtlasMouvement): AtlasReference {
   applyAtlasPose(r, model, m, 0);
   r.root.updateWorldMatrix(true, true);
   const quaternion = atlasNode(r, m).getWorldQuaternion(new THREE.Quaternion());
-  return { quaternion, axe: new THREE.Vector3(...UNIT[m.axeLocal]).applyQuaternion(quaternion).normalize() };
+  return {
+    quaternion, axe: new THREE.Vector3(...UNIT[m.axeLocal]).applyQuaternion(quaternion).normalize(),
+    thorax: r.chest.getWorldQuaternion(new THREE.Quaternion()),
+  };
 }
 
 export interface AtlasMesure {
@@ -80,10 +87,14 @@ export interface AtlasMesure {
   ecartHanchesMm: number;
   /** Vecteur monde du centre de hanche droit vers le gauche (m). */
   hanches: [number, number, number];
+  /** Vecteur monde du milieu des centres de hanche vers le centre du sacrum (m). */
+  sacrum: [number, number, number];
   /** Flexion des genoux (°), 0 = jambe tendue. */
   genouDeg: { R: number; L: number };
   /** Inclinaison monde du thorax par rapport à la verticale (°). */
   thoraxDeg: number;
+  /** Rotation (°) du thorax par rapport à la pose neutre, tous axes confondus. */
+  thoraxRotationDeg: number;
   /** Hauteur monde du centre du bassin (mm). */
   bassinMm: number;
 }
@@ -98,13 +109,17 @@ export function measureAtlasPose(r: RigHandle, m: AtlasMouvement, reference: Atl
   const along = v.lengthSq() > 1e-24 ? v.clone().normalize().dot(reference.axe) : 1;
   const hipR = (r.hipR as THREE.Object3D).getWorldPosition(new THREE.Vector3());
   const hipL = (r.hipL as THREE.Object3D).getWorldPosition(new THREE.Vector3());
+  const sacrum = atlasNode(r, { articulation: "Sacrum" }).getWorldPosition(new THREE.Vector3())
+    .sub(hipR.clone().add(hipL).multiplyScalar(0.5));
   return {
     angleDeg: angle * Math.sign(along),
     horsAxeDeg: Math.acos(Math.min(1, Math.abs(along))) * 180 / Math.PI,
     ecartHanchesMm: (hipL.y - hipR.y) * 1000,
     hanches: [hipL.x - hipR.x, hipL.y - hipR.y, hipL.z - hipR.z],
+    sacrum: [sacrum.x, sacrum.y, sacrum.z],
     genouDeg: { R: stats.kneeR, L: stats.kneeL },
     thoraxDeg: stats.trunkTilt,
+    thoraxRotationDeg: r.chest.getWorldQuaternion(new THREE.Quaternion()).angleTo(reference.thorax) * 180 / Math.PI,
     bassinMm: (r.pelvis as THREE.Object3D).getWorldPosition(new THREE.Vector3()).y * 1000,
   };
 }

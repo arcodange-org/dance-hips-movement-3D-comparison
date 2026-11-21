@@ -76,19 +76,29 @@ const near = (a, b, tolerance, label) => assert.ok(Math.abs(a - b) <= tolerance,
   console.log(`PASS atlas planches : ${unsupported.length} mouvements sans règle de pose refusés explicitement, sans planche ; vues, frames et ids invalides refusés`);
 }
 
-// Obliquité : preuve par les positions. Une rotation dans le plan frontal fait monter une hanche et
-// descendre l'autre ; l'écart de hauteur vaut la composante verticale du vecteur inter-hanches neutre
-// tourné de l'angle autour de l'axe antéro-postérieur. Renvoie l'erreur maximale (mm) et l'amplitude (mm).
-function frontalEvidence(measured) {
-  const h0 = new THREE.Vector3(...measured.neutral.hanches), forward = new THREE.Vector3(0, 0, 1);
+// Preuve par les positions (D12 contrôle 2, D13) : un vecteur lié au bassin (« hanche droite → hanche gauche »
+// ou « milieu des hanches → centre du sacrum ») suit la rotation rigide de l'angle commandé autour de l'axe
+// monde anatomique. Renvoie l'erreur maximale (mm) et l'amplitude (mm) de la composante `composante` (0 = x,
+// 1 = y, 2 = z) du vecteur mesuré.
+function rigidEvidence(measured, vecteur, monde, composante) {
+  const v0 = new THREE.Vector3(...measured.neutral[vecteur]), axis = new THREE.Vector3(...monde);
   let error = 0, low = Infinity, high = -Infinity;
   for (const s of measured.samples) {
-    const expected = h0.clone().applyAxisAngle(forward, s.angleDeg * Math.PI / 180).y * 1000;
-    error = Math.max(error, Math.abs(s.mesure.ecartHanchesMm - expected));
-    low = Math.min(low, s.mesure.ecartHanchesMm); high = Math.max(high, s.mesure.ecartHanchesMm);
+    const actual = new THREE.Vector3(...s.mesure[vecteur]);
+    error = Math.max(error, v0.clone().applyAxisAngle(axis, s.angleDeg * Math.PI / 180).distanceTo(actual) * 1000);
+    low = Math.min(low, actual.getComponent(composante) * 1000); high = Math.max(high, actual.getComponent(composante) * 1000);
   }
   return { error, amplitude: high - low };
 }
+
+// Ce que chaque planche du bassin doit montrer, écrit ici sans lire le manifeste : axe monde anatomique (sujet
+// face à +z, côté droit en x < 0), vecteur et composante qui varient, amplitude minimale (mm), sens de variation
+// quand l'angle croît, convention de signe attendue dans meta.json, et un axe erroné qui doit être détecté.
+const PREUVES = {
+  "bassin-obliquite": { axe: "z", monde: [0, 0, 1], vecteur: "hanches", composante: 1, amplitudeMm: 40, sens: 1, signe: /hanche gauche monte/, faux: "x" },
+  "bassin-rotation": { axe: "y", monde: [0, 1, 0], vecteur: "hanches", composante: 2, amplitudeMm: 80, sens: -1, signe: /hanche droite avance/, faux: "z" },
+  "bassin-anteversion": { axe: "x", monde: [1, 0, 0], vecteur: "sacrum", composante: 1, amplitudeMm: 15, sens: 1, signe: /vers l'avant \(antéversion\)/, faux: "y" },
+};
 
 const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 const pngSize = (bytes, label) => {
@@ -110,7 +120,7 @@ function assertFresh(actual, expected, path, hint) {
 
 // 4. Chaque planche versionnée.
 const planches = existsSync(DOCS_DIR) ? readdirSync(DOCS_DIR).filter(d => statSync(join(DOCS_DIR, d)).isDirectory()).sort() : [];
-assert.ok(planches.includes("bassin-obliquite"), "la planche de preuve de chaîne (bassin-obliquite) est versionnée");
+for (const id of Object.keys(PREUVES)) assert.ok(planches.includes(id), `la planche ${id} est versionnée`);
 for (const id of planches) {
   const dir = join(DOCS_DIR, id), served = join(PUBLIC_DIR, id);
   const mouvement = manifest.mouvements.find(m => m.id === id);
@@ -135,23 +145,46 @@ for (const id of planches) {
   assert.ok(r.hipR.getWorldPosition(new THREE.Vector3()).x < 0 && r.hipL.getWorldPosition(new THREE.Vector3()).x > 0, "hanche droite en x < 0");
   for (const side of ["L", "R"]) assert.ok(model.legs[side].ball.z > model.legs[side].heel.z, "le sujet regarde +z (avant-pied devant le talon)");
 
+  // 4b bis. Preuve par les positions, propre au bassin : axe monde anatomique, vecteurs liés au bassin en
+  // rotation rigide, composante du repère qui varie dans le sens écrit dans meta.json, axe erroné détecté.
   let detail = "";
+  const preuve = PREUVES[id], first = measured.samples[0], last = measured.samples.at(-1), minimalKnee = 0.12 * 180 / Math.PI;
+  assert.ok(preuve, `${id} : preuve par les positions déclarée pour chaque planche du bassin`);
+  assert.equal(mouvement.axeLocal, preuve.axe, `${id} : axe local ${preuve.axe}`);
+  near(measured.reference.axe.dot(new THREE.Vector3(...preuve.monde)), 1, 1e-9, `${id} : axe monde anatomique`);
+  for (const vecteur of ["hanches", "sacrum"]) {
+    const rigid = rigidEvidence(measured, vecteur, preuve.monde, preuve.composante);
+    assert.ok(rigid.error <= 0.01, `${id} : le vecteur « ${vecteur} » suit la rotation rigide attendue (écart ${rigid.error} mm)`);
+  }
+  const evidence = rigidEvidence(measured, preuve.vecteur, preuve.monde, preuve.composante);
+  assert.ok(evidence.amplitude >= preuve.amplitudeMm, `${id} : amplitude du repère de position ${evidence.amplitude.toFixed(1)} mm`);
+  const repere = (sample) => sample[preuve.vecteur][preuve.composante];
+  assert.ok(preuve.sens * (repere(last.mesure) - repere(measured.neutral)) > 0 && preuve.sens * (repere(first.mesure) - repere(measured.neutral)) < 0,
+    `${id} : le repère varie dans le sens attendu de part et d'autre de la pose neutre`);
+  assert.match(meta.articulation.signe, preuve.signe, `${id} : convention de signe écrite dans meta.json`);
+  // Contre-épreuve : posé autour d'un autre axe, le repère ne varie plus et la rotation rigide attendue n'est plus suivie.
+  const wrong = rigidEvidence(measureMovement(api, { ...mouvement, axeLocal: preuve.faux }, frames), preuve.vecteur, preuve.monde, preuve.composante);
+  assert.ok(wrong.amplitude < 1 && wrong.error > 10, `${id} : un axe erroné est détecté (amplitude ${wrong.amplitude.toFixed(2)} mm, erreur ${wrong.error.toFixed(1)} mm)`);
+  const millimetres = (sample) => (repere(sample) * 1000).toFixed(1);
+  if (id !== "bassin-obliquite") {
+    // Rotation et antéversion : les hanches restent à la même hauteur, le bassin ne descend pas, les genoux
+    // restent près du minimum de l'IK (aucune jambe n'a à fléchir).
+    for (const s of measured.samples) {
+      near(s.mesure.ecartHanchesMm, measured.neutral.ecartHanchesMm, 0.2, `${id} image ${s.index} : hauteur relative des hanches inchangée`);
+      near(s.mesure.bassinMm, measured.neutral.bassinMm, 0.5, `${id} image ${s.index} : hauteur du bassin inchangée`);
+      for (const side of ["R", "L"]) assert.ok(s.mesure.genouDeg[side] <= minimalKnee + 1, `${id} image ${s.index} : genou ${side} près du minimum de l'IK`);
+    }
+  }
+  if (id === "bassin-rotation")
+    detail = `, hanche gauche de ${millimetres(first.mesure)} à ${millimetres(last.mesure)} mm d'avant en arrière, thorax de face, axe erroné détecté`;
+  if (id === "bassin-anteversion") {
+    // Les centres de hanche sont sur l'axe de bascule : ils ne bougent pas.
+    for (const s of measured.samples)
+      assert.ok(new THREE.Vector3(...s.mesure.hanches).distanceTo(new THREE.Vector3(...measured.neutral.hanches)) <= 0.0005, `${id} image ${s.index} : hanches immobiles`);
+    detail = `, sacrum de ${millimetres(first.mesure)} à ${millimetres(last.mesure)} mm au-dessus de l'axe des hanches, hanches immobiles, axe erroné détecté`;
+  }
   if (id === "bassin-obliquite") {
-    // Plan frontal : axe monde antéro-postérieur, et preuve par les positions des hanches.
-    assert.equal(mouvement.axeLocal, "z", "obliquité : rotation autour de l'axe antéro-postérieur (z)");
-    near(Math.abs(measured.reference.axe.z), 1, 1e-9, "axe monde de l'obliquité : antéro-postérieur");
-    const evidence = frontalEvidence(measured);
-    assert.ok(evidence.error <= 0.01, `une hanche monte, l'autre descend, de la valeur géométrique attendue (écart ${evidence.error} mm)`);
-    assert.ok(evidence.amplitude >= 40, `amplitude de l'écart de hauteur des hanches : ${evidence.amplitude.toFixed(1)} mm`);
-    const first = measured.samples[0], last = measured.samples.at(-1);
-    assert.ok(last.mesure.ecartHanchesMm > measured.neutral.ecartHanchesMm && first.mesure.ecartHanchesMm < measured.neutral.ecartHanchesMm,
-      "angle positif : hanche gauche haute ; angle négatif : hanche droite haute");
-    assert.match(meta.articulation.signe, /hanche gauche monte/, "convention de signe écrite dans meta.json");
-    // Contre-épreuve : l'axe du manifeste v1 (x, bascule sagittale) ne fait monter aucune hanche.
-    const wrong = frontalEvidence(measureMovement(api, { ...mouvement, axeLocal: "x" }, frames));
-    assert.ok(wrong.amplitude < 1 && wrong.error > 10, `un axe erroné est détecté (amplitude ${wrong.amplitude.toFixed(2)} mm, erreur ${wrong.error.toFixed(1)} mm)`);
     // Chaîne fermée : le genou du côté qui descend fléchit de plus en plus, l'autre reste au minimum de l'IK.
-    const minimalKnee = 0.12 * 180 / Math.PI;
     for (const s of measured.samples) {
       const [down, up] = s.angleDeg > 0 ? ["R", "L"] : ["L", "R"];
       if (s.angleDeg !== 0) assert.ok(s.mesure.genouDeg[down] > s.mesure.genouDeg[up] + 5, `${id} image ${s.index} : genou ${down} plus fléchi`);
@@ -168,6 +201,7 @@ for (const id of planches) {
   for (const s of measured.samples) {
     assert.ok(s.solMm >= -0.1, `${id} image ${s.index} : sommets osseux au-dessus du sol (${s.solMm} mm)`);
     near(s.mesure.thoraxDeg, 0, 0.01, `${id} image ${s.index} : thorax vertical (iso=1)`);
+    near(s.mesure.thoraxRotationDeg, 0, 0.01, `${id} image ${s.index} : thorax dans son orientation neutre, tous axes (D13)`);
     api.applyAtlasPose(r, model, mouvement, s.angleDeg);
     r.root.updateWorldMatrix(true, true);
     for (const side of ["L", "R"]) {
@@ -214,5 +248,5 @@ for (const id of planches) {
   assert.match(meta.licence.maillages, /DBCLS/); assert.match(meta.licence.maillages, /CC BY-SA 2\.1 Japan/);
   assert.match(meta.licence.attribution, /BodyParts3D v4\.0, © DBCLS, CC BY-SA 2\.1 Japan/);
 
-  console.log(`PASS atlas planche ${id} : ROM mesurée ${Math.min(...angles).toFixed(2)} à ${Math.max(...angles).toFixed(2)}° sur le nœud ${mouvement.articulation}${detail} ; sol, chevilles (${(ankleError * 1000).toFixed(3)} mm), pieds plantés, thorax vertical ; meta.json et README à jour ; ${listed.size} fichiers, copies servies identiques`);
+  console.log(`PASS atlas planche ${id} : ROM mesurée ${Math.min(...angles).toFixed(2)} à ${Math.max(...angles).toFixed(2)}° sur le nœud ${mouvement.articulation}${detail} ; sol, chevilles (${(ankleError * 1000).toFixed(3)} mm), pieds plantés, thorax immobile ; meta.json et README à jour ; ${listed.size} fichiers, copies servies identiques`);
 }

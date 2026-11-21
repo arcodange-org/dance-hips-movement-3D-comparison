@@ -22,6 +22,7 @@
     "Illustratif : aucune validation médicale ni chorégraphique.",
     "Pose neutre du moteur : pieds à l'écartement et à l'ouverture natifs du squelette, genoux fléchis d'au moins 0,12 rad par l'IK (jambe jamais verrouillée).",
     "Bassin en chaîne fermée, pieds plantés : la hanche qui descend fait fléchir son genou. D'autres stratégies (demi-pointe, translation du bassin) ne sont pas montrées.",
+    "Hauteur du bassin : la plus haute que les jambes permettent. Les genoux fléchissent donc à tour de rôle et le bassin remonte au passage par le centre (colonne « Hauteur du bassin »). La variante à hauteur constante, les deux genoux fléchis ensemble, n'est pas montrée : question ouverte dans la spécification.",
     "Buste et bras : volumes stylisés, pas un maillage anatomique. Le haut du tronc compense le bassin (iso=1), bras en cadre de danse."
   ],
   "articulation": {
@@ -55,11 +56,15 @@
         "angleDeg": -10,
         "horsAxeDeg": 0,
         "ecartHanchesMm": -28.36,
+        "avanceHanchesMm": 0.38,
+        "sacrumHauteurMm": 41.49,
+        "sacrumAvanceMm": -40.68,
         "genouDeg": {
           "R": 6.88,
           "L": 31.36
         },
         "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
         "bassinMm": 867.32,
         "solMm": 0
       }
@@ -71,11 +76,15 @@
         "angleDeg": -7.5,
         "horsAxeDeg": 0,
         "ecartHanchesMm": -21.09,
+        "avanceHanchesMm": 0.38,
+        "sacrumHauteurMm": 41.75,
+        "sacrumAvanceMm": -40.68,
         "genouDeg": {
           "R": 6.88,
           "L": 27.39
         },
         "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
         "bassinMm": 870.95,
         "solMm": 0
       }
@@ -87,11 +96,15 @@
         "angleDeg": -5,
         "horsAxeDeg": 0,
         "ecartHanchesMm": -13.79,
+        "avanceHanchesMm": 0.38,
+        "sacrumHauteurMm": 41.93,
+        "sacrumAvanceMm": -40.68,
         "genouDeg": {
           "R": 6.88,
           "L": 22.73
         },
         "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
         "bassinMm": 874.6,
         "solMm": 0
       }
@@ -103,11 +116,15 @@
         "angleDeg": -2.5,
         "horsAxeDeg": 0,
         "ecartHanchesMm": -6.46,
+        "avanceHanchesMm": 0.38,
+        "sacrumHauteurMm": 42.02,
+        "sacrumAvanceMm": -40.68,
         "genouDeg": {
           "R": 6.88,
           "L": 16.81
         },
         "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
         "bassinMm": 878.27,
         "solMm": 0
       }
@@ -119,11 +136,15 @@
         "angleDeg": 0,
         "horsAxeDeg": 0,
         "ecartHanchesMm": 0.88,
+        "avanceHanchesMm": 0.38,
+        "sacrumHauteurMm": 42.04,
+        "sacrumAvanceMm": -40.68,
         "genouDeg": {
           "R": 6.88,
           "L": 7.01
         },
         "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
         "bassinMm": 881.95,
         "solMm": 0
       }
@@ -135,11 +156,15 @@
         "angleDeg": 2.5,
         "horsAxeDeg": 0,
         "ecartHanchesMm": 8.22,
+        "avanceHanchesMm": 0.38,
+        "sacrumHauteurMm": 41.98,
+        "sacrumAvanceMm": -40.68,
         "genouDeg": {
           "R": 16.71,
           "L": 6.88
         },
         "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
         "bassinMm": 878.34,
         "solMm": 0
       }
@@ -151,11 +176,15 @@
         "angleDeg": 5,
         "horsAxeDeg": 0,
         "ecartHanchesMm": 15.54,
+        "avanceHanchesMm": 0.38,
+        "sacrumHauteurMm": 41.83,
+        "sacrumAvanceMm": -40.68,
         "genouDeg": {
           "R": 22.65,
           "L": 6.88
         },
         "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
         "bassinMm": 874.69,
         "solMm": 0
       }
@@ -167,11 +196,15 @@
         "angleDeg": 7.5,
         "horsAxeDeg": 0,
         "ecartHanchesMm": 22.84,
+        "avanceHanchesMm": 0.38,
+        "sacrumHauteurMm": 41.61,
+        "sacrumAvanceMm": -40.68,
         "genouDeg": {
           "R": 27.33,
           "L": 6.88
         },
         "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
         "bassinMm": 871.06,
         "solMm": 0
       }
@@ -183,11 +216,15 @@
         "angleDeg": 10,
         "horsAxeDeg": 0,
         "ecartHanchesMm": 30.09,
+        "avanceHanchesMm": 0.38,
+        "sacrumHauteurMm": 41.31,
+        "sacrumAvanceMm": -40.68,
         "genouDeg": {
           "R": 31.3,
           "L": 6.88
         },
         "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
         "bassinMm": 867.45,
         "solMm": 0
       }
@@ -197,8 +234,12 @@
     "angleDeg": "degrés",
     "horsAxeDeg": "écart entre l'axe de rotation mesuré et l'axe monde attendu, degrés",
     "ecartHanchesMm": "hauteur du centre de hanche gauche moins celle du droit, mm",
+    "avanceHanchesMm": "avancée du centre de hanche gauche par rapport au droit, mm (positif : gauche devant)",
+    "sacrumHauteurMm": "hauteur du centre du sacrum au-dessus du milieu des centres de hanche, mm",
+    "sacrumAvanceMm": "avancée du centre du sacrum par rapport au milieu des centres de hanche, mm (négatif : derrière)",
     "genouDeg": "flexion du genou, degrés (0 = jambe tendue)",
     "thoraxDeg": "inclinaison du thorax par rapport à la verticale, degrés",
+    "thoraxRotationDeg": "rotation du thorax par rapport à la pose neutre, tous axes confondus, degrés",
     "bassinMm": "hauteur du centre du bassin au-dessus du sol, mm",
     "solMm": "hauteur du sommet osseux le plus bas, mm (0 = au sol)"
   },

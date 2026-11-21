@@ -11,6 +11,7 @@
 ## Lecture
 
 - Convention de signe : angle positif : la hanche gauche monte, l'autre descend (rotation directe autour de l'axe monde).
+- Thorax : il garde l'orientation de la pose neutre sur toute la course (rotation maximale 0,0°, tous axes confondus).
 - Provenance : Généré paramétriquement sur squelette réel : ni capture de mouvement, ni photo de modèle, ni relecture par un professeur d'anatomie.
 - Niveau de preuve : documenté pour la marche : 6 à 9° crête à crête, soit ±3 à ±4,5° (docs/recherche-biomecanique/bassin-et-dissociation.md, tableau 1) ; proposition au-delà, jusqu'à ±10°.
 
@@ -47,6 +48,7 @@ Vue en direct dans l'application : `?atlas=bassin-obliquite&vue=face&frame=4&fra
 - Illustratif : aucune validation médicale ni chorégraphique.
 - Pose neutre du moteur : pieds à l'écartement et à l'ouverture natifs du squelette, genoux fléchis d'au moins 0,12 rad par l'IK (jambe jamais verrouillée).
 - Bassin en chaîne fermée, pieds plantés : la hanche qui descend fait fléchir son genou. D'autres stratégies (demi-pointe, translation du bassin) ne sont pas montrées.
+- Hauteur du bassin : la plus haute que les jambes permettent. Les genoux fléchissent donc à tour de rôle et le bassin remonte au passage par le centre (colonne « Hauteur du bassin »). La variante à hauteur constante, les deux genoux fléchis ensemble, n'est pas montrée : question ouverte dans la spécification.
 - Buste et bras : volumes stylisés, pas un maillage anatomique. Le haut du tronc compense le bassin (iso=1), bras en cadre de danse.
 
 ## Licences
