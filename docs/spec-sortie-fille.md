@@ -182,6 +182,8 @@ Périmètre : la variante crochet seulement. La variante recul ne change pas.
   pose par l'avant-pied.
 - Le pied et le genou G reviennent vers l'avant pendant le G3, quand le pied recule.
 - Le bassin revient de face plus tôt, entre 1,2 et 1,7 temps : le poids passe alors sur le D du crochet.
+- Avec l'option « sans contraposition » (buste aligné sur le bassin), le buste du leader suit son
+  bassin : c'est le sens de cette option.
 - Constantes : `SORTIE_FILLE_VIRGULA` (`src/sortieFille.ts`). L'option interne `sortieVirgula: false`
   redonne le pas droit ; elle sert aux tests de comparaison.
 
@@ -231,4 +233,14 @@ Sonde de calibrage : `node scripts/search_virgula.mjs` (4 374 poses de couple ju
   revenu en place. Seuls ses trois premiers temps changent.
 - Ida inséré à la position 2 : le G du leader recule et revient en gardant son angle.
 - Mode guidage : la sortie fille guidée est la variante crochet, donc avec la virgula.
+
+### Captures
+
+Kizomba, quinconce, amplitude 1, couche des muscles.
+
+![Virgula du leader, vue rapprochée derrière son épaule gauche](gifs/sortie-fille-virgula.gif)
+
+Trois premiers temps à 60 bpm : le G du leader se pose perpendiculaire, son D fait le crochet, puis le G
+recule et revient pointé vers l'avant. La figure entière, vue du guideur :
+[sortie fille, variante crochet](gifs/sortie-fille-crochet.gif).
 
