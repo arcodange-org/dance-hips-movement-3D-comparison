@@ -20,7 +20,14 @@ articulaires sont générées par le moteur de pose sur le squelette réel BodyP
 avec niveaux de preuve, et servent de référence aux specs des styles (roulis du bassin,
 isolations, compensation du tronc).
 [Spécification (PRD)](docs/spec-atlas-anatomique.md) · [Manifeste](docs/atlas/manifest.json) ·
-[ADR 005](docs/adr/005-atlas-donnees-ouvertes.md).
+[ADR 005](docs/adr/005-atlas-donnees-ouvertes.md) · [Dossier de l'atlas](docs/atlas/README.md).
+
+Première planche, [obliquité du bassin](docs/atlas/mouvements/bassin-obliquite/README.md) : 5 vues,
+9 images de −10° à +10°, mesures prises sur le squelette (`?atlas=bassin-obliquite` dans l'application).
+Squelette et muscles : BodyParts3D v4.0, © DBCLS, CC BY-SA 2.1 Japan ; planche générée
+paramétriquement, sans capture de mouvement ni photo de modèle.
+
+[![Planche de l'atlas : obliquité du bassin, 5 vues](docs/atlas/mouvements/bassin-obliquite/planche.png)](docs/atlas/mouvements/bassin-obliquite/README.md)
 
 ## Son synthétisé synchronisé (#44)
 

@@ -157,7 +157,8 @@ côté du membre qui bouge (le côté droit du sujet est en x < 0).
 - `?atlas=<id>&vue=<vue>&frame=<n>&frames=<N>&muscles=0|1` ouvre une vue dédiée
   (`src/components/AtlasApp.tsx`, morceau séparé comme le mode guidage) : un seul rig, posé par
   `applyAtlasPose`, caméra de la vue, légende rendue par la page (libellé, vue, angle,
-  attribution), car ffmpeg-static n'a pas `drawtext`.
+  attribution) dans deux bandes hors du rendu 3D, car ffmpeg-static n'a pas `drawtext`.
+  Sans `frame`, la vue montre la frame du milieu (la pose neutre d'une ROM symétrique).
 - L'URL est l'interface : le script change de frame et de vue par `history.replaceState` +
   `popstate`, sans recharger la page (le GLB n'est chargé qu'une fois par mouvement).
 - Signal de rendu : `document.documentElement.dataset.atlasRendu = "<id>|<vue>|<frame>/<frames>"`
@@ -168,16 +169,31 @@ côté du membre qui bouge (le côté droit du sujet est en x < 0).
 
 ### D11 — Fichiers produits et `meta.json`
 
-`node scripts/capture_atlas.mjs --mouvement <id> [--frames 9] [--vues face,profil] [--meta-seul]`
-écrit dans `docs/atlas/mouvements/<id>/` :
+`npm run build && node scripts/capture_atlas.mjs --mouvement <id> [--frames 9] [--vues face,profil]
+[--sans-muscles] [--meta-seul]` écrit dans `docs/atlas/mouvements/<id>/` :
 
-- `<vue>-<nn>.png` : une image par vue et par frame ;
-- `<vue>.gif` : aller-retour de la ROM par vue ;
-- `planche.png` : planche composite, une ligne par vue, une colonne par frame ;
-- `meta.json` : mesures et provenance.
+- `<vue>-<nn>.png` : une image par vue et par frame, 400 × 500 px, couleurs indexées ;
+- `<vue>.gif` : aller-retour de la ROM par vue, extrêmes tenus ;
+- `planche.png` : planche composite, une ligne par vue, une colonne par frame, avec en-têtes,
+  mesures, provenance et licences (mise en page HTML rendue par le navigateur) ;
+- `meta.json` : mesures et provenance ;
+- `README.md` : page de la planche, entièrement dérivée de `meta.json`.
 
-Assets servis, copiés à l'identique dans `public/atlas/mouvements/<id>/` : `meta.json`,
-`planche.png`, les GIF. Les PNG par frame restent dans `docs/` (le viewer rendra la 3D en direct).
+Chaque image porte sa légende (libellé, vue, angle) et l'attribution BodyParts3D dans deux bandes
+hors du rendu 3D : une image qui circule seule reste attribuée. La couche musculaire est affichée
+par défaut (préférence du propriétaire pour les captures) ; `--sans-muscles` donne le squelette seul.
+
+Le script sert lui-même `dist/` sur un port libre (jamais le serveur d'une autre session), échoue
+sur toute erreur de console ou ressource en échec, et n'utilise aucune attente fixe (signal D10).
+
+Assets servis, copiés à l'identique dans `public/atlas/mouvements/<id>/` : `meta.json` et
+`planche.png`. Les images par frame et les GIF restent dans `docs/` : le viewer rendra la 3D en
+direct, et aucun consommateur n'a besoin des GIF sur le site. Les y ajouter est une ligne
+(`fichiers.servis`) le jour où une page en a l'usage.
+
+Poids mesuré pour `bassin-obliquite` (9 frames × 5 vues) : 2,4 Mo dans `docs/` (45 images de 21 à
+34 Ko, 5 GIF de 140 à 200 Ko, planche 230 Ko), 0,24 Mo dans `public/`. Les 16 mouvements du
+manifeste pèseraient environ 42 Mo au même réglage.
 
 `meta.json` est **déterministe** (ni date ni machine) et calculé hors navigateur, sur le GLB réel,
 par le même moteur que l'application (`scripts/atlas_meta.mjs`) :
@@ -191,6 +207,14 @@ par le même moteur que l'application (`scripts/atlas_meta.mjs`) :
   genoux, inclinaison du thorax, hauteur du bassin, sommet osseux le plus bas ;
 - vues (azimut, position et cible de la caméra), fichiers, paramètres de capture.
 
+### Résultat sur `bassin-obliquite`
+
+[Planche et mesures](atlas/mouvements/bassin-obliquite/README.md). Sur le squelette réel, de −10°
+à +10° : ROM mesurée sur le nœud `Pelvis` égale à la ROM commandée ; écart de hauteur des centres
+de hanche de −28,4 à +30,1 mm (0,9 mm à la pose neutre, asymétrie du squelette) ; le genou du côté
+qui descend fléchit jusqu'à 31° pendant que l'autre reste à 6,9° ; le bassin descend de 14,5 mm ;
+le thorax reste vertical. Ces valeurs décrivent le modèle, pas une personne.
+
 ### D12 — Test `scripts/test_atlas_planches.mjs` (dans `npm test`, sans navigateur)
 
 Pour chaque planche présente dans `docs/atlas/mouvements/` :
@@ -203,8 +227,9 @@ Pour chaque planche présente dans `docs/atlas/mouvements/` :
    cibles, longueurs des segments constantes, thorax vertical (`iso=1`) ;
 4. `meta.json` versionné = `meta.json` recalculé (tolérances 0,05° et 0,5 mm) : une planche
    périmée par un changement du moteur ou du manifeste est signalée, avec la commande à relancer ;
-5. fichiers listés présents, signatures PNG/GIF et dimensions cohérentes, copies `public/`
-   identiques, attribution DBCLS et mention de provenance présentes.
+5. fichiers listés présents et aucun autre, signatures PNG/GIF et dimensions cohérentes, copies
+   `public/` identiques, `README.md` à jour, attribution DBCLS et mention de provenance présentes ;
+6. les mouvements sans règle de pose sont refusés explicitement et n'ont pas de planche.
 
 ### Correction du manifeste (axes du bassin)
 
@@ -221,7 +246,8 @@ Voir `docs/TASKS.md`, section « Atlas anatomique ouvert (#132) ».
 
 - `npm test` inclut `scripts/test_atlas_manifest.mjs` (manifeste valide, articulations résolues
   contre le GLB réel, ROM bornées, priorités 1 sur bassin/hanche).
-- `npm run build` inchangé (aucun code app touché par le PRD).
+- `npm test` inclut `scripts/test_atlas_planches.mjs` (D12) : planches mesurées sur le GLB, à jour et intègres.
+- `npm run build` : la vue `?atlas=` est un morceau séparé ; l'application n'est pas modifiée hors de l'option `neutral` du moteur (défaut inchangé) et de la propriété `atlas` du rig.
 - CI `test` du workflow Pages : `npm ci && npm test && npm run build`.
 
 ## Limites

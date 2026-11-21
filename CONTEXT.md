@@ -7,17 +7,37 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
 
 ## Atlas anatomique ouvert #132 (21 novembre 2026)
 
-Branche `arcodange/atlas-anatomique`, worktree `.claude/worktrees/atlas-anatomique`, PR draft.
-Demande du fondateur : produire nous-mêmes un équivalent d'anatobase.com à partir de données
-ouvertes (format inspiré, jamais de contenu copié — la licence AnatoBase est « reference-only »
-et ce dépôt est public). Livré : PRD [docs/spec-atlas-anatomique.md](docs/spec-atlas-anatomique.md),
+Branche `arcodange/atlas-anatomique`, worktree `.claude/worktrees/atlas-anatomique`, PR #139 (Draft,
+à jour avec `main` par fusion). Demande du fondateur : produire nous-mêmes un équivalent
+d'anatobase.com à partir de données ouvertes (format inspiré, jamais de contenu copié : la licence
+AnatoBase est « reference-only » et ce dépôt est public).
+
+Livré : PRD [docs/spec-atlas-anatomique.md](docs/spec-atlas-anatomique.md),
 [ADR 005](docs/adr/005-atlas-donnees-ouvertes.md) (BodyParts3D CC BY-SA 2.1 Japan © DBCLS,
 Z-Anatomy CC BY-SA 4.0, Gray 1918 domaine public, Wikidata CC0), [manifeste v1](docs/atlas/manifest.json)
-(16 mouvements, bassin/hanche/genou en priorité 1) + `scripts/test_atlas_manifest.mjs` dans
-`npm test` (articulations résolues contre les nœuds réels du GLB). Prototype Blender existant
-hors dépôt : `~/Work/Danse/anatomie-3d/` (fiches Z-Anatomy). Suite : `scripts/capture_atlas.mjs`
-(planches 5 vues via `pose.ts`), fiches muscles, sourcing des ROM dans `docs/recherche-biomecanique/`,
-viewer `?atlas=` + branchement oracle.
+(16 mouvements) + `scripts/test_atlas_manifest.mjs`.
+
+Chaîne de génération des planches « mouvements », prouvée sur `bassin-obliquite`
+([planche et mesures](docs/atlas/mouvements/bassin-obliquite/README.md)) :
+
+- `applyPose` a une option `neutral` (pose neutre anatomique, défaut inchangé). `src/atlas.ts` (pur)
+  pose un mouvement du manifeste et le mesure ; le bassin est en chaîne fermée, pieds plantés.
+- Vue `?atlas=<id>&vue=&frame=&frames=&muscles=` (`src/components/AtlasApp.tsx`, morceau séparé),
+  cinq vues `ATLAS_VIEWS` dans `src/cameras.ts`, signal de rendu `data-atlas-rendu`.
+- `npm run build && node scripts/capture_atlas.mjs --mouvement <id>` : images, GIF, planche,
+  `meta.json` (calculé hors navigateur sur le GLB, déterministe), `README.md`. Le script sert `dist/`
+  lui-même sur un port libre. Sur ce Mac : `CHROME_PATH` vers le Chromium 1228 de Playwright.
+- `scripts/test_atlas_planches.mjs` dans `npm test` : ROM sur le quaternion monde du nœud, preuve par
+  les positions des hanches, conventions verrouillées, fraîcheur de `meta.json` (une planche périmée
+  par le moteur échoue, avec la commande à relancer), intégrité des fichiers.
+- Le manifeste v1 inversait les axes du bassin (obliquité = z, antéversion = x) : corrigé.
+
+Mesuré de −10° à +10° : hanches de −28,4 à +30,1 mm, genou du côté bas jusqu'à 31°, thorax vertical.
+
+Suite : planches `bassin-rotation` et `bassin-anteversion` (règle prête), règles de pose des 13
+autres mouvements (le script les refuse pour l'instant), décision sur le poids versionné
+(≈ 2,6 Mo par mouvement), fiches muscles (prototype Blender hors dépôt :
+`~/Work/Danse/anatomie-3d/`), sourcing des ROM, viewer `?atlas=` complet + branchement oracle.
 
 ## Chantiers du 21 novembre 2026 : quarts, sortie garçon D2, GIFs avec muscles, virgula
 

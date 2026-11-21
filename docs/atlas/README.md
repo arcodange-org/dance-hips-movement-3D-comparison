@@ -12,12 +12,24 @@ dansants (roulis du bassin, isolations, compensation du tronc).
 - `manifest.json` — inventaire des mouvements articulaires prioritaires, mappés sur les nœuds
   réels du rig GLB (`public/anatomy.glb`) ou du buste JSX, avec ROM en degrés, priorité et
   niveau de preuve. Validé par `scripts/test_atlas_manifest.mjs` dans `npm test`.
-- `mouvements/` — planches générées (à venir) : un dossier par mouvement, 5 vues
-  (`face`, `troisQuarts`, `profil`, `troisQuartsDos`, `dos`), PNG + GIF + `meta.json`
-  (ROM mesurée sur le GLB, frames, caméra).
+- `mouvements/` — planches générées : un dossier par mouvement, 5 vues
+  (`face`, `troisQuarts`, `profil`, `troisQuartsDos`, `dos`), images PNG, GIF par vue, planche
+  composite, `meta.json` (ROM et mesures prises sur le GLB) et une page `README.md` dérivée.
+  Générées par `scripts/capture_atlas.mjs`, contrôlées par `scripts/test_atlas_planches.mjs`
+  dans `npm test`. Première planche : [obliquité du bassin](mouvements/bassin-obliquite/README.md).
 - `muscles/` — fiches muscle par muscle (à venir) : nom TA, origine, insertion, action,
   innervation (textes Gray 1918 / Wikidata), rendu 3D isolé (Z-Anatomy CC BY-SA 4.0 ou couche
   musculaire BodyParts3D embarquée dans `public/anatomy_muscles.glb`).
+
+## Planches disponibles
+
+| Mouvement | Planche | État |
+| --- | --- | --- |
+| Obliquité du bassin (roulis) | [bassin-obliquite](mouvements/bassin-obliquite/README.md) | générée, mesurée sur le GLB |
+| Rotation et antéversion du bassin | à venir | même règle de pose (bassin, pieds plantés) : il reste à les générer |
+| Hanche, genou, cheville, tronc (13 mouvements) | à venir | règle de pose à écrire (chaîne ouverte, buste) : le script les refuse pour l'instant |
+
+[![Planche : obliquité du bassin](mouvements/bassin-obliquite/planche.png)](mouvements/bassin-obliquite/README.md)
 
 ## Licences
 
@@ -38,6 +50,9 @@ modèles relues par un professeur d'anatomie. Le dire dans chaque planche.
 
 1. Ajouter un mouvement dans `manifest.json` (schéma validé par le test), priorité 1 = bassin,
    hanche, genou — ce que le comparateur anime.
-2. Générer les planches avec le pipeline de capture (à construire, voir spec §Pipeline) :
-   `npm run build && node scripts/capture_atlas.mjs --mouvement <id>`.
+2. Générer la planche (Chromium de Playwright requis ; `CHROME_PATH` si besoin) :
+   `npm run build && node scripts/capture_atlas.mjs --mouvement <id>`. Le script écrit
+   `docs/atlas/mouvements/<id>/` et copie `meta.json` et `planche.png` dans
+   `public/atlas/mouvements/<id>/`. Si seul le moteur ou le manifeste a changé et que les images
+   restent justes, `--meta-seul` recalcule `meta.json` et `README.md` sans navigateur.
 3. Sourcer les ROM dans `docs/recherche-biomecanique/` avant de passer la preuve en « documenté ».
