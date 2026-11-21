@@ -15,7 +15,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const bundle = join(root, "scripts", ".test-features-bundle.mjs");
 esbuild.buildSync({
   stdin: {
-    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon"; export * from "../src/sortieFille"; export * from "../src/idaPaire"; export * from "../src/gait"; export * from "../src/music/patterns"; export * from "../src/music/scheduler"; export * as guidage from "../src/guidage";',
+    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon"; export * from "../src/sortieFille"; export * from "../src/idaPaire"; export * from "../src/gait"; export * from "../src/music/patterns"; export * from "../src/music/scheduler"; export * as guidage from "../src/guidage"; export * from "../src/music/loop";',
     resolveDir: join(root, "scripts"),
     loader: "ts",
   },
@@ -153,6 +153,29 @@ const steps = [
     const tr = mod.retempoAt(c.tr, Number(m[2]), Number(m[1]));
     const b = mod.beatAt(tr, Number(m[2]) + Number(m[3]));
     if (Math.abs(b - Number(m[4])) > 1e-9) throw new Error(`temps ${b}, attendu ${m[4]}`);
+  }],
+  // Musique enregistrée (#142, docs/spec-musique-elevenlabs.md)
+  [/^une piste enregistrée à ([\d.]+) bpm dont le temps 1 est à ([\d.]+) s et la boucle fait (\d+) temps$/, (c, m) => {
+    c.rec = { style: "kizomba", file: "kizomba.mp3", bpm: Number(m[1]), firstBeat: Number(m[2]), beats: Number(m[3]) };
+  }],
+  [/^le temps (-?[\d.]+) de la danse se lit à ([\d.]+) s dans le fichier$/, (c, m) => {
+    const p = mod.positionOfBeat(c.rec, Number(m[1]));
+    if (Math.abs(p - Number(m[2])) > 5e-4) throw new Error(`position ${p}, attendu ${m[2]}`);
+  }],
+  [/^au tempo (\d+) la piste est jouée à ([\d.]+) fois sa vitesse$/, (c, m) => {
+    const r = mod.rateOf(c.rec, Number(m[1]));
+    if (Math.abs(r - Number(m[2])) > 5e-4) throw new Error(`vitesse ${r}, attendu ${m[2]}`);
+  }],
+  [/^la boucle dure ([\d.]+) s dans le fichier$/, (c, m) => {
+    const d = mod.loopSeconds(c.rec);
+    if (Math.abs(d - Number(m[1])) > 5e-4) throw new Error(`durée ${d}, attendu ${m[1]}`);
+  }],
+  [/^on construit l'URL de partage avec son=true et source=synthese$/, (c) => {
+    c.url = buildShareUrl("/app/", { mode: "pair", son: true, source: "synthese" }, null, null);
+  }],
+  [/^l'URL contient son=1 et source=synthese$/, (c) => {
+    const q = new URL(c.url, "https://exemple.test").searchParams;
+    if (q.get("son") !== "1" || q.get("source") !== "synthese") throw new Error(c.url);
   }],
   [/^on construit l'URL de partage avec son=true et musique=B$/, (c) => {
     c.url = buildShareUrl("/app/", { mode: "compare", son: true, musique: "B" }, null, null);
