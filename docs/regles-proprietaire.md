@@ -5,6 +5,13 @@ par le propriétaire, avec leur source, la spec qui les porte et l'état mesuré
 l'audit de conformité. Chaque règle est citée telle quelle (verbatim) puis reformulée en critère
 vérifiable.
 
+Les règles chiffrées par le propriétaire (R4 : plexus à 6 cm au plus ; R8 : pas d'une longueur de pied,
+21,2 cm, et d'une largeur de hanche, 34 cm) sont mesurées à leur seuil, figure par figure, par
+`scripts/test_ecarts_regles.mjs` (#75, dans `npm test`). Le test affiche les écarts sans échouer, mais
+échoue si une figure s'éloigne de la règle plus que la valeur enregistrée
+(`scripts/fixtures/ecarts-regles.json` ; `WRITE=1` après un changement voulu). R2 et R3 n'ont pas de
+seuil chiffré : ils n'y figurent pas.
+
 ## Position et distance du couple
 
 | # | Règle (verbatim) | Critère vérifiable | Spec | État (20 nov. 2026) |
