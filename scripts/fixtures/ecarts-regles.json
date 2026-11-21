@@ -1,5 +1,6 @@
 {
   "sortie garçon": {
+    "R21": 0.01,
     "R4": 27.1,
     "R8": {
       "leader": {
@@ -13,6 +14,7 @@
     }
   },
   "sortie fille, crochet": {
+    "R21": 0.02,
     "R4": 43.4,
     "R8": {
       "leader": {
@@ -26,6 +28,7 @@
     }
   },
   "sortie fille, recul": {
+    "R21": 0.02,
     "R4": 28,
     "R8": {
       "leader": {
@@ -39,6 +42,7 @@
     }
   },
   "quart de tour": {
+    "R21": 0.12,
     "R4": 10.1,
     "R8": {
       "leader": {
@@ -52,6 +56,7 @@
     }
   },
   "ida e volta": {
+    "R21": 0.195,
     "R4": 7.7,
     "R8": {
       "leader": {
@@ -63,5 +68,13 @@
         "side": 0
       }
     }
+  },
+  "sur place (R21)": {
+    "kizomba": 0.045,
+    "semba": 0.045,
+    "kompa": 0.015,
+    "tarraxinha": 0,
+    "suave": 0,
+    "zouk": 0.045
   }
 }
