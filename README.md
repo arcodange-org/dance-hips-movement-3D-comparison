@@ -48,9 +48,10 @@ proximité des cuisses restent des illustrations paramétriques, pas une simulat
 ![Sortie garçon validée — variante à droite](docs/gifs/sortie-garcon-validee.gif)
 <details><summary>Détails & source</summary>
 
-Capture du canvas via « Exporter un cycle » : cinq temps à 90 bpm, kizomba, amplitude 1,
-variante à droite et contraposition illustrative 12°. BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
-Les jauges HTML ne sont pas incluses. Le GIF boucle ; l'application conserve la pose finale.
+Capture image par image (`scripts/capture_figure_gif.mjs`) : cinq temps à 90 bpm, kizomba, paire,
+quinconce, amplitude 1, variante à droite, couche des muscles, vue du guideur. En position 2, les pieds D
+sont tout près (4 cm) et le bassin du leader reste légèrement en arrière de son D (#130).
+BodyParts3D © DBCLS, CC BY-SA 2.1 Japan. Le GIF boucle ; l'application conserve la pose finale.
 [Séquence et sources](docs/spec-sortie-garcon.md), [preuves et limites](docs/retrospective-sortie-garcon.md).
 </details>
 

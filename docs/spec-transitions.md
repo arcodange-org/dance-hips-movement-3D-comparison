@@ -38,8 +38,8 @@ Les tableaux de [figures du dépôt](cadre/figures-du-depot.md) (Garcia [S8], We
 du propriétaire) sont repris et mis à jour avec les décisions postérieures :
 
 - sortie garçon : le suiveur ne fait que reculer, droit ; le leader gère seul son décalage (#110).
-  En position 2, le bassin du leader est au-dessus de son D, les cuisses D se touchent sur le côté, et
-  la moitié droite des bustes se fait face (#104) ;
+  En position 2, les pieds D sont tout près (4 cm) et les genoux D proches, le bassin du leader reste
+  légèrement en arrière de son D (#130), et la moitié droite des bustes se fait face (#104) ;
 - sortie fille : pas aux unités du propriétaire, un pied en longueur et une demi-hanche à une hanche
   et demie en largeur (#105) ;
 - quarts : départs simultanés (#82), bassin et buste en diagonale au premier pied (R25, #106) ;
