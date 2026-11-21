@@ -10,9 +10,9 @@ import { existsSync, mkdtempSync, readFileSync, readdirSync, unlinkSync, writeFi
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { CREDITS_PAR_MINUTE, MODELE, PROMPTS, coutEstime } from "./musique_prompts.mjs";
+import { A_EVITER, CREDITS_PAR_MINUTE, DUREE_ESSAI, MODELE, PROMPTS, VARIANTES, coutEstime, creditsPour, planDe, texteDe } from "./musique_prompts.mjs";
 import { ANALYSIS_RATE, analyseTempo } from "./tempo.mjs";
-import { SEUILS, ecrireRegistre, lireArguments, lireRegistre, plan, tableauProvenance } from "./generer_musique.mjs";
+import { SEUILS, corpsRequete, ecrireRegistre, lireArguments, lireRegistre, plan, signature, tableauProvenance } from "./generer_musique.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const bundle = new URL("./.test-musique-enregistree-bundle.mjs", import.meta.url);
@@ -374,6 +374,51 @@ function piece({ bpm, first, pickup = 0, light, fullBeats, tail = 5 }) {
   console.log("PASS analyse de structure : temps 1 par le début, le changement de section et la fin ; accord final hors boucle ; anacrouse ; boucle imposée");
 }
 
+/**
+ * Deux batteries au même tempo : « égale » pose la grosse caisse sur les quatre temps (pulsation
+ * des musiques électroniques de danse) ; « kizomba » suit la grille documentée du dépôt
+ * (docs/musique/kizomba.md) : grosse caisse sur 1 et 3, claquement sur 2 et 4, rimshot en 3-3-2.
+ */
+function drums(kind, { bpm = 96, first = 0.04, bars = 24 } = {}) {
+  const sr = ANALYSIS_RATE, step = 15 / bpm;
+  const x = new Float32Array(Math.round((first + bars * 16 * step + 0.5) * sr));
+  let seed = 777;
+  const rnd = () => { seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5; return ((seed >>> 0) / 0xffffffff) * 2 - 1; };
+  for (let i = 0; i < x.length; i++) x[i] = 0.0005 * rnd();
+  const add = (t, fn, len) => { const a = Math.round(t * sr); for (let i = 0; i < len * sr && a + i < x.length; i++) if (a + i >= 0) x[a + i] += fn(i / sr); };
+  let previous = 0;
+  const bright = () => { const v = rnd(); const out = v - previous; previous = v; return out; }; // bruit sans grave
+  const kick = (t) => add(t, (u) => 0.8 * Math.sin(2 * Math.PI * 55 * u) * Math.exp(-u / 0.07), 0.3);
+  const clap = (t) => add(t, (u) => 0.3 * bright() * Math.exp(-u / 0.03), 0.1);
+  const rim = (t) => add(t, (u) => 0.35 * bright() * Math.exp(-u / 0.012), 0.05);
+  const shaker = (t) => add(t, (u) => 0.05 * bright() * Math.exp(-u / 0.01), 0.03);
+  for (let bar = 0; bar < bars; bar++) {
+    for (let i = 0; i < 16; i++) {
+      const t = first + (bar * 16 + i) * step;
+      shaker(t);
+      if (kind === "égale") { if (i % 4 === 0) { kick(t); clap(t); } if (i % 4 === 2) rim(t); }
+      else {
+        if (i === 0 || i === 8) kick(t);
+        if (i === 4 || i === 12) clap(t);
+        if ([0, 3, 6, 8, 11, 14].includes(i)) rim(t);
+      }
+    }
+  }
+  return x;
+}
+{
+  const even = analyseTempo(drums("égale"), ANALYSIS_RATE, { hint: 96 });
+  const kiz = analyseTempo(drums("kizomba"), ANALYSIS_RATE, { hint: 96 });
+  near(even.bpm, 96, 0.05); near(kiz.bpm, 96, 0.05);
+  near(kiz.firstBeat, 0.04, 0.005, "batterie kizomba : temps 1");
+  assert.ok(even.rhythm.evenLow >= SEUILS.tempsEgaux, `quatre temps égaux signalés (${even.rhythm.evenLow.toFixed(2)})`);
+  assert.ok(kiz.rhythm.evenLow < 0.4, `grosse caisse sur 1 et 3 seulement : pas de signalement (${kiz.rhythm.evenLow.toFixed(2)})`);
+  assert.ok(kiz.rhythm.low[0] > 0.8 && kiz.rhythm.low[8] > 0.8 && kiz.rhythm.low[4] < 0.3 && kiz.rhythm.low[12] < 0.3, "grave sur les temps 1 et 3");
+  assert.ok(kiz.rhythm.tresillo > 0.5 && even.rhythm.tresillo < 0.3, `syncope 3-3-2 reconnue (${kiz.rhythm.tresillo.toFixed(2)} contre ${even.rhythm.tresillo.toFixed(2)})`);
+  assert.match(signature(kiz), /grave sur les temps 1 à 4 : .* ; syncope 3-3-2 dans l'aigu : /);
+  console.log("PASS signature rythmique : quatre temps égaux signalés, grille kizomba documentée reconnue");
+}
+
 // ---------------------------------------------------------------- 6. prompts et script
 {
   assert.deepEqual(Object.keys(PROMPTS).sort(), Object.keys(MUSIC_STYLES).sort(), "un prompt par style de danse");
@@ -393,8 +438,44 @@ function piece({ bpm, first, pickup = 0, light, fullBeats, tail = 5 }) {
   assert.equal(tout.credits, Math.ceil(tout.seconds / 60 * CREDITS_PAR_MINUTE));
   assert.match(plan(["kizomba"]), /102 bpm[\s\S]*Total : 62 s/, "plan lisible");
 
-  assert.deepEqual(lireArguments(["--styles", "kizomba,semba", "--refaire", "--decaler", "kizomba=4", "--temps", "semba=32"]),
-    { plan: false, analyse: false, refaire: true, styles: ["kizomba", "semba"], decaler: { kizomba: 4 }, temps: { semba: 32 }, modele: MODELE });
+  assert.deepEqual(lireArguments(["--styles", "kizomba,semba", "--refaire", "--decaler", "kizomba=4", "--temps", "semba=32", "--variante", "kizomba=C"]),
+    { plan: false, analyse: false, refaire: true, styles: ["kizomba", "semba"], decaler: { kizomba: 4 }, temps: { semba: 32 }, variante: { kizomba: "C" }, modele: MODELE });
+  assert.equal(lireArguments(["--essais", "kizomba", "--duree", "20"]).duree, 20);
+  assert.throws(() => lireArguments(["--variante", "kizomba=Z"]), /variante inconnue/);
+  assert.throws(() => lireArguments(["--essais", "salsa"]), /pas de variantes/);
+  assert.throws(() => lireArguments(["--essais", "kizomba", "--duree", "300"]), /entre 5 et 60/);
+
+  // Variantes (plans de composition) : deuxième tentative après le refus de la prise 1 à l'écoute.
+  for (const [style, variantes] of Object.entries(VARIANTES)) {
+    assert.ok(PROMPTS[style], `${style} : variantes d'un style connu`);
+    for (const [lettre, v] of Object.entries(variantes)) {
+      const where = `${style} ${lettre}`;
+      assert.ok(v.nom.length > 5, `${where} : nom`);
+      assert.ok(v.styles.includes(`${PROMPTS[style].bpm} BPM`), `${where} : tempo du style`);
+      assert.ok(v.styles.includes("instrumental") && v.styles.includes("strictly steady tempo"), `${where} : instrumental, tempo strict`);
+      assert.ok(/Angolan/.test(v.styles[0]), `${where} : le premier style donne le genre`);
+      assert.ok(v.styles.some((x) => /19\d0s/.test(x)), `${where} : époque de production`);
+      const chunk = planDe(style, lettre, 15).chunks[0];
+      assert.equal(planDe(style, lettre, 15).chunks.length, 1);
+      assert.equal(chunk.duration_ms, 15000);
+      assert.ok(chunk.positive_styles.length <= 50 && chunk.negative_styles.length <= 50, `${where} : 50 styles au plus`);
+      for (const banni of ["techno", "four-on-the-floor kick drum", "kick drum on every beat", "vocals", "lyrics"]) {
+        assert.ok(chunk.negative_styles.includes(banni), `${where} : « ${banni} » à éviter`);
+      }
+      assert.ok(!chunk.positive_styles.some((x) => chunk.negative_styles.includes(x)), `${where} : pas de style à la fois voulu et exclu`);
+      assert.ok(chunk.text.length <= 200 && /^\[\w+\] \{.*\}$/.test(chunk.text), `${where} : consigne d'une ligne`);
+      assert.match(texteDe(style, lettre), new RegExp(`variante ${lettre} .*Styles : .*À éviter : .*techno`), `${where} : texte de provenance`);
+    }
+  }
+  assert.ok(A_EVITER.length >= 10);
+  // Une prise issue d'une variante envoie un plan, sans les paramètres réservés au prompt.
+  const avecPlan = corpsRequete("kizomba", MODELE, "A", 15);
+  assert.deepEqual(Object.keys(avecPlan).sort(), ["composition_plan", "model_id"], "plan : ni prompt, ni durée, ni force_instrumental");
+  const avecPrompt = corpsRequete("kizomba", MODELE);
+  assert.deepEqual(Object.keys(avecPrompt).sort(), ["force_instrumental", "model_id", "music_length_ms", "prompt"]);
+  assert.equal(avecPrompt.music_length_ms, 62000);
+  assert.equal(creditsPour(3 * DUREE_ESSAI), Math.ceil(3 * DUREE_ESSAI / 60 * CREDITS_PAR_MINUTE));
+  assert.match(plan(["kizomba"]), /Variantes de kizomba[\s\S]*A — [\s\S]*Essais : 3 extraits de 15 s, environ 675 crédits/, "plan : variantes et coût des essais");
   assert.throws(() => lireArguments(["--styles", "salsa"]), /style inconnu/);
   assert.throws(() => lireArguments(["--force"]), /option inconnue/);
 

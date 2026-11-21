@@ -296,6 +296,8 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Lecteur de boucle synchronisé (`src/music/loop.ts`, `loopOutput.ts`), repli sur la synthèse, interface.
 - [x] Script de génération et analyse de tempo (`scripts/generer_musique.mjs`, `scripts/tempo.mjs`).
 - [x] `scripts/test_musique_enregistree.mjs` et `musique-enregistree.feature` dans `npm test` ; contrôle navigateur.
-- [x] Piste kizomba générée (prompt du propriétaire) et mesurée : 101,99 bpm, boucle de 96 temps.
-- [ ] Écoute de validation par le propriétaire (calage du temps 1, raccord de boucle, qualité).
-- [ ] Cinq autres pistes : **en attente de l'accord du propriétaire** (environ 4 500 crédits).
+- [x] Kizomba, prise 1 (prompt du propriétaire) : générée, mesurée, **refusée à l'écoute** (« techno »), retirée.
+- [x] Signature rythmique dans l'analyse ; variantes A, B, C en plans de composition ; mode `--essais`.
+- [ ] Extraits d'essai de la kizomba : **en attente de l'accord du propriétaire** (environ 675 crédits).
+- [ ] Choix d'une variante à l'oreille, prise complète, écoute de validation (temps 1, raccord, qualité).
+- [ ] Autres styles, après une kizomba validée (même méthode).

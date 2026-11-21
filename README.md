@@ -17,8 +17,10 @@ Quand un style a une piste, le bouton **« Son »** joue une **boucle enregistr�
 (Eleven Music, ElevenLabs) au lieu de la synthèse. La boucle est calée sur le temps de la danse :
 le tempo, l'instant du temps 1 et la longueur de la boucle sont **mesurés** sur le fichier, et
 l'horloge audio pilote la danse. Le curseur de tempo règle la vitesse de lecture (la hauteur suit) ;
-un bouton ramène au tempo de la piste. Piste publiée : **kizomba** (102 bpm, boucle de 96 temps).
-Les autres styles gardent la synthèse, qui reste aussi une source au choix (`source=synthese`).
+un bouton ramène au tempo de la piste. **Aucune piste n'est publiée pour l'instant** : la première
+prise de la kizomba a été refusée à l'écoute (trop proche d'une musique électronique de danse) et
+une deuxième tentative est en préparation. Tous les styles jouent donc la synthèse, qui restera
+aussi une source au choix (`source=synthese`).
 [Spécification](docs/spec-musique-elevenlabs.md) · [provenance et prompts](docs/musique/enregistrements.md).
 
 ## Son synthétisé synchronisé (#44)

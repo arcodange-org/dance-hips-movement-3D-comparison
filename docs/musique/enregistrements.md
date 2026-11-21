@@ -15,14 +15,15 @@ prompt). Un style absent du tableau garde la synthèse. Chaque nouvelle piste de
 propriétaire : une prise coûte des crédits (voir la spec, « Points ouverts »).
 
 <!-- pistes -->
-| Style | Fichier | Tempo mesuré | Boucle | Modèle | Date |
-|---|---|---|---|---|---|
-| kizomba | `public/musique/kizomba.mp3` | 101.99 bpm | 96 temps | music_v2_5 | 2026-11-21 |
-
-Prompts :
-
-- **kizomba** : « Authentic Angolan Kizomba and Semba fusion instrumental, 102 BPM, strictly quantized steady tempo, prominent syncopated kick drum, crisp rimshot snare, dikanza scraper percussion, deep warm round bassline, clean melodic acoustic guitar riffs, subtle atmospheric synth pad, clear 1-2-3 rhythmic pulse, no tempo changes, no breakdown, dry and punchy studio mix, high transient clarity, instrumental only, no vocals »
+Aucune piste n'est publiée pour l'instant.
 <!-- /pistes -->
+
+## Prises refusées
+
+- **Kizomba, prise 1** (21 novembre 2026, prompt du propriétaire mot pour mot) : refusée à l'écoute —
+  « ça ressemble plus à de la techno qu'à de la kizomba semba angolaise ». Mesure : grosse caisse
+  d'égale force sur les quatre temps. Retirée de la branche ; analyse dans la
+  [spec](../spec-musique-elevenlabs.md).
 
 ## Refaire une piste
 
@@ -45,6 +46,8 @@ node --env-file=/chemin/vers/.env.local scripts/generer_musique.mjs --abonnement
 | `--styles kizomba,semba` | génère les pistes manquantes de la liste, puis les mesure |
 | `--refaire --styles kizomba` | régénère une piste existante (une prise coûte des crédits) |
 | `--analyse` | re-mesure les fichiers présents ; aucun réseau |
+| `--essais kizomba` | extraits de 15 s de chaque variante du style, écrits hors dépôt dans `essais/musique/` |
+| `--variante kizomba=C` | avec `--styles kizomba` : prise complète à partir de la variante choisie à l'oreille |
 | `--decaler kizomba=4` | décale le temps 1 de la boucle de 4 temps (validation à l'oreille) |
 | `--temps kizomba=32` | impose la longueur de la boucle, multiple de 8 temps (ne garder qu'une section) |
 

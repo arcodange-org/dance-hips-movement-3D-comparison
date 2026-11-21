@@ -325,5 +325,40 @@ export function analyseTempo(samples, sampleRate, options) {
   }
   const structure = { start: kStart, abruptStart, end: ending ? kEnd : null,
     votes: votes.filter((v) => v.kind !== "fin" || v.beat === kEnd) };
-  return { bpm, firstBeat, beats, duration, drift, jitter, confidence, barScores: bar, downbeat: down, beatSeconds, structure };
+
+  // 5. Signature rythmique : attaques par double-croche, repliées sur une mesure de 4 temps à
+  //    partir du temps 1 (grave : grosse caisse et basse ; aigu : rimshot, charleston, racleur).
+  //    Elle ne juge pas la musique, mais une grosse caisse d'égale force sur les quatre temps
+  //    (la pulsation des musiques électroniques de danse) se voit ici avant toute écoute.
+  const highEnv = onsetEnvelope(high, sampleRate);
+  const fold = (env) => {
+    const sum = new Array(16).fill(0);
+    let bars = 0;
+    for (let k = Math.round(shifted); k + 4 <= bodyEnd; k += 4, bars++) {
+      for (let step = 0; step < 16; step++) {
+        const peak = peakNear(env.o, env.frameOf(beatTime(k + step / 4)), 0.025 * frameRate);
+        // L'enveloppe d'attaques est logarithmique : pondérée par l'amplitude, un coup léger
+        // (racleur, shaker) ne pèse pas autant qu'un coup fort.
+        if (peak) sum[step] += peak.height * Math.sqrt(env.e[Math.min(env.e.length - 1, Math.round(peak.pos) + 2)]);
+      }
+    }
+    const top = Math.max(...sum, 1e-9);
+    return sum.map((v) => v / top);
+  };
+  const lowSteps = fold(low), highSteps = fold(highEnv);
+  const onBeats = [0, 4, 8, 12].map((i) => lowSteps[i]);
+  const mean = (values) => values.reduce((a, b) => a + b, 0) / values.length;
+  const rhythm = {
+    /** Force des attaques graves et aiguës sur les 16 doubles-croches de la mesure (0 à 1). */
+    low: lowSteps, high: highSteps,
+    /** 1 : attaque grave d'égale force sur les quatre temps ; proche de 0 : temps sans grave. */
+    evenLow: Math.min(...onBeats) / Math.max(...onBeats, 1e-9),
+    /**
+     * Syncope de la figure 3-3-2 : force de l'aigu sur les pas 3 et 11 (la double-croche qui
+     * précède les temps 2 et 4), de 0 à 1. Les pas 6 et 14 de la figure tombent sur un contretemps
+     * ordinaire et ne la distinguent pas.
+     */
+    tresillo: mean([3, 11].map((i) => highSteps[i])),
+  };
+  return { bpm, firstBeat, beats, duration, drift, jitter, confidence, barScores: bar, downbeat: down, beatSeconds, structure, rhythm };
 }

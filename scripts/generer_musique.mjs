@@ -7,6 +7,8 @@
 //   node scripts/generer_musique.mjs --styles kizomba       génère les pistes manquantes de la liste
 //   node scripts/generer_musique.mjs --refaire --styles …   régénère (écrase : chaque prise coûte des crédits)
 //   node scripts/generer_musique.mjs --analyse              re-mesure les fichiers présents (aucun réseau)
+//   node scripts/generer_musique.mjs --essais kizomba       extraits courts des variantes du style, hors dépôt (essais/musique/)
+//   … --variante kizomba=C                                  prise complète à partir de la variante choisie à l'oreille
 //   … --decaler kizomba=4                                   décale le temps 1 de 4 temps (validation à l'oreille)
 //   … --temps kizomba=32                                    impose la longueur de la boucle (multiple de 8 temps)
 //
@@ -18,11 +20,13 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { CREDITS_PAR_MINUTE, MODELE, PROMPTS, coutEstime } from "./musique_prompts.mjs";
+import { CREDITS_PAR_MINUTE, DUREE_ESSAI, MODELE, PROMPTS, VARIANTES, coutEstime, creditsPour, planDe, texteDe } from "./musique_prompts.mjs";
 import { ANALYSIS_RATE, analyseTempo } from "./tempo.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 export const DOSSIER = join(root, "public", "musique");
+/** Extraits d'essai : jamais publiés (dossier ignoré par git). */
+export const ESSAIS = join(root, "essais", "musique");
 export const REGISTRE = join(root, "src", "music", "recordings.data.ts");
 export const PAGE = join(root, "docs", "musique", "enregistrements.md");
 const API = "https://api.elevenlabs.io";
@@ -30,7 +34,7 @@ const API = "https://api.elevenlabs.io";
 const NIVEAU = -16;
 const CRETE = -1;
 /** Au-delà, la piste est à refaire ou à valider à l'oreille. */
-export const SEUILS = { tempo: 0.04, derive: 0.015, confiance: 0.3 };
+export const SEUILS = { tempo: 0.04, derive: 0.015, confiance: 0.3, tempsEgaux: 0.75 };
 
 // ------------------------------------------------------------------------------------------ registre
 const MARQUES = [/\/\* <pistes> \*\/([\s\S]*?)\/\* <\/pistes> \*\//, /<!-- pistes -->([\s\S]*?)<!-- \/pistes -->/];
@@ -108,6 +112,7 @@ export function mesurer(style, fichier, base = {}, decalage = 0, temps = 0) {
     model: base.model ?? MODELE,
     generatedAt: base.generatedAt ?? new Date().toISOString().slice(0, 10),
     measure: { drift: Math.round(m.drift * 10000) / 10000, confidence: Math.round(m.confidence * 100) / 100 },
+    ...(base.variant ? { variant: base.variant } : {}),
     ...(decalage ? { shiftBeats: decalage } : {}),
     ...(temps ? { loopBeats: temps } : {}),
   };
@@ -115,9 +120,16 @@ export function mesurer(style, fichier, base = {}, decalage = 0, temps = 0) {
   if (Math.abs(m.bpm - demande.bpm) / demande.bpm > SEUILS.tempo) alertes.push(`tempo mesuré ${m.bpm.toFixed(2)} bpm, demandé ${demande.bpm}`);
   if (m.drift > SEUILS.derive) alertes.push(`dérive ${(m.drift * 1000).toFixed(0)} ms`);
   if (m.confidence < SEUILS.confiance) alertes.push(`sur un quart du morceau, seulement ${(m.confidence * 100).toFixed(0)} % des temps portent une attaque (tempo instable ?)`);
+  if (m.rhythm.evenLow >= SEUILS.tempsEgaux) alertes.push(`attaque grave d'égale force sur les quatre temps (${m.rhythm.evenLow.toFixed(2)}) : pulsation de musique électronique de danse, à vérifier à l'oreille`);
   if (m.beats < 32) alertes.push(`boucle courte : ${m.beats} temps`);
   if (m.beats === 0) alertes.push("aucune boucle de 8 temps ne tient dans le fichier");
   return { piste, alertes, mesure: m };
+}
+
+/** Signature rythmique lisible : force des attaques graves sur les quatre temps, syncope 3-3-2. */
+export function signature(m) {
+  const temps = [0, 4, 8, 12].map((i) => m.rhythm.low[i].toFixed(2)).join(" ");
+  return `grave sur les temps 1 à 4 : ${temps} ; syncope 3-3-2 dans l'aigu : ${m.rhythm.tresillo.toFixed(2)}`;
 }
 
 // ------------------------------------------------------------------------------------------ API
@@ -133,12 +145,17 @@ async function creditsRestants(cle) {
   return { offre: a.tier, reste: (a.character_limit ?? 0) - (a.character_count ?? 0) };
 }
 
-async function generer(style, cle, modele) {
-  const d = PROMPTS[style];
+/** Corps de la requête : prompt du style, ou plan de composition d'une variante (sans paramètres réservés au prompt). */
+export function corpsRequete(style, modele, variante = null, seconds = PROMPTS[style].seconds) {
+  if (variante) return { composition_plan: planDe(style, variante, seconds), model_id: modele };
+  return { prompt: PROMPTS[style].prompt, music_length_ms: seconds * 1000, model_id: modele, force_instrumental: true };
+}
+
+async function generer(style, cle, modele, variante = null, seconds = PROMPTS[style].seconds) {
   const r = await appel("/v1/music?output_format=mp3_44100_128", cle, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt: d.prompt, music_length_ms: d.seconds * 1000, model_id: modele, force_instrumental: true }),
+    body: JSON.stringify(corpsRequete(style, modele, variante, seconds)),
   });
   if (!r.ok) {
     let detail = "";
@@ -150,7 +167,7 @@ async function generer(style, cle, modele) {
 
 // ------------------------------------------------------------------------------------------ CLI
 export function lireArguments(argv) {
-  const o = { plan: false, analyse: false, refaire: false, styles: Object.keys(PROMPTS), decaler: {}, temps: {}, modele: MODELE };
+  const o = { plan: false, analyse: false, refaire: false, styles: Object.keys(PROMPTS), decaler: {}, temps: {}, variante: {}, modele: MODELE };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--plan") o.plan = true;
@@ -159,6 +176,13 @@ export function lireArguments(argv) {
     else if (a === "--refaire") o.refaire = true;
     else if (a === "--styles") o.styles = argv[++i].split(",").map((s) => s.trim()).filter(Boolean);
     else if (a === "--modele") o.modele = argv[++i];
+    else if (a === "--essais") o.essais = argv[++i];
+    else if (a === "--duree") o.duree = Number(argv[++i]);
+    else if (a === "--variante") {
+      const [style, v] = argv[++i].split("=");
+      if (!VARIANTES[style]?.[v]) throw new Error(`variante inconnue ${style}=${v}`);
+      o.variante[style] = v;
+    }
     else if (a === "--decaler" || a === "--temps") {
       const [style, n] = argv[++i].split("=");
       const cible = a === "--decaler" ? o.decaler : o.temps;
@@ -167,6 +191,8 @@ export function lireArguments(argv) {
     } else throw new Error(`option inconnue ${a}`);
   }
   for (const s of [...o.styles, ...Object.keys(o.decaler), ...Object.keys(o.temps)]) if (!PROMPTS[s]) throw new Error(`style inconnu ${s} (${Object.keys(PROMPTS).join(", ")})`);
+  if (o.essais !== undefined && !VARIANTES[o.essais]) throw new Error(`pas de variantes pour ${o.essais} (${Object.keys(VARIANTES).join(", ")})`);
+  if (o.duree !== undefined && !(o.duree >= 5 && o.duree <= 60)) throw new Error("--duree : entre 5 et 60 secondes");
   return o;
 }
 
@@ -176,7 +202,34 @@ export function plan(styles) {
     return `${s.padEnd(11)} ${String(d.bpm).padStart(3)} bpm  boucle visée ${String(d.beats).padStart(3)} temps  ${d.seconds} s\n  ${d.prompt}`;
   });
   const { seconds, credits } = coutEstime(styles);
-  return `${lignes.join("\n")}\n\nTotal : ${seconds} s (${(seconds / 60).toFixed(1)} min), environ ${credits} crédits à ${CREDITS_PAR_MINUTE} crédits par minute.`;
+  const variantes = styles.filter((s) => VARIANTES[s]).map((s) => {
+    const noms = Object.entries(VARIANTES[s]).map(([cle, v]) => `  ${cle} — ${v.nom}`);
+    const n = noms.length;
+    return `Variantes de ${s} (plans de composition) :\n${noms.join("\n")}\n  Essais : ${n} extraits de ${DUREE_ESSAI} s, environ ${creditsPour(n * DUREE_ESSAI)} crédits (--essais ${s}) ; prise complète : --variante ${s}=<lettre>.`;
+  });
+  return `${lignes.join("\n")}\n\nTotal : ${seconds} s (${(seconds / 60).toFixed(1)} min), environ ${credits} crédits à ${CREDITS_PAR_MINUTE} crédits par minute.${variantes.length ? "\n\n" + variantes.join("\n") : ""}`;
+}
+
+/** Extraits courts de chaque variante d'un style, écrits hors dépôt, avec leur signature rythmique. */
+async function essais(style, seconds, modele) {
+  const cle = cleRequise();
+  const lettres = Object.keys(VARIANTES[style]);
+  const credits = creditsPour(lettres.length * seconds);
+  const { offre, reste } = await creditsRestants(cle);
+  console.log(`Offre ${offre} : ${reste} crédits restants ; ${lettres.length} extraits de ${seconds} s, environ ${credits} crédits.`);
+  if (credits > reste) throw new Error("crédits insuffisants : rien n'a été généré");
+  mkdirSync(ESSAIS, { recursive: true });
+  for (const lettre of lettres) {
+    const fichier = join(ESSAIS, `${style}-${lettre}.mp3`);
+    console.log(`${style} ${lettre} — ${VARIANTES[style][lettre].nom} : génération (${seconds} s)…`);
+    writeFileSync(fichier, await generer(style, cle, modele, lettre, seconds));
+    try {
+      const m = analyseTempo(decoder(fichier), ANALYSIS_RATE, { hint: PROMPTS[style].bpm });
+      console.log(`  ${fichier.replace(root + "/", "")} : ${m.bpm.toFixed(1)} bpm ; ${signature(m)}`);
+      if (m.rhythm.evenLow >= SEUILS.tempsEgaux) console.log("  ⚠ attaque grave d'égale force sur les quatre temps");
+    } catch (e) { console.log(`  ${fichier.replace(root + "/", "")} : mesure impossible (${e.message})`); }
+  }
+  console.log("Extraits à écouter ; ils ne sont pas publiés. Prise complète : --variante " + style + "=<lettre>.");
 }
 
 function cleRequise() {
@@ -194,6 +247,7 @@ async function main() {
     console.log(`Offre ${offre} : ${reste} crédits restants ; une prise de ${o.styles.join(", ")} coûte environ ${credits} crédits.`);
     return;
   }
+  if (o.essais !== undefined) { await essais(o.essais, o.duree ?? DUREE_ESSAI, o.modele); return; }
   let registre = lireRegistre();
   const entree = (style) => registre.find((p) => p.style === style);
   const fichier = (style) => join(DOSSIER, `${style}.mp3`);
@@ -209,10 +263,12 @@ async function main() {
       if (credits > reste) throw new Error("crédits insuffisants : rien n'a été généré");
       mkdirSync(DOSSIER, { recursive: true });
       for (const s of aFaire) {
-        console.log(`${s} : génération (${PROMPTS[s].seconds} s, ${o.modele})…`);
-        writeFileSync(fichier(s), await generer(s, cle, o.modele));
+        const variante = o.variante[s] ?? null;
+        console.log(`${s} : génération (${PROMPTS[s].seconds} s, ${o.modele}${variante ? `, variante ${variante}` : ""})…`);
+        writeFileSync(fichier(s), await generer(s, cle, o.modele, variante));
         registre = registre.filter((p) => p.style !== s);
-        registre.push({ style: s, prompt: PROMPTS[s].prompt, model: o.modele, generatedAt: new Date().toISOString().slice(0, 10) });
+        registre.push({ style: s, prompt: variante ? texteDe(s, variante) : PROMPTS[s].prompt, model: o.modele,
+          generatedAt: new Date().toISOString().slice(0, 10), ...(variante ? { variant: variante } : {}) });
       }
     }
   }
@@ -231,6 +287,7 @@ async function main() {
     console.log(`${s} : ${piste.bpm} bpm, temps 1 à ${piste.firstBeat} s, boucle de ${piste.beats} temps, gain ${piste.gainDb} dB`);
     const indices = mesure.structure.votes.map((v) => `${v.kind} au temps ${v.beat + 1}`).join(", ");
     console.log(`  temps 1 déduit de : ${indices || "l'accent grave de la mesure"}`);
+    console.log(`  ${signature(mesure)}`);
     for (const a of alertes) { alerte = true; console.log(`  ⚠ ${a}`); }
   }
   const ecrites = ecrireRegistre(mesurees);

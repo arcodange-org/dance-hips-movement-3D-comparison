@@ -26,6 +26,8 @@ export interface Recording {
   generatedAt: string;
   /** Qualité de la mesure : dérive maximale (s) des attaques par rapport à la grille, confiance 0–1. */
   measure: { drift: number; confidence: number };
+  /** Variante du plan de composition utilisée (scripts/musique_prompts.mjs), si la prise en vient. */
+  variant?: string;
   /** Décalage manuel du temps 1, en temps (validation à l'oreille). */
   shiftBeats?: number;
   /** Longueur de boucle imposée, en temps (validation à l'oreille). */

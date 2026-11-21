@@ -8,15 +8,21 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
 ## Musique enregistrée générée par ElevenLabs (#142, PR #143, 21 novembre 2026)
 
 - Le bouton « Son » joue une boucle enregistrée par style quand elle existe, sinon la synthèse
-  ([spec](docs/spec-musique-elevenlabs.md)). Piste publiée : kizomba (prompt du propriétaire).
-- **En attente du propriétaire** : écoute de la kizomba, puis accord pour les cinq autres pistes
-  (environ 4 500 crédits). Ne rien générer sans cet accord.
-- Refaire ou ajuster sans crédits : `node scripts/generer_musique.mjs --analyse`, `--decaler`,
-  `--temps`. Générer : `node --env-file=<fichier d'environnement> scripts/generer_musique.mjs --styles …`
-  (la clé n'est pas dans le Vault ; ne jamais l'écrire ni l'afficher).
+  ([spec](docs/spec-musique-elevenlabs.md)). **Aucune piste publiée** : la prise 1 de la kizomba
+  (prompt du propriétaire) a été refusée à l'écoute — « ça ressemble plus à de la techno qu'à de la
+  kizomba semba angolaise » — et retirée de la branche.
+- **En attente du propriétaire** : accord pour trois extraits d'essai de 15 s (variantes A, B, C de
+  `scripts/musique_prompts.mjs`, environ 675 crédits), puis choix à l'oreille et prise complète.
+  Ne rien générer sans cet accord.
+- Commandes : `node scripts/generer_musique.mjs --plan` (sans réseau) ; avec la clé,
+  `node --env-file=<fichier d'environnement> scripts/generer_musique.mjs --essais kizomba`, puis
+  `--styles kizomba --variante kizomba=<lettre>` (la clé n'est pas dans le Vault ; ne jamais
+  l'écrire ni l'afficher). Sans crédits : `--analyse`, `--decaler`, `--temps`.
 - Pièges : un générateur respecte le tempo demandé à peu près — toujours mesurer ; une musique
   syncopée ne pose pas une attaque sur chaque temps (la confiance se lit par quart de morceau) ;
-  le temps 1 se déduit de la structure (début, changement de section, fin), pas de la grosse caisse.
+  le temps 1 se déduit de la structure (début, changement de section, fin) ; un prompt sans époque
+  ni type de production dérive vers le plus probable (ici, l'électronique) : dire aussi ce qu'on
+  ne veut pas (plan de composition), et lire la signature rythmique avant de faire écouter.
 
 ## Chantiers du 21 novembre 2026 : quarts, sortie garçon D2, GIFs avec muscles, virgula
 

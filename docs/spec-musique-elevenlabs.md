@@ -29,12 +29,12 @@ du propriétaire (voir « Points ouverts »).
 | Élément | État |
 |---|---|
 | Lecteur de boucle synchronisé, repli, interface, tests | fait |
-| Script de génération et d'analyse de tempo | fait |
-| Piste **kizomba** (prompt du propriétaire, mot pour mot) | générée et mesurée : 101,99 bpm, boucle de 96 temps |
-| Pistes semba, kompa, tarraxinha, suave, zouk brésilien | **en attente** de l'accord du propriétaire (crédits), après écoute de la kizomba |
-| Écoute de validation (temps 1, raccord de boucle, qualité) | à faire par le propriétaire |
+| Script de génération, analyse de tempo, de structure et de signature rythmique | fait |
+| Kizomba, prise 1 (prompt du propriétaire, mot pour mot) | **refusée à l'écoute**, retirée de la branche |
+| Kizomba, deuxième tentative | trois variantes écrites ; extraits d'essai **en attente de l'accord** du propriétaire (environ 675 crédits) |
+| Pistes semba, kompa, tarraxinha, suave, zouk brésilien | après une kizomba validée |
 
-Un style sans piste publiée garde la synthèse, sans message.
+Aucune piste n'est publiée : tous les styles jouent la synthèse.
 
 ## Modules
 
@@ -133,9 +133,11 @@ bouton « Tempo conseillé » règle le curseur sur le tempo de la piste (arrond
   portés par une attaque : la piste est à refaire ou à valider à l'oreille ;
 - `--abonnement` : affiche l'offre et les crédits restants (appel gratuit) ;
 - `--decaler <style>=<temps>` : décale le temps 1 de la boucle (validation à l'oreille) ;
-- `--temps <style>=<temps>` : impose la longueur de la boucle, multiple de 8 temps.
+- `--temps <style>=<temps>` : impose la longueur de la boucle, multiple de 8 temps ;
+- `--essais <style>` : extraits courts de chaque variante du style, hors dépôt (`essais/musique/`) ;
+- `--variante <style>=<lettre>` : prise complète à partir du plan de composition de la variante.
 
-Coût : Eleven Music est facturé 900 crédits par minute générée (tarif relevé le 21 novembre 2026) ; la piste kizomba de 62 s a coûté 931 crédits estimés.
+Coût : Eleven Music est facturé 900 crédits par minute générée (tarif relevé le 21 novembre 2026) ; la prise 1 de la kizomba (62 s) a coûté environ 931 crédits.
 
 | Style | Tempo demandé | Boucle visée | Durée demandée |
 |---|---|---|---|
@@ -150,7 +152,9 @@ Total : environ 6 minutes par prise complète, soit environ 5 500 crédits.
 
 ### Prompts
 
-Le prompt de la kizomba est celui du propriétaire, mot pour mot. Les autres reprennent sa
+Le prompt de la kizomba est celui du propriétaire, mot pour mot ; la prise qui en est sortie a été
+refusée à l'écoute (voir plus bas), et la deuxième tentative passe par des plans de composition.
+Les autres prompts reprennent sa
 structure (tempo strict, pas de changement de tempo ni de break, mixage sec, instrumental) avec
 l'instrumentation documentée dans [docs/musique/](musique/README.md). Aucun prompt ne nomme
 d'artiste, de titre ni d'œuvre (les conditions d'Eleven Music l'interdisent). Les prompts sont
@@ -175,23 +179,61 @@ versionnés dans `scripts/musique_prompts.mjs` et recopiés dans le registre de 
    de 32 temps (à défaut 16, puis 8) avant la fin de la musique ; la résonance de l'accord final
    reste hors de la boucle.
 
+6. Signature rythmique : force des attaques graves (grosse caisse, basse) et aiguës (rimshot,
+   charleston, racleur) sur les seize doubles-croches de la mesure, pondérée par l'amplitude.
+
 Limite assumée : le temps 1 est une **déduction**, pas une écoute. Deux réglages manuels existent,
 sans nouvelle génération : `--decaler` (temps 1) et `--temps` (longueur de boucle, pour ne garder
 qu'une section). La validation finale se fait **à l'oreille** par le propriétaire.
 
-### Piste kizomba (mesure du 21 novembre 2026)
+## Écoute du propriétaire : prise 1 de la kizomba refusée (21 novembre 2026)
 
-| Mesure | Valeur |
+> ça ressemble plus à de la techno qu'à de la kizomba semba angolaise
+
+La prise (62 s, environ 931 crédits) venait du prompt du propriétaire, mot pour mot. Ce que la
+mesure en dit, après coup :
+
+| Mesure | Valeur | Lecture |
+|---|---|---|
+| Tempo | 101,994 bpm pour 102 demandés, dérive 3 ms | le tempo demandé est tenu |
+| Attaques graves sur les temps 1 à 4 | 0,95 – 0,82 – 1,00 – 0,88 | grosse caisse d'égale force sur les quatre temps : la pulsation des musiques électroniques de danse |
+| Syncope 3-3-2 dans l'aigu | 0,05 | presque aucune syncope |
+| Structure | 32 temps d'introduction, 32 avec charleston, relance de 3 temps, 32 temps pleins, accord final | une relance malgré « no breakdown » |
+
+Pourquoi la prise a dérivé (hypothèses, appuyées sur le guide de prompt d'Eleven Music) :
+
+- le guide demande de fixer cinq choses — genre, humeur, instrumentation, tempo, **époque de
+  production** — et prévient que ce qui manque reçoit le choix le plus probable ; le prompt ne
+  donnait ni époque ni humeur ;
+- « dry and punchy studio mix, high transient clarity » et « prominent … kick drum » sont un
+  vocabulaire de production moderne et percutante ;
+- un prompt ne peut exclure qu'en toutes lettres ; rien n'écartait la grosse caisse sur chaque temps.
+
+La recherche du dépôt décrit autre chose : pour la kizomba, une rythmique héritée du zouk
+(figure 3-3-2), des percussions peu denses, une grosse caisse douce sur les temps forts seulement,
+une basse ronde et forte, des guitares ; pour le semba, une mesure à deux temps rebondissante,
+ngomas, dikanza en doubles-croches, deux guitares, accordéon
+([kizomba](musique/kizomba.md), [semba](musique/semba.md)).
+
+### Ce qui change
+
+- **Signature rythmique** (`scripts/tempo.mjs`) : force des attaques graves et aiguës sur les seize
+  doubles-croches de la mesure. Une attaque grave d'égale force sur les quatre temps est désormais
+  signalée dès la mesure, avant toute écoute. Ce n'est pas un jugement musical : l'oreille tranche.
+- **Plans de composition** (`scripts/musique_prompts.mjs`, `VARIANTES`) : au lieu d'un prompt, une
+  liste de styles voulus (le premier donne le genre, avec l'époque et le type de production) et
+  une liste de styles **à éviter** (techno, house, grosse caisse sur chaque temps, etc.).
+- **Extraits d'essai** (`--essais kizomba`) : un extrait de 15 s par variante, écrit dans
+  `essais/musique/` (hors dépôt), pour choisir à l'oreille avant de payer une prise complète.
+
+| Variante | Couleur visée |
 |---|---|
-| Tempo | 101,994 bpm pour 102 demandés ; identique à 0,02 bpm près sur les trois tiers |
-| Dérive | 3 ms |
-| Temps 1 | 0,026 s : début de la musique, changement de section au temps 65, fin au temps 97 — tous sur un temps 1 de phrase |
-| Boucle | 96 temps (12 phrases de 8), de 0,026 s à 56,50 s |
-| Structure | 32 temps d'introduction, 32 temps avec le charleston, relance de 3 temps, 32 temps pleins (+ 4,5 dB), accord final |
+| A | Kizomba de groupe, Luanda, années 1990 : rythmique zouk en 3-3-2, grosse caisse douce sur 1 et 3, congas, basse ronde, guitare claire en arpèges, nappe discrète, mineur |
+| B | Semba de groupe, Luanda, années 1970 : deux temps rebondissants, tambours à main, dikanza en doubles-croches, deux guitares, accordéon, majeur |
+| C | Fusion kizomba et semba : la rythmique de A avec les guitares, la dikanza et l'accordéon de B |
 
-Deux remarques pour l'écoute : le morceau fait une courte relance (trois temps presque vides avant
-la section pleine) malgré « no breakdown » ; la boucle repasse de la section pleine à
-l'introduction, plus légère.
+Les trois gardent 102 bpm, le tempo du prompt du propriétaire. Trois extraits de 15 s coûtent
+environ 675 crédits ; la prise complète de la variante retenue, environ 931.
 
 ## Conditions d'usage (relevé du 21 novembre 2026, à confirmer par le propriétaire)
 
@@ -228,13 +270,12 @@ publication. L'app et la documentation indiquent que la musique est générée p
 
 ## Points ouverts (propriétaire)
 
-- **Écoute de la piste kizomba** : temps 1 sur un transfert d'appui, raccord de boucle, qualité ;
-  boucle entière (96 temps) ou section pleine seule (`--decaler kizomba=64 --temps kizomba=32`).
-- **Cinq autres pistes** : accord pour environ 4 500 crédits (une prise par style), prompts de
-  `scripts/musique_prompts.mjs` à relire.
+- **Accord pour les extraits d'essai** de la kizomba (trois fois 15 s, environ 675 crédits), puis
+  choix d'une variante à l'oreille — ou correction des variantes avant toute dépense.
+- **Tempo** : les sources du dépôt situent la kizomba vers 85–95 bpm ; 102 bpm vient du prompt
+  d'origine. À confirmer.
+- **Autres styles** : après une kizomba validée, même méthode (variantes, extraits, prise).
 - **Publication des pistes** dans un dépôt public : conforme aux conditions de l'offre ?
-- **Kizomba à 102 bpm** (prompt tel quel) : le bouton « Tempo de la piste » règle le curseur sur
-  102. Alternative : demander 90 bpm.
 - **Synthèse** : gardée en repli et en option (choix de ce chantier), ou retirée.
 - **Hauteur au changement de tempo** : choix de la lecture en vitesse variable (calage exact,
   hauteur modifiée) plutôt que d'un étirement temporel (hauteur conservée, artefacts et calage

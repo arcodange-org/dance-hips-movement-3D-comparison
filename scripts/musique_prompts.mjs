@@ -41,6 +41,90 @@ export const PROMPTS = {
   },
 };
 
+// ------------------------------------------------------------------------------------------
+// Variantes (plans de composition) — deuxième tentative.
+//
+// La prise 1 de la kizomba (prompt ci-dessus) a été refusée à l'écoute par le propriétaire le
+// 21 novembre 2026 : « ça ressemble plus à de la techno qu'à de la kizomba semba angolaise ».
+// Mesure : grosse caisse d'égale force sur les quatre temps, presque aucune syncope. Le prompt ne
+// donnait ni époque ni type de production, et « dry and punchy studio mix » pousse vers
+// l'électronique. Un plan de composition permet de dire aussi ce qu'on NE veut PAS.
+//
+// Chaque variante vient de la recherche du dépôt (docs/musique/kizomba.md, semba.md) : rythmique
+// héritée du zouk en 3-3-2, grosse caisse douce sur les temps forts seulement, basse ronde et
+// forte, guitares, peu de densité (kizomba) ; ngomas, dikanza en doubles-croches, deux guitares,
+// accordéon, mesure à deux temps rebondissante (semba). Aucun artiste, titre ni œuvre nommé.
+// ------------------------------------------------------------------------------------------
+
+/** Ce qu'une prise ne doit pas être. */
+export const A_EVITER = [
+  "techno", "house", "EDM", "trance", "club dance music", "four-on-the-floor kick drum", "kick drum on every beat",
+  "hard punchy electronic kick", "sidechain compression", "synth lead", "aggressive synthesizers",
+  "vocals", "lyrics", "tempo changes", "breakdown", "drum fill pauses",
+];
+
+const CONSIGNE = "[Groove] {the full band plays the steady groove from the very first beat, no intro, no breakdown, no pauses, clear pulse for dancers}";
+
+export const VARIANTES = {
+  kizomba: {
+    A: {
+      nom: "Kizomba de groupe, Luanda, années 1990",
+      styles: [
+        "Angolan kizomba", "early 1990s Luanda studio recording", "live band with real instruments", "102 BPM",
+        "strictly steady tempo", "4/4, relaxed, sensual, romantic, laid-back", "zouk-derived syncopated drum groove",
+        "soft kick drum on beats one and three only", "cross-stick rimshot playing a three-three-two tresillo pattern",
+        "light shaker in sixteenth notes", "congas", "deep warm round legato bass guitar, louder than the drums",
+        "clean electric guitar with chorus playing arpeggios", "melodic acoustic guitar riffs",
+        "soft warm keyboard pad far in the background", "minor key", "warm analog sound, lots of space between the drum hits",
+        "instrumental",
+      ],
+      eviter: [],
+    },
+    B: {
+      nom: "Semba de groupe, Luanda, années 1970",
+      styles: [
+        "Angolan semba", "1970s Luanda live band recording", "102 BPM", "strictly steady tempo",
+        "bouncy two-beat feel, galloping syncopation, festive and joyful", "low hand drum accenting the first beat of each bar",
+        "congas and high hand drum", "dikanza bamboo scraper in constant sixteenth notes", "interlocking rhythm electric guitar",
+        "bright melodic lead guitar in the Congolese style", "accordion", "melodic bass guitar",
+        "major key, tonic and dominant chords", "acoustic, organic, live room sound", "instrumental",
+      ],
+      eviter: ["drum machine", "synthesizer", "zouk beat"],
+    },
+    C: {
+      nom: "Fusion kizomba et semba",
+      styles: [
+        "Angolan kizomba and semba fusion", "Luanda live band, warm 1990s studio recording", "102 BPM", "strictly steady tempo",
+        "relaxed but danceable, sensual, organic", "soft kick drum on beats one and three, never on every beat",
+        "cross-stick rimshot in a three-three-two pattern", "dikanza scraper in sixteenth notes", "congas",
+        "semba-style interlocking guitars with a clean melodic lead guitar", "accordion phrases", "deep warm round bass guitar",
+        "subtle keyboard pad in the background", "minor key", "acoustic instruments in front, warm analog sound", "instrumental",
+      ],
+      eviter: [],
+    },
+  },
+};
+
+/** Durée d'un extrait d'essai (s) : assez pour juger la couleur, quatre fois moins cher qu'une prise. */
+export const DUREE_ESSAI = 15;
+
+/** Plan de composition (modèles music_v2 et music_v2_5) d'une variante, pour une durée donnée. */
+export function planDe(style, variante, seconds) {
+  const v = VARIANTES[style]?.[variante];
+  if (!v) throw new Error(`variante inconnue ${style}=${variante}`);
+  return { chunks: [{ text: CONSIGNE, duration_ms: Math.round(seconds * 1000), positive_styles: v.styles,
+    negative_styles: [...A_EVITER, ...v.eviter], context_adherence: "high" }] };
+}
+
+/** Texte de provenance d'une variante, consigné dans le registre à la place d'un prompt. */
+export function texteDe(style, variante) {
+  const plan = planDe(style, variante, 1).chunks[0];
+  return `Plan de composition, variante ${variante} (${VARIANTES[style][variante].nom}). Styles : ${plan.positive_styles.join(", ")}. À éviter : ${plan.negative_styles.join(", ")}. Consigne : ${plan.text}`;
+}
+
+/** Coût estimé (crédits) d'une durée en secondes. */
+export const creditsPour = (seconds) => Math.ceil((seconds / 60) * CREDITS_PAR_MINUTE);
+
 /** Coût estimé (crédits) d'une liste de styles. */
 export function coutEstime(styles) {
   const seconds = styles.reduce((sum, s) => sum + PROMPTS[s].seconds, 0);
