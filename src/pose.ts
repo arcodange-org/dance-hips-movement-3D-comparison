@@ -19,6 +19,8 @@ import { samplePlacePaire, PLACE_PAIR_DZ } from "./placePaire";
 import { SORTIE_GARCON_PAIR_DZ } from "./sortieGarcon";
 import { SORTIE_FILLE_PAIR_DZ } from "./sortieFille";
 import { placementOffset, placementScale, type CouplePlacement } from "./placement";
+import { gaitStep } from "./gait";
+import { essai } from "./essais";
 
 export type Side = "L" | "R";
 const SIDES: Side[] = ["L", "R"];
@@ -240,10 +242,14 @@ function plannedFeet(b: number, o: PoseOptions, m: PoseModel): Record<Side, Foot
     if (stepSide(index) !== s) { feet[s] = from; continue; }
     const to = landing(s, index);
     const t = Math.max(0, Math.min(1, (b / length - index) / 0.6));
-    const e = smooth(t);
+    // Trial #73 (`?essai=marcheDeroulee`, src/essais.ts): the walk outside the figures rolls the foot
+    // like the figures do (src/gait.ts) instead of keeping it flat.
+    const roll = essai("marcheDeroulee") ? gaitStep(t, { x: to.x - from.x, z: to.z - from.z }, to.yaw) : null;
+    const e = roll ? roll.progress : smooth(t);
     feet[s] = { x: from.x + (to.x - from.x) * e, z: from.z + (to.z - from.z) * e,
       yaw: from.yaw + angleDelta(from.yaw, to.yaw) * e,
-      lift: swingLift(t, o.travel || (o.ida ? 0.5 : 0.4)) };
+      lift: roll ? roll.lift : swingLift(t, o.travel || (o.ida ? 0.5 : 0.4)),
+      ...(roll ? { pitch: roll.pitch, pivot: roll.pivot } : {}) };
   }
   return feet;
 }

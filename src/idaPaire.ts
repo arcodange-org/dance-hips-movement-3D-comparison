@@ -9,6 +9,7 @@ import { placementOffset, type CouplePlacement, type PlacementOffset } from "./p
 import { idaContra, idaEVoltaStep } from "./styles";
 import { SORTIE_FILLE_VIRGULA } from "./sortieFille";
 import type { FigureFoot, FigureFootPose, FootPoint } from "./sortieGarcon";
+import { essai } from "./essais";
 
 export const IDA_BEATS = 8;
 /** Same half-spacing as the other pair figures: the couple placements are calibrated for it. */
@@ -77,6 +78,10 @@ export function idaStepAt(beat: number): IdaStep {
 
 /** One support transfer: the weight moves from one foot to the other between `start` and `end`
  * (beats in the 8-beat cycle). The ginga (#42) is triggered at each left/right alternation. */
+/** The follower takes the leader's step with her OPPOSITE foot (mirror). Trial #86 (`?essai=idaMemePied`,
+ * src/essais.ts): she moves the SAME foot as he does. */
+const mirrored = (follower: boolean) => follower && !essai("idaMemePied");
+
 export interface IdaTransfer { start: number; end: number; from: FigureFoot; to: FigureFoot }
 /** Every support transfer of a dancer over the cycle (ten, alternating feet): in each slot the weight
  * goes onto the outgoing foot on the beat, then rocks back onto the other foot; after a backward slot the
@@ -85,7 +90,7 @@ export interface IdaTransfer { start: number; end: number; from: FigureFoot; to:
 export function idaTransfers(follower: boolean): IdaTransfer[] {
   const w = IDA_PAIR.weight, list: IdaTransfer[] = [];
   for (let index = 0; index < 4; index++) {
-    const side: FigureFoot = index < 2 ? "L" : "R", moving = follower ? other(side) : side, slot = 2 * index;
+    const side: FigureFoot = index < 2 ? "L" : "R", moving = mirrored(follower) ? other(side) : side, slot = 2 * index;
     list.push({ start: slot + w.on[0], end: slot + w.on[1], from: other(moving), to: moving });
     list.push({ start: slot + w.back[0], end: slot + w.back[1], from: moving, to: other(moving) });
     if (index % 2 === 1) list.push({ start: slot + w.home[0], end: slot + w.home[1], from: other(moving), to: moving });
@@ -96,7 +101,7 @@ export function idaTransfers(follower: boolean): IdaTransfer[] {
 /** Load on the right foot at a beat of the cycle, from the transfers (the cycle starts on the leader's
  * D, the follower's G). */
 function idaLoadR(p: number, follower: boolean): number {
-  let loadR = follower ? 0 : 1;
+  let loadR = mirrored(follower) ? 0 : 1;
   for (const t of idaTransfers(follower)) {
     if (p <= t.start) break;
     const k = smooth((p - t.start) / (t.end - t.start));
@@ -142,7 +147,7 @@ function idaFeet(b: number, follower: boolean, neutral: ReturnType<typeof idaNeu
   // #128: the leader's G forward slot (the first of the cycle) as a virgula.
   const comma = virgula && !follower && now.index === 0;
   // The follower takes the symmetric step: her opposite foot, the opposite direction, on the same lane.
-  const moving: FigureFoot = follower ? other(now.side) : now.side;
+  const moving: FigureFoot = mirrored(follower) ? other(now.side) : now.side;
   const forward = (follower ? -1 : 1) * now.dir;
   const step = IDA_PAIR.step * forward;
   // #88: when the follower steps back, her foot leaves with the leader's (never before) and clears the
@@ -205,7 +210,7 @@ export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<Fig
   const root = { x: neutral.root.x, z: neutral.root.z + forward * IDA_PAIR.carry * IDA_PAIR.step * onMoving + hip / 2 };
   // Phase 15 contraposition of the chest, on the dancer's own moving foot (the follower mirrors the
   // leader). The leader's upper body leads by IDA_LEAD.
-  const sign = follower ? -1 : 1;
+  const sign = mirrored(follower) ? -1 : 1;
   const upper = sign * idaContra(follower ? b : b + IDA_LEAD).upperYaw;
   // The support transfer under way (explicit for the ginga #42), with its progress.
   const p = ((b % IDA_BEATS) + IDA_BEATS) % IDA_BEATS;
@@ -218,7 +223,7 @@ export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<Fig
     // (her transfers are his, mirrored); her lateral hip shift goes to her own support (opposite sign).
     gingaBeat: idaGingaBeat(b, follower && IDA_GINGA.mode === "own"),
     gingaAmp: follower ? IDA_GINGA.follower : IDA_GINGA.leader,
-    gingaSway: (follower && IDA_GINGA.mode !== "own" ? -1 : 1) * IDA_GINGA.sway,
+    gingaSway: (mirrored(follower) && IDA_GINGA.mode !== "own" ? -1 : 1) * IDA_GINGA.sway,
     loadR, loadL: 1 - loadR, support: (loadR >= 0.5 ? "R" : "L") as FigureFoot, transfer, cyclic: true as const,
     coupling: IDA_GINGA.mode === "own" ? 0 : IDA_PAIR.coupling * Math.min(1, Math.hypot(o.x, o.z) / 0.05),
     kneeCap: IDA_PAIR.kneeCap, rotationCap: IDA_PAIR.rotationCap, dip: IDA_PAIR.dip, sway: IDA_PAIR.sway };

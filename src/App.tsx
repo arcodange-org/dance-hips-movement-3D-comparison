@@ -18,6 +18,7 @@ import { InfoCard, PairInfoCard } from "./components/InfoCards";
 import DemoOverlay, { DEMOS } from "./components/DemoOverlay";
 import OriginMarker from "./components/OriginMarker";
 import LineOfDance from "./components/LineOfDance";
+import { essai } from "./essais";
 import CompassRose from "./components/CompassRose";
 import { resolveCam, resolveView, viewAnglesOf, SOLID_TORSO_OPACITY } from "./cameras";
 import { usePersistentState } from "./hooks/usePersistentState";
@@ -370,7 +371,7 @@ export default function App() {
       <OriginMarker visible={showRepere} />
       <CompassRose visible={showBoussole && showRepere} />
       {/* #60: the line of dance is perpendicular to the dancers' torsos in every view. */}
-      <LineOfDance visible={ligneVisible} />
+      <LineOfDance visible={ligneVisible} axis={essai("ligneBustes") ? "z" : "x"} />
       <React.Suspense fallback={null}>
         {isFiveActionFigure && <DanceTransport clock={clock} bpm={bpm} playing={playing}
           endBeat={endBeat} onEnd={() => setPlaying(false)} driver={driver} />}
