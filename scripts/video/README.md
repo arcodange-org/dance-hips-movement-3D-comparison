@@ -7,7 +7,7 @@ Elle fabrique la vidéo éducative « le pas de base sur place d'un style à l'a
 node scripts/video/controle.mjs            # le scénario est-il conforme ? (structure, faits, durée)
 node scripts/video/generer_video.mjs       # tout : voix, plans, habillage, montage → essais/video/pas-de-base.mp4
 node scripts/video/generer_video.mjs --besoins            # durée de musique nécessaire par style
-node scripts/video/generer_video.mjs --chapitres semba    # ne refait que ce chapitre
+node scripts/video/generer_video.mjs --chapitres semba    # ne refait que ce chapitre, sans réassembler le film (relancer sans l'option)
 node scripts/video/generer_video.mjs --refaire plans      # ignore un cache (voix, plans, habillage, montage, tout)
 node scripts/video/musique.mjs             # état des musiques
 ```
@@ -83,8 +83,9 @@ Une phrase :
 - **La comparaison** montre une rangée de six corps entiers au même tempo, puis, à partir de la phrase
   marquée `"plan": "grille"`, six bassins de près avec leurs six trajets à la même échelle. `"titre"` du
   chapitre s'affiche avant la première phrase (de même pour le final).
-- **Le final** montre le couple en danse automatique, vu de côté (la caméra suit son orientation), puis le
-  générique.
+- **Le final** montre le couple en danse automatique, puis le générique. La caméra suit l'orientation du
+  couple et va lentement du trois quarts au profil puis à l'autre trois quarts : de profil, l'un ne cache pas
+  l'autre ; de trois quarts, le balancement des hanches se lit.
 - **Les sous-titres** sont découpés en cartons de deux lignes au plus, aux fins de phrase : une phrase de
   `texte` peut donc tenir en deux ou trois cartons, sans rien changer à la voix.
 - **La voix lit mal** les sigles et les chiffres : écrire « dit » en toutes lettres (« cent vingt battements

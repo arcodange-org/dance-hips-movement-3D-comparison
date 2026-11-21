@@ -246,6 +246,11 @@ const durees = existsSync(FICHE_DUREES) ? JSON.parse(readFileSync(FICHE_DUREES, 
     }
     if (c.type === "comparaison" || c.type === "final") assert.ok(elements.some((e) => e.type === "intertitre" && e.donnees.texte === c.titre), `${c.id} : le chapitre s'annonce`);
     if (c.type === "final") assert.ok(plans[0].cadrage(0, 5).relative === true, "final : la caméra suit l'orientation du couple");
+    if (c.type === "final") {
+      const az = Array.from({ length: 40 }, (_, k) => plans[0].cadrage(k * 25, k).az);
+      assert.ok(Math.min(...az) <= 50 && Math.max(...az) >= 130, "final : la caméra passe par les deux trois quarts, où le balancement des hanches se lit");
+      assert.ok(az.some((a) => Math.abs(a - 90) < 8), "final : et par le profil, où l'un ne cache pas l'autre");
+    }
     if (c.type === "limites") assert.equal(elements.filter((e) => e.type === "points").at(-1).donnees.points.length, c.phrases.filter((p) => p.point).length);
     assert.ok(PROMPTS[musiqueDe(c)], `${c.id} : musique d'un style connu`);
   }

@@ -339,7 +339,8 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Blocs gris du tronc masqués quand les muscles sont affichés.
 - [x] Première version de la vidéo remise au propriétaire.
 - [ ] Écoute des cinq musiques par le propriétaire (choisies par la mesure).
-- [ ] Refilmer le final quand le ginga sera visible en danse de couple (session du mode jeu).
+- [x] Vidéo refilmée avec le ginga du couple (#157) ; caméra du final de trois quarts, où le balancement se lit.
+- [ ] Refilmer quand le « 8 » du ginga (#159) sera élu et fusionné.
 - [ ] Os et muscles de la tête et des bras, pour remplacer les derniers volumes stylisés (hors périmètre de #155).
 
 ## Vitrine : danse automatique en musique, lien direct (#150)

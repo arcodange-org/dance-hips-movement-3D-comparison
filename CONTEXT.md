@@ -20,9 +20,11 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   tiers) ; leur provenance est dans `scripts/video/pistes/pistes.json`. Sans eux, un style est filmé en silence.
 - **Buste** : avec la couche de muscles, les blocs gris du tronc sont masqués (demande du propriétaire) ; tête
   et bras restent stylisés, le modèle n'a pas leurs os ni leurs muscles.
-- **Reste** : le ginga visible en danse de couple (balancement et rebond, demande du propriétaire, confié à la
-  session du mode jeu) ; le final de la vidéo sera refilmé ensuite. Décision du propriétaire attendue sur la
-  piste kizomba déjà en ligne (#146, conditions d'Eleven Music).
+- **Troisième version, avec le ginga du couple** (#157 fusionné) : mesuré dans le final, un rebond d'environ
+  1 cm par temps et un déplacement de côté de 2,4 cm au plus. La caméra du final va du trois quarts au profil :
+  de profil seul, le balancement ne se voyait pas.
+- **Reste** : refilmer quand le « 8 » du ginga (#159) sera élu et fusionné ; l'écoute des cinq musiques ; la
+  décision du propriétaire sur la piste kizomba déjà en ligne (#146, conditions d'Eleven Music).
 
 ## Vitrine : danse automatique en musique, lien direct (#150, 21 novembre 2026)
 

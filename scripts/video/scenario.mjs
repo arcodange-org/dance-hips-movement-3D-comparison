@@ -33,6 +33,9 @@ export const PRONONCIATION = {
 
 /** Graine de la danse automatique du final : même graine, même danse. */
 export const GRAINE_FINAL = 7;
+/** Caméra du final : elle s'écarte du profil de `FINAL_BALAYAGE` degrés de chaque côté, en `FINAL_PERIODE`
+ * secondes l'aller-retour. De profil, le balancement des hanches (#157) part vers la caméra et ne se voit pas. */
+export const FINAL_BALAYAGE = 50, FINAL_PERIODE = 38;
 
 export const lireNarration = (fichier = join(ICI, "narration.json")) => JSON.parse(readFileSync(fichier, "utf8"));
 
@@ -140,11 +143,13 @@ export function plansDe(chapitre, cal, bpm, ordre) {
   }
 
   if (chapitre.type === "final") {
-    // Le couple en danse automatique, vu de côté : la caméra suit son orientation (`relative`), pour que l'un
-    // ne cache pas l'autre. Au générique, il glisse vers la gauche de l'image.
+    // Le couple en danse automatique : la caméra suit son orientation (`relative`) et va lentement du trois
+    // quarts au profil puis à l'autre trois quarts. De profil, l'un ne cache pas l'autre, mais le balancement
+    // des hanches part vers la caméra : c'est de trois quarts qu'il se lit. Au générique, le couple glisse vers
+    // la gauche de l'image.
     const t0 = cal.credits.debut;
     return simple(`?vitrine=1&style=kizomba&graine=${GRAINE_FINAL}&bare=1&bpm=${bpm}`,
-      (i, t) => ({ az: 90 + 14 * Math.sin(2 * Math.PI * t / 38), relative: true, el: 10, dist: 3.7, fov: 40, shift: 0.23 * adouci((t - (t0 - 1.5)) / 3) }));
+      (i, t) => ({ az: 90 - FINAL_BALAYAGE * Math.cos(2 * Math.PI * t / FINAL_PERIODE), relative: true, el: 10, dist: 3.2, fov: 40, shift: 0.23 * adouci((t - (t0 - 1.5)) / 3) }));
   }
   throw new Error(`type de chapitre inconnu : ${chapitre.type}`);
 }

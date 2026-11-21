@@ -84,7 +84,8 @@ seule : le script demande chaque image.
 - `src/components/FilmDriver.tsx` : expose `window.__film.frame(t, cadrage)`, qui avance la scène jusqu'à
   l'instant `t` (pas fixe d'une image), place la caméra et rend l'image ; `meshes()` dit quand les modèles
   sont chargés, `beat()` donne le temps de danse, `pelvis()` la position du bassin (le film en trace le
-  trajet). Un cadrage `relative` suit en douceur l'orientation du couple, pour le filmer de côté.
+  trajet). Un cadrage `relative` suit en douceur l'orientation du couple : l'angle demandé se compte à partir
+  du couple, pas de la piste.
 - En mode film, la ligne du trajet du bassin que l'application dessine dans la scène est masquée : le film
   affiche sa propre vue de dessus.
 - L'horloge de danse reste celle de l'application (`DanceTransport`) : ce que la vidéo montre est ce que
@@ -135,13 +136,25 @@ filmé à ce tempo, et le montage cale le premier temps de la musique sur le tem
   pas de raison d'afficher les blocs gris. » Avec la couche de muscles, les blocs gris du tronc sont masqués
   (`trunkBlocksVisible`, `src/muscles.ts`).
 
+- **Troisième version, avec le ginga du couple.** Demande du propriétaire : « J'aimerai aussi que le "sway"
+  des hanches et le petit effet de "bounce", le ginga en fait, soit présent pour montrer que les danseurs se
+  balancent au rythme de la musique ». Le balancement et le rebond sont arrivés dans le mode jeu
+  ([spec #157](spec-ginga-couple.md), réglage « marqué » par défaut) ; la vidéo a été refilmée sur cette base.
+  - **Ce que le ginga change, mesuré** sur le bassin du premier danseur, même graine et même danse, image
+    par image, avant et après : un rebond d'environ 1 cm de haut en bas, une fois par temps ; un déplacement
+    de côté de 1,1 cm en valeur efficace, 2,4 cm au plus. C'est un petit mouvement régulier, pas un grand :
+    l'agitation du bassin autour de son trajet moyen ne change presque pas (3,64 puis 3,67 cm), parce que les
+    pas en font déjà l'essentiel.
+  - **La caméra du final a changé pour qu'il se voie.** De profil, le balancement des hanches part vers la
+    caméra : on ne le voit pas. La caméra va maintenant lentement du trois quarts au profil puis à l'autre
+    trois quarts (`FINAL_BALAYAGE`, `FINAL_PERIODE`), un peu plus près du couple.
+
 ## Ce qui reste
 
-- **Le ginga en danse de couple** : « J'aimerai aussi que le "sway" des hanches et le petit effet de "bounce",
-  le ginga en fait, soit présent pour montrer que les danseurs se balancent au rythme de la musique »
-  (propriétaire, 21 novembre 2026). Le balancement déclenché par les transferts d'appui n'existe que pour
-  l'ida e volta ([spec #42](spec-ginga.md)) ; l'étendre aux autres figures est un chantier de mouvement à part.
-  Le final de la vidéo sera refilmé ensuite (`node scripts/video/generer_video.mjs`).
+- **Le « 8 » du ginga** : pour le propriétaire, le bassin « fait un 8 », par des genoux qui se relaient, et
+  c'est ce qui rendra les déplacements organiques. Le balancement filmé ici va et vient par le même chemin.
+  Le « 8 » est le chantier #159 (prototypes à élire) ; la vidéo sera refilmée quand il sera fusionné
+  (`node scripts/video/generer_video.mjs`).
 - **L'écoute des musiques** par le propriétaire ; une musique refusée se régénère avec
   `scripts/video/musique.mjs --generer <style>` (avec son accord : crédits).
 - **Tête et bras** restent des volumes stylisés : le modèle n'a ni leurs os ni leurs muscles.

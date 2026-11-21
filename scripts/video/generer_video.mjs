@@ -118,7 +118,10 @@ export async function generer(args = {}) {
       journal(`Chapitre ${c.id} : ${k.duree.toFixed(1)} s à ${bpm} bpm${r.neuf ? "" : " (inchangé)"}`);
       montes.push(r.fichier);
     }
-    if (args.chapitres) return { cal, chapitres: montes };
+    if (args.chapitres) {
+      journal("Film non réassemblé : relancer sans --chapitres pour le mettre à jour.");
+      return { cal, chapitres: montes };
+    }
 
     // 7. Le film, puis son contrôle.
     const sortie = args.sortie ?? join(TRAVAIL, "pas-de-base.mp4");
