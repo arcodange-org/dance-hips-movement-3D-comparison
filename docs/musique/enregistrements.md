@@ -15,7 +15,13 @@ prompt). Un style absent du tableau garde la synthèse. Chaque nouvelle piste de
 propriétaire : une prise coûte des crédits (voir la spec, « Points ouverts »).
 
 <!-- pistes -->
-Aucune piste n'est publiée pour l'instant.
+| Style | Fichier | Tempo mesuré | Boucle | Modèle | Date |
+|---|---|---|---|---|---|
+| kizomba | `public/musique/kizomba.mp3` | 102.00 bpm | 96 temps | music_v2_5 | 2026-11-21 |
+
+Prompts :
+
+- **kizomba** : « Plan de composition, variante C (Fusion kizomba et semba). Styles : Angolan kizomba and semba fusion, Luanda live band, warm 1990s studio recording, 102 BPM, strictly steady tempo, relaxed but danceable, sensual, organic, soft kick drum on beats one and three, never on every beat, cross-stick rimshot in a three-three-two pattern, dikanza scraper in sixteenth notes, congas, semba-style interlocking guitars with a clean melodic lead guitar, accordion phrases, deep warm round bass guitar, subtle keyboard pad in the background, minor key, acoustic instruments in front, warm analog sound, instrumental. À éviter : techno, house, EDM, trance, club dance music, four-on-the-floor kick drum, kick drum on every beat, hard punchy electronic kick, sidechain compression, synth lead, aggressive synthesizers, vocals, lyrics, tempo changes, breakdown, drum fill pauses. Consigne : [Groove] {the full band plays the steady groove from the very first beat, no intro, no breakdown, no pauses, clear pulse for dancers} »
 <!-- /pistes -->
 
 ## Prises refusées ou en échec

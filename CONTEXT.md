@@ -14,8 +14,10 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
 - Le propriétaire a retenu la **variante C** (fusion kizomba et semba) sur extraits de 15 s. La
   première prise complète (un bloc de 62 s) est revenue **silencieuse** : échec de génération,
   775 crédits perdus. Les prises complètes sont maintenant demandées en sections de 32 temps.
-- **En attente du propriétaire** : accord pour redemander la prise complète de la variante C
-  (environ 775 crédits). Ne rien générer sans cet accord.
+  Redemandée ainsi, la prise est bonne à l'analyse (101,996 bpm, groove constant, boucle de
+  96 temps) et publiée dans la branche.
+- **En attente du propriétaire** : écoute de la piste kizomba (couleur, temps 1, raccord). Ne rien
+  générer d'autre sans son accord.
 - Commandes : `node scripts/generer_musique.mjs --plan` (sans réseau) ; avec la clé,
   `node --env-file=<fichier d'environnement> scripts/generer_musique.mjs --essais kizomba`, puis
   `--styles kizomba --variante kizomba=<lettre>` (la clé n'est pas dans le Vault ; ne jamais

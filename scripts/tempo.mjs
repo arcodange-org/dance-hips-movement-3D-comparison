@@ -287,7 +287,9 @@ export function analyseTempo(samples, sampleRate, options) {
   const mod8 = (k) => ((k % 8) + 8) % 8;
   let down = 0, bestScore = -Infinity;
   for (let phrase = 0; phrase < 8; phrase++) {
-    let score = 4 * ((bar[phrase % 4] - barMean) / barMean);
+    // L'accent grave départage quand la structure ne dit rien ; il pèse toujours moins qu'un indice
+    // de structure (un morceau peut appuyer son grave sur le temps 3 : prise du 21 novembre 2026).
+    let score = Math.max(-0.9, Math.min(0.9, 2 * ((bar[phrase % 4] - barMean) / barMean)));
     for (const v of votes) {
       const gap = mod8(v.beat - phrase);
       score += gap === 0 ? v.weight : gap === 4 ? v.weight / 2 : 0;

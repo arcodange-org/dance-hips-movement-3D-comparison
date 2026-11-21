@@ -32,10 +32,10 @@ du propriétaire (voir « Points ouverts »).
 | Script de génération, analyse de tempo, de structure et de signature rythmique | fait |
 | Kizomba, prise 1 (prompt du propriétaire, mot pour mot) | **refusée à l'écoute**, retirée de la branche |
 | Kizomba, deuxième tentative | extraits d'essai A, B, C générés ; **variante C retenue** à l'oreille par le propriétaire |
-| Kizomba, prise complète de la variante C | première demande : **fichier silencieux** (échec de génération, 775 crédits) ; nouvelle demande en sections **en attente de l'accord** du propriétaire |
+| Kizomba, prise complète de la variante C | première demande : **fichier silencieux** (échec de génération) ; deuxième demande, en sections de 32 temps : **générée et mesurée**, en attente de l'écoute du propriétaire |
 | Pistes semba, kompa, tarraxinha, suave, zouk brésilien | après une kizomba validée |
 
-Aucune piste n'est publiée : tous les styles jouent la synthèse.
+Piste dans la branche : kizomba (variante C). Les autres styles jouent la synthèse.
 
 ## Modules
 
@@ -271,8 +271,31 @@ Ce qui change :
 - **Coût mesuré** : 750 crédits par minute d'après le compteur de l'abonnement (775 pour 62 s,
   564 pour trois extraits de 15 s), et non 900 comme l'annonçait la grille publique.
 
+### Prise complète de la variante C, en sections (21 novembre 2026, accord : « Oui, relancer »)
+
+Demandée en trois sections de 32 temps aux styles identiques, plus une fin. Le fichier contient
+bien de la musique, et la branche la publie pour l'écoute.
+
+| Mesure | Valeur | Lecture |
+|---|---|---|
+| Niveau | −15,2 LUFS (gain −0,8 dB) | normal |
+| Tempo | 101,996 bpm pour 102 demandés, dérive 2 ms | tenu |
+| Structure | niveau constant du temps 1 au temps 100, aucun changement de section, puis la fin | pas de relance ni d'introduction : un groove d'un seul tenant |
+| Temps 1 | 0,036 s | début franc de la musique ; l'accent grave le plus fort tombe sur le temps 3 de la mesure |
+| Boucle | 96 temps, de 0,036 s à 56,51 s | les trois sections demandées ; les 4 temps suivants prolongent le même groove |
+| Attaques graves sur les temps 1 à 4 | 0,73 – 0,66 – 1,00 – 0,72 | du grave sur chaque temps, un temps appuyé : entre l'extrait C (0,28) et la prise refusée (0,82) |
+| Syncope 3-3-2 dans l'aigu | 0,61 | figure nette |
+
+Deux réserves pour l'écoute. C'est une **nouvelle génération** avec les consignes de l'extrait C,
+pas son prolongement : la couleur peut différer. Et le grave est présent sur chaque temps, plus
+que dans l'extrait ; la mesure ne dit pas s'il s'agit d'une grosse caisse ou d'une basse.
+
+L'analyse a d'abord placé le temps 1 deux temps trop tard, parce que l'accent grave du temps 3
+pesait plus lourd que le début de la musique. Corrigé : l'accent grave départage seulement quand
+la structure ne dit rien.
+
 Crédits dépensés pour ce chantier au 21 novembre 2026 : 775 (prise 1, refusée) + 564 (extraits)
-+ 775 (prise silencieuse) = 2 114 ; il en reste 35 793.
++ 775 (prise silencieuse) + 775 (prise en sections) = 2 889 ; il en reste 35 018.
 
 ## Conditions d'usage (relevé du 21 novembre 2026, à confirmer par le propriétaire)
 
@@ -309,9 +332,8 @@ publication. L'app et la documentation indiquent que la musique est générée p
 
 ## Points ouverts (propriétaire)
 
-- **Accord pour redemander la prise complète** de la variante C, en sections de 32 temps (environ
-  775 crédits). Le risque d'un nouvel échec n'est pas écarté : la cause du fichier silencieux
-  n'est pas connue.
+- **Écoute de la piste kizomba (variante C)** : couleur, temps 1 sur un transfert d'appui,
+  raccord de boucle. Si le temps 1 est décalé : `--decaler kizomba=<temps>`, sans nouvelle prise.
 - **Tempo** : les sources du dépôt situent la kizomba vers 85–95 bpm ; 102 bpm vient du prompt
   d'origine. À confirmer.
 - **Autres styles** : après une kizomba validée, même méthode (variantes, extraits, prise).

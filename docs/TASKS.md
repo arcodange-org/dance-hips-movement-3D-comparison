@@ -311,5 +311,6 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Extraits d'essai de la kizomba (variantes A, B, C, 15 s chacun) générés avec l'accord du propriétaire.
 - [x] Variante C retenue à l'oreille par le propriétaire.
 - [x] Prise complète de la variante C, première demande : fichier silencieux (échec de génération) ; garde-fou et plan en sections de 32 temps.
-- [ ] Nouvelle demande de la prise complète : **en attente de l'accord du propriétaire** (environ 775 crédits), puis écoute de validation (temps 1, raccord, qualité).
+- [x] Prise complète de la variante C redemandée en sections de 32 temps : générée, mesurée (101,996 bpm, boucle de 96 temps), contrôlée dans le navigateur.
+- [ ] **Écoute de validation par le propriétaire** (couleur, temps 1, raccord de boucle).
 - [ ] Autres styles, après une kizomba validée (même méthode).
