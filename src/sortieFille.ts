@@ -1,5 +1,5 @@
 import { HIP_WIDTH } from "./anatomy";
-import type { FigureFoot, FigureFootPose, FootPoint } from "./sortieGarcon";
+import { SORTIE_GINGA_CAP, type FigureFoot, type FigureFootPose, type FootPoint } from "./sortieGarcon";
 import { gaitStep } from "./gait";
 import { placementOffset, startCoupling, endCoupling, type CouplePlacement, type PlacementOffset } from "./placement";
 
@@ -103,6 +103,12 @@ interface Action {
   /** #127: yaw of the foot once landed (rad, towards the dancer's left); it stays until the foot moves again. */
   yaw?: number;
 }
+
+/** #157: beats where the sortie fille is too tight for the ginga's bounce and sway (`ramp`: beats to fade). */
+/** Beat (position 3) where the sortie fille may be chained into the sortie garçon (#90): the figure and
+ * its chained form are the same up to it, the ginga included (`gingaJunctions`). */
+export const SORTIE_FILLE_JUNCTION = 3;
+export const SORTIE_FILLE_GINGA = { bounceFrom: 0.35, swayOff: [1.05, 1.45], ramp: 0.3 };
 
 export function sampleSortieFille(beat: number, follower: boolean,
   rest: Record<FigureFoot, FootPoint>, variant: SortieFilleVariant = "hook",
@@ -270,7 +276,13 @@ export function sampleSortieFille(beat: number, follower: boolean,
   // Opening of the leader's chest leads the answering rotation of the partner.
   const cue = follower ? .72 : .47;
   const chestYaw = -.20 * smooth((b - cue) / .72) * (1 - smooth((b - 2.15) / 1.1));
-  const sample = { beat: b, feet, root, loadR, chestYaw, coupling: Math.max(startCoupling(b, o), endCoupling(b, o)) };
+  // #157 (docs/spec-ginga-couple.md): where this figure leaves no room for the ginga of the couple dance,
+  // measured on the GLB: the bounce over its first third of a beat (the knees meet as the leader's G leaves),
+  // the hip sway around its beat 1.25 (the leader's right thigh against the follower's left leg, in semba).
+  const G = SORTIE_FILLE_GINGA;
+  const gingaRoom = { bounce: smooth((b - G.bounceFrom) / G.ramp),
+    sway: 1 - smooth((b - (G.swayOff[0] - G.ramp)) / G.ramp) * (1 - smooth((b - G.swayOff[1]) / G.ramp)) };
+  const sample = { beat: b, feet, root, loadR, chestYaw, coupling: Math.max(startCoupling(b, o), endCoupling(b, o)), gingaRoom, gingaCap: SORTIE_GINGA_CAP, gingaJunctions: [SORTIE_FILLE_JUNCTION] };
   if (!comma) return sample;
   // #127: the pelvis opens with the virgula (over the end of its flight) and squares up during the hook;
   // the chest keeps its own direction (contraposition); the G knee points out between the pelvis and the
