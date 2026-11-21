@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { seekClock, type DanceClock } from "../clock";
 import { SORTIE_FILLE_ACTIONS, sortieFilleBeat, sortieFilleVariantOf, type SortieFilleVariant } from "../sortieFille";
+import { transitionAt } from "../transitions";
+import TransitionCard from "./TransitionCard";
 
 export default function SortieFilleControls({ clock, variant, onVariant, onPlaying }: {
   clock: DanceClock;
@@ -40,6 +42,7 @@ export default function SortieFilleControls({ clock, variant, onVariant, onPlayi
         </select>
       </label>
     </div>
+    <TransitionCard transition={transitionAt(variant === "back" ? "sortieF:back" : "sortieF", beat)} />
     <p className="text-xs text-slate-400">
       Au deuxième pas, le cadre transmet l’ouverture amorcée par le buste du leader.
       Les repères D/D indiquent la proximité de deux enveloppes illustratives de cuisse.

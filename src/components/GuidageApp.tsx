@@ -11,6 +11,8 @@ import GridFloor from "./GridFloor";
 import { createDanceClock, seekClock, type DanceClock } from "../clock";
 import { STYLES } from "../styles";
 import { useMusic } from "../music/useMusic";
+import TransitionCard from "./TransitionCard";
+import { transitionAt } from "../transitions";
 import {
   GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, guideFiguresFor, guideStyleOf, GUIDE_PAIR_DZ, GUIDE_DEMO, GUIDE_DEMO_ARROWS, GUIDE_DEMO_CHAIN, GUIDE_DEMO_INSERT, applyTransform, figureOfCode, keyLabel, type HeldArrows,
   type GuideFigure, type GuideOutcome, type GuideKind,
@@ -103,8 +105,8 @@ export default function GuidageApp() {
   }, []);
   paused.current = !playing;
   const music = useMusic({ clock, styleKey, bpm, playing, muted: [], volume: 0.8 });
-  const [hud, setHud] = useState<{ beat: number; kind: GuideKind; next: number | null; pending: GuideFigure | null; outcome: GuideOutcome | null; streak: number }>(
-    { beat: 0, kind: "base", next: null, pending: null, outcome: null, streak: 0 });
+  const [hud, setHud] = useState<{ beat: number; local: number; kind: GuideKind; next: number | null; pending: GuideFigure | null; outcome: GuideOutcome | null; streak: number }>(
+    { beat: 0, local: 0, kind: "base", next: null, pending: null, outcome: null, streak: 0 });
 
   // Beat of a press: the last frame's beat plus the time elapsed since (the clock advances per frame).
   const beatAt = (time: number) => {
@@ -154,9 +156,10 @@ export default function GuidageApp() {
       const s = plan.segments[plan.segments.length - 1];
       const waiting = plan.outcomes.filter(o => o && o.verdict === "en attente" && o.boundary !== null);
       const latest = plan.outcomes.length ? plan.outcomes[plan.outcomes.length - 1] : null;
-      const kind = (s.start <= clock.beat ? s : plan.segments[plan.segments.length - 2] ?? s).kind;
+      const active = s.start <= clock.beat ? s : plan.segments[plan.segments.length - 2] ?? s;
+      const kind = active.kind;
       const next = s.kind === "base" ? null : s.start + GUIDE_FIGURES[s.kind].beats;
-      setHud({ beat: clock.beat, kind, next, pending: waiting.length ? waiting[waiting.length - 1].intention.figure : null,
+      setHud({ beat: clock.beat, local: Math.max(0, clock.beat - active.start), kind, next, pending: waiting.length ? waiting[waiting.length - 1].intention.figure : null,
         outcome: latest ?? null, streak: latest?.streak ?? 0 });
     }, 80);
     return () => clearInterval(id);
@@ -223,6 +226,9 @@ export default function GuidageApp() {
             </>}
           </div>
           <div className="text-xs text-slate-400">Série : <span className="text-slate-100 tabular-nums">{hud.streak}</span></div>
+          {hud.kind !== "base" && <div className="mt-2 border-t border-slate-800 pt-2">
+            <TransitionCard transition={transitionAt(hud.kind, hud.local)} compact />
+          </div>}
         </div>
         <div className="rounded-2xl bg-slate-900/80 border border-slate-800 px-3 py-2 text-xs flex flex-wrap gap-2 pointer-events-auto">
           <button className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" onClick={() => playing ? setPlaying(false) : (clock.beat === 0 ? restart() : setPlaying(true))}>
