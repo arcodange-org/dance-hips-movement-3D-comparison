@@ -34,6 +34,8 @@ export interface PoseOptions {
   sortie: boolean; embrace: boolean; reverse: boolean; follower: boolean;
   movement: MovementKey; // phase 17 : option exclusive (sortieG/sortieF/sortieGF incluse)
   sortieFilleVariant: SortieFilleVariant; sortieVariant: SortieVariant; sortieContra: number;
+  /** #127: the leader's G1 of the sortie fille's hook variant is a virgula (false: the straight step, for tests). */
+  sortieVirgula: boolean;
   // Couple placement of the five-action figures; "reference" = validated spacing (tests).
   placement: CouplePlacement | "reference";
   /** #37: pair quarter turns around the leader (docs/spec-quarts-paire.md); off = phase 14 model. */
@@ -76,7 +78,7 @@ export const DEFAULT_POSE: PoseOptions = {
   styleKey: "kizomba", amp: 1, travel: 0, dir: 1, plant: true, iso: true, cadre: true,
   quarts: false, corridinho: false, ida: false, temps3: false, sortie: false,
   embrace: false, reverse: false, follower: false, movement: "none",
-  sortieFilleVariant: "hook", sortieVariant: "line", sortieContra: DEFAULT_SORTIE_CONTRA,
+  sortieFilleVariant: "hook", sortieVariant: "line", sortieContra: DEFAULT_SORTIE_CONTRA, sortieVirgula: true,
   placement: "reference", quartsPaire: false, idaPaire: false, idaVariant: IDA_DEFAULT, marche: null, sortieChain: false, sortieInsert: false, placePaire: false, plexus: false, contraposition: 1,
   rootOffset: null, partnerRootOffset: null, pelvisOffset: null, trunkOffset: null,
 };
@@ -356,7 +358,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     : (o.movement === "sortieG" || o.movement === "sortieF") && o.sortieInsert ? sampleInserted(o.movement, beat, follower, rest, placementOffset(o.placement, o.amp), placementScale(o.amp), stance, o.sortieContra)
     : o.movement === "sortieG" ? sampleSortieGarcon(beat, follower, rest, o.sortieVariant, o.sortieContra, placementOffset(o.placement, o.amp), placementScale(o.amp), stance)
     : o.movement === "sortieF" && o.sortieChain ? sampleSortieFG(beat, follower, rest, placementOffset(o.placement, o.amp), placementScale(o.amp), stance, o.sortieContra)
-    : o.movement === "sortieF" ? sampleSortieFille(beat, follower, rest, o.sortieFilleVariant, placementOffset(o.placement, o.amp), placementScale(o.amp), stance)
+    : o.movement === "sortieF" ? sampleSortieFille(beat, follower, rest, o.sortieFilleVariant, placementOffset(o.placement, o.amp), placementScale(o.amp), stance, o.sortieVirgula)
     // #37: in pair the couple turns rigidly around a centre on the leader's side (docs/spec-quarts-paire.md).
     : o.movement === "quarts" && o.quartsPaire ? sampleQuartsPaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance)
     // #54: in pair the leader steps forward while the follower steps back (docs/spec-ida-paire.md).
@@ -570,7 +572,8 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
       const target = skeleton.worldToLocal(r.root.parent!.localToWorld(model.targets[s].clone()));
       // #84: a figure may keep the knees from following its own pelvis yaw (`kneeYaw`, rad): the knee
       // pole turns back by that much, so the knees stay over the feet instead of swinging sideways.
-      const kneeYaw = figure ? (figure as { kneeYaw?: number }).kneeYaw ?? 0 : 0;
+      // #127: `kneeYawSide` adds to it per leg (a turned-out foot takes its knee with it).
+      const kneeYaw = figure ? ((figure as { kneeYaw?: number }).kneeYaw ?? 0) + ((figure as { kneeYawSide?: Record<Side, number> }).kneeYawSide?.[s] ?? 0) : 0;
       const pole = kneeYaw !== 0 ? new THREE.Vector3(-Math.sin(kneeYaw), 0, Math.cos(kneeYaw)) : undefined;
       const solution = solveLeg3D(leg.hip, target, leg.length1, leg.length2, leg.f0, leg.t0, pole);
       r["hip" + s].quaternion.copy(solution.qHip);

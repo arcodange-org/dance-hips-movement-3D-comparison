@@ -67,8 +67,11 @@ validé à l'amplitude 2, pour que les os des genoux ne se croisent pas. Partage
 
 ## Sortie fille — cinq actions en paire
 
-Le leader avance G puis dessine un crochet du droit. Le suiveur recule D puis sort à gauche.
-Dans la variante recul, le leader recule D pendant que le suiveur avance G en diagonale gauche.
+Le leader avance G en **virgula** (pied posé perpendiculaire, pointe à gauche, #127) puis dessine un
+crochet du droit. Le suiveur recule D puis sort à gauche. Pendant la virgula, le bassin du leader
+s'ouvre à gauche et son buste garde sa direction (contraposition) : le buste du suiveur ne tourne pas.
+Dans la variante recul, le leader avance G droit puis recule D pendant que le suiveur avance G en
+diagonale gauche.
 L’ouverture du buste du leader guide la sortie dans le cadre. Le droit du suiveur avance en
 diagonale et arrive à côté du droit du leader. Le leader dégage ensuite le passage au croisé. Au marka, le leader
 reste sur D et le suiveur sur G. La lecture conserve cette pose finale.
@@ -81,8 +84,8 @@ Le deuxième pas accepte aussi `sortieFilleVariant=back`.
 <details><summary>Détails et source du contrôle crochet</summary>
 
 Capture image par image (`scripts/capture_figure_gif.mjs`) : cinq temps à 75 bpm, kizomba d’amplitude 1,
-paire, quinconce, couche des muscles, vue du guideur. Le droit du leader dessine le crochet et le gauche
-du suiveur se décale d’une hanche et demie (51 cm, #105). L’illustration reprend la séquence décrite par
+paire, quinconce, couche des muscles, vue du guideur. Le gauche du leader se pose en virgula (#127), son
+droit dessine le crochet et le gauche du suiveur se décale d’une hanche et demie (51 cm, #105). L’illustration reprend la séquence décrite par
 le propriétaire.
 La proximité des flancs est mesurée sur des enveloppes de cuisse. Les charges affichées
 dans l’application indiquent les appuis prescrits. BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
