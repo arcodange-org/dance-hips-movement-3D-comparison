@@ -41,8 +41,8 @@ aux fins d'action (aucun des deux ne tourne : les pieds gardent leur orientation
   sa place.
 - **Pont de 2 temps** (temps 3 à 5 de la figure enchaînée) :
   - leader : poids sur son D (0,12 temps), puis son G se place (jusqu'à 4,1). Son bassin part de 3,6 à
-    4,5 : depuis #104 il finit au-dessus de son D, contre la cuisse droite du suiveur, donc il attend
-    que le D du suiveur ait dégagé ;
+    4,5 : depuis #104 il finit près de son D (6 cm en arrière depuis #130), contre la cuisse droite du
+    suiveur, donc il attend que le D du suiveur ait dégagé ;
   - suiveur : poids sur son G, puis son D se place avec le G du leader, sans partir avant lui (R24) ;
   - suiveur, suite : poids sur son D, puis son G avance et prend le poids sur le temps 5.
 - Son G avancé tomberait là où se tient son D : le D part d'abord. Le D passe par un coin, d'abord en

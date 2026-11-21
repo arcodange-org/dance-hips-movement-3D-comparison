@@ -172,8 +172,45 @@ gérer l'espace de son décalage à gauche pour être le plus proche possible sa
   | D2 à 0,30 m | Les cuisses se serrent de 7 cm |
   | D2 à 0,22 m (avant) | 541 croisements d'os |
 
-- **Conflit de règles à trancher** : avec le bassin au-dessus du D et le suiveur qui recule droit, les
-  pieds D ne peuvent plus être bord à bord (R9) ; ils sont à 12 cm. Bord à bord, les fémurs droits se
-  traversent.
+- **Conflit de règles**, tranché par #130 (section suivante) : avec le bassin au-dessus du D et le
+  suiveur qui recule droit, les pieds D ne pouvaient plus être bord à bord (R9) ; ils étaient à 12 cm.
+  Bord à bord, les fémurs droits se traversaient.
 - Le D4 du leader part 0,25 temps après le début de son action (0,2 avant), et le G4 du suiveur avec lui.
   Plus tôt, depuis sa sortie plus large, son genou D frôle son tibia G.
+
+## Position 2 : pieds D tout près, bassin légèrement en arrière (#130, 21 novembre 2026)
+
+Demande du propriétaire : « sortie garçon : avoir le pied (voire le genou) en contact possible (donc très
+proche) sur D2 est important, quitte à reculer légèrement le bassin : le buste est légèrement en avant et
+le bassin légèrement en arrière tout le temps, c'est ce qui évite les contacts frontaux des "zones à
+risque" (pubis) ».
+
+Cela tranche le conflit entre R9 et #104 : les pieds D très proches priment, et le bassin du leader
+n'est plus juste au-dessus de son D.
+
+- **D2 du leader** : posé à 0,26 m à gauche de sa cheville de repos (`SORTIE_GARCON_EXIT.step2X`,
+  0,34 m depuis #110). En vol, il passe 3 cm plus à gauche (`aside`) pour contourner le D du suiveur,
+  puis se referme sur lui.
+- **Bassin du leader en position 2** : 6 cm derrière son D (`SORTIE_GARCON_POS2.back`) et 8 cm à sa
+  gauche (`inward`), au lieu d'être au-dessus. Les bassins ne se font pas face : pas de contact frontal.
+- **Suiveur** : inchangé, il recule droit (#110), son G2 recule de 25 cm (R22).
+
+| Mesure en position 2 (GLB, kizomba, amplitude 1) | Avant (#110) | Après (#130) |
+|---|---|---|
+| Écart des semelles D/D | 11,7 cm | 3,8 cm |
+| Distance des genoux D | 15,9 cm | 11,1 cm |
+| Bassin du leader par rapport à son D | au-dessus (0 cm) | 6,1 cm en arrière |
+| Enveloppes des cuisses D (rayon 8,5 cm) | 3,2 cm l'une dans l'autre | 6,1 cm, en bas des cuisses (s = 0,90) |
+| Croisements d'os des jambes | 0 | 0 |
+
+- Les enveloppes des cuisses sont illustratives : avec les genoux à 11 cm, elles se recouvrent
+  forcément. La bande du test passe de 3,5 à 8 cm ; les os, eux, sont vérifiés sur leurs triangles.
+- Tests (`scripts/test_sortie_garcon.mjs`) : semelles D à moins de 4 cm sans se chevaucher, genoux D à
+  moins de 12 cm, bassin du leader 4 à 12 cm derrière son D, aucun croisement d'os (trois placements,
+  trois amplitudes, styles des sorties). Les empreintes historiques de la sortie garçon sont
+  régénérées (leader et suiveur) ; les autres figures sont inchangées.
+- **Reste ouvert** : « le buste légèrement en avant et le bassin légèrement en arrière tout le temps »,
+  pour les deux danseurs et dans toutes les figures, n'est pas traité ici. C'est le sujet de #93
+  (danseurs droits : « légèrement », pas la posture de lutteur).
+
+![Sortie garçon, pieds D tout près en position 2](gifs/sortie-garcon-validee.gif)
