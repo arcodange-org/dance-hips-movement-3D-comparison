@@ -19,8 +19,10 @@ export interface Transition {
   /** Distance and contacts that change. */
   contacts: string;
   sources: string[];
+  /** ADR 004: every text the owner has not read is « à valider » (shown as such). */
+  statut: "à valider" | "validé";
 }
-type Entry = Omit<Transition, "from" | "to">;
+type Entry = Omit<Transition, "from" | "to" | "statut">;
 export type TransitionKey = "sortieG" | "sortieF" | "sortieF:back" | "sortieFG" | "sortieFI" | "sortieGI" | "quart"
   | "ida" | "idaD" | "idaArr" | "idaArrD" | "avance" | "recule" | "double";
 
@@ -179,7 +181,7 @@ const CHAIN_BRIDGE_ENTRY: Entry = { title: "Pont : le suiveur avance en position
 
 /** Consecutive transitions, one beat each from `start`, the last one stretched to `end`. */
 const span = (entries: Entry[], start: number, beat: number, end?: number): Transition[] =>
-  entries.map((e, i) => ({ ...e, from: start + i * beat, to: i === entries.length - 1 && end !== undefined ? end : start + (i + 1) * beat }));
+  entries.map((e, i) => ({ ...e, statut: "à valider", from: start + i * beat, to: i === entries.length - 1 && end !== undefined ? end : start + (i + 1) * beat }));
 
 const sortieF = (variant: "hook" | "back") => [SORTIE_F_1, variant === "back" ? SORTIE_F_2_BACK : SORTIE_F_2_HOOK, ...SORTIE_F_REST];
 const SORTIE_BEATS = 5 + MARKA_HOLD;
@@ -190,12 +192,12 @@ const TABLE: Record<TransitionKey, Transition[]> = {
   "sortieF:back": span(sortieF("back"), 0, 1, SORTIE_BEATS),
   sortieFG: [
     ...span(sortieF("hook").slice(0, CHAIN_FROM), 0, 1),
-    { ...CHAIN_BRIDGE_ENTRY, from: CHAIN_FROM, to: CHAIN_FROM + CHAIN_BRIDGE.beats },
+    { ...CHAIN_BRIDGE_ENTRY, statut: "à valider", from: CHAIN_FROM, to: CHAIN_FROM + CHAIN_BRIDGE.beats },
     ...span(SORTIE_G.slice(CHAIN_TO), CHAIN_FROM + CHAIN_BRIDGE.beats, 1, CHAIN_BEATS + MARKA_HOLD),
   ],
   sortieFI: inserted(sortieF("hook"), INSERTION_VARIANT.sortieF),
   sortieGI: inserted(SORTIE_G, INSERTION_VARIANT.sortieG),
-  quart: [{ ...QUART[0], from: 0, to: 1 }, { ...QUART[1], from: 1, to: 4 }],
+  quart: [{ ...QUART[0], statut: "à valider", from: 0, to: 1 }, { ...QUART[1], statut: "à valider", from: 1, to: 4 }],
   ida: span(idaSlots({ side: "L", back: false }), 0, 2),
   idaD: span(idaSlots({ side: "R", back: false }), 0, 2),
   idaArr: span(idaSlots({ side: "L", back: true }), 0, 2),
@@ -208,7 +210,7 @@ const TABLE: Record<TransitionKey, Transition[]> = {
 function inserted(sortie: Entry[], variant: IdaVariant): Transition[] {
   return [
     ...span(sortie.slice(0, INSERTION_AT), 0, 1),
-    { ...idaSlots(variant)[0], from: INSERTION_AT, to: INSERTION_AT + INSERTION_BEATS },
+    { ...idaSlots(variant)[0], statut: "à valider", from: INSERTION_AT, to: INSERTION_AT + INSERTION_BEATS },
     ...span(sortie.slice(INSERTION_AT), INSERTION_AT + INSERTION_BEATS, 1, INSERTED_BEATS + MARKA_HOLD),
   ];
 }

@@ -6,9 +6,11 @@
 > Usage concret : [ADR 004](adr/004-ontologie-source-des-figures.md) (données typées lues par l'app, les tests
 > et le mode jeu).
 >
-> Statut : **proposition à relire par le propriétaire** (barrière de compréhension). Rien n'est codé.
-> Les explications ci-dessous sont des hypothèses rédigées à partir des specs existantes : chaque
-> ligne marquée « à valider » demande la confirmation du propriétaire.
+> Statut : **proposition à relire par le propriétaire** (barrière de compréhension). Les étapes 2 et 3
+> sont codées : `src/ontologie.ts` (positions, guidages, équivalence, insertions) et `src/transitions.ts`
+> (textes, #94), vérifiés par `scripts/test_ontologie.mjs` et `scripts/test_transitions.mjs`. Chaque
+> entrée porte le statut « à valider », affiché dans l'app, jusqu'à la relecture du propriétaire.
+> L'exemple de la sortie garçon ci-dessous date d'avant #104 et #110 ; les données à jour sont dans le code.
 
 ## Demandes du propriétaire (20 novembre 2026)
 
@@ -95,6 +97,24 @@ interface Equivalence { a: string; b: string; note: string }                    
 - Les **transitions** donnent le texte affiché dans l'app et le mode jeu (#94), et les règles
   temporelles (R22, #88) deviennent des tests sur `engagement` et `reception`.
 - Les **équivalences** donnent au mode jeu les enchaînements permis (#90, #91).
+
+## Ce qui est codé (étapes 2 et 3)
+
+- **Positions** (29) : sortie garçon, sortie fille (crochet et recul), quart de tour, ida e volta. Chacune
+  déclare les appuis (charge > 0,9), la disposition (quinconce : décalage latéral des bassins < 12 cm ;
+  décalé : > 14 cm) et le contact des cuisses D (enveloppes au contact, ou écartées d'au moins 2 cm).
+  En quinconce, les cuisses D sont intercalées : leur contact ne suffit pas à reconnaître les flancs
+  droits, c'est le décalage des bassins qui le fait.
+- **Guidages** (17, R24) : dans chaque transition, le pied du suiveur part avec ou après le pied du
+  leader qui le provoque. Aucun guidage n'est déclaré pour la marka (le leader seul) ni pour le second
+  pied du quart : le G du suiveur répond au cadre qui tourne (il part à 1,45, le D du leader à 1,8).
+- **Équivalence** #90 : `sortieF.3` (alias « position 5 » du propriétaire) ≡ `sortieG.2`. C'est la même
+  configuration, mais avec les appuis inversés, d'où le pont de 2 temps de l'enchaînement.
+- **Insertions** #91 : à `sortieG.2` et à `sortieF.2`, l'ida part du pied libre du leader. L'insertion
+  de la sortie fille est en position 2 dans le code (la proposition ci-dessus disait entre 3 et 4).
+- Le test échantillonne chaque position sur le GLB réel (quinconce, kizomba) et vérifie que les
+  constantes de #90 et #91 (`CHAIN_FROM`, `CHAIN_TO`, `INSERTION_AT`, `INSERTION_VARIANT`) sont celles
+  des données. L'étape 4 (le mode jeu lit les données) reste à faire.
 
 ## Étapes proposées
 
