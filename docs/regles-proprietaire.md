@@ -5,6 +5,14 @@ par le propriétaire, avec leur source, la spec qui les porte et l'état mesuré
 l'audit de conformité. Chaque règle est citée telle quelle (verbatim) puis reformulée en critère
 vérifiable.
 
+Les règles chiffrées par le propriétaire (R4 : plexus à 6 cm au plus ; R8 : pas d'une longueur de pied,
+21,2 cm, et d'une largeur de hanche, 34 cm ; R21 : poids qui arrive sur un temps, à 0,05 temps près) sont
+mesurées à leur seuil, figure par figure, par
+`scripts/test_ecarts_regles.mjs` (#75, dans `npm test`). Le test affiche les écarts sans échouer, mais
+échoue si une figure s'éloigne de la règle plus que la valeur enregistrée
+(`scripts/fixtures/ecarts-regles.json` ; `WRITE=1` après un changement voulu). R2 et R3 n'ont pas de
+seuil chiffré : ils n'y figurent pas.
+
 ## Position et distance du couple
 
 | # | Règle (verbatim) | Critère vérifiable | Spec | État (20 nov. 2026) |
@@ -22,7 +30,7 @@ vérifiable.
 |---|---|---|---|---|
 | R7 | « On doit avoir l'impression qu'il marche normalement même s'il place ses pieds en réalisant une figure chorégraphique » (fini la « marche sur la lune ») | Talon qui se lève, passage de jambe, attaque du talon ou pose de l'avant-pied, pivot sans glissement | [marche naturelle](spec-marche-naturelle.md) (#49) | oui (`src/gait.ts`) |
 | R8 | « Faire des déplacements plus petits (longueur de pied) pour la plupart des figures » ; puis (20 nov.) « le suiveur doit également faire de plus petits pas (l'unité de référence c'est la longueur du pied en longueur et la longueur de la hanche en largeur) » | Pas ≤ 1 pied (21,2 cm) en longueur et ≤ 1 hanche (34 cm) en largeur, pour les deux rôles, sauf exceptions justifiées | [pas courts](spec-pas-courts.md) (#56) | non : sortie garçon D3 du suiveur 2,55 pieds (imposé par le croisé, décision demandée sur #56) ; sortie fille ramenée aux unités (#105) sauf le D3 du suiveur (1,2p + 1,3h en crochet, 2,4p en recul) et le D4 du leader (1,75p en quinconce), imposés par la profondeur du couple, et le croisé G4/D5 du suiveur (≈ 1,5p + 1,2h) ; quarts G du suiveur 1,22 hanche |
-| R9 | Sortie garçon, temps 2 : « l'extérieur du pied droit est au contact avec l'extérieur du pied droit suiveur [...] La jambe gauche peut ainsi se décaler moins loin » | Bords externes des pieds D ≤ 3 mm | [marche naturelle](spec-marche-naturelle.md) (#50) | oui |
+| R9 | Sortie garçon, temps 2 : « l'extérieur du pied droit est au contact avec l'extérieur du pied droit suiveur [...] La jambe gauche peut ainsi se décaler moins loin » ; puis (21 nov.) « avoir le pied (voire le genou) en contact possible (donc très proche) sur D2 est important, quitte à reculer légèrement le bassin » | Pieds D au contact possible : semelles à moins de 4 cm sans se chevaucher, genoux D à moins de 12 cm ; bassin du leader légèrement derrière son D | [marche naturelle](spec-marche-naturelle.md) (#50), [sortie garçon #130](spec-sortie-garcon.md#position-2--pieds-d-tout-près-bassin-légèrement-en-arrière-130-21-novembre-2026) | oui (#130) : semelles à 3,8 cm, genoux D à 11,1 cm, bassin 6 cm en arrière (12 cm entre #110 et #130, 2 mm avant #104) ; le buste « légèrement en avant tout le temps » reste à traiter (#93) |
 | R10 | Sortie fille : ouverture plus courte (choix du propriétaire) | G2 du crochet raccourci | [marche naturelle](spec-marche-naturelle.md), [sortie fille #105](spec-sortie-fille.md#pas-aux-unités-du-propriétaire-105-20-novembre-2026) | remplacée par #105 : 3/2 hanche (51 cm), pour que son D3 se pose à l'intérieur et que son G4 croise vraiment |
 | R11 | Quarts de tour : « le leader ne fait pas de sur-place. Il remplit tous les quarts de la boussole. Le suiveur fait plus de distance » ; placement retrouvé à chaque fin de quart ; le leader « anticipe » d'environ un quart de temps | Rotation autour du leader, quinconce à chaque quart ; l'anticipation du buste (0,25 temps) est remplacée par des départs simultanés (#82) puis par R25 (#106) | [quarts en paire](spec-quarts-paire.md) (#37) | oui |
 | R22 | « Son pas avance autant que le suiveur recule (c'est lui qui fait reculer le suiveur) » (20 nov.) | Dans les figures avant-arrière (sorties, ida e volta), chaque pas en avant du leader égale le pas en arrière qu'il provoque chez le suiveur ; les rotations (R11) restent à part : le suiveur y fait plus de distance | [pas courts](spec-pas-courts.md) (#56) | ida e volta oui (18/18 cm) ; sortie garçon non (20/17, 25/18, **34/54**, 24/31 cm) ; sortie fille (#105) : 21/21 cm depuis la référence, 16/32 en quinconce (le départ resserré est absorbé par les premiers pas) |
@@ -53,7 +61,7 @@ vérifiable.
 
 | # | Règle (verbatim) | Critère vérifiable | Spec | État |
 |---|---|---|---|---|
-| R21 | « Il faut que le BPM de la musique mais surtout les beats correspondent aux transferts de poids des danseurs (qui se "balancent" en 1 ou 2 temps) » | Chaque transfert d'appui sur un temps de la musique synthétisée | [son synthétisé](spec-son-synthese.md) (#62) | non vérifié |
+| R21 | « Il faut que le BPM de la musique mais surtout les beats correspondent aux transferts de poids des danseurs (qui se "balancent" en 1 ou 2 temps) » | Chaque transfert d'appui sur un temps de la musique synthétisée | [son synthétisé](spec-son-synthese.md) (#62) | mesuré (#62, `test_ecarts_regles`) : respecté sur place (six styles, ≤ 0,045 temps) et dans les sorties (≤ 0,02) ; écarts : quarts 0,12 temps (D du leader posé à 2,88, voulu pour ne pas chevaucher le G du suiveur), ida 0,2 temps (« touch » : le poids revient sur l'autre pied à 1,2) |
 
 ## Invariants techniques (rappel)
 

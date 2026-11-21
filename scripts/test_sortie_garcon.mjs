@@ -31,9 +31,9 @@ const options = { movement: 'sortieG', embrace: true, placement, plexus: process
 // the thighs (−57 mm) before the contact climbs back to mid-thigh.
 const thighContact = (proximity, hipA, kneeA, hipB, kneeB, label) => {
   const sA = proximity.centerA.distanceTo(hipA) / hipA.distanceTo(kneeA), sB = proximity.centerB.distanceTo(hipB) / hipB.distanceTo(kneeB);
-  // #104: with the leader's pelvis over his D the right thighs press on the side; the bones stay clear
-  // (leg-bone test below), the illustrative envelopes overlap by up to 3.5 cm.
-  assert(proximity.gap >= -.035 && proximity.gap <= .003, `${label}: thighs touch (gap ${proximity.gap})`);
+  // #130: D feet and knees very close, the right thighs side by side; the bones stay clear (leg-bone test
+  // below), the illustrative envelopes overlap by up to 8 cm.
+  assert(proximity.gap >= -.08 && proximity.gap <= .003, `${label}: thighs touch (gap ${proximity.gap})`);
   assert(sA <= .9 && sB <= .9, `${label}: contact on the thighs, above the knees (s=${sA.toFixed(2)}/${sB.toFixed(2)})`);
   return { sA, sB };
 };
@@ -191,16 +191,19 @@ for (const sortieVariant of ['line', 'right']) for (const amp of [1, 1.5, 2]) {
   assert(proximity.direction.x < -.85, `D/D proximity is lateral, on both anatomical right flanks (${proximity.direction.x})`);
   const { sA, sB } = thighContact(proximity, world(pair[0], 'hipR'), world(pair[0], 'kneeR'), world(pair[1], 'hipR'), world(pair[1], 'kneeR'), `sortieG ${sortieVariant}`);
   console.log(sortieVariant, `D/D thigh contact ${(proximity.gap * 1000).toFixed(1)} mm at s=${sA.toFixed(2)}/${sB.toFixed(2)}`);
-  // #104 (owner: « la hanche est au dessus du pied ») : the leader's pelvis stands over his D. #110 (« le
-  // suiveur ne fait que des marche arrière […] c'est au leader de gérer l'espace ») : the follower walks
-  // straight back and the leader makes the room, so the D feet no longer touch edge to edge (R9, #50):
-  // with his pelvis over his D, feet edge to edge put the right femurs through each other.
+  // #130 (owner: « avoir le pied (voire le genou) en contact possible (donc très proche) sur D2 est
+  // important, quitte à reculer légèrement le bassin : le buste est légèrement en avant et le bassin
+  // légèrement en arrière ») : the D feet are a few centimetres apart, the right knees close, and the
+  // leader's pelvis stands a little behind his D (no frontal contact of the pelvises). #110: the follower
+  // still walks straight back.
   const soleOf = (f, side) => footHull(f.model.legs[side].sole.map(p => p.clone().applyMatrix4(f.r['foot' + side].matrixWorld)));
   const footGap = hullGap(soleOf(pair[0], 'R'), soleOf(pair[1], 'R'));
-  assert(footGap > 0 && footGap < .15, `${sortieVariant}: D feet close, apart (${footGap})`);
-  const pelvisOverFoot = world(pair[0], 'pelvis').x - world(pair[0], 'footR').x;
-  assert(Math.abs(pelvisOverFoot) < .04, `${sortieVariant}: leader's pelvis over his D (${pelvisOverFoot})`);
-  console.log(sortieVariant, `D feet ${(footGap * 100).toFixed(1)} cm apart, leader's pelvis ${(pelvisOverFoot * 100).toFixed(1)} cm from his D`);
+  assert(footGap > 0 && footGap < .04, `${sortieVariant}: D feet very close (${footGap})`);
+  const knees = world(pair[0], 'kneeR').distanceTo(world(pair[1], 'kneeR'));
+  assert(knees < .12, `${sortieVariant}: right knees close (${knees})`);
+  const behind = world(pair[0], 'footR').z - world(pair[0], 'pelvis').z;
+  assert(behind > .04 && behind < .12, `${sortieVariant}: leader's pelvis a little behind his D (${behind})`);
+  console.log(sortieVariant, `D feet ${(footGap * 100).toFixed(1)} cm apart, right knees ${(knees * 100).toFixed(1)} cm, leader's pelvis ${(behind * 100).toFixed(1)} cm behind his D`);
 }
 console.log('PASS swept foot hull clearance and D/D contact of the middle/upper thighs (illustrative envelopes)');
 
