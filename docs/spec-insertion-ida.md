@@ -39,10 +39,12 @@ le point d'insertion retenu. *Hypothèse à valider* : la numérotation du propr
 
 ## Mode jeu
 
-La touche de l'ida (n'importe quelle variante) pendant une sortie, entre ses temps 1 et 2, insère l'ida
-adapté en position 2. Le segment change de nature sans changer de début : les poses jusqu'à la
-position 2 sont celles de la sortie, donc sans saut. Une sortie avec ida inséré ne s'enchaîne pas (#90) :
-la pression ↑ y garde son sens habituel. Démo : `?mode=pair&guidage=1&demo=insertion`.
+La touche de l'ida (n'importe quelle variante) pendant une sortie, de son début à sa position 2, insère
+l'ida adapté en position 2. Le segment change de nature sans changer de début : les poses jusqu'à la
+position 2 sont celles de la sortie, donc sans saut. À partir de la position 2, ou pressée avant que la
+sortie commence, la touche est une commande ordinaire de la file : l'ida e volta se danse après la
+sortie (#140, [spec](spec-jeu-file-auto.md)). Une sortie avec ida inséré ne s'enchaîne pas (#90) : la
+pression ↑ y est une commande ordinaire. La danse automatique tire le même choix à la position 2. Démo : `?mode=pair&guidage=1&demo=insertion`.
 
 ## Tests
 

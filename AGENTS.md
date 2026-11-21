@@ -35,6 +35,9 @@ sourcées de `docs/musique/`, chaque piste garde son niveau de preuve ; son coup
 Musique enregistrée générée par IA (#142) : [spec](docs/spec-musique-elevenlabs.md) (`src/music/loop.ts` pur, `loopOutput.ts`,
 registre généré `src/music/recordings.data.ts`, pistes `public/musique/`, `scripts/generer_musique.mjs`, `scripts/tempo.mjs`,
 `scripts/test_musique_enregistree.mjs`) ; la clé ElevenLabs ne s'écrit nulle part, une prise coûte des crédits : accord du propriétaire.
+Mode jeu (#140, [spec](docs/spec-jeu-file-auto.md)) : les commandes s'empilent dans une file (plus de note ni
+de refus), Espace bascule entre l'écoute et la danse automatique (tirage reproductible par graine) ; un plan
+ne réécrit jamais son passé.
 Mode guidage (PoC #69) : [spec](docs/spec-mode-guidage-poc.md) (`src/guidage.ts` pur, `src/guidagePose.ts`,
 vue `src/components/GuidageApp.tsx`, `scripts/test_guidage.mjs`) ; recherche : [jeux vidéo](docs/recherche-jeux-video/README.md).
 

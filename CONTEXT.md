@@ -45,6 +45,12 @@ et les specs. Résumé de la journée du 21 :
   inchangé) ([spec](docs/spec-sortie-fille.md), règle R26). Sonde : `scripts/search_virgula.mjs`.
 - **#128 (PR #136, fusionnée)** : la même virgula en option dans l'ida e volta en paire (`virgula=1`, case à cocher),
   `scripts/test_ida_virgula.mjs` ([spec](docs/spec-ida-paire.md)).
+- **#140 (PR #141)** : mode jeu. Les commandes s'empilent dans une file (notes, série et refus retirés),
+  le couple danse dès l'ouverture, Espace bascule vers la danse automatique (figure tirée à chaque position
+  neutre, choix aux jonctions des sorties, position neutre cherchée toutes les 32 temps, graine
+  reproductible `graine=N`, `auto=1`). `src/guidage.ts` : `planGuide(commandes, motions, until, { modes,
+  seed, offered })`, `GUIDE_AUTO`, `autoFigure` ; un plan ne réécrit jamais son passé
+  ([spec](docs/spec-jeu-file-auto.md)).
 - PR brouillon en relecture du propriétaire : #117 (ontologie), #76 (audit).
 - Pièges : `npm test` complet dure 25 min ou plus en local. Lancer ses scripts en parallèle, un journal
   par script, le ramène à une dizaine de minutes ; `test_placements` et `test_plexus` rejouent d'autres

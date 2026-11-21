@@ -290,6 +290,16 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] `scripts/test_music.mjs` et `son-synthese.feature` dans `npm test` ; contrôle navigateur.
 - [ ] Écoute de validation par le propriétaire (grilles, équilibre, tempos) et décisions ouvertes.
 
+## Mode jeu : file de commandes, écoute par défaut, danse automatique (#140)
+
+- [x] Spécification poussée en premier ([spec](spec-jeu-file-auto.md)), issue #140, PR #141.
+- [x] Planificateur `src/guidage.ts` : file de commandes, bascules écoute / danse automatique, tirage par graine.
+- [x] Vue `src/components/GuidageApp.tsx` : le couple danse dès l'ouverture, file affichée, Espace bascule, bouton Pause.
+- [x] `scripts/test_guidage.mjs` réécrit : file, jonctions, danse automatique, phrase, rejeu, GLB.
+- [x] `docs/features/mode-jeu.feature` : sept scénarios dans `npm test`.
+- [x] GIFs du mode jeu recapturés avec les muscles.
+- [ ] Essai par le propriétaire : poids du tirage (`GUIDE_AUTO`), part des fins de phrase en position neutre.
+
 ## Musique enregistrée générée par ElevenLabs (#142)
 
 - [x] Issue #142 et spécification poussée en premier ([spec](spec-musique-elevenlabs.md)), PR brouillon #143.
