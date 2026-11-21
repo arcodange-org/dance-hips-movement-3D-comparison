@@ -18,7 +18,7 @@ import { InfoCard, PairInfoCard } from "./components/InfoCards";
 import DemoOverlay, { DEMOS } from "./components/DemoOverlay";
 import OriginMarker from "./components/OriginMarker";
 import LineOfDance from "./components/LineOfDance";
-import { essai } from "./essais";
+import { essai, essaiEnCours } from "./essais";
 import CompassRose from "./components/CompassRose";
 import { resolveCam, resolveView, viewAnglesOf, SOLID_TORSO_OPACITY } from "./cameras";
 import { usePersistentState } from "./hooks/usePersistentState";
@@ -167,6 +167,8 @@ export default function App() {
     if (s.sortieContra !== undefined) setSortieContra(s.sortieContra);
     if (s.virgula !== undefined) setIdaVirgula(s.virgula);
     if (s.seek !== undefined) seekClock(clock, s.seek);
+    // Élections (#148) : pendant une capture d'essai, `sortieBeat` avance l'horloge dans tous les modes.
+    else if (essaiEnCours() && Number(params.get("sortieBeat")) >= 0) seekClock(clock, Number(params.get("sortieBeat")));
     if (s.ligne !== undefined) setShowLigne(s.ligne);
     if (s.iso !== undefined) setIso(s.iso);
     if (s.cadre !== undefined) setCadre(s.cadre);

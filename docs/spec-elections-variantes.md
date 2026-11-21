@@ -15,9 +15,11 @@ propriétaire élit une variante et peut laisser un commentaire.
 
 | Étape | Règle |
 |---|---|
-| Candidat | Un prototype activé seulement par l'URL : `?essai=cle1,cle2` (`src/essais.ts`). Sans ce paramètre, et dans les tests en node, rien ne change. |
+| Candidat | Un prototype activé seulement par l'URL : `?essai=cle1,cle2` (`src/essais.ts`). Sans ce paramètre, rien ne change. En node, la variable d'environnement `ESSAI` joue le même rôle pour mesurer un candidat ; les tests ne la posent jamais. |
+| Témoin | `?essai=temoin` ne change rien : il sert à filmer le comportement actuel image par image hors du mode paire (`sortieBeat` ne vaut sinon qu'en paire). |
 | Preuve d'innocuité | Les tests existants restent verts sans qu'on y touche. |
-| Film | Un GIF par candidat, avec les muscles, même cadrage et même durée pour tous les candidats d'une question (`docs/elections/<date>/`). |
+| Film | Un GIF par candidat, avec les muscles, même cadrage et même durée pour tous les candidats d'une question (`docs/elections/<date>/`). `scripts/capture_figure_gif.mjs`, une capture à la fois ; `START=<temps>` filme à partir d'un temps donné. |
+| Mesure | Chaque candidat est mesuré sur le vrai GLB avec les outils des tests (`scripts/mesure_essai_*.mjs`) : semelles, os des jambes, inclinaison du pied. Un candidat filmé sans mesure le dit. |
 | Page d'élection | Candidats côte à côte, une phrase qui dit ce qui change, les mesures utiles, un choix à cocher (dont « aucune ne convient »), un commentaire optionnel. |
 | Neutralité | La page montre et mesure ; elle ne dit pas quelle variante est « la bonne ». |
 | Trace | Le choix et le commentaire sont recopiés **mot pour mot** dans l'issue concernée. |
@@ -29,21 +31,30 @@ Les interrupteurs d'essai ne sont **pas** des options de l'app : ils servent à 
 
 Chaque question est posée comme une scène concrète : une figure, un pas, un pied.
 
-### Q1 — Ida e volta en paire : quel pied recule chez le suiveur ? (#86, #144)
+### Q1 — Ida e volta en paire : quel pied bouge chez le suiveur ? (#86, #144)
 
-Scène : ida e volta en paire, quinconce. Le leader avance son pied **gauche**.
+Scène : ida e volta en paire, quinconce, kizomba. Aux temps 1 et 2 le leader avance son pied
+**gauche** puis le ramène ; puis gauche derrière, droit devant, droit derrière (pas de 18 cm).
 
-| Candidat | Ce que fait le suiveur | Interrupteur |
+| Candidat | Ce que fait le suiveur (temps 1–2, 3–4, 5–6, 7–8) | Interrupteur |
 |---|---|---|
-| A (aujourd'hui) | Il recule son pied **droit** : le pied opposé, dans le même couloir que le gauche du leader | — |
-| B | Il recule son pied **gauche** : le même pied que le leader ; son droit reste en appui dans le couloir où avance le leader | `idaMemePied` |
+| A (aujourd'hui) | Pied **opposé** : droit derrière, droit devant, gauche derrière, gauche devant | — |
+| B | **Même** pied : gauche derrière, gauche devant, droit derrière, droit devant | `idaMemePied` |
 
-Mesure à donner : recouvrement des semelles entre le gauche du leader et le droit du suiveur.
+Mesures (`scripts/mesure_essai_ida.mjs`, plexus et contraposition comme dans l'app, amplitude 1) :
+
+| Candidat | Semelles des deux danseurs (400 instants) | Os des jambes entre danseurs (64 poses) |
+|---|---|---|
+| A | aucun recouvrement | aucun croisement |
+| B | aucun recouvrement | 19 poses avec croisement (cuisses et tibias) |
+
+B est un prototype brut : seul le pied du suiveur change, les bassins et les genoux gardent leurs
+réglages actuels.
 
 ### Q2 — Où est la ligne de danse ? (#72)
 
 Scène : sortie garçon, vue plongeante. Le mouvement est le même dans les deux candidats ; seule la
-ligne rose change.
+ligne rose change. Aucune mesure : seul le tracé diffère.
 
 | Candidat | Ligne de danse | Interrupteur |
 |---|---|---|
@@ -55,41 +66,48 @@ n'est pas prototypée avant.
 
 ### Q3 — Hors figures, le pied marche-t-il à plat ? (#73)
 
-Scène : une marche hors figure, à choisir là où le pied se lit de profil.
+Scène : un danseur seul marche le cercle du corridinho (temps 9 à 16) : chaque pied fait un pas
+d'environ 47 cm tous les 2 temps. En paire, la marche hors figure passe par `placePaire` et
+`marchePaire`, pas par `plannedFeet` : le candidat ne s'y voit pas, d'où le solo.
 
 | Candidat | Pied | Interrupteur |
 |---|---|---|
-| A (aujourd'hui) | À plat pendant tout le pas : c'est ce qu'exige l'oracle de la phase 18 | — |
-| B | Déroulé comme dans les figures : le talon se lève, puis le pied se pose | `marcheDeroulee` |
+| A (aujourd'hui) | À plat pendant tout le pas : c'est ce qu'exige l'oracle de la phase 18 | `temoin` (pour filmer) |
+| B | Déroulé comme dans les figures (`gaitStep`) : le talon se lève, puis le pied se pose par le talon | `marcheDeroulee` |
+
+Mesures (`scripts/mesure_essai_marche.mjs`, 400 instants) :
+
+| Candidat | Inclinaison du pied | Deux pieds à plat | Os le plus bas |
+|---|---|---|---|
+| A | 0° | 100 % du temps | au sol |
+| B | talon levé jusqu'à 20°, pointe relevée jusqu'à 13° à la pose | 46 % du temps | au sol |
 
 Élire B demande d'amender la convention « pieds plats » et le contrat de l'oracle.
 
-### Q4 — Croisé de la sortie garçon : pas long du suiveur, ou pas égaux ? (#56)
+## Questions reportées au second tour
 
-Scène : sortie garçon, pas 3 : le gauche du leader croise devant son droit (G3), le droit du
-suiveur recule (D3).
+### Croisé de la sortie garçon : pas long du suiveur, ou pas égaux ? (#56)
 
-| Candidat | Pas au croisé (leader / suiveur) | Interrupteur |
-|---|---|---|
-| A (aujourd'hui) | 34 cm / 54 cm : le suiveur fait un grand pas | — |
-| B | 20 cm / 20 cm : le G3 se pose à droite du D2, au même niveau | `croiseEgal` |
+Aujourd'hui, au pas 3, le leader fait 34 cm et le suiveur 54 cm. L'essai du 20 novembre (G3 à
+0,56 de profondeur et −0,10 de côté, 20 cm de chaque côté) donnait 123 chevauchements de pieds et
+15 croisements d'os ; son code n'a pas été gardé. Les trois pistes relevées dans l'issue (G3 moins
+croisé hors du couloir du suiveur, quinconce plus large pendant la sortie, croisé gardé en
+exception) changent la géométrie du couple, pas seulement un pas : chacune demande de régler à
+nouveau les bassins et les pas suivants. Filmer l'essai brut aurait faussé le vote.
 
-Mesure à donner : chevauchements de pieds et croisements d'os de B (relevés dans #56 : 123
-chevauchements et 15 os sur l'essai du 20 novembre).
+### Distance bassin-bassin (#67)
 
-### Q5 — Distance bassin-bassin (#67)
-
-C'est un seuil, donc un nombre. Le propriétaire ne choisit pas un chiffre à l'aveugle : il faut des
-candidats qui se voient. État au 21 novembre : **à étudier** ; la question est reportée à un second
-tour si aucun candidat « plus proche » ne se prototype sans casser les figures.
+C'est un seuil, donc un nombre. Le propriétaire ne choisit pas un chiffre à l'aveugle : il faut la
+même figure filmée à plusieurs distances, ce qui demande de régler à nouveau chaque figure.
 
 ## Page d'élection
 
 - Un Artifact privé : pour chaque question, les GIFs côte à côte, la scène en une phrase, les
   mesures, un choix à cocher, un commentaire optionnel.
-- Les réponses sont conservées avec la page, pour être relues par la session qui porte le chantier.
-- Les GIFs sont aussi dans le dépôt (`docs/elections/2026-11-21/`) : la décision reste lisible sans
-  la page.
+- Les réponses sont conservées avec la page (un document par question : `votes/q1`, `votes/q2`,
+  `votes/q3`), pour être relues par la session qui porte le chantier.
+- La source de la page et les GIFs sont dans le dépôt (`docs/elections/2026-11-21/`, page
+  `election.html`) : la décision reste lisible sans la page.
 
 ## Critères d'acceptation
 

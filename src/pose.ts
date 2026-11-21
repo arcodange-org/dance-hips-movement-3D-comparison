@@ -515,12 +515,15 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   const activeIK = !!figure || o.plant || o.travel > 0 || o.quarts || o.ida || o.corridinho;
   const footOrientations = {} as Record<Side, THREE.Quaternion>;
   for (const s of SIDES) {
-    const extra = figure ? feet[s].pitch ?? 0 : s === "L" ? r.extraL : r.extraR;
+    // Trial #73 (`?essai=marcheDeroulee`): outside the figures, a walking foot that `plannedFeet` gave a
+    // pitch rolls like a figure foot. Without the trial no planned foot has a pitch: `rolled` is `!!figure`.
+    const rolled = !!figure || feet[s].pitch !== undefined;
+    const extra = rolled ? feet[s].pitch ?? 0 : s === "L" ? r.extraL : r.extraR;
     const flat = new THREE.Quaternion().setFromAxisAngle(Y, feet[s].yaw);
     // #49: a figure foot rolls about its functional transverse axis (the GLB foot is turned out by
     // `toeOut`: rolling about the ankle's own x axis would also tip it sideways).
     const toeOut = model.legs[s].toeOut;
-    const rollAxis = figure ? new THREE.Vector3(Math.cos(toeOut), 0, -Math.sin(toeOut)) : X;
+    const rollAxis = rolled ? new THREE.Vector3(Math.cos(toeOut), 0, -Math.sin(toeOut)) : X;
     const q = flat.clone().multiply(new THREE.Quaternion().setFromAxisAngle(rollAxis, extra));
     footOrientations[s] = q;
     model.lift[s] = feet[s].lift;
@@ -528,7 +531,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     let x = feet[s].x, z = feet[s].z;
     // #73: outside figures the style's own foot rock (`extraL`, `extraR`) also pivots on a ground point,
     // the ball when the heel rises, the heel when the toes rise: the support foot no longer slides.
-    const pivot = figure ? feet[s].pivot : extra > 0 ? "ball" : extra < 0 ? "heel" : null;
+    const pivot = rolled ? feet[s].pivot : extra > 0 ? "ball" : extra < 0 ? "heel" : null;
     if (pivot && extra !== 0) {
       const point = model.legs[s][pivot];
       const shift = point.clone().applyQuaternion(flat).sub(point.clone().applyQuaternion(q));
