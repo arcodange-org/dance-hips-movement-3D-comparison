@@ -42,7 +42,12 @@ for (const p of api.POSITIONS) {
     assert(load > 0.9, `${p.id}: ${role} on ${p.support[role]} (load ${load.toFixed(2)})`);
   }
   const r0 = world(pair[0], 'root'), r1 = world(pair[1], 'root');
-  const yaw = new THREE.Euler().setFromQuaternion(pair[0].r.root.getWorldQuaternion(new THREE.Quaternion()), 'YXZ').y;
+  // The couple's frame is the leader's feet axis (mean of his functional foot axes), not his pelvis: the ida's
+  // pelvis pivot (#84) turns the pelvis, not the couple; in the quarter turn it gives the diagonal.
+  const axis = ['L', 'R'].map(side => { const t = pair[0].model.legs[side].toeOut;
+    return new THREE.Vector3(Math.sin(t), 0, Math.cos(t)).applyQuaternion(pair[0].r['foot' + side].getWorldQuaternion(new THREE.Quaternion())); })
+    .reduce((a, v) => a.add(v), new THREE.Vector3());
+  const yaw = Math.atan2(axis.x, axis.z);
   const lateral = Math.abs((r1.x - r0.x) * Math.cos(yaw) - (r1.z - r0.z) * Math.sin(yaw));
   if (p.layout === 'quinconce') assert(lateral < 0.12, `${p.id}: quinconce (lateral ${lateral.toFixed(3)} m)`);
   else assert(lateral > 0.14, `${p.id}: offset (lateral ${lateral.toFixed(3)} m)`);

@@ -18,7 +18,7 @@ export interface Position {
   alias?: string[];
   /** Weighted foot of each dancer (load > 0.9). */
   support: { leader: Side; follower: Side };
-  /** Pelvises in quinconce (lateral offset < 12 cm) or offset (> 14 cm), in the leader's frame. */
+  /** Pelvises in quinconce (lateral offset < 12 cm) or offset (> 14 cm), in the leader's feet axis. */
   layout: "quinconce" | "décalé";
   /** Right thighs: envelopes in contact (gap ≤ 3 mm) or apart (≥ 2 cm). In quinconce they interleave. */
   thighs: "contact" | "libres";
