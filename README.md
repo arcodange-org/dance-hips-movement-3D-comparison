@@ -199,6 +199,16 @@ kizomba, 90 bpm, couche des muscles, vue du guideur. Recherche et concept : [doc
 [Spécification et rapport](docs/spec-mode-guidage-poc.md). BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 </details>
 
+![Aller-retour du pied : G1 de la sortie garçon en virgula, puis D4 de la sortie fille](docs/gifs/aller-retour.gif)
+<details><summary>Détails & source</summary>
+
+Règle R27 du propriétaire (#144) : « chaque pied qui avance ou qui recule peut devenir un "ida e volta" (un
+simple aller retour du pied, en virgula ou non) ». Ses deux exemples : le premier pas de la sortie garçon
+(ici en virgula), puis le retour de la sortie fille (D4). Session `?mode=pair&guidage=1&demo=allerretour&muscles=1&beat=…`,
+kizomba, 90 bpm, vue du guideur. [Spécification et rapport](docs/spec-ida-partout.md).
+BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
+</details>
+
 ### Ginga en paire : déhanché déclenché par les transferts d'appui
 
 Dans l'ida e volta en paire, le déhanché du style ne suit plus l'horloge : chaque transfert d'appui

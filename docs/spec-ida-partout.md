@@ -5,8 +5,8 @@
 [Issue #144](https://github.com/arcodange-org/dance-hips-movement-3D-comparison/issues/144)
 
 **Statut : livré dans le mode jeu** (PR #145). Modèle validé par le propriétaire le 21 novembre 2026
-(réponses ci-dessous), sauf le comportement du suiveur quand il va de côté (question 4, reposée) : la
-spec applique le miroir de l'ida e volta en paire en attendant.
+(réponses ci-dessous), sauf les pieds de la suiveuse (deux questions en attente, dont celle de
+l'issue #86) : la spec applique le miroir de l'ida e volta en paire en attendant.
 
 ## Demande du propriétaire (21 novembre 2026)
 
@@ -89,7 +89,7 @@ Il prolonge l'ida inséré de #91.
    poids. La figure dure 2 temps de plus par aller-retour.
 5. **Suiveur** : le miroir de l'ida e volta en paire. Quand le leader avance son pied, le suiveur recule
    le sien, dans le même couloir ; quand il recule, le suiveur avance. C'est ce que fait déjà l'ida inséré
-   de la sortie fille (#91). *À confirmer* pour les pas où le suiveur allait de côté (question 4).
+   de la sortie fille (#91). *À confirmer* : voir « Questions en attente du propriétaire ».
 6. **Virgula** : quand c'est le G du leader qui avance, le pied peut se poser perpendiculaire (R26), avec
    la géométrie de #127. Sans effet sur le suiveur.
 7. **Plusieurs fois** : chaque pas possible d'une même figure peut devenir un aller-retour, une fois.
@@ -172,16 +172,26 @@ diagonale) plutôt que droit devant. Non fait.
 - **Styles** : un aller-retour est un ida e volta. Il n'existe que dans les styles qui proposent l'ida e
   volta (kizomba, semba, suave), pas en kompa, tarraxinha ni zouk.
 - Démonstration : `?mode=pair&guidage=1&demo=allerretour` (les deux exemples du propriétaire : G1 de la
-  sortie garçon, en virgula ; D4 de la sortie fille).
+  sortie garçon, en virgula ; D4 de la sortie fille). [GIF](gifs/aller-retour.gif), avec les muscles, vue du guideur.
 
-## Question reposée au propriétaire
+## Questions en attente du propriétaire
 
-4. Pendant l'aller-retour du leader, que fait la suiveuse ? Dans l'ida e volta en paire, elle fait le
-   miroir : il avance son pied, elle recule le sien. La spec applique ce miroir partout. Mais dans la
-   sortie fille et le quart de tour, au moment où le leader va faire son pas en avant ou en arrière, la
-   suiveuse s'apprêtait à faire un pas **de côté**. Doit-elle quand même faire le miroir (son pied recule
-   ou avance puis revient), ou rester en appui sans bouger le pied pendant que le leader fait son
-   aller-retour ?
+Elles portent toutes les deux sur la suiveuse. La spec applique partout la convention de l'ida e volta en
+paire d'aujourd'hui (#54) ; une réponse différente changerait l'ida e volta en paire et tous les
+allers-retours d'un coup, puisqu'ils partagent le même échantillonneur.
+
+1. **Quel pied de la suiveuse** (issue #86, « Ida e volta : utiliser les mêmes pieds (ida e volta : aller
+   et retour) », 20 novembre). La première lecture est acquise : le pied qui part est celui qui revient
+   (réponse du 21 novembre : « si c'est le pied gauche qui sort et revient […] c'est encore au pied gauche
+   de bouger ensuite »). Reste la seconde : quand le leader avance son pied gauche, la suiveuse recule
+   aujourd'hui son pied **droit**, celui qui est en face du sien, dans le même couloir. Doit-elle plutôt
+   reculer son pied **gauche**, le même pied que lui ? En quinconce, son pied gauche n'est pas dans le
+   couloir du pied gauche du leader : les deux pieds partiraient dans deux couloirs voisins.
+2. **La suiveuse quand elle allait de côté** (question 4 du 21 novembre, « Je n'ai pas compris la
+   question »). Dans la sortie fille, au moment où le leader va faire son pas en arrière, la suiveuse
+   s'apprêtait à faire un pas de côté. Pendant l'aller-retour du leader, la spec lui fait faire le miroir
+   (son pied avance puis revient), comme le fait l'ida inséré de #91. Doit-elle plutôt rester en appui sans
+   bouger le pied ?
 
 ## Critères (tests)
 
@@ -220,8 +230,8 @@ diagonale) plutôt que droit devant. Non fait.
   25 % avec un tirage à poids égaux).
 - **Gherkin** : cinq scénarios de plus dans `docs/features/mode-jeu.feature` (12 en tout).
 
-Limites : la suiveuse fait toujours le miroir, y compris quand elle allait de côté (question 4, en
-attente). L'aller-retour part droit devant ou droit derrière, pas dans la diagonale du pas. Ces tests ne
+Limites : la suiveuse fait toujours le miroir avec le pied opposé, y compris quand elle allait de côté
+(deux questions en attente, dont celle de l'issue #86). L'aller-retour part droit devant ou droit derrière, pas dans la diagonale du pas. Ces tests ne
 valident pas la chorégraphie.
 
 ## Hors périmètre

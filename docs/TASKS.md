@@ -308,5 +308,6 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Échantillonneur généralisé (`sampleTouched`, `TOUCH_POSITIONS`), segments du mode jeu avec allers-retours.
 - [x] `scripts/test_touches.mjs` (GLB par position), `scripts/test_guidage.mjs`, `docs/features/mode-jeu.feature`.
 - [x] Danse automatique : choix à chaque pas possible ; virgula ; démonstration `demo=allerretour` et GIF.
-- [ ] Réponse du propriétaire à la question 4 ; essai des poids du tirage et de la commande (figure en attente).
+- [ ] Réponses du propriétaire sur les pieds de la suiveuse (issue #86 : même pied ou pied opposé ; suiveuse qui allait de côté).
+- [ ] Essai par le propriétaire des poids du tirage et de la commande (figure en attente).
 - [ ] D4 de la sortie garçon (jambes croisées) : aller-retour dans la direction du pas, à étudier.
