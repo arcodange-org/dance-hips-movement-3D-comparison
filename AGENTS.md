@@ -33,6 +33,9 @@ sourcées de `docs/musique/`, chaque piste garde son niveau de preuve ; son coup
 Mode guidage (PoC #69) : [spec](docs/spec-mode-guidage-poc.md) (`src/guidage.ts` pur, `src/guidagePose.ts`,
 vue `src/components/GuidageApp.tsx`, `scripts/test_guidage.mjs`) ; recherche : [jeux vidéo](docs/recherche-jeux-video/README.md).
 
+Explications des transitions (leader engagé, suiveur reçu, contacts) : [spec](docs/spec-transitions.md)
+(`src/transitions.ts` pur, `src/components/TransitionCard.tsx`, `scripts/test_transitions.mjs`).
+
 Règles de mouvement du propriétaire, consolidées et vérifiables : [`docs/regles-proprietaire.md`](docs/regles-proprietaire.md).
 
 **Lire ce fichier en premier dans toute session.** Le harness complet pour travailler sur ce projet
