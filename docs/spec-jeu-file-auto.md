@@ -143,9 +143,9 @@ famille : avancer, reculer et le double comptaient pour une seule famille.
 | Mesure | Kizomba | Kompa (marche seule) |
 |---|---|---|
 | Plus longue série de la même figure | 3 | 9 |
-| Figure déjà dansée parmi les 3 précédentes | 30 % | 69 % |
-| Paire de figures déjà enchaînée parmi les 8 précédentes | 26 % | 99 % |
-| Suite A B A B | 4,6 % | — |
+| Figure déjà dansée parmi les 3 précédentes | 38 % | 69 % |
+| Paire de figures déjà enchaînée parmi les 8 précédentes | 18 % | 60 % |
+| Suite A B A B | 3,5 % | 7,8 % |
 
 **Ce qui est ajouté.** Le tirage garde en mémoire les figures qui viennent d'être dansées. Une « figure »
 est ici ce que l'on voit : l'ida e volta (ses quatre variantes comptent pour une), le quart de tour, la
@@ -170,6 +170,35 @@ hasard est tenu, pas remplacé.
 
 Le tirage reste une fonction de la graine et de ce qui a déjà été dansé : même graine, mêmes commandes,
 même réglage, même danse.
+
+**Mesures après** (`scripts/test_guidage.mjs`, 40 graines × 320 temps, kizomba) :
+
+| Mesure | `libre` | `tenu` | `strict` |
+|---|---|---|---|
+| Plus longue série de la même figure | 3 | 2 | 1 |
+| Figure déjà dansée parmi les 3 précédentes | 38 % | 25 % | 14 % |
+| Paire déjà enchaînée parmi les 8 précédentes | 18 % | 8 % | 2 % |
+| Suite A B A B | 3,5 % | 0,5 % | 0 % |
+| Fin de phrase en position neutre | 77 % | 79 % | 76 % |
+
+En marche seule (kompa, tarraxinha, zouk : trois figures), la plus longue série de la même marche passe
+de 9 à 2 (`tenu`) et à 1 (`strict`). Avec trois figures seulement, les paires se répètent forcément :
+`strict` y tourne en rond (74 % de paires déjà vues), `tenu` y est le meilleur compromis (49 %, contre
+60 % en `libre`).
+
+**La même graine sous les trois réglages** (graine 7, kizomba ; SG, SF : sorties garçon et fille ;
+SF→G : sortie fille enchaînée ; Av, Rec, Dbl : avancer, reculer, double) :
+
+- `libre` : SG · Quart · SF · SG · Quart · SF→G · Quart · Ida · Quart · Dbl · Quart · Av · SF · SF · Ida ·
+  SF→G · Ida · Quart · Ida · Quart · Quart · Quart · SF · Dbl · Ida · SF · Quart · SF · Dbl · SG · SF
+- `tenu` : SG · Quart · SF · SF · Quart · Av · SG · Ida · SF→G · Quart · Rec · Dbl · SF · Ida · SG · SF→G ·
+  Quart · Av · Ida · Dbl · Quart · Quart · SF · Dbl · Ida · SG · Quart · Av · SF · Ida
+- `strict` : SG · Quart · SF · Av · Rec · SG · SF→G · Ida · SF→G · SG · Dbl · Ida · Quart · SF · Quart · SG ·
+  Av · SG · SF · Ida · SF→G · Quart · Ida · SG · Ida · Av · SF→G · Dbl · SG · Quart
+
+**À voir par le propriétaire** : les trois réglages sur la même graine, dans l'app :
+`?mode=pair&guidage=1&auto=1&graine=7&hasard=libre`, `&hasard=tenu`, `&hasard=strict`. `tenu` est le
+réglage par défaut proposé ; son choix (et son commentaire) fixera la valeur.
 
 ### Tirage reproductible
 

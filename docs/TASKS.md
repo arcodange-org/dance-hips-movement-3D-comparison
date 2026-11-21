@@ -311,3 +311,10 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [ ] Réponses du propriétaire sur les pieds de la suiveuse (issue #86 : même pied ou pied opposé ; suiveuse qui allait de côté).
 - [ ] Essai par le propriétaire des poids du tirage et de la commande (figure en attente).
 - [ ] D4 de la sortie garçon (jambes croisées) : aller-retour dans la direction du pas, à étudier.
+
+## Danse automatique : un hasard mieux tenu (#152)
+
+- [x] Issue #152 avec les mots du propriétaire ; complément de spec poussé en premier ([spec](spec-jeu-file-auto.md)).
+- [x] Tirage avec mémoire des figures et des paires (`GUIDE_VARIETY`, `GUIDE_MEMORY`), trois réglages.
+- [x] Mesures avant et après dans `scripts/test_guidage.mjs` ; scénario Gherkin.
+- [ ] Choix du réglage par le propriétaire (`hasard=libre|tenu|strict` sur la même graine).

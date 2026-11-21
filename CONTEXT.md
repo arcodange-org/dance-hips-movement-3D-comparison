@@ -37,6 +37,12 @@ et les specs. Résumé de la journée du 21 :
   suiveuse (le même pied que le leader ou le pied opposé, issue #86 ; et ce qu'elle fait quand elle allait de
   côté) : voir « Questions en attente » de [la spec](docs/spec-ida-partout.md) ; le D4 de la sortie
   garçon n'est pas proposé (jambes croisées).
+- **#152 (PR #154)** : hasard tenu de la danse seule. `autoFigure` reçoit l'historique des figures ; `GUIDE_VARIETY`
+  (`libre`, `tenu` par défaut, `strict`) pèse les figures et les paires dansées récemment et borne les séries.
+  Mesures avant et après dans [la spec](docs/spec-jeu-file-auto.md). Le propriétaire doit élire le réglage en
+  regardant (`?auto=1&graine=7&hasard=…`).
+- **Élection #86 (PR brouillon #153)** : pieds de la suiveuse dans l'ida e volta, deux questions en GIF
+  (`docs/elections/suiveuse-ida.md` sur la branche `arcodange/election-suiveuse`), en attente de son vote.
 - PR brouillon en relecture du propriétaire : #117 (ontologie), #76 (audit).
 - Pièges : `npm test` complet dure 25 min ou plus en local. Lancer ses scripts en parallèle, un journal
   par script, le ramène à une dizaine de minutes ; `test_placements` et `test_plexus` rejouent d'autres

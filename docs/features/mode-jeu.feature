@@ -50,6 +50,13 @@ Feature: Mode jeu : file de commandes, écoute par défaut, danse automatique
     When le couple danse seul pendant 320 temps avec les graines 1 à 40
     Then une position neutre tombe sur plus de 70 % des fins de phrase, et pas sur toutes
 
+  Scenario: La danse automatique n'enchaîne pas trois fois de suite la même figure
+    Demande du propriétaire (#152) : « ajoute un peu de contrôle dans le hasard pour ne pas enchaîner
+    trop de fois les mêmes figures ou combinaisons de figures ».
+    When le couple danse seul pendant 320 temps avec les graines 1 à 40 et le hasard "tenu"
+    Then la plus longue série de la même figure est de 2 au plus
+    And une paire de figures déjà enchaînée parmi les 8 précédentes revient moins d'une fois sur 8
+
   Scenario: Les commandes en file passent avant le tirage de la danse automatique
     When le couple danse seul avec la graine 7 et le joueur commande "quart" au temps 20.5
     Then la commande est dansée à la position neutre qui suit, puis le simulateur reprend

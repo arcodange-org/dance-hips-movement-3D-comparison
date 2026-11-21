@@ -283,6 +283,55 @@ const autoPlan = (seed, until, extra = {}) => api.planGuide([], motions, until, 
   console.log(`PASS danse automatique : graine reproductible, figures offertes par le style (six styles), choix aux jonctions ${JSON.stringify(count)}, fin de phrase en position neutre ${(share * 100).toFixed(0)} % (${(plain * 100).toFixed(0)} % sans préférence), file prioritaire, retour à l'écoute`);
 }
 
+// 2b. #152 (owner: « ajoute un peu de contrôle dans le hasard pour ne pas enchaîner trop de fois les mêmes
+// figures ou combinaisons de figures »): the draw remembers the figures and the pairs danced lately.
+{
+  const measure = (variety, styleKey = 'kizomba') => {
+    const m = { figures: 0, run: 0, back3: 0, pairs8: 0, abab: 0, ends: 0, neutral: 0 };
+    for (let seed = 1; seed <= 40; seed++) {
+      const plan = autoPlan(seed, 330, { variety, offered: api.guideFiguresFor(styleKey) });
+      const ids = plan.segments.slice(1).map(s => api.guideIdentityOf(s.kind));
+      let run = 1;
+      ids.forEach((id, i) => {
+        m.figures++;
+        run = i > 0 && id === ids[i - 1] ? run + 1 : 1; m.run = Math.max(m.run, run);
+        if (ids.slice(Math.max(0, i - 3), i).includes(id)) m.back3++;
+        if (i > 0) for (let j = Math.max(1, i - 8); j < i; j++) if (ids[j - 1] === ids[i - 1] && ids[j] === id) { m.pairs8++; break; }
+        if (i >= 3 && id === ids[i - 2] && ids[i - 1] === ids[i - 3] && id !== ids[i - 1]) m.abab++;
+      });
+      const starts = new Set(plan.segments.map(s => s.start));
+      for (let end = 32; end <= 320; end += 32) { m.ends++; if (starts.has(end)) m.neutral++; }
+    }
+    return { run: m.run, back3: m.back3 / m.figures, pairs8: m.pairs8 / m.figures, abab: m.abab / m.figures, neutral: m.neutral / m.ends };
+  };
+  const libre = measure('libre'), tenu = measure('tenu'), strict = measure('strict');
+  // The default setting: never three times the same figure in a row, quick returns and repeated pairs rarer.
+  assert.deepEqual(measure(undefined), tenu, 'tenu is the default');
+  assert.ok(libre.run >= 3 && tenu.run === 2 && strict.run === 1, `longest runs ${libre.run}, ${tenu.run}, ${strict.run}`);
+  assert.ok(tenu.back3 < libre.back3 - .08 && strict.back3 < tenu.back3 - .05, `figure danced among the 3 before: ${libre.back3}, ${tenu.back3}, ${strict.back3}`);
+  assert.ok(tenu.pairs8 < libre.pairs8 / 2 && strict.pairs8 < tenu.pairs8 / 2, `pair danced among the 8 before: ${libre.pairs8}, ${tenu.pairs8}, ${strict.pairs8}`);
+  assert.ok(tenu.abab < libre.abab / 3, `A B A B: ${libre.abab}, ${tenu.abab}`);
+  // The phrase preference is kept.
+  for (const m of [libre, tenu, strict]) assert.ok(m.neutral >= .7, `phrase ends at the neutral position: ${m.neutral}`);
+  // Walk-only styles (three figures): no more long runs of the same walk.
+  const walksLibre = measure('libre', 'kompa'), walksTenu = measure('tenu', 'kompa');
+  assert.ok(walksLibre.run >= 6 && walksTenu.run === 2, `walks: longest runs ${walksLibre.run}, ${walksTenu.run}`);
+  // `libre` is the draw before #152: only the figure before counts. The other settings read the history.
+  const offered = api.guideFiguresFor('kizomba'), keys = offered.filter(f => !api.GUIDE_FIGURES[f].chain);
+  let differs = 0;
+  for (let seed = 1; seed <= 30; seed++) for (let boundary = 4; boundary <= 64; boundary += 4) {
+    const before = keys[(seed + boundary) % keys.length], history = [keys[seed % keys.length], before, keys[(seed * 3) % keys.length], before];
+    assert.equal(api.autoFigure(seed, boundary, history, offered, false, 'libre'), api.autoFigure(seed, boundary, [before], offered, false, 'libre'));
+    if (api.autoFigure(seed, boundary, history, offered, false, 'tenu') !== api.autoFigure(seed, boundary, [before], offered, false, 'tenu')) differs++;
+  }
+  assert.ok(differs > 20, `the memory changes the draw (${differs} draws)`);
+  // Still a pure function: same seed, same setting, same dance; another setting, another dance.
+  assert.deepEqual(autoPlan(5, 200, { variety: 'strict' }), autoPlan(5, 200, { variety: 'strict' }));
+  assert.notEqual(kinds(autoPlan(5, 200, { variety: 'strict' })), kinds(autoPlan(5, 200, { variety: 'libre' })));
+  const pct = v => (v * 100).toFixed(0) + ' %';
+  console.log(`PASS hasard tenu (#152) : plus longue série de la même figure ${libre.run} → ${tenu.run} (strict ${strict.run}) ; figure déjà dansée parmi les 3 précédentes ${pct(libre.back3)} → ${pct(tenu.back3)} (${pct(strict.back3)}) ; paire déjà enchaînée parmi les 8 précédentes ${pct(libre.pairs8)} → ${pct(tenu.pairs8)} (${pct(strict.pairs8)}) ; A B A B ${(libre.abab * 100).toFixed(1)} % → ${(tenu.abab * 100).toFixed(1)} % ; fin de phrase neutre ${pct(libre.neutral)} → ${pct(tenu.neutral)} (${pct(strict.neutral)}) ; marche seule : série ${walksLibre.run} → ${walksTenu.run}`);
+}
+
 /** The sortie changed at a junction (#90): the sortie it comes from, and the beat of the junction in the figure. */
 const JUNCTION = { sortieFG: { host: 'sortieF', at: 3 } };
 

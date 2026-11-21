@@ -102,6 +102,9 @@ export default function GuidageApp() {
     const seed = Number(params.get("graine"));
     session.seed = params.has("graine") && Number.isFinite(seed) ? Math.trunc(seed) : Date.now() % 2147483647;
     session.offered = guideFiguresFor(styleKey);
+    // #152: `hasard=libre|tenu|strict`, how tightly the automatic dance avoids repeating itself.
+    const hasard = params.get("hasard");
+    if (hasard === "libre" || hasard === "tenu" || hasard === "strict") session.variety = hasard;
     session.reset(params.get("auto") === "1");
     // `demo=…`: the demonstration sessions (commands already pressed).
     if (params.get("demo") === "1") session.intentions = GUIDE_DEMO.map(i => ({ ...i }));
