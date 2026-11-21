@@ -5,6 +5,20 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Atlas anatomique ouvert #132 (21 novembre 2026)
+
+Branche `arcodange/atlas-anatomique`, worktree `.claude/worktrees/atlas-anatomique`, PR draft.
+Demande du fondateur : produire nous-mêmes un équivalent d'anatobase.com à partir de données
+ouvertes (format inspiré, jamais de contenu copié — la licence AnatoBase est « reference-only »
+et ce dépôt est public). Livré : PRD [docs/spec-atlas-anatomique.md](docs/spec-atlas-anatomique.md),
+[ADR 005](docs/adr/005-atlas-donnees-ouvertes.md) (BodyParts3D CC BY-SA 2.1 Japan © DBCLS,
+Z-Anatomy CC BY-SA 4.0, Gray 1918 domaine public, Wikidata CC0), [manifeste v1](docs/atlas/manifest.json)
+(15 mouvements, bassin/hanche/genou en priorité 1) + `scripts/test_atlas_manifest.mjs` dans
+`npm test` (articulations résolues contre les nœuds réels du GLB). Prototype Blender existant
+hors dépôt : `~/Work/Danse/anatomie-3d/` (fiches Z-Anatomy). Suite : `scripts/capture_atlas.mjs`
+(planches 5 vues via `pose.ts`), fiches muscles, sourcing des ROM dans `docs/recherche-biomecanique/`,
+viewer `?atlas=` + branchement oracle.
+
 ## Preuve de concept du mode guidage #69 (20 novembre 2026)
 
 Branche `arcodange/mode-guidage-poc`, PR #70 empilée sur #65 (Draft). `?mode=pair&guidage=1` : le joueur

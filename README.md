@@ -11,6 +11,17 @@ movements hips down are the dominant ones, not the upper body movements »).
 
 **🌐 Site déployé (GitHub Pages) : https://arcodange-org.github.io/dance-hips-movement-3D-comparison/**
 
+## Atlas anatomique ouvert (#132)
+
+Documentation intermédiaire produite **en interne** à partir de données ouvertes — format
+inspiré d'anatobase.com (planches multi-angles + fiches muscle), sans rien copier de leur
+contenu (leur licence est « reference-only », ce dépôt est public). Les planches de mouvements
+articulaires sont générées par le moteur de pose sur le squelette réel BodyParts3D, sourcées
+avec niveaux de preuve, et servent de référence aux specs des styles (roulis du bassin,
+isolations, compensation du tronc).
+[Spécification (PRD)](docs/spec-atlas-anatomique.md) · [Manifeste](docs/atlas/manifest.json) ·
+[ADR 005](docs/adr/005-atlas-donnees-ouvertes.md).
+
 ## Son synthétisé synchronisé (#44)
 
 Le bouton **« Son »** (éteint par défaut) joue une musique **synthétisée dans le navigateur**
