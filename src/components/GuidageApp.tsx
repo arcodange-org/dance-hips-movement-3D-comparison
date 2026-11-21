@@ -77,6 +77,8 @@ export default function GuidageApp() {
   const styleKey = STYLES[params.get("style") ?? ""] ? params.get("style")! : "kizomba";
   // `bare=1`: canvas and a one-line caption only (GIF captures).
   const bare = params.get("bare") === "1";
+  // #137: the muscle layer for the captures (`muscles=1`), as in the app.
+  const muscles = params.get("muscles") === "1";
   // #87: the leader's point of view by default (`vue=libre` for the free orbit view).
   const [leaderView, setLeaderView] = useState(params.get("vue") !== "libre");
   const initialBpm = Number(params.get("bpm"));
@@ -187,7 +189,7 @@ export default function GuidageApp() {
             {(["leader", "follower"] as const).map(side => (
               <Rig key={side} styleKey={styleKey} bpm={bpm} clock={clock} amp={1} playing={playing}
                 offset={[0, 0, side === "leader" ? -GUIDE_PAIR_DZ : GUIDE_PAIR_DZ]} rotationY={side === "leader" ? 0 : Math.PI}
-                embrace pair={pair} side={side} placement="quinconce" movement="none" guide={session} />
+                embrace pair={pair} side={side} placement="quinconce" movement="none" guide={session} showMuscles={muscles} />
             ))}
           </CoupleFrame>
         </React.Suspense>

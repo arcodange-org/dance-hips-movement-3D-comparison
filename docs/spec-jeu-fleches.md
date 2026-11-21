@@ -72,7 +72,7 @@ Les flèches maintenues modifient la figure guidée au moment de l'appui ; seule
 ## Démonstration
 
 `?mode=pair&guidage=1&demo=fleches` : avancer, double et marka, reculer, puis ida e volta en arrière
-d'abord, jambe droite (vue du guideur) : [GIF](gifs/jeu-fleches.gif).
+d'abord, jambe droite (vue du guideur, avec les muscles) : [GIF](gifs/jeu-fleches.gif).
 
 ## Hors périmètre
 

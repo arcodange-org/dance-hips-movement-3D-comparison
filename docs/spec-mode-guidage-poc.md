@@ -122,6 +122,9 @@ le même résultat.
 - HUD : compte (1 à 8), segment en cours et intention en attente, dernière note avec l'écart en ms
   (tôt / tard), série, message d'hésitation ou de refus.
 - La caméra suit le centre du couple.
+- Captures (#137) : `muscles=1` affiche la couche des muscles dans cette vue, comme dans l'app. Les GIFs
+  des démonstrations (`demo=1`, `demo=fleches`, `demo=enchainement`) sont capturés avec ce paramètre :
+  `scripts/capture_figure_gif.mjs` sur `?mode=pair&guidage=1&bare=1&demo=…&muscles=1`.
 
 ## Critères (tests)
 
