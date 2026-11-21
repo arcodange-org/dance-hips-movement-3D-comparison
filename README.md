@@ -79,8 +79,10 @@ Le deuxième pas accepte aussi `sortieFilleVariant=back`.
 ![Sortie fille en paire, variante crochet](docs/gifs/sortie-fille-crochet.gif)
 <details><summary>Détails et source du contrôle crochet</summary>
 
-Cinq temps à 60 bpm, kizomba d’amplitude 1. Le droit du leader dessine le crochet et le gauche
-du suiveur se décale de 55 cm. L’illustration reprend la séquence décrite par le propriétaire.
+Capture image par image (`scripts/capture_figure_gif.mjs`) : cinq temps à 75 bpm, kizomba d’amplitude 1,
+paire, quinconce, couche des muscles, vue du guideur. Le droit du leader dessine le crochet et le gauche
+du suiveur se décale d’une hanche et demie (51 cm, #105). L’illustration reprend la séquence décrite par
+le propriétaire.
 La proximité des flancs est mesurée sur des enveloppes de cuisse. Les charges affichées
 dans l’application indiquent les appuis prescrits. BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 [Description](docs/notes-sortie-fille.md) · [Mesures et limites](docs/spec-sortie-fille.md).
@@ -90,9 +92,9 @@ dans l’application indiquent les appuis prescrits. BodyParts3D © DBCLS, CC BY
 ![Sortie fille en paire, variante recul](docs/gifs/sortie-fille-recul.gif)
 <details><summary>Détails et source du contrôle recul</summary>
 
-Cinq temps à 60 bpm, kizomba d’amplitude 1. Le droit du leader recule. Le gauche du suiveur
-avance de 13 cm et s’écarte de 34 cm à sa gauche. Les deux GIFs sont capturés image par image
-(placement quinconce) et finissent en quinconce. La lecture dans l’application conserve le marka final.
+Cinq temps à 75 bpm, kizomba d’amplitude 1, couche des muscles, vue du guideur. Le droit du leader
+recule. Le gauche du suiveur avance de 13 cm et s’écarte de 34 cm à sa gauche. Les deux GIFs sont
+capturés image par image (placement quinconce) et finissent en quinconce. La lecture dans l’application conserve le marka final.
 BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 [Description](docs/notes-sortie-fille.md) · [Mesures et limites](docs/spec-sortie-fille.md).
 
@@ -131,7 +133,7 @@ avec ou sans plexus).
 <details><summary>Détails & source</summary>
 
 Capture image par image (`scripts/capture_figure_gif.mjs`) : kizomba, paire, quinconce, plexus avec
-contraposition, vue de profil, 8 temps à 90 bpm, amplitude 1. Base de déplacement du ginga (#42).
+contraposition, couche des muscles, vue du guideur, 8 temps à 90 bpm, amplitude 1. Base de déplacement du ginga (#42).
 [Spécification, calibrage et points à valider](docs/spec-ida-paire.md).
 BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 </details>
@@ -147,7 +149,7 @@ aucun croisement des os des jambes (six styles, trois amplitudes, avec ou sans p
 <details><summary>Détails & source</summary>
 
 Capture image par image (`scripts/capture_figure_gif.mjs`) : tarraxinha, paire, quinconce, cadre des
-bras, vue de trois quarts, 4 temps à 90 bpm, amplitude 1.
+bras, couche des muscles, vue du guideur, 4 temps à 90 bpm, amplitude 1.
 [Spécification](docs/spec-sur-place-paire.md), [cadre](docs/cadre/spec-implementation.md).
 BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 </details>
