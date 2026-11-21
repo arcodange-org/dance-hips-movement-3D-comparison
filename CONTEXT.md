@@ -93,8 +93,9 @@ et les specs. Résumé de la journée du 21 :
   vue de dessus (0,0 cm² entourés), le bassin s'arrête 0,22 temps. Quatre prototypes (`GUIDE_EIGHT`, `ginga=huit|huitRond|
   huitInverse|huitAmple`) décalent le roulis et le lacet dans le cycle, font avancer et reculer le bassin, retardent le
   rebond, et poursuivent la phase d'une figure à la suivante (`gingaFrom`). **Prototypes non contrôlés sur le GLB**, à
-  élire ([élection](docs/elections/ginga-huit.md), [spec](docs/spec-ginga-huit.md)). Le lien avec le relais des genoux
-  n'est pas fait.
+  élire ([élection](docs/elections/ginga-huit.md), [spec](docs/spec-ginga-huit.md)). Le propriétaire a
+  élu « genoux chevauchés » pour la danse (atlas #132) : les prototypes s'en éloignent (mesures dans la spec) ; faire
+  mener le « 8 » par cette règle est l'étape suivante.
 - PR brouillon en relecture du propriétaire : #117 (ontologie), #76 (audit).
 - Pièges : `npm test` complet dure 25 min ou plus en local. Lancer ses scripts en parallèle, un journal
   par script, le ramène à une dizaine de minutes ; `test_placements` et `test_plexus` rejouent d'autres
