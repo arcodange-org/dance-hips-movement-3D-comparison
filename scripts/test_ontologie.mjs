@@ -43,11 +43,13 @@ for (const p of api.POSITIONS) {
   }
   const r0 = world(pair[0], 'root'), r1 = world(pair[1], 'root');
   // The couple's frame is the leader's feet axis (mean of his functional foot axes), not his pelvis: the ida's
-  // pelvis pivot (#84) turns the pelvis, not the couple; in the quarter turn it gives the diagonal.
+  // pelvis pivot (#84) turns the pelvis, not the couple; in the quarter turn it gives the diagonal. Only the
+  // quarter turn turns the couple: in the sorties and the ida e volta the frame is the line of dance (a
+  // virgula, #127, turns the leader's G foot and opens his pelvis without turning the couple).
   const axis = ['L', 'R'].map(side => { const t = pair[0].model.legs[side].toeOut;
     return new THREE.Vector3(Math.sin(t), 0, Math.cos(t)).applyQuaternion(pair[0].r['foot' + side].getWorldQuaternion(new THREE.Quaternion())); })
     .reduce((a, v) => a.add(v), new THREE.Vector3());
-  const yaw = Math.atan2(axis.x, axis.z);
+  const yaw = p.figure === 'quart' ? Math.atan2(axis.x, axis.z) : 0;
   const lateral = Math.abs((r1.x - r0.x) * Math.cos(yaw) - (r1.z - r0.z) * Math.sin(yaw));
   if (p.layout === 'quinconce') assert(lateral < 0.12, `${p.id}: quinconce (lateral ${lateral.toFixed(3)} m)`);
   else assert(lateral > 0.14, `${p.id}: offset (lateral ${lateral.toFixed(3)} m)`);
