@@ -256,7 +256,7 @@ export function habillageDe(chapitre, cal, narration, ordre, composition, bassin
     element("cartouche", { nom: style.nom, infos: [[c.lieu, c.epoque].filter(Boolean).join(" · "), c.tempo].filter(Boolean), couleur: style.couleur }, finCarte + 0.1, D - 0.3);
     // Pendant le gros plan, le trajet du bassin vu de dessus : c'est là que se lisent le « 8 », le cercle, l'écart.
     const k = plansDesPhrases(chapitre).indexOf("bassin");
-    const v = k >= 0 ? vignette(bassins[chapitre.id], 4, { x: 100, y: 460, largeur: 460, hauteur: 330, echelle: 16, couleur: style.couleur }) : null;
+    const v = k >= 0 ? vignette(bassins[chapitre.id], 4, { x: 100, y: 492, largeur: 460, hauteur: 320, echelle: 16, couleur: style.couleur }) : null;
     if (v) element("traces", { vignettes: [v], legende: "Trajet du bassin, vu de dessus", detail: true }, cal.phrases[k].debut + 0.2, (cal.phrases[k + 1]?.debut ?? D) - 0.3);
   }
 
