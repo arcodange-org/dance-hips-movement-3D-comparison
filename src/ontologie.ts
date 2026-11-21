@@ -18,7 +18,8 @@ export interface Position {
   alias?: string[];
   /** Weighted foot of each dancer (load > 0.9). */
   support: { leader: Side; follower: Side };
-  /** Pelvises in quinconce (lateral offset < 12 cm) or offset (> 14 cm), in the leader's feet axis. */
+  /** Pelvises in quinconce (lateral offset < 12 cm) or offset (> 14 cm), in the couple's frame (the line of
+   * dance; the leader's feet axis in the quarter turn, the only figure that turns the couple). */
   layout: "quinconce" | "décalé";
   /** Right thighs: envelopes in contact (gap ≤ 3 mm) or apart (≥ 2 cm). In quinconce they interleave. */
   thighs: "contact" | "libres";
@@ -45,7 +46,7 @@ export const POSITIONS: Position[] = [
   pos("sortieG", 4, "D du leader en face", "R", "L", "quinconce", "libres"),
   pos("sortieG", 5, "Marka, quinconce", "R", "L", "quinconce", "contact"),
   pos("sortieF", 0, "Départ, quinconce", "R", "L", "quinconce", "contact"),
-  pos("sortieF", 1, "G du leader en avant, D du suiveur en arrière", "L", "R", "quinconce", "libres"),
+  pos("sortieF", 1, "G du leader en virgula (posé perpendiculaire), D du suiveur en arrière", "L", "R", "quinconce", "libres"),
   pos("sortieF", 2, "Crochet du leader, G du suiveur sorti à sa gauche", "R", "L", "décalé", "libres"),
   pos("sortieF", 3, "D/D côte à côte, avant qu'il ne reprenne la ligne", "L", "R", "décalé", "contact", ["position 5 (propriétaire)"]),
   pos("sortieF", 4, "G du suiveur croisé, retour sur la ligne", "R", "L", "décalé", "libres"),

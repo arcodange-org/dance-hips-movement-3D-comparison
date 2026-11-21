@@ -102,7 +102,7 @@ interface Equivalence { a: string; b: string; note: string }                    
 
 - **Positions** (29) : sortie garçon, sortie fille (crochet et recul), quart de tour, ida e volta. Chacune
   déclare les appuis (charge > 0,9), la disposition (quinconce : décalage latéral des bassins < 12 cm ;
-  décalé : > 14 cm, mesuré dans l'axe des pieds du leader, que le pivot de bassin de l'ida #84 ne tourne pas) et le contact des cuisses D (enveloppes au contact, ou écartées d'au moins 2 cm).
+  décalé : > 14 cm, mesuré dans le repère du couple : la ligne de danse dans les sorties et l'ida e volta, que ni le pivot de bassin de l'ida #84 ni la virgula #127 ne tournent ; l'axe des pieds du leader dans le quart de tour, seule figure qui tourne le couple) et le contact des cuisses D (enveloppes au contact, ou écartées d'au moins 2 cm).
   En quinconce, les cuisses D sont intercalées : leur contact ne suffit pas à reconnaître les flancs
   droits, c'est le décalage des bassins qui le fait.
 - **Guidages** (17, R24) : dans chaque transition, le pied du suiveur part avec ou après le pied du
