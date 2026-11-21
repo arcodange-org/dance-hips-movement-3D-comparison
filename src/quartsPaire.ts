@@ -80,14 +80,16 @@ export const QUARTS_SHAPES: QuartsShapes = {
  *   that reaches its final place with the first foot (his left, her right); `travel`: share of the
  *   way from the rigid rotation about the centre to that extremity rule (the full rule leaves the back
  *   foot so far behind that the pelvis drops and the front knee juts into the partner); `delay`: the
- *   block turns over the end of the first foot's flight, once the partner's foot has cleared; `heel`:
+ *   block turns over the end of the first foot's flight (from 40 % of it, #126: a smoother start), once
+ *   the partner's foot has cleared; `chestLag`: the chest follows the pelvis that many beats later (#126,
+ *   « le buste peut avoir un léger retard sur le pied : le temps de transfert »); `heel`:
  *   the leader's trailing D rises on its ball (rad) while his G carries him;
  * - `coupling`: the follower's pelvis mirrors the leader's (hips that seek each other);
  * - `sway`: share of the style's pelvis sway kept while the couple turns interleaved;
  * - knee flexion cap, style pelvis rotation cap and style bounce, softened around the `crossing`
  *   (both pairs of thighs interleaved while the leader's G lands next to the follower's standing G). */
 export const QUARTS_BODY = {
-  extremity: 0.09, travel: { leader: 0.65, follower: 0.58 }, delay: 0.7, heel: 0.18, coupling: 1, sway: 0.5, kneeCap: 0.22, rotationCap: 0.12, dip: -0.008, roll: 0.5,
+  extremity: 0.09, travel: { leader: 0.65, follower: 0.58 }, delay: 0.4, chestLag: 0.25, heel: 0.18, coupling: 1, sway: 0.5, kneeCap: 0.22, rotationCap: 0.12, dip: -0.008, roll: 0.5,
   crossing: { from: 0.6, to: 1.6, ramp: 0.3, kneeCap: 0.12, rotationCap: 0.04 },
 };
 function crossingAt(q: number): number {
@@ -183,6 +185,12 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
   // foot lands, the quarter when the second does.
   const a2 = two.arc;
   const bodyYaw = base + (QUARTER / 2) * (a1 + a2);
+  // #126 (owner: « le buste peut avoir un léger retard sur le pied : le temps de transfert »): the chest
+  // follows the pelvis `chestLag` beats later.
+  const rawAt = (shape: QuartsStepShape, t: number) => Math.max(0, Math.min(1, (t - shape.start) / (shape.end - shape.start)));
+  const lagged = now.q - QUARTS_BODY.chestLag;
+  const chestYaw = (QUARTER / 2) * (ramp(rawAt(one.shape, lagged), Math.max(QUARTS_BODY.delay, one.shape.arcDelay))
+    + ramp(rawAt(two.shape, lagged), two.shape.arcDelay) - a1 - a2);
   const rigid = about(c, start.root, bodyYaw - base), diagonal = diagonalRoot(c, start.root, QUARTS_BODY.extremity, a1, a2);
   const travel = QUARTS_BODY.travel[follower ? "follower" : "leader"];
   const rootPoint = about(c, { x: mix(rigid.x, diagonal.x, travel), z: mix(rigid.z, diagonal.z, travel) }, base);
@@ -192,7 +200,7 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
   const crossing = crossingAt(now.q);
   const moving = two.flying || two.raw >= 1 ? order[1] : order[0];
   const action = now.quarter * 2 + (now.q >= role[1].start ? 1 : 0);
-  return { beat: b, action, moving, feet, root, rootYaw: bodyYaw, chestYaw: 0, loadR, loadL: 1 - loadR,
+  return { beat: b, action, moving, feet, root, rootYaw: bodyYaw, chestYaw, loadR, loadL: 1 - loadR,
     coupling: QUARTS_BODY.coupling * Math.min(1, Math.hypot(o.x, o.z) / 0.05), cyclic: true, kneeCap: mix(QUARTS_BODY.kneeCap, QUARTS_BODY.crossing.kneeCap, crossing), sway: QUARTS_BODY.sway,
     rotationCap: mix(QUARTS_BODY.rotationCap, QUARTS_BODY.crossing.rotationCap, crossing),
     dip: mix(QUARTS_BODY.dip, 0, crossing) };

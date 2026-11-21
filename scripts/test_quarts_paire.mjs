@@ -68,7 +68,7 @@ console.log('PASS quarts en paire: rotation rigide du couple autour du centre, f
 // le buste avec son pied gauche ») and body rotation (#106: « le bassin et l'épaule (avec tout le haut du
 // corps) bougent en même temps que le pied », diagonal when the first foot lands, the rest with the other
 // foot): the follower's D and the leader's G leave together and land together on beat 1, then her G and
-// his D. Pelvis and chest turn together (no twist), with the feet: half the quarter when the first foot
+// his D. Pelvis and chest turn with the feet, the chest a little later (#126): half the quarter when the first foot
 // lands, the whole quarter when the second does; both dancers in step.
 {
   const rest = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
@@ -80,7 +80,9 @@ console.log('PASS quarts en paire: rotation rigide du couple autour du centre, f
   for (const follower of [false, true]) {
     const s = b => api.sampleQuartsPaire(b, follower, rest, 'quinconce');
     const first = follower ? S.follower : S.leader;
-    for (let tick = 0; tick < 1600; tick++) near(s(tick / 100).chestYaw, 0, 1e-12, `chest turns with the pelvis at ${tick / 100}`);
+    // #126: the chest follows the pelvis `chestLag` beats later (the weight transfer).
+    for (let tick = 0; tick < 1600; tick++) { const t = tick / 100;
+      near(wrap(s(t).rootYaw + s(t).chestYaw - s(t - api.QUARTS_BODY.chestLag).rootYaw), 0, 1e-9, `chest follows the pelvis ${api.QUARTS_BODY.chestLag} beat later at ${t}`); }
     for (let quarter = 0; quarter < 4; quarter++) {
       const t0 = quarter * 4;
       near(wrap(s(t0 + first[0].start - 0.01).rootYaw - s(t0).rootYaw), 0, 1e-9, 'still before the first foot');
