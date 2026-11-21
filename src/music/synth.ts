@@ -327,6 +327,20 @@ function render(v: Voice, ev: NoteEvent, t: number, a: number, dur: number, step
   }
 }
 
+/** Instant dont le son sort maintenant : horodatage de sortie si disponible, sinon latence. */
+export function audibleTime(context: BaseAudioContext): number {
+  const ctx = context as AudioContext;
+  if (typeof ctx.getOutputTimestamp === "function" && typeof performance !== "undefined") {
+    const ts = ctx.getOutputTimestamp();
+    if (ts.contextTime && ts.performanceTime) {
+      const t = ts.contextTime + (performance.now() - ts.performanceTime) / 1000;
+      if (t > 0 && t <= ctx.currentTime + 0.05) return t;
+    }
+  }
+  const latency = (ctx.outputLatency || 0) + (ctx.baseLatency || 0);
+  return ctx.currentTime - latency;
+}
+
 export class WebAudioOutput implements MusicOutput<Voice> {
   private readonly master: GainNode;
   private bus: GainNode;
@@ -354,19 +368,7 @@ export class WebAudioOutput implements MusicOutput<Voice> {
 
   now(): number { return this.ctx.currentTime; }
 
-  /** Instant dont le son sort maintenant : horodatage de sortie si disponible, sinon latence. */
-  audibleNow(): number {
-    const ctx = this.ctx as AudioContext;
-    if (typeof ctx.getOutputTimestamp === "function" && typeof performance !== "undefined") {
-      const ts = ctx.getOutputTimestamp();
-      if (ts.contextTime && ts.performanceTime) {
-        const t = ts.contextTime + (performance.now() - ts.performanceTime) / 1000;
-        if (t > 0 && t <= ctx.currentTime + 0.05) return t;
-      }
-    }
-    const latency = (ctx.outputLatency || 0) + (ctx.baseLatency || 0);
-    return ctx.currentTime - latency;
-  }
+  audibleNow(): number { return audibleTime(this.ctx); }
 
   play(ev: NoteEvent, when: number, secondsPerBeat: number): Voice {
     const t = Math.max(when, this.ctx.currentTime + 0.001);
