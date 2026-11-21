@@ -61,10 +61,12 @@ dans les sorties (voir plus bas).
   sur 3 888 poses relève quelques croisements d'os : 4 en B, 2 en C, 2 en D (dans la sortie fille), 13 en E
   (surtout dans le quart de tour).
   La variante élue sera ensuite codée et contrôlée dans toutes les figures.
-- **Le « 8 » vient du bassin, pas encore des genoux.** Dans le modèle, les genoux sont calculés à partir du
-  bassin et des pieds. Mesuré : la part du temps où un genou se plie pendant que l'autre se tend est de 22 %
-  aujourd'hui et de 6 % avec le « 8 » arrondi. Le lien avec « les genoux en relais ou qui se chevauchent »
-  reste à faire, avec les planches de l'atlas (#132) quand la variante « genoux chevauchés » sera votée.
+- **Le « 8 » vient du bassin, pas encore des genoux.** Le propriétaire a élu « genoux chevauchés » pour la
+  danse (atlas #132 : « pour la danse on veut B ») : les deux genoux bougent en sens inverse, sans palier,
+  et sont fléchis du même angle quand le bassin passe au centre. Dans le modèle, les genoux sont calculés à
+  partir du bassin et des pieds, et ces prototypes s'en éloignent : les genoux bougent en sens inverse 6 % du
+  temps (22 % aujourd'hui), avec 5° d'écart au centre (1° aujourd'hui). Faire mener le « 8 » par les genoux
+  chevauchés est l'étape suivante ; ce vote-ci porte sur le chemin que l'on veut obtenir.
 - **Vu de face, le chemin est irrégulier** : la hauteur du bassin vient de la portée des jambes de chaque
   figure, et la marche y a un à-coup d'environ 7 mm qui n'est pas du ginga.
 - L'ida e volta et le pas de base ne changent pas dans ces prototypes.

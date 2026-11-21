@@ -360,4 +360,5 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] [Élection](elections/ginga-huit.md) : danse et tracé de chaque variante ; `scripts/test_ginga_huit.mjs`.
 - [ ] Vote du propriétaire : forme, sens, taille.
 - [ ] Variante élue : contrôles sur le GLB dans toutes les figures (marges), ida e volta, pas de base.
-- [ ] Lien avec le relais des genoux (atlas #132) : aujourd'hui les genoux suivent le bassin, ils ne le mènent pas.
+- [ ] Faire mener le « 8 » par les genoux chevauchés (règle B de l'atlas #132, élue : « pour la danse on veut B ») :
+      aujourd'hui les genoux suivent le bassin, et les prototypes s'éloignent de cette règle (mesures dans la spec).

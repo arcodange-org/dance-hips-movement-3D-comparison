@@ -59,20 +59,23 @@ const range = (pts, a) => Math.max(...pts.map(p => p[a])) - Math.min(...pts.map(
 const still = pts => { let longest = 0, run = 0; for (let i = 0; i < 2 * pts.length; i++) { const p = pts[i % pts.length], q = pts[(i + 2) % pts.length]; run = Math.hypot(q[0] - p[0], q[1] - p[1], q[2] - p[2]) < 0.1 ? run + 1 : 0; longest = Math.max(longest, run); } return Math.min(pts.length, longest) / STEPS; };
 const measures = Object.fromEntries(['L', 'R', 'C'].map(k => [k, { largeur: range(points[k], 0), hauteur: range(points[k], 1), profondeur: range(points[k], 2),
   dessus: around(points[k], 0, 2), face: around(points[k], 0, 1), profil: around(points[k], 2, 1), arret: still(points[k]) }]));
-// The knees (owner: « les genoux en relais ou qui se chevauchent ») : `relais` is the share of the cycle
-// where one knee bends while the other straightens (each by more than 0.5° per sixteenth of a beat);
-// `chevauchement` the share where both are bent beyond the middle of their own range.
+// The knees. The owner elected « genoux chevauchés » for the dance (atlas #132, 21 Nov.): the two knees move
+// in opposite senses over the whole swing, and when the pelvis passes the centre both are bent by the same
+// angle. Measured here: `sensInverse`, share of the cycle where one knee bends while the other straightens
+// (each by more than 0.5° per sixteenth of a beat); `auCentre`, the two flexions (degrees) when the pelvis
+// crosses the middle of its lateral path.
 const kneeRange = side => [Math.min(...knees[side]), Math.max(...knees[side])];
 const total = knees.L.length, step = 2;
-let relay = 0, overlap = 0;
+let opposite = 0;
 for (let i = 0; i < total; i++) {
   const dL = knees.L[(i + step) % total] - knees.L[i], dR = knees.R[(i + step) % total] - knees.R[i];
-  if (dL * dR < 0 && Math.abs(dL) > 0.5 && Math.abs(dR) > 0.5) relay++;
-  const mid = side => (kneeRange(side)[0] + kneeRange(side)[1]) / 2;
-  if (knees.L[i] > mid('L') && knees.R[i] > mid('R')) overlap++;
+  if (dL * dR < 0 && Math.abs(dL) > 0.5 && Math.abs(dR) > 0.5) opposite++;
 }
 const round = v => Math.round(v * 100) / 100;
-const genoux = { gauche: kneeRange('L').map(round), droit: kneeRange('R').map(round), relais: round(relay / total), chevauchement: round(overlap / total) };
+const middle = (Math.max(...points.C.map(p => p[0])) + Math.min(...points.C.map(p => p[0]))) / 2;
+const crossings = points.C.map((p, i) => i).filter(i => (points.C[i][0] - middle) * (points.C[(i + 1) % total][0] - middle) <= 0);
+const genoux = { gauche: kneeRange('L').map(round), droit: kneeRange('R').map(round), sensInverse: round(opposite / total),
+  auCentre: crossings.map(i => [round(knees.L[i]), round(knees.R[i])]) };
 console.log(JSON.stringify({ ginga, role, kind, styleKey, genoux, mesures: Object.fromEntries(Object.entries(measures).map(([k, m]) => [k, Object.fromEntries(Object.entries(m).map(([n, v]) => [n, round(v)]))])) }));
 if (process.env.MESURES === '1' || !out) process.exit(0);
 

@@ -91,12 +91,7 @@ chaque figure, donc toutes les deux temps dans la marche. Seuls les prototypes l
 
 ### Ce que les prototypes ne font pas
 
-- **Les genoux ne sont pas le moteur.** Dans le modèle, les genoux sont calculés à partir du bassin et des
-  pieds. Mesuré sur la suiveuse : la part du cycle où un genou se plie pendant que l'autre se tend (le
-  relais) est de 44 % sans ginga, 22 % en A, 6 % en B, C et E, 11 % en D ; les deux genoux ne sont jamais
-  pliés ensemble au-delà du milieu de leur course (chevauchement : 0 %). Le « 8 » vient donc du bassin, pas
-  encore du relais des genoux. Le lien demandé par le propriétaire reste à faire, avec les planches de
-  l'atlas (#132, PR #139) une fois sa variante « genoux chevauchés » votée.
+- **Les genoux ne sont pas le moteur, et ils s'éloignent de la règle élue.** Voir la section suivante.
 - **Vu de face, le chemin est irrégulier.** La hauteur du bassin vient de la portée des jambes de la
   figure : dans la marche elle a un à-coup d'environ 7 mm, qui n'est pas du ginga (R3, #67).
 - **Les contrôles sur le GLB ne sont pas passés.** Un premier comptage (3 888 poses, chaque figure
@@ -110,6 +105,38 @@ Elles se voient dans l'app avec `?mode=pair&guidage=1&demo=ginga&ginga=huitRond`
 fusionnée). Les tracés viennent de `scripts/tracer_hanches.mjs`, les GIF de danse de
 `scripts/capture_session_gif.mjs`.
 
+## Les genoux : le propriétaire a élu « genoux chevauchés »
+
+Vote de l'atlas (#132, PR #139), le 21 novembre 2026, mot pour mot : « B, genoux chevauchés » ; « c'est bien
+de montrer les 2, mais pour la danse on veut B ».
+
+Les deux règles de l'atlas, pieds plantés, bassin incliné de −10° à +10° :
+
+| | Ce que font les genoux | Au centre | Hauteur du bassin |
+|---|---|---|---|
+| A — genoux en relais (non retenue) | un genou fléchit après l'autre | les deux presque tendus (7°) | remonte de 14,6 mm |
+| **B — genoux chevauchés (élue)** | le genou opposé commence à fléchir avant que le premier ait fini de se tendre ; ils bougent en sens inverse sur toute l'amplitude, sans palier | les deux fléchis du même angle (22,7°) | constante |
+
+Ce que font les variantes de cette spec, mesuré en couple sur la suiveuse (marche, kizomba) :
+
+| | Genoux en sens inverse (part du cycle) | Flexions quand le bassin passe au centre |
+|---|---|---|
+| Sans ginga | 44 % | — |
+| A — aller-retour (aujourd'hui) | 22 % | 25° et 26° |
+| B — « 8 » anguleux | 6 % | 20° et 25° |
+| C — « 8 » arrondi | 6 % | 20° et 25° |
+| D — « 8 » arrondi, autre sens | 11 % | 20° et 23° |
+| E — « 8 » arrondi, ample | 6 % | 20° et 25° |
+
+- Dans le modèle, les genoux sont calculés à partir du bassin et des pieds : ils suivent, ils ne mènent pas.
+- **Les prototypes du « 8 » s'éloignent de la règle élue** : les genoux y bougent moins souvent en sens
+  inverse (6 % contre 22 % aujourd'hui), et ils sont moins égaux au centre (5° d'écart contre 1°).
+- Le « 8 » de ces prototypes vient donc du bassin. Le « 8 » que décrit le propriétaire vient des genoux
+  chevauchés. La suite est de faire mener le bassin par cette règle (`applyAtlasPose`, règle B, sur la
+  branche de l'atlas) et de vérifier que le chemin obtenu est bien le « 8 » élu ici.
+- Mot à ne pas confondre : cette spec appelait « relais » le fait que les genoux bougent en sens inverse.
+  Dans l'atlas, « relais » est la règle A, celle qui n'est pas retenue pour la danse.
+
 ## Critères, une fois la variante élue
 
 1. Dans chaque figure du mode jeu, chaque hanche entoure une surface dans les vues confirmées par le
@@ -117,8 +144,9 @@ fusionnée). Les tracés viennent de `scripts/tracer_hanches.mjs`, les GIF de da
 2. Le bassin ne reste jamais immobile plus d'un quart de temps tant que les appuis s'enchaînent.
 3. Les contrôles de #157 restent verts : aucun croisement d'os, semelles au-dessus du sol, une figure
    modifiée à une jonction garde son passé.
-4. Le lien avec les genoux est mesuré : pendant un temps, la flexion d'un genou diminue pendant que celle
-   de l'autre augmente (relais), et la durée où les deux sont fléchis ensemble (chevauchement) est donnée.
+4. Les genoux suivent la règle élue, « genoux chevauchés » : ils bougent en sens inverse sur tout le
+   cycle, sans palier ; quand le bassin passe au centre ils sont fléchis du même angle ; le bassin ne
+   remonte pas au centre.
 
 ## Hors périmètre
 
