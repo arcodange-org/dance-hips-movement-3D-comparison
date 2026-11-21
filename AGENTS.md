@@ -37,6 +37,8 @@ sourcées de `docs/musique/`, chaque piste garde son niveau de preuve ; son coup
 Musique enregistrée générée par IA (#142) : [spec](docs/spec-musique-elevenlabs.md) (`src/music/loop.ts` pur, `loopOutput.ts`,
 registre généré `src/music/recordings.data.ts`, pistes `public/musique/`, `scripts/generer_musique.mjs`, `scripts/tempo.mjs`,
 `scripts/test_musique_enregistree.mjs`) ; la clé ElevenLabs ne s'écrit nulle part, une prise coûte des crédits : accord du propriétaire.
+Vitrine (#150) : [spec](docs/spec-vitrine-danse-auto.md) (`src/vitrine.ts` pur, `?vitrine=1` ouvre la vue du mode jeu en danse
+automatique, en musique, au tempo de la piste ; `scripts/test_vitrine.mjs`).
 Mode jeu (#140, [spec](docs/spec-jeu-file-auto.md)) : les commandes s'empilent dans une file (plus de note ni
 de refus), Espace bascule entre l'écoute et la danse automatique (tirage reproductible par graine) ; un plan
 ne réécrit jamais son passé. Hasard tenu (#152) : le tirage se souvient des figures et des paires récentes

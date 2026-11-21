@@ -327,6 +327,14 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Écoute de validation par le propriétaire : « Oui, elle convient » (21 novembre 2026).
 - [ ] Autres styles (semba, kompa, tarraxinha, suave, zouk brésilien) : même méthode, PR à part, accord du propriétaire pour les crédits.
 
+## Vitrine : danse automatique en musique, lien direct (#150)
+
+- [x] Issue #150 et spécification poussée en premier ([spec](spec-vitrine-danse-auto.md)).
+- [x] `src/vitrine.ts`, lien `vitrine=1`, tempo de la piste en danse automatique, muscles et buste.
+- [x] Bouton de partage, interface réduite, fragment `iframe`.
+- [x] `scripts/test_vitrine.mjs` et `vitrine.feature` dans `npm test` ; contrôle navigateur.
+- [ ] Essai par le propriétaire ; intégration sur le site d'Arcodange ; mascottes Rémi et Corinne (hors périmètre de #150).
+
 ## Danse automatique : un hasard mieux tenu (#152)
 
 - [x] Issue #152 avec les mots du propriétaire ; complément de spec poussé en premier ([spec](spec-jeu-file-auto.md)).
