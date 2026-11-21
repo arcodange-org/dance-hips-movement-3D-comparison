@@ -292,10 +292,10 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 
 ## Musique enregistrée générée par ElevenLabs (#142)
 
-- [x] Issue #142 et spécification poussée en premier ([spec](spec-musique-elevenlabs.md)).
-- [ ] Lecteur de boucle synchronisé (`src/music/loop.ts`, `loopOutput.ts`), repli sur la synthèse, interface.
-- [ ] Script de génération et analyse de tempo (`scripts/generer_musique.mjs`, `scripts/tempo.mjs`).
-- [ ] `scripts/test_musique_enregistree.mjs` et `musique-enregistree.feature` dans `npm test`.
-- [ ] Génération des six pistes : **en attente de la clé ElevenLabs** et de l'accord du propriétaire (crédits, publication).
+- [x] Issue #142 et spécification poussée en premier ([spec](spec-musique-elevenlabs.md)), PR brouillon #143.
+- [x] Lecteur de boucle synchronisé (`src/music/loop.ts`, `loopOutput.ts`), repli sur la synthèse, interface.
+- [x] Script de génération et analyse de tempo (`scripts/generer_musique.mjs`, `scripts/tempo.mjs`).
+- [x] `scripts/test_musique_enregistree.mjs` et `musique-enregistree.feature` dans `npm test` ; contrôle navigateur.
+- [x] Piste kizomba générée (prompt du propriétaire) et mesurée : 101,99 bpm, boucle de 96 temps.
 - [ ] Écoute de validation par le propriétaire (calage du temps 1, raccord de boucle, qualité).
-
+- [ ] Cinq autres pistes : **en attente de l'accord du propriétaire** (environ 4 500 crédits).

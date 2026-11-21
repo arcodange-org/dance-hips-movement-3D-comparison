@@ -24,16 +24,17 @@ La synthèse (#44) n'est pas supprimée par ce chantier : elle sert de **repli**
 manque ou ne se charge pas, et reste proposée comme source au choix. Son retrait est une décision
 du propriétaire (voir « Points ouverts »).
 
-## État d'avancement
+## État d'avancement (21 novembre 2026)
 
 | Élément | État |
 |---|---|
-| Lecteur de boucle synchronisé, repli, interface, tests | dans ce chantier |
-| Script de génération et d'analyse de tempo | dans ce chantier |
-| Pistes générées | **en attente** : la clé ElevenLabs n'est pas disponible pour l'agent |
+| Lecteur de boucle synchronisé, repli, interface, tests | fait |
+| Script de génération et d'analyse de tempo | fait |
+| Piste **kizomba** (prompt du propriétaire, mot pour mot) | générée et mesurée : 101,99 bpm, boucle de 96 temps |
+| Pistes semba, kompa, tarraxinha, suave, zouk brésilien | **en attente** de l'accord du propriétaire (crédits), après écoute de la kizomba |
+| Écoute de validation (temps 1, raccord de boucle, qualité) | à faire par le propriétaire |
 
-Tant qu'aucune piste n'est publiée, le registre des pistes est vide et l'app se comporte
-exactement comme avant (synthèse).
+Un style sans piste publiée garde la synthèse, sans message.
 
 ## Modules
 
@@ -89,9 +90,9 @@ un générateur respecte un tempo demandé à peu près, pas exactement.
 - **Changement de style** (ou de côté A/B) : la source s'arrête, la piste du nouveau style est
   chargée puis démarre à la position du temps courant. Pendant le chargement, l'horloge audio
   continue de piloter la danse, en silence.
-- **Raccord de boucle** : au chargement, un fondu enchaîné de 30 ms est appliqué dans le tampon
-  autour du point de raccord (fonction pure `crossfadeLoop`), pour éviter un clic. Le fichier
-  publié n'est pas modifié.
+- **Raccord de boucle** : au chargement, un fondu enchaîné (30 ms au plus) est appliqué dans le
+  tampon juste avant le point de raccord (fonction pure `crossfadeLoop`), pour éviter un clic ;
+  l'attaque du temps 1 n'est pas touchée. Le fichier publié n'est pas modifié.
 - **Niveau** : la piste passe par un gain (`gainDb`, puis le volume) sans le compresseur de la
   synthèse, qui ferait pomper une musique déjà mixée.
 
@@ -117,7 +118,8 @@ bouton « Tempo conseillé » règle le curseur sur le tempo de la piste (arrond
 `scripts/generer_musique.mjs` :
 
 - lit la clé dans la variable d'environnement `ELEVENLABS_API_KEY` ; ne l'écrit jamais (ni
-  journal, ni fichier, ni URL) ; sans clé, seuls `--plan` et `--analyse` fonctionnent ;
+  journal, ni fichier, ni URL) ; sans clé, seuls `--plan` et `--analyse` fonctionnent ; pour la
+  lire d'un fichier d'environnement sans l'afficher : `node --env-file=<fichier> scripts/generer_musique.mjs …` ;
 - `--plan` : affiche les prompts, les durées et le coût estimé, sans appel réseau ;
 - avant toute génération : lit l'abonnement (`GET /v1/user/subscription`), affiche l'offre et les
   crédits restants, et s'arrête si le coût estimé dépasse le reste ;
@@ -126,10 +128,14 @@ bouton « Tempo conseillé » règle le curseur sur le tempo de la piste (arrond
   prise coûte des crédits) ;
 - analyse le fichier (décodage par `ffmpeg`, puis `scripts/tempo.mjs`) et met à jour
   `src/music/recordings.data.ts` ; `--analyse` refait seulement cette étape, sans réseau ;
-- s'arrête avec un message clair si le tempo mesuré s'écarte de plus de 4 % du tempo demandé ou
-  si la dérive mesurée dépasse 25 ms : la piste est à refaire ou à valider à l'oreille.
+- signale (code de sortie 2) une piste dont le tempo mesuré s'écarte de plus de 4 % du tempo
+  demandé, dont la dérive dépasse 15 ms, ou dont un quart du morceau a moins de 30 % de ses temps
+  portés par une attaque : la piste est à refaire ou à valider à l'oreille ;
+- `--abonnement` : affiche l'offre et les crédits restants (appel gratuit) ;
+- `--decaler <style>=<temps>` : décale le temps 1 de la boucle (validation à l'oreille) ;
+- `--temps <style>=<temps>` : impose la longueur de la boucle, multiple de 8 temps.
 
-Coût : Eleven Music est facturé 900 crédits par minute générée (tarif relevé le 21 novembre 2026).
+Coût : Eleven Music est facturé 900 crédits par minute générée (tarif relevé le 21 novembre 2026) ; la piste kizomba de 62 s a coûté 931 crédits estimés.
 
 | Style | Tempo demandé | Boucle visée | Durée demandée |
 |---|---|---|---|
@@ -154,15 +160,38 @@ versionnés dans `scripts/musique_prompts.mjs` et recopiés dans le registre de 
 
 1. Enveloppe d'attaques : flux d'énergie par trames de 5,8 ms, sur le signal entier et sur la
    bande grave (grosse caisse).
-2. Tempo et phase : recherche en peigne autour du tempo demandé (± 4 %), puis régression sur les
-   attaques les plus proches de chaque temps prédit ; la **dérive** est l'écart maximal entre les
-   attaques et la grille régulière.
-3. Premier temps de mesure : phase de 4 temps dont les temps portent le plus d'énergie grave.
-4. Boucle : plus grand multiple de 32 temps (à défaut 16, puis 8) qui tient dans le fichier.
+2. Tempo et phase : recherche en peigne autour du tempo demandé (± 12 %), puis régression sur les
+   attaques les plus proches de chaque temps prédit.
+3. Régularité : la **dérive** est le plus grand de deux écarts — la tendance des attaques par
+   rapport à la grille (moyenne glissante sur 8 temps), et l'écart entre la grille d'ensemble et
+   la grille recalculée sur chaque tiers du morceau. La **confiance** est la part des temps portés
+   par une attaque, dans le quart du morceau où elle est la plus faible (une musique syncopée ne
+   pose pas une attaque sur chaque temps : c'est normal).
+4. Temps 1 d'une phrase de 8 temps, déduit de la **structure** : un morceau commence, change de
+   section et se termine sur un temps 1. Trois indices votent — le début franc de la musique, les
+   changements de niveau entre sections (tout, grave, aigu), la fin (accord final qui résonne, ou
+   silence). À défaut, l'accent grave de la mesure de 4 temps départage.
+5. Boucle : du premier temps 1 « plein » (une entrée en fondu est écartée) au plus grand multiple
+   de 32 temps (à défaut 16, puis 8) avant la fin de la musique ; la résonance de l'accord final
+   reste hors de la boucle.
 
-Limite assumée : l'analyse trouve le temps et la mesure, pas le début d'une phrase de 8 temps
-(deux candidats à 4 temps d'écart). Le registre accepte un décalage manuel ; la validation finale
-se fait **à l'oreille** par le propriétaire.
+Limite assumée : le temps 1 est une **déduction**, pas une écoute. Deux réglages manuels existent,
+sans nouvelle génération : `--decaler` (temps 1) et `--temps` (longueur de boucle, pour ne garder
+qu'une section). La validation finale se fait **à l'oreille** par le propriétaire.
+
+### Piste kizomba (mesure du 21 novembre 2026)
+
+| Mesure | Valeur |
+|---|---|
+| Tempo | 101,994 bpm pour 102 demandés ; identique à 0,02 bpm près sur les trois tiers |
+| Dérive | 3 ms |
+| Temps 1 | 0,026 s : début de la musique, changement de section au temps 65, fin au temps 97 — tous sur un temps 1 de phrase |
+| Boucle | 96 temps (12 phrases de 8), de 0,026 s à 56,50 s |
+| Structure | 32 temps d'introduction, 32 temps avec le charleston, relance de 3 temps, 32 temps pleins (+ 4,5 dB), accord final |
+
+Deux remarques pour l'écoute : le morceau fait une courte relance (trois temps presque vides avant
+la section pleine) malgré « no breakdown » ; la boucle repasse de la section pleine à
+l'introduction, plus légère.
 
 ## Conditions d'usage (relevé du 21 novembre 2026, à confirmer par le propriétaire)
 
@@ -186,8 +215,9 @@ publication. L'app et la documentation indiquent que la musique est générée p
    export.
 5. Fondu de raccord : le tampon est continu au point de raccord, inchangé ailleurs.
 6. Analyse de tempo sur un signal de synthèse au tempo et à la phase connus : tempo à ± 0,05 bpm,
-   premier temps à ± 5 ms, premier temps de mesure retrouvé, dérive nulle ; une dérive injectée est
-   détectée.
+   premier temps à ± 5 ms, premier temps de mesure retrouvé, dérive nulle ; un tempo qui accélère
+   est signalé ; une entrée en fondu est écartée de la boucle ; un accord final reste hors de la
+   boucle et un changement de section désigne le temps 1.
 7. Registre : pour chaque piste, fichier présent, `beats` multiple de 8, boucle contenue dans le
    fichier, tempo dans la plage du curseur, prompt et date renseignés.
 8. Piste absente ou illisible : repli sur la synthèse, message à l'écran.
@@ -198,11 +228,17 @@ publication. L'app et la documentation indiquent que la musique est générée p
 
 ## Points ouverts (propriétaire)
 
-- **Clé ElevenLabs** : où la lire, et accord pour la dépense de crédits.
+- **Écoute de la piste kizomba** : temps 1 sur un transfert d'appui, raccord de boucle, qualité ;
+  boucle entière (96 temps) ou section pleine seule (`--decaler kizomba=64 --temps kizomba=32`).
+- **Cinq autres pistes** : accord pour environ 4 500 crédits (une prise par style), prompts de
+  `scripts/musique_prompts.mjs` à relire.
 - **Publication des pistes** dans un dépôt public : conforme aux conditions de l'offre ?
-- **Kizomba à 102 bpm** (prompt tel quel) : le tempo conseillé de la kizomba devient celui de la
-  piste. Alternative : demander 90 bpm.
+- **Kizomba à 102 bpm** (prompt tel quel) : le bouton « Tempo de la piste » règle le curseur sur
+  102. Alternative : demander 90 bpm.
 - **Synthèse** : gardée en repli et en option (choix de ce chantier), ou retirée.
 - **Hauteur au changement de tempo** : choix de la lecture en vitesse variable (calage exact,
   hauteur modifiée) plutôt que d'un étirement temporel (hauteur conservée, artefacts et calage
   moins sûr).
+- **Clé ElevenLabs** : elle n'est pas dans le Vault ; elle est lue depuis un fichier
+  d'environnement local du propriétaire, hors dépôt (`node --env-file=…`). La déposer dans le
+  Vault éviterait de dépendre de ce fichier.
