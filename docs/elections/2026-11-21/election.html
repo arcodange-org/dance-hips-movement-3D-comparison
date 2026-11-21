@@ -1,6 +1,6 @@
 <title>Élections de variantes</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@400;500;600&display=swap">
 <style>
   /* Mise en page : une colonne de bulletins ; dans chaque bulletin, les deux films côte à côte
      (empilés sur téléphone), puis l'urne (choix, commentaire, enregistrement). */
@@ -17,8 +17,8 @@
     --warn-soft: #fbecd3;
     --screen: #0a111c;
     --screen-ink: #e9eef5;
-    --display: "Bricolage Grotesque", "Inter", system-ui, sans-serif;
-    --text: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --display: "Bricolage Grotesque", "Instrument Sans", system-ui, sans-serif;
+    --text: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -158,7 +158,7 @@
       </div>
       <h2 id="q1-title">Ida e volta en paire : quel pied bouge chez le suiveur ?</h2>
       <p class="scene">Le couple est en quinconce. Aux temps 1 et 2, le leader avance son pied gauche puis le ramène. Le suiveur recule en même temps : avec le pied opposé (son droit), ou avec le même pied (son gauche) ?</p>
-      <p class="film">Film : 8 temps, kizomba, 90 bpm, avec les muscles, en boucle. Le leader est celui qui avance au temps 1.</p>
+      <p class="film">Film : 8 temps, kizomba, 90 bpm, avec les muscles, en boucle. Vue de côté : le suiveur est à gauche, le leader (« Guideur ») à droite.</p>
     </div>
     <div class="count">
       <table>
@@ -216,21 +216,27 @@
         <span>issue <a href="https://github.com/arcodange-org/dance-hips-movement-3D-comparison/issues/72">#72</a></span>
       </div>
       <h2 id="q2-title">Où passe la ligne de danse ?</h2>
-      <p class="scene">Sortie garçon, vue de dessus. Les deux films montrent exactement le même mouvement : seule la ligne rose tracée au sol change de direction.</p>
-      <p class="film">Film : 5 temps, kizomba, 90 bpm, avec les muscles, en boucle.</p>
+      <p class="scene">Sortie garçon, vue de dessus. Les deux films montrent exactement le même mouvement, où le couple avance d'environ 70 cm : seule la ligne rose tracée au sol change de direction.</p>
+      <p class="film">Film : 5 temps, kizomba, 90 bpm, avec les muscles, en boucle. Le leader est au premier plan, de dos.</p>
     </div>
     <div class="cands">
       <article class="cand" data-cand="A">
         <div class="screen"><img src="q2-ligne-A-perpendiculaire.gif" alt="Sortie garçon vue de dessus, version A : la ligne de danse passe entre les deux danseurs." width="440" height="472"><span class="letter"><b>A</b>aujourd'hui</span></div>
         <h3>Perpendiculaire aux bustes</h3>
         <p class="what">La ligne passe entre les deux danseurs, parallèle à leurs épaules au départ.</p>
-        <ul class="measures"><li>Aucune mesure : le mouvement est identique, seul le tracé change</li></ul>
+        <ul class="measures">
+          <li>Le couple se déplace <strong>en travers</strong> de la ligne</li>
+          <li>Aucune autre mesure : le mouvement est identique, seul le tracé change</li>
+        </ul>
       </article>
       <article class="cand" data-cand="B">
         <div class="screen"><img src="q2-ligne-B-axe-des-bustes.gif" alt="Sortie garçon vue de dessus, version B : la ligne de danse traverse les deux danseurs." width="440" height="472"><span class="letter"><b>B</b>variante</span></div>
         <h3>Dans l'axe des bustes</h3>
         <p class="what">La ligne traverse les deux danseurs, de l'un à l'autre, dans la direction où ils se font face au départ.</p>
-        <ul class="measures"><li>Aucune mesure : le mouvement est identique, seul le tracé change</li></ul>
+        <ul class="measures">
+          <li>Le couple se déplace <strong>le long</strong> de la ligne</li>
+          <li>Aucune autre mesure : le mouvement est identique, seul le tracé change</li>
+        </ul>
       </article>
     </div>
     <form class="urn" novalidate>

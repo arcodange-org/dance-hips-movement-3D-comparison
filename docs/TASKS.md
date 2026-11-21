@@ -303,9 +303,10 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 ## Élections de variantes en GIF (#148)
 
 - [x] Issue #148 et spécification poussée en premier ([spec](spec-elections-variantes.md)).
-- [ ] Prototypes derrière `?essai=` (`src/essais.ts`) : ida même pied (#86), ligne dans l'axe des bustes (#72), marche déroulée (#73), croisé à pas égaux (#56).
-- [ ] GIFs des candidats, avec les muscles (`docs/elections/2026-11-21/`).
-- [ ] Page d'élection publiée, lien donné au propriétaire.
-- [ ] Votes recopiés mot pour mot dans les issues ; variantes élues implémentées, interrupteurs retirés.
-- [ ] #67 (distance bassin-bassin) : candidats à étudier, sinon second tour.
-
+- [x] Prototypes derrière `?essai=` (`src/essais.ts`) : ida même pied (#86), ligne dans l'axe des bustes (#72), marche déroulée (#73) ; `temoin` pour filmer l'actuel hors du mode paire.
+- [x] Mesures des candidats sur le vrai GLB (`scripts/mesure_essai_ida.mjs`, `scripts/mesure_essai_marche.mjs`).
+- [x] GIFs des candidats, avec les muscles ([premier tour](elections/2026-11-21/README.md)).
+- [x] Page d'élection publiée (source : `docs/elections/2026-11-21/election.html`), lien donné au propriétaire.
+- [ ] Votes du propriétaire (Q1 #86/#144, Q2 #72, Q3 #73).
+- [ ] Votes recopiés mot pour mot dans les issues ; variantes élues implémentées dans une PR propre, interrupteurs retirés.
+- [ ] Second tour : #56 (croisé de la sortie garçon, géométrie du couple à régler pour chaque piste) et #67 (distance bassin-bassin, même figure à filmer à plusieurs distances).

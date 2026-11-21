@@ -28,6 +28,14 @@ et les specs. Résumé de la journée du 21 :
   reproductible `graine=N`, `auto=1`). `src/guidage.ts` : `planGuide(commandes, motions, until, { modes,
   seed, offered })`, `GUIDE_AUTO`, `autoFigure` ; un plan ne réécrit jamais son passé
   ([spec](docs/spec-jeu-file-auto.md)).
+- **#148 (PR #149, brouillon : dossier de décision)** : élections de variantes en GIF. Le propriétaire tranche
+  les questions de mouvement en élisant un candidat filmé, avec un commentaire optionnel. Premier tour :
+  ida e volta, pied opposé ou même pied (#86, #144) ; ligne de danse perpendiculaire aux bustes ou dans
+  leur axe (#72) ; marche hors figure à plat ou déroulée (#73). Reportées : #56, #67. Candidats derrière
+  `?essai=` (`src/essais.ts`, inertes sans le paramètre), mesures `scripts/mesure_essai_*.mjs`, films et
+  page dans [`docs/elections/2026-11-21/`](docs/elections/2026-11-21/README.md)
+  ([spec](docs/spec-elections-variantes.md)). Rien n'est implémenté avant le vote ; le choix et le
+  commentaire sont recopiés mot pour mot dans l'issue.
 - PR brouillon en relecture du propriétaire : #117 (ontologie), #76 (audit).
 - Pièges : `npm test` complet dure 25 min ou plus en local. Lancer ses scripts en parallèle, un journal
   par script, le ramène à une dizaine de minutes ; `test_placements` et `test_plexus` rejouent d'autres

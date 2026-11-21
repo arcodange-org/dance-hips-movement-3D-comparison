@@ -72,3 +72,22 @@ standard d'une contribution (phase) :
 - Laisser du debug (`window.__dbg`, console.log) dans les commits.
 - Modifier des fichiers générés à la main sans le workflow prévu (GLB : scripts documentés dans
   README/ADR, avec vérification des échelles de compensation de quantification).
+
+## 7. Trancher une question de mouvement : élection de variantes (#148)
+
+Quand une décision de mouvement attend le propriétaire (quel pied, quelle direction, quel seuil), on
+ne la pose pas en mots : on filme les candidats et il en élit un
+([spec](../docs/spec-elections-variantes.md), exemple : [premier tour](../docs/elections/2026-11-21/README.md)).
+
+1. Un candidat = un interrupteur d'essai dans `src/essais.ts`, actif seulement avec `?essai=cle`
+   (ou `ESSAI=cle` en node pour mesurer). Les tests restent verts sans y toucher : c'est la preuve
+   que l'interrupteur est inerte.
+2. Mesurer chaque candidat sur le vrai GLB (`scripts/mesure_essai_*.mjs`) et vérifier sur une image
+   fixe (`scripts/capture_still.mjs`) que la différence se voit avant de filmer.
+3. Un GIF par candidat (`scripts/capture_figure_gif.mjs`), avec les muscles, même cadrage et même
+   durée, une capture à la fois, dans `docs/elections/<date>/`.
+4. Page d'élection : candidats côte à côte, une scène concrète, les mesures, un choix (dont « aucune
+   ne convient ») et un commentaire optionnel. La page ne dit pas quelle variante est la bonne.
+5. Recopier le vote et le commentaire mot pour mot dans l'issue, implémenter la variante élue dans
+   une PR propre, retirer l'interrupteur. Une question dont les candidats ne se prototypent pas
+   proprement est reportée, avec sa raison.

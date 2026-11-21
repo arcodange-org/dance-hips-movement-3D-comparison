@@ -102,8 +102,9 @@ même figure filmée à plusieurs distances, ce qui demande de régler à nouvea
 
 ## Page d'élection
 
-- Un Artifact privé : pour chaque question, les GIFs côte à côte, la scène en une phrase, les
-  mesures, un choix à cocher, un commentaire optionnel.
+- Un Artifact privé ([page du premier tour](https://claude.ai/artifact/SzBbjQosJqsvLtotRzuRp2), ouvrable par le propriétaire seul) : pour
+  chaque question, les GIFs côte à côte, la scène en une phrase, les mesures, un choix à cocher, un
+  commentaire optionnel.
 - Les réponses sont conservées avec la page (un document par question : `votes/q1`, `votes/q2`,
   `votes/q3`), pour être relues par la session qui porte le chantier.
 - La source de la page et les GIFs sont dans le dépôt (`docs/elections/2026-11-21/`, page
