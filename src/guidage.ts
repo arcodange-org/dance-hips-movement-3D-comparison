@@ -95,32 +95,50 @@ export function figureOptions(kind: GuideKind): { idaVariant: IdaVariant; marche
 }
 
 /** Proposals to validate (owner):
- * - `prep`: an intention counts for a boundary at least this many beats later (0: up to the boundary
- *   itself, so a press on the beat of the boundary is taken; the leader's chest still leads by 0.25 beat);
  * - `baseGrid`: the basic step can be left every `baseGrid` beats (style periods divide 4);
- * - `window`: during a figure, intentions are taken in its last `window` beats only;
  * - `inertia`: beats over which a pelvis residual at a boundary fades out (quintic, no overshoot);
  * - `double`: a second ↑ within this many beats of the first turns the walk into the double (#89);
- * - `chord`: the ida's key pressed this many beats after ↓ (held) replaces the walk backwards (#89);
- * - `chain`: ↑ pressed during the sortie fille from this beat on (and before her position 3) chains it
- *   into the end of the sortie garçon (#90); the ida's key during a sortie from this beat on (and before
- *   its position 2) inserts an ida e volta (#91).
+ * - `chord`: the ida's key pressed this many beats after ↓ (held) replaces the walk backwards (#89).
+ * #140: the timing challenge is gone (no preparation window, no grade): every command is queued.
  */
-export const GUIDE = { prep: 0, baseGrid: 4, window: 2, inertia: 1, double: 0.5, chord: 1, chain: 1 };
+export const GUIDE = { baseGrid: 4, inertia: 1, double: 0.5, chord: 1 };
 
-/** Grades of a press against the nearest beat: ±min(ms, share of a beat). */
-export const GUIDE_GRADES = [
-  { grade: "Parfait", ms: 50, share: 0.08 },
-  { grade: "Bien", ms: 100, share: 0.15 },
-  { grade: "Juste", ms: 160, share: 0.25 },
-] as const;
-export type GuideGrade = "Parfait" | "Bien" | "Juste" | "Raté";
+/** #140 (owner: « ça danse tout seul : à chaque position le choix de faire le début d'une figure si
+ * possible ou de terminer l'actuelle. Toutes les 4 mesures de 8 temps on essaie d'être en position
+ * neutre mais ce n'est pas obligatoire »): the automatic dance (docs/spec-jeu-file-auto.md).
+ * - `phrase`: beats of a phrase (4 bars of 8 beats); the draw prefers a neutral position on its end;
+ * - at the neutral position, weights: `family` for each of the ida e volta (its variants together), the
+ *   quarter turn and the two sorties, `walk` for each walk; × `fit` when the figure ends exactly on the
+ *   phrase, × `overshoot` when it runs past it, × `repeat` for the family just danced, × `realign` for
+ *   the sortie fille when the dance is one beat off (its chain is the only odd figure);
+ * - at a junction of a sortie, probability of starting the other figure: `junction`, `junctionFit` when
+ *   it then ends exactly on the phrase, `junctionStay` when finishing the sortie does; for the chain
+ *   (9 beats, it shifts the dance by one beat): `chainEven` on the beat, `chainOdd` when already off. */
+export const GUIDE_AUTO = {
+  phrase: 32, family: 3, walk: 1, fit: 4, overshoot: 0.25, repeat: 0.3, realign: 3,
+  junction: 0.3, junctionFit: 0.8, junctionStay: 0.05, chainEven: 0.15, chainOdd: 0.9,
+};
 
-export interface GuideIntention { beat: number; figure: GuideFigure; bpm: number }
-export type GuideVerdict = "accepté" | "ambigu" | "trop tôt" | "trop tard" | "répété" | "en attente";
+/** A command: the figure asked for, dated on the beat clock. */
+export interface GuideIntention { beat: number; figure: GuideFigure }
+/** #140: what became of a command. « en file »: waiting behind others; « en cours »: being danced;
+ * « dansée »: done; « insérée », « enchaînée »: it changed the sortie under way (#91, #90). */
+export type GuideStatus = "en file" | "en cours" | "dansée" | "insérée" | "enchaînée";
 export interface GuideOutcome {
-  intention: GuideIntention; grade: GuideGrade; errorMs: number;
-  verdict: GuideVerdict; boundary: number | null; streak: number;
+  intention: GuideIntention; status: GuideStatus;
+  /** Beat at which it starts (its boundary, or the junction of the sortie it changes); null while it waits. */
+  start: number | null;
+}
+/** #140: Space switches between listening to the commands (`auto: false`, the default) and the automatic dance. */
+export interface GuideModeChange { beat: number; auto: boolean }
+export interface GuideOptions {
+  modes?: GuideModeChange[];
+  /** Seed of the automatic dance (same seed, same dance). */
+  seed?: number;
+  /** Figures the style offers (the automatic dance draws from them). */
+  offered?: GuideFigure[];
+  /** Tests: draw with equal weights, without the phrase preference. */
+  plain?: boolean;
 }
 /** Rigid transform of the couple frame: yaw about +y then translation (three.js rotation.y convention). */
 export interface CoupleTransform { yaw: number; x: number; z: number }
@@ -133,6 +151,8 @@ export interface GuideSegment {
   residual: { leader: Offset; follower: Offset };
   /** Segment danced before this one (its pelvis height is inertialized by the view, src/guidagePose.ts). */
   previous: GuideKind | null;
+  /** #140: a command of the player, or a choice of the automatic dance (the basic step: neither). */
+  by?: "commande" | "auto";
 }
 /** Motion of one figure: couple transform from its start to its end, and the pelvis residual of each
  * dancer (own frame) the next segment starts with. */
@@ -209,98 +229,135 @@ export function guideMotions(g: GuideRig): GuideMotions {
   return motions;
 }
 
-export function gradeOf(beat: number, bpm: number): { grade: GuideGrade; errorMs: number } {
-  const error = beat - Math.round(beat);
-  const beatMs = 60000 / Math.max(1e-6, bpm);
-  const errorMs = error * beatMs;
-  for (const w of GUIDE_GRADES) if (Math.abs(errorMs) <= Math.min(w.ms, w.share * beatMs)) return { grade: w.grade, errorMs };
-  return { grade: "Raté", errorMs };
+/** #140: deterministic draw in [0, 1) from the seed and a decision key (a mulberry32 step). */
+export function guideDraw(seed: number, key: number): number {
+  let t = (Math.imul(seed | 0, 0x9E3779B1) + Math.imul(key | 0, 0x85EBCA6B) + 0x6D2B79F5) | 0;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+/** Family of a figure (the automatic dance avoids repeating one). */
+export const guideFamilyOf = (kind: GuideKind): string =>
+  kind === "base" ? "base" : GUIDE_FIGURES[kind].marche ? "marche" : GUIDE_FIGURES[kind].movement;
+const onPhrase = (beat: number) => { const m = ((beat % GUIDE_AUTO.phrase) + GUIDE_AUTO.phrase) % GUIDE_AUTO.phrase; return m < 1e-6 || GUIDE_AUTO.phrase - m < 1e-6; };
+/** The dance is one beat off the bars (after an odd number of chains): its boundaries fall on odd beats. */
+const offBeat = (beat: number) => Math.abs((((beat % 2) + 2) % 2) - 1) < 1e-6;
+
+/** #140: figure the automatic dance starts at a neutral position (`boundary`), after `previous`. */
+export function autoFigure(seed: number, boundary: number, previous: GuideKind, offered: GuideFigure[], plain = false): GuideFigure | null {
+  const A = GUIDE_AUTO;
+  const candidates = offered.filter(f => !GUIDE_FIGURES[f].chain && !GUIDE_FIGURES[f].insert);
+  if (!candidates.length) return null;
+  const into = ((boundary % A.phrase) + A.phrase) % A.phrase, remaining = A.phrase - into;
+  const size: Record<string, number> = {};
+  for (const f of candidates) size[guideFamilyOf(f)] = (size[guideFamilyOf(f)] ?? 0) + 1;
+  const weights = candidates.map(f => {
+    if (plain) return 1;
+    const family = guideFamilyOf(f), beats = GUIDE_FIGURES[f].beats;
+    let w = family === "marche" ? A.walk : A.family / size[family];
+    if (Math.abs(beats - remaining) < 1e-6) w *= A.fit;
+    else if (beats > remaining) w *= A.overshoot;
+    if (family === guideFamilyOf(previous)) w *= A.repeat;
+    if (f === "sortieF" && offBeat(boundary) && offered.includes("sortieFG")) w *= A.realign;
+    return w;
+  });
+  const total = weights.reduce((a, w) => a + w, 0);
+  let u = guideDraw(seed, Math.round(boundary * 8) * 4) * total;
+  for (let i = 0; i < candidates.length; i++) { u -= weights[i]; if (u < 0) return candidates[i]; }
+  return candidates[candidates.length - 1];
 }
 
-export interface GuidePlan { segments: GuideSegment[]; outcomes: GuideOutcome[] }
+export interface GuidePlan {
+  segments: GuideSegment[]; outcomes: GuideOutcome[];
+  /** #140: figures waiting in the queue, in order. */
+  queue: GuideFigure[];
+  /** #140: the automatic dance is on at `until`. */
+  auto: boolean;
+}
 
-/** Segments up to `until` (beats) and the verdict of each intention. Intentions are sorted by beat;
- * one with `beat > until` is ignored (not pressed yet). */
-export function planGuide(intentions: GuideIntention[], motions: GuideMotions, until: number): GuidePlan {
+/** Segments up to `until` (beats) and what became of each command (#140: a queue, nothing is refused
+ * nor graded). Commands are sorted by beat; one with `beat > until` is ignored (not pressed yet).
+ * - At each boundary (end of a figure, every `baseGrid` beats of the basic step) the first command of the
+ *   queue starts; the queue empty, the automatic dance draws a figure when it is on, else the basic step
+ *   goes on.
+ * - During a sortie, before its junction, two commands change the sortie instead of being queued: the
+ *   ida's key (any variant) inserts the ida e volta at its position 2 (#91), ↑ chains the sortie fille
+ *   into the end of the sortie garçon at its position 3 (#90). The automatic dance draws the same choice
+ *   at each junction (« le début d'une figure si possible ou terminer l'actuelle »). */
+export function planGuide(intentions: GuideIntention[], motions: GuideMotions, until: number, options: GuideOptions = {}): GuidePlan {
   const list = intentions.filter(i => Number.isFinite(i.beat) && i.beat <= until)
     .map((intention, order) => ({ intention, order })).sort((a, b) => a.intention.beat - b.intention.beat || a.order - b.order);
+  const modes = (options.modes ?? []).filter(m => Number.isFinite(m.beat) && m.beat <= until).sort((a, b) => a.beat - b.beat);
+  const autoAt = (beat: number) => { let auto = false; for (const m of modes) { if (m.beat <= beat + 1e-9) auto = m.auto; else break; } return auto; };
+  const offered = options.offered ?? GUIDE_FIGURE_KEYS, seed = options.seed ?? 0, plain = !!options.plain;
   const outcomes: GuideOutcome[] = new Array(list.length);
   const segments: GuideSegment[] = [];
   let current: GuideSegment = { kind: "base", start: 0, end: Infinity, couple: IDENTITY, residual: { leader: ZERO, follower: ZERO }, previous: null };
   segments.push(current);
-  let next = 0; // first intention not yet assigned to a boundary
-  let streak = 0;
-  const settle = (index: number, verdict: GuideVerdict, boundary: number | null) => {
-    const { intention } = list[index];
-    const g = gradeOf(intention.beat, intention.bpm);
-    // A miss halves the streak; only a received lead on time (Parfait, Bien) extends it.
-    if (g.grade === "Raté") streak = Math.floor(streak / 2);
-    else if (verdict === "accepté" && g.grade !== "Juste") streak++;
-    outcomes[list[index].order] = { intention, ...g, verdict, boundary, streak };
+  let next = 0; // first command not yet read
+  const queue: number[] = []; // commands waiting, in order
+  const started = new Map<number, GuideSegment>(); // command → the segment it started
+  const settle = (index: number, status: GuideStatus, start: number | null) => {
+    outcomes[list[index].order] = { intention: list[index].intention, status, start };
   };
   let previousBoundary = 0;
   const consumed = new Set<number>();
   for (let guard = 0; guard < 100000; guard++) {
-    // #90: ↑ during the sortie fille, before her position 3, chains it into the end of the sortie garçon
-    // (the poses up to position 3 are the sortie fille's: the segment changes kind without a jump).
-    // #91: the ida's key (any variant) during a sortie, before its position 2, inserts the ida e volta
-    // there (the poses up to position 2 are the sortie's).
+    // Junctions of the sortie under way: position 2 (#91, ida e volta inserted), then position 3 of the
+    // sortie fille (#90, end of the sortie garçon). The poses up to the junction are the sortie's: the
+    // segment changes kind without a jump. A command pressed during the sortie decides; else the
+    // automatic dance draws, once the junction is reached.
     if (current.kind === "sortieF" || current.kind === "sortieG") {
-      const from = current.start + GUIDE.chain, to = current.start + INSERTION_AT;
-      for (let i = next; i < list.length && list[i].intention.beat < to; i++) {
+      const host = current.kind, insertAt = current.start + INSERTION_AT, chainAt = current.start + CHAIN_FROM;
+      const junction = host === "sortieF" ? chainAt : insertAt;
+      for (let i = next; i < list.length && list[i].intention.beat < junction; i++) {
         const { beat, figure } = list[i].intention;
-        if (GUIDE_FIGURES[figure].movement !== "ida" || GUIDE_FIGURES[figure].marche || beat < from || consumed.has(i)) continue;
-        current.kind = current.kind === "sortieF" ? "sortieFI" : "sortieGI";
-        consumed.add(i);
-        settle(i, "accepté", to);
-        break;
+        if (consumed.has(i)) continue;
+        const def = GUIDE_FIGURES[figure];
+        if (def.movement === "ida" && !def.marche && beat < insertAt && offered.includes(host === "sortieF" ? "sortieFI" : "sortieGI")) {
+          current.kind = host === "sortieF" ? "sortieFI" : "sortieGI"; consumed.add(i); settle(i, "insérée", insertAt); break;
+        }
+        if (figure === "avance" && host === "sortieF" && offered.includes("sortieFG")) {
+          current.kind = "sortieFG"; consumed.add(i); settle(i, "enchaînée", chainAt); break;
+        }
       }
-    }
-    if (current.kind === "sortieF") {
-      const from = current.start + GUIDE.chain, to = current.start + CHAIN_FROM;
-      for (let i = next; i < list.length && list[i].intention.beat < to; i++) {
-        const { beat, figure } = list[i].intention;
-        if (figure !== "avance" || beat < from || consumed.has(i)) continue;
-        current.kind = "sortieFG";
-        consumed.add(i);
-        settle(i, "accepté", to);
-        break;
+      const A = GUIDE_AUTO, stay = current.start + GUIDE_FIGURES[host].beats;
+      const inserted: GuideFigure = host === "sortieF" ? "sortieFI" : "sortieGI";
+      if (current.kind === host && until >= insertAt && autoAt(insertAt) && offered.includes(inserted)) {
+        const p = plain ? A.junction : onPhrase(current.start + GUIDE_FIGURES[inserted].beats) ? A.junctionFit : onPhrase(stay) ? A.junctionStay : A.junction;
+        if (guideDraw(seed, Math.round(insertAt * 8) * 4 + 1) < p) { current.kind = inserted; current.by = "auto"; }
+      }
+      if (current.kind === "sortieF" && until >= chainAt && autoAt(chainAt) && offered.includes("sortieFG")) {
+        const p = plain ? A.junction : offBeat(current.start) ? A.chainOdd : A.chainEven;
+        if (guideDraw(seed, Math.round(chainAt * 8) * 4 + 2) < p) { current.kind = "sortieFG"; current.by = "auto"; }
       }
     }
     const boundary = current.kind === "base"
       ? current.start + GUIDE.baseGrid * Math.max(1, Math.ceil((previousBoundary - current.start + 1e-9) / GUIDE.baseGrid))
       : current.start + GUIDE_FIGURES[current.kind].beats;
-    // Intentions whose preparation ends by this boundary.
-    const taken: number[] = [];
-    while (next < list.length && list[next].intention.beat + GUIDE.prep <= boundary + 1e-9) { if (!consumed.has(next)) taken.push(next); next++; }
-    // During a figure, a lead is prepared in its last beats: earlier presses are refused (just after
-    // its start: late for the previous boundary; later: too early for this one).
-    const refused = (i: number) => current.kind !== "base" && list[i].intention.beat < boundary - GUIDE.window;
-    const distinct = [...new Set(taken.filter(i => !refused(i)).map(i => list[i].intention.figure))];
-    const reached = boundary <= until;
-    const choice: GuideFigure | null = reached && distinct.length === 1 ? distinct[0] : null;
-    let counted = false;
-    for (const i of taken) {
-      const beat = list[i].intention.beat;
-      if (refused(i)) settle(i, beat < current.start + 0.5 ? "trop tard" : "trop tôt", null);
-      else if (!reached) settle(i, "en attente", boundary);
-      else if (distinct.length > 1) settle(i, "ambigu", boundary);
-      else { settle(i, counted ? "répété" : "accepté", boundary); counted = true; }
-    }
-    if (!reached) {
-      // Pressed but meant for a later boundary.
-      for (let i = next; i < list.length; i++) if (!consumed.has(i)) settle(i, "en attente", null);
-      break;
-    }
+    // Commands pressed by this boundary join the queue (a press on the beat of the boundary included).
+    while (next < list.length && list[next].intention.beat <= boundary + 1e-9) { if (!consumed.has(next)) queue.push(next); next++; }
+    if (boundary > until) break;
     previousBoundary = boundary;
+    const command = queue.shift();
+    const choice: GuideFigure | null = command !== undefined ? list[command].intention.figure
+      : autoAt(boundary) ? autoFigure(seed, boundary, current.kind, offered, plain) : null;
     if (current.kind === "base" && !choice) continue; // keep dancing the basic step
     const motion = motions[current.kind];
     const couple = compose(current.couple, motion.couple);
     current.end = boundary;
-    current = { kind: choice ?? "base", start: boundary, end: Infinity, couple, residual: motion.residual, previous: current.kind };
+    current = { kind: choice ?? "base", start: boundary, end: Infinity, couple, residual: motion.residual, previous: current.kind,
+      ...(choice ? { by: command !== undefined ? "commande" as const : "auto" as const } : {}) };
     segments.push(current);
+    if (command !== undefined) started.set(command, current);
   }
-  return { segments, outcomes };
+  for (const [index, segment] of started) settle(index, segment === current ? "en cours" : "dansée", segment.start);
+  // The head of the queue starts at the next boundary; the others wait behind it.
+  const ahead = current.kind === "base"
+    ? current.start + GUIDE.baseGrid * Math.max(1, Math.ceil((previousBoundary - current.start + 1e-9) / GUIDE.baseGrid))
+    : current.start + GUIDE_FIGURES[current.kind].beats;
+  queue.forEach((index, k) => settle(index, "en file", k === 0 ? ahead : null));
+  return { segments, outcomes, queue: queue.map(index => list[index].intention.figure), auto: autoAt(until) };
 }
 
 /** Quintic fade of an inertialized residual (Bollo): 1 → 0 over `GUIDE.inertia` beats, flat at both ends. */
@@ -375,29 +432,35 @@ export const GUIDE_DEMO_INSERT: { beat: number; figure: GuideFigure }[] = [
   { beat: 3.9, figure: "sortieG" }, { beat: 5.5, figure: "ida" }, { beat: 11.9, figure: "sortieF" }, { beat: 13.5, figure: "ida" },
 ];
 
-/** Live wrapper used by the view: intentions are appended as keys are pressed. */
+/** Live wrapper used by the view: commands are appended as keys are pressed, mode changes as Space is. */
 export class GuideSession {
   intentions: GuideIntention[] = [];
+  /** #140: switches between listening (the default) and the automatic dance. */
+  modes: GuideModeChange[] = [];
+  seed = 1;
+  offered: GuideFigure[] = GUIDE_FIGURE_KEYS;
   motions: GuideMotions | null = null;
   boundKey: string | null = null;
   private cache: { key: string; plan: GuidePlan } | null = null;
   bind(g: GuideRig, key = "") { this.motions = guideMotions(g); this.boundKey = key; this.cache = null; }
-  press(beat: number, figure: GuideFigure, bpm: number) {
-    // #89: ↑ ↑ in quick succession leads the double (one intention, graded on the first press).
-    // ↓ held then the ida's key: the ↓ press was a walk backwards until the key came; the ida variant
-    // replaces it (graded on the key).
+  press(beat: number, figure: GuideFigure) {
+    // #89: ↑ ↑ in quick succession leads the double (one command). ↓ held then the ida's key: the ↓ press
+    // was a walk backwards until the key came; the ida variant replaces it.
     const last = this.intentions[this.intentions.length - 1];
     if (figure === "avance" && last?.figure === "avance" && beat - last.beat <= GUIDE.double) last.figure = "double";
     else if ((figure === "idaArr" || figure === "idaArrD") && last?.figure === "recule" && beat - last.beat <= GUIDE.chord)
-      Object.assign(last, { beat, figure, bpm });
-    else this.intentions.push({ beat, figure, bpm });
+      Object.assign(last, { beat, figure });
+    else this.intentions.push({ beat, figure });
     this.cache = null;
   }
-  reset() { this.intentions = []; this.cache = null; }
+  /** The automatic dance is on (after the last mode change). */
+  get auto(): boolean { return this.modes.length ? this.modes[this.modes.length - 1].auto : false; }
+  setAuto(beat: number, auto: boolean) { this.modes.push({ beat, auto }); this.cache = null; }
+  reset(auto = false) { this.intentions = []; this.modes = auto ? [{ beat: 0, auto: true }] : []; this.cache = null; }
   plan(beat: number): GuidePlan | null {
     if (!this.motions) return null;
-    const key = `${this.intentions.length}:${Math.floor(beat * 8)}`;
-    if (this.cache?.key !== key) this.cache = { key, plan: planGuide(this.intentions, this.motions, beat) };
+    const key = `${this.intentions.length}:${this.modes.length}:${Math.floor(beat * 8)}`;
+    if (this.cache?.key !== key) this.cache = { key, plan: planGuide(this.intentions, this.motions, beat, { modes: this.modes, seed: this.seed, offered: this.offered }) };
     return this.cache.plan;
   }
   sample(beat: number): GuideSample | null {
