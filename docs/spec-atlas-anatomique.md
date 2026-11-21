@@ -328,6 +328,45 @@ par `rootOffset.y` :
 C'est la géométrie du modèle, pas une mesure sur une personne. La planche montre le relais et le
 dit dans ses limites. Décision à prendre par le propriétaire, par élection de GIFs (voir Tâches).
 
+### D14 — Variante d'élection : obliquité en genoux chevauchés
+
+Le propriétaire a demandé la variante en image, à côté de la planche actuelle (« Oui, produis-la »,
+2026-11-21). Elle sert à élire une règle. Tant qu'il n'a pas voté, la planche versionnée reste
+celle du relais.
+
+- **Règle.** `applyAtlasPose(r, model, m, angleDeg, variante)` : sans variante, la règle versionnée
+  (D7, D13). Avec `chevauchement`, le bassin est tenu à sa **hauteur la plus basse de la ROM**,
+  celle de la borne la plus basse (`rootOffset.y` du moteur). La hauteur ne change donc plus, et
+  les deux genoux fléchissent ensemble au passage par le centre. Rien d'autre ne change :
+  pieds plantés, thorax immobile, même angle de bassin.
+- **Périmètre.** `ATLAS_VARIANTES` liste les variantes par mouvement : une seule, `chevauchement`,
+  pour `bassin-obliquite`. Une variante inconnue ou demandée pour un autre mouvement est refusée
+  avec un message, dans le module comme dans la vue.
+- **Vue.** `?atlas=bassin-obliquite&variante=chevauchement`. La bande du haut affiche le nom de la
+  variante, et la clé du signal de rendu la porte. Sans le paramètre, l'URL, la clé et l'image
+  sont inchangées : les planches versionnées ne sont pas régénérées.
+- **Image d'élection.** `node scripts/capture_atlas.mjs --mouvement bassin-obliquite --variante
+  chevauchement` n'écrit aucune planche. Il capture les deux règles avec la même caméra et
+  assemble **un seul GIF synchronisé**, A (règle versionnée) à gauche, B (variante) à droite :
+  `docs/gifs/election-bassin-obliquite-chevauchement.gif`. Sous chaque colonne, les mesures de
+  l'image en cours (flexion de chaque genou, hauteur du bassin), calculées hors navigateur. Une
+  ligne fixe, à la même hauteur d'image dans les deux colonnes, marque la hauteur des hanches la
+  plus basse : en relais le bassin la dépasse au centre, en chevauchement il y reste.
+- **Page d'élection.** `docs/elections/obliquite-genoux.md` : la question, le GIF, ce que chaque
+  choix entraîne, comment voter, puis le résultat recopié mot pour mot.
+- **Test** (`scripts/test_atlas_planches.mjs`). Sur le GLB, pour la variante : hauteur du bassin
+  constante sur toute la ROM et égale au minimum de la règle versionnée ; angle de bassin mesuré
+  identique à celui de la règle versionnée ; au centre, deux genoux fléchis du même angle, nettement
+  plus que le minimum de l'IK ; à la borne la plus basse, pose identique à la règle versionnée ;
+  sol, pieds plantés, thorax immobile. Variante inconnue refusée. Sans variante, les mesures des
+  planches versionnées ne changent pas (contrôle de fraîcheur existant).
+- **Après le vote.** Relais élu : la variante et son GIF restent comme trace de l'élection, sans
+  autre effet. Chevauchement élu : il devient la règle de `bassin-obliquite`, la planche est
+  régénérée, et ses limites disent que la hauteur est tenue constante.
+- **Limite.** Tenir le bassin à hauteur constante est un choix de modèle parmi d'autres (on
+  pourrait le tenir plus bas encore, ou à mi-hauteur). Aucune des deux règles n'est mesurée sur
+  une personne.
+
 ## Tâches
 
 Voir `docs/TASKS.md`, section « Atlas anatomique ouvert (#132) ».
