@@ -6,7 +6,8 @@ l'audit de conformité. Chaque règle est citée telle quelle (verbatim) puis re
 vérifiable.
 
 Les règles chiffrées par le propriétaire (R4 : plexus à 6 cm au plus ; R8 : pas d'une longueur de pied,
-21,2 cm, et d'une largeur de hanche, 34 cm) sont mesurées à leur seuil, figure par figure, par
+21,2 cm, et d'une largeur de hanche, 34 cm ; R21 : poids qui arrive sur un temps, à 0,05 temps près) sont
+mesurées à leur seuil, figure par figure, par
 `scripts/test_ecarts_regles.mjs` (#75, dans `npm test`). Le test affiche les écarts sans échouer, mais
 échoue si une figure s'éloigne de la règle plus que la valeur enregistrée
 (`scripts/fixtures/ecarts-regles.json` ; `WRITE=1` après un changement voulu). R2 et R3 n'ont pas de
@@ -60,7 +61,7 @@ seuil chiffré : ils n'y figurent pas.
 
 | # | Règle (verbatim) | Critère vérifiable | Spec | État |
 |---|---|---|---|---|
-| R21 | « Il faut que le BPM de la musique mais surtout les beats correspondent aux transferts de poids des danseurs (qui se "balancent" en 1 ou 2 temps) » | Chaque transfert d'appui sur un temps de la musique synthétisée | [son synthétisé](spec-son-synthese.md) (#62) | non vérifié |
+| R21 | « Il faut que le BPM de la musique mais surtout les beats correspondent aux transferts de poids des danseurs (qui se "balancent" en 1 ou 2 temps) » | Chaque transfert d'appui sur un temps de la musique synthétisée | [son synthétisé](spec-son-synthese.md) (#62) | mesuré (#62, `test_ecarts_regles`) : respecté sur place (six styles, ≤ 0,045 temps) et dans les sorties (≤ 0,02) ; écarts : quarts 0,12 temps (D du leader posé à 2,88, voulu pour ne pas chevaucher le G du suiveur), ida 0,2 temps (« touch » : le poids revient sur l'autre pied à 1,2) |
 
 ## Invariants techniques (rappel)
 
