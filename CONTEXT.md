@@ -51,11 +51,15 @@ jambes ne bougent pas).
 - `meta.json` porte en plus l'avancée des hanches, la position du sacrum et la rotation du thorax
   tous axes. Chaque planche affiche le repère de position de son axe. Le test prouve chaque planche
   par les positions (deux vecteurs liés au bassin en rotation rigide, axe erroné détecté).
-- Deux élections attendent le propriétaire : rotation, thorax de face (versionné) ou buste
-  solidaire ; obliquité, genoux en relais (versionné) ou en chevauchement à hauteur constante
-  (mesures dans la spec, section « Question ouverte » ; variante à produire en GIF sur demande).
-- `main` a été fusionné deux fois dans la branche (conflits : `package.json`, `README.md`,
-  `docs/TASKS.md`, `CONTEXT.md` ; garder les deux côtés).
+- Deux élections attendent le propriétaire. Rotation : thorax de face (versionné) ou buste
+  solidaire (GIF montrés, non versionnés). Obliquité : genoux en relais (versionné) ou chevauchés,
+  bassin à hauteur constante. Cette seconde variante est produite (spec D14) :
+  `applyAtlasPose(…, "chevauchement")`, vue `?atlas=bassin-obliquite&variante=chevauchement`,
+  GIF côte à côte par `scripts/capture_atlas.mjs --variante chevauchement`, page de vote
+  [`docs/elections/obliquite-genoux.md`](docs/elections/obliquite-genoux.md). Les planches
+  versionnées ne changent pas tant que le vote n'est pas rendu.
+- `main` a été fusionné quatre fois dans la branche (conflits : `package.json`, `README.md`,
+  `docs/TASKS.md`, `CONTEXT.md`, `src/main.tsx` ; garder les deux côtés).
 
 Suite : règles de pose des 13 autres mouvements (le script les refuse pour l'instant), décision sur
 le poids versionné (≈ 2,5 Mo par mouvement, 7,4 Mo pour les trois planches du bassin), fiches muscles (prototype Blender hors dépôt :

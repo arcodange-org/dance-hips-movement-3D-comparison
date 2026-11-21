@@ -53,6 +53,8 @@ Atlas anatomique ouvert (#132) : [spec](docs/spec-atlas-anatomique.md), [dossier
 (`src/atlas.ts` pur, `src/atlasManifest.ts`, vue `?atlas=` `src/components/AtlasApp.tsx`, `scripts/capture_atlas.mjs`,
 `scripts/atlas_meta.mjs`, `scripts/test_atlas_manifest.mjs`, `scripts/test_atlas_planches.mjs`) ;
 `docs/atlas/mouvements/<id>/` est généré (ne pas modifier à la main) et doit rester à jour avec le moteur.
+Une variante de pose soumise au vote du propriétaire : `ATLAS_VARIANTES`, `?atlas=<id>&variante=<v>`, `capture_atlas.mjs --variante <v>`
+(un GIF A/B dans `docs/gifs/`), page `docs/elections/` ; la planche versionnée ne change qu'après le vote.
 
 Règles de mouvement du propriétaire, consolidées et vérifiables : [`docs/regles-proprietaire.md`](docs/regles-proprietaire.md).
 

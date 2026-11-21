@@ -26,6 +26,7 @@ Planches du bassin : [obliquité](docs/atlas/mouvements/bassin-obliquite/README.
 [rotation](docs/atlas/mouvements/bassin-rotation/README.md) et
 [antéversion](docs/atlas/mouvements/bassin-anteversion/README.md) (−15° à +15°). Chacune : 5 vues,
 9 images, mesures prises sur le squelette (`?atlas=bassin-obliquite` dans l'application).
+Obliquité, genoux en relais ou chevauchés : [élection en cours](docs/elections/obliquite-genoux.md).
 Squelette et muscles : BodyParts3D v4.0, © DBCLS, CC BY-SA 2.1 Japan ; planche générée
 paramétriquement, sans capture de mouvement ni photo de modèle.
 

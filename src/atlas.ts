@@ -2,7 +2,7 @@
 // réel, par le moteur de l'application (src/pose.ts). Module pur (aucun accès au DOM), partagé par la
 // vue de capture, scripts/capture_atlas.mjs et scripts/test_atlas_planches.mjs.
 // Le manifeste lui-même est lu par src/atlasManifest.ts (vue) ou sur le disque (scripts) : ce module
-// reste hors du chargement de l'application principale. Spécification : docs/spec-atlas-anatomique.md (D7 à D13).
+// reste hors du chargement de l'application principale. Spécification : docs/spec-atlas-anatomique.md (D7 à D14).
 import * as THREE from "three";
 import { applyPose, type PoseModel, type PoseStats } from "./pose";
 import type { RigHandle } from "./anatomy";
@@ -37,24 +37,62 @@ export function atlasSupport(m: Pick<AtlasMouvement, "rig" | "articulation" | "i
     ? "buste stylisé" : "chaîne ouverte"}) : seuls les mouvements du bassin sont posés pour l'instant (docs/TASKS.md, #132)` };
 }
 
+/** D14 : variantes d'élection d'un mouvement. La règle versionnée n'en fait pas partie : c'est l'absence de variante. */
+export interface AtlasVariante {
+  id: string; label: string; regle: string;
+  /** La règle versionnée, nommée par contraste avec cette variante. */
+  reference: { label: string; regle: string };
+  /** La question posée au propriétaire. */
+  question: string;
+}
+export const ATLAS_VARIANTES: Record<string, AtlasVariante[]> = {
+  "bassin-obliquite": [{
+    id: "chevauchement", label: "genoux chevauchés",
+    regle: "bassin tenu à sa hauteur la plus basse : les deux genoux fléchissent ensemble au centre",
+    reference: { label: "genoux en relais", regle: "bassin le plus haut que les jambes permettent : un genou fléchit après l'autre" },
+    question: "Obliquité du bassin : le genou opposé attend-il son tour ?",
+  }],
+};
+/** La variante demandée (`null` : règle versionnée), ou la raison du refus. */
+export function atlasVariante(m: Pick<AtlasMouvement, "id">, id: string | null | undefined):
+  { ok: true; variante: AtlasVariante | null } | { ok: false; raison: string } {
+  if (!id) return { ok: true, variante: null };
+  const variante = (ATLAS_VARIANTES[m.id] ?? []).find(v => v.id === id);
+  if (variante) return { ok: true, variante };
+  const connues = (ATLAS_VARIANTES[m.id] ?? []).map(v => v.id);
+  return { ok: false, raison: `variante « ${id} » inconnue pour ${m.id} (${connues.length ? "variantes : " + connues.join(", ") : "ce mouvement n'a pas de variante"})` };
+}
+
 const AXIS = { x: 0, y: 1, z: 2 } as const;
 const UNIT: Record<AtlasAxis, [number, number, number]> = { x: [1, 0, 0], y: [0, 1, 0], z: [0, 0, 1] };
 
 /** Pose le rig à `angleDeg` du mouvement, depuis la pose neutre anatomique du moteur (D7).
  * Bassin : chaîne fermée, pieds plantés ; les jambes suivent par IK et le thorax garde son orientation
  * neutre (D13). L'isolation du moteur (`iso`) compense le roulis et le tangage du bassin, pas le lacet :
- * pour l'axe `y`, la colonne contre-tourne du même angle. */
-export function applyAtlasPose(r: RigHandle, model: PoseModel, m: AtlasMouvement, angleDeg: number): PoseStats {
+ * pour l'axe `y`, la colonne contre-tourne du même angle.
+ * Sans variante, le bassin est à la hauteur la plus haute que les jambes permettent. Variante
+ * `chevauchement` (D14) : il est tenu à sa hauteur la plus basse de la ROM, donc à hauteur constante. */
+export function applyAtlasPose(r: RigHandle, model: PoseModel, m: AtlasMouvement, angleDeg: number, variante: string | null = null): PoseStats {
   const support = atlasSupport(m);
   if (!support.ok) throw new Error(`atlas ${m.id} : ${support.raison}`);
-  const rotation: [number, number, number] = [0, 0, 0];
-  const radians = angleDeg * Math.PI / 180;
-  rotation[AXIS[m.axeLocal]] = radians;
-  return applyPose(r, model, 0, {
-    neutral: true, amp: 0, travel: 0, plant: true, iso: true, cadre: true,
-    pelvisOffset: { position: [0, 0, 0], rotation },
-    trunkOffset: m.axeLocal === "y" ? [0, -radians, 0, 0, 0, 0, 0, 0, 0] : null,
-  });
+  const choix = atlasVariante(m, variante);
+  if (!choix.ok) throw new Error(`atlas ${m.id} : ${choix.raison}`);
+  const pose = (deg: number, abaissement = 0) => {
+    const rotation: [number, number, number] = [0, 0, 0];
+    const radians = deg * Math.PI / 180;
+    rotation[AXIS[m.axeLocal]] = radians;
+    return applyPose(r, model, 0, {
+      neutral: true, amp: 0, travel: 0, plant: true, iso: true, cadre: true,
+      pelvisOffset: { position: [0, 0, 0], rotation },
+      trunkOffset: m.axeLocal === "y" ? [0, -radians, 0, 0, 0, 0, 0, 0, 0] : null,
+      rootOffset: abaissement ? { x: 0, z: 0, y: abaissement } : null,
+    });
+  };
+  if (!choix.variante) return pose(angleDeg);
+  // Le moteur écrit la hauteur du bassin dans `root.position.y` et y ajoute `rootOffset.y` tel quel.
+  const hauteur = (deg: number) => { pose(deg); return r.root.position.y; };
+  const basse = Math.min(...m.romDeg.map(hauteur));
+  return pose(angleDeg, basse - hauteur(angleDeg));
 }
 
 /** Nœud dont l'orientation monde mesure le mouvement : le nœud GLB nommé par le manifeste. */
@@ -126,7 +164,7 @@ export function measureAtlasPose(r: RigHandle, m: AtlasMouvement, reference: Atl
 
 // --- Vue de capture `?atlas=` (D10) : état lu dans l'URL, clé du signal de rendu, libellés. ---
 
-export interface AtlasState { id: string; vue: AtlasVue; frame: number; frames: number; muscles: boolean }
+export interface AtlasState { id: string; vue: AtlasVue; frame: number; frames: number; muscles: boolean; variante?: string | null }
 
 export function parseAtlasParams(params: URLSearchParams): AtlasState {
   const integer = (name: string, fallback: number) => {
@@ -142,15 +180,18 @@ export function parseAtlasParams(params: URLSearchParams): AtlasState {
     frame: Math.max(0, Math.min(frames - 1, integer("frame", (frames - 1) >> 1))),
     frames,
     muscles: params.get("muscles") !== "0",
+    variante: params.get("variante") || null,
   };
 }
 
 /** Valeur de `data-atlas-rendu` quand cet état est posé et rendu. */
-export const atlasKey = (s: Pick<AtlasState, "id" | "vue" | "frame" | "frames">): string =>
-  `${s.id}|${s.vue}|${s.frame}/${s.frames}`;
+export const atlasKey = (s: Pick<AtlasState, "id" | "vue" | "frame" | "frames" | "variante">): string =>
+  `${s.id}|${s.vue}|${s.frame}/${s.frames}${s.variante ? "|" + s.variante : ""}`;
 
+/** Sans variante, l'URL est celle des planches versionnées, inchangée. */
 export const atlasQuery = (s: AtlasState): string =>
-  `atlas=${encodeURIComponent(s.id)}&vue=${s.vue}&frame=${s.frame}&frames=${s.frames}&muscles=${s.muscles ? 1 : 0}`;
+  `atlas=${encodeURIComponent(s.id)}&vue=${s.vue}&frame=${s.frame}&frames=${s.frames}&muscles=${s.muscles ? 1 : 0}${
+    s.variante ? "&variante=" + encodeURIComponent(s.variante) : ""}`;
 
 export function atlasVueLabel(vue: AtlasVue, cote: AtlasCote): string {
   const lateral = cote === "R" ? "droit" : "gauche";

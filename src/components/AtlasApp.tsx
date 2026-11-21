@@ -1,5 +1,5 @@
 // #132 — Atlas anatomique ouvert : vue de capture d'une planche « mouvement »
-// (`?atlas=<id>&vue=<vue>&frame=<n>&frames=<N>&muscles=0|1`, docs/spec-atlas-anatomique.md D10).
+// (`?atlas=<id>&vue=<vue>&frame=<n>&frames=<N>&muscles=0|1[&variante=<id>]`, docs/spec-atlas-anatomique.md D10, D14).
 // Un seul rig, posé par le moteur de l'application depuis la pose neutre ; la légende est rendue par
 // la page, dans deux bandes hors du rendu 3D (ffmpeg-static n'a pas drawtext). Socle du futur viewer :
 // ni navigation ni contrôle de caméra.
@@ -10,7 +10,7 @@ import GridFloor from "./GridFloor";
 import { createDanceClock } from "../clock";
 import { ATLAS_FOV, atlasView, type CamPreset } from "../cameras";
 import {
-  ATLAS_ATTRIBUTION, ATLAS_BANDES, atlasAngleLabel, atlasAngles, atlasKey, atlasSupport, atlasVueLabel, parseAtlasParams,
+  ATLAS_ATTRIBUTION, ATLAS_BANDES, atlasAngleLabel, atlasAngles, atlasKey, atlasSupport, atlasVariante, atlasVueLabel, parseAtlasParams,
 } from "../atlas";
 import { ATLAS_MANIFEST, atlasMouvement } from "../atlasManifest";
 
@@ -57,16 +57,19 @@ export default function AtlasApp() {
   const stats = useRef<unknown>(null);
   const mouvement = atlasMouvement(state.id);
   const support = mouvement ? atlasSupport(mouvement) : null;
+  const choix = mouvement ? atlasVariante(mouvement, state.variante) : null;
   const view = useMemo(() => atlasView(state.vue, mouvement?.cote), [state.vue, mouvement?.cote]);
 
-  if (!mouvement || !support?.ok) {
+  if (!mouvement || !support?.ok || !choix?.ok) {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-200 p-4 text-sm space-y-2">
         <p className="font-semibold">Atlas anatomique</p>
         <p>
           {mouvement && support && !support.ok
             ? `« ${mouvement.label} » : ${support.raison}.`
-            : `Mouvement inconnu : « ${state.id} ».`}
+            : mouvement && choix && !choix.ok
+              ? `« ${mouvement.label} » : ${choix.raison}.`
+              : `Mouvement inconnu : « ${state.id} ».`}
         </p>
         <p className="text-slate-400">
           Mouvements du manifeste : {ATLAS_MANIFEST.mouvements.map(m => m.id).join(", ")}.
@@ -84,6 +87,7 @@ export default function AtlasApp() {
           vue de {atlasVueLabel(state.vue, mouvement.cote)} ·{" "}
           <span className="font-mono text-teal-300">{atlasAngleLabel(angleDeg)}</span>
           <span className="text-slate-500"> · image {state.frame + 1}/{state.frames}</span>
+          {choix.variante && <span className="text-amber-300"> · variante : {choix.variante.label}</span>}
         </p>
       </div>
       <div className="relative flex-1 min-h-0">
@@ -106,7 +110,7 @@ export default function AtlasApp() {
               side={null}
               showMuscles={state.muscles}
               stats={stats}
-              atlas={{ mouvement, angleDeg }}
+              atlas={{ mouvement, angleDeg, variante: choix.variante?.id ?? null }}
             />
           </Suspense>
           <RenduSignal cle={atlasKey(state)} stats={stats} />

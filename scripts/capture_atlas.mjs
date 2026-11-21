@@ -9,12 +9,15 @@
 //   --vues face,profil    sous-ensemble des vues du manifeste
 //   --sans-muscles        squelette seul (par défaut la couche musculaire est affichée)
 //   --meta-seul           ne recalcule que meta.json (aucun navigateur)
+//   --variante <id>       image d'élection (D14) : la règle versionnée (A) et la variante (B) côte à côte,
+//                         dans un seul GIF synchronisé écrit dans docs/gifs/ ; aucune planche n'est écrite
 // Environnement : CHROME_PATH (exécutable Chromium), CAPTURE_BASE (serveur déjà lancé ; sinon le
 // script sert lui-même `dist/` sur un port libre, pour ne jamais capturer le build d'une autre session).
 // Sorties : docs/atlas/mouvements/<id>/ (images, GIF, planche, meta.json, README.md) ; assets servis
 // (meta.json, planche.png) copiés dans public/atlas/mouvements/<id>/.
-// Spécification : docs/spec-atlas-anatomique.md (D7 à D12).
+// Spécification : docs/spec-atlas-anatomique.md (D7 à D14).
 import { chromium } from "playwright";
+import * as THREE from "three";
 import ffmpegPath from "ffmpeg-static";
 import { execFileSync, spawn } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
@@ -23,11 +26,18 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   ATLAS_CAPTURE, DOCS_DIR, META_FILE, PLANCHE_FILE, PUBLIC_DIR, README_FILE, ROOT, atlasRepere, buildAtlasMeta, buildPlancheReadme,
-  frameFile, gifFile, gifSequence, loadAtlasApi, readManifest, serializeMeta,
+  electionFile, frameFile, gifFile, gifSequence, loadAtlasApi, measureMovement, readManifest, serializeMeta, ELECTIONS_DIR,
 } from "./atlas_meta.mjs";
 
+/** Image d'élection (D14) : frames, vues, échelle de capture, zone gardée de chaque image (px de la
+ * vue, bassin et jambes), largeur d'une colonne et couleurs du GIF. */
+const ELECTION = {
+  frames: 17, vues: ["face", "troisQuarts"], echelle: 2, zone: { x: 95, y: 170, w: 210, h: 300 }, colonnePx: 320, couleurs: 96,
+};
+
+
 function parseArgs(argv) {
-  const options = { mouvement: null, frames: null, vues: null, muscles: true, metaSeul: false };
+  const options = { mouvement: null, frames: null, vues: null, muscles: true, metaSeul: false, variante: null };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i], next = () => {
       if (i + 1 >= argv.length) throw new Error(`valeur manquante après ${arg}`);
@@ -38,6 +48,7 @@ function parseArgs(argv) {
     else if (arg === "--vues") options.vues = next().split(",").map(v => v.trim()).filter(Boolean);
     else if (arg === "--sans-muscles") options.muscles = false;
     else if (arg === "--meta-seul") options.metaSeul = true;
+    else if (arg === "--variante") options.variante = next();
     else throw new Error(`option inconnue : ${arg}`);
   }
   if (!options.mouvement) throw new Error("--mouvement <id> requis (ids : docs/atlas/manifest.json)");
@@ -177,10 +188,143 @@ async function capture(api, meta, options, dir) {
   }
 }
 
+/** Rangée d'image (px de la vue) où se projette un point monde, pour la caméra de la vue. */
+function rangeeImage(api, mouvement, vue, point) {
+  const view = api.atlasView(vue, mouvement.cote), { hautPx, basPx } = api.ATLAS_BANDES;
+  const hauteur = ATLAS_CAPTURE.hauteurPx - hautPx - basPx;
+  const camera = new THREE.PerspectiveCamera(api.ATLAS_FOV, ATLAS_CAPTURE.largeurPx / hauteur, 0.1, 100);
+  camera.position.fromArray(view.position);
+  camera.lookAt(...view.target);
+  camera.updateMatrixWorld();
+  return hautPx + (1 - point.clone().project(camera).y) / 2 * hauteur;
+}
+
+/** Une image du GIF d'élection : A et B côte à côte, une rangée par vue, mesures de l'image en cours. */
+function electionHtml(api, mouvement, variante, regles, vues, index, reperes, dataUri) {
+  const { zone, colonnePx } = ELECTION, k = colonnePx / zone.w;
+  const fr = (value, digits = 1) => value.toFixed(digits).replace(".", ",").replace("-", "−");
+  const basse = Math.min(...regles.flatMap(r => r.samples.map(s => s.mesure.bassinMm)));
+  const angle = regles[0].samples[index].angleDeg;
+  const colonne = (r) => {
+    const m = r.samples[index].mesure;
+    return `<section>
+      <h2><b>${r.lettre}</b> ${escapeHtml(r.label)}</h2>
+      <p class="regle">${escapeHtml(r.regle)}</p>
+      ${vues.map(vue => `<div class="cell"><img src="${dataUri(r, vue, index)}" alt="">
+        <i style="top:${((reperes[vue] - zone.y) * k).toFixed(1)}px"></i><small>${escapeHtml(api.atlasVueLabel(vue, mouvement.cote))}</small></div>`).join("")}
+      <table><tr><td>genou droit</td><td>genou gauche</td><td>bassin</td></tr>
+        <tr><th>${fr(m.genouDeg.R, 0)}°</th><th>${fr(m.genouDeg.L, 0)}°</th><th>+${fr(m.bassinMm - basse, 0)} mm</th></tr></table>
+    </section>`;
+  };
+  return `<!doctype html><meta charset="utf-8"><style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #0b1220; color: #e2e8f0; font: 13px/1.35 -apple-system, "Segoe UI", "DejaVu Sans", Arial, sans-serif; }
+    #election { display: inline-block; padding: 12px 14px 10px; width: ${2 * colonnePx + 38}px; }
+    h1 { margin: 0; font-size: 17px; font-weight: 650; }
+    .sub { margin: 1px 0 8px; color: #94a3b8; font-size: 12.5px; }
+    .sub b { color: #5eead4; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .cols { display: flex; gap: 10px; }
+    section { width: ${colonnePx}px; }
+    h2 { margin: 0; font-size: 15px; font-weight: 600; }
+    h2 b { display: inline-block; width: 22px; height: 22px; line-height: 22px; text-align: center; border-radius: 4px; background: #5eead4; color: #0b1220; margin-right: 4px; }
+    .regle { margin: 3px 0 5px; color: #94a3b8; font-size: 11.5px; height: 31px; overflow: hidden; }
+    .cell { position: relative; width: ${colonnePx}px; height: ${(zone.h * k).toFixed(1)}px; overflow: hidden; border-radius: 4px; margin-bottom: 4px; }
+    .cell img { position: absolute; left: ${(-zone.x * k).toFixed(1)}px; top: ${(-zone.y * k).toFixed(1)}px; width: ${(ATLAS_CAPTURE.largeurPx * k).toFixed(1)}px; }
+    .cell i { position: absolute; left: 0; right: 0; border-top: 1px dashed #fbbf24; opacity: .9; }
+    .cell small { position: absolute; left: 6px; bottom: 4px; color: #94a3b8; font-size: 11px; }
+    table { width: 100%; border-collapse: collapse; text-align: center; }
+    td { color: #94a3b8; font-size: 11.5px; padding: 2px 0 0; }
+    th { font-size: 19px; font-weight: 650; font-variant-numeric: tabular-nums; padding: 0; }
+    footer { margin-top: 7px; color: #64748b; font-size: 10.5px; }
+    footer span { color: #fbbf24; }
+  </style><div id="election">
+    <h1>${escapeHtml(variante.question)}</h1>
+    <p class="sub">${escapeHtml(mouvement.label)} · bassin à <b>${escapeHtml(api.atlasAngleLabel(angle))}</b> · même caméra et même angle de bassin des deux côtés</p>
+    <div class="cols">${regles.map(colonne).join("")}</div>
+    <footer><span>- - -</span> hauteur des hanches la plus basse de l'amplitude · « bassin » : hauteur au-dessus de cette ligne.<br>
+      ${escapeHtml(api.ATLAS_ATTRIBUTION)}. Généré paramétriquement : pas une mesure sur une personne.</footer>
+  </div>`;
+}
+
+/** D14 : capture la règle versionnée (A) et la variante (B), assemble un seul GIF synchronisé. */
+async function election(api, manifest, options) {
+  const mouvement = manifest.mouvements.find(m => m.id === options.mouvement);
+  if (!mouvement) throw new Error(`mouvement « ${options.mouvement} » absent du manifeste`);
+  const support = api.atlasSupport(mouvement);
+  if (!support.ok) throw new Error(support.raison);
+  const choix = api.atlasVariante(mouvement, options.variante);
+  if (!choix.ok) throw new Error(choix.raison);
+  const variante = choix.variante, frames = options.frames ?? ELECTION.frames, vues = options.vues ?? ELECTION.vues;
+  if (!Number.isInteger(frames) || frames < 2 || frames > api.ATLAS_FRAMES_MAX) throw new Error(`--frames entre 2 et ${api.ATLAS_FRAMES_MAX}`);
+  const inconnues = vues.filter(v => !manifest.views.includes(v));
+  if (inconnues.length) throw new Error(`vues inconnues : ${inconnues.join(", ")}`);
+  const regles = [
+    { lettre: "A", id: null, label: `${variante.reference.label} (planche actuelle)`, regle: variante.reference.regle },
+    { lettre: "B", id: variante.id, label: variante.label, regle: variante.regle },
+  ].map(r => ({ ...r, ...measureMovement(api, mouvement, frames, r.id) }));
+  // Ligne fixe : le centre du bassin à sa hauteur la plus basse, projeté par la caméra de chaque vue.
+  const bas = regles.flatMap(r => r.samples).reduce((a, b) => (b.mesure.bassinMm < a.mesure.bassinMm ? b : a));
+  api.applyAtlasPose(regles[0].fixture.r, regles[0].fixture.model, mouvement, bas.angleDeg);
+  regles[0].fixture.r.root.updateWorldMatrix(true, true);
+  const centre = regles[0].fixture.r.pelvis.getWorldPosition(new THREE.Vector3());
+  const reperes = Object.fromEntries(vues.map(vue => [vue, rangeeImage(api, mouvement, vue, centre)]));
+
+  const server = process.env.CAPTURE_BASE ? { base: process.env.CAPTURE_BASE, stop: () => {} } : await servePreview();
+  const browser = await chromium.launch({
+    executablePath: process.env.CHROME_PATH || undefined,
+    args: ["--no-sandbox", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"],
+  });
+  const scratch = mkdtempSync(join(tmpdir(), "atlas-election-"));
+  try {
+    const page = await browser.newPage({ viewport: { width: ATLAS_CAPTURE.largeurPx, height: ATLAS_CAPTURE.hauteurPx }, deviceScaleFactor: ELECTION.echelle });
+    const errors = [];
+    page.on("pageerror", e => errors.push(String(e)));
+    page.on("response", r => { if (r.status() >= 400) errors.push(`${r.status()} ${r.url()}`); });
+    page.on("console", m => { if (m.type() === "error" && !m.text().startsWith("Failed to load resource")) errors.push(m.text()); });
+    const state = (r, vue, frame) => ({ id: mouvement.id, vue, frame, frames, muscles: options.muscles, variante: r.id });
+    const rendered = (s, timeout) => page.waitForFunction(key => document.documentElement.dataset.atlasRendu === key, api.atlasKey(s), { timeout })
+      .catch(() => { throw new Error(`pas de signal de rendu pour ${api.atlasKey(s)} : dist/ périmé (relancer \`npm run build\`) ou page en erreur ${JSON.stringify(errors.slice(0, 3))}`); });
+    const file = (r, vue, frame) => join(scratch, `${r.lettre}-${frameFile(vue, frame)}`);
+    const first = state(regles[0], vues[0], 0);
+    await page.goto(server.base + "?" + api.atlasQuery(first), { waitUntil: "load", timeout: 60000 });
+    await rendered(first, 90000);
+    await page.evaluate(() => document.fonts.ready.then(() => true));
+    for (const r of regles) for (const vue of vues) for (let frame = 0; frame < frames; frame++) {
+      const s = state(r, vue, frame);
+      await page.evaluate(query => { history.replaceState(null, "", "?" + query); window.dispatchEvent(new PopStateEvent("popstate")); }, api.atlasQuery(s));
+      await rendered(s, 30000);
+      await page.locator("[data-atlas-cadre]").screenshot({ path: file(r, vue, frame) });
+    }
+    if (errors.length) throw new Error("erreurs console pendant la capture : " + JSON.stringify(errors.slice(0, 5)));
+    const dataUri = (r, vue, frame) => "data:image/png;base64," + readFileSync(file(r, vue, frame)).toString("base64");
+    const sheet = await browser.newPage({ viewport: { width: 1200, height: 1600 }, deviceScaleFactor: 1 });
+    for (let frame = 0; frame < frames; frame++) {
+      await sheet.setContent(electionHtml(api, mouvement, variante, regles, vues, frame, reperes, dataUri), { waitUntil: "load" });
+      await sheet.locator("#election").screenshot({ path: join(scratch, `c${String(frame).padStart(3, "0")}.png`) });
+    }
+    gifSequence(frames).forEach((frame, k) => copyFileSync(join(scratch, `c${String(frame).padStart(3, "0")}.png`), join(scratch, `s${String(k).padStart(3, "0")}.png`)));
+    mkdirSync(ELECTIONS_DIR, { recursive: true });
+    const out = join(ELECTIONS_DIR, electionFile(mouvement.id, variante.id));
+    ffmpeg(["-framerate", String(ATLAS_CAPTURE.gifImagesParSeconde), "-i", join(scratch, "s%03d.png"),
+      "-vf", `split[a][b];[a]palettegen=max_colors=${ELECTION.couleurs}:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle`,
+      "-loop", "0", out]);
+    console.log(`élection ${mouvement.id}, variante ${variante.id} : ${frames} frames × ${vues.length} vues × 2 règles`);
+    console.log(`  docs/gifs/${electionFile(mouvement.id, variante.id)} : ${(statSync(out).size / 1024).toFixed(0)} Ko, ${gifSequence(frames).length} images`);
+  } finally {
+    await browser.close();
+    server.stop();
+    rmSync(scratch, { recursive: true, force: true });
+  }
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2));
   const api = await loadAtlasApi();
   const manifest = readManifest();
+  if (options.variante) {
+    if (options.metaSeul) throw new Error("--variante et --meta-seul ne vont pas ensemble : une variante n'a pas de meta.json");
+    return election(api, manifest, options);
+  }
   const meta = buildAtlasMeta(api, manifest, options.mouvement, {
     frames: options.frames ?? api.ATLAS_FRAMES, vues: options.vues ?? manifest.views, muscles: options.muscles,
   });

@@ -66,7 +66,7 @@ export interface RigProps {
   /** #69 guide mode: the session picks the pair figure and its local beat (docs/spec-mode-guidage-poc.md). */
   guide?: GuideSession | null;
   /** #132 atlas: the rig holds one joint movement of the manifest at `angleDeg` (docs/spec-atlas-anatomique.md). */
-  atlas?: { mouvement: AtlasMouvement; angleDeg: number } | null;
+  atlas?: { mouvement: AtlasMouvement; angleDeg: number; variante?: string | null } | null;
 }
 
 export default function Rig({
@@ -211,7 +211,7 @@ export default function Rig({
       }
     }
     const guided = guide && side && placement !== undefined ? guide.sample(clock.beat) : null;
-    const result = atlas ? applyAtlasPose(r, model, atlas.mouvement, atlas.angleDeg) : guided
+    const result = atlas ? applyAtlasPose(r, model, atlas.mouvement, atlas.angleDeg, atlas.variante ?? null) : guided
       ? applyGuidePose(r, model, guided, { styleKey, amp, iso, cadre, placement, contraposition: contraposition ?? 1 },
         side === "follower", guideHeights.current)
       : applyPose(r, model, clock.beat + phaseOffset, {

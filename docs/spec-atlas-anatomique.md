@@ -366,6 +366,12 @@ celle du relais.
 - **Limite.** Tenir le bassin à hauteur constante est un choix de modèle parmi d'autres (on
   pourrait le tenir plus bas encore, ou à mi-hauteur). Aucune des deux règles n'est mesurée sur
   une personne.
+- **Résultat (2026-11-21).** Mesuré sur le GLB, 17 frames : bassin constant à 867,3 mm (règle
+  versionnée : rebond de 14,6 mm), genoux à 22,7° / 22,7° au centre (règle versionnée :
+  6,9° / 7,0°), même angle de bassin, pieds plantés, thorax immobile. Le test échoue si la
+  variante n'abaisse plus le bassin (vérifié par mutation). GIF : 36 images, 678 × 1133 px,
+  2,2 Mo, vues de face et de trois-quarts, cadrées du bassin aux pieds. Les planches versionnées
+  n'ont pas été régénérées : leurs mesures recalculées sont identiques (contrôle de fraîcheur).
 
 ## Tâches
 

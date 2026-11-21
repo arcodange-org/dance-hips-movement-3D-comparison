@@ -26,7 +26,7 @@ dansants (roulis du bassin, isolations, compensation du tronc).
 
 | Mouvement | Planche | État |
 | --- | --- | --- |
-| Obliquité du bassin (roulis) | [bassin-obliquite](mouvements/bassin-obliquite/README.md) | générée, mesurée sur le GLB ; genoux en relais (variante en chevauchement : question ouverte) |
+| Obliquité du bassin (roulis) | [bassin-obliquite](mouvements/bassin-obliquite/README.md) | générée, mesurée sur le GLB ; genoux en relais (variante « genoux chevauchés » : [élection en cours](../elections/obliquite-genoux.md)) |
 | Rotation du bassin (lacet) | [bassin-rotation](mouvements/bassin-rotation/README.md) | générée, mesurée sur le GLB ; thorax de face (variante buste solidaire : au choix du propriétaire) |
 | Antéversion / rétroversion du bassin | [bassin-anteversion](mouvements/bassin-anteversion/README.md) | générée, mesurée sur le GLB |
 | Hanche, genou, cheville, tronc (13 mouvements) | à venir | règle de pose à écrire (chaîne ouverte, buste) : le script les refuse pour l'instant |

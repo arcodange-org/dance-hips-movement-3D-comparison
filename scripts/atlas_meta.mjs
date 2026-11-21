@@ -12,6 +12,9 @@ export const ROOT = new URL("../", import.meta.url).pathname;
 export const MANIFEST_PATH = ROOT + "docs/atlas/manifest.json";
 export const DOCS_DIR = ROOT + "docs/atlas/mouvements/";
 export const PUBLIC_DIR = ROOT + "public/atlas/mouvements/";
+/** Images d'élection (D14) : un GIF par mouvement et par variante, à côté des autres GIF du dépôt. */
+export const ELECTIONS_DIR = ROOT + "docs/gifs/";
+export const electionFile = (mouvement, variante) => `election-${mouvement}-${variante}.gif`;
 /** Taille d'une image de planche (px) et cadence des GIF (images par seconde). */
 export const ATLAS_CAPTURE = { largeurPx: 400, hauteurPx: 500, gifImagesParSeconde: 8 };
 
@@ -49,13 +52,13 @@ export function gifSequence(frames) {
 }
 
 /** Mesures brutes (non arrondies) d'un mouvement sur le rig réel, frame par frame. */
-export function measureMovement(api, mouvement, frames) {
+export function measureMovement(api, mouvement, frames, variante = null) {
   const f = fixture(api);
   const reference = api.atlasReference(f.r, f.model, mouvement);
   const neutral = api.measureAtlasPose(f.r, mouvement, reference, api.applyAtlasPose(f.r, f.model, mouvement, 0));
   const up0 = new THREE.Vector3(0, 1, 0).applyQuaternion(reference.quaternion);
   const samples = api.atlasAngles(mouvement, frames).map((angleDeg, index) => {
-    const stats = api.applyAtlasPose(f.r, f.model, mouvement, angleDeg);
+    const stats = api.applyAtlasPose(f.r, f.model, mouvement, angleDeg, variante);
     const mesure = api.measureAtlasPose(f.r, mouvement, reference, stats);
     const up = new THREE.Vector3(0, 1, 0).applyQuaternion(api.atlasNode(f.r, mouvement).getWorldQuaternion(new THREE.Quaternion()));
     return { index, angleDeg, mesure, solMm: minimumBoneY(f.r) * 1000, up: up.toArray() };
