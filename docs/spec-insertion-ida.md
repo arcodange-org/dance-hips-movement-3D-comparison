@@ -37,6 +37,9 @@ le point d'insertion retenu. *Hypothèse à valider* : la numérotation du propr
   (12 cm entre #110 et #130). Pendant l'insertion, il s'ouvre de 3 cm vers sa gauche
   (`INSERTION_OPEN`), marge gardée pour qu'il ne frotte pas en allant et venant, puis revient.
 
+> **Suite (#144, 21 novembre 2026)** : le propriétaire étend ce principe à tout pas qui avance ou recule
+> (R27). Voir [la spec](spec-ida-partout.md), en attente de ses réponses.
+
 ## Mode jeu
 
 La touche de l'ida (n'importe quelle variante) pendant une sortie, de son début à sa position 2, insère

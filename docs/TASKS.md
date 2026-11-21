@@ -299,3 +299,11 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] `docs/features/mode-jeu.feature` : sept scénarios dans `npm test`.
 - [x] GIFs du mode jeu recapturés avec les muscles.
 - [ ] Essai par le propriétaire : poids du tirage (`GUIDE_AUTO`), part des fins de phrase en position neutre.
+
+## Ida e volta à tout pas qui avance ou recule (#144, R27)
+
+- [x] Issue #144 avec les mots du propriétaire ; règle R27 dans `docs/regles-proprietaire.md`.
+- [x] Spec poussée en premier ([spec](spec-ida-partout.md)) : relevé des pas, modèle proposé, questions.
+- [ ] Réponses du propriétaire aux six questions (durée, poids, pas concernés, suiveur, virgula, commande).
+- [ ] Échantillonneur généralisé (`src/insertion.ts`), segments du mode jeu, tests GLB par point d'insertion.
+- [ ] Danse automatique : choix à chaque pas possible ; GIFs avec les muscles.

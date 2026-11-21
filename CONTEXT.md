@@ -28,6 +28,10 @@ et les specs. Résumé de la journée du 21 :
   reproductible `graine=N`, `auto=1`). `src/guidage.ts` : `planGuide(commandes, motions, until, { modes,
   seed, offered })`, `GUIDE_AUTO`, `autoFigure` ; un plan ne réécrit jamais son passé
   ([spec](docs/spec-jeu-file-auto.md)).
+- **#144 (spec seule, PR brouillon)** : règle R27 du propriétaire, « chaque pied qui avance ou qui recule peut
+  devenir un "ida e volta" (un simple aller retour du pied, en virgula ou non) ». Relevé des 16 pas du leader
+  concernés, modèle proposé (prolonge l'ida inséré #91) et six questions pour le propriétaire dans
+  [la spec](docs/spec-ida-partout.md). Ne rien coder avant ses réponses.
 - PR brouillon en relecture du propriétaire : #117 (ontologie), #76 (audit).
 - Pièges : `npm test` complet dure 25 min ou plus en local. Lancer ses scripts en parallèle, un journal
   par script, le ramène à une dizaine de minutes ; `test_placements` et `test_plexus` rejouent d'autres
