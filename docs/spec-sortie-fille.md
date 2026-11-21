@@ -182,6 +182,8 @@ Périmètre : la variante crochet seulement. La variante recul ne change pas.
   pose par l'avant-pied.
 - Le pied et le genou G reviennent vers l'avant pendant le G3, quand le pied recule.
 - Le bassin revient de face plus tôt, entre 1,2 et 1,7 temps : le poids passe alors sur le D du crochet.
+- Avec l'option « sans contraposition » (buste aligné sur le bassin), le buste du leader suit son
+  bassin : c'est le sens de cette option.
 - Constantes : `SORTIE_FILLE_VIRGULA` (`src/sortieFille.ts`). L'option interne `sortieVirgula: false`
   redonne le pas droit ; elle sert aux tests de comparaison.
 
