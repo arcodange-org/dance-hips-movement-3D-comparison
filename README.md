@@ -103,15 +103,16 @@ BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 Le couple tourne d'un quart vers la gauche du leader, quatre fois, sans jamais se lâcher : le leader
 pose son G talon au bout de son D puis ramène son D, et ses pieds passent par les quatre quarts de
 la boussole ; le suiveur, à l'extérieur, recule d'abord son D (coincé entre les pieds du leader),
-puis enchaîne son G. Le buste du leader guide un quart de temps en avance ; le quinconce est
-retrouvé à chaque fin de quart. Testé sur le GLB : rotation rigide du couple, aucun chevauchement
+puis enchaîne son G. Bassin et buste tournent avec les pieds : en diagonale quand le premier pied se
+pose, le côté de ce pied déjà presque à sa place, le quart entier avec le second (#106) ; le
+quinconce est retrouvé à chaque fin de quart. Testé sur le GLB : rotation rigide du couple, aucun chevauchement
 des semelles ni croisement des os des jambes (six styles, trois amplitudes, trois placements).
 
-![Quarts de tour en paire autour du leader, quinconce](docs/gifs/quarts-paire-couple.gif)
+![Quarts de tour en paire autour du leader, quinconce, vue du guideur](docs/gifs/quarts-paire-diagonale.gif)
 <details><summary>Détails & source</summary>
 
-Export du canvas depuis la pause (« Exporter un cycle ») : kizomba, paire, quinconce, 16 temps à
-90 bpm, amplitude 1. [Spécification, ordre des appuis et calibrage](docs/spec-quarts-paire.md).
+Capture image par image (`scripts/capture_figure_gif.mjs`) : kizomba, paire, quinconce, deux quarts
+(8 temps) à 90 bpm, amplitude 1, vue du guideur. [Spécification, ordre des appuis et calibrage](docs/spec-quarts-paire.md).
 BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 </details>
 
