@@ -29,14 +29,17 @@ export const IDA_LEAD = 0.25;
  *   the follower's D, the follower's G next to the leader's D) opens this far to its left during its
  *   flight, so the two knees that travel side by side clear each other;
  * - `carry`: share of the step the pelvises travel with the weight;
- * - `pelvisYaw`: share of the phase 15 pelvis yaw (idaContra) kept in the close couple: the yaw brings
- *   the standing thighs of the outer lane towards each other;
+ * - `hip` (#84, owner: « un côté de la hanche avance/recule et l'autre côté reste »): the pelvis turns
+ *   about the standing hip; the hip of the moving foot follows this share of the leader's step (forward
+ *   for him, backward for her: the gap between the pelvises stays). It replaces the phase 15 pelvis yaw;
+ * - `kneeFoot` (#84): share of the pelvis pivot the knees do not follow (`kneeYaw`): 1 keeps them over
+ *   the feet, 1.2 a little further; the pivot no longer swings them sideways into the partner's;
  * - `coupling`, `kneeCap`, `rotationCap`, `dip`, `sway`: pelvis and style bounds in the close couple. */
 export const IDA_PAIR = {
   step: 0.18, out: [0.1, 0.8], ret: [1.2, 1.85], share: 0.7, delay: 0.15,
   weight: { on: [0.8, 1.0], back: [1.0, 1.2], home: [1.85, 2.0] },
   aside: 0.02, carry: 0.5, forwardRoll: 0.3, backRoll: 0.3,
-  pelvisYaw: 0.5, coupling: 1, kneeCap: 0.22, rotationCap: 0.035, dip: -0.008, sway: 1,
+  hip: 0.15, kneeFoot: 1.2, coupling: 1, kneeCap: 0.22, rotationCap: 0.035, dip: -0.008, sway: 1,
 };
 
 /** #88: the follower never leaves before the leader. On an outgoing step both moving feet leave at
@@ -118,12 +121,9 @@ export function idaNeutral(rest: Record<FigureFoot, FootPoint>, o: PlacementOffs
 export interface IdaVariant { side: FigureFoot; back: boolean }
 export const IDA_DEFAULT: IdaVariant = { side: "L", back: false };
 
-export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<FigureFoot, FootPoint>,
-  placement: CouplePlacement | "reference" | PlacementOffset = "reference", stance = 0, variant: IdaVariant = IDA_DEFAULT) {
-  const styleOffset = (variant.side === "R" ? 4 : 0) + (variant.back ? 2 : 0);
-  const b = (Number.isFinite(beat) ? beat : 0) + styleOffset;
-  const o = placementOffset(placement);
-  const neutral = idaNeutral(rest, o, stance);
+/** The feet at `b` (variant-shifted beat, own frame). The follower takes the symmetric step: her opposite
+ * foot, the opposite direction, on the same lane. */
+function idaFeet(b: number, follower: boolean, neutral: ReturnType<typeof idaNeutral>) {
   const now = idaStepAt(b);
   // The follower takes the symmetric step: her opposite foot, the opposite direction, on the same lane.
   const moving: FigureFoot = follower ? other(now.side) : now.side;
@@ -152,24 +152,40 @@ export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<Fig
         pitch: gait.pitch, pivot: gait.pivot };
     } else feet[side] = { x: n.x, z: n.z, yaw: 0, lift: 0 };
   }
+  return { now, moving, forward, step, feet };
+}
+
+export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<FigureFoot, FootPoint>,
+  placement: CouplePlacement | "reference" | PlacementOffset = "reference", stance = 0, variant: IdaVariant = IDA_DEFAULT) {
+  const styleOffset = (variant.side === "R" ? 4 : 0) + (variant.back ? 2 : 0);
+  const b = (Number.isFinite(beat) ? beat : 0) + styleOffset;
+  const o = placementOffset(placement);
+  const neutral = idaNeutral(rest, o, stance);
+  const { now, moving, forward, feet } = idaFeet(b, follower, neutral);
   // Weight: rock step, onto the outgoing foot on the beat and back onto the other foot; the return comes
   // back unloaded.
   const w = IDA_PAIR.weight;
   const onMoving = smooth((now.q - w.on[0]) / (w.on[1] - w.on[0])) * (1 - smooth((now.q - w.back[0]) / (w.back[1] - w.back[0])));
   const p0 = ((b % IDA_BEATS) + IDA_BEATS) % IDA_BEATS;
   const loadR = idaLoadR(p0, follower);
-  // Both pelvises travel together with the weight: the gap between them (and the plexus contact) stays.
-  const root = { x: neutral.root.x, z: neutral.root.z + forward * IDA_PAIR.carry * IDA_PAIR.step * onMoving };
-  // Phase 15 contraposition on the dancer's own moving foot (the follower mirrors the leader: opposite
-  // world yaws, like the coupled pelvises). The leader's upper body leads by IDA_LEAD.
+  // #84: the pelvis turns about the standing hip; the hip of the moving foot follows the leader's step
+  // (forward for him, backward for her), so the gap between the pelvises stays. Both pelvises still travel
+  // with the weight: the gap (and the plexus contact) stays.
+  const hipSpan = Math.max(0.05, neutral.L.x - neutral.R.x);
+  const lead = idaFeet(b, false, neutral);
+  const leadOffset = lead.feet[lead.moving].z - neutral[lead.moving].z;
+  const hip = IDA_PAIR.hip * (follower ? -leadOffset : leadOffset);
+  const lower = (moving === "L" ? -1 : 1) * hip / hipSpan;
+  const root = { x: neutral.root.x, z: neutral.root.z + forward * IDA_PAIR.carry * IDA_PAIR.step * onMoving + hip / 2 };
+  // Phase 15 contraposition of the chest, on the dancer's own moving foot (the follower mirrors the
+  // leader). The leader's upper body leads by IDA_LEAD.
   const sign = follower ? -1 : 1;
-  const lower = sign * IDA_PAIR.pelvisYaw * idaContra(b).lowerYaw;
   const upper = sign * idaContra(follower ? b : b + IDA_LEAD).upperYaw;
   // The support transfer under way (explicit for the ginga #42), with its progress.
   const p = ((b % IDA_BEATS) + IDA_BEATS) % IDA_BEATS;
   const current = idaTransfers(follower).find(t => p >= t.start && p < t.end);
   const transfer = current ? { ...current, progress: smooth((p - current.start) / (current.end - current.start)) } : null;
-  return { beat: Number.isFinite(beat) ? beat : 0, action: now.index, moving, feet, root, rootYaw: lower, chestYaw: upper - lower, styleOffset,
+  return { beat: Number.isFinite(beat) ? beat : 0, action: now.index, moving, feet, root, rootYaw: lower, chestYaw: upper - lower, kneeYaw: IDA_PAIR.kneeFoot * lower, styleOffset,
     // Coupled pelvises (quinconce): the follower's style mirrors the leader's, so she follows his phase
     // (her transfers are his, mirrored); her lateral hip shift goes to her own support (opposite sign).
     gingaBeat: idaGingaBeat(b, follower && IDA_GINGA.mode === "own"),

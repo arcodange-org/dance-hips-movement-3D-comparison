@@ -59,5 +59,7 @@ export function sampleInserted(host: InsertionHost, beat: number, follower: bool
   return { ...held, beat: b, feet, loadR, loadL: 1 - loadR,
     root: { x: held.root.x + ida.root.x - neutral.root.x, z: held.root.z + ida.root.z - neutral.root.z },
     chestYaw: held.chestYaw + (ida.chestYaw - start.chestYaw),
-    rootYaw: ((held as { rootYaw?: number }).rootYaw ?? 0) + (ida.rootYaw - start.rootYaw), inserted: true };
+    rootYaw: ((held as { rootYaw?: number }).rootYaw ?? 0) + (ida.rootYaw - start.rootYaw),
+    // #84: the knees do not follow the ida's pelvis pivot.
+    kneeYaw: ida.kneeYaw - start.kneeYaw, inserted: true };
 }
