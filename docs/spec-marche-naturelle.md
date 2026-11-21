@@ -120,6 +120,23 @@ Chaque pas d'une figure suit un cycle de marche, sur la fenêtre de vol déjà d
   (six styles, trois placements, pas de 0,02 temps, avec et sans plexus). Une ouverture de 40 cm (14,1 cm) fait
   se chevaucher les pieds du suiveur.
 
+## Appui qui ne glisse pas sur place (#73, 21 novembre 2026)
+
+Constat de l'audit R7 : hors figures, la bascule des pieds propre au style (`extraL`, `extraR` : semba,
+suave) tournait le pied autour de la cheville. La demi-pointe reculait alors de 1,4 cm à chaque
+élévation du talon, sur un pied chargé.
+
+- La bascule pivote désormais sur un point du sol, comme le déroulé des figures : la demi-pointe quand le
+  talon monte, le talon quand la pointe monte (`src/pose.ts`, même calcul de pivot que les figures).
+- Test `scripts/test_appui_fixe.mjs` : six styles, amplitudes 0,5 à 2, sur place, pieds plantés. Sur un
+  pied chargé (> 5 %) qui bascule, la demi-pointe ou le talon reste à sa place horizontale à 1 mm près.
+  Mesuré : 0,00 mm sur 1 344 poses ; sans la correction, le test échoue dès le premier temps (semba,
+  1,2 mm).
+- La sortie combinée historique (`sortieGF`) change en semba et en suave. Ses empreintes
+  (`scripts/fixtures/sorties-historiques.json`) sont régénérées, et seules ces deux danses changent.
+- Reste de #73 : la marche hors figures (corridinho, temps3, curseur « Déplacement ») n'a pas encore le
+  déroulé du pied de `gaitStep`.
+
 ## Limites
 
 Pas de simulation de forces ni de contact de peau ; les pas restent illustratifs. Les amplitudes du
