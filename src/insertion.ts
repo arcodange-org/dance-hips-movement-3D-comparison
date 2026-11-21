@@ -136,7 +136,7 @@ export function sampleTouched<S extends TouchHostSample>(host: (beat: number) =>
     kneeYaw: (extra.kneeYaw ?? 0) + ida.kneeYaw - start.kneeYaw,
     // #128: the virgula's own knee directions.
     ...("kneeYawSide" in ida && ida.kneeYawSide ? { kneeYawSide: ida.kneeYawSide } : {}),
-    inserted: true };
+    inserted: true, touchBeat: t };
 }
 
 /** #91: the sortie with an ida e volta inserted at its position 2 (the first case of #144's touches). */

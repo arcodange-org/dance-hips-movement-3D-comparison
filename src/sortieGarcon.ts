@@ -62,6 +62,11 @@ export function sortieGarconSettings(params: URLSearchParams): { variant: Sortie
     beat: sortieGarconBeat(Number(params.get("sortieBeat") ?? 0)) };
 }
 
+/** #157 (docs/spec-ginga-couple.md): the most ginga the sorties leave room for (share of the style's hip
+ * sway, bounce in metres), measured on the GLB: beyond, the right thighs meet where the couple is in
+ * quinconce (start and end), and the leader's right thigh meets the follower's left leg in semba. */
+export const SORTIE_GINGA_CAP = { sway: 0.3, bounce: 0.009 };
+
 export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record<FigureFoot, FootPoint>,
   variant: SortieVariant = "line", contraDegrees = DEFAULT_SORTIE_CONTRA,
   placement: CouplePlacement | "reference" | PlacementOffset = "reference", contact = 1, stance = 0) {
@@ -222,5 +227,5 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   const exit = b < 1 ? smooth(b) : b < 2 ? 1 : b < 3 ? 1 - smooth(b - 2) : 0;
   const contra = Number.isFinite(contraDegrees) ? Math.max(0, Math.min(30, contraDegrees)) : DEFAULT_SORTIE_CONTRA;
   return { beat: b, action: Math.ceil(b), moving, feet, root, loadR, loadL: 1 - loadR,
-    chestYaw: -contra * Math.PI / 180 * exit, coupling: Math.max(startCoupling(b, o), endCoupling(b, o)) };
+    chestYaw: -contra * Math.PI / 180 * exit, coupling: Math.max(startCoupling(b, o), endCoupling(b, o)), gingaCap: SORTIE_GINGA_CAP };
 }

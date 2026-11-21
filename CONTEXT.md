@@ -5,6 +5,43 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Vitrine : danse automatique en musique, lien direct (#150, 21 novembre 2026)
+
+- `?vitrine=1` ouvre le mode jeu en danse automatique, au tempo de la piste enregistrée, muscles et
+  buste lisibles, vue libre qui tourne, interface réduite ; bouton « Partager » (style et graine)
+  ([spec](docs/spec-vitrine-danse-auto.md), `src/vitrine.ts`). Dans le mode jeu, la danse automatique
+  prend aussi le tempo de la piste et affiche les muscles.
+- Destiné à être intégré sur un autre site par Arcodange (fragment `iframe` dans la spec).
+  **Hors périmètre, prévu plus tard** : les mascottes Rémi et Corinne à la place des corps.
+- La branche part de la musique (#143) : la PR s'annonce « Stacks on #143 » tant que celle-ci est ouverte.
+
+## Musique enregistrée générée par ElevenLabs (#142, PR #143, 21 novembre 2026)
+
+- Le bouton « Son » joue une boucle enregistrée par style quand elle existe, sinon la synthèse
+  ([spec](docs/spec-musique-elevenlabs.md)). **Aucune piste publiée** : la prise 1 de la kizomba
+  (prompt du propriétaire) a été refusée à l'écoute — « ça ressemble plus à de la techno qu'à de la
+  kizomba semba angolaise » — et retirée de la branche.
+- Le propriétaire a retenu la **variante C** (fusion kizomba et semba) sur extraits de 15 s. La
+  première prise complète (un bloc de 62 s) est revenue **silencieuse** : échec de génération,
+  775 crédits perdus. Les prises complètes sont maintenant demandées en sections de 32 temps.
+  Redemandée ainsi, la prise est bonne à l'analyse (101,996 bpm, groove constant, boucle de
+  96 temps) et publiée dans la branche.
+  Le propriétaire l'a **validée à l'écoute** (« Oui, elle convient »).
+- **Suite** : les cinq autres styles, par la même méthode (variantes en plan de composition,
+  extraits de 15 s, choix à l'oreille, prise en sections de 32 temps — détail dans la spec).
+  Ne rien générer sans l'accord du propriétaire (environ 965 à 1 340 crédits par style).
+- Commandes : `node scripts/generer_musique.mjs --plan` (sans réseau) ; avec la clé,
+  `node --env-file=<fichier d'environnement> scripts/generer_musique.mjs --essais kizomba`, puis
+  `--styles kizomba --variante kizomba=<lettre>` (la clé n'est pas dans le Vault ; ne jamais
+  l'écrire ni l'afficher). Sans crédits : `--analyse`, `--decaler`, `--temps`.
+- Pièges : un générateur respecte le tempo demandé à peu près — toujours mesurer ; une musique
+  syncopée ne pose pas une attaque sur chaque temps (la confiance se lit par quart de morceau) ;
+  le temps 1 se déduit de la structure (début, changement de section, fin) ; un prompt sans époque
+  ni type de production dérive vers le plus probable (ici, l'électronique) : dire aussi ce qu'on
+  ne veut pas (plan de composition), et lire la signature rythmique avant de faire écouter ;
+  l'API peut rendre un fichier silencieux sans erreur (vérifier le niveau avant tout) ; le coût
+  réel se lit sur le compteur de l'abonnement (750 crédits par minute mesurés, pas 900).
+
 ## Chantiers du 21 novembre 2026 : quarts, sortie garçon D2, GIFs avec muscles, virgula
 
 Depuis le 20 novembre, l'état de chaque chantier vit surtout dans les issues (commentaires « Reprise »)
@@ -37,6 +74,21 @@ et les specs. Résumé de la journée du 21 :
   suiveuse (le même pied que le leader ou le pied opposé, issue #86 ; et ce qu'elle fait quand elle allait de
   côté) : voir « Questions en attente » de [la spec](docs/spec-ida-partout.md) ; le D4 de la sortie
   garçon n'est pas proposé (jambes croisées).
+- **#152 (PR #154)** : hasard tenu de la danse seule. `autoFigure` reçoit l'historique des figures ; `GUIDE_VARIETY`
+  (`libre`, `tenu` par défaut, `strict`) pèse les figures et les paires dansées récemment et borne les séries.
+  Mesures avant et après dans [la spec](docs/spec-jeu-file-auto.md). Le propriétaire doit élire le réglage en
+  regardant (`?auto=1&graine=7&hasard=…`).
+- **Élection #86 (PR brouillon #153)** : pieds de la suiveuse dans l'ida e volta, deux questions en GIF
+  (`docs/elections/suiveuse-ida.md` sur la branche `arcodange/election-suiveuse`), en attente de son vote.
+- **#157 (PR #158)** : ginga visible en danse de couple. Dans toutes les figures du mode jeu, la phase du style
+  suit les transferts d'appui du leader (`gingaPhase`, moyennée sur un quart de temps), une part du déhanché
+  latéral va au bassin, et un rebond d'une pulsation par temps s'ajoute. Les figures déclarent où il s'efface
+  (`gingaRoom`, `gingaCap` : sortie fille, sorties, allers-retours). Réglages `GUIDE_GINGA`
+  (`ginga=sans|discret|marque|ample`, `marque` par défaut ; [aperçu](docs/elections/ginga-couple.md)).
+  Calibré à l'amplitude 1, celle du mode jeu. Une figure modifiée à une jonction garde son passé, ginga compris
+  (`gingaJunctions`) ([spec](docs/spec-ginga-couple.md)). **Ne fait pas encore le « 8 »** demandé par le propriétaire
+  (chemin du bassin lié au relais des genoux, « le 8 se lit dans les deux plans ») : chantier #159, où la taille se
+  choisira avec la forme.
 - PR brouillon en relecture du propriétaire : #117 (ontologie), #76 (audit).
 - Pièges : `npm test` complet dure 25 min ou plus en local. Lancer ses scripts en parallèle, un journal
   par script, le ramène à une dizaine de minutes ; `test_placements` et `test_plexus` rejouent d'autres

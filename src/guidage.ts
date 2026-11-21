@@ -118,6 +118,20 @@ export const GUIDE_AUTO = {
   touch: 0.12, virgula: 0.3, junction: 0.3, junctionFit: 0.8, junctionStay: 0.05, chainEven: 0.15, chainOdd: 0.9,
 };
 
+/** #157 (owner: « que le "sway" des hanches et le petit effet de "bounce", le ginga en fait, soit présent
+ * pour montrer que les danseurs se balancent au rythme de la musique », docs/spec-ginga-couple.md): the
+ * ginga of the couple dance. `sway`: share of the style's lateral hip shift, in every figure, on the
+ * support transfers; `bounce` (m): vertical pulse, lowest on each beat. Calibrated on the GLB; the
+ * setting is the owner's to elect (`?ginga=sans|discret|marque|ample`). */
+export type GuideGinga = "sans" | "discret" | "marque" | "ample";
+export const GUIDE_GINGA: Record<GuideGinga, { sway: number; bounce: number } | null> = {
+  sans: null,
+  discret: { sway: 0.2, bounce: 0.005 },
+  marque: { sway: 0.3, bounce: 0.009 },
+  ample: { sway: 0.45, bounce: 0.014 },
+};
+export const GUIDE_GINGA_DEFAULT: GuideGinga = "marque";
+
 /** A command: the figure asked for, dated on the beat clock. #144: `virgula` (a key held with the ida's)
  * asks for the touch as a virgula, where the step offers it. */
 export interface GuideIntention { beat: number; figure: GuideFigure; virgula?: boolean }
@@ -131,8 +145,24 @@ export interface GuideOutcome {
 }
 /** #140: Space switches between listening to the commands (`auto: false`, the default) and the automatic dance. */
 export interface GuideModeChange { beat: number; auto: boolean }
+/** #152 (owner: « ajoute un peu de contrôle dans le hasard pour ne pas enchaîner trop de fois les mêmes
+ * figures ou combinaisons de figures »): how tightly the automatic dance's draw is held.
+ * - `again`: weight of a figure for each time it was danced among the last `GUIDE_MEMORY.figures`;
+ * - `pair`: weight of a figure when « the previous figure → this one » was already danced among the last
+ *   `GUIDE_MEMORY.pairs`;
+ * - `streak`: a figure already danced that many times in a row is set aside (unless it is the only one).
+ * `libre` is the draw before #152. Proposals to try by eye (`?hasard=libre|tenu|strict`). */
+export type GuideVariety = "libre" | "tenu" | "strict";
+export const GUIDE_VARIETY: Record<GuideVariety, { again: number; pair: number; streak: number }> = {
+  libre: { again: 1, pair: 1, streak: Infinity },
+  tenu: { again: 0.45, pair: 0.35, streak: 2 },
+  strict: { again: 0.2, pair: 0.1, streak: 1 },
+};
+export const GUIDE_MEMORY = { figures: 4, pairs: 8 };
 export interface GuideOptions {
   modes?: GuideModeChange[];
+  /** #152: how tightly the draw avoids repeating figures and pairs of figures (`tenu` by default). */
+  variety?: GuideVariety;
   /** Seed of the automatic dance (same seed, same dance). */
   seed?: number;
   /** Figures the style offers (the automatic dance draws from them). */
@@ -254,9 +284,20 @@ const onPhrase = (beat: number) => { const m = ((beat % GUIDE_AUTO.phrase) + GUI
 /** The dance is one beat off the bars (after an odd number of chains): its boundaries fall on odd beats. */
 const offBeat = (beat: number) => Math.abs((((beat % 2) + 2) % 2) - 1) < 1e-6;
 
-/** #140: figure the automatic dance starts at a neutral position (`boundary`), after `previous`. */
-export function autoFigure(seed: number, boundary: number, previous: GuideKind, offered: GuideFigure[], plain = false): GuideFigure | null {
-  const A = GUIDE_AUTO;
+/** #152: what one sees as « the same figure »: the ida e volta whatever its variant, the sortie fille
+ * chained or not; every other figure is itself (the three walks are three figures). */
+export const guideIdentityOf = (kind: GuideKind): string =>
+  kind === "base" ? "base" : kind === "sortieFG" ? "sortieF" : GUIDE_FIGURES[kind].movement === "ida" && !GUIDE_FIGURES[kind].marche ? "ida" : kind;
+
+/** #140: figure the automatic dance starts at a neutral position (`boundary`). `history`: the figures
+ * danced so far, the last one last (#152: the draw remembers them; it stays a pure function of the seed,
+ * the beat and this history). */
+export function autoFigure(seed: number, boundary: number, history: GuideKind[], offered: GuideFigure[], plain = false, variety: GuideVariety = "tenu"): GuideFigure | null {
+  const A = GUIDE_AUTO, V = GUIDE_VARIETY[variety];
+  const previous: GuideKind = history[history.length - 1] ?? "base";
+  const identities = history.map(guideIdentityOf), last = identities[identities.length - 1];
+  const recent = identities.slice(-GUIDE_MEMORY.figures), pairs = identities.slice(-(GUIDE_MEMORY.pairs + 1));
+  const streak = Number.isFinite(V.streak) ? identities.slice(-V.streak) : [];
   const candidates = offered.filter(f => !GUIDE_FIGURES[f].chain);
   if (!candidates.length) return null;
   const into = ((boundary % A.phrase) + A.phrase) % A.phrase, remaining = A.phrase - into;
@@ -270,8 +311,15 @@ export function autoFigure(seed: number, boundary: number, previous: GuideKind, 
     else if (beats > remaining) w *= A.overshoot;
     if (family === guideFamilyOf(previous)) w *= A.repeat;
     if (f === "sortieF" && offBeat(boundary) && offered.includes("sortieFG")) w *= A.realign;
+    // #152: the figures and the pairs of figures danced lately.
+    const identity = guideIdentityOf(f);
+    w *= V.again ** recent.filter(x => x === identity).length;
+    if (pairs.some((x, k) => k > 0 && pairs[k - 1] === last && x === identity)) w *= V.pair;
     return w;
   });
+  // A figure danced `streak` times in a row is set aside, unless nothing else is offered.
+  const held = candidates.map((f, k) => (streak.length >= V.streak && streak.every(x => x === guideIdentityOf(f)) ? 0 : weights[k]));
+  if (!plain && held.some(w => w > 0)) held.forEach((w, k) => { weights[k] = w; });
   const total = weights.reduce((a, w) => a + w, 0);
   let u = guideDraw(seed, Math.round(boundary * 8) * 4) * total;
   for (let i = 0; i < candidates.length; i++) { u -= weights[i]; if (u < 0) return candidates[i]; }
@@ -303,8 +351,9 @@ export function planGuide(intentions: GuideIntention[], motions: GuideMotions, u
     .map((intention, order) => ({ intention, order })).sort((a, b) => a.intention.beat - b.intention.beat || a.order - b.order);
   const modes = (options.modes ?? []).filter(m => Number.isFinite(m.beat) && m.beat <= until).sort((a, b) => a.beat - b.beat);
   const autoAt = (beat: number) => { let auto = false; for (const m of modes) { if (m.beat <= beat + 1e-9) auto = m.auto; else break; } return auto; };
-  const offered = options.offered ?? GUIDE_FIGURE_KEYS, seed = options.seed ?? 0, plain = !!options.plain;
+  const offered = options.offered ?? GUIDE_FIGURE_KEYS, seed = options.seed ?? 0, plain = !!options.plain, variety = options.variety ?? "tenu";
   const A = GUIDE_AUTO;
+  const figures: GuideSegment[] = []; // #152: the figures danced, for the memory of the draw
   const outcomes: GuideOutcome[] = new Array(list.length);
   const segments: GuideSegment[] = [];
   let current: GuideSegment = { kind: "base", start: 0, end: Infinity, couple: IDENTITY, residual: { leader: ZERO, follower: ZERO }, previous: null, touches: [] };
@@ -401,7 +450,7 @@ export function planGuide(intentions: GuideIntention[], motions: GuideMotions, u
     previousBoundary = boundary;
     const head = queue.shift();
     const choice: GuideFigure | null = head !== undefined ? list[head].intention.figure
-      : autoAt(boundary) ? autoFigure(seed, boundary, current.kind, offered, plain) : null;
+      : autoAt(boundary) ? autoFigure(seed, boundary, figures.slice(-(GUIDE_MEMORY.pairs + 1)).map(s => s.kind), offered, plain, variety) : null;
     if (current.kind === "base" && !choice) continue; // keep dancing the basic step
     const motion = motions[current.kind], previous = current;
     previous.end = boundary;
@@ -411,6 +460,7 @@ export function planGuide(intentions: GuideIntention[], motions: GuideMotions, u
       ...(choice ? { by: head !== undefined ? "commande" as const : "auto" as const } : {}) };
     decided = new Set(touches.map(t => `t${t.at}`));
     segments.push(current);
+    if (choice) figures.push(current);
     if (head !== undefined) started.set(head, current);
   }
   for (const [index, segment] of started) settle(index, segment === current ? "en cours" : "dansée", segment.start);
@@ -437,11 +487,13 @@ export interface GuideSample {
   touches: Touch[]; touch: Touch | null; touchBeat: number;
   /** Beat of the figure itself (the touches taken out; held on its position during a touch). */
   figureBeat: number;
+  /** #157: the ginga setting of the session. */
+  ginga: GuideGinga;
   couple: CoupleTransform; rootOffset: { leader: Offset; follower: Offset };
   /** Share (1 → 0) of a boundary residual still applied (quintic fade). */
   inertia: number;
 }
-export function sampleGuide(plan: GuidePlan, beat: number): GuideSample {
+export function sampleGuide(plan: GuidePlan, beat: number, ginga: GuideGinga = GUIDE_GINGA_DEFAULT): GuideSample {
   let segment = plan.segments[0];
   for (const s of plan.segments) if (s.start <= beat + 1e-9) segment = s;
   const localBeat = Math.max(0, beat - segment.start);
@@ -450,7 +502,7 @@ export function sampleGuide(plan: GuidePlan, beat: number): GuideSample {
   const touches = segment.touches ?? [], where = touchedBeat(touches, localBeat);
   return {
     segment, kind: segment.kind, localBeat, couple: segment.couple,
-    touches, touch: where.touch, touchBeat: where.t, figureBeat: where.hostBeat,
+    touches, touch: where.touch, touchBeat: where.t, figureBeat: where.hostBeat, ginga,
     movement: movementOf(segment.kind),
     rootOffset: { leader: scaled(segment.residual.leader), follower: scaled(segment.residual.follower) },
     inertia: segment.previous === null ? 0 : w,
@@ -464,10 +516,11 @@ export function movementOf(kind: GuideKind): MovementKey {
 
 /** Pose options of one dancer for a guide sample (shared by the view and the GLB tests): the pair
  * figure models, plexus contact, and the inertialized pelvis offsets of both dancers. */
-export function guidePoseOptions(s: Pick<GuideSample, "movement" | "rootOffset"> & { kind?: GuideKind; touches?: Touch[] }, follower: boolean) {
+export function guidePoseOptions(s: Pick<GuideSample, "movement" | "rootOffset"> & { kind?: GuideKind; touches?: Touch[]; ginga?: GuideGinga }, follower: boolean) {
   const role = follower ? "follower" : "leader", partner = follower ? "leader" : "follower";
   return {
     movement: s.movement, embrace: true, follower, ...figureOptions(s.kind ?? "base"), touches: s.touches ?? [],
+    ginga: GUIDE_GINGA[s.ginga ?? GUIDE_GINGA_DEFAULT],
     quartsPaire: s.movement === "quarts", idaPaire: s.movement === "ida", placePaire: s.movement === "none", plexus: true,
     // #62: the basic step keeps the clock's phase so that it joins the figures continuously.
     onBeat: false,
@@ -510,12 +563,22 @@ export const GUIDE_DEMO_TOUCH: GuideIntention[] = [
   { beat: 1, figure: "sortieG" }, { beat: 2, figure: "ida", virgula: true }, { beat: 10, figure: "sortieF" }, { beat: 14.6, figure: "ida" },
 ];
 
+/** #157 demonstration (`?guidage=1&demo=ginga`, GIFs of the election): the figures that had no hip sway
+ * before the ginga, from the first beat: walk forward, walk backward, sortie garçon, quart de tour. */
+export const GUIDE_DEMO_GINGA: GuideIntention[] = [
+  { beat: 0, figure: "avance" }, { beat: 0.1, figure: "recule" }, { beat: 0.2, figure: "sortieG" }, { beat: 0.3, figure: "quart" },
+];
+
 /** Live wrapper used by the view: commands are appended as keys are pressed, mode changes as Space is. */
 export class GuideSession {
   intentions: GuideIntention[] = [];
   /** #140: switches between listening (the default) and the automatic dance. */
   modes: GuideModeChange[] = [];
   seed = 1;
+  /** #152: how tightly the automatic dance avoids repetitions. */
+  variety: GuideVariety = "tenu";
+  /** #157: the ginga setting (hip sway and bounce of the couple). */
+  ginga: GuideGinga = GUIDE_GINGA_DEFAULT;
   offered: GuideFigure[] = GUIDE_FIGURE_KEYS;
   motions: GuideMotions | null = null;
   boundKey: string | null = null;
@@ -546,11 +609,11 @@ export class GuideSession {
   plan(beat: number): GuidePlan | null {
     if (!this.motions) return null;
     const key = `${this.intentions.length}:${this.modes.length}:${Math.floor(beat * 8)}`;
-    if (this.cache?.key !== key) this.cache = { key, plan: planGuide(this.intentions, this.motions, beat, { modes: this.modes, seed: this.seed, offered: this.offered }) };
+    if (this.cache?.key !== key) this.cache = { key, plan: planGuide(this.intentions, this.motions, beat, { modes: this.modes, seed: this.seed, offered: this.offered, variety: this.variety }) };
     return this.cache.plan;
   }
   sample(beat: number): GuideSample | null {
     const plan = this.plan(beat);
-    return plan ? sampleGuide(plan, beat) : null;
+    return plan ? sampleGuide(plan, beat, this.ginga) : null;
   }
 }

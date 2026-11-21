@@ -15,7 +15,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const bundle = join(root, "scripts", ".test-features-bundle.mjs");
 esbuild.buildSync({
   stdin: {
-    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon"; export * from "../src/sortieFille"; export * from "../src/idaPaire"; export * from "../src/gait"; export * from "../src/music/patterns"; export * from "../src/music/scheduler"; export * as guidage from "../src/guidage"; export * as insertion from "../src/insertion";',
+    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon"; export * from "../src/sortieFille"; export * from "../src/idaPaire"; export * from "../src/gait"; export * from "../src/music/patterns"; export * from "../src/music/scheduler"; export * as guidage from "../src/guidage"; export * as insertion from "../src/insertion"; export { gingaPhase } from "../src/pose"; export * from "../src/music/loop"; export * from "../src/vitrine"; export * from "../src/music/recordings";',
     resolveDir: join(root, "scripts"),
     loader: "ts",
   },
@@ -157,6 +157,49 @@ const steps = [
     const b = mod.beatAt(tr, Number(m[2]) + Number(m[3]));
     if (Math.abs(b - Number(m[4])) > 1e-9) throw new Error(`temps ${b}, attendu ${m[4]}`);
   }],
+  // Vitrine (#150, docs/spec-vitrine-danse-auto.md)
+  [/^on ouvre l'adresse "\?([^"]*)"$/, (c, m) => { c.vitrine = mod.vitrineSettings(new URLSearchParams(m[1])); }],
+  [/^la vue s'ouvre en (danse automatique|écoute)$/, (c, m) => {
+    if (c.vitrine.auto !== (m[1] === "danse automatique")) throw new Error(`auto=${c.vitrine.auto}`);
+  }],
+  [/^les muscles sont (affichés|masqués) et le buste est (lisible|translucide)$/, (c, m) => {
+    const look = mod.showcaseLook(c.vitrine, c.vitrine.auto);
+    if (look.muscles !== (m[1] === "affichés") || look.solidTorso !== (m[2] === "lisible")) throw new Error(JSON.stringify(look));
+  }],
+  [/^le tempo d'ouverture du style "(\w+)" est (celui de sa piste enregistrée|le tempo d'écoute|(\d+) bpm)$/, (c, m) => {
+    const got = mod.openingBpm(c.vitrine, m[1]);
+    const rec = mod.RECORDINGS[m[1]];
+    const want = m[3] ? Number(m[3]) : m[2].startsWith("celui") ? (rec ? mod.recordingTempo(rec) : null) : mod.GUIDE_BPM.listen;
+    if (want === null) throw new Error(`pas de piste enregistrée pour ${m[1]}`);
+    if (got !== want) throw new Error(`tempo ${got}, attendu ${want}`);
+  }],
+  [/^le lien de partage du style "(\w+)" avec la graine (\d+) est "([^"]+)"$/, (c, m) => {
+    const got = mod.vitrineUrl("https://exemple.test/app/", { style: m[1], graine: Number(m[2]) });
+    if (got !== m[3]) throw new Error(got);
+  }],
+  // Musique enregistrée (#142, docs/spec-musique-elevenlabs.md)
+  [/^une piste enregistrée à ([\d.]+) bpm dont le temps 1 est à ([\d.]+) s et la boucle fait (\d+) temps$/, (c, m) => {
+    c.rec = { style: "kizomba", file: "kizomba.mp3", bpm: Number(m[1]), firstBeat: Number(m[2]), beats: Number(m[3]) };
+  }],
+  [/^le temps (-?[\d.]+) de la danse se lit à ([\d.]+) s dans le fichier$/, (c, m) => {
+    const p = mod.positionOfBeat(c.rec, Number(m[1]));
+    if (Math.abs(p - Number(m[2])) > 5e-4) throw new Error(`position ${p}, attendu ${m[2]}`);
+  }],
+  [/^au tempo (\d+) la piste est jouée à ([\d.]+) fois sa vitesse$/, (c, m) => {
+    const r = mod.rateOf(c.rec, Number(m[1]));
+    if (Math.abs(r - Number(m[2])) > 5e-4) throw new Error(`vitesse ${r}, attendu ${m[2]}`);
+  }],
+  [/^la boucle dure ([\d.]+) s dans le fichier$/, (c, m) => {
+    const d = mod.loopSeconds(c.rec);
+    if (Math.abs(d - Number(m[1])) > 5e-4) throw new Error(`durée ${d}, attendu ${m[1]}`);
+  }],
+  [/^on construit l'URL de partage avec son=true et source=synthese$/, (c) => {
+    c.url = buildShareUrl("/app/", { mode: "pair", son: true, source: "synthese" }, null, null);
+  }],
+  [/^l'URL contient son=1 et source=synthese$/, (c) => {
+    const q = new URL(c.url, "https://exemple.test").searchParams;
+    if (q.get("son") !== "1" || q.get("source") !== "synthese") throw new Error(c.url);
+  }],
   [/^on construit l'URL de partage avec son=true et musique=B$/, (c) => {
     c.url = buildShareUrl("/app/", { mode: "compare", son: true, musique: "B" }, null, null);
   }],
@@ -245,6 +288,26 @@ const steps = [
     }
     c.jeu = { share: neutral / ends };
   }],
+  // #152: the draw remembers the figures and the pairs danced lately.
+  [/^le couple danse seul pendant (\d+) temps avec les graines (\d+) à (\d+) et le hasard "(\w+)"$/, (c, m) => {
+    let figures = 0, longest = 0, pairs = 0;
+    for (let seed = Number(m[2]); seed <= Number(m[3]); seed++) {
+      const plan = mod.guidage.planGuide([], guideMotionsOf(), Number(m[1]), { modes: [{ beat: 0, auto: true }], seed, variety: m[4] });
+      const ids = plan.segments.slice(1).map(s => mod.guidage.guideIdentityOf(s.kind));
+      let run = 1;
+      ids.forEach((id, i) => {
+        figures++; run = i > 0 && id === ids[i - 1] ? run + 1 : 1; longest = Math.max(longest, run);
+        if (i > 0) for (let j = Math.max(1, i - 8); j < i; j++) if (ids[j - 1] === ids[i - 1] && ids[j] === id) { pairs++; break; }
+      });
+    }
+    c.jeu = { longest, pairs: pairs / figures };
+  }],
+  [/^la plus longue série de la même figure est de (\d+) au plus$/, (c, m) => {
+    if (c.jeu.longest > Number(m[1])) throw new Error(`série de ${c.jeu.longest}`);
+  }],
+  [/^une paire de figures déjà enchaînée parmi les 8 précédentes revient moins d'une fois sur (\d+)$/, (c, m) => {
+    if (!(c.jeu.pairs < 1 / Number(m[1]))) throw new Error(`part ${c.jeu.pairs}`);
+  }],
   [/^une position neutre tombe sur plus de (\d+) % des fins de phrase, et pas sur toutes$/, (c, m) => {
     if (!(c.jeu.share > Number(m[1]) / 100 && c.jeu.share < 1)) throw new Error(`part ${c.jeu.share}`);
   }],
@@ -262,6 +325,34 @@ const steps = [
     if (!(before.start <= beat && s.start === before.end && s.start >= beat)) throw new Error(`commande au temps ${s.start}`);
     if (after?.by !== "auto") throw new Error("le tirage ne reprend pas");
     for (let k = 0; k < at; k++) if (plan.segments[k].kind !== alone.segments[k].kind) throw new Error("la danse d'avant a changé");
+  }],
+  // #157: the ginga of the couple dance (docs/spec-ginga-couple.md).
+  [/^on lit la phase du ginga sur les appuis du leader dans chaque figure du mode jeu$/, (c) => {
+    const rig = guideRig();
+    c.ginga = mod.guidage.GUIDE_FIGURE_KEYS.filter(kind => mod.guidage.sampleKind(kind, 0, false, rig).loadR !== undefined).map(kind => {
+      const end = mod.guidage.GUIDE_FIGURES[kind].beats, phases = [];
+      for (let t = 0; t <= end + 1e-9; t += 1 / 16) phases.push(mod.gingaPhase(`feature:${kind}`, b => mod.guidage.sampleKind(kind, b, false, rig), t));
+      return { kind, phases };
+    });
+    if (c.ginga.length < 8) throw new Error(`${c.ginga.length} figures seulement`);
+  }],
+  [/^la phase ne recule pas et ne saute pas$/, (c) => {
+    for (const { kind, phases } of c.ginga) phases.forEach((p, k) => {
+      if (k && !(p >= phases[k - 1] - 0.02 && p - phases[k - 1] < 0.3)) throw new Error(`${kind} : phase ${phases[k - 1]} → ${p}`);
+    });
+  }],
+  [/^chaque figure fait avancer la phase d'au moins un transfert$/, (c) => {
+    for (const { kind, phases } of c.ginga) if (!(phases[phases.length - 1] - phases[0] >= 0.9)) throw new Error(`${kind} : ${phases[0]} → ${phases[phases.length - 1]}`);
+  }],
+  [/^on lit les réglages du ginga du mode jeu$/, (c) => { c.reglages = mod.guidage.GUIDE_GINGA; c.defaut = mod.guidage.GUIDE_GINGA_DEFAULT; }],
+  [/^le réglage par défaut balance les hanches et fait rebondir le bassin$/, (c) => {
+    const g = c.reglages[c.defaut];
+    if (!(g && g.sway > 0 && g.bounce > 0 && g.bounce <= 0.02)) throw new Error(JSON.stringify(g));
+  }],
+  [/^les réglages vont du plus discret au plus ample, et "sans" l'éteint$/, (c) => {
+    const { sans, discret, marque, ample } = c.reglages;
+    if (sans !== null) throw new Error("sans n'éteint pas le ginga");
+    if (!(discret.sway < marque.sway && marque.sway < ample.sway && discret.bounce < marque.bounce && marque.bounce < ample.bounce)) throw new Error("réglages non ordonnés");
   }],
   // #144: a touch before any step that goes forward or backward (docs/spec-ida-partout.md).
   [/^on échantillonne chaque aller-retour proposé par le mode jeu$/, (c) => {

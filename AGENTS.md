@@ -34,9 +34,20 @@ et les comparaisons de quaternions ; ne pas réintroduire une comparaison d'une 
 avec elle-même comme preuve de continuité ou de chorégraphie. [Éditeur futur](docs/spec-editeur-figures.md).
 Son synthétisé : [spec](docs/spec-son-synthese.md) (`src/music/`, `scripts/test_music.mjs`) ; grilles = données
 sourcées de `docs/musique/`, chaque piste garde son niveau de preuve ; son coupé, l'horloge reste inchangée.
+Musique enregistrée générée par IA (#142) : [spec](docs/spec-musique-elevenlabs.md) (`src/music/loop.ts` pur, `loopOutput.ts`,
+registre généré `src/music/recordings.data.ts`, pistes `public/musique/`, `scripts/generer_musique.mjs`, `scripts/tempo.mjs`,
+`scripts/test_musique_enregistree.mjs`) ; la clé ElevenLabs ne s'écrit nulle part, une prise coûte des crédits : accord du propriétaire.
+Vitrine (#150) : [spec](docs/spec-vitrine-danse-auto.md) (`src/vitrine.ts` pur, `?vitrine=1` ouvre la vue du mode jeu en danse
+automatique, en musique, au tempo de la piste ; `scripts/test_vitrine.mjs`).
 Mode jeu (#140, [spec](docs/spec-jeu-file-auto.md)) : les commandes s'empilent dans une file (plus de note ni
 de refus), Espace bascule entre l'écoute et la danse automatique (tirage reproductible par graine) ; un plan
-ne réécrit jamais son passé.
+ne réécrit jamais son passé. Hasard tenu (#152) : le tirage se souvient des figures et des paires récentes
+(`GUIDE_VARIETY`, `hasard=libre|tenu|strict`), toujours fonction pure de la graine et de l'historique.
+Ginga du couple (#157, [spec](docs/spec-ginga-couple.md)) : option `ginga` de `applyPose`, activée par le mode jeu
+(`GUIDE_GINGA`, `ginga=sans|discret|marque|ample`) ; phase lue sur les appuis du leader (`gingaPhase`), les figures
+déclarent où il s'efface (`gingaRoom`, `gingaCap`) et leurs jonctions (`gingaJunctions` : une figure modifiée à une
+jonction garde son passé) ; `scripts/test_ginga_couple.mjs`. Calibré à l'amplitude 1. [Aperçu des réglages](docs/elections/ginga-couple.md) ;
+le « 8 » du bassin (dessus et face) reste à faire : #159.
 Mode guidage (PoC #69) : [spec](docs/spec-mode-guidage-poc.md) (`src/guidage.ts` pur, `src/guidagePose.ts`,
 vue `src/components/GuidageApp.tsx`, `scripts/test_guidage.mjs`) ; recherche : [jeux vidéo](docs/recherche-jeux-video/README.md).
 

@@ -17,6 +17,8 @@ export interface ShareParams {
   seek?: number;
   ligne?: boolean; iso?: boolean; cadre?: boolean; dir?: 1 | -1; boussole?: boolean; ghost?: string; contacts?: boolean;
   musique?: "A" | "B"; son?: boolean;
+  /** #142: source of the music; absent = the recorded loop when the style has one. */
+  source?: "enregistrement" | "synthese";
   /** #128: the leader's virgula in the pair ida e volta (`virgula=1`). */
   virgula?: boolean;
 }
@@ -64,5 +66,6 @@ export function parseShareParams(p: URLSearchParams, current: { mode: ModeKey; m
   flag("contacts");
   const musique = p.get("musique"); if (musique === "A" || musique === "B") s.musique = musique;
   if (p.get("son") === "1") s.son = true;
+  const source = p.get("source"); if (source === "enregistrement" || source === "synthese") s.source = source;
   return s;
 }

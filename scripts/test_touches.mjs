@@ -29,9 +29,11 @@ const couple = () => [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rota
 const stanceOf = m => (m.legs.L.hipX - m.legs.L.rest.x + m.legs.R.rest.x - m.legs.R.hipX) / 2;
 const restOf = f => ({ L: f.model.legs.L.rest, R: f.model.legs.R.rest });
 const ZERO = { leader: { x: 0, z: 0 }, follower: { x: 0, z: 0 } };
-/** Pose options of the game mode for a figure kind, with its touches. */
+/** Pose options of the game mode for a figure kind, with its touches. #157: the game dances at amplitude 1
+ * with its ginga (hip sway and bounce, docs/spec-ginga-couple.md), calibrated there; the other amplitudes
+ * check the touch itself, without it. GINGA=… chooses another setting. */
 const options = (kind, i, touches, extra = {}) => ({
-  ...api.guidePoseOptions({ movement: api.GUIDE_FIGURES[kind].movement, rootOffset: ZERO, kind }, !!i), placement: 'quinconce', contraposition: 1, touches, ...extra });
+  ...api.guidePoseOptions({ movement: api.GUIDE_FIGURES[kind].movement, rootOffset: ZERO, kind, ginga: extra.amp !== undefined && extra.amp !== 1 ? 'sans' : process.env.GINGA ?? api.GUIDE_GINGA_DEFAULT }, !!i), placement: 'quinconce', contraposition: 1, touches, ...extra });
 const label = (kind, touch) => `${kind}@${touch.at}${touch.side === 'L' ? 'G' : 'D'}${touch.back ? '-' : '+'}${touch.virgula ? 'v' : ''}${touch.scale ? '*' + touch.scale : ''}${touch.aside ? '~' + touch.aside : ''}${touch.lift !== undefined ? '^' + touch.lift : ''}`;
 
 // Candidates: every offered position, alone; with EXTRA=1 the positions measured but not offered.
