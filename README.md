@@ -292,7 +292,7 @@ stable et vertical au-dessus du bassin), `&cadre=0` (bras le long du corps — `
 cadre de bras de danseur), `&quarts=1` (quarts de tour : 4 = tour complet ; en paire le suiveur en
 marche arrière), `&dir=-1` (marche arrière le long de la ligne de danse), `&temps3=1` (marka
 « 3 temps » : un pas tous les 3 temps avec Déplacement), `&ida=1` (ida e volta : G avant/arrière
-puis D avant/arrière, 8 temps), `&demo=<clé>&cam=default|hip|fixed|wide|diag|front|back|top` (captures motion design :
+puis D avant/arrière, 8 temps), `&virgula=1` (en paire : virgula du leader quand son G avance, #128), `&demo=<clé>&cam=default|hip|fixed|wide|diag|front|back|top` (captures motion design :
 `hip` = gros plan bassin, `fixed`/`wide` = repère fixe conservé pour les déplacements, `diag` = vue
 diagonale par défaut en paire pour lire la sortie, `front`/`back` = de face/dos, `top` = vue
 plongeante pour lire le lacet des pieds/vírgula), `&campos=x,y,z&camtgt=x,y,z` (angle de la caméra
