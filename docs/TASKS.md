@@ -351,3 +351,13 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] GIFs des réglages, [page d'élection](elections/ginga-couple.md) ; démonstration `demo=ginga`.
 - [ ] Le chemin en « 8 » du bassin, lié au relais des genoux, lisible vu de dessus et vu de face (précisions du
       propriétaire) : #159. La taille (`ginga=sans|discret|marque|ample`) s'y choisira avec la forme.
+
+## Le ginga « fait un 8 » (#159)
+
+- [x] Issue #159 avec les mots du propriétaire ; [spec](spec-ginga-huit.md) poussée en premier.
+- [x] Mesure du chemin des hanches dans les trois vues (`scripts/tracer_hanches.mjs`) : aujourd'hui une ligne vue de dessus.
+- [x] Prototypes `huit`, `huitRond`, `huitInverse`, `huitAmple` (`GUIDE_EIGHT`), phase poursuivie d'une figure à la suivante.
+- [x] [Élection](elections/ginga-huit.md) : danse et tracé de chaque variante ; `scripts/test_ginga_huit.mjs`.
+- [ ] Vote du propriétaire : forme, sens, taille.
+- [ ] Variante élue : contrôles sur le GLB dans toutes les figures (marges), ida e volta, pas de base.
+- [ ] Lien avec le relais des genoux (atlas #132) : aujourd'hui les genoux suivent le bassin, ils ne le mènent pas.

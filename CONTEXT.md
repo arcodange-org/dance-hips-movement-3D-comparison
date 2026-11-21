@@ -89,6 +89,12 @@ et les specs. Résumé de la journée du 21 :
   (`gingaJunctions`) ([spec](docs/spec-ginga-couple.md)). **Ne fait pas encore le « 8 »** demandé par le propriétaire
   (chemin du bassin lié au relais des genoux, « le 8 se lit dans les deux plans ») : chantier #159, où la taille se
   choisira avec la forme.
+- **#159 (PR en brouillon, empilée sur #158)** : le « 8 » des hanches. Mesure : après #157 chaque hanche trace une ligne
+  vue de dessus (0,0 cm² entourés), le bassin s'arrête 0,22 temps. Quatre prototypes (`GUIDE_EIGHT`, `ginga=huit|huitRond|
+  huitInverse|huitAmple`) décalent le roulis et le lacet dans le cycle, font avancer et reculer le bassin, retardent le
+  rebond, et poursuivent la phase d'une figure à la suivante (`gingaFrom`). **Prototypes non contrôlés sur le GLB**, à
+  élire ([élection](docs/elections/ginga-huit.md), [spec](docs/spec-ginga-huit.md)). Le lien avec le relais des genoux
+  n'est pas fait.
 - PR brouillon en relecture du propriétaire : #117 (ontologie), #76 (audit).
 - Pièges : `npm test` complet dure 25 min ou plus en local. Lancer ses scripts en parallèle, un journal
   par script, le ramène à une dizaine de minutes ; `test_placements` et `test_plexus` rejouent d'autres

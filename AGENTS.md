@@ -47,7 +47,10 @@ Ginga du couple (#157, [spec](docs/spec-ginga-couple.md)) : option `ginga` de `a
 (`GUIDE_GINGA`, `ginga=sans|discret|marque|ample`) ; phase lue sur les appuis du leader (`gingaPhase`), les figures
 déclarent où il s'efface (`gingaRoom`, `gingaCap`) et leurs jonctions (`gingaJunctions` : une figure modifiée à une
 jonction garde son passé) ; `scripts/test_ginga_couple.mjs`. Calibré à l'amplitude 1. [Aperçu des réglages](docs/elections/ginga-couple.md) ;
-le « 8 » du bassin (dessus et face) reste à faire : #159.
+le « 8 » des hanches (#159, [spec](docs/spec-ginga-huit.md)) : prototypes `GUIDE_EIGHT` à élire
+([élection](docs/elections/ginga-huit.md)), non contrôlés sur le GLB, `scripts/test_ginga_huit.mjs` ; tracé des
+hanches dans les trois vues : `scripts/tracer_hanches.mjs` ; GIF du mode jeu en un seul chargement de page :
+`scripts/capture_session_gif.mjs`.
 Mode guidage (PoC #69) : [spec](docs/spec-mode-guidage-poc.md) (`src/guidage.ts` pur, `src/guidagePose.ts`,
 vue `src/components/GuidageApp.tsx`, `scripts/test_guidage.mjs`) ; recherche : [jeux vidéo](docs/recherche-jeux-video/README.md).
 
