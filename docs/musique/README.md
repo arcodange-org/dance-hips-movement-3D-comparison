@@ -8,6 +8,10 @@ afin de voir les mouvements en rythme avec la musique propre à chaque danse. Le
 **sans enregistrement ni œuvre protégée**. Aucune parole, aucune mélodie d'œuvre existante n'est
 reprise ici.
 
+Depuis le 21 novembre 2026 (#142), le bouton « Son » joue d'abord une **boucle enregistrée générée
+par IA** quand le style en a une ([enregistrements](enregistrements.md),
+[spec](../spec-musique-elevenlabs.md)) ; la synthèse décrite ici reste le repli et une source au choix.
+
 ## Pages
 
 | Page | Contenu |

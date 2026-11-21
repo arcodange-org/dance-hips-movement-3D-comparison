@@ -5,6 +5,33 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Musique enregistrée générée par ElevenLabs (#142, PR #143, 21 novembre 2026)
+
+- Le bouton « Son » joue une boucle enregistrée par style quand elle existe, sinon la synthèse
+  ([spec](docs/spec-musique-elevenlabs.md)). **Aucune piste publiée** : la prise 1 de la kizomba
+  (prompt du propriétaire) a été refusée à l'écoute — « ça ressemble plus à de la techno qu'à de la
+  kizomba semba angolaise » — et retirée de la branche.
+- Le propriétaire a retenu la **variante C** (fusion kizomba et semba) sur extraits de 15 s. La
+  première prise complète (un bloc de 62 s) est revenue **silencieuse** : échec de génération,
+  775 crédits perdus. Les prises complètes sont maintenant demandées en sections de 32 temps.
+  Redemandée ainsi, la prise est bonne à l'analyse (101,996 bpm, groove constant, boucle de
+  96 temps) et publiée dans la branche.
+  Le propriétaire l'a **validée à l'écoute** (« Oui, elle convient »).
+- **Suite** : les cinq autres styles, par la même méthode (variantes en plan de composition,
+  extraits de 15 s, choix à l'oreille, prise en sections de 32 temps — détail dans la spec).
+  Ne rien générer sans l'accord du propriétaire (environ 965 à 1 340 crédits par style).
+- Commandes : `node scripts/generer_musique.mjs --plan` (sans réseau) ; avec la clé,
+  `node --env-file=<fichier d'environnement> scripts/generer_musique.mjs --essais kizomba`, puis
+  `--styles kizomba --variante kizomba=<lettre>` (la clé n'est pas dans le Vault ; ne jamais
+  l'écrire ni l'afficher). Sans crédits : `--analyse`, `--decaler`, `--temps`.
+- Pièges : un générateur respecte le tempo demandé à peu près — toujours mesurer ; une musique
+  syncopée ne pose pas une attaque sur chaque temps (la confiance se lit par quart de morceau) ;
+  le temps 1 se déduit de la structure (début, changement de section, fin) ; un prompt sans époque
+  ni type de production dérive vers le plus probable (ici, l'électronique) : dire aussi ce qu'on
+  ne veut pas (plan de composition), et lire la signature rythmique avant de faire écouter ;
+  l'API peut rendre un fichier silencieux sans erreur (vérifier le niveau avant tout) ; le coût
+  réel se lit sur le compteur de l'abonnement (750 crédits par minute mesurés, pas 900).
+
 ## Chantiers du 21 novembre 2026 : quarts, sortie garçon D2, GIFs avec muscles, virgula
 
 Depuis le 20 novembre, l'état de chaque chantier vit surtout dans les issues (commentaires « Reprise »)

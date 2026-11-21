@@ -7,3 +7,5 @@ tsconfig*.tsbuildinfo
 .claude/worktrees/
 .Codex/
 scripts/.*.mjs
+# Extraits d'essai de musique générée (#142) : jamais publiés
+essais/
