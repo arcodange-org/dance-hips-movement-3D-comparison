@@ -133,8 +133,9 @@ Contribution du 2026-11-21 : la chaîne complète est construite et prouvée sur
   (N impair recommandé pour passer par 0 quand la ROM est symétrique ; défaut 9).
 - `applyAtlasPose(r, model, mouvement, angleDeg)` : pose le rig par `applyPose` (D7).
 - `measureAtlasPose(r, model, mouvement, reference)` : mesures sur le rig posé (voir D11).
-- Lecture typée du manifeste (`docs/atlas/manifest.json`), source de vérité unique pour le
-  script, le test et la vue.
+- Le manifeste (`docs/atlas/manifest.json`) reste la source de vérité unique : la vue le lit par
+  `src/atlasManifest.ts` (hors du chargement de l'application principale), le script et le test
+  le lisent sur le disque.
 
 ### D9 — Cinq vues
 
@@ -190,6 +191,10 @@ Assets servis, copiés à l'identique dans `public/atlas/mouvements/<id>/` : `me
 `planche.png`. Les images par frame et les GIF restent dans `docs/` : le viewer rendra la 3D en
 direct, et aucun consommateur n'a besoin des GIF sur le site. Les y ajouter est une ligne
 (`fichiers.servis`) le jour où une page en a l'usage.
+
+Reproductibilité : régénérée deux fois sur la même machine (rendu logiciel SwiftShader), la planche
+est identique à l'octet près (images, GIF, planche). D'une machine à l'autre, seules les mesures de
+`meta.json` sont garanties identiques.
 
 Poids mesuré pour `bassin-obliquite` (9 frames × 5 vues) : 2,4 Mo dans `docs/` (45 images de 21 à
 34 Ko, 5 GIF de 140 à 200 Ko, planche 230 Ko), 0,24 Mo dans `public/`. Les 16 mouvements du

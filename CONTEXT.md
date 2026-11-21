@@ -27,6 +27,7 @@ Chaîne de génération des planches « mouvements », prouvée sur `bassin-obli
 - `npm run build && node scripts/capture_atlas.mjs --mouvement <id>` : images, GIF, planche,
   `meta.json` (calculé hors navigateur sur le GLB, déterministe), `README.md`. Le script sert `dist/`
   lui-même sur un port libre. Sur ce Mac : `CHROME_PATH` vers le Chromium 1228 de Playwright.
+  Régénérée deux fois sur cette machine, la planche est identique à l'octet près.
 - `scripts/test_atlas_planches.mjs` dans `npm test` : ROM sur le quaternion monde du nœud, preuve par
   les positions des hanches, conventions verrouillées, fraîcheur de `meta.json` (une planche périmée
   par le moteur échoue, avec la commande à relancer), intégrité des fichiers.

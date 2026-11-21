@@ -10,11 +10,13 @@ import GridFloor from "./GridFloor";
 import { createDanceClock } from "../clock";
 import { ATLAS_FOV, atlasView, type CamPreset } from "../cameras";
 import {
-  ATLAS_ATTRIBUTION, ATLAS_BANDES, ATLAS_MANIFEST, atlasAngleLabel, atlasAngles, atlasKey, atlasMouvement, atlasSupport,
-  atlasVueLabel, parseAtlasParams,
+  ATLAS_ATTRIBUTION, ATLAS_BANDES, atlasAngleLabel, atlasAngles, atlasKey, atlasSupport, atlasVueLabel, parseAtlasParams,
 } from "../atlas";
+import { ATLAS_MANIFEST, atlasMouvement } from "../atlasManifest";
 
 const readState = () => parseAtlasParams(new URLSearchParams(window.location.search));
+// Constante : la caméra n'est créée qu'une fois ; AtlasCamera la place à chaque changement de vue.
+const CAMERA = { fov: ATLAS_FOV };
 
 function AtlasCamera({ view }: { view: CamPreset }) {
   const camera = useThree(s => s.camera);
@@ -85,7 +87,7 @@ export default function AtlasApp() {
         </p>
       </div>
       <div className="relative flex-1 min-h-0">
-        <Canvas camera={{ position: view.position, fov: ATLAS_FOV }} dpr={[1, 2]}>
+        <Canvas camera={CAMERA} dpr={[1, 2]}>
           <AtlasCamera view={view} />
           <color attach="background" args={["#0b1220"]} />
           <ambientLight intensity={0.65} />

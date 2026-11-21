@@ -155,7 +155,7 @@ async function capture(api, meta, options, dir) {
     const first = state(meta.vues[0].id, 0);
     await page.goto(server.base + "?" + api.atlasQuery(first), { waitUntil: "load", timeout: 60000 });
     await rendered(first, 90000); // premier passage : chargement des deux GLB
-    await page.evaluate(() => document.fonts.ready);
+    await page.evaluate(() => document.fonts.ready.then(() => true));
     for (const vue of meta.vues) for (let frame = 0; frame < frames; frame++) {
       const s = state(vue.id, frame);
       // L'URL est l'interface de la vue : on change d'état sans recharger la page.

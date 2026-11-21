@@ -1,9 +1,9 @@
 // #132 — Atlas anatomique ouvert : pose et mesure d'un mouvement articulaire du manifeste sur le rig
 // réel, par le moteur de l'application (src/pose.ts). Module pur (aucun accès au DOM), partagé par la
 // vue de capture, scripts/capture_atlas.mjs et scripts/test_atlas_planches.mjs.
-// Spécification : docs/spec-atlas-anatomique.md (D7 à D12).
+// Le manifeste lui-même est lu par src/atlasManifest.ts (vue) ou sur le disque (scripts) : ce module
+// reste hors du chargement de l'application principale. Spécification : docs/spec-atlas-anatomique.md (D7 à D12).
 import * as THREE from "three";
-import manifestJson from "../docs/atlas/manifest.json";
 import { applyPose, type PoseModel, type PoseStats } from "./pose";
 import type { RigHandle } from "./anatomy";
 import { ATLAS_VIEWS, type AtlasVue } from "./cameras";
@@ -20,12 +20,8 @@ export interface AtlasManifest {
   licence: { assetsGeneres: string; maillages: string; textesAnatomiques: string; note: string };
   source: string; niveauDePreuve: string; views: AtlasVue[]; mouvements: AtlasMouvement[];
 }
-export const ATLAS_MANIFEST = manifestJson as AtlasManifest;
 export const ATLAS_FRAMES = 9;
 export const ATLAS_FRAMES_MAX = 61;
-
-export const atlasMouvement = (id: string | null): AtlasMouvement | undefined =>
-  ATLAS_MANIFEST.mouvements.find(m => m.id === id);
 
 /** Angles (degrés) régulièrement espacés sur la ROM, bornes incluses. */
 export function atlasAngles(m: Pick<AtlasMouvement, "romDeg">, frames = ATLAS_FRAMES): number[] {

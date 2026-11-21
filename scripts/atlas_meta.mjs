@@ -86,6 +86,10 @@ export function buildAtlasMeta(api, manifest, id, { frames = api.ATLAS_FRAMES, v
   if (!mouvement) throw new Error(`atlas : mouvement « ${id} » absent du manifeste`);
   const support = api.atlasSupport(mouvement);
   if (!support.ok) throw new Error(`atlas ${id} : ${support.raison}`);
+  if (!Number.isInteger(frames) || frames < 2 || frames > api.ATLAS_FRAMES_MAX)
+    throw new RangeError(`atlas : --frames entre 2 et ${api.ATLAS_FRAMES_MAX} (reçu ${frames})`);
+  const unknown = vues.filter(vue => !manifest.views.includes(vue) || !(vue in api.ATLAS_VIEWS));
+  if (unknown.length || !vues.length) throw new RangeError(`atlas : vues inconnues « ${unknown.join(", ")} » (vues du manifeste : ${manifest.views.join(", ")})`);
   const measured = measureMovement(api, mouvement, frames);
   const angles = measured.samples.map(s => s.mesure.angleDeg);
   const mesuree = [Math.min(...angles), Math.max(...angles)];
@@ -150,7 +154,8 @@ export function buildAtlasMeta(api, manifest, id, { frames = api.ATLAS_FRAMES, v
     }),
     capture: {
       ...ATLAS_CAPTURE, frames, muscles,
-      commande: `npm run build && node scripts/capture_atlas.mjs --mouvement ${id}${frames === api.ATLAS_FRAMES ? "" : ` --frames ${frames}`}`,
+      commande: `npm run build && node scripts/capture_atlas.mjs --mouvement ${id}${frames === api.ATLAS_FRAMES ? "" : ` --frames ${frames}`}${
+        vues.length === manifest.views.length ? "" : ` --vues ${vues.join(",")}`}${muscles ? "" : " --sans-muscles"}`,
     },
     fichiers: {
       images: Object.fromEntries(vues.map(vue => [vue, measured.samples.map(s => frameFile(vue, s.index))])),

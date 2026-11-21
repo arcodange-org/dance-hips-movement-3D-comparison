@@ -67,9 +67,13 @@ const near = (a, b, tolerance, label) => assert.ok(Math.abs(a - b) <= tolerance,
   const unsupported = manifest.mouvements.filter(m => !api.atlasSupport(m).ok);
   for (const m of unsupported) {
     assert.throws(() => buildAtlasMeta(api, manifest, m.id), /règle de pose non écrite/, `refus explicite : ${m.id}`);
+    assert.throws(() => api.applyAtlasPose(null, null, m, 0), /règle de pose non écrite/, `le moteur de l'atlas refuse aussi : ${m.id}`);
     assert.ok(!existsSync(join(DOCS_DIR, m.id)), `pas de planche pour un mouvement non posé : ${m.id}`);
   }
-  console.log(`PASS atlas planches : ${unsupported.length} mouvements sans règle de pose refusés explicitement, sans planche`);
+  assert.throws(() => buildAtlasMeta(api, manifest, "bassin-obliquite", { vues: ["face", "plongee"] }), /vues inconnues/);
+  assert.throws(() => buildAtlasMeta(api, manifest, "bassin-obliquite", { frames: 99 }), /--frames entre 2 et/);
+  assert.throws(() => buildAtlasMeta(api, manifest, "inexistant"), /absent du manifeste/);
+  console.log(`PASS atlas planches : ${unsupported.length} mouvements sans règle de pose refusés explicitement, sans planche ; vues, frames et ids invalides refusés`);
 }
 
 // Obliquité : preuve par les positions. Une rotation dans le plan frontal fait monter une hanche et
