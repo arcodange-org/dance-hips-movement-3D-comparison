@@ -10,7 +10,7 @@ export const RYTHME = {
   /** Final : danse seule après la dernière phrase, avant les crédits. */
   danseAvantCredits: 6,
   /** Vitesse du générique, en pixels par seconde (image de 1080 lignes), et temps tenu en fin de défilement. */
-  vitesseCredits: 68, finCredits: 3.5, margeCredits: 140,
+  vitesseCredits: 78, finCredits: 3.5, margeCredits: 140,
   /** Fondu au noir à chaque bord de chapitre. */
   fondu: 0.4,
 };

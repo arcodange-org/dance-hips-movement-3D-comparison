@@ -1452,6 +1452,11 @@ Références des autres pages du dossier :
 - Hors fichiers, dans l'historique git de la branche lue (`git log`, 21 novembre 2026) : 56 commits ont
   pour auteur « Vibe Nuage Agent » ; 143 commits portent la mention « Claude Opus 5.5
   <noreply@anthropic.com> » en co-auteur.
+- Cette vidéo (#155) : le scénario a été écrit, critiqué, synthétisé et contre-vérifié par des agents Claude
+  (Anthropic) en workflow, et la chaîne de fabrication écrite et lancée par une session Claude Code dont le
+  modèle est Claude Fable 5.2 (déclaré par la session elle-même, le 21 novembre 2026). Les commits de la
+  branche portent la mention « Claude Opus 5.5 » en co-auteur, selon la consigne de passation du propriétaire
+  (`docs/spec-video-pas-de-base.md`, section « Règles de contenu »).
 
 ## 8. Ce que le dépôt ne dit pas
 

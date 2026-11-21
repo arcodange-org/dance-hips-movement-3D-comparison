@@ -29,6 +29,31 @@ Pour l'intégrer dans une autre page :
 Dans le mode jeu, la danse automatique (Espace) prend aussi le tempo de la piste et affiche les
 muscles. [Spécification](docs/spec-vitrine-danse-auto.md).
 
+## Vidéo éducative : le pas de base sur place, d'un style à l'autre (#155)
+
+Une vidéo d'environ cinq minutes et demie présente le pas de base sur place des six styles : un chapitre par
+style (d'où il vient, ce que fait le modèle), un plan où les six dansent côte à côte au même tempo, les
+limites, puis le couple en danse automatique pendant que le générique cite toutes les sources.
+
+**La vidéo n'est pas dans le dépôt ; le script qui la fabrique l'est**, pour la refaire à mesure que le
+moteur progresse :
+
+```bash
+node scripts/video/controle.mjs        # le scénario est-il conforme ? (structure, faits cités, durée)
+node scripts/video/generer_video.mjs   # voix, plans, habillage, montage → essais/video/pas-de-base.mp4
+```
+
+- Le texte (`scripts/video/narration.json`) ne dit que ce que porte la fiche de faits
+  [`docs/video/faits-pas-de-base.md`](docs/video/faits-pas-de-base.md) (314 faits numérotés, tirés des
+  recherches du dépôt) ; chaque phrase cite ses faits, un test le vérifie.
+- L'application se filme image par image avec `film=1`, au tempo de chaque musique.
+- Voix : Phonon 40m français, en local. **« Voice: Phonon by Gradium — gradium.ai »**, licence CC BY-NC 4.0 :
+  la vidéo est réservée à un usage non commercial tant que cette voix y figure.
+- Musique générée par IA (Eleven Music, ElevenLabs) ; les extraits restent hors du dépôt
+  ([pourquoi](docs/spec-musique-elevenlabs.md#conditions-dusage-relevé-du-21-novembre-2026-à-confirmer-par-le-propriétaire)).
+
+[Spécification](docs/spec-video-pas-de-base.md) · [la chaîne, pas à pas](scripts/video/README.md).
+
 ## Musique enregistrée, générée par IA (#142)
 
 Quand un style a une piste, le bouton **« Son »** joue une **boucle enregistrée générée par IA**

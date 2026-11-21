@@ -18,3 +18,8 @@ Feature: Filmer l'application image par image (#155)
 
   Scenario: Le décalage d'objectif fait glisser le sujet sans déplacer la caméra
     Then un décalage d'objectif de 0.2 sur une image de 1920 pixels de large vaut 384 pixels
+
+  Scenario: Avec les muscles, les blocs gris du tronc s'effacent
+    Then la couche de muscles couvre le tronc : ErectorSpinae, ExternalOblique, Trapezius, PectoralisMajor, Deltoid
+    And avec la couche de muscles, les blocs gris du tronc sont masqués
+    And sans la couche de muscles, les blocs gris du tronc sont affichés

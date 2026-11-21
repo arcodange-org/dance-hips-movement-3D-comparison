@@ -5,6 +5,25 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Vidéo éducative : le pas de base sur place d'un style à l'autre (#155, PR #156, 21 novembre 2026)
+
+- **La chaîne `scripts/video/` fabrique la vidéo** (environ 5 min 40, 1080p, −16 LUFS) : scénario
+  (`narration.json`), voix Phonon locales, musiques, capture image par image (`film=1`, `src/film.ts`,
+  `FilmDriver`), habillage rendu par le navigateur, montage ffmpeg. La vidéo elle-même va dans
+  `essais/video/` (ignoré par git). [Spec](docs/spec-video-pas-de-base.md), [mode d'emploi](scripts/video/README.md).
+- **Le texte ne dit que la fiche de faits** `docs/video/faits-pas-de-base.md` (314 faits numérotés, 143 sources
+  au générique). Le scénario a été écrit par un workflow : rédacteur, quatre critiques, synthèse,
+  contre-vérification. `scripts/test_video.mjs` vérifie que chaque phrase cite des faits qui existent.
+- **Musiques** : cinq extraits Eleven Music générés pour la vidéo (semba, kompa, tarraxinha, suave, zouk),
+  choisis par la mesure, pas à l'oreille : **à écouter par le propriétaire**. Les fichiers restent hors du
+  dépôt (conditions d'Eleven Music, offre Starter : pas de collection de morceaux mise à la disposition de
+  tiers) ; leur provenance est dans `scripts/video/pistes/pistes.json`. Sans eux, un style est filmé en silence.
+- **Buste** : avec la couche de muscles, les blocs gris du tronc sont masqués (demande du propriétaire) ; tête
+  et bras restent stylisés, le modèle n'a pas leurs os ni leurs muscles.
+- **Reste** : le ginga visible en danse de couple (balancement et rebond, demande du propriétaire, confié à la
+  session du mode jeu) ; le final de la vidéo sera refilmé ensuite. Décision du propriétaire attendue sur la
+  piste kizomba déjà en ligne (#146, conditions d'Eleven Music).
+
 ## Vitrine : danse automatique en musique, lien direct (#150, 21 novembre 2026)
 
 - `?vitrine=1` ouvre le mode jeu en danse automatique, au tempo de la piste enregistrée, muscles et

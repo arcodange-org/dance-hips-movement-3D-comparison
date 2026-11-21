@@ -54,14 +54,14 @@ const STYLE = (l, h) => `
   .points li { list-style: none; font-size: 37px; line-height: 1.3; font-weight: 500; margin-bottom: 22px; padding-left: 44px; position: relative; }
   .points li::before { content: ""; position: absolute; left: 0; top: 18px; width: 18px; height: 18px; border-radius: 50%; background: #fbbf24; }
 
-  .degrade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(2,6,23,0) 30%, rgba(2,6,23,.84) 56%, rgba(2,6,23,.94) 100%); }
-  #generique { width: ${l}px; padding: 0 100px 0 ${Math.round(l * 0.5)}px; }
+  .degrade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(2,6,23,0) 28%, rgba(2,6,23,.84) 50%, rgba(2,6,23,.94) 100%); }
+  #generique { width: ${l}px; padding: 0 90px 0 ${Math.round(l * 0.46)}px; }
   #generique h2 { font-size: 52px; font-weight: 700; margin-bottom: 14px; }
-  #generique .accroche { font-size: 28px; color: #cbd5e1; line-height: 1.35; margin-bottom: 70px; }
-  #generique h3 { font-size: 23px; letter-spacing: .26em; text-transform: uppercase; color: #5eead4; font-weight: 700; margin: 58px 0 18px; }
-  #generique p { font-size: 26px; line-height: 1.36; color: #e2e8f0; margin-bottom: 11px; }
-  #generique p small { display: block; font-size: 20px; color: #94a3b8; line-height: 1.3; }
-  #generique p.flux { font-size: 17px; line-height: 1.36; color: #cbd5e1; text-align: left; }
+  #generique .accroche { font-size: 26px; color: #cbd5e1; line-height: 1.35; margin-bottom: 44px; }
+  #generique h3 { font-size: 21px; letter-spacing: .26em; text-transform: uppercase; color: #5eead4; font-weight: 700; margin: 44px 0 14px; }
+  #generique p { font-size: 23px; line-height: 1.34; color: #e2e8f0; margin-bottom: 9px; }
+  #generique p small { display: block; font-size: 18px; color: #94a3b8; line-height: 1.3; }
+  #generique p.flux { font-size: 15.5px; line-height: 1.34; color: #cbd5e1; text-align: left; }
   #generique p.flux b { color: #64748b; font-weight: 400; padding: 0 5px; }
   #generique .fin { font-size: 30px; font-weight: 600; margin-top: 90px; color: #f8fafc; }
 `;

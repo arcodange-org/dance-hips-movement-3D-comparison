@@ -99,7 +99,39 @@ filmé à ce tempo, et le montage cale le premier temps de la musique sur le tem
   final), chaque phrase cite ses faits et ces faits existent dans la fiche, les crédits portent les
   attributions obligatoires, le calendrier est cohérent (aucune phrase ne déborde de son chapitre, durée totale
   entre 4 et 6 minutes 30 pour des durées de voix données), `film.ts` calcule les bons instants et cadrages.
-- Contrôle du film rendu : durée, présence du son, niveau, images clés relues.
+- Contrôle du film rendu : durée, présence du son, niveau par chapitre, une image relue par phrase
+  (`essais/video/planches/`), voix transcrites et comparées au texte.
+
+## Ce qui a été fait (21 novembre 2026)
+
+- **Scénario par workflow**, huit agents : un rédacteur, quatre critiques indépendants (exactitude, image,
+  clarté, rythme ; 9 constats bloquants, tous traités), une synthèse, une contre-vérification adverse, un
+  passage de corrections. Verdict final : les 39 phrases, les six cartouches et les attributions tiennent
+  face à la fiche de faits ; aucune incertitude de la fiche n'est devenue certitude.
+- **Ordre des styles** : semba, kompa, kizomba, tarraxinha, suave, zouk brésilien. Deux points de départ
+  (Luanda, Port-au-Prince), puis la kizomba que les sources relient aux deux, puis les deux styles rattachés à
+  la kizomba, puis le zouk brésilien, autre branche.
+- **Voix** : Hélène (guide), Lucien (histoire), Noémie (geste), choisies par la mesure (hauteur, débit) et
+  vérifiées par transcription locale (fidélité médiane 94 %). Les mots mal dits ont une écriture phonétique
+  (`dit`, `PRONONCIATION`) : semba, tarraxinha, Nemours, kimbundu, « vis », « zouk antillais ».
+- **Musiques** : cinq extraits Eleven Music (modèle `music_v2_5`), plans de composition tirés de
+  `docs/musique/`, tempos tenus (119,98 ; 119,98 ; 75,00 ; 72,00 ; 79,99 bpm). **Choisis par la mesure, pas à
+  l'oreille** : l'écoute revient au propriétaire. Seule la partie pleine de chaque extrait sert au film.
+- **Première version** : 5 min 40, 1920 × 1080, −16 LUFS, remise au propriétaire le 21 novembre 2026.
+- **Buste** : demande du propriétaire en cours de travail, « Si on affiche les os et muscle du buste il n'y a
+  pas de raison d'afficher les blocs gris. » Avec la couche de muscles, les blocs gris du tronc sont masqués
+  (`trunkBlocksVisible`, `src/muscles.ts`).
+
+## Ce qui reste
+
+- **Le ginga en danse de couple** : « J'aimerai aussi que le "sway" des hanches et le petit effet de "bounce",
+  le ginga en fait, soit présent pour montrer que les danseurs se balancent au rythme de la musique »
+  (propriétaire, 21 novembre 2026). Le balancement déclenché par les transferts d'appui n'existe que pour
+  l'ida e volta ([spec #42](spec-ginga.md)) ; l'étendre aux autres figures est un chantier de mouvement à part.
+  Le final de la vidéo sera refilmé ensuite (`node scripts/video/generer_video.mjs`).
+- **L'écoute des musiques** par le propriétaire ; une musique refusée se régénère avec
+  `scripts/video/musique.mjs --generer <style>` (avec son accord : crédits).
+- **Tête et bras** restent des volumes stylisés : le modèle n'a ni leurs os ni leurs muscles.
 
 ## Hors périmètre
 

@@ -20,7 +20,7 @@ export function assemblerComparaison({ ordre, fichiers, largeur, hauteur, ips, s
   const disposition = ordre.map((_, k) => `${(k % grille.colonnes) * grille.largeur}_${Math.floor(k / grille.colonnes) * grille.hauteur}`).join("|");
   filtres.push(`${ordre.map((_, k) => `[${n + k}:v]`).join("")}xstack=inputs=${n}:layout=${disposition},pad=${largeur}:${hauteur}:0:${COMPARAISON.haut}:color=${FOND},setsar=1[b]`);
   filtres.push(`[a][b]concat=n=2:v=1:a=0,format=yuv420p[v]`);
-  ffmpeg([...entrees, "-filter_complex", filtres.join(";"), "-map", "[v]", "-r", String(ips), "-c:v", "libx264", "-preset", "medium", "-crf", "14", sortie]);
+  ffmpeg([...entrees, "-filter_complex", filtres.join(";"), "-map", "[v]", "-r", String(ips), "-c:v", "libx264", "-preset", "medium", "-crf", "14", "-color_range", "tv", sortie]);
   return sortie;
 }
 
@@ -52,7 +52,7 @@ export function preparerMusique(piste, dureeChapitre, style) {
 export function monterChapitre({ id, clip, cal, elements, voix, musique, largeur, hauteur, ips, refaire = false }) {
   const D = cal.duree, F = RYTHME.fondu;
   const sortie = join(dossier("chapitres"), `${id}.mp4`), fiche = join(dossier("chapitres"), `${id}.json`);
-  const cle = empreinte({ clip: lireJson(clip.replace(/\.mp4$/, ".json"))?.cle ?? clip, cal, elements, voix, musique, largeur, hauteur, ips, version: 3 });
+  const cle = empreinte({ clip: lireJson(clip.replace(/\.mp4$/, ".json"))?.cle ?? clip, cal, elements, voix, musique, largeur, hauteur, ips, version: 4 });
   if (!refaire && lireJson(fiche)?.cle === cle && existsSync(sortie)) return { fichier: sortie, neuf: false };
 
   const entrees = ["-i", clip], filtres = [];
@@ -97,7 +97,7 @@ export function monterChapitre({ id, clip, cal, elements, voix, musique, largeur
   // Le graphe est gardé à côté du chapitre, pour le relire en cas d'erreur.
   writeFileSync(join(dossier("chapitres"), `${id}.filtre.txt`), filtres.join(";\n"));
   ffmpeg([...entrees, "-filter_complex", filtres.join(";"), "-map", "[vout]", "-map", "[aout]", "-t", n3(D), "-r", String(ips),
-    "-c:v", "libx264", "-preset", "medium", "-crf", "17", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2", sortie]);
+    "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p", "-color_range", "tv", "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2", sortie]);
   ecrireJson(fiche, { cle });
   return { fichier: sortie, neuf: true };
 }

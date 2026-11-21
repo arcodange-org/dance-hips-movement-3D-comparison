@@ -34,6 +34,11 @@ const LIMB_LEG = [
 const TRUNK_SPINE = ["ErectorSpinae", "ExternalOblique", "Trapezius"];
 const TRUNK_CHEST = ["PectoralisMajor", "Deltoid"];
 
+/** Owner (21 November 2026): « Si on affiche les os et muscle du buste il n'y a pas de raison d'afficher les
+ * blocs gris. » The muscle layer covers the trunk (TRUNK_SPINE, TRUNK_CHEST): with it, the stylised trunk
+ * blocks (spine, chest, shoulders) are hidden. Head and arms have no muscle mesh and stay. */
+export const trunkBlocksVisible = (showMuscles: boolean): boolean => !showMuscles;
+
 export function muscleParent(meshName: string): string | null {
   const m = /^Muscle_([A-Za-z]+)_([RCL])$/.exec(meshName);
   if (!m) return null;

@@ -21,6 +21,7 @@ import {
   muscleParent,
   parentOffsetSkel,
   makeMuscleMaterial,
+  trunkBlocksVisible,
 } from "../muscles";
 
 /** #128: the default ida e volta with the leader's virgula. */
@@ -105,6 +106,8 @@ export default function Rig({
   guide = null,
 }: RigProps) {
   const torsoOp = torsoOpacity ?? TORSO_OPACITY;
+  // With the muscle layer, the stylised trunk blocks are hidden (owner's rule, see src/muscles.ts).
+  const trunkBlocks = trunkBlocksVisible(showMuscles);
   const r = useRef({} as RigHandle).current;
   const reg = (n: string) => (el: any) => {
     r[n] = el;
@@ -342,7 +345,7 @@ export default function Rig({
             </mesh>
             <group ref={reg("torso")} visible={showTorso}>
               <group ref={reg("spine")} position={TORSO_JOINTS.spine}>
-                <mesh userData={{ part: "torso" }} position={[0, 0.06, 0]}>
+                <mesh userData={{ part: "torso" }} position={[0, 0.06, 0]} visible={trunkBlocks}>
                   <cylinderGeometry args={[0.05, 0.055, 0.14, 10]} />
                   <meshStandardMaterial
                     color={BODY_DARK}
@@ -352,7 +355,7 @@ export default function Rig({
                   />
                 </mesh>
                 <group ref={reg("lumbar")} position={TORSO_JOINTS.lumbar}>
-                  <mesh userData={{ part: "torso" }} position={[0, 0.03, 0]}>
+                  <mesh userData={{ part: "torso" }} position={[0, 0.03, 0]} visible={trunkBlocks}>
                     <cylinderGeometry args={[0.048, 0.05, 0.07, 10]} />
                     <meshStandardMaterial
                       color={BODY_DARK}
@@ -363,7 +366,7 @@ export default function Rig({
                   </mesh>
                 </group>
                 <group ref={reg("thoracic")} position={TORSO_JOINTS.thoracic}>
-                  <mesh userData={{ part: "torso" }} position={[0, 0.05, 0]}>
+                  <mesh userData={{ part: "torso" }} position={[0, 0.05, 0]} visible={trunkBlocks}>
                     <cylinderGeometry args={[0.05, 0.052, 0.1, 10]} />
                     <meshStandardMaterial
                       color={BODY_DARK}
@@ -374,7 +377,7 @@ export default function Rig({
                   </mesh>
                 </group>
                 <group ref={reg("chest")} position={TORSO_JOINTS.chest}>
-                  <mesh userData={{ part: "torso" }}>
+                  <mesh userData={{ part: "torso" }} visible={trunkBlocks}>
                     <boxGeometry args={[0.3, 0.26, 0.18]} />
                     <meshStandardMaterial
                       color={BODY}
@@ -383,7 +386,7 @@ export default function Rig({
                       opacity={torsoOp}
                     />
                   </mesh>
-                  <mesh userData={{ part: "torso" }} position={[-0.19, 0.1, 0]}>
+                  <mesh userData={{ part: "torso" }} position={[-0.19, 0.1, 0]} visible={trunkBlocks}>
                     <sphereGeometry args={[0.05, 12, 10]} />
                     <meshStandardMaterial
                       color={BODY_DARK}
@@ -392,7 +395,7 @@ export default function Rig({
                       opacity={torsoOp}
                     />
                   </mesh>
-                  <mesh userData={{ part: "torso" }} position={[0.19, 0.1, 0]}>
+                  <mesh userData={{ part: "torso" }} position={[0.19, 0.1, 0]} visible={trunkBlocks}>
                     <sphereGeometry args={[0.05, 12, 10]} />
                     <meshStandardMaterial
                       color={BODY_DARK}

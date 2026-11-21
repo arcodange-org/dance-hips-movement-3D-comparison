@@ -96,17 +96,22 @@ export function plansDe(chapitre, cal, bpm, ordre) {
   }
 
   if (chapitre.type === "style") {
-    const [t1, t2] = coupes(cal, [0.36, 0.7]);
+    // Le gros plan du bassin commence sur la première phrase de la voix « geste », le trois quarts sur la
+    // dernière ; à défaut, aux fractions habituelles du chapitre.
+    const gestes = chapitre.phrases.map((p, i) => (p.voix === "geste" ? cal.phrases[i].debut - 0.25 : null)).filter(t => t !== null);
+    const [t1, t2] = gestes.length >= 2 && gestes[0] > 1.5 && gestes.at(-1) < D - 1.5 ? [gestes[0], gestes.at(-1)] : coupes(cal, [0.36, 0.7]);
     return simple(solo(chapitre.style, bpm), (i, t) => {
       if (t < t1) return { ...PIED, az: entre(-16, 12, t / t1), shift: -0.12 };
-      if (t < t2) return { ...BASSIN, az: entre(30, -6, (t - t1) / (t2 - t1)), shift: -0.12 };
+      if (t < t2) return { ...BASSIN, az: entre(30, -6, (t - t1) / (t2 - t1)), shift: -0.2 };
       return { ...PIED, az: entre(52, 30, (t - t2) / (D - t2)), shift: -0.12 };
     });
   }
 
   if (chapitre.type === "comparaison") {
     // Une rangée de six corps entiers, puis une grille de six bassins ; les six dansent au même tempo.
-    const [coupe] = coupes(cal, [0.56]);
+    // La grille commence sur la phrase marquée `"plan": "grille"` ; à défaut, un peu après la moitié.
+    const marque = chapitre.phrases.findIndex(p => p.plan === "grille");
+    const coupe = marque > 0 ? cal.phrases[marque].debut - 0.25 : coupes(cal, [0.56])[0];
     const n1 = Math.round(coupe * ips), n2 = N - n1;
     const { rangee, grille } = COMPARAISON;
     const plans = [];
@@ -128,7 +133,7 @@ export function plansDe(chapitre, cal, bpm, ordre) {
     // Le couple en danse automatique ; au générique, il glisse vers la gauche de l'image.
     const t0 = cal.credits.debut;
     return simple(`?vitrine=1&style=kizomba&graine=${GRAINE_FINAL}&bare=1&bpm=${bpm}`,
-      (i, t) => ({ az: 28 + 4.5 * t, el: 11, dist: 3.8, fov: 40, shift: 0.2 * adouci((t - (t0 - 1.5)) / 3) }));
+      (i, t) => ({ az: 28 + 4.5 * t, el: 11, dist: 3.8, fov: 40, shift: 0.23 * adouci((t - (t0 - 1.5)) / 3) }));
   }
   throw new Error(`type de chapitre inconnu : ${chapitre.type}`);
 }
@@ -153,8 +158,8 @@ export function habillageDe(chapitre, cal, narration, ordre, composition) {
       // Étiquettes : sous la rangée, ou en haut de chaque case de la grille.
       for (let ligne = 0; ligne < forme.lignes; ligne++) {
         const cases = ordre.slice(ligne * forme.colonnes, (ligne + 1) * forme.colonnes).map((s, k) => ({
-          x: k * forme.largeur, largeur: forme.largeur, nom: STYLES[s].nom, couleur: STYLES[s].couleur,
-          detail: narration.chapitres[s].cartouche?.tempo ?? "" }));
+          // Le nom seul : ici les six dansent au même tempo, celui de chaque bande-son n'a pas sa place.
+          x: k * forme.largeur, largeur: forme.largeur, nom: STYLES[s].nom, couleur: STYLES[s].couleur, detail: "" }));
         const y = forme === rangee ? COMPARAISON.haut + 10 : COMPARAISON.haut + ligne * forme.hauteur + 14;
         element("etiquettes", { cases, y, gauche: forme === grille }, a + 0.2, b - (b === D ? 0 : 0.05));
       }

@@ -17,10 +17,28 @@ import { rendre } from "./habillage.mjs";
 import { assemblerComparaison, master, monterChapitre, preparerMusique } from "./monter.mjs";
 import { pistes, tempoPrevu } from "./musique.mjs";
 import { TRAVAIL, arguments_, dossier, duree, ecrireJson, ffmpeg, navigateur, niveau } from "./outils.mjs";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync, rmSync } from "node:fs";
 import { FICHE_DUREES, FICHE_FAITS, clePhrase } from "./controle.mjs";
 import { FILM, PRONONCIATION, VOIX, chapitresDe, generiqueDe, habillageDe, lireNarration, musiqueDe, plansDe } from "./scenario.mjs";
 import { dire, prononcer } from "./voix.mjs";
+
+/**
+ * Images de contrôle du film monté : la carte de chaque chapitre, une image au milieu de chaque phrase, et le
+ * générique toutes les douze secondes. Elles servent à relire le film sans le regarder en entier.
+ */
+export function planches(film, cal) {
+  const dir = dossier("planches");
+  for (const f of readdirSync(dir)) if (f.endsWith(".jpg")) rmSync(join(dir, f));
+  const prises = [];
+  cal.chapitres.forEach((c, i) => {
+    const n = String(i + 1).padStart(2, "0");
+    prises.push([c.debut + Math.min(1.6, c.duree / 4), `${n}-${c.id}-0-carte`]);
+    c.phrases.forEach((p, k) => prises.push([c.debut + (p.debut + p.fin) / 2, `${n}-${c.id}-${k + 1}`]));
+    if (c.credits) for (let t = c.credits.debut + 4, k = 1; t < c.duree - 1; t += 12, k++) prises.push([c.debut + t, `${n}-${c.id}-generique-${k}`]);
+  });
+  for (const [t, nom] of prises) ffmpeg(["-ss", t.toFixed(2), "-i", film, "-frames:v", "1", "-vf", "scale=1280:-1", "-q:v", "4", join(dir, `${nom}.jpg`)]);
+  return prises.map(([t, nom]) => ({ t: Math.round(t * 100) / 100, fichier: join(dir, `${nom}.jpg`) }));
+}
 
 export async function generer(args = {}) {
   const journal = (...m) => console.log(...m);
@@ -75,7 +93,7 @@ export async function generer(args = {}) {
       const { plans, composition } = plansDe(c, k, bpm, narration.ordre);
       const fichiers = {};
       for (const plan of plans) {
-        const r = await filmer(plan, { adresse: site.adresse, navigateurOuvert: chrome, refaire: refaire("plans"), journal });
+        const r = await filmer(plan, { adresse: site.adresse, version: site.version, navigateurOuvert: chrome, refaire: refaire("plans"), journal });
         fichiers[plan.id] = r.fichier;
         if (r.neuf) journal(`  plan ${plan.id} : ${plan.images} images`);
       }
@@ -104,12 +122,12 @@ export async function generer(args = {}) {
     // 7. Le film, puis son contrôle.
     const sortie = args.sortie ?? join(TRAVAIL, "pas-de-base.mp4");
     const m = master(montes, sortie);
-    const planches = dossier("planches");
-    cal.chapitres.forEach((c, i) => [0.12, 0.5, 0.88].forEach((f, j) =>
-      ffmpeg(["-ss", (c.debut + c.duree * f).toFixed(2), "-i", sortie, "-frames:v", "1", "-vf", "scale=960:-1", join(planches, `${String(i + 1).padStart(2, "0")}-${c.id}-${j + 1}.jpg`)])));
+    const images = planches(sortie, cal);
     const rapport = {
       fichier: sortie, duree: duree(sortie), dureePrevue: cal.duree, lufs: niveau(sortie), lufsAvantNiveau: m.avant,
-      sansMusique, chapitres: cal.chapitres.map(c => ({ id: c.id, debut: c.debut, duree: c.duree, bpm: bpmDe(chapitres.find(x => x.id === c.id)) })),
+      sansMusique, images: images.length,
+      chapitres: cal.chapitres.map(c => ({ id: c.id, debut: c.debut, duree: c.duree, bpm: bpmDe(chapitres.find(x => x.id === c.id)),
+        phrases: c.phrases.map(p => ({ debut: p.debut, fin: p.fin })), ...(c.credits ? { credits: c.credits } : {}) })),
     };
     ecrireJson(join(TRAVAIL, "rapport.json"), rapport);
     journal(`Film : ${sortie}`);

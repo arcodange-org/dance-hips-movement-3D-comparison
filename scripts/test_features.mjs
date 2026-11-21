@@ -15,7 +15,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const bundle = join(root, "scripts", ".test-features-bundle.mjs");
 esbuild.buildSync({
   stdin: {
-    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon"; export * from "../src/sortieFille"; export * from "../src/idaPaire"; export * from "../src/gait"; export * from "../src/music/patterns"; export * from "../src/music/scheduler"; export * as guidage from "../src/guidage"; export * from "../src/music/loop"; export * from "../src/vitrine"; export * from "../src/music/recordings"; export * as film from "../src/film";',
+    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon"; export * from "../src/sortieFille"; export * from "../src/idaPaire"; export * from "../src/gait"; export * from "../src/music/patterns"; export * from "../src/music/scheduler"; export * as guidage from "../src/guidage"; export * from "../src/music/loop"; export * from "../src/vitrine"; export * from "../src/music/recordings"; export * as film from "../src/film"; export * as muscles from "../src/muscles";',
     resolveDir: join(root, "scripts"),
     loader: "ts",
   },
@@ -153,6 +153,17 @@ const steps = [
     const tr = mod.retempoAt(c.tr, Number(m[2]), Number(m[1]));
     const b = mod.beatAt(tr, Number(m[2]) + Number(m[3]));
     if (Math.abs(b - Number(m[4])) > 1e-9) throw new Error(`temps ${b}, attendu ${m[4]}`);
+  }],
+  // Buste : les blocs gris du tronc s'effacent quand la couche de muscles est affichée (#155)
+  [/^(avec|sans) la couche de muscles, les blocs gris du tronc sont (masqués|affichés)$/, (c, m) => {
+    const got = mod.muscles.trunkBlocksVisible(m[1] === "avec");
+    if (got !== (m[2] === "affichés")) throw new Error(`trunkBlocksVisible=${got}`);
+  }],
+  [/^la couche de muscles couvre le tronc : (.+)$/, (c, m) => {
+    for (const nom of m[1].split(", ")) {
+      const parent = mod.muscles.muscleParent(`Muscle_${nom}_C`) ?? mod.muscles.muscleParent(`Muscle_${nom}_L`);
+      if (parent !== "spine" && parent !== "chest") throw new Error(`${nom} : parent ${parent}`);
+    }
   }],
   // Film image par image (#155, docs/spec-video-pas-de-base.md)
   [/^l'adresse "\?([^"]*)" (active|n'active pas) le film image par image$/, (c, m) => {
