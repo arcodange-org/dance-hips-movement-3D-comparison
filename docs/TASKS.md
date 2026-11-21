@@ -356,3 +356,13 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Tirage avec mémoire des figures et des paires (`GUIDE_VARIETY`, `GUIDE_MEMORY`), trois réglages.
 - [x] Mesures avant et après dans `scripts/test_guidage.mjs` ; scénario Gherkin.
 - [ ] Choix du réglage par le propriétaire (`hasard=libre|tenu|strict` sur la même graine).
+
+## Ginga visible en danse de couple (#157)
+
+- [x] Issue #157 avec les mots du propriétaire ; spec poussée en premier ([spec](spec-ginga-couple.md)), PR #158.
+- [x] Phase du ginga sur les transferts d'appui dans toutes les figures, balancement, petit rebond (`src/pose.ts`).
+- [x] Marges déclarées par les figures (`gingaRoom`, `gingaCap`) ; réglages `GUIDE_GINGA`.
+- [x] `scripts/test_ginga_couple.mjs` et `ginga-couple.feature` dans `npm test` ; allers-retours et séances contrôlés avec le ginga.
+- [x] GIFs des réglages, [page d'élection](elections/ginga-couple.md) ; démonstration `demo=ginga`.
+- [ ] Le chemin en « 8 » du bassin, lié au relais des genoux, lisible vu de dessus et vu de face (précisions du
+      propriétaire) : #159. La taille (`ginga=sans|discret|marque|ample`) s'y choisira avec la forme.

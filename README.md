@@ -244,7 +244,10 @@ pied (deux temps de plus, le poids reste sur l'autre pied), avec **Maj** en virg
 avance depuis la position neutre ; la danse seule tire les mêmes choix
 ([spec](docs/spec-ida-partout.md)). Le hasard de la danse seule est **tenu** (#152) : le tirage se
 souvient des figures et des paires de figures qui viennent d'être dansées, jamais trois fois de suite la
-même (`&hasard=libre`, `tenu` ou `strict` pour comparer). Le repère du couple suit les déplacements des figures, et les écarts de bassin entre deux
+même (`&hasard=libre`, `tenu` ou `strict` pour comparer). Le **ginga se voit** (#157) : dans toutes les
+figures les hanches se balancent vers le pied d'appui, au rythme des transferts de poids, et le bassin fait
+un petit rebond sur chaque temps de la musique (`&ginga=sans`, `discret`, `marque` ou `ample` pour comparer ;
+[spec](docs/spec-ginga-couple.md)). Le repère du couple suit les déplacements des figures, et les écarts de bassin entre deux
 figures sont effacés en un temps (inertialisation). Testé sur le GLB : continuité aux enchaînements,
 aucun croisement d'os. [Spec de la file et de la danse automatique](docs/spec-jeu-file-auto.md).
 

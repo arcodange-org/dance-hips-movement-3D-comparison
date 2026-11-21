@@ -19,7 +19,7 @@ import { filmEnabled } from "../film";
 import TransitionCard from "./TransitionCard";
 import { transitionAt } from "../transitions";
 import {
-  GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, guideFiguresFor, guideStyleOf, GUIDE_PAIR_DZ, GUIDE_DEMO, GUIDE_DEMO_ARROWS, GUIDE_DEMO_CHAIN, GUIDE_DEMO_INSERT, GUIDE_DEMO_TOUCH, applyTransform, figureOfCode, keyLabel, type HeldArrows,
+  GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, guideFiguresFor, guideStyleOf, GUIDE_PAIR_DZ, GUIDE_DEMO, GUIDE_DEMO_ARROWS, GUIDE_DEMO_CHAIN, GUIDE_DEMO_INSERT, GUIDE_DEMO_TOUCH, GUIDE_DEMO_GINGA, applyTransform, figureOfCode, keyLabel, type HeldArrows,
   type GuideFigure, type GuideKind, type GuideSample,
 } from "../guidage";
 
@@ -119,6 +119,9 @@ export default function GuidageApp() {
     // #152: `hasard=libre|tenu|strict`, how tightly the automatic dance avoids repeating itself.
     const hasard = params.get("hasard");
     if (hasard === "libre" || hasard === "tenu" || hasard === "strict") session.variety = hasard;
+    // #157: `ginga=sans|discret|marque|ample`, the hip sway and the bounce of the couple.
+    const ginga = params.get("ginga");
+    if (ginga === "sans" || ginga === "discret" || ginga === "marque" || ginga === "ample") session.ginga = ginga;
     session.reset(settings.auto);
     // `demo=…`: the demonstration sessions (commands already pressed).
     if (params.get("demo") === "1") session.intentions = GUIDE_DEMO.map(i => ({ ...i }));
@@ -126,6 +129,7 @@ export default function GuidageApp() {
     if (params.get("demo") === "enchainement") session.intentions = GUIDE_DEMO_CHAIN.map(i => ({ ...i }));
     if (params.get("demo") === "insertion") session.intentions = GUIDE_DEMO_INSERT.map(i => ({ ...i }));
     if (params.get("demo") === "allerretour") session.intentions = GUIDE_DEMO_TOUCH.map(i => ({ ...i }));
+    if (params.get("demo") === "ginga") session.intentions = GUIDE_DEMO_GINGA.map(i => ({ ...i }));
     const frame = Number(params.get("beat") ?? params.get("sortieBeat"));
     if (capture && Number.isFinite(frame)) seekClock(clock, Math.max(0, frame));
   }, [params, session, clock]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -253,6 +257,7 @@ export default function GuidageApp() {
           {now.touch && <span className="text-amber-300"> · {touchLabel(now)}</span>}
           {hud.queue.length > 0 && <span className="text-sky-300"> → {queueText}</span>}
           {auto && <span className="ml-2 text-emerald-300">danse seule</span>}
+          {params.has("ginga") && <span className="ml-2 text-fuchsia-300">ginga : {session.ginga}</span>}
           <span className="block text-[10px] text-slate-500">Mode jeu · BodyParts3D © DBCLS, CC BY-SA 2.1 Japan</span>
         </div>
       )}

@@ -118,6 +118,20 @@ export const GUIDE_AUTO = {
   touch: 0.12, virgula: 0.3, junction: 0.3, junctionFit: 0.8, junctionStay: 0.05, chainEven: 0.15, chainOdd: 0.9,
 };
 
+/** #157 (owner: « que le "sway" des hanches et le petit effet de "bounce", le ginga en fait, soit présent
+ * pour montrer que les danseurs se balancent au rythme de la musique », docs/spec-ginga-couple.md): the
+ * ginga of the couple dance. `sway`: share of the style's lateral hip shift, in every figure, on the
+ * support transfers; `bounce` (m): vertical pulse, lowest on each beat. Calibrated on the GLB; the
+ * setting is the owner's to elect (`?ginga=sans|discret|marque|ample`). */
+export type GuideGinga = "sans" | "discret" | "marque" | "ample";
+export const GUIDE_GINGA: Record<GuideGinga, { sway: number; bounce: number } | null> = {
+  sans: null,
+  discret: { sway: 0.2, bounce: 0.005 },
+  marque: { sway: 0.3, bounce: 0.009 },
+  ample: { sway: 0.45, bounce: 0.014 },
+};
+export const GUIDE_GINGA_DEFAULT: GuideGinga = "marque";
+
 /** A command: the figure asked for, dated on the beat clock. #144: `virgula` (a key held with the ida's)
  * asks for the touch as a virgula, where the step offers it. */
 export interface GuideIntention { beat: number; figure: GuideFigure; virgula?: boolean }
@@ -473,11 +487,13 @@ export interface GuideSample {
   touches: Touch[]; touch: Touch | null; touchBeat: number;
   /** Beat of the figure itself (the touches taken out; held on its position during a touch). */
   figureBeat: number;
+  /** #157: the ginga setting of the session. */
+  ginga: GuideGinga;
   couple: CoupleTransform; rootOffset: { leader: Offset; follower: Offset };
   /** Share (1 → 0) of a boundary residual still applied (quintic fade). */
   inertia: number;
 }
-export function sampleGuide(plan: GuidePlan, beat: number): GuideSample {
+export function sampleGuide(plan: GuidePlan, beat: number, ginga: GuideGinga = GUIDE_GINGA_DEFAULT): GuideSample {
   let segment = plan.segments[0];
   for (const s of plan.segments) if (s.start <= beat + 1e-9) segment = s;
   const localBeat = Math.max(0, beat - segment.start);
@@ -486,7 +502,7 @@ export function sampleGuide(plan: GuidePlan, beat: number): GuideSample {
   const touches = segment.touches ?? [], where = touchedBeat(touches, localBeat);
   return {
     segment, kind: segment.kind, localBeat, couple: segment.couple,
-    touches, touch: where.touch, touchBeat: where.t, figureBeat: where.hostBeat,
+    touches, touch: where.touch, touchBeat: where.t, figureBeat: where.hostBeat, ginga,
     movement: movementOf(segment.kind),
     rootOffset: { leader: scaled(segment.residual.leader), follower: scaled(segment.residual.follower) },
     inertia: segment.previous === null ? 0 : w,
@@ -500,10 +516,11 @@ export function movementOf(kind: GuideKind): MovementKey {
 
 /** Pose options of one dancer for a guide sample (shared by the view and the GLB tests): the pair
  * figure models, plexus contact, and the inertialized pelvis offsets of both dancers. */
-export function guidePoseOptions(s: Pick<GuideSample, "movement" | "rootOffset"> & { kind?: GuideKind; touches?: Touch[] }, follower: boolean) {
+export function guidePoseOptions(s: Pick<GuideSample, "movement" | "rootOffset"> & { kind?: GuideKind; touches?: Touch[]; ginga?: GuideGinga }, follower: boolean) {
   const role = follower ? "follower" : "leader", partner = follower ? "leader" : "follower";
   return {
     movement: s.movement, embrace: true, follower, ...figureOptions(s.kind ?? "base"), touches: s.touches ?? [],
+    ginga: GUIDE_GINGA[s.ginga ?? GUIDE_GINGA_DEFAULT],
     quartsPaire: s.movement === "quarts", idaPaire: s.movement === "ida", placePaire: s.movement === "none", plexus: true,
     // #62: the basic step keeps the clock's phase so that it joins the figures continuously.
     onBeat: false,
@@ -546,6 +563,12 @@ export const GUIDE_DEMO_TOUCH: GuideIntention[] = [
   { beat: 1, figure: "sortieG" }, { beat: 2, figure: "ida", virgula: true }, { beat: 10, figure: "sortieF" }, { beat: 14.6, figure: "ida" },
 ];
 
+/** #157 demonstration (`?guidage=1&demo=ginga`, GIFs of the election): the figures that had no hip sway
+ * before the ginga, from the first beat: walk forward, walk backward, sortie garçon, quart de tour. */
+export const GUIDE_DEMO_GINGA: GuideIntention[] = [
+  { beat: 0, figure: "avance" }, { beat: 0.1, figure: "recule" }, { beat: 0.2, figure: "sortieG" }, { beat: 0.3, figure: "quart" },
+];
+
 /** Live wrapper used by the view: commands are appended as keys are pressed, mode changes as Space is. */
 export class GuideSession {
   intentions: GuideIntention[] = [];
@@ -554,6 +577,8 @@ export class GuideSession {
   seed = 1;
   /** #152: how tightly the automatic dance avoids repetitions. */
   variety: GuideVariety = "tenu";
+  /** #157: the ginga setting (hip sway and bounce of the couple). */
+  ginga: GuideGinga = GUIDE_GINGA_DEFAULT;
   offered: GuideFigure[] = GUIDE_FIGURE_KEYS;
   motions: GuideMotions | null = null;
   boundKey: string | null = null;
@@ -589,6 +614,6 @@ export class GuideSession {
   }
   sample(beat: number): GuideSample | null {
     const plan = this.plan(beat);
-    return plan ? sampleGuide(plan, beat) : null;
+    return plan ? sampleGuide(plan, beat, this.ginga) : null;
   }
 }

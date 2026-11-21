@@ -99,6 +99,15 @@ et les specs. Résumé de la journée du 21 :
   regardant (`?auto=1&graine=7&hasard=…`).
 - **Élection #86 (PR brouillon #153)** : pieds de la suiveuse dans l'ida e volta, deux questions en GIF
   (`docs/elections/suiveuse-ida.md` sur la branche `arcodange/election-suiveuse`), en attente de son vote.
+- **#157 (PR #158)** : ginga visible en danse de couple. Dans toutes les figures du mode jeu, la phase du style
+  suit les transferts d'appui du leader (`gingaPhase`, moyennée sur un quart de temps), une part du déhanché
+  latéral va au bassin, et un rebond d'une pulsation par temps s'ajoute. Les figures déclarent où il s'efface
+  (`gingaRoom`, `gingaCap` : sortie fille, sorties, allers-retours). Réglages `GUIDE_GINGA`
+  (`ginga=sans|discret|marque|ample`, `marque` par défaut ; [aperçu](docs/elections/ginga-couple.md)).
+  Calibré à l'amplitude 1, celle du mode jeu. Une figure modifiée à une jonction garde son passé, ginga compris
+  (`gingaJunctions`) ([spec](docs/spec-ginga-couple.md)). **Ne fait pas encore le « 8 »** demandé par le propriétaire
+  (chemin du bassin lié au relais des genoux, « le 8 se lit dans les deux plans ») : chantier #159, où la taille se
+  choisira avec la forme.
 - PR brouillon en relecture du propriétaire : #117 (ontologie), #76 (audit).
 - Pièges : `npm test` complet dure 25 min ou plus en local. Lancer ses scripts en parallèle, un journal
   par script, le ramène à une dizaine de minutes ; `test_placements` et `test_plexus` rejouent d'autres

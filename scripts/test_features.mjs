@@ -356,6 +356,34 @@ const steps = [
     if (after?.by !== "auto") throw new Error("le tirage ne reprend pas");
     for (let k = 0; k < at; k++) if (plan.segments[k].kind !== alone.segments[k].kind) throw new Error("la danse d'avant a changé");
   }],
+  // #157: the ginga of the couple dance (docs/spec-ginga-couple.md).
+  [/^on lit la phase du ginga sur les appuis du leader dans chaque figure du mode jeu$/, (c) => {
+    const rig = guideRig();
+    c.ginga = mod.guidage.GUIDE_FIGURE_KEYS.filter(kind => mod.guidage.sampleKind(kind, 0, false, rig).loadR !== undefined).map(kind => {
+      const end = mod.guidage.GUIDE_FIGURES[kind].beats, phases = [];
+      for (let t = 0; t <= end + 1e-9; t += 1 / 16) phases.push(mod.gingaPhase(`feature:${kind}`, b => mod.guidage.sampleKind(kind, b, false, rig), t));
+      return { kind, phases };
+    });
+    if (c.ginga.length < 8) throw new Error(`${c.ginga.length} figures seulement`);
+  }],
+  [/^la phase ne recule pas et ne saute pas$/, (c) => {
+    for (const { kind, phases } of c.ginga) phases.forEach((p, k) => {
+      if (k && !(p >= phases[k - 1] - 0.02 && p - phases[k - 1] < 0.3)) throw new Error(`${kind} : phase ${phases[k - 1]} → ${p}`);
+    });
+  }],
+  [/^chaque figure fait avancer la phase d'au moins un transfert$/, (c) => {
+    for (const { kind, phases } of c.ginga) if (!(phases[phases.length - 1] - phases[0] >= 0.9)) throw new Error(`${kind} : ${phases[0]} → ${phases[phases.length - 1]}`);
+  }],
+  [/^on lit les réglages du ginga du mode jeu$/, (c) => { c.reglages = mod.guidage.GUIDE_GINGA; c.defaut = mod.guidage.GUIDE_GINGA_DEFAULT; }],
+  [/^le réglage par défaut balance les hanches et fait rebondir le bassin$/, (c) => {
+    const g = c.reglages[c.defaut];
+    if (!(g && g.sway > 0 && g.bounce > 0 && g.bounce <= 0.02)) throw new Error(JSON.stringify(g));
+  }],
+  [/^les réglages vont du plus discret au plus ample, et "sans" l'éteint$/, (c) => {
+    const { sans, discret, marque, ample } = c.reglages;
+    if (sans !== null) throw new Error("sans n'éteint pas le ginga");
+    if (!(discret.sway < marque.sway && marque.sway < ample.sway && discret.bounce < marque.bounce && marque.bounce < ample.bounce)) throw new Error("réglages non ordonnés");
+  }],
   // #144: a touch before any step that goes forward or backward (docs/spec-ida-partout.md).
   [/^on échantillonne chaque aller-retour proposé par le mode jeu$/, (c) => {
     const rig = guideRig();
