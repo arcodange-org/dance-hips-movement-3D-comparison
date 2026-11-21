@@ -673,7 +673,7 @@ export default function App() {
         <InfoCard sortieGarcon={isSortieGarcon}
           figureSteps={isSortieFille ? (sortieFilleVariant === "back"
             ? "Avance G, recul D, recul G puis D, marka G."
-            : "Avance G, crochet D, recul G puis D, marka G.") : undefined} styleKey={styleA} position={isPair ? "guideur" : isCompare ? "gauche" : ""} />
+            : "Virgula G (posé perpendiculaire), crochet D, recul G puis D, marka G.") : undefined} styleKey={styleA} position={isPair ? "guideur" : isCompare ? "gauche" : ""} />
         {(isCompare || isPair) && (
           <InfoCard sortieGarcon={isSortieGarcon}
             figureSteps={isSortieFille ? (sortieFilleVariant === "back"

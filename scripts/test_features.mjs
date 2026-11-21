@@ -175,6 +175,33 @@ const steps = [
       throw new Error("crochet et sortie latérale attendus");
     }
   }],
+  // #127: the leader's G1 of the hook variant is a virgula (docs/spec-sortie-fille.md).
+  [/^on échantillonne la sortie fille au premier pas en variante "(hook|back)"$/, (c, m) => {
+    const rest = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
+    const pose = (beat, follower, virgula) => mod.sampleSortieFille(beat, follower, rest, m[1], "reference", 1, 0, virgula);
+    c.virgula = { rest, on: pose(1, false, true), off: pose(1, false, false), back: pose(3, false, true),
+      follower: [0, .25, .5, .75, 1, 1.5, 2, 3].map(beat => [pose(beat, true, true), pose(beat, true, false)]) };
+  }],
+  [/^le gauche du leader se pose perpendiculaire, aussi loin en avant que le pas droit$/, (c) => {
+    const { on, off, back } = c.virgula;
+    if (Math.abs(on.feet.L.yaw - Math.PI / 2) > 1e-9) throw new Error(`lacet du G ${on.feet.L.yaw}, attendu π/2`);
+    if (Math.abs(on.feet.L.z - off.feet.L.z) > 1e-9) throw new Error("même profondeur attendue que le pas droit");
+    if (Math.abs(back.feet.L.yaw) > 1e-9) throw new Error("le G doit revenir pointé vers l'avant à la position 3");
+  }],
+  [/^le bassin du leader s'ouvre à gauche sans que son buste le suive$/, (c) => {
+    const { on, off } = c.virgula;
+    if (!(on.rootYaw > .1)) throw new Error(`ouverture du bassin ${on.rootYaw}`);
+    // The chest yaw is relative to the pelvis: the pelvis opening is taken back from it.
+    if (Math.abs(on.rootYaw + on.chestYaw - off.chestYaw) > 1e-9) throw new Error("le buste doit garder sa direction");
+  }],
+  [/^le suiveur fait les mêmes pas qu'avec le pas droit$/, (c) => {
+    for (const [on, off] of c.virgula.follower)
+      if (JSON.stringify(on) !== JSON.stringify(off)) throw new Error("le suiveur ne doit pas changer");
+  }],
+  [/^le gauche du leader reste pointé vers l'avant$/, (c) => {
+    const { on, off } = c.virgula;
+    if (on.feet.L.yaw !== 0 || JSON.stringify(on) !== JSON.stringify(off)) throw new Error("la variante recul ne doit pas changer");
+  }],
   [/^le droit du leader recule et le gauche du suiveur avance en diagonale$/, (c) => {
     const { start, end, followerStart, followerEnd } = c.fille;
     if (!(end.feet.R.z < start.feet.R.z && end.feet.R.x === start.feet.R.x

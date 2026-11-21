@@ -44,6 +44,25 @@ export const SORTIE_FILLE_UNITS = {
   endX: -HIP_WIDTH / 4,
 };
 
+/** #127 (owner, 21 Nov.: « Le fait d'aller vers l'avant avec le pied gauche perpendiculaire s'appelle une
+ * virgula. […] Dans la sortie fille version pas latéral (et non recul) au 2nd temps on peut utiliser cette
+ * "virgula" au premier temps pour le garçon (en gardant le buste du suiveur stable grâce à la
+ * contraposition du leader) »): in the hook variant the leader's G1 is a virgula, as the first step of
+ * the quarter turn. Calibrated on the GLB (docs/spec-sortie-fille.md, section #127):
+ * - the foot goes as far forward as the straight step (R22) and lands at a right angle, its ankle
+ *   `beside` to the left of his D's ankle: the heel next to the inner edge of his D. Heel exactly at the
+ *   tip of the D (the quarter turn's rule), from the quinconce it lands 10 cm deeper, on the line of the
+ *   follower's right knee, deeply bent during her G2: the shins cross;
+ * - `yaw`: the foot's yaw at the landing (towards his left); it pivots over the end of the flight, from
+ *   `yawFrom` of it, once it has passed the follower's retreating D;
+ * - `pelvis`: his pelvis opens this much to his left with the foot (rad, from `pelvisFrom` of the flight)
+ *   and squares up again during his hook (`pelvisBack`, shares of action 2), before the plexus facing cap
+ *   would turn his chest; `knee`: his G knee points this far out (rad, between the pelvis and the foot),
+ *   his D knee keeps facing forward;
+ * - his chest does not follow his pelvis (contraposition): the follower's chest is not turned;
+ * - the foot and its knee come back while his G3 goes back (action 3). */
+export const SORTIE_FILLE_VIRGULA = { beside: 0.11, yaw: Math.PI / 2, yawFrom: 0.35, pelvis: 0.175, pelvisFrom: 0.4, pelvisBack: [0.2, 0.7], knee: 0.8 };
+
 export function sortieFilleVariantOf(value: string | null): SortieFilleVariant {
   return value === "back" ? "back" : "hook";
 }
@@ -81,11 +100,13 @@ interface Action {
   // runs straight into the landing whatever the placement.
   align?: "x" | "z";
   delay?: number;
+  /** #127: yaw of the foot once landed (rad, towards the dancer's left); it stays until the foot moves again. */
+  yaw?: number;
 }
 
 export function sampleSortieFille(beat: number, follower: boolean,
   rest: Record<FigureFoot, FootPoint>, variant: SortieFilleVariant = "hook",
-  placement: CouplePlacement | "reference" | PlacementOffset = "reference", contact = 1, stance = 0) {
+  placement: CouplePlacement | "reference" | PlacementOffset = "reference", contact = 1, stance = 0, virgula = true) {
   const b = sortieFilleBeat(beat);
   const index = Math.min(4, Math.floor(b));
   const t = b - index;
@@ -95,7 +116,15 @@ export function sampleSortieFille(beat: number, follower: boolean,
   const touch = Number.isFinite(contact) ? Math.max(0, Math.min(1, contact)) : 1;
   const halfHip = HIP_WIDTH / 2;
   const U = SORTIE_FILLE_UNITS;
+  // Couple placement (docs/spec-placements-couple.md): both feet start shifted by o.
+  const o = placementOffset(placement);
+  // Initial/neutral stance: each foot `stance` further out (feet under the hips), absorbed on its first step.
+  const widen = Number.isFinite(stance) ? stance : 0;
+  // #127: the leader's G1 of the hook variant is a virgula, its heel next to his D where it stands.
+  const V = SORTIE_FILLE_VIRGULA;
+  const comma = virgula && !follower && !back;
   const firstLeaderZ = U.step;
+  const commaTarget: FootPoint = { x: rest.R.x - widen + o.x + V.beside - rest.L.x, z: firstLeaderZ };
   // #105: one foot back, 7 cm to her left as before (R22).
   const firstFollowerZ = -U.step;
   const secondFollowerX = back ? U.backOpen : mix(U.hookOpenWide, U.hookOpen, touch);
@@ -131,7 +160,7 @@ export function sampleSortieFille(beat: number, follower: boolean,
     { foot: "R", target: mark, body: { x: mark.x, z: returnZ },
       corner: { x: mark.x, z: approach.z - .10 }, align: "x", delay: back ? .16 : 0 },
   ] : [
-    { foot: "L", target: { x: 0, z: firstLeaderZ }, body: { x: 0, z: firstLeaderZ / 2 } },
+    { foot: "L", target: comma ? commaTarget : { x: 0, z: firstLeaderZ }, body: { x: 0, z: firstLeaderZ / 2 }, yaw: comma ? V.yaw : 0 },
     // #105: on his hooked D the leader's pelvis stays 8 cm behind it, so that his knees leave room for
     // her D3 diagonal (her swinging D knee passes in front of his D knee).
     { foot: "R", target: secondLeader,
@@ -145,7 +174,6 @@ export function sampleSortieFille(beat: number, follower: boolean,
   // Couple placement (docs/spec-placements-couple.md): both feet start shifted by o. Shifted
   // landings keep the step amplitude; the D/D arrival (leader D2, follower D3) and every later
   // landing are validated, so the figure is unchanged from action 3 on.
-  const o = placementOffset(placement);
   // The leader's hooked D must reach the longitudinal level of his own G and anchor the D/D
   // arrival, so his G1 is validated too; only the follower's D1/G2 keep their amplitude.
   // From the quinconce start (knees interleaved), the follower's D1 lands on its validated target to
@@ -155,8 +183,6 @@ export function sampleSortieFille(beat: number, follower: boolean,
   // again: quinconce shift, feet under the hips and the right foot's stagger, as at the start.
   const neutral = [false, false, false, true, true];
   const shiftOf: Record<FigureFoot, number> = { L: 1, R: 1 };
-  // Initial/neutral stance: each foot `stance` further out (feet under the hips), absorbed on its first step.
-  const widen = Number.isFinite(stance) ? stance : 0;
   const position = (foot: FigureFoot, offset: FootPoint, shift = 0, home = 0): FootPoint =>
     ({ x: rest[foot].x + offset.x + o.x * shift + (foot === "L" ? widen : -widen) * home,
       z: rest[foot].z + offset.z + o.z * shift + (foot === "R" ? (o.stagger ?? 0) / 2 : 0) * home });
@@ -170,7 +196,7 @@ export function sampleSortieFille(beat: number, follower: boolean,
   let body: FootPoint = { x: 0, z: 0 };
   steps.slice(0, index).forEach((action, i) => {
     shiftOf[action.foot] = shifted[i] || neutral[i] ? 1 : 0;
-    feet[action.foot] = { ...landing(i, action), yaw: 0, lift: 0 };
+    feet[action.foot] = { ...landing(i, action), yaw: action.yaw ?? 0, lift: 0 };
     support = action.foot;
     body = action.body;
   });
@@ -200,7 +226,8 @@ export function sampleSortieFille(beat: number, follower: boolean,
   const crossing = follower && index === 3;
   // Her D3 closes the D/D contact against the leader's D knee: it rolls little too.
   const contactStep = follower && index === 2;
-  const gait = gaitStep(flight, { x: to.x - from.x, z: to.z - from.z }, 0,
+  // #127: a foot landing turned out lands on its ball (the travel is across its own axis).
+  const gait = gaitStep(flight, { x: to.x - from.x, z: to.z - from.z }, action.yaw ?? 0,
     interleaved ? SORTIE_FILLE_FIRST_ROLL : crossing || contactStep ? SORTIE_FILLE_CROSS_ROLL : 1);
   const along = index === 4 ? flight : gait.progress;
   let point = interpolate(from, to, smooth(along));
@@ -217,7 +244,10 @@ export function sampleSortieFille(beat: number, follower: boolean,
   const swing = Math.sin(Math.PI * flight) ** 2;
   // The right toe turns toward the diagonal during the follower’s flight. The ankle
   // follows one straight segment and the foot faces forward again at touchdown.
-  const yaw = follower && index === 2 ? 55 * Math.PI / 180 * swing : 0;
+  // #127: the virgula pivots over the end of its flight and comes back while the foot next moves.
+  const late = (x: number, start: number) => smooth((x - start) / Math.max(1e-6, 1 - start));
+  const yaw = follower && index === 2 ? 55 * Math.PI / 180 * swing
+    : mix(from.yaw, action.yaw ?? 0, action.yaw ? late(flight, V.yawFrom) : smooth(flight));
   feet[action.foot] = { ...point, yaw, ...(index === 4 ? { lift: .022 * swing } : { lift: gait.lift, pitch: gait.pitch, pivot: gait.pivot }) };
   const transfer = index < 4 ? smooth((t - touchdown) / (1 - touchdown)) : 0;
   const loadR = mix(Number(support === "R"), Number(action.foot === "R"), transfer);
@@ -240,5 +270,13 @@ export function sampleSortieFille(beat: number, follower: boolean,
   // Opening of the leader's chest leads the answering rotation of the partner.
   const cue = follower ? .72 : .47;
   const chestYaw = -.20 * smooth((b - cue) / .72) * (1 - smooth((b - 2.15) / 1.1));
-  return { beat: b, feet, root, loadR, chestYaw, coupling: Math.max(startCoupling(b, o), endCoupling(b, o)) };
+  const sample = { beat: b, feet, root, loadR, chestYaw, coupling: Math.max(startCoupling(b, o), endCoupling(b, o)) };
+  if (!comma) return sample;
+  // #127: the pelvis opens with the virgula (over the end of its flight) and squares up during the hook;
+  // the chest keeps its own direction (contraposition); the G knee points out between the pelvis and the
+  // foot until the foot goes back, the D knee keeps facing forward.
+  const out = index === 0 ? late(flight, V.yawFrom) : index === 1 ? 1 : index === 2 ? 1 - smooth(flight) : 0;
+  const open = index === 0 ? late(flight, V.pelvisFrom) : index === 1 ? 1 - smooth((t - V.pelvisBack[0]) / (V.pelvisBack[1] - V.pelvisBack[0])) : 0;
+  const rootYaw = V.pelvis * open;
+  return { ...sample, chestYaw: chestYaw - rootYaw, rootYaw, kneeYawSide: { L: rootYaw - V.knee * out, R: rootYaw } };
 }
