@@ -40,7 +40,7 @@ const pos = (figure: OntologyFigure, beat: number, label: string, leader: Side, 
 export const POSITIONS: Position[] = [
   pos("sortieG", 0, "Départ, quinconce", "R", "L", "quinconce", "contact"),
   pos("sortieG", 1, "G du leader en avant vers son couloir, D du suiveur en arrière", "L", "R", "décalé", "contact"),
-  pos("sortieG", 2, "Flancs droits : bassin du leader au-dessus de son D, cuisses D au contact sur le côté", "R", "L", "décalé", "contact"),
+  pos("sortieG", 2, "Flancs droits : pieds D tout près, bassin du leader légèrement en arrière de son D, cuisses D côte à côte", "R", "L", "décalé", "contact"),
   pos("sortieG", 3, "G du leader croisé, retour vers la ligne", "L", "R", "décalé", "libres"),
   pos("sortieG", 4, "D du leader en face", "R", "L", "quinconce", "libres"),
   pos("sortieG", 5, "Marka, quinconce", "R", "L", "quinconce", "contact"),
