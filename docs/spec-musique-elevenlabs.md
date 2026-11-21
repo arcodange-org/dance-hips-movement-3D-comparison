@@ -31,7 +31,7 @@ du propriétaire (voir « Points ouverts »).
 | Lecteur de boucle synchronisé, repli, interface, tests | fait |
 | Script de génération, analyse de tempo, de structure et de signature rythmique | fait |
 | Kizomba, prise 1 (prompt du propriétaire, mot pour mot) | **refusée à l'écoute**, retirée de la branche |
-| Kizomba, deuxième tentative | trois variantes écrites ; extraits d'essai **en attente de l'accord** du propriétaire (environ 675 crédits) |
+| Kizomba, deuxième tentative | trois extraits d'essai générés (variantes A, B, C) ; **en attente du choix à l'oreille** du propriétaire |
 | Pistes semba, kompa, tarraxinha, suave, zouk brésilien | après une kizomba validée |
 
 Aucune piste n'est publiée : tous les styles jouent la synthèse.
@@ -235,6 +235,21 @@ ngomas, dikanza en doubles-croches, deux guitares, accordéon
 Les trois gardent 102 bpm, le tempo du prompt du propriétaire. Trois extraits de 15 s coûtent
 environ 675 crédits ; la prise complète de la variante retenue, environ 931.
 
+### Extraits d'essai du 21 novembre 2026 (accord du propriétaire : « Oui, les trois »)
+
+Générés avec `--essais kizomba` (environ 675 crédits), écrits dans `essais/musique/` et non
+publiés. Mesures sur 15 s, donc moins sûres que sur une prise complète :
+
+| Variante | Tempo | Attaques graves sur les temps 1 à 4 | Ce que montre le profil par double-croche |
+|---|---|---|---|
+| A | 102,2 bpm | 1,00 – 0,21 – 0,06 – 0,05 | grave sur le temps 1, puis syncopé (contretemps du 2 et du 4) ; aigu accentué sur les temps 2 et 4 |
+| B | 102,0 bpm | 0,52 – 0,09 – 0,39 – 0,07 | grave sur les temps 1 et 3 et à contretemps ; aigu en « galop » (trois doubles-croches, un silence), comme une dikanza |
+| C | 102,9 bpm | 1,00 – 0,28 – 0,34 – 0,53 | grave appuyé sur le temps 1 ; aigu syncopé (syncope 3-3-2 mesurée à 0,51) |
+
+Aucun des trois n'a la pulsation à quatre temps égaux de la prise 1 (égalité mesurée : 0,05, 0,14
+et 0,28, contre 0,82). Cela écarte le défaut constaté, sans dire que la musique est juste : le
+choix se fait à l'oreille.
+
 ## Conditions d'usage (relevé du 21 novembre 2026, à confirmer par le propriétaire)
 
 D'après les conditions d'Eleven Music pour l'offre Starter : usage commercial en ligne et hors
@@ -270,8 +285,8 @@ publication. L'app et la documentation indiquent que la musique est générée p
 
 ## Points ouverts (propriétaire)
 
-- **Accord pour les extraits d'essai** de la kizomba (trois fois 15 s, environ 675 crédits), puis
-  choix d'une variante à l'oreille — ou correction des variantes avant toute dépense.
+- **Choix d'une variante à l'oreille** parmi les trois extraits d'essai (ou aucune : corriger les
+  variantes), puis accord pour la prise complète (environ 931 crédits).
 - **Tempo** : les sources du dépôt situent la kizomba vers 85–95 bpm ; 102 bpm vient du prompt
   d'origine. À confirmer.
 - **Autres styles** : après une kizomba validée, même méthode (variantes, extraits, prise).

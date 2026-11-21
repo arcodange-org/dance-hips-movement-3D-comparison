@@ -11,8 +11,9 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   ([spec](docs/spec-musique-elevenlabs.md)). **Aucune piste publiée** : la prise 1 de la kizomba
   (prompt du propriétaire) a été refusée à l'écoute — « ça ressemble plus à de la techno qu'à de la
   kizomba semba angolaise » — et retirée de la branche.
-- **En attente du propriétaire** : accord pour trois extraits d'essai de 15 s (variantes A, B, C de
-  `scripts/musique_prompts.mjs`, environ 675 crédits), puis choix à l'oreille et prise complète.
+- **En attente du propriétaire** : choix à l'oreille parmi les trois extraits d'essai de 15 s
+  (variantes A, B, C de `scripts/musique_prompts.mjs`, générés le 21 novembre dans
+  `essais/musique/`, hors dépôt), puis accord pour la prise complète (environ 931 crédits).
   Ne rien générer sans cet accord.
 - Commandes : `node scripts/generer_musique.mjs --plan` (sans réseau) ; avec la clé,
   `node --env-file=<fichier d'environnement> scripts/generer_musique.mjs --essais kizomba`, puis

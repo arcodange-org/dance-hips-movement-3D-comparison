@@ -298,6 +298,6 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] `scripts/test_musique_enregistree.mjs` et `musique-enregistree.feature` dans `npm test` ; contrôle navigateur.
 - [x] Kizomba, prise 1 (prompt du propriétaire) : générée, mesurée, **refusée à l'écoute** (« techno »), retirée.
 - [x] Signature rythmique dans l'analyse ; variantes A, B, C en plans de composition ; mode `--essais`.
-- [ ] Extraits d'essai de la kizomba : **en attente de l'accord du propriétaire** (environ 675 crédits).
-- [ ] Choix d'une variante à l'oreille, prise complète, écoute de validation (temps 1, raccord, qualité).
+- [x] Extraits d'essai de la kizomba (variantes A, B, C, 15 s chacun) générés avec l'accord du propriétaire.
+- [ ] **Choix d'une variante à l'oreille par le propriétaire**, puis prise complète et écoute de validation (temps 1, raccord, qualité).
 - [ ] Autres styles, après une kizomba validée (même méthode).
