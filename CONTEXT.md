@@ -59,6 +59,10 @@ jambes ne bougent pas).
   `?atlas=bassin-obliquite&variante=relais`, et un GIF comparatif sur la page de la planche
   (`scripts/capture_atlas.mjs --mouvement bassin-obliquite --variante relais`).
   `ATLAS_ELECTIONS` (`src/atlas.ts`) porte les règles candidates et la règle retenue.
+- **Lien avec le ginga (#157, #159).** Le propriétaire relie ces planches au ginga : « on fait un
+  8 », lisible dans les trois plans, alors que chaque planche fait un aller-retour sur un axe. Le
+  « 8 » est le chantier #159 (PR #160, sa propre élection) : l'atlas n'en produit pas de planche.
+  Le vote B lui a été transmis ; dans l'atlas, « relais » nomme la règle non retenue.
 - Une élection attend encore le propriétaire. Rotation : thorax de face (versionné) ou buste
   solidaire (GIF montrés, non versionnés).
 - `main` a été fusionné quatre fois dans la branche (conflits : `package.json`, `README.md`,

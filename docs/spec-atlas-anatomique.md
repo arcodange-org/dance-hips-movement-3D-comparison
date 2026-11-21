@@ -415,6 +415,35 @@ mais pour la danse on veut B ». D15 remplace, dans D14, ce qui décrivait l'ét
 - **Capture sur machine chargée.** Deux captures ont échoué sur le délai de 30 s d'une capture
   d'écran (charge moyenne de 52). Le script attend maintenant jusqu'à 180 s par image.
 
+### Lien avec le ginga : le « 8 » du bassin (#157, #159)
+
+Le propriétaire relie ces planches au ginga de la danse. Ses mots du 21 novembre 2026, tels que
+consignés sur l'issue #157 :
+
+> le ginga c'est en lien avec les genoux en relais ou qui se chevauchent de la session atlas
+> anatomique. Sauf que dans le sujet de l'atlas anatomique on a un allez retour pour le moment
+> alors que dans la danse le chemin est différent. on dit souvent que l'"on fait un 8".
+>
+> C'est important cet aspect car ça va corriger le soucis de timing / changement de position
+> brusque, qui font que les déplacements sont "robotiques" et non "organiques".
+
+Puis : « le 8 se lit dans les deux plans » et « (j'ai envie de dire les 3 plans même) ».
+
+- **Ce que l'atlas montre.** Chaque planche du bassin fait varier un seul axe, en aller-retour :
+  l'obliquité (vue de face, une hanche monte), la rotation (vue de dessus, une hanche avance),
+  l'antéversion (vue de profil). Le chemin de la danse combine ces axes ; aucune planche ne le montre.
+- **Qui fait quoi.** Le « 8 » est le chantier #159 (PR #160, branche `arcodange/ginga-huit`), avec
+  sa propre élection (forme, sens, taille). L'atlas n'ouvre pas une seconde élection sur la même
+  question, et aucune planche du « 8 » n'est produite ici.
+- **Ce que l'atlas apporte à ce chantier.** Le vote D15 : pour la danse, genoux chevauchés (bassin
+  à hauteur constante, deux genoux fléchis au centre). Transmis à la session du ginga le
+  21 novembre 2026. Attention au vocabulaire : dans l'atlas, « relais » nomme la règle A, celle
+  qui n'est pas retenue pour la danse.
+- **Possible ensuite, non décidé.** Une fois le « 8 » élu dans #159, une planche de référence du
+  chemin élu sur le squelette neutre : les trois axes combinés, le tracé des hanches dans les trois
+  vues. Le manifeste v1 ne décrit que des mouvements à un axe ; il faudrait l'étendre. À proposer au
+  propriétaire à ce moment-là, pas avant.
+
 ## Tâches
 
 Voir `docs/TASKS.md`, section « Atlas anatomique ouvert (#132) ».
