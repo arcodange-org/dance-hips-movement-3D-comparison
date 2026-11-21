@@ -243,6 +243,76 @@ Vérifié sur le GLB par le moteur : le sujet regarde +z, son côté droit est e
 HUD) et l'antéversion (plan sagittal) une rotation autour de **x**. Le manifeste v1 les avait
 inversées ; il est corrigé, et le contrôle 2 du test l'empêche de revenir.
 
+### D13 — Les trois planches du bassin : thorax immobile, repère de position par axe
+
+Amendement du 2026-11-21, écrit avant le code, pour `bassin-rotation` et `bassin-anteversion`.
+
+**Thorax immobile sur les trois axes.** Dans une planche du bassin, le thorax garde son
+orientation de la pose neutre : c'est le bassin qui bouge sous un buste qui ne suit pas.
+L'isolation du moteur (`lockUpperTrunk`, `iso=1`) compense le roulis et le tangage du bassin,
+**pas le lacet**. Mesuré sur le GLB avant correction : dans `bassin-rotation`, le thorax et la
+tête tournaient de ±15° avec le bassin, et la planche montrait tout le haut du corps qui pivote
+sur des pieds plantés. La note du manifeste annonçait pourtant un thorax contre-tourné.
+
+- La règle de pose de l'atlas ajoute donc, pour l'axe `y`, une contre-rotation de la colonne
+  égale à l'angle du bassin (`trunkOffset`, option existante de `applyPose`). Elle est propre à
+  l'atlas : le comparateur et `lockUpperTrunk` ne sont pas modifiés.
+- La variante « buste solidaire » n'est pas versionnée. Le choix revient au propriétaire.
+
+**Mesures ajoutées à chaque frame de `meta.json`** :
+
+- avancée du centre de hanche gauche par rapport au droit (mm, positif : gauche devant) ;
+- position du centre du sacrum par rapport au milieu des centres de hanche : hauteur et avancée (mm) ;
+- rotation du thorax par rapport à la pose neutre, tous axes confondus (°).
+
+**Repère de position par axe**, dans la page de la planche et dans sa légende : la mesure qui
+varie avec le mouvement. Obliquité (`z`) : écart de hauteur des hanches. Rotation (`y`) : avancée
+d'une hanche par rapport à l'autre. Antéversion (`x`) : hauteur du centre du sacrum au-dessus de
+l'axe des hanches (les centres de hanche sont sur l'axe de bascule, ils ne bougent pas).
+
+**Test (complète D12, contrôle 2).** Deux vecteurs liés au bassin, « hanche droite → hanche
+gauche » et « milieu des hanches → centre du sacrum », suivent la rotation rigide de l'angle
+commandé autour de l'axe monde attendu (≤ 0,01 mm). Par planche : la composante du repère varie
+de l'amplitude attendue, son signe est celui écrit dans `meta.json`, et un axe erroné est
+détecté. Le thorax garde son orientation neutre (≤ 0,01°, tous axes) dans les trois planches.
+
+**Limites dites dans `meta.json`, par axe.** Rotation : les pieds ne pivotent pas, les hanches
+absorbent la rotation. Antéversion : la bascule se fait autour de l'axe des hanches, les jambes
+ne bougent pas, et la courbure lombaire qui l'accompagne chez une personne n'est pas montrée
+(buste stylisé). Obliquité : voir la question ouverte ci-dessous.
+
+### Question ouverte — obliquité : genoux en relais ou en chevauchement
+
+Question du propriétaire (2026-11-21) : « que se passe-t-il si la flexion de la jambe opposée
+n'attend pas la fin de la flexion de la première jambe ? »
+
+Le moteur tient le bassin **le plus haut que les jambes permettent**. La jambe du côté haut reste
+donc presque tendue, les genoux fléchissent **à tour de rôle**, et le bassin remonte au passage
+par le centre. Si le genou opposé n'attend pas, les deux genoux sont fléchis ensemble au centre
+et le bassin reste plus bas. Mesuré sur le GLB, pieds plantés, bassin tenu à hauteur constante
+par `rootOffset.y` :
+
+| Bassin | Relais (planche actuelle) : genou droit / gauche | Hauteur | Chevauchement : genou droit / gauche | Hauteur |
+| --- | --- | --- | --- | --- |
+| −10° | 6,9° / 31,4° | 867 mm | 6,9° / 31,4° | 867 mm |
+| −5° | 6,9° / 22,7° | 875 mm | 16,7° / 27,4° | 867 mm |
+| −2,5° | 6,9° / 16,8° | 878 mm | 19,9° / 25,1° | 867 mm |
+| 0° | 6,9° / 7,0° | 882 mm | 22,7° / 22,7° | 867 mm |
+| +2,5° | 16,7° / 6,9° | 878 mm | 25,1° / 20,0° | 867 mm |
+| +5° | 22,7° / 6,9° | 875 mm | 27,4° / 16,8° | 867 mm |
+| +10° | 31,3° / 6,9° | 867 mm | 31,4° / 7,2° | 867 mm |
+
+- Relais : le bassin monte de 14,6 mm à chaque passage par le centre. Le genou qui prend la
+  suite part d'un coup (de 7° à 16,7° sur les premiers 2,5° de bassin) pendant que l'autre
+  s'arrête net.
+- Chevauchement : hauteur constante, aucun rebond. Au centre, les deux genoux bougent en sens
+  inverse, d'environ 1° par degré de bassin. Les extrêmes sont inchangés. Prix : deux genoux à
+  22,7° au centre, aucune jambe ne se repose presque tendue.
+- Chevauchement partiel (bassin à mi-hauteur au centre) : deux genoux à 16,7°, rebond de 7,3 mm.
+
+C'est la géométrie du modèle, pas une mesure sur une personne. La planche montre le relais et le
+dit dans ses limites. Décision à prendre par le propriétaire, par élection de GIFs (voir Tâches).
+
 ## Tâches
 
 Voir `docs/TASKS.md`, section « Atlas anatomique ouvert (#132) ».
