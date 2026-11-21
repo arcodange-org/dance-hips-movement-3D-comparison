@@ -11,10 +11,11 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   ([spec](docs/spec-musique-elevenlabs.md)). **Aucune piste publiée** : la prise 1 de la kizomba
   (prompt du propriétaire) a été refusée à l'écoute — « ça ressemble plus à de la techno qu'à de la
   kizomba semba angolaise » — et retirée de la branche.
-- **En attente du propriétaire** : choix à l'oreille parmi les trois extraits d'essai de 15 s
-  (variantes A, B, C de `scripts/musique_prompts.mjs`, générés le 21 novembre dans
-  `essais/musique/`, hors dépôt), puis accord pour la prise complète (environ 931 crédits).
-  Ne rien générer sans cet accord.
+- Le propriétaire a retenu la **variante C** (fusion kizomba et semba) sur extraits de 15 s. La
+  première prise complète (un bloc de 62 s) est revenue **silencieuse** : échec de génération,
+  775 crédits perdus. Les prises complètes sont maintenant demandées en sections de 32 temps.
+- **En attente du propriétaire** : accord pour redemander la prise complète de la variante C
+  (environ 775 crédits). Ne rien générer sans cet accord.
 - Commandes : `node scripts/generer_musique.mjs --plan` (sans réseau) ; avec la clé,
   `node --env-file=<fichier d'environnement> scripts/generer_musique.mjs --essais kizomba`, puis
   `--styles kizomba --variante kizomba=<lettre>` (la clé n'est pas dans le Vault ; ne jamais
@@ -23,7 +24,9 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   syncopée ne pose pas une attaque sur chaque temps (la confiance se lit par quart de morceau) ;
   le temps 1 se déduit de la structure (début, changement de section, fin) ; un prompt sans époque
   ni type de production dérive vers le plus probable (ici, l'électronique) : dire aussi ce qu'on
-  ne veut pas (plan de composition), et lire la signature rythmique avant de faire écouter.
+  ne veut pas (plan de composition), et lire la signature rythmique avant de faire écouter ;
+  l'API peut rendre un fichier silencieux sans erreur (vérifier le niveau avant tout) ; le coût
+  réel se lit sur le compteur de l'abonnement (750 crédits par minute mesurés, pas 900).
 
 ## Chantiers du 21 novembre 2026 : quarts, sortie garçon D2, GIFs avec muscles, virgula
 

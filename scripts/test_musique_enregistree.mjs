@@ -10,7 +10,7 @@ import { existsSync, mkdtempSync, readFileSync, readdirSync, unlinkSync, writeFi
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { A_EVITER, CREDITS_PAR_MINUTE, DUREE_ESSAI, MODELE, PROMPTS, VARIANTES, coutEstime, creditsPour, planDe, texteDe } from "./musique_prompts.mjs";
+import { A_EVITER, BLOC_MAX_S, CREDITS_PAR_MINUTE, DUREE_ESSAI, MODELE, PROMPTS, TEMPS_PAR_SECTION, VARIANTES, coutEstime, creditsPour, planDe, texteDe } from "./musique_prompts.mjs";
 import { ANALYSIS_RATE, analyseTempo } from "./tempo.mjs";
 import { SEUILS, corpsRequete, ecrireRegistre, lireArguments, lireRegistre, plan, signature, tableauProvenance } from "./generer_musique.mjs";
 
@@ -475,7 +475,24 @@ function drums(kind, { bpm = 96, first = 0.04, bars = 24 } = {}) {
   assert.deepEqual(Object.keys(avecPrompt).sort(), ["force_instrumental", "model_id", "music_length_ms", "prompt"]);
   assert.equal(avecPrompt.music_length_ms, 62000);
   assert.equal(creditsPour(3 * DUREE_ESSAI), Math.ceil(3 * DUREE_ESSAI / 60 * CREDITS_PAR_MINUTE));
-  assert.match(plan(["kizomba"]), /Variantes de kizomba[\s\S]*A — [\s\S]*Essais : 3 extraits de 15 s, environ 675 crédits/, "plan : variantes et coût des essais");
+  assert.match(plan(["kizomba"]), new RegExp(`Variantes de kizomba[\\s\\S]*A — [\\s\\S]*Essais : 3 extraits de 15 s, environ ${creditsPour(45)} crédits`), "plan : variantes et coût des essais");
+  // Morceau entier : sections de 32 temps (un bloc unique de 62 s a rendu du silence), puis une fin.
+  assert.ok(DUREE_ESSAI <= BLOC_MAX_S, "un extrait tient en un bloc");
+  for (const [style, variantes] of Object.entries(VARIANTES)) {
+    for (const lettre of Object.keys(variantes)) {
+      const d = PROMPTS[style], entier = planDe(style, lettre, d.seconds).chunks;
+      const section = Math.round(TEMPS_PAR_SECTION * 60000 / d.bpm);
+      assert.equal(entier.length, d.beats / TEMPS_PAR_SECTION + 1, `${style} ${lettre} : une section par 32 temps de boucle, plus la fin`);
+      for (const c of entier.slice(0, -1)) assert.equal(c.duration_ms, section, `${style} ${lettre} : section de 32 temps`);
+      assert.equal(entier.reduce((sum, c) => sum + c.duration_ms, 0), d.seconds * 1000, `${style} ${lettre} : durée totale demandée`);
+      for (const c of entier) {
+        assert.ok(c.duration_ms >= 3000 && c.duration_ms <= BLOC_MAX_S * 1000, `${style} ${lettre} : bloc de 3 à ${BLOC_MAX_S} s (${c.duration_ms} ms)`);
+        assert.ok(c.text.length <= 200 && c.negative_styles.includes("techno"));
+        assert.deepEqual(c.positive_styles, entier[0].positive_styles, `${style} ${lettre} : mêmes styles d'un bout à l'autre (groove constant)`);
+      }
+      assert.match(entier.at(-1).text, /^\[Ending\]/, `${style} ${lettre} : la fin est une section à part, hors boucle`);
+    }
+  }
   assert.throws(() => lireArguments(["--styles", "salsa"]), /style inconnu/);
   assert.throws(() => lireArguments(["--force"]), /option inconnue/);
 

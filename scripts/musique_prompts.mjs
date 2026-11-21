@@ -9,8 +9,11 @@
 // `seconds` : durée demandée = boucle + marge pour une entrée et une fin.
 
 export const MODELE = "music_v2_5";
-/** Tarif relevé le 21 novembre 2026 : crédits par minute générée. */
-export const CREDITS_PAR_MINUTE = 900;
+/**
+ * Crédits par minute générée, MESURÉS sur le compteur de l'abonnement le 21 novembre 2026 :
+ * 775 crédits pour 62 s, 564 pour trois extraits de 15 s (la grille tarifaire publique annonçait 900).
+ */
+export const CREDITS_PAR_MINUTE = 750;
 
 const COMMUN = "no tempo changes, no breakdown, dry and punchy studio mix, high transient clarity, instrumental only, no vocals";
 
@@ -64,6 +67,12 @@ export const A_EVITER = [
 ];
 
 const CONSIGNE = "[Groove] {the full band plays the steady groove from the very first beat, no intro, no breakdown, no pauses, clear pulse for dancers}";
+const CONSIGNE_SUITE = "[Groove continues] {the same steady groove with the same instruments, no break, no pause, clear pulse for dancers}";
+const CONSIGNE_FIN = "[Ending] {one final chord on the downbeat, let it ring out}";
+/** Au-delà, le morceau est découpé en sections (les extraits d'un seul bloc de 15 s fonctionnent). */
+export const BLOC_MAX_S = 20;
+/** Une section = 32 temps = quatre phrases de 8 temps : les changements tombent sur un temps 1. */
+export const TEMPS_PAR_SECTION = 32;
 
 export const VARIANTES = {
   kizomba: {
@@ -108,17 +117,32 @@ export const VARIANTES = {
 /** Durée d'un extrait d'essai (s) : assez pour juger la couleur, quatre fois moins cher qu'une prise. */
 export const DUREE_ESSAI = 15;
 
-/** Plan de composition (modèles music_v2 et music_v2_5) d'une variante, pour une durée donnée. */
+/**
+ * Plan de composition (modèles music_v2 et music_v2_5) d'une variante, pour une durée donnée.
+ *
+ * Un extrait court tient en un bloc. Un morceau entier est découpé en sections de 32 temps, puis
+ * une fin : le 21 novembre 2026, un bloc unique de 62 s a rendu un fichier SILENCIEUX (775 crédits
+ * perdus), alors que le planificateur de l'API (`POST /v1/music/plan`, gratuit) découpe lui-même
+ * 62 s en quatre sections de 15 à 16 s.
+ */
 export function planDe(style, variante, seconds) {
   const v = VARIANTES[style]?.[variante];
   if (!v) throw new Error(`variante inconnue ${style}=${variante}`);
-  return { chunks: [{ text: CONSIGNE, duration_ms: Math.round(seconds * 1000), positive_styles: v.styles,
-    negative_styles: [...A_EVITER, ...v.eviter], context_adherence: "high" }] };
+  const bloc = (text, ms) => ({ text, duration_ms: Math.round(ms), positive_styles: v.styles,
+    negative_styles: [...A_EVITER, ...v.eviter], context_adherence: "high" });
+  if (seconds <= BLOC_MAX_S) return { chunks: [bloc(CONSIGNE, seconds * 1000)] };
+  const section = (TEMPS_PAR_SECTION * 60000) / PROMPTS[style].bpm;
+  const sections = Math.max(1, Math.min(Math.floor(PROMPTS[style].beats / TEMPS_PAR_SECTION), Math.floor((seconds * 1000 - 3000) / section)));
+  const chunks = [];
+  for (let i = 0; i < sections; i++) chunks.push(bloc(i === 0 ? CONSIGNE : CONSIGNE_SUITE, section));
+  const reste = seconds * 1000 - chunks.reduce((sum, c) => sum + c.duration_ms, 0);
+  chunks.push(bloc(CONSIGNE_FIN, Math.max(3000, reste)));
+  return { chunks };
 }
 
 /** Texte de provenance d'une variante, consigné dans le registre à la place d'un prompt. */
 export function texteDe(style, variante) {
-  const plan = planDe(style, variante, 1).chunks[0];
+  const plan = planDe(style, variante, DUREE_ESSAI).chunks[0];
   return `Plan de composition, variante ${variante} (${VARIANTES[style][variante].nom}). Styles : ${plan.positive_styles.join(", ")}. À éviter : ${plan.negative_styles.join(", ")}. Consigne : ${plan.text}`;
 }
 

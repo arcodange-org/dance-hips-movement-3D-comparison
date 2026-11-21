@@ -31,7 +31,8 @@ du propriétaire (voir « Points ouverts »).
 | Lecteur de boucle synchronisé, repli, interface, tests | fait |
 | Script de génération, analyse de tempo, de structure et de signature rythmique | fait |
 | Kizomba, prise 1 (prompt du propriétaire, mot pour mot) | **refusée à l'écoute**, retirée de la branche |
-| Kizomba, deuxième tentative | trois extraits d'essai générés (variantes A, B, C) ; **en attente du choix à l'oreille** du propriétaire |
+| Kizomba, deuxième tentative | extraits d'essai A, B, C générés ; **variante C retenue** à l'oreille par le propriétaire |
+| Kizomba, prise complète de la variante C | première demande : **fichier silencieux** (échec de génération, 775 crédits) ; nouvelle demande en sections **en attente de l'accord** du propriétaire |
 | Pistes semba, kompa, tarraxinha, suave, zouk brésilien | après une kizomba validée |
 
 Aucune piste n'est publiée : tous les styles jouent la synthèse.
@@ -137,7 +138,7 @@ bouton « Tempo conseillé » règle le curseur sur le tempo de la piste (arrond
 - `--essais <style>` : extraits courts de chaque variante du style, hors dépôt (`essais/musique/`) ;
 - `--variante <style>=<lettre>` : prise complète à partir du plan de composition de la variante.
 
-Coût : Eleven Music est facturé 900 crédits par minute générée (tarif relevé le 21 novembre 2026) ; la prise 1 de la kizomba (62 s) a coûté environ 931 crédits.
+Coût : 750 crédits par minute générée, mesurés sur le compteur de l'abonnement le 21 novembre 2026 (la grille publique annonçait 900) ; une prise de 62 s coûte 775 crédits.
 
 | Style | Tempo demandé | Boucle visée | Durée demandée |
 |---|---|---|---|
@@ -148,7 +149,7 @@ Coût : Eleven Music est facturé 900 crédits par minute générée (tarif rele
 | suave | 72 bpm | 64 temps | 58 s |
 | zouk brésilien | 80 bpm | 64 temps | 52 s |
 
-Total : environ 6 minutes par prise complète, soit environ 5 500 crédits.
+Total : environ 6 minutes par prise complète des six styles, soit environ 4 550 crédits.
 
 ### Prompts
 
@@ -190,7 +191,7 @@ qu'une section). La validation finale se fait **à l'oreille** par le propriéta
 
 > ça ressemble plus à de la techno qu'à de la kizomba semba angolaise
 
-La prise (62 s, environ 931 crédits) venait du prompt du propriétaire, mot pour mot. Ce que la
+La prise (62 s, 775 crédits) venait du prompt du propriétaire, mot pour mot. Ce que la
 mesure en dit, après coup :
 
 | Mesure | Valeur | Lecture |
@@ -232,12 +233,11 @@ ngomas, dikanza en doubles-croches, deux guitares, accordéon
 | B | Semba de groupe, Luanda, années 1970 : deux temps rebondissants, tambours à main, dikanza en doubles-croches, deux guitares, accordéon, majeur |
 | C | Fusion kizomba et semba : la rythmique de A avec les guitares, la dikanza et l'accordéon de B |
 
-Les trois gardent 102 bpm, le tempo du prompt du propriétaire. Trois extraits de 15 s coûtent
-environ 675 crédits ; la prise complète de la variante retenue, environ 931.
+Les trois gardent 102 bpm, le tempo du prompt du propriétaire.
 
 ### Extraits d'essai du 21 novembre 2026 (accord du propriétaire : « Oui, les trois »)
 
-Générés avec `--essais kizomba` (environ 675 crédits), écrits dans `essais/musique/` et non
+Générés avec `--essais kizomba` (564 crédits), écrits dans `essais/musique/` et non
 publiés. Mesures sur 15 s, donc moins sûres que sur une prise complète :
 
 | Variante | Tempo | Attaques graves sur les temps 1 à 4 | Ce que montre le profil par double-croche |
@@ -248,7 +248,31 @@ publiés. Mesures sur 15 s, donc moins sûres que sur une prise complète :
 
 Aucun des trois n'a la pulsation à quatre temps égaux de la prise 1 (égalité mesurée : 0,05, 0,14
 et 0,28, contre 0,82). Cela écarte le défaut constaté, sans dire que la musique est juste : le
-choix se fait à l'oreille.
+choix se fait à l'oreille. **Choix du propriétaire : la variante C.**
+
+### Prise complète de la variante C : un fichier silencieux (21 novembre 2026)
+
+La première prise complète demandait la variante C en **un seul bloc de 62 s**. L'API a répondu
+sans erreur, mais le fichier rendu est du silence : 58 s de silence numérique, puis un souffle à
+−51 dB. Les 775 crédits sont débités. Les extraits de 15 s, demandés de la même façon en un bloc,
+contiennent bien de la musique.
+
+Cause inconnue. Indice : le planificateur de l'API (`POST /v1/music/plan`, gratuit), interrogé
+ensuite avec la même description pour 62 s, découpe le morceau en quatre sections de 15 à 16 s.
+
+Ce qui change :
+
+- **Sections de 32 temps** : un morceau entier est demandé en sections de 32 temps (18,8 s à
+  102 bpm, soit quatre phrases de 8 temps), toutes avec les mêmes styles pour un groove constant,
+  suivies d'une courte section de fin. Les changements de section tombent ainsi sur un temps 1 et
+  la fin reste hors de la boucle.
+- **Garde-fou** : une prise rendue sous −40 LUFS est tenue pour un échec ; elle est écartée dans
+  `essais/musique/`, jamais publiée ni inscrite au registre (code de sortie 3).
+- **Coût mesuré** : 750 crédits par minute d'après le compteur de l'abonnement (775 pour 62 s,
+  564 pour trois extraits de 15 s), et non 900 comme l'annonçait la grille publique.
+
+Crédits dépensés pour ce chantier au 21 novembre 2026 : 775 (prise 1, refusée) + 564 (extraits)
++ 775 (prise silencieuse) = 2 114 ; il en reste 35 793.
 
 ## Conditions d'usage (relevé du 21 novembre 2026, à confirmer par le propriétaire)
 
@@ -285,8 +309,9 @@ publication. L'app et la documentation indiquent que la musique est générée p
 
 ## Points ouverts (propriétaire)
 
-- **Choix d'une variante à l'oreille** parmi les trois extraits d'essai (ou aucune : corriger les
-  variantes), puis accord pour la prise complète (environ 931 crédits).
+- **Accord pour redemander la prise complète** de la variante C, en sections de 32 temps (environ
+  775 crédits). Le risque d'un nouvel échec n'est pas écarté : la cause du fichier silencieux
+  n'est pas connue.
 - **Tempo** : les sources du dépôt situent la kizomba vers 85–95 bpm ; 102 bpm vient du prompt
   d'origine. À confirmer.
 - **Autres styles** : après une kizomba validée, même méthode (variantes, extraits, prise).

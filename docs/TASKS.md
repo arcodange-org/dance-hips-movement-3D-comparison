@@ -299,5 +299,7 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Kizomba, prise 1 (prompt du propriétaire) : générée, mesurée, **refusée à l'écoute** (« techno »), retirée.
 - [x] Signature rythmique dans l'analyse ; variantes A, B, C en plans de composition ; mode `--essais`.
 - [x] Extraits d'essai de la kizomba (variantes A, B, C, 15 s chacun) générés avec l'accord du propriétaire.
-- [ ] **Choix d'une variante à l'oreille par le propriétaire**, puis prise complète et écoute de validation (temps 1, raccord, qualité).
+- [x] Variante C retenue à l'oreille par le propriétaire.
+- [x] Prise complète de la variante C, première demande : fichier silencieux (échec de génération) ; garde-fou et plan en sections de 32 temps.
+- [ ] Nouvelle demande de la prise complète : **en attente de l'accord du propriétaire** (environ 775 crédits), puis écoute de validation (temps 1, raccord, qualité).
 - [ ] Autres styles, après une kizomba validée (même méthode).

@@ -17,7 +17,7 @@
 //   node --env-file=/chemin/.env.local scripts/generer_musique.mjs …
 // Besoin de ffmpeg pour le décodage et la mesure du niveau.
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { CREDITS_PAR_MINUTE, DUREE_ESSAI, MODELE, PROMPTS, VARIANTES, coutEstime, creditsPour, planDe, texteDe } from "./musique_prompts.mjs";
@@ -33,6 +33,8 @@ const API = "https://api.elevenlabs.io";
 /** Niveau visé (LUFS intégrés) et crête maximale après correction (dBFS). */
 const NIVEAU = -16;
 const CRETE = -1;
+/** En dessous (LUFS intégrés), une prise est tenue pour silencieuse : la génération a échoué. */
+export const SILENCE = -40;
 /** Au-delà, la piste est à refaire ou à valider à l'oreille. */
 export const SEUILS = { tempo: 0.04, derive: 0.015, confiance: 0.3, tempsEgaux: 0.75 };
 
@@ -90,7 +92,8 @@ export function niveau(fichier) {
   const resume = texte.slice(texte.lastIndexOf("Summary:"));
   const lufs = Number(resume.match(/I:\s+(-?[\d.]+) LUFS/)?.[1]);
   const crete = Number(resume.match(/Peak:\s+(-?[\d.]+) dBFS/)?.[1]);
-  if (!Number.isFinite(lufs)) throw new Error(`niveau de ${fichier} illisible`);
+  // Silence numérique : ffmpeg n'affiche pas de niveau intégré exploitable.
+  if (!Number.isFinite(lufs)) return { lufs: -120, crete: Number.isFinite(crete) ? crete : -120 };
   return { lufs, crete: Number.isFinite(crete) ? crete : 0 };
 }
 
@@ -252,6 +255,7 @@ async function main() {
   const entree = (style) => registre.find((p) => p.style === style);
   const fichier = (style) => join(DOSSIER, `${style}.mp3`);
 
+  const silencieuses = [];
   if (!o.analyse) {
     const aFaire = o.styles.filter((s) => o.refaire || !existsSync(fichier(s)));
     for (const s of o.styles) if (!aFaire.includes(s)) console.log(`${s} : piste déjà présente, conservée (--refaire pour la régénérer)`);
@@ -266,6 +270,17 @@ async function main() {
         const variante = o.variante[s] ?? null;
         console.log(`${s} : génération (${PROMPTS[s].seconds} s, ${o.modele}${variante ? `, variante ${variante}` : ""})…`);
         writeFileSync(fichier(s), await generer(s, cle, o.modele, variante));
+        // Garde-fou : une prise silencieuse (échec de génération) n'est ni publiée ni mesurée.
+        const rendu = niveau(fichier(s));
+        if (rendu.lufs < SILENCE) {
+          mkdirSync(ESSAIS, { recursive: true });
+          const rebut = join(ESSAIS, `${s}-prise-silencieuse.mp3`);
+          renameSync(fichier(s), rebut);
+          registre = registre.filter((p) => p.style !== s);
+          silencieuses.push(s);
+          console.log(`  ⚠ prise silencieuse (${rendu.lufs} LUFS) : génération en échec, fichier écarté dans ${rebut.replace(root + "/", "")}`);
+          continue;
+        }
         registre = registre.filter((p) => p.style !== s);
         registre.push({ style: s, prompt: variante ? texteDe(s, variante) : PROMPTS[s].prompt, model: o.modele,
           generatedAt: new Date().toISOString().slice(0, 10), ...(variante ? { variant: variante } : {}) });
@@ -294,6 +309,7 @@ async function main() {
   ecrirePage(ecrites);
   console.log(`Registre : ${ecrites.length} piste(s) — ${REGISTRE.replace(root + "/", "")}`);
   if (alerte) { console.log("Des pistes sont à refaire ou à valider à l'oreille."); process.exitCode = 2; }
+  if (silencieuses.length) { console.log(`Prises silencieuses, non publiées : ${silencieuses.join(", ")}.`); process.exitCode = 3; }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

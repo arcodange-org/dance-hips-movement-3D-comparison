@@ -18,12 +18,16 @@ propriétaire : une prise coûte des crédits (voir la spec, « Points ouverts �
 Aucune piste n'est publiée pour l'instant.
 <!-- /pistes -->
 
-## Prises refusées
+## Prises refusées ou en échec
 
 - **Kizomba, prise 1** (21 novembre 2026, prompt du propriétaire mot pour mot) : refusée à l'écoute —
   « ça ressemble plus à de la techno qu'à de la kizomba semba angolaise ». Mesure : grosse caisse
   d'égale force sur les quatre temps. Retirée de la branche ; analyse dans la
   [spec](../spec-musique-elevenlabs.md).
+
+- **Kizomba, variante C, première prise complète** (21 novembre 2026) : l'API a rendu un fichier
+  silencieux pour un plan en un seul bloc de 62 s. Échec de génération, pas une question de goût ;
+  les prises complètes sont depuis demandées en sections de 32 temps.
 
 ## Refaire une piste
 
