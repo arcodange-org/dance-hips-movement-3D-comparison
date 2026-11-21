@@ -34,7 +34,9 @@ sourcées de `docs/musique/`, chaque piste garde son niveau de preuve ; son coup
 Mode guidage (PoC #69) : [spec](docs/spec-mode-guidage-poc.md) (`src/guidage.ts` pur, `src/guidagePose.ts`,
 vue `src/components/GuidageApp.tsx`, `scripts/test_guidage.mjs`) ; recherche : [jeux vidéo](docs/recherche-jeux-video/README.md).
 
-Explications des transitions (leader engagé, suiveur reçu, contacts) : [spec](docs/spec-transitions.md)
+Ontologie des figures (positions, guidages R24, équivalence #90, insertions #91 ; déclaré = mesuré) :
+[spec](docs/spec-ontologie-figures.md), [ADR 004](docs/adr/004-ontologie-source-des-figures.md) (`src/ontologie.ts`,
+`scripts/test_ontologie.mjs`). Explications des transitions (leader engagé, suiveur reçu, contacts) : [spec](docs/spec-transitions.md)
 (`src/transitions.ts` pur, `src/components/TransitionCard.tsx`, `scripts/test_transitions.mjs`).
 
 Règles de mouvement du propriétaire, consolidées et vérifiables : [`docs/regles-proprietaire.md`](docs/regles-proprietaire.md).

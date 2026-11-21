@@ -75,6 +75,10 @@ calcule aucune pose. Les invariants (os, semelles, sol) restent dans les tests d
 
 ## Étapes
 
+État au 21 novembre 2026 : étapes 1 à 3 codées. Les textes des transitions sont dans `src/transitions.ts`
+(#94), au lieu de `src/ontologie.ts`, qui porte les positions, les guidages, l'équivalence et les
+insertions. Tous les statuts sont « à valider ». L'étape 4 reste à faire.
+
 1. `src/ontologie.ts` : positions et transitions de la sortie garçon, de la sortie fille, des quarts et
    de l'ida ; équivalence #90 et insertions #91 (statut « à valider »).
 2. `scripts/test_ontologie.mjs` dans `npm test` (déclaré = mesuré, R22, R24).
