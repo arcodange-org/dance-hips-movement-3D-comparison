@@ -54,8 +54,9 @@ segment suivant.
   pression sur le temps de la frontière est prise à cette frontière, juste après elle attend la suivante.
 - Rien n'est refusé : deux commandes différentes se suivent, la même commande pressée deux fois se danse
   deux fois, une commande pressée au début d'une figure se danse à sa fin.
-- Pendant une sortie, avant sa jonction, ↑ et la touche de l'ida modifient la sortie en cours (#90, #91)
-  au lieu d'entrer dans la file : voir la [spec #140](spec-jeu-file-auto.md).
+- ↑ pendant la sortie fille l'enchaîne (#90) ; la touche de l'ida transforme le prochain pas possible de
+  la danse en aller-retour du pied (#91, #144, [spec](spec-ida-partout.md)) au lieu d'entrer dans la file :
+  voir la [spec #140](spec-jeu-file-auto.md).
 - Avant #140, une seule commande était gardée par frontière, et elle pouvait être refusée (trop tôt, trop
   tard, ambiguë, répétée). Ce modèle est retiré.
 

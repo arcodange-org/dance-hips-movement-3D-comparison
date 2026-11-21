@@ -300,6 +300,18 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] GIFs du mode jeu recapturés avec les muscles.
 - [ ] Essai par le propriétaire : poids du tirage (`GUIDE_AUTO`), part des fins de phrase en position neutre.
 
+## Ida e volta à tout pas qui avance ou recule (#144, R27)
+
+- [x] Issue #144 avec les mots du propriétaire ; règle R27 dans `docs/regles-proprietaire.md`.
+- [x] Spec poussée en premier ([spec](spec-ida-partout.md)) : relevé des pas, modèle proposé, questions.
+- [x] Réponses du propriétaire (durée, poids, pas concernés, virgula, commande) ; question 4 (suiveur de côté) reposée.
+- [x] Échantillonneur généralisé (`sampleTouched`, `TOUCH_POSITIONS`), segments du mode jeu avec allers-retours.
+- [x] `scripts/test_touches.mjs` (GLB par position), `scripts/test_guidage.mjs`, `docs/features/mode-jeu.feature`.
+- [x] Danse automatique : choix à chaque pas possible ; virgula ; démonstration `demo=allerretour` et GIF.
+- [ ] Réponses du propriétaire sur les pieds de la suiveuse (issue #86 : même pied ou pied opposé ; suiveuse qui allait de côté).
+- [ ] Essai par le propriétaire des poids du tirage et de la commande (figure en attente).
+- [ ] D4 de la sortie garçon (jambes croisées) : aller-retour dans la direction du pas, à étudier.
+
 ## Musique enregistrée générée par ElevenLabs (#142)
 
 - [x] Issue #142 et spécification poussée en premier ([spec](spec-musique-elevenlabs.md)), PR brouillon #143.
