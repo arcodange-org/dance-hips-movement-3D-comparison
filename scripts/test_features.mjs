@@ -15,7 +15,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const bundle = join(root, "scripts", ".test-features-bundle.mjs");
 esbuild.buildSync({
   stdin: {
-    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon"; export * from "../src/sortieFille"; export * from "../src/idaPaire"; export * from "../src/gait"; export * from "../src/music/patterns"; export * from "../src/music/scheduler"; export * as guidage from "../src/guidage"; export * as insertion from "../src/insertion"; export * from "../src/music/loop"; export * from "../src/vitrine"; export * from "../src/music/recordings"; export * as film from "../src/film"; export * as muscles from "../src/muscles";',
+    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon"; export * from "../src/sortieFille"; export * from "../src/idaPaire"; export * from "../src/gait"; export * from "../src/music/patterns"; export * from "../src/music/scheduler"; export * as guidage from "../src/guidage"; export * as insertion from "../src/insertion"; export { gingaPhase } from "../src/pose"; export * from "../src/music/loop"; export * from "../src/vitrine"; export * from "../src/music/recordings"; export * as film from "../src/film"; export * as muscles from "../src/muscles";',
     resolveDir: join(root, "scripts"),
     loader: "ts",
   },
