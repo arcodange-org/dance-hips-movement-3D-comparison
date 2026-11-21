@@ -88,6 +88,10 @@ sur le preset `cam=` via `resolveView` — `viewAnglesOf`/`posFromView` dans `sr
 vírgula : `virgulaFootYawDelta` dans `src/styles.ts` fait suivre le lacet du pied au lacet du corps
 sur `quarts`/`corridinho`.)
 
+Atlas anatomique (#132, vue séparée) : `?atlas=<id>&vue=face|troisQuarts|profil|troisQuartsDos|dos&frame=<n>&frames=<N>&muscles=0|1`
+(`id` = mouvement de `docs/atlas/manifest.json` ; sans `frame`, la frame du milieu ; voir
+`docs/spec-atlas-anatomique.md`).
+
 ## Tests
 
 `npm test` = `test_styles.mjs` + `test_features.mjs` + `test_oracle.mjs` + `test_poses.mjs` +

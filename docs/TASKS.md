@@ -289,3 +289,22 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Synthèse Web Audio, horloge audio maîtresse, bouton « Son », choix A/B, URL.
 - [x] `scripts/test_music.mjs` et `son-synthese.feature` dans `npm test` ; contrôle navigateur.
 - [ ] Écoute de validation par le propriétaire (grilles, équilibre, tempos) et décisions ouvertes.
+
+## Atlas anatomique ouvert (#132)
+
+- [x] Issue #132 publiée avant le code (périmètre réservé : atlas open maison, format inspiré d'anatobase.com sans rien copier).
+- [x] Branche `arcodange/atlas-anatomique`, worktree `.claude/worktrees/atlas-anatomique`, PR draft ouverte tôt.
+- [x] PRD poussé en premier : [spec](spec-atlas-anatomique.md) + [ADR 005](adr/005-atlas-donnees-ouvertes.md) (BodyParts3D CC BY-SA 2.1 Japan, Z-Anatomy CC BY-SA 4.0, Gray 1918 PD, Wikidata CC0) + [docs/atlas/README.md](atlas/README.md).
+- [x] Manifeste v1 : [docs/atlas/manifest.json](atlas/manifest.json) — 16 mouvements articulaires, bassin/hanche/genou en priorité 1.
+- [x] `scripts/test_atlas_manifest.mjs` dans `npm test` : articulations résolues contre les nœuds réels du GLB, ROM bornées, priorités 1 sur Pelvis/HipPivot_R.
+- [x] `scripts/capture_atlas.mjs` : chaîne de génération des planches mouvements (5 vues × frames) via `src/pose.ts` + `src/cameras.ts`, `meta.json` avec ROM mesurée sur le GLB, prouvée sur `bassin-obliquite`. Spec : [chaîne de génération](spec-atlas-anatomique.md#chaîne-de-génération-des-planches--mouvements--preuve-sur-bassin-obliquite).
+  - [x] Branche remise à jour sur `main` (fusion, sans réécriture d'historique).
+  - [x] Spec de la chaîne (D7 à D12) poussée avant le code.
+  - [x] Pose neutre du moteur (`neutral`), `src/atlas.ts`, vues `ATLAS_VIEWS`, vue de capture `?atlas=` (`src/components/AtlasApp.tsx`).
+  - [x] Preuve de chaîne sur `bassin-obliquite` : 45 images, 5 GIF, planche, `meta.json`, `README.md` ([planche](atlas/mouvements/bassin-obliquite/README.md)) ; `meta.json` et `planche.png` copiés dans `public/atlas/`.
+  - [x] `scripts/test_atlas_planches.mjs` dans `npm test` ; axes du bassin corrigés dans le manifeste (obliquité = z, antéversion = x).
+- [ ] Planches `bassin-rotation` et `bassin-anteversion` : la règle de pose du bassin les couvre déjà (mesurées hors navigateur : ROM exacte, sol et thorax tenus). Les générer, les relire à l'œil, et ajouter au test leur preuve par les positions (rotation : une hanche avance, l'autre recule).
+- [ ] Règles de pose des autres articulations (hanche, genou, cheville en chaîne ouverte ; buste), puis leurs 13 planches. Le script refuse ces mouvements tant que la règle n'existe pas. Décider avant cela du poids versionné (≈ 2,6 Mo par mouvement, ≈ 42 Mo pour 16 : moins de frames, ou images hors dépôt).
+- [ ] Fiches muscles industrialisées depuis le prototype `~/Work/Danse/anatomie-3d/` (Blender, Z-Anatomy CC BY-SA 4.0) → `docs/atlas/muscles/`.
+- [ ] Sourcer les ROM du manifeste dans `docs/recherche-biomecanique/` (passage « proposition » → « documenté »).
+- [ ] Viewer `?atlas=<id>&vue=<…>&frame=<n>` + branchement oracle (`src/oracle.ts`) et specs de styles.

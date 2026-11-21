@@ -38,6 +38,11 @@ vue `src/components/GuidageApp.tsx`, `scripts/test_guidage.mjs`) ; recherche : [
 Explications des transitions (leader engagé, suiveur reçu, contacts) : [spec](docs/spec-transitions.md)
 (`src/transitions.ts` pur, `src/components/TransitionCard.tsx`, `scripts/test_transitions.mjs`).
 
+Atlas anatomique ouvert (#132) : [spec](docs/spec-atlas-anatomique.md), [dossier](docs/atlas/README.md)
+(`src/atlas.ts` pur, `src/atlasManifest.ts`, vue `?atlas=` `src/components/AtlasApp.tsx`, `scripts/capture_atlas.mjs`,
+`scripts/atlas_meta.mjs`, `scripts/test_atlas_manifest.mjs`, `scripts/test_atlas_planches.mjs`) ;
+`docs/atlas/mouvements/<id>/` est généré (ne pas modifier à la main) et doit rester à jour avec le moteur.
+
 Règles de mouvement du propriétaire, consolidées et vérifiables : [`docs/regles-proprietaire.md`](docs/regles-proprietaire.md).
 
 **Lire ce fichier en premier dans toute session.** Le harness complet pour travailler sur ce projet
