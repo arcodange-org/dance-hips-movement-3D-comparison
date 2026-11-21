@@ -194,6 +194,72 @@ pas de pivot.
 À valider à l'œil : l'amplitude du pivot (2,7 cm), et les genoux un peu tournés en dehors du pied
 pendant le pivot.
 
+## Virgula du leader, effet de style (#128, 21 novembre 2026)
+
+Idée du propriétaire : la virgula (« aller vers l'avant avec le pied gauche perpendiculaire ») « peut être
+un effet de style lors du ida e volta ». Elle est proposée en option, éteinte par défaut : case à cocher
+« Virgula du leader » sous le placement, ou `virgula=1` dans l'URL. Sa géométrie est celle de la sortie
+fille ([#127](spec-sortie-fille.md#virgula-du-leader-au-premier-temps-variante-crochet-127-21-novembre-2026)).
+
+### Ce qui change, dans le seul créneau « G du leader en avant » (temps 0 à 2)
+
+| Élément | Sans virgula | Avec virgula |
+|---|---|---|
+| G du leader, direction | vers l'avant | perpendiculaire, pointe vers sa gauche (90°) |
+| G du leader, pas | 18 cm en avant | 18 cm en avant, inchangé (R22) |
+| G du leader, position latérale | dans son couloir (2 cm ouverts en vol) | cheville 11 cm à gauche de celle de son D, le talon contre le bord intérieur du D |
+| Bassin du leader | pivote sur la hanche d'appui (#84) | s'ouvre de 10° de plus vers sa gauche |
+| Genou G du leader | au-dessus du pied | s'ouvre de 46°, entre le bassin et le pied |
+| Buste du leader | contraposition de l'ida | inchangé : il ne suit pas le bassin |
+| Vols, transferts d'appui | | inchangés (R21, R24) |
+| Suiveur | | inchangé, pose pour pose |
+| Trois autres créneaux | | inchangés |
+
+- Le pied entre vers son D dans la seconde moitié du pas (`IDA_VIRGULA.inFrom` = 0,5). Plus tôt, il
+  traverse le couloir du D du suiveur, qui recule à côté de lui.
+- Il pivote sur la fin de son vol (à partir de 35 %) et se pose par l'avant-pied. Il revient pointé vers
+  l'avant pendant son retour, le bassin et le genou avec lui.
+- Les variantes du mode jeu (jambe droite, en arrière d'abord) sont le même cycle décalé : la virgula
+  reste sur le créneau où le G avance. Le mode jeu n'a pas de touche pour elle.
+- L'ida inséré dans les sorties (#91) ne prend pas la virgula.
+
+### Calibrage (GLB réel, kizomba, amplitude 1, pas de 0,04 temps)
+
+| Essai | Résultat |
+|---|---|
+| Pied qui entre vers le D dès le départ | En quinconce : semelles G du leader et D du suiveur chevauchées (temps 0,16 à 0,28), fémur G du leader contre fémur D du suiveur (0,24 à 0,36). |
+| Pied qui entre dans la seconde moitié du pas (retenu) | 0 croisement, 0 chevauchement. |
+
+Sonde : `FIGURE=ida node scripts/search_virgula.mjs` (six styles, trois amplitudes, trois placements,
+avec et sans plexus) : 5 508 poses de couple, 0 croisement d'os, 0 chevauchement de semelles.
+
+### Critères (`scripts/test_ida_virgula.mjs`, dans `npm test`)
+
+1. Le suiveur a exactement les mêmes pas et les mêmes poses avec et sans virgula.
+2. Hors du premier créneau, le leader est inchangé.
+3. Dans le premier créneau : même pas le long de la ligne, mêmes vols, mêmes appuis ; pied à 90° et
+   cheville à 11 cm de celle du D tant que le pied est sorti ; neutre retrouvé au retour.
+4. Sur le GLB : pied à 90°, talon à moins de 5 cm du D sans chevauchement, bassin ouvert de 10°, genou
+   G entre le bassin et le pied, genou D comme avant.
+5. Buste du leader à moins de 1° de sa direction sans virgula, avec et sans plexus.
+6. Pied immobile tant qu'il est sorti, continuité, boucle de 8 temps.
+7. Semelles disjointes en continu (quinconce, face à face, amplitudes 0,5 à 2) et aucun croisement d'os
+   des jambes (six styles, trois amplitudes, quinconce, référence, quinconce avec plexus).
+8. `virgula=1` est écrit dans l'URL de partage et relu.
+
+### Mesures (GLB, kizomba, amplitude 1, temps 1)
+
+| Placement | Talon du G au D | Ouverture du bassin | Genou G | Écart du buste |
+|---|---|---|---|---|
+| Quinconce | 2,2 cm | 10° | 50° | 0,05° |
+| Quinconce, plexus | 2,2 cm | 10° | 50° | 0,23° |
+| Référence | 3,0 cm | 10° | 50° | 0,05° |
+| Face à face, plexus | 3,0 cm | 10° | 50° | 0,05° |
+
+Le bassin pivote déjà de 9° vers la droite quand le G avance (#84, la hanche du pied qui bouge avance).
+L'ouverture de la virgula s'y ajoute : le bassin finit presque de face, et la hanche G tourne en dehors
+de 50° au lieu de 60°.
+
 ## Points de décision du propriétaire
 
 - La séquence « pas balancé » (aller avec transfert du poids, retour au neutre) ou une autre lecture de
