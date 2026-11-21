@@ -24,6 +24,9 @@ Prompts :
 - **kizomba** : « Plan de composition, variante C (Fusion kizomba et semba). Styles : Angolan kizomba and semba fusion, Luanda live band, warm 1990s studio recording, 102 BPM, strictly steady tempo, relaxed but danceable, sensual, organic, soft kick drum on beats one and three, never on every beat, cross-stick rimshot in a three-three-two pattern, dikanza scraper in sixteenth notes, congas, semba-style interlocking guitars with a clean melodic lead guitar, accordion phrases, deep warm round bass guitar, subtle keyboard pad in the background, minor key, acoustic instruments in front, warm analog sound, instrumental. À éviter : techno, house, EDM, trance, club dance music, four-on-the-floor kick drum, kick drum on every beat, hard punchy electronic kick, sidechain compression, synth lead, aggressive synthesizers, vocals, lyrics, tempo changes, breakdown, drum fill pauses. Consigne : [Groove] {the full band plays the steady groove from the very first beat, no intro, no breakdown, no pauses, clear pulse for dancers} »
 <!-- /pistes -->
 
+La piste kizomba (variante C, fusion kizomba et semba) a été validée à l'écoute par le propriétaire
+le 21 novembre 2026.
+
 ## Prises refusées ou en échec
 
 - **Kizomba, prise 1** (21 novembre 2026, prompt du propriétaire mot pour mot) : refusée à l'écoute —

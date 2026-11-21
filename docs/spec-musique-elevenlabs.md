@@ -32,10 +32,10 @@ du propriétaire (voir « Points ouverts »).
 | Script de génération, analyse de tempo, de structure et de signature rythmique | fait |
 | Kizomba, prise 1 (prompt du propriétaire, mot pour mot) | **refusée à l'écoute**, retirée de la branche |
 | Kizomba, deuxième tentative | extraits d'essai A, B, C générés ; **variante C retenue** à l'oreille par le propriétaire |
-| Kizomba, prise complète de la variante C | première demande : **fichier silencieux** (échec de génération) ; deuxième demande, en sections de 32 temps : **générée et mesurée**, en attente de l'écoute du propriétaire |
-| Pistes semba, kompa, tarraxinha, suave, zouk brésilien | après une kizomba validée |
+| Kizomba, prise complète de la variante C | première demande : **fichier silencieux** (échec de génération) ; deuxième demande, en sections de 32 temps : générée, mesurée, **validée à l'écoute par le propriétaire** |
+| Pistes semba, kompa, tarraxinha, suave, zouk brésilien | à faire, même méthode, avec l'accord du propriétaire pour les crédits |
 
-Piste dans la branche : kizomba (variante C). Les autres styles jouent la synthèse.
+Piste publiée : kizomba (variante C). Les autres styles jouent la synthèse.
 
 ## Modules
 
@@ -294,8 +294,25 @@ L'analyse a d'abord placé le temps 1 deux temps trop tard, parce que l'accent g
 pesait plus lourd que le début de la musique. Corrigé : l'accent grave départage seulement quand
 la structure ne dit rien.
 
+**Écoute du propriétaire (21 novembre 2026) : « Oui, elle convient ».** La piste est validée.
+
 Crédits dépensés pour ce chantier au 21 novembre 2026 : 775 (prise 1, refusée) + 564 (extraits)
 + 775 (prise silencieuse) + 775 (prise en sections) = 2 889 ; il en reste 35 018.
+
+### Méthode retenue pour les autres styles
+
+Ce qui a marché pour la kizomba, dans l'ordre :
+
+1. écrire deux ou trois variantes en plan de composition, d'après la page du style dans
+   [docs/musique/](musique/README.md) : genre et époque en premier, groupe d'instruments réels,
+   rythmique décrite, et la liste des styles à éviter ;
+2. générer un extrait de 15 s par variante (`--essais`), lire la signature rythmique, faire
+   choisir à l'oreille ;
+3. générer la prise complète de la variante retenue en sections de 32 temps (`--variante`) ;
+4. mesurer, contrôler dans le navigateur, faire valider à l'écoute.
+
+Coût par style avec trois variantes : environ 564 + 775 = 1 340 crédits ; avec une seule variante,
+environ 190 + 775 = 965 crédits.
 
 ## Conditions d'usage (relevé du 21 novembre 2026, à confirmer par le propriétaire)
 
@@ -332,11 +349,10 @@ publication. L'app et la documentation indiquent que la musique est générée p
 
 ## Points ouverts (propriétaire)
 
-- **Écoute de la piste kizomba (variante C)** : couleur, temps 1 sur un transfert d'appui,
-  raccord de boucle. Si le temps 1 est décalé : `--decaler kizomba=<temps>`, sans nouvelle prise.
 - **Tempo** : les sources du dépôt situent la kizomba vers 85–95 bpm ; 102 bpm vient du prompt
   d'origine. À confirmer.
-- **Autres styles** : après une kizomba validée, même méthode (variantes, extraits, prise).
+- **Autres styles** : même méthode (variantes, extraits, prise), dans une PR à part ; accord du
+  propriétaire pour les crédits (environ 965 à 1 340 par style).
 - **Publication des pistes** dans un dépôt public : conforme aux conditions de l'offre ?
 - **Synthèse** : gardée en repli et en option (choix de ce chantier), ou retirée.
 - **Hauteur au changement de tempo** : choix de la lecture en vitesse variable (calage exact,
