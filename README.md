@@ -11,6 +11,24 @@ movements hips down are the dominant ones, not the upper body movements »).
 
 **🌐 Site déployé (GitHub Pages) : https://arcodange-org.github.io/dance-hips-movement-3D-comparison/**
 
+## Vitrine : la danse seule, en musique (#150)
+
+**Lien direct : https://arcodange-org.github.io/dance-hips-movement-3D-comparison/?vitrine=1**
+
+Le couple danse seul sur la piste enregistrée du style, à son tempo, avec les muscles et un buste
+lisible ; la vue tourne lentement. Un bouton lance la musique (un navigateur ne démarre pas le son
+sans clic), un autre copie le lien, qui garde le style et la graine : la même danse se rejoue.
+Pour l'intégrer dans une autre page :
+
+```html
+<iframe src="https://arcodange-org.github.io/dance-hips-movement-3D-comparison/?vitrine=1"
+        title="Kizomba en 3D" allow="autoplay" loading="lazy"
+        style="width:100%;aspect-ratio:16/9;border:0"></iframe>
+```
+
+Dans le mode jeu, la danse automatique (Espace) prend aussi le tempo de la piste et affiche les
+muscles. [Spécification](docs/spec-vitrine-danse-auto.md).
+
 ## Musique enregistrée, générée par IA (#142)
 
 Quand un style a une piste, le bouton **« Son »** joue une **boucle enregistrée générée par IA**
