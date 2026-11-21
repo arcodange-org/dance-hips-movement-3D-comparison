@@ -33,8 +33,9 @@ le point d'insertion retenu. *Hypothèse à valider* : la numérotation du propr
 - **Touche** (« c'est un touch ») : le poids passe sur le pied sorti au temps, revient, et le retour se fait
   sans poids. Le leader reste sur son D, le suiveur sur son G : la sortie reprend comme elle s'était
   arrêtée.
-- Dans la sortie garçon, le D du suiveur est bord à bord avec celui du leader (R9). Pendant l'insertion,
-  il s'ouvre de 3 cm vers sa gauche pour ne pas frotter en allant et venant, et revient à ses bords.
+- Dans la sortie garçon, le D du suiveur arrive près de celui du leader, à 12 cm environ depuis #110
+  (le bord à bord de R9 est à trancher). Pendant l'insertion, il s'ouvre de 3 cm vers sa gauche
+  (`INSERTION_OPEN`), marge gardée pour qu'il ne frotte pas en allant et venant, puis revient.
 
 ## Mode jeu
 
