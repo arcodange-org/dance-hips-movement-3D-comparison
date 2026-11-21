@@ -5,6 +5,16 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Vitrine : danse automatique en musique, lien direct (#150, 21 novembre 2026)
+
+- `?vitrine=1` ouvre le mode jeu en danse automatique, au tempo de la piste enregistrée, muscles et
+  buste lisibles, vue libre qui tourne, interface réduite ; bouton « Partager » (style et graine)
+  ([spec](docs/spec-vitrine-danse-auto.md), `src/vitrine.ts`). Dans le mode jeu, la danse automatique
+  prend aussi le tempo de la piste et affiche les muscles.
+- Destiné à être intégré sur un autre site par Arcodange (fragment `iframe` dans la spec).
+  **Hors périmètre, prévu plus tard** : les mascottes Rémi et Corinne à la place des corps.
+- La branche part de la musique (#143) : la PR s'annonce « Stacks on #143 » tant que celle-ci est ouverte.
+
 ## Musique enregistrée générée par ElevenLabs (#142, PR #143, 21 novembre 2026)
 
 - Le bouton « Son » joue une boucle enregistrée par style quand elle existe, sinon la synthèse
