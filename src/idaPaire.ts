@@ -7,6 +7,7 @@
 import { gaitStep, GAIT } from "./gait";
 import { placementOffset, type CouplePlacement, type PlacementOffset } from "./placement";
 import { idaContra, idaEVoltaStep } from "./styles";
+import { SORTIE_FILLE_VIRGULA } from "./sortieFille";
 import type { FigureFoot, FigureFootPose, FootPoint } from "./sortieGarcon";
 
 export const IDA_BEATS = 8;
@@ -118,13 +119,28 @@ export function idaNeutral(rest: Record<FigureFoot, FootPoint>, o: PlacementOffs
 /** #89 (game mode arrows): the leg that starts (`side`, the leader's; left by default) and whether the
  * leader starts backwards (`back`). #107: both are the same cycle started later (right leg: beat 4,
  * backwards: beat 2), so the variants have the same poses. */
-export interface IdaVariant { side: FigureFoot; back: boolean }
+export interface IdaVariant { side: FigureFoot; back: boolean;
+  /** #128 (owner, 21 Nov.: the virgula « peut être un effet de style lors du ida e volta »): the leader's
+   * G forward step lands at a right angle, with the geometry of the sortie fille's virgula (#127). */
+  virgula?: boolean }
 export const IDA_DEFAULT: IdaVariant = { side: "L", back: false };
+/** #128: the virgula of the ida e volta, in the slot where the leader's G goes forward. The geometry is
+ * the sortie fille's (`SORTIE_FILLE_VIRGULA`: ankle `beside` his D's, right angle, pelvis and G knee
+ * opening); the foot pivots over the end of its flight out and comes back forward over its return, the
+ * pelvis and the knee with it. The follower's step does not change. Calibrated on the GLB
+ * (docs/spec-ida-paire.md, section #128). */
+export const IDA_VIRGULA = { ...SORTIE_FILLE_VIRGULA,
+  /** Share of the step after which the foot comes in next to his D: earlier, it would cross the lane of
+   * the follower's D, which retreats next to it (quinconce). */
+  inFrom: 0.5 };
+const late = (x: number, start: number) => smooth((x - start) / Math.max(1e-6, 1 - start));
 
 /** The feet at `b` (variant-shifted beat, own frame). The follower takes the symmetric step: her opposite
  * foot, the opposite direction, on the same lane. */
-function idaFeet(b: number, follower: boolean, neutral: ReturnType<typeof idaNeutral>) {
+function idaFeet(b: number, follower: boolean, neutral: ReturnType<typeof idaNeutral>, virgula = false) {
   const now = idaStepAt(b);
+  // #128: the leader's G forward slot (the first of the cycle) as a virgula.
+  const comma = virgula && !follower && now.index === 0;
   // The follower takes the symmetric step: her opposite foot, the opposite direction, on the same lane.
   const moving: FigureFoot = follower ? other(now.side) : now.side;
   const forward = (follower ? -1 : 1) * now.dir;
@@ -142,17 +158,25 @@ function idaFeet(b: number, follower: boolean, neutral: ReturnType<typeof idaNeu
   const raw = going ? flight(IDA_PAIR.out, now.dir > 0) : flight(IDA_PAIR.ret, now.dir < 0);
   const from = going ? 0 : step, to = going ? step : 0;
   const ahead = to - from > 0;
-  const gait = gaitStep(raw, { x: 0, z: to - from }, 0, ahead ? IDA_PAIR.forwardRoll : IDA_PAIR.backRoll);
+  // #128: a foot landing turned out lands on its ball (the travel is across its own axis).
+  const gait = gaitStep(raw, { x: 0, z: to - from }, comma && going ? IDA_VIRGULA.yaw : 0, ahead ? IDA_PAIR.forwardRoll : IDA_PAIR.backRoll);
+  // #128: share of the virgula's turn (foot and knee) and of the pelvis opening: over the end of the flight
+  // out, held under the weight, back over the return.
+  const out = !comma ? 0 : going ? late(raw, IDA_VIRGULA.yawFrom) : 1 - smooth(raw);
+  const opening = !comma ? 0 : going ? late(raw, IDA_VIRGULA.pelvisFrom) : 1 - smooth(raw);
   const feet = {} as Record<FigureFoot, FigureFootPose>;
   for (const side of ["L", "R"] as FigureFoot[]) {
     const n = neutral[side];
     if (side === moving) {
-      const open = side === "L" && raw > 0 && raw < 1 ? IDA_PAIR.aside * smooth(raw / 0.25) * (1 - smooth((raw - 0.75) / 0.25)) : 0;
-      feet[side] = { x: n.x + open, z: n.z + from + (to - from) * gait.progress, yaw: 0, lift: gait.lift,
+      const along = from + (to - from) * gait.progress;
+      // The moving left foot opens to its left during its flight; the virgula instead comes in next to his D.
+      const open = comma ? (neutral.R.x + IDA_VIRGULA.beside - n.x) * late(along / step, IDA_VIRGULA.inFrom)
+        : side === "L" && raw > 0 && raw < 1 ? IDA_PAIR.aside * smooth(raw / 0.25) * (1 - smooth((raw - 0.75) / 0.25)) : 0;
+      feet[side] = { x: n.x + open, z: n.z + along, yaw: IDA_VIRGULA.yaw * out, lift: gait.lift,
         pitch: gait.pitch, pivot: gait.pivot };
     } else feet[side] = { x: n.x, z: n.z, yaw: 0, lift: 0 };
   }
-  return { now, moving, forward, step, feet };
+  return { now, moving, forward, step, feet, out, opening };
 }
 
 export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<FigureFoot, FootPoint>,
@@ -161,7 +185,7 @@ export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<Fig
   const b = (Number.isFinite(beat) ? beat : 0) + styleOffset;
   const o = placementOffset(placement);
   const neutral = idaNeutral(rest, o, stance);
-  const { now, moving, forward, feet } = idaFeet(b, follower, neutral);
+  const { now, moving, forward, feet, out, opening } = idaFeet(b, follower, neutral, variant.virgula);
   // Weight: rock step, onto the outgoing foot on the beat and back onto the other foot; the return comes
   // back unloaded.
   const w = IDA_PAIR.weight;
@@ -175,7 +199,9 @@ export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<Fig
   const lead = idaFeet(b, false, neutral);
   const leadOffset = lead.feet[lead.moving].z - neutral[lead.moving].z;
   const hip = IDA_PAIR.hip * (follower ? -leadOffset : leadOffset);
-  const lower = (moving === "L" ? -1 : 1) * hip / hipSpan;
+  const pivot = (moving === "L" ? -1 : 1) * hip / hipSpan;
+  // #128: the pelvis opens to his left with the virgula; the chest keeps its own direction (`upper`).
+  const lower = pivot + IDA_VIRGULA.pelvis * opening;
   const root = { x: neutral.root.x, z: neutral.root.z + forward * IDA_PAIR.carry * IDA_PAIR.step * onMoving + hip / 2 };
   // Phase 15 contraposition of the chest, on the dancer's own moving foot (the follower mirrors the
   // leader). The leader's upper body leads by IDA_LEAD.
@@ -185,7 +211,9 @@ export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<Fig
   const p = ((b % IDA_BEATS) + IDA_BEATS) % IDA_BEATS;
   const current = idaTransfers(follower).find(t => p >= t.start && p < t.end);
   const transfer = current ? { ...current, progress: smooth((p - current.start) / (current.end - current.start)) } : null;
-  return { beat: Number.isFinite(beat) ? beat : 0, action: now.index, moving, feet, root, rootYaw: lower, chestYaw: upper - lower, kneeYaw: IDA_PAIR.kneeFoot * lower, styleOffset,
+  return { beat: Number.isFinite(beat) ? beat : 0, action: now.index, moving, feet, root, rootYaw: lower, chestYaw: upper - lower, kneeYaw: IDA_PAIR.kneeFoot * pivot, styleOffset,
+    // #128: with the virgula the G knee points out between the pelvis and the foot, the D knee as before.
+    ...(out > 0 || opening > 0 ? { kneeYawSide: { L: IDA_VIRGULA.pelvis * opening - IDA_VIRGULA.knee * out, R: IDA_VIRGULA.pelvis * opening } } : {}),
     // Coupled pelvises (quinconce): the follower's style mirrors the leader's, so she follows his phase
     // (her transfers are his, mirrored); her lateral hip shift goes to her own support (opposite sign).
     gingaBeat: idaGingaBeat(b, follower && IDA_GINGA.mode === "own"),

@@ -25,7 +25,8 @@ Modules des figures en paire : [sortie garçon](docs/spec-sortie-garcon.md) (`sr
 (`src/enchainement.ts`, `scripts/test_enchainement.mjs`), [ida inséré dans les sorties](docs/spec-insertion-ida.md)
 (`src/insertion.ts`, `scripts/test_insertion.mjs`). Marche des pas de figure, fin en quinconce et plexus :
 [spec](docs/spec-marche-naturelle.md) (`src/gait.ts`, `scripts/test_plexus.mjs`). Le combiné `sortieGF` reste historique. Virgula du leader
-(pied G posé perpendiculaire, #127) : premier pas de la sortie fille crochet, sonde de calibrage `scripts/search_virgula.mjs`. Oracle :
+(pied G posé perpendiculaire, #127) : premier pas de la sortie fille crochet, sonde de calibrage `scripts/search_virgula.mjs` ; en option dans
+l'ida e volta en paire (#128, `virgula=1`, `scripts/test_ida_virgula.mjs`). Oracle :
 [contrat](docs/spec-phase18-oracle.md) ; `scripts/oracle_assertions.mjs` centralise les gardes finies
 et les comparaisons de quaternions ; ne pas réintroduire une comparaison d'une fonction de mouvement
 avec elle-même comme preuve de continuité ou de chorégraphie. [Éditeur futur](docs/spec-editeur-figures.md).

@@ -13,6 +13,7 @@ import { solveFrame, hasArms } from "../cadre";
 import type { SortieFilleVariant } from "../sortieFille";
 import type { CouplePlacement } from "../placement";
 import { DEFAULT_SORTIE_CONTRA, type SortieVariant } from "../sortieGarcon";
+import { IDA_DEFAULT, type IdaVariant } from "../idaPaire";
 import {
   MUSCLES_URL,
   DRACO_DECODER_PATH,
@@ -21,6 +22,9 @@ import {
   parentOffsetSkel,
   makeMuscleMaterial,
 } from "../muscles";
+
+/** #128: the default ida e volta with the leader's virgula. */
+const IDA_VIRGULA_VARIANT: IdaVariant = { ...IDA_DEFAULT, virgula: true };
 
 export interface RigProps {
   styleKey: string;
@@ -45,6 +49,7 @@ export interface RigProps {
   contraposition?: number; // #51: 1 = chest faces the partner, 0 = aligned with the pelvis
   sortieVariant?: SortieVariant;
   sortieContra?: number;
+  idaVirgula?: boolean; // #128: the leader's G forward step of the pair ida e volta lands as a virgula
   showAppui?: boolean;
   stats?: React.MutableRefObject<any> | null;
   plant?: boolean;
@@ -84,6 +89,7 @@ export default function Rig({
   contraposition,
   sortieVariant = "line",
   sortieContra = DEFAULT_SORTIE_CONTRA,
+  idaVirgula = false,
   showAppui = false,
   stats = null,
   plant = true,
@@ -207,6 +213,7 @@ export default function Rig({
       : applyPose(r, model, clock.beat + phaseOffset, {
         styleKey, amp, travel, dir, movement, embrace, corridinho, reverse, quarts,
         iso, ida, cadre, plant, temps3, follower: side === "follower", sortieVariant, sortieContra, sortieFilleVariant,
+        ...(idaVirgula ? { idaVariant: IDA_VIRGULA_VARIANT } : {}),
         placement: placement ?? "reference",
         // #37: in pair, the quarter turns use the couple model (placement given by the app).
         quartsPaire: embrace && movement === "quarts" && placement !== undefined,

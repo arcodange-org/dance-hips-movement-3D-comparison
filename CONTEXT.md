@@ -5,6 +5,29 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Chantiers du 21 novembre 2026 : quarts, sortie garçon D2, GIFs avec muscles, virgula
+
+Depuis le 20 novembre, l'état de chaque chantier vit surtout dans les issues (commentaires « Reprise »)
+et les specs. Résumé de la journée du 21 :
+
+- **#126 (PR #131, fusionnée)** : quarts de tour, début fluidifié ; le buste suit le bassin avec
+  0,25 temps de retard ([spec](docs/spec-quarts-paire.md)).
+- **#130 (PR #133, fusionnée)** : sortie garçon, pieds D tout près en position 2 (3,8 cm), genoux D à
+  11 cm, bassin du leader 6 cm derrière son D. R9 tranchée contre #104
+  ([spec](docs/spec-sortie-garcon.md)). Reste ouvert : buste légèrement en avant en permanence (#93).
+- **#129 (PR #134, fusionnée)** : GIFs du README avec la couche des muscles. Règle : toute capture de
+  figure se fait avec `muscles=1`.
+- **#127 (PR #135)** : sortie fille, variante crochet : le G1 du leader est une **virgula** (pied posé
+  perpendiculaire, talon contre le bord intérieur du D, bassin ouvert de 10°, buste inchangé, suiveur
+  inchangé) ([spec](docs/spec-sortie-fille.md), règle R26). Sonde : `scripts/search_virgula.mjs`.
+- **#128** : la même virgula en option dans l'ida e volta en paire (`virgula=1`, case à cocher),
+  `scripts/test_ida_virgula.mjs` ([spec](docs/spec-ida-paire.md)).
+- PR brouillon en relecture du propriétaire : #117 (ontologie), #76 (audit).
+- Pièges : `npm test` complet dure 25 min ou plus en local. Lancer ses scripts en parallèle, un journal
+  par script, le ramène à une dizaine de minutes ; `test_placements` et `test_plexus` rejouent d'autres
+  scripts sous les mêmes noms de bundle : une erreur d'import peut être une collision, relancer le script
+  seul. Les captures GIF échouent si la machine est très chargée : les lancer une par une.
+
 ## Preuve de concept du mode guidage #69 (20 novembre 2026)
 
 Branche `arcodange/mode-guidage-poc`, PR #70 empilée sur #65 (Draft). `?mode=pair&guidage=1` : le joueur
