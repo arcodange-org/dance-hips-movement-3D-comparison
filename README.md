@@ -11,6 +11,18 @@ movements hips down are the dominant ones, not the upper body movements »).
 
 **🌐 Site déployé (GitHub Pages) : https://arcodange-org.github.io/dance-hips-movement-3D-comparison/**
 
+## Musique enregistrée, générée par IA (#142)
+
+Quand un style a une piste, le bouton **« Son »** joue une **boucle enregistrée générée par IA**
+(Eleven Music, ElevenLabs) au lieu de la synthèse. La boucle est calée sur le temps de la danse :
+le tempo, l'instant du temps 1 et la longueur de la boucle sont **mesurés** sur le fichier, et
+l'horloge audio pilote la danse. Le curseur de tempo règle la vitesse de lecture (la hauteur suit) ;
+un bouton ramène au tempo de la piste. **Aucune piste n'est publiée pour l'instant** : la première
+prise de la kizomba a été refusée à l'écoute (trop proche d'une musique électronique de danse) et
+une deuxième tentative est en préparation. Tous les styles jouent donc la synthèse, qui restera
+aussi une source au choix (`source=synthese`).
+[Spécification](docs/spec-musique-elevenlabs.md) · [provenance et prompts](docs/musique/enregistrements.md).
+
 ## Son synthétisé synchronisé (#44)
 
 Le bouton **« Son »** (éteint par défaut) joue une musique **synthétisée dans le navigateur**
