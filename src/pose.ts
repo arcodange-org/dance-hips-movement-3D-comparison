@@ -669,7 +669,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     // #157: the small bounce, one per beat of the music: lowest on the beat, where the weight arrives.
     // A figure that leaves no room to lower the pelvis (`dip` 0: the quarter turn while the legs cross)
     // gets none there: lowering it bends the knees into the partner's.
-    const room = Math.max(0, Math.min(1, ((figure as { dip?: number }).dip ?? GINGA_ROOM) / GINGA_ROOM));
+    const room = Math.max(0, Math.min(1, ((figure as { dip?: number } | null)?.dip ?? GINGA_ROOM) / GINGA_ROOM));
     const bounce = gingaSet ? -gingaSet.bounce * room * gingaRoom.bounce * (0.5 + 0.5 * Math.cos(2 * Math.PI * clockBeat)) : 0;
     r.root.position.y = height + Math.min(0, styleY) + bounce + (o.rootOffset?.y ?? 0);
     r.root.updateWorldMatrix(true, true);
