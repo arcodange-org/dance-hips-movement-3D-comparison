@@ -381,108 +381,113 @@ export default function App() {
     }
   };
 
+  // #31: one scene for the bare (captures) and the full view; the bare view keeps its own clock (no music
+  // driver) and no pan.
+  const renderScene = (bare: boolean, driver: typeof music.driver | null) => (
+    <Canvas camera={{ position: camPosParam ?? cam.position, fov: 42 }} dpr={[1, 2]}>
+      {!isFiveActionFigure && <DanceTransport clock={clock} bpm={bpm} playing={playing} driver={driver} />}
+      <color attach="background" args={["#0b1220"]} />
+      <ambientLight intensity={0.65} />
+      <directionalLight position={[3, 5, 4]} intensity={1.3} />
+      <directionalLight position={[-3, 2, -3]} intensity={0.4} color="#93c5fd" />
+      <GridFloor />
+      <OriginMarker visible={showRepere} />
+      <CompassRose visible={showBoussole && showRepere} />
+      {/* #60: the line of dance is perpendicular to the dancers' torsos in every view. */}
+      <LineOfDance visible={ligneVisible} />
+      <React.Suspense fallback={null}>
+        {isFiveActionFigure && <DanceTransport clock={clock} bpm={bpm} playing={playing}
+          endBeat={endBeat} onEnd={() => setPlaying(false)} driver={driver} />}
+        <Rig
+          styleKey={styleA}
+          bpm={bpm}
+          clock={clock}
+          amp={amp}
+          playing={playing}
+          offset={offsetA}
+          rotationY={0}
+          ghost={ghostA}
+          embrace={isPair}
+          pair={isPair ? pairRef : null}
+          side={isPair ? "leader" : null}
+          showContacts={isPair && showContacts && !hasPlacement}
+          travel={travel}
+          showTorso={showTorso}
+          showMuscles={showMuscles}
+          movement={movement}
+          sortieFilleVariant={sortieFilleVariant}
+          placement={hasPlacement ? placement : undefined}
+          contraposition={contraposition}
+          sortieVariant={sortieVariant}
+          sortieContra={sortieContra}
+          showAppui={showAppui}
+          stats={statsRef}
+          plant={plant}
+          corridinho={corridinho}
+          torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
+          iso={iso}
+          cadre={cadre}
+          quarts={quarts}
+          reverse={false}
+          dir={dir}
+          temps3={temps3}
+          ida={ida}
+        />
+        {(isCompare || isPair) && (
+          <Rig
+            styleKey={isPair ? styleA : styleB}
+            bpm={bpm}
+            clock={clock}
+            amp={amp}
+            playing={playing}
+            offset={offsetB}
+            rotationY={isPair ? Math.PI : 0}
+            ghost={ghostB}
+            embrace={isPair}
+            pair={isPair ? pairRef : null}
+            side={isPair ? "follower" : null}
+            showContacts={isPair && showContacts && !hasPlacement}
+            travel={travel}
+            showTorso={showTorso}
+            showMuscles={showMuscles}
+            movement={movement}
+            sortieFilleVariant={sortieFilleVariant}
+            placement={hasPlacement ? placement : undefined}
+          contraposition={contraposition}
+            sortieVariant={sortieVariant}
+            sortieContra={sortieContra}
+            showAppui={showAppui}
+            stats={statsBRef}
+            plant={plant}
+            corridinho={corridinho}
+            torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
+          iso={iso}
+          cadre={cadre}
+          quarts={quarts}
+          reverse={reverseB}
+          dir={dir}
+          temps3={temps3}
+          ida={ida}
+          />
+        )}
+        {isPair && showContacts && (isFiveActionFigure
+          ? <SortieGarconContactViz pair={pairRef} clock={isSortieFille ? clock : undefined} /> : <ContactViz pair={pairRef} />)}
+      </React.Suspense>
+      <OrbitControls
+        ref={controlsRef}
+        target={camTgtParam ?? cam.target}
+        enableDamping
+        dampingFactor={0.08}
+        minDistance={1.8}
+        maxDistance={7}
+        {...(bare ? { enablePan: false } : {})}
+      />
+    </Canvas>
+  );
   if (bare) {
     return (
       <div className="relative w-screen h-screen overflow-hidden bg-slate-950">
-        <Canvas camera={{ position: camPosParam ?? cam.position, fov: 42 }} dpr={[1, 2]}>
-          {!isFiveActionFigure && <DanceTransport clock={clock} bpm={bpm} playing={playing} />}
-          <color attach="background" args={["#0b1220"]} />
-          <ambientLight intensity={0.65} />
-          <directionalLight position={[3, 5, 4]} intensity={1.3} />
-          <directionalLight position={[-3, 2, -3]} intensity={0.4} color="#93c5fd" />
-          <GridFloor />
-          <OriginMarker visible={showRepere} />
-          <CompassRose visible={showBoussole && showRepere} />
-          {/* #60: the line of dance is perpendicular to the dancers' torsos in every view. */}
-          <LineOfDance visible={ligneVisible} />
-          <React.Suspense fallback={null}>
-            {isFiveActionFigure && <DanceTransport clock={clock} bpm={bpm} playing={playing}
-              endBeat={endBeat} onEnd={() => setPlaying(false)} />}
-            <Rig
-              styleKey={styleA}
-              bpm={bpm}
-              clock={clock}
-              amp={amp}
-              playing={playing}
-              offset={offsetA}
-              rotationY={0}
-              ghost={ghostA}
-              embrace={isPair}
-              pair={isPair ? pairRef : null}
-              side={isPair ? "leader" : null}
-              showContacts={isPair && showContacts && !hasPlacement}
-              travel={travel}
-              showTorso={showTorso}
-              showMuscles={showMuscles}
-              movement={movement}
-              sortieFilleVariant={sortieFilleVariant}
-              placement={hasPlacement ? placement : undefined}
-              contraposition={contraposition}
-              sortieVariant={sortieVariant}
-              sortieContra={sortieContra}
-              showAppui={showAppui}
-              stats={statsRef}
-              plant={plant}
-              corridinho={corridinho}
-              torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
-              iso={iso}
-              cadre={cadre}
-              quarts={quarts}
-              reverse={false}
-              dir={dir}
-              temps3={temps3}
-              ida={ida}
-            />
-            {(isCompare || isPair) && (
-              <Rig
-                styleKey={isPair ? styleA : styleB}
-                bpm={bpm}
-                clock={clock}
-                amp={amp}
-                playing={playing}
-                offset={offsetB}
-                rotationY={isPair ? Math.PI : 0}
-                ghost={ghostB}
-                embrace={isPair}
-                pair={isPair ? pairRef : null}
-                side={isPair ? "follower" : null}
-                showContacts={isPair && showContacts && !hasPlacement}
-                travel={travel}
-                showTorso={showTorso}
-                showMuscles={showMuscles}
-                movement={movement}
-                sortieFilleVariant={sortieFilleVariant}
-                placement={hasPlacement ? placement : undefined}
-              contraposition={contraposition}
-                sortieVariant={sortieVariant}
-                sortieContra={sortieContra}
-                showAppui={showAppui}
-                stats={statsBRef}
-                plant={plant}
-                corridinho={corridinho}
-                torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
-              iso={iso}
-              cadre={cadre}
-              quarts={quarts}
-              reverse={reverseB}
-              dir={dir}
-              temps3={temps3}
-              ida={ida}
-              />
-            )}
-            {isPair && showContacts && (isFiveActionFigure
-              ? <SortieGarconContactViz pair={pairRef} clock={isSortieFille ? clock : undefined} /> : <ContactViz pair={pairRef} />)}
-          </React.Suspense>
-          <OrbitControls
-            ref={controlsRef}
-            target={camTgtParam ?? cam.target}
-            enableDamping
-            dampingFactor={0.08}
-            minDistance={1.8}
-            maxDistance={7}
-            enablePan={false}
-          />
-        </Canvas>
+        {renderScene(true, null)}
         {showAppui && (isCompare || isFiveActionFigure) && hud && hudB && (
           <div className="absolute top-3 right-3 pointer-events-none bg-slate-900/70 rounded-md px-2 py-1 space-y-1.5 max-w-[90%]">
             <Gauge label={`${isFiveActionFigure ? "Leader" : "A"} · ${STYLES[styleA].label}`} color={STYLES[styleA].color} hud={hud} />
@@ -642,104 +647,7 @@ export default function App() {
         className="relative rounded-2xl overflow-hidden border border-slate-800"
         style={{ height: 540 }}
       >
-        <Canvas camera={{ position: camPosParam ?? cam.position, fov: 42 }} dpr={[1, 2]}>
-          {!isFiveActionFigure && <DanceTransport clock={clock} bpm={bpm} playing={playing} driver={music.driver} />}
-          <color attach="background" args={["#0b1220"]} />
-          <ambientLight intensity={0.65} />
-          <directionalLight position={[3, 5, 4]} intensity={1.3} />
-          <directionalLight position={[-3, 2, -3]} intensity={0.4} color="#93c5fd" />
-          <GridFloor />
-          <OriginMarker visible={showRepere} />
-          <CompassRose visible={showBoussole && showRepere} />
-          {/* #60: the line of dance is perpendicular to the dancers' torsos in every view. */}
-          <LineOfDance visible={ligneVisible} />
-          <React.Suspense fallback={null}>
-            {isFiveActionFigure && <DanceTransport clock={clock} bpm={bpm} playing={playing}
-              endBeat={endBeat} onEnd={() => setPlaying(false)} driver={music.driver} />}
-            <Rig
-              styleKey={styleA}
-              bpm={bpm}
-              clock={clock}
-              amp={amp}
-              playing={playing}
-              offset={offsetA}
-              rotationY={0}
-              ghost={ghostA}
-              embrace={isPair}
-              pair={isPair ? pairRef : null}
-              side={isPair ? "leader" : null}
-              showContacts={isPair && showContacts && !hasPlacement}
-              travel={travel}
-              showTorso={showTorso}
-              showMuscles={showMuscles}
-              movement={movement}
-              sortieFilleVariant={sortieFilleVariant}
-              placement={hasPlacement ? placement : undefined}
-              contraposition={contraposition}
-              sortieVariant={sortieVariant}
-              sortieContra={sortieContra}
-              showAppui={showAppui}
-              stats={statsRef}
-              plant={plant}
-              corridinho={corridinho}
-              torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
-              iso={iso}
-              cadre={cadre}
-              quarts={quarts}
-              reverse={false}
-              dir={dir}
-              temps3={temps3}
-              ida={ida}
-            />
-            {(isCompare || isPair) && (
-              <Rig
-                styleKey={isPair ? styleA : styleB}
-                bpm={bpm}
-                clock={clock}
-                amp={amp}
-                playing={playing}
-                offset={offsetB}
-                rotationY={isPair ? Math.PI : 0}
-                ghost={ghostB}
-                embrace={isPair}
-                pair={isPair ? pairRef : null}
-                side={isPair ? "follower" : null}
-                showContacts={isPair && showContacts && !hasPlacement}
-                travel={travel}
-                showTorso={showTorso}
-                showMuscles={showMuscles}
-                movement={movement}
-                sortieFilleVariant={sortieFilleVariant}
-                placement={hasPlacement ? placement : undefined}
-              contraposition={contraposition}
-                sortieVariant={sortieVariant}
-                sortieContra={sortieContra}
-                showAppui={showAppui}
-                stats={statsBRef}
-                plant={plant}
-                corridinho={corridinho}
-                torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
-              iso={iso}
-              cadre={cadre}
-              quarts={quarts}
-              reverse={reverseB}
-              dir={dir}
-              temps3={temps3}
-              ida={ida}
-              />
-            )}
-            {isPair && showContacts && (isFiveActionFigure
-              ? <SortieGarconContactViz pair={pairRef} clock={isSortieFille ? clock : undefined} /> : <ContactViz pair={pairRef} />)}
-          </React.Suspense>
-          <OrbitControls
-            ref={controlsRef}
-            target={camTgtParam ?? cam.target}
-            enableDamping
-            dampingFactor={0.08}
-            minDistance={1.8}
-            maxDistance={7}
-          />
-        </Canvas>
+        {renderScene(false, music.driver)}
         <div className="absolute bottom-3 left-3 flex gap-2 pointer-events-none">
           <span
             className="px-2 py-0.5 rounded-md text-[11px] font-semibold text-slate-950"
