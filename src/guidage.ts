@@ -12,6 +12,7 @@ import { sampleSortieFille, SORTIE_FILLE_PAIR_DZ } from "./sortieFille";
 import { sampleSortieFG, CHAIN_BEATS, CHAIN_FROM } from "./enchainement";
 import { sampleTouched, touchedBeat, touchVirgula, TOUCH_BEATS, TOUCH_POSITIONS, type Touch } from "./insertion";
 import { placementOffset, placementScale, type CouplePlacement } from "./placement";
+import type { GingaEight } from "./pose";
 
 export type GuideFigure = "ida" | "idaD" | "idaArr" | "idaArrD" | "quart" | "sortieG" | "sortieF" | "sortieFG" | "avance" | "recule" | "double";
 export type GuideKind = "base" | GuideFigure;
@@ -123,14 +124,30 @@ export const GUIDE_AUTO = {
  * ginga of the couple dance. `sway`: share of the style's lateral hip shift, in every figure, on the
  * support transfers; `bounce` (m): vertical pulse, lowest on each beat. Calibrated on the GLB; the
  * setting is the owner's to elect (`?ginga=sans|discret|marque|ample`). */
-export type GuideGinga = "sans" | "discret" | "marque" | "ample";
-export const GUIDE_GINGA: Record<GuideGinga, { sway: number; bounce: number } | null> = {
+export type GuideGinga = "sans" | "discret" | "marque" | "ample" | GuideEight;
+export const GUIDE_GINGA: Record<Exclude<GuideGinga, GuideEight>, { sway: number; bounce: number } | null> = {
   sans: null,
   discret: { sway: 0.2, bounce: 0.005 },
   marque: { sway: 0.3, bounce: 0.009 },
   ample: { sway: 0.45, bounce: 0.014 },
 };
 export const GUIDE_GINGA_DEFAULT: GuideGinga = "marque";
+/** #159 (owner: « on dit souvent que l'"on fait un 8" », « le 8 se lit dans les deux plans », « j'ai envie
+ * de dire les 3 plans même », docs/spec-ginga-huit.md): PROTOTYPES of the « 8 » of the hips, to elect
+ * (`?ginga=huit|huitRond|huitInverse|huitAmple`). Not checked on the GLB: they are not offered by default.
+ * - `huit`: the size of `marque`; the pelvis waits on the support, then crosses (an angular « 8 »);
+ * - `huitRond`: the same, the lateral shift on the moving phase too: the pelvis never stops;
+ * - `huitInverse`: `huitRond` the other way round (back as the weight arrives, forward on the support);
+ * - `huitAmple`: `huitRond`, larger. */
+export type GuideEight = "huit" | "huitRond" | "huitInverse" | "huitAmple";
+export const GUIDE_EIGHT: Record<GuideEight, { sway: number; bounce: number; eight: GingaEight }> = {
+  huit: { sway: 0.3, bounce: 0.009, eight: { turn: 1, rollLag: 0.25, yawLag: 0.5, depth: 0.01, depthLag: 0, bounceLag: 0.25, round: 0 } },
+  huitRond: { sway: 0.3, bounce: 0.009, eight: { turn: 1, rollLag: 0.25, yawLag: 0.5, depth: 0.01, depthLag: 0, bounceLag: 0.25, round: 1 } },
+  huitInverse: { sway: 0.3, bounce: 0.009, eight: { turn: 1, rollLag: -0.25, yawLag: -0.5, depth: 0.01, depthLag: 0.5, bounceLag: 0.25, round: 1 } },
+  huitAmple: { sway: 0.45, bounce: 0.014, eight: { turn: 1.5, rollLag: 0.25, yawLag: 0.5, depth: 0.02, depthLag: 0, bounceLag: 0.25, round: 1 } },
+};
+/** The pose setting of a ginga name (a calibrated setting or a prototype of the « 8 »). */
+export const guideGingaOf = (name: GuideGinga) => (name in GUIDE_EIGHT ? GUIDE_EIGHT[name as GuideEight] : GUIDE_GINGA[name as Exclude<GuideGinga, GuideEight>]);
 
 /** A command: the figure asked for, dated on the beat clock. #144: `virgula` (a key held with the ida's)
  * asks for the touch as a virgula, where the step offers it. */
@@ -516,11 +533,14 @@ export function movementOf(kind: GuideKind): MovementKey {
 
 /** Pose options of one dancer for a guide sample (shared by the view and the GLB tests): the pair
  * figure models, plexus contact, and the inertialized pelvis offsets of both dancers. */
-export function guidePoseOptions(s: Pick<GuideSample, "movement" | "rootOffset"> & { kind?: GuideKind; touches?: Touch[]; ginga?: GuideGinga }, follower: boolean) {
+export function guidePoseOptions(s: Pick<GuideSample, "movement" | "rootOffset"> & { kind?: GuideKind; touches?: Touch[]; ginga?: GuideGinga; previous?: GuideKind | null }, follower: boolean) {
   const role = follower ? "follower" : "leader", partner = follower ? "leader" : "follower";
+  // #159 (prototype): the figure danced just before, for the ginga's phase to continue from it.
+  const before = s.previous && s.previous !== "base" ? GUIDE_FIGURES[s.previous] : null;
   return {
+    gingaFrom: before && { movement: before.movement, ...figureOptions(s.previous!), quartsPaire: before.movement === "quarts", idaPaire: before.movement === "ida", placePaire: false, beats: before.beats },
     movement: s.movement, embrace: true, follower, ...figureOptions(s.kind ?? "base"), touches: s.touches ?? [],
-    ginga: GUIDE_GINGA[s.ginga ?? GUIDE_GINGA_DEFAULT],
+    ginga: guideGingaOf(s.ginga ?? GUIDE_GINGA_DEFAULT),
     quartsPaire: s.movement === "quarts", idaPaire: s.movement === "ida", placePaire: s.movement === "none", plexus: true,
     // #62: the basic step keeps the clock's phase so that it joins the figures continuously.
     onBeat: false,

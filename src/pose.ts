@@ -55,7 +55,10 @@ export interface PoseOptions {
   /** #157 (docs/spec-ginga-couple.md): the ginga seen in the couple dance. `sway`: share of the style's
    * lateral hip shift added to the pelvis in every pair figure, with the style's phase driven by the
    * figure's support transfers; `bounce` (m): a small vertical pulse, lowest on each beat of the music. */
-  ginga: { sway: number; bounce: number } | null;
+  ginga: { sway: number; bounce: number; eight?: GingaEight } | null;
+  /** #159 (prototype): the pair figure danced just before (its pose options, its length in beats). With
+   * the « 8 », the phase of the ginga continues from its last transfers instead of starting settled. */
+  gingaFrom: (Partial<PoseOptions> & { beats: number }) | null;
   /** #61: in pair on the spot, the couple dances in the neutral quinconce (opt-in, set by the app). */
   placePaire: boolean;
   /** #62: false keeps the on-the-spot motion on the clock's phase (guide mode). */
@@ -85,7 +88,7 @@ export const DEFAULT_POSE: PoseOptions = {
   quarts: false, corridinho: false, ida: false, temps3: false, sortie: false,
   embrace: false, reverse: false, follower: false, movement: "none",
   sortieFilleVariant: "hook", sortieVariant: "line", sortieContra: DEFAULT_SORTIE_CONTRA, sortieVirgula: true,
-  placement: "reference", quartsPaire: false, idaPaire: false, idaVariant: IDA_DEFAULT, marche: null, sortieChain: false, sortieInsert: false, touches: [], ginga: null, placePaire: false, plexus: false, contraposition: 1,
+  placement: "reference", quartsPaire: false, idaPaire: false, idaVariant: IDA_DEFAULT, marche: null, sortieChain: false, sortieInsert: false, touches: [], ginga: null, gingaFrom: null, placePaire: false, plexus: false, contraposition: 1,
   rootOffset: null, partnerRootOffset: null, pelvisOffset: null, trunkOffset: null,
 };
 /** Plexus-to-plexus contact (#51): chest-marker gap targeted between partners (m) and the largest
@@ -372,27 +375,45 @@ const smoothstep = (x: number) => { const k = Math.max(0, Math.min(1, x)); retur
 export const GINGA_SWING = 0.25;
 /** Beats of look-ahead regained per beat after a junction. */
 export const GINGA_REJOIN = 0.5;
+/** #159 (prototype, docs/spec-ginga-huit.md): the « 8 » of the hips. In #157 the pelvis turns (roll, yaw)
+ * in time with its lateral shift, so each hip goes and returns on a line. Here the roll and the yaw are
+ * read later in the cycle (`rollLag`, `yawLag`, beats), on a phase that keeps moving between two transfers
+ * (`GINGA_WIDE`), and scaled by `turn`: each hip goes round. `depth` (m) moves the pelvis forward and back
+ * once per transfer (`depthLag`, beats), `bounceLag` (beats) delays the bounce after the beat. `round`
+ * (0 to 1) lets the lateral shift follow that moving phase too: the hips then never wait on the support. */
+export interface GingaEight { turn: number; rollLag: number; yawLag: number; depth: number; depthLag: number; bounceLag: number; round?: number }
+/** Beats on each side over which the phase of the « 8 » is averaged: it then moves all along the beat. */
+export const GINGA_WIDE = 0.5;
+/** Beats of the figure danced before that the phase table looks back on. */
+const GINGA_BEFORE = 1;
 const gingaTables = new Map<string, Float32Array | null>();
-export function gingaPhase(key: string, leader: (beat: number) => { loadR?: number; gingaJunctions?: readonly number[] } | null, beat: number): number | null {
+export function gingaPhase(key: string, leader: (beat: number) => { loadR?: number; gingaJunctions?: readonly number[] } | null, beat: number, swing = GINGA_SWING,
+  before: ((beat: number) => { loadR?: number } | null) | null = null): number | null {
+  key = `${key}|${swing}`;
   let table = gingaTables.get(key);
   if (table === undefined) {
-    const start = leader(0), first = start?.loadR, n = Math.round(GINGA_BEATS / GINGA_STEP);
-    if (first === undefined) table = null;
+    // The table starts GINGA_BEFORE beats before the figure: `before` gives there the loads of the figure
+    // danced before (#159, negative beats); without it the figure's first loads are held (the phase then
+    // starts settled, as in #157). `leader` is only asked for the figure's own beats.
+    const start = leader(0), past = Math.round(GINGA_BEFORE / GINGA_STEP), n = Math.round(GINGA_BEATS / GINGA_STEP) + past;
+    const loadAt = (b: number) => (b < 0 ? (before ? before(b)?.loadR : start?.loadR) : leader(b)?.loadR);
+    const first = loadAt(-GINGA_BEFORE) ?? start?.loadR;
+    if (first === undefined || start?.loadR === undefined) table = null;
     else {
       const raw = new Float32Array(n + 1);
       let right = first >= 0.5, base = right ? 1.5 : 0.5, load = first;
       for (let k = 0; k <= n; k++) {
-        load = leader(k * GINGA_STEP)?.loadR ?? load;
+        load = loadAt((k - past) * GINGA_STEP) ?? load;
         const gone = right ? 1 - load : load;
         if (gone >= 1 - GINGA_SETTLED) { right = !right; base += 1; raw[k] = base - (1 - gone); }
         else raw[k] = base + gone;
       }
       // Running mean over ±GINGA_SWING beats (the ends repeat the first and the last value). The window
       // never looks beyond the next junction, and looks ahead no further than the distance from the last.
-      const half = Math.round(GINGA_SWING / GINGA_STEP), sums = new Float64Array(n + 2);
+      const half = Math.round(swing / GINGA_STEP), sums = new Float64Array(n + 2);
       for (let k = 0; k <= n; k++) sums[k + 1] = sums[k] + raw[k];
       const sumTo = (k: number) => (k < 0 ? (k + 1) * raw[0] : k > n ? sums[n + 1] + (k - n) * raw[n] : sums[k + 1]);
-      const junctions = (start?.gingaJunctions ?? []).map(j => Math.round(j / GINGA_STEP));
+      const junctions = (start?.gingaJunctions ?? []).map(j => Math.round(j / GINGA_STEP) + past);
       table = new Float32Array(n + 1);
       for (let k = 0; k <= n; k++) {
         let ahead = half, from = k - half;
@@ -404,7 +425,7 @@ export function gingaPhase(key: string, leader: (beat: number) => { loadR?: numb
     gingaTables.set(key, table);
   }
   if (!table) return null;
-  const x = Math.max(0, Math.min(table.length - 1, (Number.isFinite(beat) ? beat : 0) / GINGA_STEP)), k = Math.min(table.length - 2, Math.floor(x));
+  const x = Math.max(0, Math.min(table.length - 1, ((Number.isFinite(beat) ? beat : 0) + GINGA_BEFORE) / GINGA_STEP)), k = Math.min(table.length - 2, Math.floor(x));
   return table[k] + (table[k + 1] - table[k]) * (x - k);
 }
 
@@ -419,7 +440,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   // axis (the GLB foot is natively turned out by ≈25°), and the initial/neutral stance has the
   // feet under the hips; each foot joins the validated path on its first step.
   const stance = (model.legs.L.hipX - rest.L.x + rest.R.x - model.legs.R.hipX) / 2;
-  const hostFigure = (beat: number, follower: boolean) => !o.embrace ? null
+  const hostOf = (o: Required<Omit<PoseOptions, never>> | typeof DEFAULT_POSE) => (beat: number, follower: boolean) => !o.embrace ? null
     : o.movement === "sortieG" ? sampleSortieGarcon(beat, follower, rest, o.sortieVariant, o.sortieContra, placementOffset(o.placement, o.amp), placementScale(o.amp), stance)
     : o.movement === "sortieF" && o.sortieChain ? sampleSortieFG(beat, follower, rest, placementOffset(o.placement, o.amp), placementScale(o.amp), stance, o.sortieContra)
     : o.movement === "sortieF" ? sampleSortieFille(beat, follower, rest, o.sortieFilleVariant, placementOffset(o.placement, o.amp), placementScale(o.amp), stance, o.sortieVirgula)
@@ -436,6 +457,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
       { travel: travelAllowed(o.styleKey) ? o.travel : 0, dir: o.dir, length: o.movement === "temps3" ? 3 : 1 })
     : o.movement === "corridinho" && o.placePaire ? sampleQuartsPaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance)
     : null;
+  const hostFigure = hostOf(o);
   // #144: touches go on top of whichever pair figure is danced; #91's inserted ida is their first case.
   const sampleFigure = (follower: boolean) => !o.embrace ? null
     : (o.movement === "sortieG" || o.movement === "sortieF") && o.sortieInsert ? sampleInserted(o.movement, beat, follower, rest, placementOffset(o.placement, o.amp), placementScale(o.amp), stance, o.sortieContra)
@@ -474,9 +496,16 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   // of the style's lateral hip shift goes to the pelvis. The basic step keeps its own sway; a figure that
   // gives its phase (the ida e volta) keeps its calibration.
   if (figure && o.ginga && o.ginga.sway > 0 && !("gingaBeat" in figure) && o.movement !== "none" && o.movement !== "temps3") {
-    const key = [o.movement, o.sortieChain, o.marche, o.sortieVariant, o.sortieFilleVariant, o.sortieVirgula, o.quartsPaire, o.placement, o.amp, stance.toFixed(4)].join("|");
-    const phase = gingaPhase(key, b => hostFigure(b, false) as { loadR?: number; gingaJunctions?: readonly number[] } | null, beat);
+    const own = [o.movement, o.sortieChain, o.marche, o.sortieVariant, o.sortieFilleVariant, o.sortieVirgula, o.quartsPaire, o.placement, o.amp, stance.toFixed(4)].join("|");
+    // #159 (prototype): with the « 8 », the loads before the figure are those of the figure danced before.
+    const from = o.ginga.eight ? o.gingaFrom : null, previous = from ? hostOf({ ...o, ...from, touches: [] }) : null;
+    const loads = (b: number) => hostFigure(b, false) as { loadR?: number; gingaJunctions?: readonly number[] } | null;
+    const before = previous ? (b: number) => previous(from!.beats + b, false) as { loadR?: number } | null : null;
+    const key = (from ? [from.movement, from.sortieChain, from.marche, from.idaVariant ? JSON.stringify(from.idaVariant) : "", from.beats].join("|") + ">" : "") + own;
+    const narrow = gingaPhase(key, loads, beat, GINGA_SWING, before), wide = o.ginga.eight ? gingaPhase(key, loads, beat, GINGA_WIDE, before) : null;
+    const phase = narrow !== null && wide !== null ? narrow + (wide - narrow) * (o.ginga.eight?.round ?? 0) : narrow;
     if (phase !== null) Object.assign(figure, { gingaBeat: phase, gingaAmp: o.follower ? IDA_GINGA.follower : IDA_GINGA.leader, gingaOwn: false,
+      gingaWide: wide ?? undefined,
       // The style's hip shift grows with the amplitude: beyond 1 the share shrinks, the sway stays.
       gingaSway: (o.follower ? -1 : 1) * gingaSet!.sway * gingaRoom.sway / Math.max(1, o.amp) });
   }
@@ -517,6 +546,23 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     for (const s of SIDES) r["foot" + s].rotation.set(0, 0, 0);
     applyStyle(blend.key);
     mixStyleState(r, mine, styleState(r), blend.weight);
+  }
+  // #159 (prototype): the « 8 ». The roll and the yaw of the pelvis are those of the style later in the
+  // cycle, on the phase that keeps moving between two transfers; they fade where the figure leaves no room.
+  const eight = o.ginga?.eight, wide = (figure as { gingaWide?: number } | null)?.gingaWide;
+  if (eight && wide !== undefined && ginga) {
+    const main = styleState(r);
+    const turned = (phase: number) => {
+      resetRig(r);
+      for (const s of SIDES) r["foot" + s].rotation.set(0, 0, 0);
+      STYLES[o.styleKey].apply(r, phase, o.amp * (ginga.gingaAmp ?? 1), styleTime);
+      return r.pelvis.rotation.clone();
+    };
+    const roll = turned(wide - eight.rollLag).z * eight.turn, yaw = turned(wide - eight.yawLag).y * eight.turn;
+    mixStyleState(r, main, main, 0);
+    const share = gingaRoom.sway * (1 - (blend?.weight ?? 0));
+    r.pelvis.rotation.z += (roll - r.pelvis.rotation.z) * share;
+    r.pelvis.rotation.y += (yaw - r.pelvis.rotation.y) * share;
   }
   // #61: a figure may keep a share of the style's lateral hip shift on top of its own pelvis path;
   // #42: the ginga's shift towards the support joins it.
@@ -564,6 +610,8 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     const kept = ((figure as { styleSway?: number }).styleSway ?? 0) * coupledSway + (ginga?.gingaSway ?? 0);
     r.root.position.x = figure.root.x;
     r.pelvis.position.x += styleRootX * kept;
+    // #159 (prototype): forward as the weight arrives, back before it leaves; the couple moves together.
+    if (eight && wide !== undefined) r.pelvis.position.z += (o.follower ? -1 : 1) * eight.depth * gingaRoom.sway * Math.sin(2 * Math.PI * (wide - eight.depthLag));
     r.root.position.z = figure.root.z;
     if (o.rootOffset) { r.root.position.x += o.rootOffset.x; r.root.position.z += o.rootOffset.z; }
     const rootYaw = (figure as { rootYaw?: number }).rootYaw;
@@ -670,7 +718,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     // A figure that leaves no room to lower the pelvis (`dip` 0: the quarter turn while the legs cross)
     // gets none there: lowering it bends the knees into the partner's.
     const room = Math.max(0, Math.min(1, ((figure as { dip?: number } | null)?.dip ?? GINGA_ROOM) / GINGA_ROOM));
-    const bounce = gingaSet ? -gingaSet.bounce * room * gingaRoom.bounce * (0.5 + 0.5 * Math.cos(2 * Math.PI * clockBeat)) : 0;
+    const bounce = gingaSet ? -gingaSet.bounce * room * gingaRoom.bounce * (0.5 + 0.5 * Math.cos(2 * Math.PI * (clockBeat - (o.ginga?.eight?.bounceLag ?? 0)))) : 0;
     r.root.position.y = height + Math.min(0, styleY) + bounce + (o.rootOffset?.y ?? 0);
     r.root.updateWorldMatrix(true, true);
     const skeleton = r["Skeleton"] as THREE.Object3D;
