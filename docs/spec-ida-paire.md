@@ -33,21 +33,33 @@ Repère du couple : celui du leader (+x à gauche, +z vers le suiveur). Écartem
 
 - **Position neutre** : celle des figures en paire (`placementOffset`, pieds sous les hanches,
   `stagger` du D, quinconce par défaut). Elle est retrouvée **à chaque retour** (temps 4 et 8).
-- **Séquence** (8 temps, un pas tous les 2 temps, ordre de la phase 8 conservé pour le leader) :
+- **Séquence (#107, 20 novembre)** : « avant gauche + retour neutre en 2 temps, derrière gauche + retour,
+  avant droit + retour, derrière droit + retour. Le tout en 8 temps (ça va plus vite) ». C'est le cycle de
+  l'ida e volta solo (phase 8, `idaEVoltaStep`) : quatre allers-retours de 2 temps, montrés avec la
+  contraposition (« on montre directement avec la contraposition »).
 
-| Temps | Leader | Suiveur | Couple |
+| Temps | Leader | Suiveur | Poids |
 |---|---|---|---|
-| 0 → 2 | **G avance** (ida) | **D recule** | avance avec le poids, puis revient |
-| 2 → 4 | **G revient** au neutre (volta) | **D revient** | au neutre, quinconce |
-| 4 → 6 | **D avance** | **G recule** | avance avec le poids, puis revient |
-| 6 → 8 | **D revient** | **G revient** | au neutre, quinconce |
+| 0 → 2 | **G en avant** puis retour | **D en arrière** puis retour | sur le pied sorti au temps 1, retour sur l'autre |
+| 2 → 4 | **G en arrière** puis retour | **D en avant** puis retour | idem ; le pied revenu reprend le poids (le D est libre) |
+| 4 → 6 | **D en avant** puis retour | **G en arrière** puis retour | sur le pied sorti au temps 5, retour sur l'autre |
+| 6 → 8 | **D en arrière** puis retour | **G en avant** puis retour | idem ; le pied revenu reprend le poids (le G est libre) |
 
-  Le suiveur fait le pas symétrique du leader : même couloir de pieds (son D longe le G du leader, son G
-  longe le D du leader, bords au contact en quinconce), même longueur. Le couple reste emboîté.
-- **Le pied qui recule libère la place** (même raisonnement que les quarts #37) : à l'aller, le pied du
-  suiveur part sur le temps et celui du leader `delay` = 0,5 temps plus tard ; au retour, c'est le pied
-  du leader (qui recule) qui part le premier et celui du suiveur qui suit. Les deux pieds se posent au
-  même moment (1,2 temps). L'intention du leader passe par le buste (`IDA_LEAD`).
+  Le suiveur fait le pas symétrique du leader : même couloir de pieds, même longueur (R22). Le couple
+  reste emboîté.
+- **Vols** (dans chaque créneau de 2 temps) : aller de 0,1 à 0,8, retour de 1,2 à 1,85.
+- **Le pied qui recule libère la place, sans que le suiveur parte avant le leader** (R24, #88) :
+  - quand le suiveur recule, son pied quitte le sol au même instant que celui du leader. Son départ
+    compense sa poussée plus courte (`gaitStep`). Il se pose après 70 % du vol du leader et dégage le
+    couloir le premier ;
+  - quand le leader recule, son pied part le premier, celui du suiveur 0,15 temps plus tard.
+- **Variantes du mode jeu** (#89) : le même cycle commencé plus tard (jambe droite +4 temps, en arrière
+  d'abord +2, les deux +6). Le décalage (`styleOffset`) est aussi donné au style, dont la vague lente
+  (suave, zouk) suit alors le cycle : mêmes poses, donc mêmes garanties. Sans lui, « en arrière d'abord »
+  croisait les fémurs droits en suave, la vague décalée de 2 temps.
+- GIF (vue du guideur, kizomba, quinconce, contraposition) : [ida e volta en 8 temps](gifs/ida-paire-8temps.gif).
+- Ancien cycle (avant #107) : un seul aller-retour par jambe, G aller 0 → 2, G retour 2 → 4, D aller
+  4 → 6, D retour 6 → 8.
 - **Pied G ouvert** : en quinconce, chaque paire de pieds qui bougent ensemble a un pied G à l'extérieur
   (G du leader contre D du suiveur, G du suiveur contre D du leader). Le pied G qui bouge s'écarte de
   2 cm vers sa gauche pendant le vol, pour que les deux genoux qui avancent côte à côte se croisent sans
@@ -57,17 +69,14 @@ Repère du couple : celui du leader (+x à gauche, +z vers le suiveur). Écartem
   passage de jambe, pose de l'avant-pied puis du talon. Le point d'appui ne glisse pas pendant un pivot.
   Le roulé est réduit à 30 % (pas au contact, comme les pas croisés des sorties) : à 100 %, le talon
   qui se lève pousse les deux genoux l'un vers l'autre.
-- **Poids et bassins (pas balancé, « rock step »)** : une fois les deux pieds posés (fin du vol, 1,2),
-  le poids passe sur le pied posé (1,2 → 1,5) ; à l'aller il revient ensuite sur le pied resté au neutre
-  (1,55 → 1,95), ce qui libère le pied pour le retour. Au retour, le pied revient sans poids et reprend
-  le poids en se posant.
-- **Transferts d'appui explicites (pour le ginga #42)** : `idaTransfers(follower)` liste les six
-  transferts du cycle (début, fin, pied quitté, pied chargé), alternés D/G : D→G à 1,2, G→D à 1,55,
-  D→G à 3,2, G→D à 5,2, D→G à 5,55, G→D à 7,2 pour le leader ; mêmes instants, pieds en miroir, pour le
-  suiveur. L'échantillon donne `support` (pied porteur) et `transfer` (transfert en cours et sa
-  progression). Hors transfert, tout le poids est sur un pied. Les deux bassins se
-  déplacent **ensemble**, d'une part `carry` du pas, avec le poids. L'écart entre les bassins reste
-  constant, donc le contact des plexus aussi.
+- **Poids et bassins (pas balancé, « rock step »)** : le poids passe sur le pied sorti sur le temps
+  (0,8 → 1,0), puis revient sur l'autre pied (1,0 → 1,2), ce qui libère le pied pour son retour, sans poids.
+  Après un créneau vers l'arrière, le pied revenu reprend le poids (1,85 → 2,0) pour libérer l'autre jambe
+  au créneau suivant.
+- **Transferts d'appui explicites (pour le ginga #42)** : `idaTransfers(follower)` liste les dix
+  transferts du cycle, alternés D/G. Pour le leader : D→G à 0,8, G→D à 1, D→G à 2,8, G→D à 3, D→G à 3,85,
+  G→D à 4,8, D→G à 5, G→D à 6,8, D→G à 7, G→D à 7,85. Mêmes instants, pieds en miroir, pour le suiveur.
+  L'échantillon donne `support` (pied porteur) et `transfer` (transfert en cours).
 - **Contraposition** : la courbe `idaContra` de la phase 15 donne le lacet du bassin (vers le pied qui
   bouge, réduit de moitié dans le couple serré : il rapproche les cuisses d'appui du couloir extérieur)
   et du buste (à l'opposé). Le suiveur la joue sur son propre pied, en miroir : les lacets des
@@ -84,11 +93,12 @@ Repère du couple : celui du leader (+x à gauche, +z vers le suiveur). Écartem
 
 1. **Neutre** : aux temps 0, 4 et 8, pieds et racines des deux danseurs sur la position neutre du
    placement (quinconce compris) ; cycle de 8 temps en boucle.
-2. **Transferts** : six transferts d'appui par cycle, alternés, simultanés et en miroir pour les deux
+2. **Transferts** : dix transferts d'appui par cycle (#107), alternés, simultanés et en miroir pour les deux
    danseurs, les deux pieds au sol ; le poids ne change que pendant un transfert et finit entièrement
    sur le pied chargé ; les appuis du moteur (GLB) sont ceux de l'échantillonneur.
-3. **Séquence** : le leader avance quand le suiveur recule, du même pas, avec le pied opposé ; le pied
-   qui recule part le premier et garde l'avance, les deux se posent ensemble ; le couple se déplace d'un
+3. **Séquence** (#107) : avant G, arrière G, avant D, arrière D, un aller-retour par 2 temps ; le suiveur
+   en miroir, du même pas ; son pied ne part jamais avant celui du leader et le pied qui recule dégage le
+   couloir le premier ; variantes = cycle décalé ; le couple se déplace d'un
    bloc (écart des racines constant) ; le buste du leader précède de `IDA_LEAD`.
 4. **Marche** : pendant chaque pas, le talon se lève avant que le pied ne quitte le sol ; attaque du
    talon sur les pas vers l'avant, avant-pied d'abord sur les pas vers l'arrière ; pivot sans glissement.
@@ -108,15 +118,16 @@ Repère du couple : celui du leader (+x à gauche, +z vers le suiveur). Écartem
 | Paramètre | Valeur | Rôle |
 |---|---|---|
 | `step` | 18 cm | longueur du pas (amplitude de la phase 8 : ±9 cm) |
-| `flight` | 1,2 temps | fin du vol de chaque pas |
-| `delay` | 0,5 temps | retard du pied qui avance sur le pied qui recule |
+| `out`, `ret` | 0,1 → 0,8 ; 1,2 → 1,85 | vols d'aller et de retour dans chaque créneau de 2 temps (#107) |
+| `share` | 70 % | vol du pied du suiveur qui recule (il dégage le couloir le premier) |
+| `delay` | 0,15 temps | retard du pied du suiveur qui avance sur celui du leader qui recule |
 | `aside` | 2 cm | ouverture du pied G pendant son vol |
 | `carry` | 0,5 | part du pas suivie par les deux bassins (9 cm) |
 | `forwardRoll`, `backRoll` | 30 % | roulé du pas (`gaitStep`) |
-| `weight` | 1,2 → 1,5 → 1,55 → 1,95 | poids sur le pied posé (deux pieds au sol), puis retour (pas balancé) |
+| `weight` | 0,8 → 1,0 → 1,2 ; 1,85 → 2,0 | poids sur le pied sorti au temps, retour (pas balancé) ; après un créneau arrière, le pied revenu reprend le poids |
 | `pelvisYaw` | 0,5 | part du lacet de bassin de la phase 15 gardée en paire |
 | `kneeCap` | 0,3 rad | flexion maximale des genoux (0,45 dans les sorties) |
-| `rotationCap` | 0,06 rad | rotation du bassin propre au style (0,12 dans les sorties) |
+| `rotationCap` | 0,05 rad | rotation du bassin propre au style (0,12 dans les sorties ; 0,06 avant #61, abaissé quand le lacet de la tarraxinha est devenu dominant) |
 
 ## Calibrage
 
@@ -131,7 +142,7 @@ huitième de temps (poses en collision) :
 | Retard 0,5, roulé à 30 % | 5 |
 | + flexion des genoux plafonnée à 0,3 rad | 2 (kompa : genou G du leader contre genou D du suiveur, décalé en quinconce) |
 | + pied G ouvert de 2 cm | 1 (tarraxinha : jambes d'appui, rotation du bassin du style) |
-| + rotation du bassin du style plafonnée à 0,06 rad | 0 |
+| + rotation du bassin du style plafonnée à 0,06 rad (0,05 depuis #61) | 0 |
 | Poids reporté après la pose (1,2) et plexus sans traction des bassins (#52) | 2 (tarraxinha : cuisses d'appui, lacet du bassin) |
 | + lacet du bassin réduit de moitié | **0**, aussi au seizième de temps, trois placements, plexus coupé, avec et sans contraposition |
 
@@ -140,6 +151,48 @@ depuis #52) : écart maximal des repères de poitrine **3,4 cm** avec contraposi
 par défaut de l'app) ; 9,2 cm sans contraposition ; 9,6 cm sans l'option plexus. En référence, les
 bassins restent à 40 cm : 8,3–9,2 cm (garde de non-régression à 10 cm). Les bassins se déplacent
 ensemble : l'écart reste celui du départ, contrairement aux sorties.
+
+## La hanche du pied qui bouge avance, l'autre reste (#84, 21 novembre 2026)
+
+Demande du propriétaire (20 nov.) : « un côté de la hanche avance/recule et l'autre côté reste » ; « on
+apprécie aussi voir la contraposition (pas obligatoire) où l'épaule opposée va dans le sens opposé du
+pied ».
+
+- **Bassin** : il pivote autour de la hanche d'appui. La hanche du pied qui bouge avance (ou recule) de
+  `hip` = 15 % du pas du leader, soit 2,7 cm au plus ; l'autre reste. Le suiveur fait le pivot en miroir,
+  sur le pas du leader, si bien que l'écart entre les bassins ne change pas. Ce pivot remplace le lacet de
+  bassin de la phase 15 (`idaContra`). Le bassin continue aussi d'accompagner le poids (`carry`).
+- **Genoux** : ils ne suivent pas ce pivot. Le pôle du genou de l'IK (`solveLeg3D`, paramètre `poleDir`)
+  tourne en sens inverse de `kneeFoot` = 1,2 fois le pivot (`kneeYaw`). À 1, le genou resterait au-dessus
+  du pied ; à 1,2, il va un peu plus loin. Sans cela, le genou suit le bassin et part de côté, même sur la
+  jambe d'appui. Les deux cuisses D, côte à côte en quinconce, n'ont qu'environ 1 cm de marge.
+- **Contraposition** : sans contact plexus, le buste garde sa contraposition de la phase 15. Avec le
+  contact, le buste se tourne vers le partenaire. L'ajout de la contraposition propre de la figure a été
+  essayé et retiré : pivot et plexus font déjà tourner le buste d'environ 17,9° contre le bassin. Or la
+  règle « des danseurs, pas des lutteurs » plafonne cette rotation à 18°. Une part de 0,15 donne déjà
+  18,6°. À trancher par le propriétaire : desserrer ce plafond pour l'ida, ou garder la contraposition
+  visible sans contact seulement.
+- **Insertion** (#91) : l'ida inséré dans les sorties reprend le pivot et la consigne des genoux.
+
+Mesures sur le GLB (poses de couple qui se croisent, sur 1 296 : six styles, trois amplitudes, quinconce,
+référence et quinconce avec plexus) :
+
+| Part du pas suivie par la hanche | 0,15 | 0,2 | 0,3 |
+| --- | --- | --- | --- |
+| Genoux qui suivent le bassin | 656 | 750 | 818 |
+| Genoux au-dessus des pieds (`kneeFoot` 1) | 8 | 8 | 20 |
+| `kneeFoot` 1,2 (retenu) | **0** | 0 | 2 |
+
+Zone sans croisement : `kneeFoot` de 1,1 à 1,3 avec `hip` de 0,15 à 0,25. Le contact plexus (R4, 6 cm au
+plus avec contraposition) fixe la borne haute : avec le pivot, les deux bassins tournent dans le même sens
+et les bustes, face à face, s'écartent de côté. Écart maximal des repères de poitrine : 3,1 cm sans pivot,
+4,2 cm à 0,1, **5,5 cm à 0,15 (retenu)**, 7,0 cm à 0,2. Décaler les bassins de côté, ou
+alléger `carry`, n'aide pas. Dans les tests complets : 0 croisement sur 3 456 poses d'ida, 918 poses
+d'insertion et 2 181 poses du mode jeu ; pas de saut aux frontières, car `kneeYaw` est nul quand il n'y a
+pas de pivot.
+
+À valider à l'œil : l'amplitude du pivot (2,7 cm), et les genoux un peu tournés en dehors du pied
+pendant le pivot.
 
 ## Points de décision du propriétaire
 
@@ -160,3 +213,7 @@ ensemble : l'écart reste celui du départ, contrairement aux sorties.
 
 Pas de simulation de forces ni de contact de peau ; les pas restent illustratifs. Ces tests ne
 constituent pas une validation chorégraphique.
+
+## Règle ajoutée le 20 novembre 2026 (#67)
+
+Distance bassin-bassin quasi constante une fois le décalage latéral retiré, et pas de « monter-descendre » permanent : voir [règles du propriétaire](regles-proprietaire.md) (R2, R3). Critère à mesurer sur le GLB pour cette figure.

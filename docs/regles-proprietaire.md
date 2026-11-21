@@ -1,0 +1,63 @@
+# Règles du propriétaire — référence consolidée
+
+Fil d'Ariane : [docs](./) › règles du propriétaire. Ce document rassemble les règles de mouvement données
+par le propriétaire, avec leur source, la spec qui les porte et l'état mesuré. Il sert de référence à
+l'audit de conformité. Chaque règle est citée telle quelle (verbatim) puis reformulée en critère
+vérifiable.
+
+## Position et distance du couple
+
+| # | Règle (verbatim) | Critère vérifiable | Spec | État (20 nov. 2026) |
+|---|---|---|---|---|
+| R1 | « La position neutre est en quinconce » ; « en fin de figure on retrouve le quinconce (dès que les danseurs partagent la même ligne de danse) » | Départ et fin de chaque figure en quinconce (décalage `o`, pieds sous les hanches, stagger du D) ; le couple **sur place** aussi | [marche naturelle](spec-marche-naturelle.md), [placements](spec-placements-couple.md) | figures : oui ; sur place : non (pieds face à face, #61) |
+| R2 | « La distance bassin-bassin des danseurs doit peu varier [...] si on les ramenait sur la même ligne alors la distance devrait avoir varié de très peu. On danse proche. » | Écart avant-arrière des bassins (décalage latéral retiré) quasi constant pendant toute figure | à porter dans chaque spec de figure (#67) | sortie garçon 16→48 cm, sortie fille 14→45 cm (crochet) et 11→46 cm (recul) depuis #105 (0→53 avant), quarts 26→38 cm, ida 28 cm (#67) |
+| R3 | « Ça participe à la garantie de ne pas "monter-descendre" — changer en permanence de niveau. » | Variation de hauteur des bassins bornée | #67 | sorties 14–17 cm, quarts 6 cm, ida 4 cm |
+| R4 | Plexus contre plexus : « les danseurs doivent pouvoir maintenir un contact plexus contre plexus en appliquant une contraposition » ; la variante sans contraposition est très courante ; la variante avec est l'indicateur de la bonne distance | Écart des repères de poitrine faible, contraposition comprise, sans croisement des jambes | [marche naturelle](spec-marche-naturelle.md) (#51) | ida 3,4 cm, quarts 7,5–9,5 cm, sorties 15–18 cm |
+| R5 | « Collé-serré » (« kolé séré ») : proximité constante caractéristique de ces danses | Couple rapproché (quinconce), cuisses au contact aux temps prévus | [placements](spec-placements-couple.md) | partiel |
+| R6 | La ligne de danse ne suit pas la direction des bustes (« elle a la direction du buste des danseurs » : à corriger) | Ligne de danse perpendiculaire aux bustes dans toutes les vues | #60 | corrigé (#64) |
+
+## Pas, marche et appuis
+
+| # | Règle (verbatim) | Critère vérifiable | Spec | État |
+|---|---|---|---|---|
+| R7 | « On doit avoir l'impression qu'il marche normalement même s'il place ses pieds en réalisant une figure chorégraphique » (fini la « marche sur la lune ») | Talon qui se lève, passage de jambe, attaque du talon ou pose de l'avant-pied, pivot sans glissement | [marche naturelle](spec-marche-naturelle.md) (#49) | oui (`src/gait.ts`) |
+| R8 | « Faire des déplacements plus petits (longueur de pied) pour la plupart des figures » ; puis (20 nov.) « le suiveur doit également faire de plus petits pas (l'unité de référence c'est la longueur du pied en longueur et la longueur de la hanche en largeur) » | Pas ≤ 1 pied (21,2 cm) en longueur et ≤ 1 hanche (34 cm) en largeur, pour les deux rôles, sauf exceptions justifiées | [pas courts](spec-pas-courts.md) (#56) | non : sortie garçon D3 du suiveur 2,55 pieds (imposé par le croisé, décision demandée sur #56) ; sortie fille ramenée aux unités (#105) sauf le D3 du suiveur (1,2p + 1,3h en crochet, 2,4p en recul) et le D4 du leader (1,75p en quinconce), imposés par la profondeur du couple, et le croisé G4/D5 du suiveur (≈ 1,5p + 1,2h) ; quarts G du suiveur 1,22 hanche |
+| R9 | Sortie garçon, temps 2 : « l'extérieur du pied droit est au contact avec l'extérieur du pied droit suiveur [...] La jambe gauche peut ainsi se décaler moins loin » | Bords externes des pieds D ≤ 3 mm | [marche naturelle](spec-marche-naturelle.md) (#50) | oui |
+| R10 | Sortie fille : ouverture plus courte (choix du propriétaire) | G2 du crochet raccourci | [marche naturelle](spec-marche-naturelle.md), [sortie fille #105](spec-sortie-fille.md#pas-aux-unités-du-propriétaire-105-20-novembre-2026) | remplacée par #105 : 3/2 hanche (51 cm), pour que son D3 se pose à l'intérieur et que son G4 croise vraiment |
+| R11 | Quarts de tour : « le leader ne fait pas de sur-place. Il remplit tous les quarts de la boussole. Le suiveur fait plus de distance » ; placement retrouvé à chaque fin de quart ; le leader « anticipe » d'environ un quart de temps | Rotation autour du leader, quinconce à chaque quart ; l'anticipation du buste (0,25 temps) est remplacée par des départs simultanés (#82) puis par R25 (#106) | [quarts en paire](spec-quarts-paire.md) (#37) | oui |
+| R22 | « Son pas avance autant que le suiveur recule (c'est lui qui fait reculer le suiveur) » (20 nov.) | Dans les figures avant-arrière (sorties, ida e volta), chaque pas en avant du leader égale le pas en arrière qu'il provoque chez le suiveur ; les rotations (R11) restent à part : le suiveur y fait plus de distance | [pas courts](spec-pas-courts.md) (#56) | ida e volta oui (18/18 cm) ; sortie garçon non (20/17, 25/18, **34/54**, 24/31 cm) ; sortie fille (#105) : 21/21 cm depuis la référence, 16/32 en quinconce (le départ resserré est absorbé par les premiers pas) |
+| R23 | « Le guideur ne se baisse pas autant » (20 nov.) | Hauteur du bassin du leader stable pendant les figures ; les grands pas abaissent le bassin (hauteur donnée par la portée de la jambe) | [pas courts](spec-pas-courts.md), R3 | mesuré : leader Δ6 cm (sortie garçon, quarts), Δ4 / Δ7 (sortie fille crochet / recul, #105 ; 7 / 15 avant) ; suiveur Δ16 (sortie garçon, au D3 de 54 cm), Δ15 / Δ12 (sortie fille, #105 ; 14 / 17 avant) |
+| R24 | « Corriger l'anticipation du suiveur : il est soit en même temps que le leader soit très légèrement en retard, il ne peut pas être en avance » (20 nov.) | Dans chaque figure, aucun pas du suiveur ne part avant le pas du leader qui le provoque | [sortie garçon](spec-sortie-garcon.md), [sortie fille](spec-sortie-fille.md), [ida en paire](spec-ida-paire.md) (#88) | oui : sorties, ida e volta (tests de l'ida), quarts (#82) |
+| R25 | Quarts de tour : « le bassin et l'épaule (avec tout le haut du corps) bougent en même temps que le pied. […] l'extrémité (par exemple épaule gauche) est déjà en position finale et le reste est en position intermédiaire "diago" jusqu'à ramener l'autre pied » (20 nov.) | Bassin et buste en un bloc, tournés d'un demi-quart (diagonale) à la pose du premier pied, côté de ce pied en avance sur l'autre, quart entier à la pose du second | [quarts en paire](spec-quarts-paire.md) (#106) | oui (tests des quarts) ; le bassin ne fait que 65 % (leader) / 58 % (suiveur) du chemin vers l'extrémité en place, et le D du leader monte sur sa demi-pointe |
+
+## Ginga, hanches et styles
+
+| # | Règle (verbatim) | Critère vérifiable | Spec | État |
+|---|---|---|---|---|
+| R12 | « Le ginga se déclenche dans le fait de stabiliser la hauteur du danseur entre les flexions du genou (la hanche et le bassin bougent, et cela est différent en fonction des styles de danse) » | Hauteur du buste stable, bassin qui bouge selon le style | [ginga](spec-ginga.md) (#42) | en cours (#59) |
+| R13 | « On n'oublie pas les transferts de poids avec le ginga déclenché à chaque alternance droite/gauche, gauche/droite » | Phase du déhanché pilotée par les transferts d'appui | [ginga](spec-ginga.md) | en cours (#59, ida e volta) |
+| R14 | Le suiveur prononce davantage le ginga ; le leader le fait aussi, pour transmettre | Amplitude du leader ≈ 70 % | [ginga](spec-ginga.md) | en cours |
+| R15 | Hanches « joyeuses et sensuelles » activant fessiers et jambes ; « chercher l'énergie du sol » des danses afro-caribéennes | Déhanché visible, appuis ancrés | [ginga angolana](ginga-angolana.md) | à évaluer |
+| R16 | Tarraxinha sur place : pas de genoux qui traversent ceux du partenaire ; « l'intention de la hanche vers l'avant (qui repart vers l'arrière légèrement sur le côté en s'ouvrant mais surtout en permettant à la hanche opposée d'aller vers l'avant) » | Aucun croisement d'os en paire sur place ; alternance des hanches dans le plan horizontal | #61 | oui (#78 : quinconce sur place, lacet dominant ; #79 : paire sans figure) |
+| R17 | « Les hanches se cherchent (suiveur) et se repoussent à l'initiative du leader » | Bassins couplés en quinconce | [cadre](cadre/README.md) (#40), [placements](spec-placements-couple.md) | partiel (bassins couplés au départ des figures) |
+| R18 | Isolations du bas du corps : au-dessus du bassin, le haut du tronc compense le roulis (`iso=1`) | Roulis résiduel du buste faible | [ginga angolana](ginga-angolana.md) | oui (tests de styles) |
+
+## Cadre et contacts
+
+| # | Règle (verbatim) | Critère vérifiable | Spec | État |
+|---|---|---|---|---|
+| R19 | Cadre leader/suiveur : points de contact (avant-bras, biceps, omoplate, bassin, aisselle, coude, épaule, plexus) et intentions de guidage | Mains qui se rejoignent, main D du leader sur l'omoplate du suiveur, contraintes de contact | [cadre](cadre/spec-implementation.md) (#40) | oui pour les bras (#77 : mains sur l'omoplate et mains jointes, IK) ; contraintes sur bustes et bassins à venir |
+| R20 | « Ces points de contact vont ajouter des contraintes qui vont aider à converger vers les bons mouvements de danse » | Les contacts contraignent bras, bustes et bassins | [cadre](cadre/spec-implementation.md) | non |
+
+## Musique
+
+| # | Règle (verbatim) | Critère vérifiable | Spec | État |
+|---|---|---|---|---|
+| R21 | « Il faut que le BPM de la musique mais surtout les beats correspondent aux transferts de poids des danseurs (qui se "balancent" en 1 ou 2 temps) » | Chaque transfert d'appui sur un temps de la musique synthétisée | [son synthétisé](spec-son-synthese.md) (#62) | non vérifié |
+
+## Invariants techniques (rappel)
+
+Aucun croisement des os des jambes entre partenaires ni pour un même danseur (six styles, trois
+amplitudes, placements, avec et sans plexus) ; semelles au-dessus du sol ; pied d'appui immobile ;
+longueurs osseuses constantes ; attribution BodyParts3D CC BY-SA 2.1 Japan © DBCLS
+([conventions](../.vibe/CONVENTIONS.md)).

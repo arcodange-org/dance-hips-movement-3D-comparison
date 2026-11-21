@@ -106,3 +106,74 @@ Les bras et les collisions de tous les tissus musculaires restent hors du modèl
 Le chantier #27 prolonge la régression avec 504 empreintes sortieG
 de `fa551c3` et conserve les 288 empreintes historiques sortieGF de `2621e59`. Le nouveau
 rendu sortieF est décrit dans [sa spécification](spec-sortie-fille.md). [Rétrospective](retrospective-sortie-garcon.md).
+
+## Règle ajoutée le 20 novembre 2026 (#67)
+
+Distance bassin-bassin quasi constante une fois le décalage latéral retiré, et pas de « monter-descendre » permanent : voir [règles du propriétaire](regles-proprietaire.md) (R2, R3). Critère à mesurer sur le GLB pour cette figure.
+
+## Le suiveur ne part jamais avant le leader (#88, 20 novembre 2026)
+
+« Corriger l'anticipation du suiveur : il est soit en même temps que le leader soit très légèrement en
+retard, il ne peut pas être en avance. » Avant : départs du leader 0,1 · 1 · 2,2 · 3,2 · 4, du suiveur
+0 · 1 · 2 · 3 · 4 (en avance aux pas 1, 3 et 4). Désormais chaque pas du suiveur part avec celui du
+leader (`SORTIE_GARCON_SYNC.lag` = 0) et se pose au même moment. Au pas 4, le D4 du leader part à 3,2 et
+le G4 du suiveur part avec lui mais vole plus vite (`g4span` = 0,3 temps) : il libère la place avant que
+le D4 n'arrive (les variantes plus lentes faisaient se chevaucher ces deux pieds : 8 à 63 poses). Les
+empreintes historiques du suiveur (sortieG) sont régénérées ; celles du leader sont inchangées.
+
+## Position 2 : bassin au-dessus du pied D, contact des hanches sur le côté (#104, 20 novembre 2026)
+
+Retour du propriétaire : « le pied droit est bien positionné en position 2 mais pas les hanches et épaules […] :
+la hanche est au dessus du pied : contact cuisse cuisse : hanche juste devant celle du suiveur, contact
+possible sur le côté ou en diago », « on reste au dessus du pied droit et la moitié droite du buste du
+leader peut être devant la moitié droite du buste du suiveur ».
+
+- Avant : en position 2, le bassin du leader était à 40 cm sur sa gauche, au-delà de son pied G (29 cm).
+  Son pied D est à 15 cm.
+- Désormais :
+  - son bassin est au-dessus de son D (0,0 cm), et son buste suit ;
+  - le G2 du suiveur s'ouvre de 20 cm vers sa gauche, c'est-à-dire vers la droite du leader. Il recule
+    de 25 cm, autant que le D2 du leader avance (R22). Son bassin suit son G. Les hanches et les cuisses
+    droites se rencontrent sur le côté ;
+  - les pieds D restent bord à bord (R9).
+- En chemin, le bassin du leader passe 5 cm sur sa gauche au milieu du pas. Tout droit, en face à face,
+  il rencontrerait la cuisse droite du suiveur (suave).
+- Variantes écartées (mesurées sur le GLB) :
+
+  | Variante | Résultat |
+  |---|---|
+  | Bassin au-dessus du D sans écarter le suiveur | 182 croisements d'os |
+  | Pas du suiveur allongés sans écart latéral | 158 croisements d'os |
+  | Son D1 écarté aussi | Il croise derrière son propre G |
+  | D1 de 19 cm | Il gêne le D2 du leader |
+
+- Mesures : enveloppes des cuisses droites 3,1 cm l'une dans l'autre (contact franc, bande du test
+  élargie à 3,5 cm), aucun croisement d'os des jambes. Les empreintes historiques sortieG (leader et
+  suiveur) sont régénérées.
+
+## Le suiveur recule droit, le leader gère seul son décalage (#110, 20 novembre 2026)
+
+Correction du propriétaire sur #104 : « le principe est que le suiveur ne fait que des marche arrière sans
+être dérangé par le leader qui est le seul à sortir puis revenir sur la ligne de danse. C'est au leader de
+gérer l'espace de son décalage à gauche pour être le plus proche possible sans "gêner" le suiveur ».
+
+- Le suiveur recule en ligne droite : l'écart latéral de son G2 (#104) est retiré. Son G2 recule de
+  25 cm, autant que le D2 du leader avance (R22).
+- Le leader fait la place lui-même :
+  - son G1 s'ouvre de 0,28 m et avance de 0,42 m (plus en avant que sur le côté, dans tous les placements) ;
+  - son D2 se pose à 0,34 m à gauche de sa cheville de repos ;
+  - en position 2, son bassin reste au-dessus de son D.
+- Mesures : cuisses droites au contact sur le côté, à mi-cuisse (enveloppes 3,2 cm l'une dans l'autre),
+  aucun croisement d'os, semelles disjointes.
+- Variantes écartées :
+
+  | Variante | Résultat |
+  |---|---|
+  | D2 à 0,30 m | Les cuisses se serrent de 7 cm |
+  | D2 à 0,22 m (avant) | 541 croisements d'os |
+
+- **Conflit de règles à trancher** : avec le bassin au-dessus du D et le suiveur qui recule droit, les
+  pieds D ne peuvent plus être bord à bord (R9) ; ils sont à 12 cm. Bord à bord, les fémurs droits se
+  traversent.
+- Le D4 du leader part 0,25 temps après le début de son action (0,2 avant), et le G4 du suiveur avec lui.
+  Plus tôt, depuis sa sortie plus large, son genou D frôle son tibia G.

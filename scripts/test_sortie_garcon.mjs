@@ -25,13 +25,15 @@ const placement = process.env.TEST_PLACEMENT ?? 'reference';
 // TEST_PLEXUS=1 replays the runner with the plexus contact the app enables with a placement (#51).
 const options = { movement: 'sortieG', embrace: true, placement, plexus: process.env.TEST_PLEXUS === '1' };
 // Owner request (19 Nov.): the middle/upper right thighs touch at the D/D arrival. Contact of the
-// illustrative 8.5 cm envelopes: gap in [-6, +3] mm, closest points on the femurs above the patella
+// illustrative 8.5 cm envelopes: gap in [-35, +3] mm (#104), closest points on the femurs above the patella
 // (s ≤ 0.90 along hip → knee). #50 puts the D feet edge to edge, so the legs converge downwards and
 // the contact sits on the lower third of the thighs; bringing the pelvises closer interpenetrates
 // the thighs (−57 mm) before the contact climbs back to mid-thigh.
 const thighContact = (proximity, hipA, kneeA, hipB, kneeB, label) => {
   const sA = proximity.centerA.distanceTo(hipA) / hipA.distanceTo(kneeA), sB = proximity.centerB.distanceTo(hipB) / hipB.distanceTo(kneeB);
-  assert(proximity.gap >= -.006 && proximity.gap <= .003, `${label}: thighs touch (gap ${proximity.gap})`);
+  // #104: with the leader's pelvis over his D the right thighs press on the side; the bones stay clear
+  // (leg-bone test below), the illustrative envelopes overlap by up to 3.5 cm.
+  assert(proximity.gap >= -.035 && proximity.gap <= .003, `${label}: thighs touch (gap ${proximity.gap})`);
   assert(sA <= .9 && sB <= .9, `${label}: contact on the thighs, above the knees (s=${sA.toFixed(2)}/${sB.toFixed(2)})`);
   return { sA, sB };
 };
@@ -60,7 +62,7 @@ for (const sortieVariant of ['line', 'right']) {
       return { L: world(f, 'footL'), R: world(f, 'footR'), root: world(f, 'root'), stats };
     }));
   }
-  // Owner request: step 1 is more forward than sideways. Every landing is validated, so the
+  // Owner request: step 1 is more forward than sideways (#110: one foot length or so on each axis). Every landing is validated, so the
   // first step of each foot also absorbs the placement shift.
   const exitX = states[1][0].L.x - states[0][0].L.x, exitZ = states[1][0].L.z - states[0][0].L.z;
   assert(exitX > .2 - o.x, 'leader exits to own left');
@@ -118,7 +120,7 @@ for (const follower of [false, true]) for (const variant of ['line', 'right']) {
 console.log('PASS sortie garçon: directions, croisé, partenaire, quatre transferts et deux fins');
 
 let poses = 0, minY = Infinity, maxAnkleError = 0;
-for (const styleKey of Object.keys(api.STYLES)) for (const amp of [.5, 1, 2]) for (const sortieVariant of ['line', 'right']) {
+for (const styleKey of Object.keys(api.STYLES).filter(k => api.movementAllowed(k, 'sortieG'))) for (const amp of [.5, 1, 2]) for (const sortieVariant of ['line', 'right']) {
   const pair = couple();
   for (let tick = 0; tick <= 100; tick++) for (const [i, f] of pair.entries()) {
     const beat = tick / 20;
@@ -189,11 +191,16 @@ for (const sortieVariant of ['line', 'right']) for (const amp of [1, 1.5, 2]) {
   assert(proximity.direction.x < -.85, `D/D proximity is lateral, on both anatomical right flanks (${proximity.direction.x})`);
   const { sA, sB } = thighContact(proximity, world(pair[0], 'hipR'), world(pair[0], 'kneeR'), world(pair[1], 'hipR'), world(pair[1], 'kneeR'), `sortieG ${sortieVariant}`);
   console.log(sortieVariant, `D/D thigh contact ${(proximity.gap * 1000).toFixed(1)} mm at s=${sA.toFixed(2)}/${sB.toFixed(2)}`);
-  // #50: at action 2 the outer edge of the leader's D touches the outer edge of the follower's D.
+  // #104 (owner: « la hanche est au dessus du pied ») : the leader's pelvis stands over his D. #110 (« le
+  // suiveur ne fait que des marche arrière […] c'est au leader de gérer l'espace ») : the follower walks
+  // straight back and the leader makes the room, so the D feet no longer touch edge to edge (R9, #50):
+  // with his pelvis over his D, feet edge to edge put the right femurs through each other.
   const soleOf = (f, side) => footHull(f.model.legs[side].sole.map(p => p.clone().applyMatrix4(f.r['foot' + side].matrixWorld)));
   const footGap = hullGap(soleOf(pair[0], 'R'), soleOf(pair[1], 'R'));
-  assert(footGap >= 0 && footGap <= .003, `${sortieVariant}: D/D feet touch edge to edge (${footGap})`);
-  console.log(sortieVariant, `D/D outer foot edges ${(footGap * 1000).toFixed(1)} mm`);
+  assert(footGap > 0 && footGap < .15, `${sortieVariant}: D feet close, apart (${footGap})`);
+  const pelvisOverFoot = world(pair[0], 'pelvis').x - world(pair[0], 'footR').x;
+  assert(Math.abs(pelvisOverFoot) < .04, `${sortieVariant}: leader's pelvis over his D (${pelvisOverFoot})`);
+  console.log(sortieVariant, `D feet ${(footGap * 100).toFixed(1)} cm apart, leader's pelvis ${(pelvisOverFoot * 100).toFixed(1)} cm from his D`);
 }
 console.log('PASS swept foot hull clearance and D/D contact of the middle/upper thighs (illustrative envelopes)');
 
@@ -210,7 +217,7 @@ assert.equal(meshIntersection(cube(.1), cube(.1, .2)), null);
 const boneNames = ['Femur', 'Tibia', 'Fibula', 'Patella'].flatMap(name => ['L', 'R'].map(side => name + '_' + side));
 const collisionBeats = [...new Set([...Array.from({ length: 51 }, (_, i) => i / 10), .26, 2.83, 3.07, 4.25, 4.42, 4.87])].sort((a, b) => a - b);
 let collisionPoses = 0;
-for (const styleKey of Object.keys(api.STYLES)) for (const amp of [.5, 1, 2]) for (const sortieVariant of ['line', 'right']) {
+for (const styleKey of Object.keys(api.STYLES).filter(k => api.movementAllowed(k, 'sortieG'))) for (const amp of [.5, 1, 2]) for (const sortieVariant of ['line', 'right']) {
   const pair = couple();
   for (const beat of collisionBeats) {
     pair.forEach((f, i) => api.applyPose(f.r, f.model, beat, { ...options, styleKey, amp, sortieVariant, follower: !!i }));

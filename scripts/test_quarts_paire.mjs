@@ -64,28 +64,45 @@ console.log('PASS quarts en paire: rotation rigide du couple autour du centre, f
   console.log(`PASS boussole: pieds du leader dans les 4 quarts ; bassin du leader ${leader.toFixed(2)} m, du suiveur ${follower.toFixed(2)} m par tour`);
 }
 
-// 3. Sequence and lead: the follower's D leaves first (on the beat) and her G follows; the leader's G
-// lands in the place her D left, then his D; the leader's upper body runs QUARTS_LEAD ahead of hers.
+// 3. Sequence (#82, owner: « le suiveur anticipe [...] ça doit se faire en simultané » ; « le leader engage
+// le buste avec son pied gauche ») and body rotation (#106: « le bassin et l'épaule (avec tout le haut du
+// corps) bougent en même temps que le pied », diagonal when the first foot lands, the rest with the other
+// foot): the follower's D and the leader's G leave together and land together on beat 1, then her G and
+// his D. Pelvis and chest turn together (no twist), with the feet: half the quarter when the first foot
+// lands, the whole quarter when the second does; both dancers in step.
 {
   const rest = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
-  const S = api.QUARTS_SHAPES;
-  assert.equal(S.follower[0].start, 0, 'the follower answers on the beat');
-  assert(S.follower[1].start > S.follower[0].start && S.leader[0].start > S.follower[0].start, 'follower D first');
-  assert(S.leader[0].end < S.follower[0].end, 'the leader G lands before the follower D slides in beside it');
-  assert(S.leader[1].start >= S.leader[0].end, 'leader G then D');
-  const yaw = s => s.rootYaw + s.chestYaw;
-  for (let tick = 0; tick < 1600; tick++) {
-    const b = tick / 100;
-    const L = api.sampleQuartsPaire(b, false, rest, 'quinconce'), F = api.sampleQuartsPaire(b + api.QUARTS_LEAD, true, rest, 'quinconce');
-    near(wrap(yaw(L) - yaw(F)), 0, 1e-9, `leader upper body leads by ${api.QUARTS_LEAD} at ${b}`);
+  const S = api.QUARTS_SHAPES, Q = Math.PI / 2;
+  assert.equal(S.follower[0].start, S.leader[0].start, 'first feet leave together');
+  assert.equal(S.follower[0].end, 1, 'the follower D lands on beat 1');
+  assert.equal(S.leader[0].end, 1, 'the leader G lands on beat 1');
+  assert(S.leader[1].start >= S.leader[0].end && S.follower[1].start >= S.follower[0].end, 'G then D (leader), D then G (follower)');
+  for (const follower of [false, true]) {
+    const s = b => api.sampleQuartsPaire(b, follower, rest, 'quinconce');
+    const first = follower ? S.follower : S.leader;
+    for (let tick = 0; tick < 1600; tick++) near(s(tick / 100).chestYaw, 0, 1e-12, `chest turns with the pelvis at ${tick / 100}`);
+    for (let quarter = 0; quarter < 4; quarter++) {
+      const t0 = quarter * 4;
+      near(wrap(s(t0 + first[0].start - 0.01).rootYaw - s(t0).rootYaw), 0, 1e-9, 'still before the first foot');
+      near(wrap(s(t0 + first[0].end).rootYaw - s(t0).rootYaw), Q / 2, 1e-6, `diagonal when the first foot lands (quarter ${quarter})`);
+      // The side of the first foot (his left, her right) is nearer its final place than the other side.
+      const hips = b => { const v = s(b), side = follower ? -1 : 1, e = api.QUARTS_BODY.extremity;
+        const off = sgn => ({ x: v.root.x + sgn * e * Math.cos(v.rootYaw), z: v.root.z - sgn * e * Math.sin(v.rootYaw) });
+        return { first: off(side), other: off(-side) }; };
+      const landed = hips(t0 + first[0].end), final = hips(t0 + 4);
+      const gap = k => Math.hypot(landed[k].x - final[k].x, landed[k].z - final[k].z);
+      assert(gap('first') < gap('other'), `extremity of the first foot ahead (quarter ${quarter}, ${gap('first').toFixed(3)} vs ${gap('other').toFixed(3)})`);
+      near(wrap(s(t0 + first[1].end).rootYaw - s(t0).rootYaw), Q, 1e-6, `whole quarter with the second foot (quarter ${quarter})`);
+    }
   }
-  console.log('PASS séquence : D puis G du suiveur, G puis D du leader, buste du leader en avance de', api.QUARTS_LEAD, 'temps');
+  console.log('PASS séquence : D du suiveur et G du leader ensemble (posés sur le 1) ; bassin et buste tournent avec les pieds, en diagonale au premier pied (#106)');
 }
+
 
 // 4–5. GLB pose invariants: floor, IK targets, bone lengths, functional foot axis, loads, planted foot,
 // continuity and loop.
 let poses = 0, minY = Infinity, maxAnkleError = 0;
-for (const styleKey of Object.keys(api.STYLES)) for (const amp of [.5, 1, 2]) {
+for (const styleKey of Object.keys(api.STYLES).filter(k => api.movementAllowed(k, 'quarts'))) for (const amp of [.5, 1, 2]) {
   const pair = couple();
   for (let tick = 0; tick <= 64; tick++) for (const [i, f] of pair.entries()) {
     const beat = tick / 4;
@@ -128,10 +145,20 @@ for (const follower of [false, true]) {
     const windows = [[0, shapes[k].start], [shapes[k].end, 4]];
     for (const [from, to] of windows) {
       if (to - from < .05) continue;
-      api.applyPose(f.r, f.model, 4 * quarter + from + .001, config); const start = world(f, 'foot' + side);
+      // #106: the leader's trailing D may rise on its ball (never more than QUARTS_BODY.heel): the ball
+      // of the foot is what stays planted; every other waiting foot stays flat.
+      const ball = () => f.model.legs[side].ball.clone().applyMatrix4(f.r['foot' + side].matrixWorld);
+      api.applyPose(f.r, f.model, 4 * quarter + from + .001, config); const start = ball();
       for (let t = from + .05; t < to; t += .05) {
         api.applyPose(f.r, f.model, 4 * quarter + t, config);
-        near(start.distanceTo(world(f, 'foot' + side)), 0, 1e-9, `${side} planted q${quarter} t${t.toFixed(2)}`);
+        // The rigid GLB foot rests on its toes once the heel is up: the ball stays put horizontally and
+        // the lowest sole point stays on the floor.
+        const now = ball();
+        near(Math.hypot(now.x - start.x, now.z - start.z), 0, 1e-9, `${side} planted q${quarter} t${t.toFixed(2)}`);
+        const lowest = Math.min(...f.model.legs[side].sole.map(p => p.clone().applyMatrix4(f.r['foot' + side].matrixWorld).y));
+        near(lowest, 0, 1e-4, `${side} on the floor q${quarter} t${t.toFixed(2)}`);
+        const pitch = api.sampleQuartsPaire(4 * quarter + t, follower, { L: f.model.legs.L.rest, R: f.model.legs.R.rest }, api.placementOffset('quinconce', 1)).feet[side].pitch ?? 0;
+        assert(follower || k === 0 ? Math.abs(pitch) < 1e-12 : pitch >= 0 && pitch <= api.QUARTS_BODY.heel + 1e-12, `${side} flat or on its ball q${quarter} t${t.toFixed(2)}: ${pitch}`);
       }
     }
   }
@@ -143,7 +170,7 @@ for (const follower of [false, true]) {
   api.applyPose(f.r, f.model, 0, config); const first = snapshot(f.r);
   api.applyPose(f.r, f.model, 16, config); snapshot(f.r).forEach((v, n) => near(v, first[n], 1e-6, 'loop'));
 }
-console.log('PASS pied porteur immobile, continuité et boucle de 16 temps');
+console.log('PASS pied porteur immobile (D du leader sur sa demi-pointe, #106), continuité et boucle de 16 temps');
 
 // 6. Swept foot hulls of the four feet stay apart, every placement, amplitudes 1, 1.5 and 2.
 for (const placement of ['quinconce', 'face']) for (const amp of [1, 1.5, 2]) {
@@ -163,7 +190,7 @@ console.log('PASS enveloppes des quatre pieds disjointes (quinconce, face à fac
 // Leg bones: no crossing between partners nor between one dancer's legs (six styles, three amplitudes).
 const boneNames = ['Femur', 'Tibia', 'Fibula', 'Patella'].flatMap(name => ['L', 'R'].map(side => name + '_' + side));
 let collisionPoses = 0;
-for (const placement of ['quinconce', 'face']) for (const styleKey of Object.keys(api.STYLES)) for (const amp of [.5, 1, 2]) {
+for (const placement of ['quinconce', 'face']) for (const styleKey of Object.keys(api.STYLES).filter(k => api.movementAllowed(k, 'quarts'))) for (const amp of [.5, 1, 2]) {
   const pair = couple();
   // One quarter is enough: the others are the same up to the rotation (checked above).
   for (let beat = 0; beat < 4; beat += .125) {

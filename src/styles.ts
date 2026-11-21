@@ -9,7 +9,8 @@ export interface StyleDef {
   // de base des genoux (rad). Kizomba/tarraxinha : buste légèrement en avant + genoux bien
   // fléchis (« lean slightly forward », « slightly bent knees », SOS Dance) ; zouk = cambré.
   posture: { lean: number; knee: number };
-  apply: (r: RigHandle, b: number, a: number) => void;
+  /** `w` (#42): beat of the slow 4-beat waves (suave, zouk), kept on the clock when the ginga drives `b`. */
+  apply: (r: RigHandle, b: number, a: number, w?: number) => void;
   // Charge sur le pied DROIT dans [-1, 1] (+1 = plein appui droit, -1 = plein appui gauche).
   // Sert à la visualisation des appuis (pastilles de charge, chaîne pied→genou→hanche).
   // Côté droit du rig à x < 0 : un déplacement root.x > 0 = appui qui passe à gauche.
@@ -24,6 +25,18 @@ export interface StyleDef {
 // zouk = basic sur place (slow-quick-quick) + cambré + ouverture de hanche.
 // En mode Face à face, les « sorties garçon / fille » (5 temps, aller-retour latéral)
 // sont ajoutées par le rig (voir sortie dans Rig.tsx).
+
+
+/** #62: kompa support (+1 = full right), period 4 beats: the weight moves to the left foot over the
+ * 0.4 beat before beat 1, holds through the touch on 2, moves to the right foot before beat 3 and holds
+ * through 4. `b` is the motion beat (clock − 0,5). */
+export const KOMPA = { transition: 0.4 };
+export function kompaSupport(b: number): number {
+  const c = ((((b + 0.5) % 4) + 4) % 4), d = KOMPA.transition;
+  const s = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * (3 - 2 * t); };
+  const toLeft = s((c - 1 + d) / d), toRight = s((c - 3 + d) / d);
+  return 1 - 2 * toLeft + 2 * toRight;
+}
 
 export const STYLES: Record<string, StyleDef> = {
   kizomba: {
@@ -82,15 +95,17 @@ export const STYLES: Record<string, StyleDef> = {
     color: "#f87171",
     posture: { lean: 0.08, knee: 0.2 },
     bullets: [
-      "Balancier latéral sur place : un transfert de poids par temps",
+      "Balancier latéral sur place : pas sur 1 et 3, touche sans poids sur 2 et 4 (un transfert tous les deux temps)",
       "Hip check / pause marquée sur le temps 4",
       "Genoux fléchis en continu, niveau bas, pieds glissés plein appui",
       "Tout le mouvement sous la ceinture, épaules immobiles",
     ],
-    support: (b) => -Math.tanh(2.2 * S1(b)),
+    // #62 (R21; docs/musique/kompa.md, Haitian Music Zone: step 1, touch 2, step 3, touch 4): one
+    // transfer every two beats, the weight landing on 1 and 3 (motion beats 0,5 and 2,5, see ON_BEAT_SHIFT).
+    support: (b) => kompaSupport(b),
     apply: (r, b, a) => {
-      const w = S1(b);
-      const sw = 0.9 * Math.tanh(2.2 * w);
+      const w = -kompaSupport(b);
+      const sw = 0.9 * w;
       r.root.position.x = 0.09 * sw * a;
       r.root.position.y = -0.06 * a;
       r.pelvis.position.x = 0.02 * sw * a;
@@ -101,7 +116,8 @@ export const STYLES: Record<string, StyleDef> = {
       r.kneeL.rotation.x = (0.28 + 0.08 * pos(w)) * a;
       r.kneeR.rotation.x = (0.28 + 0.08 * pos(-w)) * a;
       r.chest.rotation.z = -0.035 * sw * a;
-      if (b % 4 >= 3) r.pelvis.position.x += 0.008 * S1(b) * a;
+      // Hip check on the touch (2 and 4).
+      if (((b + 0.5) % 2 + 2) % 2 >= 1.5) r.pelvis.position.x += 0.008 * S1(b) * a;
     },
   },
   tarraxinha: {
@@ -112,15 +128,18 @@ export const STYLES: Record<string, StyleDef> = {
       "Sur place : isolations du bassin (8, cercles), blocages nets",
       "Haut du corps strictement immobile, guidage par contact des hanches",
       "Pas quasi nuls, plein appui, genoux souples",
-      "La plus « collée serr yakın » des variantes kizomba",
+      "La plus « collé-serré » (« kolé séré » en créole antillais) des variantes kizomba",
     ],
     support: (b) => -0.5 * S2(b),
     apply: (r, b, a) => {
       r.root.position.y = -0.03;
-      r.pelvis.rotation.z = 0.16 * S2(b) * a;
+      // #61 (owner): the hip's intention goes forward, then the hip comes back opening slightly to its
+      // side, which lets the opposite hip go forward. Yaw leads (one hip forward), the lateral shift
+      // follows in quadrature (the returning hip opens to its side); roll stays secondary.
+      r.pelvis.rotation.z = 0.08 * S2(b) * a;
       r.pelvis.rotation.x = 0.14 * Math.sin((TAU * b) / 2 + 1.3) * a;
-      r.pelvis.rotation.y = 0.12 * Math.cos((TAU * b) / 2) * a;
-      r.pelvis.position.x = 0.015 * S2(b) * a;
+      r.pelvis.rotation.y = 0.22 * Math.cos((TAU * b) / 2) * a;
+      r.pelvis.position.x = 0.03 * S2(b) * a;
       r.pelvis.position.z = 0.012 * Math.cos((TAU * b) / 2) * a;
       r.kneeL.rotation.x = (0.12 + 0.06 * S2(b)) * a;
       r.kneeR.rotation.x = (0.12 - 0.06 * S2(b)) * a;
@@ -137,17 +156,17 @@ export const STYLES: Record<string, StyleDef> = {
       "Transferts partiels 60/40, talons au sol, aucun rise-and-fall",
     ],
     support: (b) => -0.2 * S2(b),
-    apply: (r, b, a) => {
+    apply: (r, b, a, w = b) => {
       r.root.position.y = -0.035;
       r.pelvis.position.x = 0.03 * S2(b) * a;
-      r.pelvis.position.z = 0.022 * S4(b) * a;
-      r.pelvis.rotation.x = 0.05 * Math.sin((TAU * b) / 4 + 1.57) * a;
+      r.pelvis.position.z = 0.022 * S4(w) * a;
+      r.pelvis.rotation.x = 0.05 * Math.sin((TAU * w) / 4 + 1.57) * a;
       r.pelvis.rotation.z = 0.03 * S2(b) * a;
-      r.spine.rotation.x = 0.09 * Math.sin((TAU * b) / 4 - 0.5) * a;
-      r.lumbar.rotation.x = 0.1 * Math.sin((TAU * b) / 4 - 0.9) * a;
-      r.thoracic.rotation.x = 0.1 * Math.sin((TAU * b) / 4 - 1.4) * a;
-      r.chest.rotation.x = 0.08 * Math.sin((TAU * b) / 4 - 1.1) * a;
-      r.head.rotation.x = 0.06 * Math.sin((TAU * b) / 4 - 1.7) * a;
+      r.spine.rotation.x = 0.09 * Math.sin((TAU * w) / 4 - 0.5) * a;
+      r.lumbar.rotation.x = 0.1 * Math.sin((TAU * w) / 4 - 0.9) * a;
+      r.thoracic.rotation.x = 0.1 * Math.sin((TAU * w) / 4 - 1.4) * a;
+      r.chest.rotation.x = 0.08 * Math.sin((TAU * w) / 4 - 1.1) * a;
+      r.head.rotation.x = 0.06 * Math.sin((TAU * w) / 4 - 1.7) * a;
       r.kneeL.rotation.x = (0.14 + 0.1 * S2(b)) * a;
       r.kneeR.rotation.x = (0.14 - 0.1 * S2(b)) * a;
       r.extraL = 0.15 * pos(S1(b)) * a;
@@ -165,10 +184,10 @@ export const STYLES: Record<string, StyleDef> = {
       "En couple : sorties et variations de niveau (rise and fall)",
     ],
     support: (b) => -S2(b),
-    apply: (r, b, a) => {
+    apply: (r, b, a, w = b) => {
       const s = S2(b);
       r.root.position.x = 0.05 * s * a;
-      r.root.position.y = (-0.03 + 0.03 * S4(b)) * a;
+      r.root.position.y = (-0.03 + 0.03 * S4(w)) * a;
       r.pelvis.rotation.y = 0.18 * s * a;
       r.pelvis.rotation.x = 0.07 * s * a;
       r.pelvis.rotation.z = 0.05 * s * a;
@@ -177,10 +196,10 @@ export const STYLES: Record<string, StyleDef> = {
       r.kneeL.rotation.x = (0.12 + 0.28 * pos(s)) * a;
       r.kneeR.rotation.x = (0.12 + 0.28 * pos(-s)) * a;
       r.chest.rotation.y = 0.14 * Math.sin((TAU * b) / 2 - 1.0) * a;
-      r.chest.rotation.x = -0.14 * (0.5 + 0.5 * S4(b)) * a;
-      r.lumbar.rotation.x = -0.1 * (0.5 + 0.5 * S4(b)) * a;
-      r.thoracic.rotation.x = -0.08 * (0.5 + 0.5 * S4(b + 0.5)) * a;
-      r.head.rotation.x = -0.08 * (0.5 + 0.5 * Math.sin((TAU * b) / 4 - 0.8)) * a;
+      r.chest.rotation.x = -0.14 * (0.5 + 0.5 * S4(w)) * a;
+      r.lumbar.rotation.x = -0.1 * (0.5 + 0.5 * S4(w)) * a;
+      r.thoracic.rotation.x = -0.08 * (0.5 + 0.5 * S4(w + 0.5)) * a;
+      r.head.rotation.x = -0.08 * (0.5 + 0.5 * Math.sin((TAU * w) / 4 - 0.8)) * a;
     },
   },
 };
@@ -312,10 +331,12 @@ export function applyDanceFrame(
   cadre: boolean
 ): void {
   if (!cadre) return;
-  if (r.armUL) r.armUL.rotation.set(DANCE_FRAME.upperArm.x, DANCE_FRAME.upperArm.y, DANCE_FRAME.upperArm.z);
-  if (r.armUR) r.armUR.rotation.set(DANCE_FRAME.upperArm.x, DANCE_FRAME.upperArm.y, -DANCE_FRAME.upperArm.z);
-  if (r.armFL) r.armFL.rotation.set(DANCE_FRAME.forearmLeft.x, DANCE_FRAME.forearmLeft.y, DANCE_FRAME.forearmLeft.z);
-  if (r.armFR) r.armFR.rotation.set(DANCE_FRAME.forearmRight.x, DANCE_FRAME.forearmRight.y, DANCE_FRAME.forearmRight.z);
+  // #40: armUL/armFL are now the anatomical left arm (+x side); the historical angles were tuned on
+  // the swapped names, so each value goes to the same physical arm as before.
+  if (r.armUR) r.armUR.rotation.set(DANCE_FRAME.upperArm.x, DANCE_FRAME.upperArm.y, DANCE_FRAME.upperArm.z);
+  if (r.armUL) r.armUL.rotation.set(DANCE_FRAME.upperArm.x, DANCE_FRAME.upperArm.y, -DANCE_FRAME.upperArm.z);
+  if (r.armFR) r.armFR.rotation.set(DANCE_FRAME.forearmLeft.x, DANCE_FRAME.forearmLeft.y, DANCE_FRAME.forearmLeft.z);
+  if (r.armFL) r.armFL.rotation.set(DANCE_FRAME.forearmRight.x, DANCE_FRAME.forearmRight.y, DANCE_FRAME.forearmRight.z);
 }
 
 // Cadre de la SUIVEUSE en paire (demande 2026-11-18, non prioritaire) : coude gauche levé à
@@ -333,10 +354,11 @@ export function applyFollowerFrame(
   cadre: boolean
 ): void {
   if (!cadre) return;
-  if (r.armUL) r.armUL.rotation.set(DANCE_FRAME_FOLLOWER.upperLeft.x, DANCE_FRAME_FOLLOWER.upperLeft.y, DANCE_FRAME_FOLLOWER.upperLeft.z);
-  if (r.armFL) r.armFL.rotation.set(DANCE_FRAME_FOLLOWER.foreLeft.x, DANCE_FRAME_FOLLOWER.foreLeft.y, DANCE_FRAME_FOLLOWER.foreLeft.z);
-  if (r.armUR) r.armUR.rotation.set(DANCE_FRAME_FOLLOWER.upperRight.x, DANCE_FRAME_FOLLOWER.upperRight.y, DANCE_FRAME_FOLLOWER.upperRight.z);
-  if (r.armFR) r.armFR.rotation.set(DANCE_FRAME_FOLLOWER.foreRight.x, DANCE_FRAME_FOLLOWER.foreRight.y, DANCE_FRAME_FOLLOWER.foreRight.z);
+  // Same physical arms as before the #40 renaming (see applyDanceFrame).
+  if (r.armUR) r.armUR.rotation.set(DANCE_FRAME_FOLLOWER.upperLeft.x, DANCE_FRAME_FOLLOWER.upperLeft.y, DANCE_FRAME_FOLLOWER.upperLeft.z);
+  if (r.armFR) r.armFR.rotation.set(DANCE_FRAME_FOLLOWER.foreLeft.x, DANCE_FRAME_FOLLOWER.foreLeft.y, DANCE_FRAME_FOLLOWER.foreLeft.z);
+  if (r.armUL) r.armUL.rotation.set(DANCE_FRAME_FOLLOWER.upperRight.x, DANCE_FRAME_FOLLOWER.upperRight.y, DANCE_FRAME_FOLLOWER.upperRight.z);
+  if (r.armFL) r.armFL.rotation.set(DANCE_FRAME_FOLLOWER.foreRight.x, DANCE_FRAME_FOLLOWER.foreRight.y, DANCE_FRAME_FOLLOWER.foreRight.z);
 }
 
 // ---------------------------------------------------------------------------
@@ -380,6 +402,20 @@ export const PAIR_DZ = 0.175;
 export type MovementKey = "none" | "corridinho" | "quarts" | "temps3" | "ida" | "sortieG" | "sortieF" | "sortieGF";
 
 // Priorité d'exclusivité si plusieurs flags sont positionnés (ex. URL artisanale).
+/** Owner (20 Nov.): « on peut laisser le style konpa faire uniquement le sur place et le avant /
+ * arrière (pas de marka en konpa) », then « gère tarraxinha et zouk comme avec le konpa » (focus on
+ * kizomba and semba). Styles listed here only offer these movements. */
+export const STYLE_MOVEMENTS: Partial<Record<string, MovementKey[]>> = {
+  kompa: ["none", "ida"], tarraxinha: ["none", "ida"], zouk: ["none", "ida"],
+};
+export function movementAllowed(styleKey: string, movement: MovementKey): boolean {
+  const allowed = STYLE_MOVEMENTS[styleKey];
+  return !allowed || allowed.includes(movement);
+}
+/** Lateral travel (« Déplacement ») is not « sur place » nor « avant / arrière »: not offered in kompa,
+ * whose lateral balance is the style itself. */
+export const travelAllowed = (styleKey: string): boolean => !STYLE_MOVEMENTS[styleKey];
+
 export function movementOf(o: { corridinho?: boolean; quarts?: boolean; temps3?: boolean; ida?: boolean; sortieG?: boolean; sortieF?: boolean; sortieGF?: boolean }): MovementKey {
   if (o.corridinho) return "corridinho";
   if (o.quarts) return "quarts";

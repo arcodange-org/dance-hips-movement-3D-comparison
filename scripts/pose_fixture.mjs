@@ -20,6 +20,10 @@ export function fixture(api, { rotation = 0, offset = [0, 0, 0] } = {}) {
   r.chest.add(r.head, r.contactChest, r.armUL, r.armUR); r.armUL.add(r.armFL); r.armUR.add(r.armFR);
   for (const [name, p] of Object.entries(api.TORSO_JOINTS)) r[name].position.fromArray(p);
   r.contactChest.position.set(0, 0, 0.16); r.contactPelvis.position.set(0, 0, 0.14);
+  if (api.ARM_JOINTS) {
+    r.armUL.position.fromArray(api.ARM_JOINTS.shoulderL); r.armUR.position.fromArray(api.ARM_JOINTS.shoulderR);
+    r.armFL.position.fromArray(api.ARM_JOINTS.elbow); r.armFR.position.fromArray(api.ARM_JOINTS.elbow);
+  }
   api.bindSkeleton(r, skel);
   return { r, outer, model: api.createPoseModel(r) };
 }

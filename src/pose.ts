@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { resetRig, groundDip, type RigHandle } from "./anatomy";
 import {
-  STYLES, supportOf, travelOffset, corridinhoPath, reversePath, quartTurnStep,
+  STYLES, supportOf, travelOffset, travelAllowed, corridinhoPath, reversePath, quartTurnStep,
   idaEVoltaStep, idaContra, sortieEnvelope, sortieActive, lockUpperTrunk,
   applyDanceFrame, applyFollowerFrame, swingLift, type MovementKey,
 } from "./styles";
@@ -11,7 +11,11 @@ import { sampleSortieGarcon, DEFAULT_SORTIE_CONTRA, type SortieVariant } from ".
 
 import { sampleSortieFille, type SortieFilleVariant } from "./sortieFille";
 import { sampleQuartsPaire, QUARTS_PAIR_DZ } from "./quartsPaire";
-import { sampleIdaPaire, IDA_PAIR_DZ } from "./idaPaire";
+import { sampleIdaPaire, IDA_PAIR_DZ, IDA_DEFAULT, type IdaVariant } from "./idaPaire";
+import { sampleMarchePaire, type MarcheKind } from "./marchePaire";
+import { sampleSortieFG } from "./enchainement";
+import { sampleInserted } from "./insertion";
+import { samplePlacePaire, PLACE_PAIR_DZ } from "./placePaire";
 import { SORTIE_GARCON_PAIR_DZ } from "./sortieGarcon";
 import { SORTIE_FILLE_PAIR_DZ } from "./sortieFille";
 import { placementOffset, placementScale, type CouplePlacement } from "./placement";
@@ -37,25 +41,57 @@ export interface PoseOptions {
   /** #54: pair ida e volta (docs/spec-ida-paire.md): leader forward / follower back, natural walk,
    * neutral quinconce at each return; off = phase 8 model (both dancers mirror the same step). */
   idaPaire: boolean;
+  /** #89: ida e volta variant (starting leg, backwards first) and, in its place, a walk in pair. */
+  idaVariant: IdaVariant;
+  marche: MarcheKind | null;
+  /** #90: the sortie fille chained into the end of the sortie garçon (game mode). */
+  sortieChain: boolean;
+  /** #91: an ida e volta (the leader's G, go and return) inserted at the sortie's position 2 (game mode). */
+  sortieInsert: boolean;
+  /** #61: in pair on the spot, the couple dances in the neutral quinconce (opt-in, set by the app). */
+  placePaire: boolean;
+  /** #62: false keeps the on-the-spot motion on the clock's phase (guide mode). */
+  onBeat?: boolean;
+  /** #85: blend towards another style (`weight` 1 = entirely the other one). */
+  styleBlend?: { key: string; weight: number } | null;
   /** #51: in pair figures the upper bodies keep plexus-to-plexus contact (lean towards the partner). */
   plexus: boolean;
   /** #51: 1 = the chest faces the partner while the pelvis follows the feet (contraposition), 0 = the
    * chest stays aligned with the pelvis. */
   contraposition: number;
+  /** #69 guide mode: offset (own frame, m) added to the figure's pelvis root, e.g. the residual of a
+   * transition being inertialized; `y` is added to the pelvis height found by the leg reach. The feet
+   * keep their targets (the leg IK absorbs it). */
+  rootOffset: { x: number; z: number; y?: number } | null;
+  /** #69 guide mode: residual of the pelvis's own pose (position m, Euler rad) at a boundary being
+   * inertialized; added after the figure's bounds and before the leg IK. */
+  pelvisOffset: { position: [number, number, number]; rotation: [number, number, number] } | null;
+  /** Guide mode (#69, #42): Euler offsets added to the spine, chest and head (9 values), faded residual
+   * of the upper trunk between two segments. */
+  trunkOffset: number[] | null;
+  /** #69: the partner's `rootOffset` (its own frame), for the plexus lean towards the partner. */
+  partnerRootOffset: { x: number; z: number } | null;
 }
 export const DEFAULT_POSE: PoseOptions = {
   styleKey: "kizomba", amp: 1, travel: 0, dir: 1, plant: true, iso: true, cadre: true,
   quarts: false, corridinho: false, ida: false, temps3: false, sortie: false,
   embrace: false, reverse: false, follower: false, movement: "none",
   sortieFilleVariant: "hook", sortieVariant: "line", sortieContra: DEFAULT_SORTIE_CONTRA,
-  placement: "reference", quartsPaire: false, idaPaire: false, plexus: false, contraposition: 1,
+  placement: "reference", quartsPaire: false, idaPaire: false, idaVariant: IDA_DEFAULT, marche: null, sortieChain: false, sortieInsert: false, placePaire: false, plexus: false, contraposition: 1,
+  rootOffset: null, partnerRootOffset: null, pelvisOffset: null, trunkOffset: null,
 };
 /** Plexus-to-plexus contact (#51): chest-marker gap targeted between partners (m) and the largest
  * lean of the upper body towards the partner (rad). */
 // pelvisPull 0: pulling the pelvises together (even down to 45 cm apart) or lowering the couple
 // together makes the leg bones of the partners cross (measured on the GLB, six styles): only the
 // upper body leans towards the partner.
-export const PLEXUS = { gap: 0.08, maxLean: 0.35, marker: 0.16, pelvisDistance: 0.34, pelvisPull: 0 };
+/** #51, revised (owner, 20 Nov.: « la contraposition et l'inclinaison vers l'avant en permanence ont été
+ * mal interprétées (on dirait des lutteurs de sumo et non des danseurs parfois) ») : the upper body leans
+ * at most `maxLean` towards the partner, and only in a close couple: the lean fades out between `open`
+ * and `open + fade` of missing distance (an open position does not chase the plexus contact). The chest
+ * turns towards the partner by at most `facing` (rad). The lean stops once the trunk (pelvis → head, the
+ * style's own posture included) is `maxTrunk` (rad) from the vertical. */
+export const PLEXUS = { gap: 0.08, maxLean: 0.08, maxTrunk: 0.13, open: 0.06, fade: 0.08, facing: 0.3, marker: 0.16, pelvisDistance: 0.34, pelvisPull: 0 };
 interface Leg {
   length1: number; length2: number; f0: THREE.Vector3; t0: THREE.Vector3;
   hip: THREE.Vector3; rest: THREE.Vector3; sole: THREE.Vector3[];
@@ -74,6 +110,8 @@ export interface PoseModel {
 export interface PoseStats {
   beat: number; loadR: number; loadL: number; kneeR: number; kneeL: number;
   roll: number; trunkTilt: number; facing: number; posX: number; posZ: number;
+  /** Spine, chest and head Euler angles where `trunkOffset` adds to them (guide mode residuals). */
+  trunk: number[];
 }
 export function bindSkeleton(r: RigHandle, skeleton: THREE.Object3D): void {
   skeleton.traverse(o => { if (o.name) r[o.name] = o; });
@@ -244,6 +282,7 @@ function leanTowards(r: RigHandle, partner: { x: number; z: number }): void {
     const forward = new THREE.Vector3(0, 0, PLEXUS.marker).applyQuaternion(chest.getWorldQuaternion(new THREE.Quaternion()));
     return outer.worldToLocal(chest.getWorldPosition(new THREE.Vector3()).add(forward));
   };
+  let leaned = 0, fadeOut = 1;
   for (let iteration = 0; iteration < 2; iteration++) {
     const own = r.root.position, plexus = marker();
     const dx = partner.x - own.x, dz = partner.z - own.z, distance = Math.hypot(dx, dz);
@@ -254,9 +293,17 @@ function leanTowards(r: RigHandle, partner: { x: number; z: number }): void {
     const ahead = (plexus.x - own.x) * ux + (plexus.z - own.z) * uz;
     const missing = reach - ahead;
     if (missing <= 1e-4) return;
+    if (iteration === 0) {
+      const t = Math.max(0, Math.min(1, (missing - PLEXUS.open) / PLEXUS.fade)); fadeOut = 1 - t * t * (3 - 2 * t);
+      // Style posture first: a style already leaning forward (suave) keeps less room for the lean.
+      const trunk = r.head.getWorldPosition(new THREE.Vector3()).sub(r.pelvis.getWorldPosition(new THREE.Vector3()));
+      fadeOut = Math.min(fadeOut, Math.max(0, PLEXUS.maxTrunk - trunk.angleTo(new THREE.Vector3(0, 1, 0))) / PLEXUS.maxLean);
+    }
     const pivot = outer.worldToLocal(spine.getWorldPosition(new THREE.Vector3()));
     const arm = Math.max(0.1, plexus.distanceTo(pivot));
-    const angle = Math.min(PLEXUS.maxLean, Math.asin(Math.min(1, missing / arm)));
+    const angle = Math.min(PLEXUS.maxLean * fadeOut - leaned, Math.asin(Math.min(1, missing / arm)));
+    if (angle <= 1e-6) return;
+    leaned += angle;
     // Rotate the spine in world space about (up × towards-partner), expressed in the outer frame.
     const axisLocal = new THREE.Vector3(uz, 0, -ux);
     const outerQ = outer.getWorldQuaternion(new THREE.Quaternion());
@@ -268,28 +315,69 @@ function leanTowards(r: RigHandle, partner: { x: number; z: number }): void {
   }
 }
 
+/** #85: the local transforms a style sets (positions, rotations, knee extras), to blend two styles. */
+const STYLE_NODES = ["root", "pelvis", "spine", "lumbar", "thoracic", "chest", "head", "hipL", "hipR", "kneeL", "kneeR"] as const;
+function styleState(r: RigHandle) {
+  return { nodes: STYLE_NODES.map(n => [r[n].position.clone(), r[n].rotation.clone()] as const), extraL: r.extraL, extraR: r.extraR };
+}
+function mixStyleState(r: RigHandle, a: ReturnType<typeof styleState>, b: ReturnType<typeof styleState>, w: number) {
+  STYLE_NODES.forEach((n, k) => {
+    const [pa, ra] = a.nodes[k], [pb, rb] = b.nodes[k];
+    r[n].position.lerpVectors(pa, pb, w);
+    r[n].rotation.set(ra.x + (rb.x - ra.x) * w, ra.y + (rb.y - ra.y) * w, ra.z + (rb.z - ra.z) * w);
+  });
+  r.extraL = a.extraL + (b.extraL - a.extraL) * w; r.extraR = a.extraR + (b.extraR - a.extraR) * w;
+}
+
 /** The single final-pose pipeline used by React and GLB integration tests. */
-export function applyPose(r: RigHandle, model: PoseModel, beat: number, options: Partial<PoseOptions>): PoseStats {
+/** #62 (R21, owner: « les beats correspondent aux transferts de poids ») : the styles put full weight on
+ * a foot at phase x,5 (support = −S2). On the spot (solo, in pair, with lateral travel or temps3) the
+ * motion runs half a beat behind the clock, so that the weight arrives on the music's beat. The figures
+ * keep their own timing (aligning them is the rest of #62), and so do the legacy combined sortie
+ * (oracle) and the guide mode's basic step, which must join the figures. */
+export const ON_BEAT_SHIFT = 0.5;
+export const onBeatShift = (o: { movement: MovementKey; sortie?: boolean; embrace?: boolean; onBeat?: boolean }): number =>
+  // Solo, a selected sortie is the dance on the spot (the sorties exist only in pair). The guide mode
+  // (`onBeat: false`) keeps the clock's phase: its basic step must join the figures, which keep theirs.
+  o.onBeat !== false && (o.movement === "none" || o.movement === "temps3" || !o.embrace && o.movement.startsWith("sortie")) && !o.sortie ? ON_BEAT_SHIFT : 0;
+
+export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, options: Partial<PoseOptions>): PoseStats {
   const o = { ...DEFAULT_POSE, ...options };
+  // + 12 beats (a multiple of every on-the-spot period: styles 4, temps3 12) keeps the motion beat positive
+  // for the styles' `b % n` without changing the pose.
+  const shift = onBeatShift(o);
+  let beat = shift ? clockBeat - shift + 12 : clockBeat;
   const rest = { L: model.legs.L.rest, R: model.legs.R.rest };
   // Owner request (19 Nov.): in the five-action figures the feet point forward along the knees'
   // axis (the GLB foot is natively turned out by ≈25°), and the initial/neutral stance has the
   // feet under the hips; each foot joins the validated path on its first step.
   const stance = (model.legs.L.hipX - rest.L.x + rest.R.x - model.legs.R.hipX) / 2;
   const sampleFigure = (follower: boolean) => !o.embrace ? null
+    : (o.movement === "sortieG" || o.movement === "sortieF") && o.sortieInsert ? sampleInserted(o.movement, beat, follower, rest, placementOffset(o.placement, o.amp), placementScale(o.amp), stance, o.sortieContra)
     : o.movement === "sortieG" ? sampleSortieGarcon(beat, follower, rest, o.sortieVariant, o.sortieContra, placementOffset(o.placement, o.amp), placementScale(o.amp), stance)
+    : o.movement === "sortieF" && o.sortieChain ? sampleSortieFG(beat, follower, rest, placementOffset(o.placement, o.amp), placementScale(o.amp), stance, o.sortieContra)
     : o.movement === "sortieF" ? sampleSortieFille(beat, follower, rest, o.sortieFilleVariant, placementOffset(o.placement, o.amp), placementScale(o.amp), stance)
     // #37: in pair the couple turns rigidly around a centre on the leader's side (docs/spec-quarts-paire.md).
     : o.movement === "quarts" && o.quartsPaire ? sampleQuartsPaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance)
     // #54: in pair the leader steps forward while the follower steps back (docs/spec-ida-paire.md).
-    : o.movement === "ida" && o.idaPaire ? sampleIdaPaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance)
+    // #89: the game mode's walks share the ida's couple and lanes.
+    : o.movement === "ida" && o.idaPaire && o.marche ? sampleMarchePaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance, o.marche)
+    : o.movement === "ida" && o.idaPaire ? sampleIdaPaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance, o.idaVariant)
+    // #61, #71: in pair without a figure the couple stays in the neutral quinconce (temps3 without
+    // travel is on the spot); the pair corridinho is the validated couple turn of #37, a circle on the
+    // floor in 16 beats (docs/spec-paire-sans-figure.md).
+    : (o.movement === "none" || o.movement === "temps3") && o.placePaire ? samplePlacePaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance,
+      { travel: travelAllowed(o.styleKey) ? o.travel : 0, dir: o.dir, length: o.movement === "temps3" ? 3 : 1 })
+    : o.movement === "corridinho" && o.placePaire ? sampleQuartsPaire(beat, follower, rest, placementOffset(o.placement, o.amp), stance)
     : null;
   const figure = sampleFigure(o.follower);
   // #51: the partner's pelvis, in this dancer's outer frame (partners face each other 2·dz apart).
   const pairDz = o.movement === "sortieG" ? SORTIE_GARCON_PAIR_DZ : o.movement === "sortieF" ? SORTIE_FILLE_PAIR_DZ
-    : o.movement === "ida" ? IDA_PAIR_DZ : QUARTS_PAIR_DZ;
+    : o.movement === "ida" ? IDA_PAIR_DZ
+    : o.movement === "none" || o.movement === "temps3" ? PLACE_PAIR_DZ : QUARTS_PAIR_DZ;
   const partnerFigure = figure && o.plexus ? sampleFigure(!o.follower) : null;
-  const partnerRoot = partnerFigure ? { x: -partnerFigure.root.x, z: 2 * pairDz - partnerFigure.root.z } : null;
+  const partnerOffset = o.partnerRootOffset ?? { x: 0, z: 0 };
+  const partnerRoot = partnerFigure ? { x: -(partnerFigure.root.x + partnerOffset.x), z: 2 * pairDz - (partnerFigure.root.z + partnerOffset.z) } : null;
   // Quarter turns loop: the style keeps dancing; the five-action figures hold after their marka.
   const cyclic = !!figure && "cyclic" in figure;
   if (figure) {
@@ -299,7 +387,35 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
   resetRig(r);
   for (const s of SIDES) r["foot" + s].rotation.set(0, 0, 0);
   // A marka moves the free foot without starting another body's weight oscillation.
-  STYLES[o.styleKey].apply(r, figure && !cyclic ? Math.min(beat, 4) : beat, o.amp);
+  // #107: a cyclic figure started later in its cycle (the ida e volta's variants) gives its offset, so that
+  // the style runs in phase with the cycle: the variants are then the cycle's own poses.
+  const styleTime = figure && !cyclic ? Math.min(beat, 4) : beat + ((figure as { styleOffset?: number } | null)?.styleOffset ?? 0);
+  // #42: a figure that drives the ginga gives the style its phase (one beat per support transfer) and
+  // the dancer's share of it; otherwise the style runs on the clock.
+  // Kompa's own rhythm (one transfer every two beats, #62) is not the period-2 pattern the ginga phase maps.
+  type Ginga = { gingaBeat?: number; gingaAmp?: number; gingaSway?: number } | null;
+  const gingaOf = (key: typeof o.styleKey): Ginga => (key === "kompa" ? null : figure as Ginga);
+  const ginga = gingaOf(o.styleKey);
+  // The slow 4-beat waves stay on the clock (styleTime): the guide mode restarts a figure's local beat
+  // every cycle.
+  const applyStyle = (key: typeof o.styleKey) => {
+    const g = gingaOf(key);
+    STYLES[key].apply(r, g?.gingaBeat ?? styleTime, o.amp * (g?.gingaAmp ?? 1), styleTime);
+  };
+  applyStyle(o.styleKey);
+  // #85: blend towards another style's pose (the guide mode changes style at a boundary: the basic step
+  // in suave, the figures in the chosen style); `weight` 1 = the other style entirely.
+  const blend = o.styleBlend && o.styleBlend.weight > 0 && STYLES[o.styleBlend.key] && o.styleBlend.key !== o.styleKey ? o.styleBlend : null;
+  if (blend) {
+    const mine = styleState(r);
+    resetRig(r);
+    for (const s of SIDES) r["foot" + s].rotation.set(0, 0, 0);
+    applyStyle(blend.key);
+    mixStyleState(r, mine, styleState(r), blend.weight);
+  }
+  // #61: a figure may keep a share of the style's lateral hip shift on top of its own pelvis path;
+  // #42: the ginga's shift towards the support joins it.
+  const styleRootX = r.root.position.x;
   if (figure) {
     // The on-the-spot isolations need a smaller envelope while feet follow a fixed
     // close-couple path. Preserve their proportions, with a geometric clearance cap.
@@ -323,14 +439,28 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
     const sway = (figure as { sway?: number }).sway ?? 1;
     r.pelvis.position.x *= sway; r.pelvis.position.z *= sway;
   }
+  if (o.pelvisOffset) {
+    const { position: p, rotation: q } = o.pelvisOffset;
+    r.pelvis.position.x += p[0]; r.pelvis.position.y += p[1]; r.pelvis.position.z += p[2];
+    r.pelvis.rotation.x += q[0]; r.pelvis.rotation.y += q[1]; r.pelvis.rotation.z += q[2];
+  }
   // The close-couple figure limits extra bounce/flexion; generic deep pulses can put
   // two opposing knees through one another. Leg reach still determines pelvis height.
   const styleY = figure ? Math.max((figure as { dip?: number }).dip ?? -0.008, r.root.position.y * 0.25) : r.root.position.y;
   const desiredKnee = { L: r.kneeL.rotation.x, R: r.kneeR.rotation.x };
-  const posture = STYLES[o.styleKey].posture;
+  const ownPosture = STYLES[o.styleKey].posture, otherPosture = blend ? STYLES[blend.key].posture : ownPosture, bw = blend?.weight ?? 0;
+  const posture = { lean: ownPosture.lean + (otherPosture.lean - ownPosture.lean) * bw, knee: ownPosture.knee + (otherPosture.knee - ownPosture.knee) * bw };
   const feet = figure?.feet ?? plannedFeet(beat, o, model);
   if (figure) {
-    r.root.position.x = figure.root.x; r.root.position.z = figure.root.z;
+    // The coupled follower mirrors it like her pelvis: the couple sways together in the world.
+    const coupledSway = o.follower ? 1 - 2 * figure.coupling : 1;
+    // The kept sway goes to the pelvis (the hips hang from it): the guide mode's pelvis inertialization
+    // (#69) then smooths it across segment boundaries, like the rest of the pelvis pose.
+    const kept = ((figure as { styleSway?: number }).styleSway ?? 0) * coupledSway + (ginga?.gingaSway ?? 0);
+    r.root.position.x = figure.root.x;
+    r.pelvis.position.x += styleRootX * kept;
+    r.root.position.z = figure.root.z;
+    if (o.rootOffset) { r.root.position.x += o.rootOffset.x; r.root.position.z += o.rootOffset.z; }
     const rootYaw = (figure as { rootYaw?: number }).rootYaw;
     if (rootYaw !== undefined) r.root.rotation.y = rootYaw;
     // #51: the pelvises seek each other: each closes half the gap beyond the plexus distance (the leg
@@ -351,7 +481,7 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
   // #51: with plexus contact the chest turns towards the partner (contraposition share) instead of
   // the figure's own chest yaw; the lean towards the partner is applied once the frame is set.
   const facing = partnerRoot ? Math.atan2(partnerRoot.x - r.root.position.x, partnerRoot.z - r.root.position.z) : 0;
-  if (figure && partnerRoot) r.chest.rotation.y += o.contraposition * angleDelta(r.root.rotation.y, facing);
+  if (figure && partnerRoot) r.chest.rotation.y += o.contraposition * Math.max(-PLEXUS.facing, Math.min(PLEXUS.facing, angleDelta(r.root.rotation.y, facing)));
   else if (figure) r.chest.rotation.y += figure.chestYaw;
   if (o.quarts && !figure) {
     const qs = quartTurnStep(beat, o.reverse);
@@ -365,6 +495,11 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
     const ic = idaContra(beat);
     r.root.rotation.y += ic.lowerYaw;
     r.chest.rotation.y += ic.upperYaw - ic.lowerYaw;
+  }
+  const trunk = [r.spine, r.chest, r.head].flatMap(n => [n.rotation.x, n.rotation.y, n.rotation.z]);
+  if (o.trunkOffset) {
+    const t = o.trunkOffset;
+    [r.spine, r.chest, r.head].forEach((node, k) => { node.rotation.x += t[3 * k]; node.rotation.y += t[3 * k + 1]; node.rotation.z += t[3 * k + 2]; });
   }
   applyDanceFrame(r, o.cadre);
   if (o.follower) applyFollowerFrame(r, o.cadre);
@@ -383,7 +518,9 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
     model.lift[s] = feet[s].lift;
     // #49: a rolling foot pivots on its ball or heel: that sole point stays where it is when flat.
     let x = feet[s].x, z = feet[s].z;
-    const pivot = feet[s].pivot;
+    // #73: outside figures the style's own foot rock (`extraL`, `extraR`) also pivots on a ground point,
+    // the ball when the heel rises, the heel when the toes rise: the support foot no longer slides.
+    const pivot = figure ? feet[s].pivot : extra > 0 ? "ball" : extra < 0 ? "heel" : null;
     if (pivot && extra !== 0) {
       const point = model.legs[s][pivot];
       const shift = point.clone().applyQuaternion(flat).sub(point.clone().applyQuaternion(q));
@@ -424,14 +561,18 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
       const horizontal2 = (target.x - hip.x) ** 2 + (target.z - hip.z) ** 2;
       height = Math.min(height, target.y + Math.sqrt(Math.max(0, reach2 - horizontal2)) - hip.y);
     }
-    r.root.position.y = height + Math.min(0, styleY);
+    r.root.position.y = height + Math.min(0, styleY) + (o.rootOffset?.y ?? 0);
     r.root.updateWorldMatrix(true, true);
     const skeleton = r["Skeleton"] as THREE.Object3D;
     const outerQ = r.root.parent!.getWorldQuaternion(new THREE.Quaternion());
     for (const s of SIDES) {
       const leg = model.legs[s];
       const target = skeleton.worldToLocal(r.root.parent!.localToWorld(model.targets[s].clone()));
-      const solution = solveLeg3D(leg.hip, target, leg.length1, leg.length2, leg.f0, leg.t0);
+      // #84: a figure may keep the knees from following its own pelvis yaw (`kneeYaw`, rad): the knee
+      // pole turns back by that much, so the knees stay over the feet instead of swinging sideways.
+      const kneeYaw = figure ? (figure as { kneeYaw?: number }).kneeYaw ?? 0 : 0;
+      const pole = kneeYaw !== 0 ? new THREE.Vector3(-Math.sin(kneeYaw), 0, Math.cos(kneeYaw)) : undefined;
+      const solution = solveLeg3D(leg.hip, target, leg.length1, leg.length2, leg.f0, leg.t0, pole);
       r["hip" + s].quaternion.copy(solution.qHip);
       r["knee" + s].rotation.x = solution.beta;
       r["knee" + s].updateWorldMatrix(true, true);
@@ -458,14 +599,14 @@ export function applyPose(r: RigHandle, model: PoseModel, beat: number, options:
       lowest = Math.min(lowest, v.copy(p).applyMatrix4(foot.matrixWorld).y);
     grounded[s] = lowest <= 0.0001;
   }
-  const prescribedR = figure?.loadR ?? (supportOf(o.styleKey, r, beat) + 1) / 2;
+  const prescribedR = (figure as { loadR?: number } | null)?.loadR ?? (supportOf(o.styleKey, r, beat) + 1) / 2;
   const loadR = grounded.R ? (grounded.L ? prescribedR : 1) : 0;
   const loadL = grounded.L ? (grounded.R ? 1 - prescribedR : 1) : 0;
   const chestQ = r.chest.getWorldQuaternion(new THREE.Quaternion());
   const up = new THREE.Vector3(0, 1, 0).applyQuaternion(chestQ);
   const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(chestQ);
   const pos = r.root.getWorldPosition(new THREE.Vector3());
-  return { beat, loadR, loadL, kneeL: kneeAngle(r, "L"), kneeR: kneeAngle(r, "R"),
+  return { trunk, beat: figure ? beat : clockBeat, loadR, loadL, kneeL: kneeAngle(r, "L"), kneeR: kneeAngle(r, "R"),
     roll: r.pelvis.rotation.z * 180 / Math.PI,
     trunkTilt: Math.acos(Math.max(-1, Math.min(1, up.y))) * 180 / Math.PI,
     facing: facingSector(Math.atan2(forward.x, forward.z)), posX: pos.x, posZ: pos.z };

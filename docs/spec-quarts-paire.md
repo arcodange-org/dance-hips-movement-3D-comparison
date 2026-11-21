@@ -47,20 +47,32 @@ C, exprimée dans le repère du leader (+x à gauche, +z vers l'avant) :
 
 | Temps du quart | Suiveur | Leader |
 |---|---|---|
-| 0 → 1,45 | **D** : recule de 32 cm (il est coincé entre les pieds du leader, avant-pieds au contact), puis tourne autour de C et revient en glissant le long de son axe, à côté du G du leader | buste en avance (intention) |
-| 0,8 → 1,4 | | **G** : glisse de 7 cm vers l'avant dans la place laissée par le D du suiveur et se pose talon au bout du D, en angle droit, juste avant que le D du suiveur n'arrive à côté |
-| 1,45 → 3,1 | **G** : part dès que le D est posé (jamais les deux pieds en l'air), recule de 18 cm, arc 35 % plus large | |
-| 1,8 → 2,9 | | **D** : contourne le talon du G (arc 40 % plus large) et pivote dans la seconde moitié du vol, parallèle au G |
+| 0,4 → 1 | **D** : recule de 32 cm (il est coincé entre les pieds du leader, avant-pieds au contact), puis tourne autour de C et revient en glissant le long de son axe, à côté du G du leader ; posé sur le 1 | **G** : part **avec** le D du suiveur, glisse de 7 cm vers l'avant dans la place que ce D libère et se pose sur le 1, talon au bout du D, en angle droit ; son buste s'engage avec lui |
+| 1,45 → 3 | **G** : part dès que le D est posé (jamais les deux pieds en l'air), recule de 18 cm, arc 35 % plus large ; posé sur le 3 | |
+| 1 → 1,8 | | **D** : reste au sol, monté sur sa demi-pointe (#106, 0,18 rad au plus) pendant que le G le porte |
+| 1,8 → 2,9 | | **D** : s'écarte d'abord de 7 cm vers sa droite et de 3 cm vers l'arrière, contourne le talon du G (arc 40 % plus large) et pivote dans la seconde moitié du vol, parallèle au G (posé sur le 3, il chevaucherait le G du suiveur) |
 
-- **Anticipation** : les bustes suivent une même courbe d'intention, celle du premier pas du
-  suiveur ; le buste du leader la joue 0,25 temps plus tôt (`QUARTS_LEAD`). Les pieds ne peuvent
-  pas partir en avance : depuis le quinconce, le G du leader ne peut prendre que la place que le D
-  du suiveur libère. L'intention passe donc par le buste et le cadre ; le suiveur pose sur le temps.
-- Le haut du corps suit le premier pied, le bas du corps le second (règle de la phase 14).
-- **Bassins** : chacun tourne autour de C avec son **second pied** (le D du leader, le G du suiveur),
-  pour qu'aucune jambe d'appui ne se couche en travers du pied que le partenaire pose. Bassins
-  couplés pendant tout le tour ; balancement du style réduit de moitié.
-- **Genoux et style au croisement** : flexion plafonnée à 0,3 rad (≈ 17°, contre 0,45 rad dans les
+- **Départs simultanés, buste du leader engagé avec son G** (#82, propriétaire, 20 novembre : « le
+  suiveur "anticipe" et bouge en avance (ça doit se faire en simultané). Et le leader engage le buste
+  avec son pied gauche ») : avant, le D du suiveur partait à 0 et le G du leader à 0,8. Désormais les
+  deux partent à 0,4 et se posent sur le 1. Le D du suiveur recule toujours d'abord le long de son
+  chemin, ce qui laisse sa place au G du leader.
+- **Bassin et buste tournent avec les pieds** (#106, propriétaire, 20 novembre : « le bassin et
+  l'épaule (avec tout le haut du corps) bougent en même temps que le pied. […] l'extrémité (par
+  exemple épaule gauche) est déjà en position finale et le reste est en position intermédiaire
+  "diago" jusqu'à ramener l'autre pied ») : bassin et buste forment un bloc (pas de torsion). Il
+  tourne d'un huitième de tour avec le premier pied, la diagonale quand ce pied se pose, puis du
+  reste avec le second. Il pivote autour du point qui amène le côté du premier pied (la hanche gauche
+  du leader, la droite du suiveur, à 9 cm du centre du bassin) à sa place finale. Le deuxième demi-tour
+  pivote autour de ce côté : le reste du corps le rattrape. Les deux danseurs suivent la même règle.
+  Le bassin ne fait que 65 % (leader) et 58 % (suiveur) du chemin entre la rotation rigide autour de C
+  et cette règle : la règle entière laisse le pied arrière si loin derrière la hanche que le bassin
+  s'abaisse et que le genou avant part vers le partenaire. Le bloc tourne sur les 30 derniers pour cent
+  du vol du premier pied, une fois le pied du partenaire dégagé. La règle de la phase 14 (haut du
+  corps avec le premier pied, bas du corps avec le second) et le retard du buste du suiveur
+  (`QUARTS_LEAD`) sont abandonnés.
+- **Bassins couplés** pendant tout le tour ; balancement du style réduit de moitié.
+- **Genoux et style au croisement** : flexion plafonnée à 0,22 rad (≈ 13°, contre 0,45 rad dans les
   sorties). Autour du croisement (temps 1 à 1,9 de chaque quart, quand les deux paires de cuisses
   sont intercalées et que le G du leader se pose à côté du G d'appui du suiveur), les genoux se
   tendent (0,12 rad), la rotation du bassin propre au style est plafonnée à 0,04 rad et le petit
@@ -82,6 +94,16 @@ Mené sur le GLB réel, au premier quart (les autres s'en déduisent par rotatio
   contre le genou G du suiveur. L'ordre ci-dessus, les bassins qui tournent avec le second pied et
   l'adoucissement au croisement donnent 0 croisement sur 1 728 poses (six styles, amplitudes 0,5 ;
   1 ; 2, trois placements, au huitième de temps).
+- #106, bassin et buste avec les pieds : le bloc tourné de 45° autour du centre C dès le premier pied
+  donne 406 croisements. Les jambes d'un même danseur se croisent quand le D du leader part, et celles
+  des partenaires juste après la pose. Constat sur le GLB : avec le bassin au-dessus du G posé, le D
+  du leader reste 30 cm derrière la hanche. Le bassin descend alors de 3 à 4 cm, et le genou G
+  avance de 14 à 17 cm vers le suiveur. Corrections, mesurées une à une : pivot sur l'extrémité et
+  bassin à mi-chemin (96 puis 20 croisements), bloc tourné en fin de vol du premier pied, D du leader
+  écarté vers sa droite au départ, puis D du leader sur sa demi-pointe tant que le G le porte (le
+  bassin ne s'abaisse plus). Le dernier pas a été le plafond des genoux à 0,22 rad. Résultat : 0 croisement sur 576 poses
+  de couple (styles qui proposent les quarts, amplitudes 0,5 ; 1 ; 2, quinconce et face à face). Ce
+  réglage est étroit : une demi-pointe à 0,22 rad fait se croiser les jambes du leader.
 
 ## Critères d'acceptation (tests sur le GLB réel)
 
@@ -89,11 +111,14 @@ Mené sur le GLB réel, au premier quart (les autres s'en déduisent par rotatio
    de k·π/2 autour de C ; les deux danseurs se font face ; retour exact au départ après 16 temps.
 2. Le leader traverse les quatre quarts de la boussole du couple ; le suiveur parcourt plus de
    distance que le leader.
-3. Le leader précède le suiveur de 0,25 temps (début de chaque pas).
+3. Le D du suiveur et le G du leader partent ensemble et se posent sur le 1 ; bassin et buste
+   tournent ensemble, d'un demi-quart à la pose du premier pied (le côté de ce pied plus proche de
+   sa place finale que l'autre), du quart entier à la pose du second (#106).
 4. Pieds orientés vers l'avant dans l'axe des genoux, à chaque instant hors pivot (lacet = rotation
    du pied).
 5. Semelles au-dessus du sol, cibles IK atteintes, longueurs osseuses constantes, pied porteur
-   immobile, continuité, somme des appuis = 1.
+   immobile (pour le D du leader sur sa demi-pointe : la demi-pointe reste en place et la semelle
+   touche le sol), continuité, somme des appuis = 1.
 6. Enveloppes des quatre pieds disjointes en continu (amplitudes 1 ; 1,5 ; 2) ; aucun croisement des
    triangles des os des jambes, entre danseurs et pour chaque danseur (six styles, amplitudes 0,5 ;
    1 ; 2).
@@ -107,3 +132,7 @@ Mené sur le GLB réel, au premier quart (les autres s'en déduisent par rotatio
 - Piste notée : un algorithme génétique pourrait explorer d'autres solutions sur ces mêmes
   contraintes (semelles, os, contacts, distance) ; ici, le raisonnement a été plus efficace que le hasard.
 - Ces tests ne constituent pas une validation chorégraphique.
+
+## Règle ajoutée le 20 novembre 2026 (#67)
+
+Distance bassin-bassin quasi constante une fois le décalage latéral retiré, et pas de « monter-descendre » permanent : voir [règles du propriétaire](regles-proprietaire.md) (R2, R3). Critère à mesurer sur le GLB pour cette figure.

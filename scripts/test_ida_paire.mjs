@@ -51,50 +51,116 @@ for (const placement of ['quinconce', 'face', 'reference']) {
 }
 console.log('PASS neutre : quinconce (ou placement) retrouvé aux temps 0, 4 et 8');
 
-// 2. Sequence: the leader steps forward while the follower steps back with her opposite foot, at the
-// same instant and by the same length; the couple moves as a block; the leader's chest leads.
+// 2. Sequence (#107, owner: « avant gauche + retour neutre en 2 temps, derrière gauche + retour, avant
+// droit + retour, derrière droit + retour. Le tout en 8 temps »): in each 2-beat slot the leader's foot
+// goes out (forward, then back in the next slot) and returns to neutral; the follower takes the symmetric
+// step (opposite foot, opposite direction, same length). #88: her foot never leaves before his; the foot
+// stepping back clears the lane first. The couple moves as a block; the leader's chest leads.
 {
   const rest = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
   const o = api.placementOffset('quinconce', 1);
   const N = api.idaNeutral(rest, o);
+  const S = api.IDA_PAIR.step;
+  assert.deepEqual([0, 2, 4, 6].map(b => { const s = api.idaStepAt(b + .5); return `${s.side}${s.dir > 0 ? '+' : '-'}`; }), ['L+', 'L-', 'R+', 'R-']);
   let travel = 0;
+  const left = { leader: {}, follower: {} };
   for (let tick = 0; tick <= 800; tick++) {
     const b = tick / 100;
     const L = api.sampleIdaPaire(b, false, rest, 'quinconce'), F = api.sampleIdaPaire(b, true, rest, 'quinconce');
     assert.equal(F.moving, L.moving === 'L' ? 'R' : 'L', `follower uses the opposite foot at ${b}`);
+    const { q, dir, index } = api.idaStepAt(b);
     const dl = L.feet[L.moving].z - N[L.moving].z, df = F.feet[F.moving].z - N[F.moving].z;
-    assert(dl >= -1e-12 && df <= 1e-12, `leader forward, follower backward at ${b}`);
-    // Same step length: at the end of each flight both feet are out (or back) by the same amount.
-    const { q, out } = api.idaStepAt(b), S = api.IDA_PAIR.step;
-    if (q >= api.IDA_PAIR.flight) { near(dl, out ? S : 0, 1e-12, `leader landed at ${b}`); near(df, out ? -S : 0, 1e-12, `follower landed at ${b}`); }
-    // The foot stepping back leaves first and keeps ahead; the foot stepping forward waits `delay`.
-    // Progress of each moving foot along its step, 0 → 1.
-    const back = out ? -df / S : 1 - dl / S, fwd = out ? dl / S : 1 + df / S;
-    if (q <= api.IDA_PAIR.delay) near(fwd, 0, 1e-12, `forward foot waits at ${b}`);
-    assert(back >= fwd - 1e-12, `backward foot clears the lane first at ${b}`);
+    assert(dl * dir >= -1e-12 && df * dir <= 1e-12, `leader ${dir > 0 ? 'forward' : 'back'}, follower the other way at ${b}`);
+    // Same length: out at the end of the outgoing flight, home at the end of the return.
+    if (q >= api.IDA_PAIR.out[1] && q <= api.IDA_PAIR.ret[0]) { near(dl, dir * S, 1e-12, `leader out at ${b}`); near(df, -dir * S, 1e-12, `follower out at ${b}`); }
+    if (q >= api.IDA_PAIR.ret[1]) { near(dl, 0, 1e-12, `leader home at ${b}`); near(df, 0, 1e-12, `follower home at ${b}`); }
+    // First instant each foot leaves in each flight (outgoing / return) of each slot.
+    const key = `${index}${q < 1 ? 'out' : 'ret'}`;
+    if (Math.abs(dl - (q < 1 ? 0 : dir * S)) > 1e-9 && left.leader[key] === undefined) left.leader[key] = b;
+    if (Math.abs(df - (q < 1 ? 0 : -dir * S)) > 1e-9 && left.follower[key] === undefined) left.follower[key] = b;
+    // The foot stepping back clears the lane first: its progress is never behind the other's.
+    const lp = q < 1 ? Math.abs(dl) / S : 1 - Math.abs(dl) / S, fp = q < 1 ? Math.abs(df) / S : 1 - Math.abs(df) / S;
+    const followerBack = (q < 1) === (dir > 0);
+    assert(followerBack ? fp >= lp - 1e-12 : lp >= fp - 1e-12, `backward foot clears the lane first at ${b}`);
     // Roots in the couple (world) frame: leader -dz + z, follower dz - z: constant gap.
     near((dz - F.root.z) - (-dz + L.root.z), 2 * dz - 2 * o.z, 1e-12, `couple block at ${b}`);
-    travel = Math.max(travel, L.root.z - o.z);
+    travel = Math.max(travel, Math.abs(L.root.z - o.z));
     near(L.loadL + L.loadR, 1); near(L.loadR, F.loadL, 1e-12, `mirrored loads at ${b}`);
   }
+  for (const key of Object.keys(left.leader)) assert(left.follower[key] >= left.leader[key] - 1e-9, `R24: follower never leaves first (${key}: ${left.follower[key]} vs ${left.leader[key]})`);
   // The leader's upper body (chest yaw) plays the follower's mirrored upper curve IDA_LEAD earlier.
   for (let tick = 0; tick < 800; tick++) {
     const b = tick / 100;
     const L = api.sampleIdaPaire(b, false, rest, 'quinconce'), F = api.sampleIdaPaire(b + api.IDA_LEAD, true, rest, 'quinconce');
     near(L.rootYaw + L.chestYaw, -(F.rootYaw + F.chestYaw), 1e-12, `leader chest leads by ${api.IDA_LEAD} at ${b}`);
   }
-  near(travel, api.IDA_PAIR.carry * api.IDA_PAIR.step, 1e-3, 'pelvises travel carry·step');
-  console.log(`PASS séquence : leader en avant, suiveur en arrière (pied opposé, même pas, le pied qui recule part en premier), couple d'un bloc (${(travel * 100).toFixed(1)} cm), buste du leader en avance de ${api.IDA_LEAD} temps`);
+  // #84 (owner: « un côté de la hanche avance/recule et l'autre côté reste ») : the pelvis pivots about the
+  // standing hip; the moving foot's hip is ahead of it (in the dancer's step direction) by `hip` times the
+  // leader's step; the knees do not follow the pivot (kneeYaw = kneeFoot · pivot).
+  {
+    const span = rest.L.x - rest.R.x;
+    let peak = 0;
+    for (let tick = 0; tick < 800; tick++) for (const follower of [false, true]) {
+      const b = tick / 100, x = api.sampleIdaPaire(b, follower, rest, 'quinconce'), lead = api.sampleIdaPaire(b, false, rest, 'quinconce');
+      const leadOffset = lead.feet[lead.moving].z - api.sampleIdaPaire(0, false, rest, 'quinconce').feet[lead.moving].z;
+      // Advance of the moving hip over the standing one, in the dancer's own frame (z forward).
+      const ahead = (x.moving === 'L' ? -1 : 1) * span * Math.sin(x.rootYaw);
+      near(ahead, api.IDA_PAIR.hip * (follower ? -leadOffset : leadOffset), 2e-3, `#84 moving hip ahead at ${b} (${follower ? 'follower' : 'leader'})`);
+      near(x.kneeYaw, api.IDA_PAIR.kneeFoot * x.rootYaw, 1e-12, `#84 knees do not follow the pivot at ${b}`);
+      peak = Math.max(peak, Math.abs(ahead));
+    }
+    assert(peak > 0.02, `#84: the moving hip leads by a few centimetres (${peak})`);
+    console.log(`PASS #84 : bassin qui pivote sur la hanche d’appui, hanche du pied qui bouge en avance de ${(peak * 100).toFixed(1)} cm au plus ; genoux au-dessus des pieds`);
+  }
+  // #84: the pelvis travels with the weight (carry) plus half of the moving hip's advance (hip).
+  assert(travel >= api.IDA_PAIR.carry * api.IDA_PAIR.step - 1e-3 && travel <= (api.IDA_PAIR.carry + api.IDA_PAIR.hip / 2) * api.IDA_PAIR.step + 1e-3,
+    `pelvises travel between carry·step and (carry + hip/2)·step (${travel})`);
+  // #89: the variants are the cycle started later (right leg +4, backwards first +2).
+  for (const [v, shift] of [[{ side: 'R', back: false }, 4], [{ side: 'L', back: true }, 2], [{ side: 'R', back: true }, 6]])
+    for (let b = 0; b < 8; b += .25) { const x = api.sampleIdaPaire(b, false, rest, 'quinconce', 0, v), y = api.sampleIdaPaire(b + shift, false, rest, 'quinconce');
+      for (const side of ['L', 'R']) near(x.feet[side].z, y.feet[side].z, 1e-12, `variant ${JSON.stringify(v)} = cycle + ${shift}`); }
+  console.log(`PASS séquence : avant G, arrière G, avant D, arrière D (un aller-retour par 2 temps), suiveur en miroir sans partir avant le leader, couple d'un bloc (${(travel * 100).toFixed(1)} cm), buste du leader en avance de ${api.IDA_LEAD} temps ; variantes = cycle décalé`);
+}
+
+// 2c. Ginga (#42, docs/spec-ginga.md): the style's hip pattern is triggered by each transfer. Its phase
+// is continuous and non-decreasing, advances one half-cycle per transfer (ten per 8-beat cycle, #107) and holds
+// on the support between transfers; once a transfer has ended, the style's support is the figure's
+// (the coupled follower dances the leader's phase mirrored, i.e. on her own mirrored feet). The leader
+// transmits at 70 %, the follower pronounces it fully.
+{
+  const rest = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
+  for (const styleKey of Object.keys(api.STYLES).filter(k => k !== 'kompa')) {
+    const support = api.STYLES[styleKey].support;
+    for (const follower of [false, true]) {
+      let previous = -Infinity;
+      for (let b = 0; b <= 16; b += 0.01) {
+        const g = api.sampleIdaPaire(b, follower, rest, 'quinconce').gingaBeat;
+        assert(g >= previous - 1e-9, `${styleKey}: ginga phase non-decreasing at ${b.toFixed(2)}`);
+        previous = g;
+      }
+      const s0 = api.sampleIdaPaire(0, follower, rest, 'quinconce').gingaBeat, s8 = api.sampleIdaPaire(8, follower, rest, 'quinconce').gingaBeat;
+      assert(Math.abs(s8 - s0 - 10) < 1e-9, `${styleKey}: ten half-cycles per cycle (${s8 - s0})`);
+      for (const t of api.idaTransfers(follower)) {
+        const f = api.sampleIdaPaire(t.end + 0.02, follower, rest, 'quinconce');
+        const side = Math.sign(support(f.gingaBeat)) * (follower ? -1 : 1);
+        assert.equal(side, t.to === 'R' ? 1 : -1, `${styleKey} ${follower ? 'follower' : 'leader'}: style support = figure support after ${t.from}→${t.to}@${t.end}`);
+        assert.equal(f.support, t.to);
+      }
+    }
+  }
+  const lead = api.sampleIdaPaire(1, false, rest, 'quinconce'), foll = api.sampleIdaPaire(1, true, rest, 'quinconce');
+  assert(Math.abs(lead.gingaAmp / foll.gingaAmp - 0.7) < 1e-9, 'leader at 70 % of the follower');
+  console.log('PASS ginga : phase déclenchée par chaque transfert (dix demi-cycles par cycle, continue), appui du style = appui de la figure, leader à 70 %');
 }
 
 // 2b. Support transfers, explicit for the ginga (#42, « transferts de poids […] à chaque alternance ») :
-// six per cycle, alternating feet, the same instants for both dancers with mirrored feet; the load
+// ten per cycle (#107), alternating feet, the same instants for both dancers with mirrored feet; the load
 // only changes inside a transfer and ends fully on its target foot.
 {
   const rest = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
   for (const follower of [false, true]) {
     const list = api.idaTransfers(follower);
-    assert.equal(list.length, 6, 'six transfers per cycle');
+    assert.equal(list.length, 10, "ten transfers per cycle");
     list.forEach((t, k) => {
       assert.notEqual(t.from, t.to);
       const next = list[(k + 1) % list.length];
@@ -122,7 +188,7 @@ console.log('PASS neutre : quinconce (ou placement) retrouvé aux temps 0, 4 et 
       for (const side of ['L', 'R']) near(api.sampleIdaPaire((t.start + t.end) / 2, follower, rest, 'quinconce').feet[side].lift, 0, 1e-12);
     }
   }
-  console.log('PASS transferts d’appui : six par cycle, alternés D/G, simultanés et en miroir, deux pieds au sol', api.idaTransfers(false).map(t => `${t.from}→${t.to}@${t.start}`).join(' '));
+  console.log('PASS transferts d’appui : dix par cycle, alternés D/G, simultanés et en miroir, deux pieds au sol', api.idaTransfers(false).map(t => `${t.from}→${t.to}@${t.start}`).join(' '));
 }
 
 // 3. Walk: heel rises before the foot leaves the floor; heel strike forward, ball first backward.
@@ -183,16 +249,16 @@ for (const follower of [false, true]) {
     const s = api.sampleIdaPaire(slot * 2 + .5, follower, restOf(f), 'quinconce');
     const still = s.moving === 'L' ? 'R' : 'L';
     // The other foot carries the weight or waits: it does not move during the whole slot; the moving
-    // foot does not move once landed (end of its flight to the end of the slot).
-    for (const [side, from] of [[still, 0], [s.moving, api.IDA_PAIR.flight]]) {
+    // foot does not move while it is out (#107: between its outgoing flight and its return).
+    for (const [side, from, until] of [[still, 0, 2], [s.moving, api.IDA_PAIR.out[1], api.IDA_PAIR.ret[0]]]) {
       api.applyPose(f.r, f.model, slot * 2 + from + .001, config); const start = world(f, 'foot' + side);
-      for (let t = from + .05; t < 2; t += .05) {
+      for (let t = from + .05; t < until; t += .05) {
         api.applyPose(f.r, f.model, slot * 2 + t, config);
         near(start.distanceTo(world(f, 'foot' + side)), 0, 1e-9, `${side} planted slot ${slot} t${t.toFixed(2)}`);
       }
     }
   }
-  for (const beat of [0, .5, 1.2, 1.45, 2, 3.2, 4, 5.2, 6, 7.2, 7.99, 8]) {
+  for (const beat of [0, .5, .8, 1, 1.2, 1.85, 2, 3, 3.85, 4, 5, 6, 7, 7.85, 7.99, 8]) {
     api.applyPose(f.r, f.model, beat - 1e-7, config); const before = snapshot(f.r);
     api.applyPose(f.r, f.model, beat + 1e-7, config);
     snapshot(f.r).forEach((v, n) => near(v, before[n], .0001, `continuity ${beat}`));

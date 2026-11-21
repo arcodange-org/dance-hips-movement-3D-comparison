@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { seekClock, type DanceClock } from "../clock";
 import { SORTIE_GARCON_ACTIONS, sortieGarconBeat, type SortieVariant } from "../sortieGarcon";
+import { transitionAt } from "../transitions";
+import TransitionCard from "./TransitionCard";
 
 export default function SortieGarconControls({ clock, variant, onVariant, contra, onContra, onPlaying }: {
   clock: DanceClock; variant: SortieVariant; onVariant: (value: SortieVariant) => void;
@@ -36,9 +38,7 @@ export default function SortieGarconControls({ clock, variant, onVariant, contra
           value={contra} onChange={event => onContra(Number(event.target.value))} />
       </label>
     </div>
-    <p className="text-slate-300" aria-live="polite">{beat >= 5
-      ? "Marka : appui droit du leader, gauche de la partenaire. Gauche du leader disponible."
-      : "Leader G–D–G croisé–D–marka G ; partenaire D–G–D–G–marka D."}</p>
+    <TransitionCard transition={transitionAt("sortieG", beat)} />
     <p className="text-xs text-slate-400">Cinq actions, quatre transferts. La lecture conserve la pose finale.
       La contraposition est un réglage d’illustration, sans valeur imposée par style.
       Les repères bleus des cuisses droites montrent une proximité d’enveloppes illustratives.</p>

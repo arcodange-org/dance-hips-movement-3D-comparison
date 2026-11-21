@@ -68,3 +68,90 @@ amplitude 1), sur environ cinq secondes chacun. La pose et la pause d'origine on
 restaurées après chaque export. Les GIFs montrent le [crochet](gifs/sortie-fille-crochet.gif)
 et le [recul](gifs/sortie-fille-recul.gif).
 [Rétrospective M4](retrospective-sortie-fille.md).
+
+## Règle ajoutée le 20 novembre 2026 (#67)
+
+Distance bassin-bassin quasi constante une fois le décalage latéral retiré, et pas de « monter-descendre » permanent : voir [règles du propriétaire](regles-proprietaire.md) (R2, R3). Critère à mesurer sur le GLB pour cette figure.
+
+## Le suiveur ne part jamais avant le leader (#88, 20 novembre 2026)
+
+Avant : départs du leader 0 · 1,14 · 2 · 3 · 4, du suiveur 0 · 1 · 2 · 3,24 · 4. Son G2 « ouvrait le
+passage » avant le crochet du leader (`sortieFilleHookLead`), ce qui la mettait en avance. Désormais
+son G2 part avec le crochet et se pose plus tôt (`SORTIE_FILLE_SYNC.g2touchdown` = 0,5 du temps au lieu
+de 0,68) : il libère la place à temps, en quinconce compris. Son G4 (3,24) reste un léger retard, permis.
+
+## Pas aux unités du propriétaire (#105, 20 novembre 2026)
+
+Demande du propriétaire : « reprendre les unités de la sortie garçon : on avance/recule d'une longueur
+de pied environ. et des déplacement latéraux à 1/2 1 ou 3/2 la largeur de hanche ». Unités :
+`p` = longueur de pied (21,2 cm, `SORTIE_FILLE_FOOT`), `h` = largeur de hanche (34 cm, `HIP_WIDTH`).
+Les valeurs sont dans `SORTIE_FILLE_UNITS` (`src/sortieFille.ts`). Les chiffres plus haut dans ce
+document (55, 45, 42 cm, diagonales de 98 et 93 cm) sont historiques.
+
+### Pas avant et après (quinconce, placement par défaut ; référence et face entre parenthèses)
+
+Chaque case donne la longueur du pas en centimètres, puis ses composantes longitudinale et latérale.
+
+| Variante | Danseur | Pas 1 | Pas 2 | Pas 3 | Pas 4 | Pas 5 |
+|---|---|---|---|---|---|---|
+| crochet, avant | leader | G 8 | D 20 | G 31 | D **59** | G 29 |
+| crochet, après | leader | G 16 · 0,7p (21 · 1p) | D 22 · 0,5p 0,6h (26) | G 21 · 1p | D **39** · 1,75p (49 · 2,3p) | G 21 · 1p (28) |
+| crochet, avant | suiveur | D 56 | G 44 | D **86** | G **77** | D **66** |
+| crochet, après | suiveur | D 32 · 1,5p (23 · 1p) | G 50 · 1,5h | D **52** · 1,2p 1,3h | G **53** · 1,5p 1,2h | D **53** · 1,6p 1,2h (51) |
+| recul, avant | leader | G 8 | D 18 | G 31 | D **54** | G **48** |
+| recul, après | leader | G 16 (21) | D 18 · 0,85p (7) | G 37 · 1,75p | D 35 · 1,65p (47 · 2,2p) | G 31 · 1,5p (38) |
+| recul, avant | suiveur | D 53 | G 35 | D **93** | G **70** | D **53** |
+| recul, après | suiveur | D 32 (23) | G 35 · 0,6p 1h | D **59** · 2,4p 0,9h | G **47** · 1,9p 0,7h | D 42 · 1,6p 0,7h (37) |
+
+En quinconce, les premiers pas absorbent le décalage de départ (placements validés) : le G1 du leader
+fait 16 cm et le D1 du suiveur 32 cm, contre 21 et 23 cm (dont 7 cm latéraux) depuis la référence.
+
+### Ce qui change
+
+- **G1 du leader = D1 du suiveur = 1 pied** (R22), au lieu de 12 et 45 cm.
+- **G2 du suiveur (crochet) : 3/2 hanche** (51 cm, 60 cm à l'amplitude 2). À 1 hanche, son D3 se pose à
+  l'extérieur de son G : le G4 ne croise plus devant le D et ses propres jambes se croisent. Recul : 1 hanche.
+- **Son D3 s'arrête 15 cm (crochet) ou 17 cm (recul) en retrait du D du leader** au lieu de l'aligner ;
+  son bassin s'avance de 3 cm pour garder le contact du haut des cuisses (−1,3 mm et −1,7 mm à
+  l'amplitude 1, rapprochement à 98 % latéral, s = 0,55 et 0,42 le long du fémur).
+- **G3 du leader : 1 pied** (crochet) ou 7/4 pied (recul, son D2 a déjà reculé de 7 cm).
+- **Translation du couple** : 27 cm (crochet) ou 53 cm (recul) vers l'arrière du leader, au lieu de 52
+  et 71 cm, et un quart de hanche vers sa droite, au lieu de 6,5 cm vers sa gauche.
+- Trajets et appuis recalés action par action sur le GLB, comme pour #56 et #110 : D1 du suiveur posé
+  plus tôt (0,5 temps) et bassin à 70 % sur ce pas ; bassin du leader 8 cm en retrait de son crochet ;
+  bassin du suiveur qui attend un quart de temps avant sa diagonale, et s'écarte de 20 cm (10 avant)
+  pendant le vol ; bassin du suiveur 6 cm vers son D après le G4 ; bassin du leader 3 cm à gauche de
+  son D4 ; G5 du leader posé à 0,5 temps, avant le marka du suiveur ; D5 du suiveur qui se dénoue
+  10 cm derrière le niveau de son D3 ; coins des trajets du G4 et du D5 alignés sur la pose finale.
+
+### Deux contraintes géométriques
+
+1. **Le D3 du suiveur couvre la profondeur du couple.** Ses deux D se rejoignent au contact D/D,
+   alors que les racines sont à 40 cm l'une de l'autre. Avec R22 et le crochet au niveau du G, ce pas
+   vaut 40 cm moins le retrait. En crochet, il fait 25 cm (1,2p) plus 1,3h latéral. En recul, le D2 du
+   leader a reculé : 2,4p.
+2. **Le D4 du leader couvre aussi la profondeur du couple.** Le G4 du suiveur doit se poser devant son
+   D3. La semelle mesure 21 cm, dont 15,6 cm devant la cheville et 5,5 cm derrière. Le couple finit donc
+   à 40 cm, plus 23 cm de marge, moins le retrait, derrière le D2 du leader. En référence, son D4 vaut
+   48 cm (2,3p), et 39 cm (1,75p) en quinconce.
+
+Ces deux pas, ainsi que le G4 et le D5 du suiveur, croisés à environ 1,2h, restent au-dessus des
+unités. Les décisions à prendre par le propriétaire sont posées sur l'issue #105.
+
+### Essais rejetés (sonde GLB : kizomba, semba, suave ; amplitudes 0,5, 1 et 2 ; trois placements ; pas de 0,04 temps)
+
+| Essai | Résultat |
+|---|---|
+| Premier jet (`UNITS=1` : G2 à 1h, D3 à 10 cm du D du leader, sans translation finale) | 530 croisements d'os ; ses jambes se croisent (temps 2,4 à 4,2), et le G4 se pose derrière le D3 |
+| D1 du suiveur à 0,7p (15 cm, plus court que le G1 du leader) | couple comprimé : le genou G du leader heurte la jambe D du suiveur (temps 0,1 à 1,7, quinconce) |
+| Retrait du D3 de 2 cm (D3 à 1,6p) | le genou D du suiveur, en vol, traverse le genou D du leader (temps 2,2 à 2,36, tous styles) |
+| D1 décalé d'1/2 hanche vers sa gauche | son D se pose juste derrière son G : semelles chevauchées dès l'amplitude 1 (temps 0,3 à 1,1) |
+| Translation latérale d'1/2 hanche (G4 et D5 à 46 cm) | genoux D leader / G suiveur à l'amplitude 2 (temps 3,76 à 4,04, 144 contacts) |
+| D4 du leader à 42 cm | le G4 passe à 21 cm devant la cheville du D3 : semelles chevauchées (temps 3,5) |
+| Retrait du D3 au-delà de 15 cm (crochet) | le contact des cuisses glisse vers les genoux (s = 0,65, limite 0,70) |
+
+Résultat : `node scripts/test_sortie_fille.mjs` passe pour les placements référence, quinconce et face :
+1 314 poses de couple sans croisement d'os, semelles balayées sans chevauchement aux amplitudes 1, 1,5
+et 2, et contact D/D. La sonde au pas de 0,04 temps ne trouve aucun croisement ni chevauchement dans
+les deux variantes. GIFs : [crochet](gifs/sortie-fille-unites-crochet.gif) et
+[recul](gifs/sortie-fille-unites-recul.gif) (quinconce, kizomba, 90 bpm, vue du guideur).

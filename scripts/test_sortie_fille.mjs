@@ -87,7 +87,9 @@ for (const variant of variants) {
   assert(third[0].L.z < second[0].L.z - .2, 'leader G retreats on action 3');
   assert(third[1].R.z < second[1].R.z - .2, 'follower D advances on action 3');
   assert(third[1].R.x < third[0].R.x - .12, 'follower D lies right of leader D in leader coordinates');
-  near(third[1].R.z, third[0].R.z);
+  // #105: her D stops `stagger` behind the leader's D (world +z is her back), its diagonal no longer
+  // covering the whole couple depth.
+  near(third[1].R.z - third[0].R.z, api.SORTIE_FILLE_UNITS[variant === 'hook' ? 'hookStagger' : 'backStagger']);
   at(3);
   // Neutral feet (owner request): the heel → ball axis of the final right foot points forward.
   const forward = footAxis(pair[1], 'R');
@@ -180,7 +182,7 @@ for (const variant of variants) {
 console.log('PASS sortie fille: anatomical directions, two-stage hook, alternative, frame cue, crossing, supports and final pose');
 
 let poses = 0, minY = Infinity, maxAnkleError = 0;
-for (const styleKey of Object.keys(api.STYLES)) for (const amp of [.5, 1, 2]) for (const variant of variants) {
+for (const styleKey of Object.keys(api.STYLES).filter(k => api.movementAllowed(k, 'sortieF'))) for (const amp of [.5, 1, 2]) for (const variant of variants) {
   for (const [role, f] of couple().entries()) for (let tick = 0; tick <= 100; tick++) {
     const beat = tick / 20;
     const stats = api.applyPose(f.r, f.model, beat, { ...config(role, variant), styleKey, amp, plant: false, travel: 1, dir: -1, iso: false });
@@ -256,7 +258,7 @@ const collisionBeats = [...new Set([...Array.from({ length: 51 }, (_, i) => i / 
   .26, 1.34, 1.68, 2.34, 2.42, 2.46, 2.53, 2.68, 2.83, 3.07, 3.24,
   3.46, 3.48, 3.68, 3.85, 3.95, 4.16, 4.25, 4.34, 4.42, 4.68, 4.87])].sort((a, b) => a - b);
 let collisionPoses = 0;
-for (const styleKey of Object.keys(api.STYLES)) for (const amp of [.5, 1, 2]) for (const sortieFilleVariant of variants) {
+for (const styleKey of Object.keys(api.STYLES).filter(k => api.movementAllowed(k, 'sortieF'))) for (const amp of [.5, 1, 2]) for (const sortieFilleVariant of variants) {
   const pair = couple();
   for (const beat of collisionBeats) {
     pair.forEach((f, role) => {

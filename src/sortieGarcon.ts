@@ -17,10 +17,20 @@ export const SORTIE_GARCON_ACTIONS = [
 ] as const;
 export const DEFAULT_SORTIE_CONTRA = 12;
 const STEP1_LEAD = 0.1;
-/** Lateral geometry of the exit (#50, calibrated on the GLB): offsets in the leader's frame from his
- * rest ankles. At action 2 the outer edge of his D touches the outer edge of the follower's D (guiding
- * contact), so his G1 does not need to open as far. */
-export const SORTIE_GARCON_EXIT = { step1X: 0.22, step2X: 0.224, body0X: 0.15, body1X: 0.40, aside: 0.06, back: 0.05 };
+/** Lateral geometry of the exit (#50, #110, calibrated on the GLB): offsets in the leader's frame from his
+ * rest ankles. #110: the leader alone makes the room for his exit (G1 one hip width, D2 0.30 m). */
+export const SORTIE_GARCON_EXIT = { step1X: 0.28, step2X: 0.34, body0X: 0.15, body1X: 0.40, aside: 0, back: 0.05 };
+/** #104 (owner, 20 Nov.: « la hanche est au dessus du pied : contact cuisse cuisse ») and #110 (« le suiveur
+ * ne fait que des marche arrière sans être dérangé par le leader qui est le seul à sortir puis revenir sur
+ * la ligne de danse. C'est au leader de gérer l'espace de son décalage à gauche pour être le plus proche
+ * possible sans gêner le suiveur »): at position 2 the leader's pelvis stands over his D, and he makes
+ * the room himself: his G1 opens 0.28 m (and goes 0.42 m forward, more forward than sideways in every placement), his
+ * D2 lands 0.34 m to the left of his rest ankle. The follower walks straight back: D1 `d1`, G2 `g2` (his
+ * D2's length, R22). `pass`: on his way over his D the leader's pelvis passes this much to his left
+ * mid-step. Measured on the GLB: right thighs in side contact (envelopes 3.2 cm into each other), no
+ * leg-bone crossing, soles apart (the D feet 12 cm apart: edge to edge, R9, the femurs cross with his
+ * pelvis over his D). Closer (D2 at 0.30 m) the thighs press 7 cm. */
+export const SORTIE_GARCON_POS2 = { d1: 0.16, g2: 0.25, pass: 0.05 };
 const STEP3_LEAD = 0.2;
 /** #56: progression of the couple along the line after each action (m, validated figure), and the
  * share of it kept. Steps of about one foot length: only the common translation shrinks, the
@@ -28,6 +38,10 @@ const STEP3_LEAD = 0.2;
 export const SORTIE_GARCON_LINE = [0, 0.17, 0.34, 0.66, 0.70, 0.70];
 export const SORTIE_GARCON_TRAVEL = { share: 0.7, leader: [2, 2, 2, 4, 5], follower: [2, 2, 2, 4, 5], behind: 0.015 };
 const STEP4_LEAD = 0.2;
+/** #88: the follower's delay after the leader's step (beats) and the share of it taken from her flight
+ * (1: she lands as before). #110: the leader's D4 leaves 0.25 beat into its action (`step4`, 0.2 before):
+ * from his wider exit, earlier it brushes its knee behind his G3 shin; her G4 leaves with it. */
+export const SORTIE_GARCON_SYNC = { lag: 0, keepLanding: 1, step4: 0.25, d4: "aside" as "aside" | "back" | "diagonal", g4span: 0.3 };
 const smooth = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * (3 - 2 * t); };
 const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 const interpolate = (a: FootPoint, b: FootPoint, t: number): FootPoint => ({ x: mix(a.x, b.x, t), z: mix(a.z, b.z, t) });
@@ -64,11 +78,11 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   // Absolute offsets from the initial ankle positions, in each dancer's local frame.
   // The follower retreats with D/G/D/G; it never copies the leader's exit or crossing.
   const steps: [FigureFoot, FootPoint][] = follower ? [
-    ["R", { x: 0, z: -0.16 }], ["L", { x: 0, z: mix(-0.40, -0.22, touch) }],
+    ["R", { x: 0, z: -SORTIE_GARCON_POS2.d1 }], ["L", { x: 0, z: mix(-0.40, -SORTIE_GARCON_POS2.g2, touch) }],
     ["R", { x: 0, z: -0.70 }], ["L", { x: shift, z: -0.70 }],
     ["R", { x: shift, z: -0.70 }],
   ] : [
-    ["L", { x: mix(0.30, SORTIE_GARCON_EXIT.step1X, touch), z: 0.36 }], ["R", { x: mix(0.34, SORTIE_GARCON_EXIT.step2X, touch), z: mix(0.40, 0.46, touch) }],
+    ["L", { x: mix(0.30, SORTIE_GARCON_EXIT.step1X, touch), z: 0.42 }], ["R", { x: mix(0.34, SORTIE_GARCON_EXIT.step2X, touch), z: mix(0.40, 0.46, touch) }],
     ["L", { x: 0, z: 0.70 }], ["R", { x: -shift, z: 0.70 }],
     ["L", { x: -shift, z: 0.70 }],
   ];
@@ -110,7 +124,9 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   // D follows would over-stretch that leg and force G's knee into the partner.
   const bodyAt = (action: number, offset: FootPoint): FootPoint =>
     !follower && action === 0 ? { x: SORTIE_GARCON_EXIT.body0X, z: 0.18 }
-    : !follower && action === 1 ? { x: mix(0.34, SORTIE_GARCON_EXIT.body1X, touch), z: offset.z }
+    // #104 (owner: « la hanche est au dessus du pied : contact cuisse cuisse : hanche juste devant celle du
+    // suiveur ») : at position 2 the pelvis stands over the D, which carries the weight.
+    : !follower && action === 1 ? { x: rest.R.x + SORTIE_GARCON_EXIT.step2X, z: offset.z }
     : !follower && action === 2 ? { x: 0.17, z: mix(0.55, 0.62, touch) }
     // #56: closer to the leader after the shorter progression, the partner's pelvis stays 1.5 cm behind
     // her G4: over it, her G thigh meets his D thigh in the interleaved quinconce (right variant).
@@ -140,9 +156,15 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   // partner's D1, so his knee never meets her thigh before she retreats (face-à-face placement).
   // #50: the leader's G3 crosses once the follower's D3 has stepped out of the D/D foot contact; at
   // 0.2 beat his G shin passes in front of his D knee once the pelvis has made room (six styles).
-  const lead = !follower && index === 0 ? STEP1_LEAD : !follower && index === 2 ? STEP3_LEAD : !follower && index === 3 ? STEP4_LEAD : 0;
+  // #88 (owner: « le suiveur est soit en même temps que le leader soit très légèrement en retard, il ne
+  // peut pas être en avance »): the follower's step leaves when the leader's does, `SORTIE_GARCON_SYNC`
+  // later (her span is shortened by as much, so she still lands on time).
+  const leaderLead = index === 0 ? STEP1_LEAD : index === 2 ? STEP3_LEAD : index === 3 ? SORTIE_GARCON_SYNC.step4 : 0;
+  const lead = follower ? leaderLead + SORTIE_GARCON_SYNC.lag : leaderLead;
   // D4 returns behind the planted G once the partner's G4 has left (same 0.65 touchdown).
-  const span = !follower && index === 3 ? 0.65 - STEP4_LEAD : 0.6;
+  const span = !follower && index === 3 ? 0.65 - SORTIE_GARCON_SYNC.step4
+    : follower && index === 3 && SORTIE_GARCON_SYNC.g4span > 0 ? SORTIE_GARCON_SYNC.g4span
+    : follower ? Math.max(0.3, 0.6 - lead * SORTIE_GARCON_SYNC.keepLanding) : 0.6;
   const flight = Math.max(0, Math.min(1, (t - lead) / span));
   // #49: a walking step (heel rise, swing, heel strike or ball landing); the marka only touches.
   // Crossing (G3 in front of D) and uncrossing (D4) roll little: a heel strike with the toes up would
@@ -167,7 +189,7 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
     : !follower && index === 1 ? [{ x: from.x, z: from.z - SORTIE_GARCON_EXIT.back }, { x: to.x + aside, z: from.z - SORTIE_GARCON_EXIT.back }, { x: to.x + aside, z: to.z }]
     : follower && index === 2 ? [{ x: from.x + aside, z: mix(from.z, to.z, 0.3) }]
     : !follower && index === 2 ? [{ x: from.x, z: to.z }]
-    : !follower && index === 3 ? [{ x: to.x, z: from.z }]
+    : !follower && index === 3 ? (SORTIE_GARCON_SYNC.d4 === "back" ? [{ x: from.x, z: to.z }] : SORTIE_GARCON_SYNC.d4 === "diagonal" ? [] : [{ x: to.x, z: from.z }])
     // #48: into the neutral quinconce the marka feet move sideways first, then slide along their own
     // axis into the interleave (forefeet side by side).
     : index === 4 && Math.abs(to.x - from.x) > 1e-6 ? [{ x: to.x, z: from.z }] : [];
@@ -188,6 +210,9 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
     ? interpolate(shiftedBody(body, weightBefore), shiftedBody(bodyAfter(index, offset), weightAfter),
       smooth((t - lead) / (1 - lead)))
     : shiftedBody(body, weightBefore);
+  // #104: on his way to stand over his D, the leader's pelvis passes a little to his left while the
+  // follower's pelvis opens with her G2 (face to face, straight ahead it meets her right thigh mid-step).
+  if (!follower && index === 1) root.x += SORTIE_GARCON_POS2.pass * Math.sin(Math.PI * Math.max(0, Math.min(1, (t - lead) / (1 - lead)))) ** 2;
   // Same local yaw for both partners, whose outer frames differ by π.
   const exit = b < 1 ? smooth(b) : b < 2 ? 1 : b < 3 ? 1 - smooth(b - 2) : 0;
   const contra = Number.isFinite(contraDegrees) ? Math.max(0, Math.min(30, contraDegrees)) : DEFAULT_SORTIE_CONTRA;

@@ -103,15 +103,16 @@ BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 Le couple tourne d'un quart vers la gauche du leader, quatre fois, sans jamais se lâcher : le leader
 pose son G talon au bout de son D puis ramène son D, et ses pieds passent par les quatre quarts de
 la boussole ; le suiveur, à l'extérieur, recule d'abord son D (coincé entre les pieds du leader),
-puis enchaîne son G. Le buste du leader guide un quart de temps en avance ; le quinconce est
-retrouvé à chaque fin de quart. Testé sur le GLB : rotation rigide du couple, aucun chevauchement
+puis enchaîne son G. Bassin et buste tournent avec les pieds : en diagonale quand le premier pied se
+pose, le côté de ce pied déjà presque à sa place, le quart entier avec le second (#106) ; le
+quinconce est retrouvé à chaque fin de quart. Testé sur le GLB : rotation rigide du couple, aucun chevauchement
 des semelles ni croisement des os des jambes (six styles, trois amplitudes, trois placements).
 
-![Quarts de tour en paire autour du leader, quinconce](docs/gifs/quarts-paire-couple.gif)
+![Quarts de tour en paire autour du leader, quinconce, vue du guideur](docs/gifs/quarts-paire-diagonale.gif)
 <details><summary>Détails & source</summary>
 
-Export du canvas depuis la pause (« Exporter un cycle ») : kizomba, paire, quinconce, 16 temps à
-90 bpm, amplitude 1. [Spécification, ordre des appuis et calibrage](docs/spec-quarts-paire.md).
+Capture image par image (`scripts/capture_figure_gif.mjs`) : kizomba, paire, quinconce, deux quarts
+(8 temps) à 90 bpm, amplitude 1, vue du guideur. [Spécification, ordre des appuis et calibrage](docs/spec-quarts-paire.md).
 BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 </details>
 
@@ -132,6 +133,58 @@ avec ou sans plexus).
 Capture image par image (`scripts/capture_figure_gif.mjs`) : kizomba, paire, quinconce, plexus avec
 contraposition, vue de profil, 8 temps à 90 bpm, amplitude 1. Base de déplacement du ginga (#42).
 [Spécification, calibrage et points à valider](docs/spec-ida-paire.md).
+BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
+</details>
+
+### Tarraxinha sur place en paire
+
+En paire sans déplacement, le couple danse en quinconce : chaque pied droit entre les pieds du
+partenaire, pieds plantés, bassin du suiveur couplé en miroir. La tarraxinha y montre l'intention de la
+hanche vers l'avant (lacet dominant), la hanche qui revient s'ouvrant sur son côté. Testé sur le GLB :
+aucun croisement des os des jambes (six styles, trois amplitudes, avec ou sans plexus).
+
+![Tarraxinha sur place en paire, quinconce, cadre](docs/gifs/tarraxinha-sur-place-paire.gif)
+<details><summary>Détails & source</summary>
+
+Capture image par image (`scripts/capture_figure_gif.mjs`) : tarraxinha, paire, quinconce, cadre des
+bras, vue de trois quarts, 4 temps à 90 bpm, amplitude 1.
+[Spécification](docs/spec-sur-place-paire.md), [cadre](docs/cadre/spec-implementation.md).
+BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
+</details>
+
+## Mode guidage — preuve de concept (#69)
+
+Le bouton « Essayer le mode guidage » en haut de l'app (ou `?mode=pair&guidage=1`) ouvre une vue où
+**vous êtes le leader** : une touche choisit la figure suivante
+de la suiveuse (**W** ida e volta, **D** sortie garçon, **A** sortie fille, **Q** quart de tour ; en
+AZERTY, les mêmes positions : **Z**, **D**, **Q**, **A** ; **Espace** lecture / pause ; boutons tactiles
+équivalents, qui affichent les lettres de votre clavier). Elle l'exécute à la prochaine frontière de
+temps, toujours depuis la quinconce, avec les figures en paire existantes ; sans guidage, le couple
+danse le pas de base sur place. Chaque pression est notée par rapport au temps (Parfait, Bien, Juste,
+Raté) ; un guidage ambigu ou trop tôt laisse la suiveuse au pas de base. Le repère du couple suit les
+déplacements des figures, et les écarts de bassin entre deux figures sont effacés en un temps
+(inertialisation). Testé sur le GLB : continuité aux 25 enchaînements, aucun croisement d'os.
+
+![Mode guidage : ida e volta, sortie garçon, quart de tour, sortie fille](docs/gifs/mode-guidage-demo.gif)
+<details><summary>Détails & source</summary>
+
+Capture image par image de la session de démonstration (`?mode=pair&guidage=1&demo=1&beat=…`), kizomba,
+90 bpm. Recherche et concept : [docs/recherche-jeux-video/](docs/recherche-jeux-video/README.md).
+[Spécification et rapport](docs/spec-mode-guidage-poc.md). BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
+</details>
+
+### Ginga en paire : déhanché déclenché par les transferts d'appui
+
+Dans l'ida e volta en paire, le déhanché du style ne suit plus l'horloge : chaque transfert d'appui
+(six par cycle de 8 temps) déclenche un demi-cycle du style, du pied quitté vers le pied posé. Le suiveur
+danse la phase du leader en miroir (bassins couplés) ; le leader transmet à 70 %. Testé sur le GLB :
+appui du style = appui de la figure, aucun croisement des os des jambes.
+
+![Ginga dans l'ida e volta en paire](docs/gifs/ginga-ida-paire.gif)
+<details><summary>Détails & source</summary>
+
+Capture image par image (`scripts/capture_figure_gif.mjs`) : kizomba, paire, quinconce, vue de trois
+quarts, 8 temps à 90 bpm, amplitude 1. [Spécification et calibrage](docs/spec-ginga.md).
 BodyParts3D © DBCLS, CC BY-SA 2.1 Japan.
 </details>
 
@@ -172,6 +225,9 @@ Export depuis la pause, traînée réinitialisée et alimentée pendant l’expo
 - [Recherche biomécanique](docs/recherche-biomecanique/README.md) : podologie, biomécanique,
   kinésithérapie et ostéopathie (sources FR/EN), puis confrontation des paramètres du modèle
   à la littérature, avec verdicts et points à valider.
+- [Recherche jeux vidéo](docs/recherche-jeux-video/README.md) : ce que le comparateur peut
+  emprunter aux jeux de sport (motion matching, EA, inertialisation, jeux de rythme) et concept
+  d'un mode « guider sa partenaire » (#63).
 - [Différences biomécaniques entre les six styles](docs/styles-de-danse.md) (leviers du
   déhanché, ancrage, tableau comparatif, tempos).
 - [ADR 001 — rig paramétrique biodynamique](docs/adr/001-rig-parametrique-biodynamique.md)
@@ -217,7 +273,7 @@ npm test          # courbes, Gherkin et poses finales du GLB réel
 Paramètres d'URL (utilisés par les captures, prioritaires sur localStorage) :
 `?mode=solo|observe|compare|pair&style=kizomba&styleB=zouk&bpm=90&travel=0.6&bare=1`
 (`bare=1` : canvas plein écran sans l'interface) + `&muscles=1` (couche musculaire),
-`&sortieG=1` / `&sortieF=1` / `&sortieGF=1` (sortie garçon / fille / combinée G→F, options exclusives, mode paire ; `&sortie=1` legacy = garçon), `&repere=0` (masque le repère fixe),
+`&guidage=1` (mode guidage, paire ; `&demo=1&beat=12` : session de démonstration figée à un temps), `&sortieG=1` / `&sortieF=1` / `&sortieGF=1` (sortie garçon / fille / combinée G→F, options exclusives, mode paire ; `&sortie=1` legacy = garçon), `&repere=0` (masque le repère fixe),
 `&appui=1` (appuis & transmission), `&ligne=1` (force la ligne de danse en solo),
 `&corridinho=1` (1/4 tour D puis G, puis cercle au repère fixe), `&plant=0` (ancien rendu glissé ;
 par défaut les pieds restent plantés au sol sur place, `plant=1`), `&solid=1` (buste opaque pour les

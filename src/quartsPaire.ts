@@ -8,8 +8,6 @@ import type { FigureFoot, FigureFootPose, FootPoint } from "./sortieGarcon";
 export const QUARTS_BEATS = 16;
 /** Same half-spacing as the five-action figures: the couple placements are calibrated for it. */
 export const QUARTS_PAIR_DZ = 0.20;
-/** The leader anticipates each step by a quarter beat, filling the follower's response delay. */
-export const QUARTS_LEAD = 0.25;
 /** Owner rule (phase 14): the left heel comes to the tip of the right foot, at a right angle.
  * Ankle offset from the right ankle: the heel lies 5.6 cm behind the ankle, the toe 15.6 cm ahead. */
 export const QUARTS_HEEL_AT_TOE: FootPoint = { x: 0.056, z: 0.20 };
@@ -61,42 +59,58 @@ export type QuartsShapes = Record<"leader" | "follower", [QuartsStepShape, Quart
 const still: QuartsStepShape = { start: 0, end: 1.2, bump: { x: 0, z: 0 }, bumpPeak: 0.4, arcDelay: 0, bulge: 0, yawDelay: 0 };
 /** Calibrated on the GLB soles and leg bones over the first quarter (all quarters are the same up to
  * the rotation), docs/spec-quarts-paire.md, Calibrage. In quinconce each first foot stands between the
- * partner's feet, forefeet in contact; the order of arrivals makes the turn possible:
- * 1. follower D (beats 0–1.7): retreats 32 cm first, then arcs and slides back along its own axis next
- *    to the leader's G;
- * 2. leader G (0.9–1.6): slides 7 cm forward into the place the follower's D left and lands, heel at
- *    his D's toe, before
- *    the follower's D arrives beside it (it approaches sideways, so it must land first);
- * 3. follower G (1.7–3): leaves as soon as her D has landed (never both feet in the air), retreats
- *    18 cm and lands on an arc 20 % wider;
- * 4. leader D (1.8–2.9): circles 40 % wide around the heel of his G and pivots in the second half of
- *    its flight, sliding along its axis beside the follower's G. */
+ * partner's feet, forefeet in contact. #82 (owner, 20 Nov.: « ça doit se faire en simultané »): the
+ * follower's D and the leader's G leave together (0.4) and land together on beat 1 (#62, weight on the
+ * beat); her D still retreats first along its path (bump) before arcing, which leaves his G its place;
+ * then her G (1.45–3, on beat 3) and his D (1.8–2.9: landing on 3 would overlap her G), which circles
+ * 40 % wide around the heel of his G and pivots in the second half of its flight. */
 export const QUARTS_SHAPES: QuartsShapes = {
   leader: [
-    { ...still, start: 0.8, end: 1.4, bump: { x: 0, z: 0.07 }, bumpPeak: 0.6, arcDelay: 0.1, bulge: -0.3 },
-    { ...still, start: 1.8, end: 2.9, arcDelay: 0.3, bulge: 0.4, yawDelay: 0.5 },
+    { ...still, start: 0.4, end: 1.0, bump: { x: 0, z: 0.07 }, bumpPeak: 0.6, arcDelay: 0.1, bulge: -0.3 },
+    { ...still, start: 1.8, end: 2.9, arcDelay: 0.3, bulge: 0.4, yawDelay: 0.5, bump: { x: -0.07, z: -0.03 }, bumpPeak: 0.35 },
   ],
   follower: [
-    { ...still, end: 1.45, bump: { x: 0, z: -0.32 }, bumpPeak: 0.5, arcDelay: 0.3 },
-    { ...still, start: 1.45, end: 3.1, bump: { x: 0, z: -0.18 }, bumpPeak: 0.2, arcDelay: 0.1, bulge: 0.35 },
+    { ...still, start: 0.4, end: 1.0, bump: { x: 0, z: -0.32 }, bumpPeak: 0.5, arcDelay: 0.3 },
+    { ...still, start: 1.45, end: 3.0, bump: { x: 0, z: -0.18 }, bumpPeak: 0.2, arcDelay: 0.1, bulge: 0.35 },
   ],
 };
 /** Pelvis and style during the pair quarter turns (calibrated, docs/spec-quarts-paire.md):
- * - each pelvis turns around the centre with its second foot (the leader's D, the follower's G), so a
- *   standing leg is never laid across the partner's landing foot;
+ * - #106: pelvis and upper body turn as one block with the feet, half the quarter with the first foot
+ *   (the diagonal when it lands), the rest with the second; `extremity`: lateral offset of the side
+ *   that reaches its final place with the first foot (his left, her right); `travel`: share of the
+ *   way from the rigid rotation about the centre to that extremity rule (the full rule leaves the back
+ *   foot so far behind that the pelvis drops and the front knee juts into the partner); `delay`: the
+ *   block turns over the end of the first foot's flight, once the partner's foot has cleared; `heel`:
+ *   the leader's trailing D rises on its ball (rad) while his G carries him;
  * - `coupling`: the follower's pelvis mirrors the leader's (hips that seek each other);
  * - `sway`: share of the style's pelvis sway kept while the couple turns interleaved;
  * - knee flexion cap, style pelvis rotation cap and style bounce, softened around the `crossing`
  *   (both pairs of thighs interleaved while the leader's G lands next to the follower's standing G). */
 export const QUARTS_BODY = {
-  coupling: 1, sway: 0.5, kneeCap: 0.3, rotationCap: 0.12, dip: -0.008, roll: 0.5,
-  crossing: { from: 1.0, to: 1.9, ramp: 0.3, kneeCap: 0.12, rotationCap: 0.04 },
+  extremity: 0.09, travel: { leader: 0.65, follower: 0.58 }, delay: 0.7, heel: 0.18, coupling: 1, sway: 0.5, kneeCap: 0.22, rotationCap: 0.12, dip: -0.008, roll: 0.5,
+  crossing: { from: 0.6, to: 1.6, ramp: 0.3, kneeCap: 0.12, rotationCap: 0.04 },
 };
 function crossingAt(q: number): number {
   const { from, to, ramp: r } = QUARTS_BODY.crossing;
   return Math.max(0, Math.min(smooth((q - from + r) / r), 1 - smooth((q - to) / r)));
 }
 const ramp = (x: number, delay: number) => smooth((x - delay) / Math.max(1e-6, 1 - delay));
+
+/** #106: the body (pelvis and upper body, one block) turns half the quarter with the first foot, about the
+ * pivot that brings the extremity on that side to its final place, then the other half about that
+ * extremity with the second foot. Couple frame, quarter 0; the extremity lies on the couple's +x side for
+ * both roles (his left, her right). */
+function diagonalRoot(c: FootPoint, r0: FootPoint, extremity: number, a1: number, a2: number): FootPoint {
+  const half = QUARTER / 2;
+  const h0 = { x: r0.x + extremity, z: r0.z }, h1 = about(c, h0, QUARTER);
+  // Pivot P of the half rotation R sending h0 to h1: (I − R)·P = h1 − R·h0.
+  const co = Math.cos(half), si = Math.sin(half), rh = rotate(h0, half);
+  const bx = h1.x - rh.x, bz = h1.z - rh.z;
+  const m = [[1 - co, -si], [si, 1 - co]], det = m[0][0] * m[1][1] - m[0][1] * m[1][0];
+  const pivot = { x: (bx * m[1][1] - m[0][1] * bz) / det, z: (m[0][0] * bz - m[1][0] * bx) / det };
+  const diagonal = about(pivot, r0, half);
+  return a2 > 0 ? about(h1, diagonal, half * a2) : about(pivot, r0, half * a1);
+}
 
 export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<FigureFoot, FootPoint>,
   placement: CouplePlacement | "reference" | PlacementOffset = "reference", stance = 0, shapes: QuartsShapes = QUARTS_SHAPES) {
@@ -120,14 +134,15 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
     return { quarter, q, base, feet };
   };
   // Feet land on the beat for both dancers: from the interleaved quinconce the leader's G can only
-  // take the place the follower's D leaves. The leader anticipates with his upper body and frame
-  // (QUARTS_LEAD ahead); the follower's upper body answers on the beat, a quarter beat later.
+  // take the place the follower's D leaves (#82: they leave together, #88: she never anticipates).
   const now = step(b);
   const { base } = now;
   const start = follower ? couple.follower : couple.leader;
   const feet = {} as Record<FigureFoot, FigureFootPose>;
   const angle = { L: base, R: base } as Record<FigureFoot, number>;
-  for (const { side, shape, raw, arc } of now.feet) {
+  const [one, two] = now.feet;
+  const a1 = ramp(one.raw, Math.max(QUARTS_BODY.delay, one.shape.arcDelay));
+  for (const [index, { side, shape, raw, arc }] of now.feet.entries()) {
     angle[side] = base + QUARTER * arc;
     let point = about(c, start[side], angle[side]);
     const k = 1 + shape.bulge * Math.sin(Math.PI * arc);
@@ -142,35 +157,42 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
     const startPoint = about(c, start[side], base), endPoint = about(c, start[side], base + QUARTER);
     const travel = rotate({ x: endPoint.x - startPoint.x, z: endPoint.z - startPoint.z }, -base);
     // No roll around the crossing, where the interleaved knees leave no room for a heel rise.
-    const gait = gaitStep(raw, follower ? { x: -travel.x, z: -travel.z } : travel, 0, QUARTS_BODY.roll * (1 - crossingAt(now.q)));
+    const roll = QUARTS_BODY.roll * (1 - crossingAt(now.q));
+    const gait = gaitStep(raw, follower ? { x: -travel.x, z: -travel.z } : travel, 0, roll);
+    // #106: the leader's trailing D rises on its ball once his G carries him (the pelvis then stays up
+    // instead of dropping and pushing the front knee into the partner), until its own push-off.
+    let { pitch, pivot } = gait;
+    const heel = follower || index === 0 ? 0 : QUARTS_BODY.heel;
+    if (heel > 0) {
+      const push = GAIT.push * Math.max(0, Math.min(1, roll));
+      const trail = heel * a1 * (raw <= 0 ? 1 : push > 0 && raw < push ? 1 - smooth(raw / push) : 0);
+      if (trail > pitch) { pitch = trail; pivot = "ball"; }
+    }
     const lift = raw > 0 && raw < 1 ? Math.max(gait.lift, GAIT.liftPeak * 0.35 * Math.sin(Math.PI * raw) ** 2) : 0;
     // The moving foot pivots once it has left its neighbours.
     feet[side] = { ...own, yaw: base + QUARTER * ramp(raw, Math.max(shape.yawDelay, shape.arcDelay)), lift,
-      pitch: gait.pitch, pivot: gait.pivot };
+      pitch, pivot };
   }
   // Weight: on the second foot at the start of a quarter; it moves to each foot as that foot lands.
-  const [one, two] = now.feet;
   const toFirst = smooth((one.raw - 0.5) / 0.5), toSecond = smooth((two.raw - 0.5) / 0.5);
   const onFirst = toFirst * (1 - toSecond);
   const loadR = order[0] === "R" ? onFirst : 1 - onFirst;
-  const rootAngle = base + QUARTER * two.arc;
-  const rootPoint = about(c, start.root, rootAngle);
+  // #106 (owner, 20 Nov.: « le bassin et l'épaule (avec tout le haut du corps) bougent en même temps que le
+  // pied […] l'extrémité est déjà en position finale et le reste est en position intermédiaire "diago"
+  // jusqu'à ramener l'autre pied »): pelvis and upper body turn with the feet, the diagonal when the first
+  // foot lands, the quarter when the second does.
+  const a2 = two.arc;
+  const bodyYaw = base + (QUARTER / 2) * (a1 + a2);
+  const rigid = about(c, start.root, bodyYaw - base), diagonal = diagonalRoot(c, start.root, QUARTS_BODY.extremity, a1, a2);
+  const travel = QUARTS_BODY.travel[follower ? "follower" : "leader"];
+  const rootPoint = about(c, { x: mix(rigid.x, diagonal.x, travel), z: mix(rigid.z, diagonal.z, travel) }, base);
   const root = follower ? toFollower(rootPoint) : rootPoint;
-  // Upper bodies share one intention curve (the follower's first turn): the follower's chest turns
-  // with her first foot, the leader's QUARTS_LEAD earlier, whatever his feet are doing.
-  const intention = (time: number) => {
-    const p = ((time % QUARTS_BEATS) + QUARTS_BEATS) % QUARTS_BEATS;
-    const quarter = Math.min(3, Math.floor(p / 4)), shape = shapes.follower[0];
-    const raw = Math.max(0, Math.min(1, (p - quarter * 4 - shape.start) / (shape.end - shape.start)));
-    return quarter * QUARTER + QUARTER * ramp(raw, shape.arcDelay);
-  };
-  const upper = intention(follower ? b : b + QUARTS_LEAD);
+  // #82 (« le leader engage le buste avec son pied gauche ») holds: his chest turns with his G, which
+  // leaves with her D (#88: she never anticipates); the chest turns with the pelvis (#106).
   const crossing = crossingAt(now.q);
-  const lower = angle[order[1]];
   const moving = two.flying || two.raw >= 1 ? order[1] : order[0];
   const action = now.quarter * 2 + (now.q >= role[1].start ? 1 : 0);
-  return { beat: b, action, moving, feet, root, rootYaw: lower,
-    chestYaw: Math.atan2(Math.sin(upper - lower), Math.cos(upper - lower)), loadR, loadL: 1 - loadR,
+  return { beat: b, action, moving, feet, root, rootYaw: bodyYaw, chestYaw: 0, loadR, loadL: 1 - loadR,
     coupling: QUARTS_BODY.coupling * Math.min(1, Math.hypot(o.x, o.z) / 0.05), cyclic: true, kneeCap: mix(QUARTS_BODY.kneeCap, QUARTS_BODY.crossing.kneeCap, crossing), sway: QUARTS_BODY.sway,
     rotationCap: mix(QUARTS_BODY.rotationCap, QUARTS_BODY.crossing.rotationCap, crossing),
     dip: mix(QUARTS_BODY.dip, 0, crossing) };
