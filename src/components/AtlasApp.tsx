@@ -10,7 +10,7 @@ import GridFloor from "./GridFloor";
 import { createDanceClock } from "../clock";
 import { ATLAS_FOV, atlasView, type CamPreset } from "../cameras";
 import {
-  ATLAS_ATTRIBUTION, ATLAS_BANDES, atlasAngleLabel, atlasAngles, atlasKey, atlasSupport, atlasVariante, atlasVueLabel, parseAtlasParams,
+  ATLAS_ATTRIBUTION, ATLAS_BANDES, atlasAngleLabel, atlasAngles, atlasKey, atlasRegle, atlasSupport, atlasVueLabel, parseAtlasParams,
 } from "../atlas";
 import { ATLAS_MANIFEST, atlasMouvement } from "../atlasManifest";
 
@@ -57,7 +57,7 @@ export default function AtlasApp() {
   const stats = useRef<unknown>(null);
   const mouvement = atlasMouvement(state.id);
   const support = mouvement ? atlasSupport(mouvement) : null;
-  const choix = mouvement ? atlasVariante(mouvement, state.variante) : null;
+  const choix = mouvement ? atlasRegle(mouvement, state.variante) : null;
   const view = useMemo(() => atlasView(state.vue, mouvement?.cote), [state.vue, mouvement?.cote]);
 
   if (!mouvement || !support?.ok || !choix?.ok) {
@@ -87,7 +87,7 @@ export default function AtlasApp() {
           vue de {atlasVueLabel(state.vue, mouvement.cote)} ·{" "}
           <span className="font-mono text-teal-300">{atlasAngleLabel(angleDeg)}</span>
           <span className="text-slate-500"> · image {state.frame + 1}/{state.frames}</span>
-          {choix.variante && <span className="text-amber-300"> · variante : {choix.variante.label}</span>}
+          {choix.variante && choix.regle && <span className="text-amber-300"> · variante : {choix.regle.label}</span>}
         </p>
       </div>
       <div className="relative flex-1 min-h-0">
@@ -110,7 +110,7 @@ export default function AtlasApp() {
               side={null}
               showMuscles={state.muscles}
               stats={stats}
-              atlas={{ mouvement, angleDeg, variante: choix.variante?.id ?? null }}
+              atlas={{ mouvement, angleDeg, variante: state.variante ?? null }}
             />
           </Suspense>
           <RenduSignal cle={atlasKey(state)} stats={stats} />

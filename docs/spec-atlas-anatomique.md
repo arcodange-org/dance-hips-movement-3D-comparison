@@ -222,6 +222,10 @@ de hanche de −28,4 à +30,1 mm (0,9 mm à la pose neutre, asymétrie du squele
 qui descend fléchit jusqu'à 31° pendant que l'autre reste à 6,9° ; le bassin descend de 14,5 mm ;
 le thorax reste vertical. Ces valeurs décrivent le modèle, pas une personne.
 
+Ces chiffres sont ceux de la première planche, en genoux en relais. Depuis le vote du propriétaire
+(D15) la planche est posée en genoux chevauchés : mêmes écarts de hanche, bassin à hauteur
+constante (867,3 mm), deux genoux à 22,7° au centre.
+
 ### D12 — Test `scripts/test_atlas_planches.mjs` (dans `npm test`, sans navigateur)
 
 Pour chaque planche présente dans `docs/atlas/mouvements/` :
@@ -401,6 +405,15 @@ mais pour la danse on veut B ». D15 remplace, dans D14, ce qui décrivait l'ét
 - **Portée.** L'atlas seulement. Le comparateur n'est pas modifié : la stabilité de la hauteur du
   danseur y relève déjà de R12 ([ginga](spec-ginga.md), #59 en cours). Le vote est consigné comme
   R28 dans [`regles-proprietaire.md`](regles-proprietaire.md).
+- **Résultat (2026-11-21).** Planche régénérée : 53 fichiers, 2,4 Mo dans `docs/`, 0,25 Mo dans
+  `public/`. Sur le GLB, 9 images : bassin constant à 867,3 mm, genoux de 6,9° / 31,4° (−10°) à
+  22,7° / 22,7° (0°) puis 31,4° / 7,2° (+10°), mêmes écarts de hanche qu'avant (−28,4 à +30,1 mm),
+  thorax immobile. GIF comparatif régénéré : 36 images, 678 × 1133 px, 2,2 Mo. Les planches
+  `bassin-rotation` et `bassin-anteversion` ne changent pas. Mesuré une fois dans le comparateur,
+  sur place : au passage du bassin par le centre, les deux genoux sont déjà fléchis du même angle
+  (34° à 52° selon le style).
+- **Capture sur machine chargée.** Deux captures ont échoué sur le délai de 30 s d'une capture
+  d'écran (charge moyenne de 52). Le script attend maintenant jusqu'à 180 s par image.
 
 ## Tâches
 

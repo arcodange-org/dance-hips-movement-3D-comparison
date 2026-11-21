@@ -1,7 +1,7 @@
 # Élection — obliquité du bassin : genoux en relais ou chevauchés (#132)
 
 [Accueil](../../README.md) · [Atlas anatomique](../atlas/README.md) · [Spécification, D14](../spec-atlas-anatomique.md) ·
-[Planche actuelle](../atlas/mouvements/bassin-obliquite/README.md) ·
+[Planche](../atlas/mouvements/bassin-obliquite/README.md) ·
 [Issue #132](https://github.com/arcodange-org/dance-hips-movement-3D-comparison/issues/132)
 
 Le propriétaire tranche les questions de mouvement en voyant les variantes : « pour trancher tes
@@ -11,17 +11,17 @@ un commentaire optionnel » (21 novembre 2026).
 Sa question, le même jour, sur la planche « Obliquité du bassin (roulis) » : « que se passe-t-il si
 la flexion de la jambe opposée n'attend pas la fin de la flexion de la première jambe ? »
 
-Pour voter : répondre « A » ou « B », avec un commentaire si besoin. Le choix et le commentaire
-seront recopiés mot pour mot ici et dans l'issue #132.
+**Vote rendu : B** (voir [Résultat](#résultat)). La planche est posée en genoux chevauchés ; les
+genoux en relais restent montrés comme variante.
 
 ## La question
 
 Debout, pieds à plat, le bassin s'incline d'un côté puis de l'autre, de −10° à +10° : une hanche
 monte, l'autre descend. Entre les deux, il passe par le centre. Que font les genoux à ce moment ?
 
-![A, genoux en relais, et B, genoux chevauchés, côte à côte](../gifs/election-bassin-obliquite-chevauchement.gif)
+![A, genoux en relais, et B, genoux chevauchés, côte à côte](../gifs/election-obliquite-genoux.gif)
 
-| A — genoux en relais (planche actuelle) | B — genoux chevauchés |
+| A — genoux en relais (la planche au moment du vote) | B — genoux chevauchés (élu) |
 | --- | --- |
 | Un genou fléchit après l'autre. Le genou gauche finit de se tendre, puis le droit commence. | Le genou droit commence à fléchir pendant que le gauche se tend encore. |
 | Au centre, les deux jambes sont presque tendues (7°). | Au centre, les deux genoux sont fléchis du même angle (23°). |
@@ -57,6 +57,8 @@ une personne.
 
 ## Ce que le choix entraîne
 
+Écrit avant le vote :
+
 - **A élu** : rien ne change. La variante B et ce GIF restent comme trace de l'élection.
 - **B élu** : B devient la règle de la planche `bassin-obliquite`. La planche est régénérée
   (53 fichiers) et ses limites disent que le bassin est tenu à hauteur constante.
@@ -68,9 +70,10 @@ une personne.
   thorax immobile. B n'est pas un prototype.
 - Tenir le bassin à sa hauteur la plus basse est un choix parmi d'autres. À mi-hauteur, les deux
   genoux seraient à 17° au centre et le bassin remonterait de 7 mm.
-- Voir B dans l'app : `?atlas=bassin-obliquite&variante=chevauchement` (ajouter `&vue=troisQuarts`
-  ou `&frame=0` à `8`).
-- Refaire le GIF : `npm run build && node scripts/capture_atlas.mjs --mouvement bassin-obliquite --variante chevauchement`.
+- Voir dans l'app : B, la règle de la planche, `?atlas=bassin-obliquite` ; A, la variante,
+  `?atlas=bassin-obliquite&variante=relais` (ajouter `&vue=troisQuarts` ou `&frame=0` à `8`).
+- Refaire le GIF : `npm run build && node scripts/capture_atlas.mjs --mouvement bassin-obliquite --variante relais`.
+  Le GIF a été régénéré après le vote : mêmes lettres, la règle de la planche y est marquée.
 - Squelette et muscles : BodyParts3D v4.0, © DBCLS, CC BY-SA 2.1 Japan. Images générées
   paramétriquement : ni capture de mouvement, ni photo de modèle, ni relecture par un professeur
   d'anatomie.

@@ -9,7 +9,7 @@
 //   --vues face,profil    sous-ensemble des vues du manifeste
 //   --sans-muscles        squelette seul (par défaut la couche musculaire est affichée)
 //   --meta-seul           ne recalcule que meta.json (aucun navigateur)
-//   --variante <id>       image d'élection (D14) : la règle versionnée (A) et la variante (B) côte à côte,
+//   --variante <id>       image comparative (D14, D15) : la règle de la planche et la variante côte à côte,
 //                         dans un seul GIF synchronisé écrit dans docs/gifs/ ; aucune planche n'est écrite
 // Environnement : CHROME_PATH (exécutable Chromium), CAPTURE_BASE (serveur déjà lancé ; sinon le
 // script sert lui-même `dist/` sur un port libre, pour ne jamais capturer le build d'une autre session).
@@ -54,6 +54,10 @@ function parseArgs(argv) {
   if (!options.mouvement) throw new Error("--mouvement <id> requis (ids : docs/atlas/manifest.json)");
   return options;
 }
+
+/** Attente maximale d'une image (signal de rendu, puis capture). Large : en rendu logiciel sur une machine
+ * chargée, une image peut mettre plus de 30 s à se stabiliser. */
+const ATTENTE_MS = 180000;
 
 const freePort = () => new Promise((resolve, reject) => {
   const server = createServer();
@@ -139,6 +143,8 @@ function plancheHtml(api, meta, dir) {
     <table><tr><th></th>${columns}</tr>${rows}</table>
     <footer>
       <div><b>Mesuré sur le squelette :</b> ${escapeHtml(resume)}. Inclinaison du thorax : ${fr(thorax)}° au plus (le haut du tronc compense).</div>
+      ${meta.regle ? `<div><b>Règle de pose :</b> ${escapeHtml(meta.regle.label)} (${escapeHtml(meta.regle.description)}). Variante « ${
+        escapeHtml(meta.regle.variantes.map(v => v.label).join(" », « "))} » : page de la planche.</div>` : ""}
       <div><b>Provenance :</b> ${escapeHtml(meta.generation)} Niveau de preuve : ${escapeHtml(meta.niveauDePreuve)}.</div>
       <div><b>Licences :</b> ${escapeHtml(meta.licence.attribution)}. Planche : ${escapeHtml(meta.licence.assetsGeneres)}. Atlas anatomique ouvert, issue #${meta.issue}.</div>
     </footer>
@@ -171,8 +177,8 @@ async function capture(api, meta, options, dir) {
       const s = state(vue.id, frame);
       // L'URL est l'interface de la vue : on change d'état sans recharger la page.
       await page.evaluate(query => { history.replaceState(null, "", "?" + query); window.dispatchEvent(new PopStateEvent("popstate")); }, api.atlasQuery(s));
-      await rendered(s, 30000);
-      await page.locator("[data-atlas-cadre]").screenshot({ path: join(dir, frameFile(vue.id, frame)) });
+      await rendered(s, ATTENTE_MS);
+      await page.locator("[data-atlas-cadre]").screenshot({ path: join(dir, frameFile(vue.id, frame)), timeout: ATTENTE_MS });
     }
     if (errors.length) throw new Error("erreurs console pendant la capture : " + JSON.stringify(errors.slice(0, 5)));
     for (const vue of meta.vues) writeGif(dir, vue.id, frames, scratch);
@@ -199,8 +205,8 @@ function rangeeImage(api, mouvement, vue, point) {
   return hautPx + (1 - point.clone().project(camera).y) / 2 * hauteur;
 }
 
-/** Une image du GIF d'élection : A et B côte à côte, une rangée par vue, mesures de l'image en cours. */
-function electionHtml(api, mouvement, variante, regles, vues, index, reperes, dataUri) {
+/** Une image du GIF comparatif : les règles côte à côte, une rangée par vue, mesures de l'image en cours. */
+function electionHtml(api, mouvement, election, regles, vues, index, reperes, dataUri) {
   const { zone, colonnePx } = ELECTION, k = colonnePx / zone.w;
   const fr = (value, digits = 1) => value.toFixed(digits).replace(".", ",").replace("-", "−");
   const basse = Math.min(...regles.flatMap(r => r.samples.map(s => s.mesure.bassinMm)));
@@ -208,7 +214,7 @@ function electionHtml(api, mouvement, variante, regles, vues, index, reperes, da
   const colonne = (r) => {
     const m = r.samples[index].mesure;
     return `<section>
-      <h2><b>${r.lettre}</b> ${escapeHtml(r.label)}</h2>
+      <h2><b class="${r.retenue ? "retenue" : ""}">${r.lettre}</b> ${escapeHtml(r.label)} <span>${r.retenue ? "règle de la planche" : "variante"}</span></h2>
       <p class="regle">${escapeHtml(r.regle)}</p>
       ${vues.map(vue => `<div class="cell"><img src="${dataUri(r, vue, index)}" alt="">
         <i style="top:${((reperes[vue] - zone.y) * k).toFixed(1)}px"></i><small>${escapeHtml(api.atlasVueLabel(vue, mouvement.cote))}</small></div>`).join("")}
@@ -226,7 +232,9 @@ function electionHtml(api, mouvement, variante, regles, vues, index, reperes, da
     .cols { display: flex; gap: 10px; }
     section { width: ${colonnePx}px; }
     h2 { margin: 0; font-size: 15px; font-weight: 600; }
-    h2 b { display: inline-block; width: 22px; height: 22px; line-height: 22px; text-align: center; border-radius: 4px; background: #5eead4; color: #0b1220; margin-right: 4px; }
+    h2 b { display: inline-block; width: 22px; height: 22px; line-height: 22px; text-align: center; border-radius: 4px; background: #64748b; color: #0b1220; margin-right: 4px; }
+    h2 b.retenue { background: #5eead4; }
+    h2 span { font-size: 11.5px; font-weight: 400; color: #94a3b8; margin-left: 2px; }
     .regle { margin: 3px 0 5px; color: #94a3b8; font-size: 11.5px; height: 31px; overflow: hidden; }
     .cell { position: relative; width: ${colonnePx}px; height: ${(zone.h * k).toFixed(1)}px; overflow: hidden; border-radius: 4px; margin-bottom: 4px; }
     .cell img { position: absolute; left: ${(-zone.x * k).toFixed(1)}px; top: ${(-zone.y * k).toFixed(1)}px; width: ${(ATLAS_CAPTURE.largeurPx * k).toFixed(1)}px; }
@@ -238,7 +246,7 @@ function electionHtml(api, mouvement, variante, regles, vues, index, reperes, da
     footer { margin-top: 7px; color: #64748b; font-size: 10.5px; }
     footer span { color: #fbbf24; }
   </style><div id="election">
-    <h1>${escapeHtml(variante.question)}</h1>
+    <h1>${escapeHtml(election.question)}</h1>
     <p class="sub">${escapeHtml(mouvement.label)} · bassin à <b>${escapeHtml(api.atlasAngleLabel(angle))}</b> · même caméra et même angle de bassin des deux côtés</p>
     <div class="cols">${regles.map(colonne).join("")}</div>
     <footer><span>- - -</span> hauteur des hanches la plus basse de l'amplitude · « bassin » : hauteur au-dessus de cette ligne.<br>
@@ -246,22 +254,22 @@ function electionHtml(api, mouvement, variante, regles, vues, index, reperes, da
   </div>`;
 }
 
-/** D14 : capture la règle versionnée (A) et la variante (B), assemble un seul GIF synchronisé. */
+/** D14, D15 : capture la règle de la planche et la variante, assemble un seul GIF synchronisé (colonnes dans
+ * l'ordre des lettres de l'élection). */
 async function election(api, manifest, options) {
   const mouvement = manifest.mouvements.find(m => m.id === options.mouvement);
   if (!mouvement) throw new Error(`mouvement « ${options.mouvement} » absent du manifeste`);
   const support = api.atlasSupport(mouvement);
   if (!support.ok) throw new Error(support.raison);
-  const choix = api.atlasVariante(mouvement, options.variante);
+  const choix = api.atlasRegle(mouvement, options.variante);
   if (!choix.ok) throw new Error(choix.raison);
-  const variante = choix.variante, frames = options.frames ?? ELECTION.frames, vues = options.vues ?? ELECTION.vues;
+  if (!choix.variante) throw new Error(`« ${options.variante} » est la règle de la planche ${mouvement.id} : rien à comparer`);
+  const election = api.ATLAS_ELECTIONS[mouvement.id], frames = options.frames ?? ELECTION.frames, vues = options.vues ?? ELECTION.vues;
   if (!Number.isInteger(frames) || frames < 2 || frames > api.ATLAS_FRAMES_MAX) throw new Error(`--frames entre 2 et ${api.ATLAS_FRAMES_MAX}`);
   const inconnues = vues.filter(v => !manifest.views.includes(v));
   if (inconnues.length) throw new Error(`vues inconnues : ${inconnues.join(", ")}`);
-  const regles = [
-    { lettre: "A", id: null, label: `${variante.reference.label} (planche actuelle)`, regle: variante.reference.regle },
-    { lettre: "B", id: variante.id, label: variante.label, regle: variante.regle },
-  ].map(r => ({ ...r, ...measureMovement(api, mouvement, frames, r.id) }));
+  const regles = election.regles.filter(r => r.id === election.retenue || r.id === choix.regle.id)
+    .map(r => ({ ...r, retenue: r.id === election.retenue, ...measureMovement(api, mouvement, frames, r.id) }));
   // Ligne fixe : le centre du bassin à sa hauteur la plus basse, projeté par la caméra de chaque vue.
   const bas = regles.flatMap(r => r.samples).reduce((a, b) => (b.mesure.bassinMm < a.mesure.bassinMm ? b : a));
   api.applyAtlasPose(regles[0].fixture.r, regles[0].fixture.model, mouvement, bas.angleDeg);
@@ -292,24 +300,24 @@ async function election(api, manifest, options) {
     for (const r of regles) for (const vue of vues) for (let frame = 0; frame < frames; frame++) {
       const s = state(r, vue, frame);
       await page.evaluate(query => { history.replaceState(null, "", "?" + query); window.dispatchEvent(new PopStateEvent("popstate")); }, api.atlasQuery(s));
-      await rendered(s, 30000);
-      await page.locator("[data-atlas-cadre]").screenshot({ path: file(r, vue, frame) });
+      await rendered(s, ATTENTE_MS);
+      await page.locator("[data-atlas-cadre]").screenshot({ path: file(r, vue, frame), timeout: ATTENTE_MS });
     }
     if (errors.length) throw new Error("erreurs console pendant la capture : " + JSON.stringify(errors.slice(0, 5)));
     const dataUri = (r, vue, frame) => "data:image/png;base64," + readFileSync(file(r, vue, frame)).toString("base64");
     const sheet = await browser.newPage({ viewport: { width: 1200, height: 1600 }, deviceScaleFactor: 1 });
     for (let frame = 0; frame < frames; frame++) {
-      await sheet.setContent(electionHtml(api, mouvement, variante, regles, vues, frame, reperes, dataUri), { waitUntil: "load" });
+      await sheet.setContent(electionHtml(api, mouvement, election, regles, vues, frame, reperes, dataUri), { waitUntil: "load" });
       await sheet.locator("#election").screenshot({ path: join(scratch, `c${String(frame).padStart(3, "0")}.png`) });
     }
     gifSequence(frames).forEach((frame, k) => copyFileSync(join(scratch, `c${String(frame).padStart(3, "0")}.png`), join(scratch, `s${String(k).padStart(3, "0")}.png`)));
     mkdirSync(ELECTIONS_DIR, { recursive: true });
-    const out = join(ELECTIONS_DIR, electionFile(mouvement.id, variante.id));
+    const out = join(ELECTIONS_DIR, electionFile(election));
     ffmpeg(["-framerate", String(ATLAS_CAPTURE.gifImagesParSeconde), "-i", join(scratch, "s%03d.png"),
       "-vf", `split[a][b];[a]palettegen=max_colors=${ELECTION.couleurs}:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle`,
       "-loop", "0", out]);
-    console.log(`élection ${mouvement.id}, variante ${variante.id} : ${frames} frames × ${vues.length} vues × 2 règles`);
-    console.log(`  docs/gifs/${electionFile(mouvement.id, variante.id)} : ${(statSync(out).size / 1024).toFixed(0)} Ko, ${gifSequence(frames).length} images`);
+    console.log(`élection ${election.id} (${mouvement.id}) : ${regles.map(r => `${r.lettre} ${r.id}`).join(", ")} ; ${frames} frames × ${vues.length} vues × ${regles.length} règles`);
+    console.log(`  docs/gifs/${electionFile(election)} : ${(statSync(out).size / 1024).toFixed(0)} Ko, ${gifSequence(frames).length} images`);
   } finally {
     await browser.close();
     server.stop();

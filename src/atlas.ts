@@ -37,30 +37,35 @@ export function atlasSupport(m: Pick<AtlasMouvement, "rig" | "articulation" | "i
     ? "buste stylisé" : "chaîne ouverte"}) : seuls les mouvements du bassin sont posés pour l'instant (docs/TASKS.md, #132)` };
 }
 
-/** D14 : variantes d'élection d'un mouvement. La règle versionnée n'en fait pas partie : c'est l'absence de variante. */
-export interface AtlasVariante {
-  id: string; label: string; regle: string;
-  /** La règle versionnée, nommée par contraste avec cette variante. */
-  reference: { label: string; regle: string };
-  /** La question posée au propriétaire. */
-  question: string;
-}
-export const ATLAS_VARIANTES: Record<string, AtlasVariante[]> = {
-  "bassin-obliquite": [{
-    id: "chevauchement", label: "genoux chevauchés",
-    regle: "bassin tenu à sa hauteur la plus basse : les deux genoux fléchissent ensemble au centre",
-    reference: { label: "genoux en relais", regle: "bassin le plus haut que les jambes permettent : un genou fléchit après l'autre" },
+/** D14, D15 : élection d'une règle de pose. Chaque règle candidate a sa lettre ; la règle retenue pose la
+ * planche, les autres restent visibles comme variantes (`?variante=<id>`). Le vote lui-même vit dans
+ * docs/elections/<id>.md. */
+export interface AtlasRegle { id: string; lettre: string; label: string; regle: string }
+export interface AtlasElection { id: string; question: string; regles: AtlasRegle[]; retenue: string }
+export const ATLAS_ELECTIONS: Record<string, AtlasElection> = {
+  "bassin-obliquite": {
+    id: "obliquite-genoux",
     question: "Obliquité du bassin : le genou opposé attend-il son tour ?",
-  }],
+    regles: [
+      { id: "relais", lettre: "A", label: "genoux en relais", regle: "bassin le plus haut que les jambes permettent : un genou fléchit après l'autre" },
+      { id: "chevauchement", lettre: "B", label: "genoux chevauchés", regle: "bassin tenu à sa hauteur la plus basse : les deux genoux fléchissent ensemble au centre" },
+    ],
+    // Vote du propriétaire, 21 novembre 2026 : « pour la danse on veut B ».
+    retenue: "chevauchement",
+  },
 };
-/** La variante demandée (`null` : règle versionnée), ou la raison du refus. */
-export function atlasVariante(m: Pick<AtlasMouvement, "id">, id: string | null | undefined):
-  { ok: true; variante: AtlasVariante | null } | { ok: false; raison: string } {
-  if (!id) return { ok: true, variante: null };
-  const variante = (ATLAS_VARIANTES[m.id] ?? []).find(v => v.id === id);
-  if (variante) return { ok: true, variante };
-  const connues = (ATLAS_VARIANTES[m.id] ?? []).map(v => v.id);
-  return { ok: false, raison: `variante « ${id} » inconnue pour ${m.id} (${connues.length ? "variantes : " + connues.join(", ") : "ce mouvement n'a pas de variante"})` };
+/** La règle de pose demandée : la règle retenue sans variante, la règle nommée sinon ; ou la raison du refus.
+ * `regle` vaut `null` pour un mouvement sans élection ; `variante` dit si elle diffère de la règle retenue. */
+export function atlasRegle(m: Pick<AtlasMouvement, "id">, id: string | null | undefined):
+  { ok: true; regle: AtlasRegle | null; variante: boolean } | { ok: false; raison: string } {
+  const election = ATLAS_ELECTIONS[m.id];
+  if (!election) {
+    return id ? { ok: false, raison: `variante « ${id} » inconnue pour ${m.id} (ce mouvement n'a pas de variante)` }
+      : { ok: true, regle: null, variante: false };
+  }
+  const regle = election.regles.find(r => r.id === (id || election.retenue));
+  if (!regle) return { ok: false, raison: `variante « ${id} » inconnue pour ${m.id} (règles : ${election.regles.map(r => r.id).join(", ")})` };
+  return { ok: true, regle, variante: regle.id !== election.retenue };
 }
 
 const AXIS = { x: 0, y: 1, z: 2 } as const;
@@ -70,12 +75,13 @@ const UNIT: Record<AtlasAxis, [number, number, number]> = { x: [1, 0, 0], y: [0,
  * Bassin : chaîne fermée, pieds plantés ; les jambes suivent par IK et le thorax garde son orientation
  * neutre (D13). L'isolation du moteur (`iso`) compense le roulis et le tangage du bassin, pas le lacet :
  * pour l'axe `y`, la colonne contre-tourne du même angle.
- * Sans variante, le bassin est à la hauteur la plus haute que les jambes permettent. Variante
- * `chevauchement` (D14) : il est tenu à sa hauteur la plus basse de la ROM, donc à hauteur constante. */
+ * Hauteur du bassin : la plus haute que les jambes permettent, sauf règle `chevauchement` (D14, retenue
+ * pour l'obliquité en D15), qui le tient à sa hauteur la plus basse de la ROM, donc à hauteur constante.
+ * `variante` nomme une règle de l'élection du mouvement ; absente, c'est la règle retenue. */
 export function applyAtlasPose(r: RigHandle, model: PoseModel, m: AtlasMouvement, angleDeg: number, variante: string | null = null): PoseStats {
   const support = atlasSupport(m);
   if (!support.ok) throw new Error(`atlas ${m.id} : ${support.raison}`);
-  const choix = atlasVariante(m, variante);
+  const choix = atlasRegle(m, variante);
   if (!choix.ok) throw new Error(`atlas ${m.id} : ${choix.raison}`);
   const pose = (deg: number, abaissement = 0) => {
     const rotation: [number, number, number] = [0, 0, 0];
@@ -88,7 +94,7 @@ export function applyAtlasPose(r: RigHandle, model: PoseModel, m: AtlasMouvement
       rootOffset: abaissement ? { x: 0, z: 0, y: abaissement } : null,
     });
   };
-  if (!choix.variante) return pose(angleDeg);
+  if (choix.regle?.id !== "chevauchement") return pose(angleDeg);
   // Le moteur écrit la hauteur du bassin dans `root.position.y` et y ajoute `rootOffset.y` tel quel.
   const hauteur = (deg: number) => { pose(deg); return r.root.position.y; };
   const basse = Math.min(...m.romDeg.map(hauteur));
@@ -188,7 +194,7 @@ export function parseAtlasParams(params: URLSearchParams): AtlasState {
 export const atlasKey = (s: Pick<AtlasState, "id" | "vue" | "frame" | "frames" | "variante">): string =>
   `${s.id}|${s.vue}|${s.frame}/${s.frames}${s.variante ? "|" + s.variante : ""}`;
 
-/** Sans variante, l'URL est celle des planches versionnées, inchangée. */
+/** Sans variante, l'URL est celle des planches versionnées (règle retenue), inchangée. */
 export const atlasQuery = (s: AtlasState): string =>
   `atlas=${encodeURIComponent(s.id)}&vue=${s.vue}&frame=${s.frame}&frames=${s.frames}&muscles=${s.muscles ? 1 : 0}${
     s.variante ? "&variante=" + encodeURIComponent(s.variante) : ""}`;

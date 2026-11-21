@@ -12,9 +12,12 @@ export const ROOT = new URL("../", import.meta.url).pathname;
 export const MANIFEST_PATH = ROOT + "docs/atlas/manifest.json";
 export const DOCS_DIR = ROOT + "docs/atlas/mouvements/";
 export const PUBLIC_DIR = ROOT + "public/atlas/mouvements/";
-/** Images d'élection (D14) : un GIF par mouvement et par variante, à côté des autres GIF du dépôt. */
+/** Élections de règles de pose (D14, D15) : un GIF comparatif par élection, à côté des autres GIF du dépôt,
+ * et une page de vote. Chemins relatifs à la racine du dépôt. */
 export const ELECTIONS_DIR = ROOT + "docs/gifs/";
-export const electionFile = (mouvement, variante) => `election-${mouvement}-${variante}.gif`;
+export const electionFile = (election) => `election-${election.id}.gif`;
+export const electionGif = (election) => `docs/gifs/${electionFile(election)}`;
+export const electionPage = (election) => `docs/elections/${election.id}.md`;
 /** Taille d'une image de planche (px) et cadence des GIF (images par seconde). */
 export const ATLAS_CAPTURE = { largeurPx: 400, hauteurPx: 500, gifImagesParSeconde: 8 };
 
@@ -89,7 +92,6 @@ const fr = (value, digits = 1) => value.toFixed(digits).replace(".", ",").replac
 const LIMITES_BASSIN = {
   z: [
     "Bassin en chaîne fermée, pieds plantés : la hanche qui descend fait fléchir son genou. D'autres stratégies (demi-pointe, translation du bassin) ne sont pas montrées.",
-    "Hauteur du bassin : la plus haute que les jambes permettent. Les genoux fléchissent donc à tour de rôle et le bassin remonte au passage par le centre (colonne « Hauteur du bassin »). La variante à hauteur constante, les deux genoux fléchis ensemble, n'est pas montrée : question ouverte dans la spécification.",
   ],
   y: [
     "Bassin en chaîne fermée, pieds plantés : les pieds ne pivotent pas, les hanches absorbent la rotation.",
@@ -99,6 +101,12 @@ const LIMITES_BASSIN = {
     "Bassin en chaîne fermée, pieds plantés : la bascule se fait autour de l'axe des centres de hanche, les jambes ne bougent pas.",
     "Le buste reste vertical et se décale d'avant en arrière avec le haut du bassin. La courbure lombaire qui accompagne la bascule chez une personne n'est pas montrée.",
   ],
+};
+
+/** D15 — ce que la règle de pose retenue montre et ne montre pas (mouvements qui ont une élection). */
+const LIMITES_REGLE = {
+  chevauchement: "Hauteur du bassin : tenue constante, à sa hauteur la plus basse de l'amplitude (colonne « Hauteur du bassin »). Les deux genoux fléchissent ensemble au passage par le centre : aucune jambe n'y est presque tendue. C'est un choix de modèle, élu par le propriétaire pour la danse ; la variante « genoux en relais », où le bassin remonte au centre, est montrée dans la section « Règle de pose et variante ».",
+  relais: "Hauteur du bassin : la plus haute que les jambes permettent. Les genoux fléchissent à tour de rôle et le bassin remonte au passage par le centre (colonne « Hauteur du bassin »).",
 };
 
 /** D13 — repère de position d'une planche du bassin : la mesure qui varie avec le mouvement, par axe.
@@ -136,6 +144,16 @@ export function buildAtlasMeta(api, manifest, id, { frames = api.ATLAS_FRAMES, v
   const angles = measured.samples.map(s => s.mesure.angleDeg);
   const mesuree = [Math.min(...angles), Math.max(...angles)];
   const state = (vue, frame) => ({ id, vue, frame, frames, muscles });
+  // D15 : règle de pose retenue et variantes, pour un mouvement qui a une élection.
+  const election = api.ATLAS_ELECTIONS[id], retenue = election?.regles.find(r => r.id === election.retenue);
+  const regle = election && {
+    id: retenue.id, lettre: retenue.lettre, label: retenue.label, description: retenue.regle,
+    election: { id: election.id, question: election.question, page: electionPage(election), gif: electionGif(election) },
+    variantes: election.regles.filter(r => r !== retenue).map(r => ({
+      id: r.id, lettre: r.lettre, label: r.label, description: r.regle,
+      url: "?" + api.atlasQuery({ ...state(vues[0], (frames - 1) >> 1), variante: r.id }),
+    })),
+  };
   return {
     atlas: manifest.atlas,
     version: manifest.version,
@@ -148,8 +166,10 @@ export function buildAtlasMeta(api, manifest, id, { frames = api.ATLAS_FRAMES, v
       "Illustratif : aucune validation médicale ni chorégraphique.",
       "Pose neutre du moteur : pieds à l'écartement et à l'ouverture natifs du squelette, genoux fléchis d'au moins 0,12 rad par l'IK (jambe jamais verrouillée).",
       ...LIMITES_BASSIN[mouvement.axeLocal],
+      ...(regle ? [LIMITES_REGLE[regle.id]] : []),
       "Buste et bras : volumes stylisés, pas un maillage anatomique. Le haut du tronc compense le bassin (iso=1), bras en cadre de danse.",
     ],
+    ...(regle ? { regle } : {}),
     articulation: {
       rig: mouvement.rig,
       noeud: mouvement.articulation,
@@ -254,6 +274,16 @@ export function buildPlancheReadme(api, meta) {
     "",
     `${repere.note} Genou : flexion, 0° = jambe tendue. Thorax : inclinaison par rapport à la verticale.`,
     "",
+    ...(meta.regle ? [
+      "## Règle de pose et variante",
+      "",
+      `- Règle de la planche : **${meta.regle.label}** (${meta.regle.lettre}). ${meta.regle.description[0].toUpperCase() + meta.regle.description.slice(1)}.`,
+      ...meta.regle.variantes.map(v => `- Variante : ${v.label} (${v.lettre}). ${v.description[0].toUpperCase() + v.description.slice(1)}. Dans l'application : \`${v.url}\`.`),
+      `- Choix du propriétaire : [élection](../../../../${meta.regle.election.page}).`,
+      "",
+      `![${meta.regle.election.question}](../../../../${meta.regle.election.gif})`,
+      "",
+    ] : []),
     "## Vues animées",
     "",
     `| ${meta.vues.map(v => v.label[0].toUpperCase() + v.label.slice(1)).join(" | ")} |`,

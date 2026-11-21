@@ -51,13 +51,16 @@ jambes ne bougent pas).
 - `meta.json` porte en plus l'avancée des hanches, la position du sacrum et la rotation du thorax
   tous axes. Chaque planche affiche le repère de position de son axe. Le test prouve chaque planche
   par les positions (deux vecteurs liés au bassin en rotation rigide, axe erroné détecté).
-- Deux élections attendent le propriétaire. Rotation : thorax de face (versionné) ou buste
-  solidaire (GIF montrés, non versionnés). Obliquité : genoux en relais (versionné) ou chevauchés,
-  bassin à hauteur constante. Cette seconde variante est produite (spec D14) :
-  `applyAtlasPose(…, "chevauchement")`, vue `?atlas=bassin-obliquite&variante=chevauchement`,
-  GIF côte à côte par `scripts/capture_atlas.mjs --variante chevauchement`, page de vote
-  [`docs/elections/obliquite-genoux.md`](docs/elections/obliquite-genoux.md). Les planches
-  versionnées ne changent pas tant que le vote n'est pas rendu.
+- **Obliquité : le propriétaire a élu B, genoux chevauchés** (21 novembre 2026 : « c'est bien de
+  montrer les 2, mais pour la danse on veut B » ; R28, spec D14 et D15, page
+  [`docs/elections/obliquite-genoux.md`](docs/elections/obliquite-genoux.md)). La planche
+  `bassin-obliquite` est régénérée avec cette règle : bassin tenu à sa hauteur la plus basse
+  (867,3 mm, constante), deux genoux à 22,7° au centre. Les genoux en relais restent montrés :
+  `?atlas=bassin-obliquite&variante=relais`, et un GIF comparatif sur la page de la planche
+  (`scripts/capture_atlas.mjs --mouvement bassin-obliquite --variante relais`).
+  `ATLAS_ELECTIONS` (`src/atlas.ts`) porte les règles candidates et la règle retenue.
+- Une élection attend encore le propriétaire. Rotation : thorax de face (versionné) ou buste
+  solidaire (GIF montrés, non versionnés).
 - `main` a été fusionné quatre fois dans la branche (conflits : `package.json`, `README.md`,
   `docs/TASKS.md`, `CONTEXT.md`, `src/main.tsx` ; garder les deux côtés).
 

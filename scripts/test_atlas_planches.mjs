@@ -2,14 +2,14 @@
 // Le rig réel (public/anatomy.glb) est posé par le moteur de l'application (src/atlas.ts → src/pose.ts) ;
 // on contrôle la ROM sur le quaternion monde du nœud, une preuve indépendante par les positions des
 // hanches, les conventions verrouillées, puis la fraîcheur et l'intégrité des fichiers versionnés.
-// Spécification : docs/spec-atlas-anatomique.md, D12 à D14.
+// Spécification : docs/spec-atlas-anatomique.md, D12 à D15.
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import * as THREE from "three";
 import {
   ATLAS_CAPTURE, DOCS_DIR, ELECTIONS_DIR, META_FILE, PUBLIC_DIR, README_FILE, ROOT, buildAtlasMeta, buildPlancheReadme, electionFile,
-  gifSequence, loadAtlasApi, measureMovement, readManifest,
+  electionGif, electionPage, gifSequence, loadAtlasApi, measureMovement, readManifest,
 } from "./atlas_meta.mjs";
 import { fixture } from "./pose_fixture.mjs";
 
@@ -30,9 +30,9 @@ const near = (a, b, tolerance, label) => assert.ok(Math.abs(a - b) <= tolerance,
   assert.deepEqual(api.parseAtlasParams(new URLSearchParams(api.atlasQuery(state))), state, "atlasQuery se relit à l'identique");
   // D14 : sans variante, l'URL et la clé de rendu sont celles des planches versionnées ; la variante s'y ajoute.
   assert.equal(api.atlasQuery(state), "atlas=bassin-obliquite&vue=face&frame=4&frames=9&muscles=1");
-  const varie = api.parseAtlasParams(new URLSearchParams("atlas=bassin-obliquite&variante=chevauchement"));
-  assert.equal(varie.variante, "chevauchement");
-  assert.equal(api.atlasKey(varie), "bassin-obliquite|face|4/9|chevauchement");
+  const varie = api.parseAtlasParams(new URLSearchParams("atlas=bassin-obliquite&variante=relais"));
+  assert.equal(varie.variante, "relais");
+  assert.equal(api.atlasKey(varie), "bassin-obliquite|face|4/9|relais");
   assert.deepEqual(api.parseAtlasParams(new URLSearchParams(api.atlasQuery(varie))), varie, "atlasQuery garde la variante");
   assert.equal(api.atlasAngleLabel(7.5), "+7,5°"); assert.equal(api.atlasAngleLabel(-10), "−10°"); assert.equal(api.atlasAngleLabel(0), "0°");
   // Vues : cinq azimuts autour de la cible du preset ; distance et élévation conservées.
@@ -190,15 +190,19 @@ for (const id of planches) {
     detail = `, sacrum de ${millimetres(first.mesure)} à ${millimetres(last.mesure)} mm au-dessus de l'axe des hanches, hanches immobiles, axe erroné détecté`;
   }
   if (id === "bassin-obliquite") {
-    // Chaîne fermée : le genou du côté qui descend fléchit de plus en plus, l'autre reste au minimum de l'IK.
+    // Chaîne fermée, règle retenue « genoux chevauchés » (D15) : le genou du côté qui descend est le plus fléchi,
+    // les deux genoux bougent en sens inverse sans palier, et la hauteur du bassin ne change pas.
+    assert.equal(meta.regle?.id, "chevauchement", `${id} : règle de pose écrite dans meta.json`);
     for (const s of measured.samples) {
       const [down, up] = s.angleDeg > 0 ? ["R", "L"] : ["L", "R"];
-      if (s.angleDeg !== 0) assert.ok(s.mesure.genouDeg[down] > s.mesure.genouDeg[up] + 5, `${id} image ${s.index} : genou ${down} plus fléchi`);
-      near(Math.min(s.mesure.genouDeg.R, s.mesure.genouDeg.L), minimalKnee, 0.3, `${id} image ${s.index} : jambe haute au minimum de l'IK`);
+      if (s.angleDeg !== 0) assert.ok(s.mesure.genouDeg[down] > s.mesure.genouDeg[up] + 2, `${id} image ${s.index} : genou ${down} plus fléchi`);
+      near(s.mesure.bassinMm, measured.neutral.bassinMm, 0.001, `${id} image ${s.index} : hauteur du bassin constante`);
     }
-    const kneeR = measured.samples.filter(s => s.angleDeg >= 0).map(s => s.mesure.genouDeg.R);
-    assert.ok(kneeR.every((v, i) => i === 0 || v > kneeR[i - 1]), "flexion du genou droit croissante avec l'angle");
-    detail = `, hanches ${first.mesure.ecartHanchesMm.toFixed(1)} à ${last.mesure.ecartHanchesMm.toFixed(1)} mm, genou jusqu'à ${Math.max(...kneeR).toFixed(1)}°, axe erroné détecté`;
+    const knees = measured.samples.map(s => s.mesure.genouDeg);
+    assert.ok(knees.every((k, i) => i === 0 || (k.R > knees[i - 1].R && k.L < knees[i - 1].L)), `${id} : genoux en sens inverse, sans palier`);
+    near(Math.min(first.mesure.genouDeg.R, last.mesure.genouDeg.L), minimalKnee, 0.5, `${id} : aux extrêmes, la jambe haute est près du minimum de l'IK`);
+    detail = `, hanches ${first.mesure.ecartHanchesMm.toFixed(1)} à ${last.mesure.ecartHanchesMm.toFixed(1)} mm, genoux ${measured.neutral.genouDeg.R.toFixed(1)}°/${
+      measured.neutral.genouDeg.L.toFixed(1)}° au centre et jusqu'à ${Math.max(...knees.map(k => k.R)).toFixed(1)}°, bassin à hauteur constante, axe erroné détecté`;
   }
 
   // 4c. Conventions verrouillées après pose : sol, chevilles sur leurs cibles, longueurs, thorax vertical.
@@ -257,66 +261,85 @@ for (const id of planches) {
   console.log(`PASS atlas planche ${id} : ROM mesurée ${Math.min(...angles).toFixed(2)} à ${Math.max(...angles).toFixed(2)}° sur le nœud ${mouvement.articulation}${detail} ; sol, chevilles (${(ankleError * 1000).toFixed(3)} mm), pieds plantés, thorax immobile ; meta.json et README à jour ; ${listed.size} fichiers, copies servies identiques`);
 }
 
-// 5. Variante d'élection (D14) : obliquité en genoux chevauchés, mesurée sur le GLB face à la règle versionnée.
+// 5. Élection de la règle de pose de l'obliquité (D14, D15) : « genoux chevauchés » retenue, « genoux en relais »
+// en variante ; les deux mesurées sur le GLB, face à face.
 {
-  const id = "bassin-obliquite", variante = "chevauchement", frames = 17, minimalKnee = 0.12 * 180 / Math.PI;
-  const mouvement = manifest.mouvements.find(m => m.id === id);
-  assert.deepEqual(Object.keys(api.ATLAS_VARIANTES), [id], "une seule élection de variante en cours");
-  assert.deepEqual(api.ATLAS_VARIANTES[id].map(v => v.id), [variante]);
-  assert.deepEqual(api.atlasVariante(mouvement, null), { ok: true, variante: null }, "sans variante : la règle versionnée");
-  assert.equal(api.atlasVariante(mouvement, variante).variante.id, variante);
-  // Refus explicites : variante inconnue, variante demandée pour un mouvement qui n'en a pas.
+  const id = "bassin-obliquite", frames = 17, minimalKnee = 0.12 * 180 / Math.PI;
+  const mouvement = manifest.mouvements.find(m => m.id === id), election = api.ATLAS_ELECTIONS[id];
+  assert.deepEqual(Object.keys(api.ATLAS_ELECTIONS), [id], "une seule élection de règle de pose");
+  assert.deepEqual(election.regles.map(r => `${r.lettre} ${r.id}`), ["A relais", "B chevauchement"], "lettres du vote");
+  assert.equal(election.retenue, "chevauchement", "règle retenue : le vote du propriétaire (B)");
+  const retenue = api.atlasRegle(mouvement, null), variante = api.atlasRegle(mouvement, "relais");
+  assert.ok(retenue.ok && retenue.regle.id === "chevauchement" && !retenue.variante, "sans variante : la règle retenue");
+  assert.ok(variante.ok && variante.regle.id === "relais" && variante.variante, "« relais » est la variante");
+  assert.ok(api.atlasRegle(mouvement, "chevauchement").ok && !api.atlasRegle(mouvement, "chevauchement").variante, "la règle retenue peut être nommée");
+  // Refus explicites : règle inconnue, variante demandée pour un mouvement sans élection.
   const rotation = manifest.mouvements.find(m => m.id === "bassin-rotation");
-  assert.equal(api.atlasVariante(mouvement, "inconnue").ok, false);
+  assert.deepEqual(api.atlasRegle(rotation, null), { ok: true, regle: null, variante: false }, "mouvement sans élection : pas de règle nommée");
+  assert.equal(api.atlasRegle(mouvement, "inconnue").ok, false);
   const refusal = fixture(api);
-  assert.throws(() => api.applyAtlasPose(refusal.r, refusal.model, mouvement, 0, "inconnue"), /variante « inconnue » inconnue pour bassin-obliquite/);
-  assert.throws(() => api.applyAtlasPose(refusal.r, refusal.model, rotation, 0, variante), /ce mouvement n'a pas de variante/);
+  assert.throws(() => api.applyAtlasPose(refusal.r, refusal.model, mouvement, 0, "inconnue"), /variante « inconnue » inconnue pour bassin-obliquite \(règles : relais, chevauchement\)/);
+  assert.throws(() => api.applyAtlasPose(refusal.r, refusal.model, rotation, 0, "relais"), /ce mouvement n'a pas de variante/);
 
-  const relais = measureMovement(api, mouvement, frames), chevauche = measureMovement(api, mouvement, frames, variante);
+  const relais = measureMovement(api, mouvement, frames, "relais"), chevauche = measureMovement(api, mouvement, frames, "chevauchement");
+  // Sans variante, la planche est posée par la règle retenue.
+  for (const [index, s] of measureMovement(api, mouvement, frames).samples.entries()) {
+    const nommee = chevauche.samples[index].mesure;
+    assert.ok(s.mesure.bassinMm === nommee.bassinMm && s.mesure.genouDeg.R === nommee.genouDeg.R && s.mesure.genouDeg.L === nommee.genouDeg.L,
+      `${id} image ${index} : sans variante, la pose est celle de la règle retenue`);
+  }
   const heights = relais.samples.map(s => s.mesure.bassinMm), basse = Math.min(...heights), rebond = Math.max(...heights) - basse;
-  assert.ok(rebond >= 10, `règle versionnée : le bassin remonte au centre (${rebond.toFixed(1)} mm), c'est ce que la variante supprime`);
+  assert.ok(rebond >= 10, `relais : le bassin remonte au centre (${rebond.toFixed(1)} mm), c'est ce que la règle retenue supprime`);
   const { r, model, outer } = chevauche.fixture;
   let ankleError = 0, footDrift = 0;
   const planted = {};
   for (const [index, s] of chevauche.samples.entries()) {
-    const versionnee = relais.samples[index].mesure, label = `${id} ${variante} image ${index}`;
+    const autre = relais.samples[index], label = `${id} chevauchement image ${index}`;
     near(s.mesure.bassinMm, basse, 0.001, `${label} : bassin à sa hauteur la plus basse de la ROM`);
-    near(s.mesure.angleDeg, s.angleDeg, 0.01, `${label} : angle de bassin mesuré`);
-    near(s.mesure.horsAxeDeg, 0, 0.01, `${label} : rotation hors de l'axe`);
-    assert.ok(new THREE.Vector3(...s.mesure.hanches).distanceTo(new THREE.Vector3(...versionnee.hanches)) <= 1e-9, `${label} : même orientation du bassin que la règle versionnée`);
-    near(s.mesure.thoraxRotationDeg, 0, 0.01, `${label} : thorax dans son orientation neutre`);
-    assert.ok(s.solMm >= -0.1, `${label} : sommets osseux au-dessus du sol (${s.solMm} mm)`);
+    for (const [nom, sample] of [["chevauchement", s], ["relais", autre]]) {
+      near(sample.mesure.angleDeg, sample.angleDeg, 0.01, `${id} ${nom} image ${index} : angle de bassin mesuré`);
+      near(sample.mesure.horsAxeDeg, 0, 0.01, `${id} ${nom} image ${index} : rotation hors de l'axe`);
+      near(sample.mesure.thoraxRotationDeg, 0, 0.01, `${id} ${nom} image ${index} : thorax dans son orientation neutre`);
+      assert.ok(sample.solMm >= -0.1, `${id} ${nom} image ${index} : sommets osseux au-dessus du sol (${sample.solMm} mm)`);
+    }
+    assert.ok(new THREE.Vector3(...s.mesure.hanches).distanceTo(new THREE.Vector3(...autre.mesure.hanches)) <= 1e-9, `${label} : même orientation du bassin dans les deux règles`);
     for (const side of ["R", "L"])
-      assert.ok(s.mesure.genouDeg[side] >= versionnee.genouDeg[side] - 0.01, `${label} : genou ${side} au moins aussi fléchi qu'en relais`);
-    api.applyAtlasPose(r, model, mouvement, s.angleDeg, variante);
-    r.root.updateWorldMatrix(true, true);
-    for (const side of ["L", "R"]) {
-      const hip = r["hip" + side].getWorldPosition(new THREE.Vector3()), knee = r["knee" + side].getWorldPosition(new THREE.Vector3());
-      const foot = r["foot" + side].getWorldPosition(new THREE.Vector3());
-      near(hip.distanceTo(knee), model.legs[side].length1, 1e-9, "longueur du fémur");
-      near(knee.distanceTo(foot), model.legs[side].length2, 1e-9, "longueur du tibia");
-      ankleError = Math.max(ankleError, foot.distanceTo(outer.localToWorld(model.targets[side].clone())));
-      planted[side] ??= foot.clone();
-      footDrift = Math.max(footDrift, foot.distanceTo(planted[side]));
+      assert.ok(s.mesure.genouDeg[side] >= autre.mesure.genouDeg[side] - 0.01, `${label} : genou ${side} au moins aussi fléchi qu'en relais`);
+    // Relais : la jambe du côté haut reste au minimum de l'IK.
+    near(Math.min(autre.mesure.genouDeg.R, autre.mesure.genouDeg.L), minimalKnee, 0.3, `${id} relais image ${index} : jambe haute au minimum de l'IK`);
+    for (const regle of ["chevauchement", "relais"]) {
+      api.applyAtlasPose(r, model, mouvement, s.angleDeg, regle);
+      r.root.updateWorldMatrix(true, true);
+      for (const side of ["L", "R"]) {
+        const hip = r["hip" + side].getWorldPosition(new THREE.Vector3()), knee = r["knee" + side].getWorldPosition(new THREE.Vector3());
+        const foot = r["foot" + side].getWorldPosition(new THREE.Vector3());
+        near(hip.distanceTo(knee), model.legs[side].length1, 1e-9, "longueur du fémur");
+        near(knee.distanceTo(foot), model.legs[side].length2, 1e-9, "longueur du tibia");
+        ankleError = Math.max(ankleError, foot.distanceTo(outer.localToWorld(model.targets[side].clone())));
+        planted[side] ??= foot.clone();
+        footDrift = Math.max(footDrift, foot.distanceTo(planted[side]));
+      }
     }
   }
-  assert.ok(ankleError <= 0.001 && footDrift <= 0.001, `${variante} : chevilles sur leurs cibles (${ankleError} m), pieds plantés (${footDrift} m)`);
-  // Au centre, les deux genoux sont fléchis ensemble, du même angle ; en relais ils sont presque tendus.
+  assert.ok(ankleError <= 0.001 && footDrift <= 0.001, `${id} : chevilles sur leurs cibles (${ankleError} m), pieds plantés (${footDrift} m), dans les deux règles`);
+  // Au centre : deux genoux fléchis du même angle (règle retenue), presque tendus (relais).
   const centre = chevauche.samples.find(s => s.angleDeg === 0).mesure, centreRelais = relais.samples.find(s => s.angleDeg === 0).mesure;
-  near(centre.genouDeg.R, centre.genouDeg.L, 0.5, `${variante} : deux genoux du même angle au centre`);
-  assert.ok(Math.min(centre.genouDeg.R, centre.genouDeg.L) >= minimalKnee + 10, `${variante} : deux genoux nettement fléchis au centre (${centre.genouDeg.R.toFixed(1)}°)`);
+  near(centre.genouDeg.R, centre.genouDeg.L, 0.5, "chevauchement : deux genoux du même angle au centre");
+  assert.ok(Math.min(centre.genouDeg.R, centre.genouDeg.L) >= minimalKnee + 10, `chevauchement : deux genoux nettement fléchis au centre (${centre.genouDeg.R.toFixed(1)}°)`);
   assert.ok(Math.max(centreRelais.genouDeg.R, centreRelais.genouDeg.L) <= minimalKnee + 0.3, "relais : deux genoux au minimum de l'IK au centre");
-  // Les genoux bougent en sens inverse sur toute la ROM : le droit fléchit quand l'angle croît, le gauche se tend.
+  // Règle retenue : les genoux bougent en sens inverse sur toute la ROM, sans palier.
   const knees = chevauche.samples.map(s => s.mesure.genouDeg);
-  assert.ok(knees.every((k, i) => i === 0 || (k.R > knees[i - 1].R && k.L < knees[i - 1].L)), `${variante} : genoux en sens inverse, sans palier`);
-  // À la borne la plus basse, la variante est la règle versionnée.
+  assert.ok(knees.every((k, i) => i === 0 || (k.R > knees[i - 1].R && k.L < knees[i - 1].L)), "chevauchement : genoux en sens inverse, sans palier");
+  // À la borne la plus basse, les deux règles donnent la même pose.
   const low = heights.indexOf(basse);
-  for (const side of ["R", "L"]) near(chevauche.samples[low].mesure.genouDeg[side], relais.samples[low].mesure.genouDeg[side], 0.01, `${variante} : pose identique à la borne la plus basse`);
-  // Image et page d'élection versionnées.
-  const gif = readFileSync(join(ELECTIONS_DIR, electionFile(id, variante)));
-  assert.equal(gif.toString("latin1", 0, 6), "GIF89a", "signature du GIF d'élection");
-  const page = readFileSync(join(ROOT, "docs/elections/obliquite-genoux.md"), "utf8");
-  assert.ok(page.includes(electionFile(id, variante)), "la page d'élection montre le GIF");
+  for (const side of ["R", "L"]) near(chevauche.samples[low].mesure.genouDeg[side], relais.samples[low].mesure.genouDeg[side], 0.01, "pose identique à la borne la plus basse");
+  // GIF comparatif et page d'élection versionnés ; le vote y est recopié mot pour mot.
+  assert.equal(electionGif(election), "docs/gifs/election-obliquite-genoux.gif");
+  const gif = readFileSync(join(ELECTIONS_DIR, electionFile(election)));
+  assert.equal(gif.toString("latin1", 0, 6), "GIF89a", "signature du GIF comparatif");
+  const page = readFileSync(join(ROOT, electionPage(election)), "utf8");
+  assert.ok(page.includes(electionFile(election)), "la page d'élection montre le GIF");
+  assert.ok(page.includes("c'est bien de montrer les 2, mais pour la danse on veut B"), "le vote du propriétaire est recopié mot pour mot");
   assert.match(page, /BodyParts3D v4\.0, © DBCLS, CC BY-SA 2\.1 Japan/, "attribution sur la page d'élection");
-  console.log(`PASS atlas variante ${id} ${variante} : bassin constant à ${basse.toFixed(1)} mm (relais : rebond de ${rebond.toFixed(1)} mm), genoux ${centre.genouDeg.R.toFixed(1)}°/${centre.genouDeg.L.toFixed(1)}° au centre (relais ${centreRelais.genouDeg.R.toFixed(1)}°/${centreRelais.genouDeg.L.toFixed(1)}°), même angle de bassin, sol, pieds plantés, thorax immobile ; variantes inconnues refusées ; GIF et page d'élection présents`);
+  console.log(`PASS atlas élection ${election.id} : règle retenue ${election.retenue} (bassin constant à ${basse.toFixed(1)} mm, genoux ${centre.genouDeg.R.toFixed(1)}°/${centre.genouDeg.L.toFixed(1)}° au centre), variante relais (rebond de ${rebond.toFixed(1)} mm, genoux ${centreRelais.genouDeg.R.toFixed(1)}°/${centreRelais.genouDeg.L.toFixed(1)}° au centre) ; même angle de bassin, sol, pieds plantés, thorax immobile dans les deux ; règles inconnues refusées ; GIF, page d'élection et vote présents`);
 }
