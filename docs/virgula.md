@@ -50,3 +50,17 @@ Demande 2026-11-18 : « Le pied doit faire un angle sur quart de tours. Renseign
    lacet monde du pied suive celui du root. Idem pendant les pivots du corridinho.
 4. Visualisation : preset caméra `top` (vue plongeante) + boussole pour lire l'angle du pied
    par rapport aux directions fixes ; GIF `virgula-quarts.gif`.
+
+## Définition du propriétaire (21 novembre 2026)
+
+« Le fait d'aller vers l'avant avec le pied gauche perpendiculaire s'appelle une virgula. » C'est le
+premier pas du quart de tour du leader : son G avance et se pose à angle droit, pointe vers sa gauche.
+
+Emplois dans l'app :
+
+- quarts de tour en paire : talon du G au bout du D ([spec](spec-quarts-paire.md)) ;
+- sortie fille, variante crochet : G1 du leader, avec le buste qui ne suit pas le bassin
+  (contraposition), pour que le buste du suiveur reste stable
+  ([spec, #127](spec-sortie-fille.md#virgula-du-leader-au-premier-temps-variante-crochet-127-21-novembre-2026)) ;
+- ida e volta : effet de style proposé (#128).
+
