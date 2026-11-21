@@ -155,3 +155,80 @@ Résultat : `node scripts/test_sortie_fille.mjs` passe pour les placements réf�
 et 2, et contact D/D. La sonde au pas de 0,04 temps ne trouve aucun croisement ni chevauchement dans
 les deux variantes. GIFs : [crochet](gifs/sortie-fille-unites-crochet.gif) et
 [recul](gifs/sortie-fille-unites-recul.gif) (quinconce, kizomba, 90 bpm, vue du guideur).
+
+## Virgula du leader au premier temps, variante crochet (#127, 21 novembre 2026)
+
+Demande du propriétaire : « Le fait d'aller vers l'avant avec le pied gauche perpendiculaire s'appelle une
+virgula. […] Dans la sortie fille version pas latéral (et non recul) au 2nd temps on peut utiliser cette
+"virgula" au premier temps pour le garçon (en gardant le buste du suiveur stable grâce à la contraposition
+du leader). »
+
+Périmètre : la variante crochet seulement. La variante recul ne change pas.
+
+### Ce qui change
+
+| Élément | Avant | Après |
+|---|---|---|
+| G1 du leader, direction du pied | vers l'avant | perpendiculaire, pointe vers sa gauche (90°) |
+| G1 du leader, profondeur | 1 pied (21,2 cm, R22) | inchangée |
+| G1 du leader, position latérale | dans son couloir | cheville 11 cm à gauche de celle de son D : le talon arrive contre le bord intérieur du D |
+| Bassin du leader | de face | s'ouvre de 10° vers sa gauche avec le pied, revient de face pendant son crochet |
+| Genou G du leader | de face | s'ouvre de 46°, entre le bassin et le pied ; son genou D reste de face |
+| Buste du leader | amorce de la sortie | inchangé : il ne suit pas le bassin (contraposition) |
+| Suiveur | | inchangé, pose pour pose |
+| À partir de la position 3 | | inchangé pour les deux |
+
+- Le pied pivote sur la fin de son vol (à partir de 35 %), une fois passé le D du suiveur qui recule. Il se
+  pose par l'avant-pied.
+- Le pied et le genou G reviennent vers l'avant pendant le G3, quand le pied recule.
+- Le bassin revient de face plus tôt, entre 1,2 et 1,7 temps : le poids passe alors sur le D du crochet.
+- Constantes : `SORTIE_FILLE_VIRGULA` (`src/sortieFille.ts`). L'option interne `sortieVirgula: false`
+  redonne le pas droit ; elle sert aux tests de comparaison.
+
+### Pas du leader (#105)
+
+| Pas | Référence | Quinconce |
+|---|---|---|
+| G1 avant | 21,2 cm (1p) | 16,1 cm |
+| G1 en virgula | 22,0 cm : 1p en avant, 5,8 cm de côté (0,17h) | 16,3 cm : 15,2 en avant, 5,9 de côté |
+| G3 après la virgula | 21,7 cm : 1p en arrière, 4,5 cm de côté | identique |
+
+Les pas restent à une longueur de pied ; le déplacement latéral reste sous la demi-hanche.
+
+### Pourquoi pas le talon exactement au bout du D, comme dans le quart de tour
+
+Dans le quart de tour, la cheville du G se pose 5,6 cm à gauche et 20 cm devant celle du D. Essais sur
+le GLB (kizomba, amplitude 1, pas de 0,04 temps) :
+
+| Essai | Résultat |
+|---|---|
+| Talon au bout du D, comme le quart de tour | En quinconce, le D part 11 cm plus en avant : le G se pose 10 cm plus loin que le pas validé, sur la ligne du genou D du suiveur, très fléchi pendant son G2. Tibia G du leader contre tibia, péroné, rotule et fémur D du suiveur (temps 1,40 à 1,52). Semelles G et D du leader chevauchées en vol (0,52 à 0,56). |
+| Profondeur validée, cheville 11 cm à gauche de celle du D (retenu) | 0 croisement, 0 chevauchement. Le talon est à 2,4 cm du D en quinconce, 3,9 cm en face à face, 4,5 cm devant sa pointe en référence. |
+| Bassin tenu ouvert jusqu'au G3 | Avec le plexus, le plafond de torsion du buste (17°) joue en position 2 : le buste du leader tourne de 7°. |
+| Bassin qui revient pendant le crochet (retenu) | Le buste du leader s'écarte de 0,4° au plus de sa direction sans virgula. |
+
+### Critères (tests sur le GLB réel)
+
+1. Le G du leader est à 90° aux positions 1 et 2, et de nouveau vers l'avant à la position 3.
+2. Il se pose à la même profondeur que le pas droit (R22), à moins d'une demi-hanche de côté, le talon à
+   moins de 5 cm du D sans chevauchement.
+3. Le bassin du leader s'ouvre de 8 à 17° ; son genou G pointe entre le bassin et le pied ; son genou D
+   reste de face.
+4. **Buste du suiveur stable** : le suiveur a exactement les mêmes poses avec et sans virgula.
+5. **Contraposition du leader** : son buste garde sa direction à moins de 1° près pendant que son
+   bassin s'ouvre, avec et sans plexus.
+6. Son D suit le même trajet ; après la pose de son G3, le leader est inchangé.
+7. R24 : le G du leader part avec le D du suiveur, comme avant.
+8. Aucun croisement d'os des jambes ni chevauchement de semelles (styles des sorties, trois amplitudes,
+   trois placements, avec et sans plexus).
+
+Sonde de calibrage : `node scripts/search_virgula.mjs` (4 374 poses de couple jusqu'à la position 3, et
+7 074 avec l'ida inséré : 0 croisement, 0 chevauchement).
+
+### Figures qui héritent de la virgula
+
+- Enchaînement sortie fille → sortie garçon : il quitte la sortie fille à la position 3, où tout est
+  revenu en place. Seuls ses trois premiers temps changent.
+- Ida inséré à la position 2 : le G du leader recule et revient en gardant son angle.
+- Mode guidage : la sortie fille guidée est la variante crochet, donc avec la virgula.
+
