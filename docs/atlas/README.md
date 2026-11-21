@@ -16,7 +16,8 @@ dansants (roulis du bassin, isolations, compensation du tronc).
   (`face`, `troisQuarts`, `profil`, `troisQuartsDos`, `dos`), images PNG, GIF par vue, planche
   composite, `meta.json` (ROM et mesures prises sur le GLB) et une page `README.md` dérivée.
   Générées par `scripts/capture_atlas.mjs`, contrôlées par `scripts/test_atlas_planches.mjs`
-  dans `npm test`. Première planche : [obliquité du bassin](mouvements/bassin-obliquite/README.md).
+  dans `npm test`. Planches du bassin : [obliquité](mouvements/bassin-obliquite/README.md),
+  [rotation](mouvements/bassin-rotation/README.md), [antéversion](mouvements/bassin-anteversion/README.md).
 - `muscles/` — fiches muscle par muscle (à venir) : nom TA, origine, insertion, action,
   innervation (textes Gray 1918 / Wikidata), rendu 3D isolé (Z-Anatomy CC BY-SA 4.0 ou couche
   musculaire BodyParts3D embarquée dans `public/anatomy_muscles.glb`).
@@ -25,11 +26,19 @@ dansants (roulis du bassin, isolations, compensation du tronc).
 
 | Mouvement | Planche | État |
 | --- | --- | --- |
-| Obliquité du bassin (roulis) | [bassin-obliquite](mouvements/bassin-obliquite/README.md) | générée, mesurée sur le GLB |
-| Rotation et antéversion du bassin | à venir | même règle de pose (bassin, pieds plantés) : il reste à les générer |
+| Obliquité du bassin (roulis) | [bassin-obliquite](mouvements/bassin-obliquite/README.md) | générée, mesurée sur le GLB ; genoux en relais (variante en chevauchement : question ouverte) |
+| Rotation du bassin (lacet) | [bassin-rotation](mouvements/bassin-rotation/README.md) | générée, mesurée sur le GLB ; thorax de face (variante buste solidaire : au choix du propriétaire) |
+| Antéversion / rétroversion du bassin | [bassin-anteversion](mouvements/bassin-anteversion/README.md) | générée, mesurée sur le GLB |
 | Hanche, genou, cheville, tronc (13 mouvements) | à venir | règle de pose à écrire (chaîne ouverte, buste) : le script les refuse pour l'instant |
 
+Dans les trois planches du bassin, les pieds restent plantés et le thorax garde son orientation
+neutre : c'est le bassin qui bouge sous un buste qui ne suit pas.
+
 [![Planche : obliquité du bassin](mouvements/bassin-obliquite/planche.png)](mouvements/bassin-obliquite/README.md)
+
+[![Planche : rotation du bassin](mouvements/bassin-rotation/planche.png)](mouvements/bassin-rotation/README.md)
+
+[![Planche : antéversion et rétroversion du bassin](mouvements/bassin-anteversion/planche.png)](mouvements/bassin-anteversion/README.md)
 
 ## Licences
 

@@ -108,6 +108,8 @@ respiration).
 
 Contribution du 2026-11-21 : la chaîne complète est construite et prouvée sur **un** mouvement
 (`bassin-obliquite`, priorité 1). Les quinze autres suivront par la même chaîne (voir Tâches).
+Depuis, les deux autres planches du bassin sont générées : `bassin-rotation` et
+`bassin-anteversion` (D13).
 
 ### D7 — Pose neutre anatomique par le moteur
 
@@ -280,6 +282,19 @@ détecté. Le thorax garde son orientation neutre (≤ 0,01°, tous axes) dans l
 absorbent la rotation. Antéversion : la bascule se fait autour de l'axe des hanches, les jambes
 ne bougent pas, et la courbure lombaire qui l'accompagne chez une personne n'est pas montrée
 (buste stylisé). Obliquité : voir la question ouverte ci-dessous.
+
+**Résultat.** [Rotation](atlas/mouvements/bassin-rotation/README.md), de −15° à +15° : le centre
+de hanche gauche passe de 43,9 mm devant le droit à 43,2 mm derrière ; les hanches restent à la
+même hauteur, le bassin aussi (881,7 à 882,0 mm), les genoux entre 6,9° et 7,2°.
+[Antéversion](atlas/mouvements/bassin-anteversion/README.md), de −15° à +15° : le centre du sacrum
+passe de 30,1 à 51,1 mm au-dessus de l'axe des hanches ; les centres de hanche bougent de moins de
+0,5 mm, les genoux de moins de 0,5°, et le buste se décale de ±20,7 mm d'avant en arrière sans se
+pencher. Dans les trois planches, la rotation du thorax par rapport à la pose neutre est nulle.
+Contre-épreuve faite à la main : sans la contre-rotation de la colonne, le test échoue sur la
+rotation (thorax tourné de 15°).
+
+Poids des trois planches : 6,7 Mo dans `docs/` (2,4, 2,2 et 2,1 Mo), 0,7 Mo dans `public/`. À ce
+rythme, les 16 mouvements pèseraient environ 39 Mo.
 
 ### Question ouverte — obliquité : genoux en relais ou en chevauchement
 

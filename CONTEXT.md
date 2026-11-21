@@ -35,9 +35,30 @@ Chaîne de génération des planches « mouvements », prouvée sur `bassin-obli
 
 Mesuré de −10° à +10° : hanches de −28,4 à +30,1 mm, genou du côté bas jusqu'à 31°, thorax vertical.
 
-Suite : planches `bassin-rotation` et `bassin-anteversion` (règle prête), règles de pose des 13
-autres mouvements (le script les refuse pour l'instant), décision sur le poids versionné
-(≈ 2,6 Mo par mouvement), fiches muscles (prototype Blender hors dépôt :
+Les trois planches du bassin sont générées ([spec D13](docs/spec-atlas-anatomique.md)) :
+[obliquité](docs/atlas/mouvements/bassin-obliquite/README.md),
+[rotation](docs/atlas/mouvements/bassin-rotation/README.md) (−15° à +15° : une hanche avance de
+43,9 mm, l'autre recule) et [antéversion](docs/atlas/mouvements/bassin-anteversion/README.md)
+(−15° à +15° : le centre du sacrum passe de 30,1 à 51,1 mm au-dessus de l'axe des hanches, les
+jambes ne bougent pas).
+
+- Dans les trois, le thorax garde son orientation neutre. **`lockUpperTrunk` (`iso=1`) ne compense
+  pas le lacet**, seulement le roulis et le tangage : pour la rotation, la règle de pose de l'atlas
+  contre-tourne la colonne (`trunkOffset`). Sans cela le buste tournait avec le bassin (trouvé à la
+  relecture des images ; `thoraxDeg`, une inclinaison, ne le voyait pas). Le comparateur n'est pas
+  modifié : le thorax y suit le lacet du bassin (tarraxinha 12,7°, zouk 10,3°), question posée au
+  propriétaire dans `docs/TASKS.md`.
+- `meta.json` porte en plus l'avancée des hanches, la position du sacrum et la rotation du thorax
+  tous axes. Chaque planche affiche le repère de position de son axe. Le test prouve chaque planche
+  par les positions (deux vecteurs liés au bassin en rotation rigide, axe erroné détecté).
+- Deux élections attendent le propriétaire : rotation, thorax de face (versionné) ou buste
+  solidaire ; obliquité, genoux en relais (versionné) ou en chevauchement à hauteur constante
+  (mesures dans la spec, section « Question ouverte » ; variante à produire en GIF sur demande).
+- `main` a été fusionné deux fois dans la branche (conflits : `package.json`, `README.md`,
+  `docs/TASKS.md`, `CONTEXT.md` ; garder les deux côtés).
+
+Suite : règles de pose des 13 autres mouvements (le script les refuse pour l'instant), décision sur
+le poids versionné (≈ 2,5 Mo par mouvement, 7,4 Mo pour les trois planches du bassin), fiches muscles (prototype Blender hors dépôt :
 `~/Work/Danse/anatomie-3d/`), sourcing des ROM, viewer `?atlas=` complet + branchement oracle.
 
 ## Musique enregistrée générée par ElevenLabs (#142, PR #143, 21 novembre 2026)
