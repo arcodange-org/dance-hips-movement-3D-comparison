@@ -15,7 +15,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const bundle = join(root, "scripts", ".test-features-bundle.mjs");
 esbuild.buildSync({
   stdin: {
-    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon"; export * from "../src/sortieFille"; export * from "../src/idaPaire"; export * from "../src/gait"; export * from "../src/music/patterns"; export * from "../src/music/scheduler"; export * as guidage from "../src/guidage"; export * from "../src/music/loop"; export * from "../src/vitrine"; export * from "../src/music/recordings";',
+    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon"; export * from "../src/sortieFille"; export * from "../src/idaPaire"; export * from "../src/gait"; export * from "../src/music/patterns"; export * from "../src/music/scheduler"; export * as guidage from "../src/guidage"; export * from "../src/music/loop"; export * from "../src/vitrine"; export * from "../src/music/recordings"; export * as film from "../src/film";',
     resolveDir: join(root, "scripts"),
     loader: "ts",
   },
@@ -153,6 +153,25 @@ const steps = [
     const tr = mod.retempoAt(c.tr, Number(m[2]), Number(m[1]));
     const b = mod.beatAt(tr, Number(m[2]) + Number(m[3]));
     if (Math.abs(b - Number(m[4])) > 1e-9) throw new Error(`temps ${b}, attendu ${m[4]}`);
+  }],
+  // Film image par image (#155, docs/spec-video-pas-de-base.md)
+  [/^l'adresse "\?([^"]*)" (active|n'active pas) le film image par image$/, (c, m) => {
+    const got = mod.film.filmEnabled(new URLSearchParams(m[1]));
+    if (got !== (m[2] === "active")) throw new Error(`filmEnabled=${got}`);
+  }],
+  [/^on filme à (\d+) images par seconde une danse à ([\d.]+) bpm$/, (c, m) => { c.film = { ips: Number(m[1]), bpm: Number(m[2]) }; }],
+  [/^l'image (\d+) est à ([\d.]+) s et au temps ([\d.]+) de la danse$/, (c, m) => {
+    const t = mod.film.frameTime(Number(m[1]), c.film.ips), b = mod.film.frameBeat(Number(m[1]), c.film.ips, c.film.bpm);
+    if (Math.abs(t - Number(m[2])) > 1e-9 || Math.abs(b - Number(m[3])) > 1e-9) throw new Error(`image ${m[1]} : ${t} s, temps ${b}`);
+  }],
+  [/^la caméra de film à l'azimut (-?\d+)°, à (\d+(?:\.\d+)?) m d'une cible à hauteur ([\d.]+) m, est en \((-?[\d.]+), (-?[\d.]+), (-?[\d.]+)\)$/, (c, m) => {
+    const got = mod.film.filmCamera({ az: Number(m[1]), el: 0, dist: Number(m[2]) }, [0, Number(m[3]), 0]);
+    const want = [Number(m[4]), Number(m[5]), Number(m[6])];
+    if (got.some((x, k) => Math.abs(x - want[k]) > 1e-6)) throw new Error(`caméra en (${got.map((x) => x.toFixed(3)).join(", ")})`);
+  }],
+  [/^un décalage d'objectif de ([\d.]+) sur une image de (\d+) pixels de large vaut (\d+) pixels$/, (c, m) => {
+    const got = mod.film.filmShiftPixels(Number(m[1]), Number(m[2]));
+    if (got !== Number(m[3])) throw new Error(`décalage ${got}`);
   }],
   // Vitrine (#150, docs/spec-vitrine-danse-auto.md)
   [/^on ouvre l'adresse "\?([^"]*)"$/, (c, m) => { c.vitrine = mod.vitrineSettings(new URLSearchParams(m[1])); }],

@@ -32,7 +32,9 @@ export function pistes() {
   };
   for (const [style, p] of Object.entries(lireJson(FICHE_PISTES, {}))) {
     const fichier = join(DOSSIER_PISTES, p.fichier);
-    if (existsSync(fichier)) out[style] = { fichier, bpm: p.bpm, premierTemps: p.premierTemps, duree: p.duree, gainDb: p.gainDb };
+    // Le film part du premier début de phrase de la partie pleine et s'arrête avant que l'extrait s'éteigne.
+    if (existsSync(fichier)) out[style] = { fichier, bpm: p.bpm, premierTemps: p.depuis ?? p.premierTemps, duree: p.jusque ?? p.duree,
+      gainDb: p.gainDb, ...(p.boucle ? { boucle: p.boucle } : {}) };
   }
   return out;
 }
@@ -40,12 +42,46 @@ export function pistes() {
 /** Tempo à défaut de piste : celui que la génération demandera. */
 export const tempoPrevu = style => PROMPTS[style].bpm;
 
-/** Mesure un extrait : tempo, premier temps, niveau, signature rythmique. */
+/**
+ * La partie pleine d'un extrait (pur) : un extrait peut commencer par un silence ou une entrée plus faible, et
+ * finir en s'éteignant. `niveaux` : niveau RMS (dB) de fenêtres de `fenetre` secondes, une tous les `pas`.
+ * Rend `depuis` (premier début de phrase de 8 temps dans la partie pleine), `jusque` (fin de la partie pleine)
+ * et `boucle` (plus grand multiple de 16 temps qui y tient, en secondes ; 0 s'il n'y en a pas).
+ */
+export function partiePleine(niveaux, pas, bpm, premierTemps, fenetre = FENETRE_NIVEAU) {
+  const forts = [...niveaux].sort((a, b) => b - a).slice(0, Math.max(1, Math.floor(niveaux.length / 2)));
+  const seuil = forts[Math.floor(forts.length / 2)] - 5;
+  const premier = niveaux.findIndex(x => x >= seuil), dernier = niveaux.findLastIndex(x => x >= seuil);
+  const huit = 8 * 60 / bpm, debut = premier * pas, jusque = dernier * pas + fenetre * 0.75;
+  const k = Math.ceil((debut - 0.3 - premierTemps) / huit);
+  let depuis = premierTemps + k * huit;
+  while (depuis < 0) depuis += huit;
+  const seize = 2 * huit, boucle = Math.floor((jusque - depuis - 0.2) / seize) * seize;
+  return { depuis: Math.round(depuis * 10000) / 10000, jusque: Math.round(jusque * 100) / 100, boucle: boucle > 0 ? Math.round(boucle * 10000) / 10000 : 0 };
+}
+
+/** Fenêtre de mesure du niveau (s) : assez longue pour qu'une entrée clairsemée ne passe pas pour pleine. */
+export const FENETRE_NIVEAU = 2;
+
+/** Niveau RMS (dB) d'un son décodé : fenêtres de `fenetre` secondes, une tous les `pas`. */
+export function niveauxDe(samples, sampleRate, pas = 0.5, fenetre = FENETRE_NIVEAU) {
+  const n = Math.round(fenetre * sampleRate), saut = Math.round(pas * sampleRate), out = [];
+  for (let i = 0; i + n <= samples.length; i += saut) {
+    let e = 0;
+    for (let j = i; j < i + n; j++) e += samples[j] * samples[j];
+    out.push(10 * Math.log10(e / n + 1e-12));
+  }
+  return out;
+}
+
+/** Mesure un extrait : tempo, premier temps, partie pleine, niveau, signature rythmique. */
 export function mesurer(style, fichier) {
-  const m = analyseTempo(decoder(fichier), ANALYSIS_RATE, { hint: PROMPTS[style].bpm });
+  const samples = decoder(fichier);
+  const m = analyseTempo(samples, ANALYSIS_RATE, { hint: PROMPTS[style].bpm });
   const n = niveauPiste(fichier);
   return {
     bpm: Math.round(m.bpm * 1000) / 1000, premierTemps: Math.round(m.firstBeat * 10000) / 10000,
+    ...partiePleine(niveauxDe(samples, ANALYSIS_RATE), 0.5, m.bpm, m.firstBeat),
     duree: Math.round(m.duration * 1000) / 1000, lufs: n.lufs, crete: n.crete,
     gainDb: Math.round(Math.min(-16 - n.lufs, -1 - n.crete) * 10) / 10,
     derive: Math.round(m.drift * 10000) / 10000, confiance: Math.round(m.confidence * 100) / 100,
@@ -75,6 +111,17 @@ async function credits(cle) {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const args = arguments_();
+  if (args.mesurer) {
+    // Remesure les extraits présents (hors ligne, gratuit) et garde leur provenance.
+    const fiche = lireJson(FICHE_PISTES, {});
+    for (const [style, p] of Object.entries(fiche)) {
+      fiche[style] = { ...p, ...mesurer(style, join(DOSSIER_PISTES, p.fichier)) };
+      const q = fiche[style];
+      console.log(`${style.padEnd(11)} ${q.bpm} bpm, partie pleine de ${q.depuis} à ${q.jusque} s (${(q.jusque - q.depuis).toFixed(1)} s), boucle ${q.boucle} s`);
+    }
+    ecrireJson(FICHE_PISTES, fiche);
+    process.exit(0);
+  }
   if (!args.generer) {
     for (const [style, p] of Object.entries(pistes()))
       console.log(`${style.padEnd(11)} ${p.bpm.toFixed(2).padStart(7)} bpm  ${p.duree.toFixed(1).padStart(5)} s  premier temps ${p.premierTemps.toFixed(3)} s`);

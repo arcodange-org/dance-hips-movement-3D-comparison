@@ -35,7 +35,7 @@ export function preparerMusique(piste, dureeChapitre, style) {
     const f = 0.03, entrees = [], filtres = [];
     for (let k = 0; k <= tours; k++) entrees.push("-i", piste.fichier);
     for (let k = 0; k < tours; k++) filtres.push(`[${k}:a]atrim=start=${piste.premierTemps}:end=${n3(piste.premierTemps + piste.boucle + f)},asetpts=PTS-STARTPTS[s${k}]`);
-    filtres.push(`[${tours}:a]atrim=start=${piste.premierTemps},asetpts=PTS-STARTPTS[s${tours}]`);
+    filtres.push(`[${tours}:a]atrim=start=${piste.premierTemps}:end=${n3(piste.duree)},asetpts=PTS-STARTPTS[s${tours}]`);
     let courant = "[s0]";
     for (let k = 1; k <= tours; k++) { filtres.push(`${courant}[s${k}]acrossfade=d=${f}:c1=tri:c2=tri[x${k}]`); courant = `[x${k}]`; }
     ffmpeg([...entrees, "-filter_complex", filtres.join(";"), "-map", courant, "-ar", "48000", "-ac", "2", sortie]);
