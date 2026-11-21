@@ -65,8 +65,9 @@ jambes ne bougent pas).
   Le vote B lui a été transmis ; dans l'atlas, « relais » nomme la règle non retenue.
 - Une élection attend encore le propriétaire. Rotation : thorax de face (versionné) ou buste
   solidaire (GIF montrés, non versionnés).
-- `main` a été fusionné quatre fois dans la branche (conflits : `package.json`, `README.md`,
-  `docs/TASKS.md`, `CONTEXT.md`, `src/main.tsx` ; garder les deux côtés).
+- `main` a été fusionné cinq fois dans la branche (conflits : `package.json`, `README.md`,
+  `docs/TASKS.md`, `CONTEXT.md`, `src/main.tsx`, `src/pose.ts` ; garder les deux côtés). Dans
+  `src/pose.ts`, l'option `neutral` de l'atlas et le ginga de #157 s'ajoutent au même endroit.
 
 Suite : règles de pose des 13 autres mouvements (le script les refuse pour l'instant), décision sur
 le poids versionné (≈ 2,5 Mo par mouvement, 7,4 Mo pour les trois planches du bassin), fiches muscles (prototype Blender hors dépôt :
