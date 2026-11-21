@@ -4,7 +4,8 @@
 [Mode jeu](spec-jeu-file-auto.md) (#140) · [Virgula](virgula.md) · [Règles du propriétaire](regles-proprietaire.md) ·
 [Issue #144](https://github.com/arcodange-org/dance-hips-movement-3D-comparison/issues/144)
 
-**Statut : spec en attente des réponses du propriétaire.** Rien n'est codé. Les questions sont à la fin.
+**Statut : modèle validé par le propriétaire le 21 novembre 2026** (réponses ci-dessous), sauf le
+comportement du suiveur quand il va de côté (question 4, reposée).
 
 ## Demande du propriétaire (21 novembre 2026)
 
@@ -61,54 +62,84 @@ Dans la marche et la sortie garçon, le suiveur fait le pas opposé du leader : 
 est direct. Dans le quart de tour et la sortie fille, le suiveur se déplace surtout de côté pendant que
 le leader avance ou recule : son aller-retour est à définir (question 4).
 
-## Modèle proposé (à valider)
+## Réponses du propriétaire (21 novembre 2026)
 
-Il prolonge l'ida inséré de #91, que le propriétaire a déjà vu.
+| Question | Réponse (ses mots) |
+|---|---|
+| 1. L'aller-retour ajoute 2 temps, puis le pas prévu ? | « Oui » |
+| 2. Poids | « Le ida volta consiste en un "touch"/marka en aller retour donc si c'est le pied gauche qui sort et revient le poids reste à droite au début et à la fin et c'est encore au pied gauche de bouger ensuite. On peut faire ida e volta + quart de tour ensuite : le transfert de poids se fera donc au pas gauche du premier temps du quart de tour » |
+| 3. Quels pas | « une sortie garçon (G1) peut être remplacée par une ida volta et reprendre ensuite, un retour de sortie fille (D4) peut être un ida volta. D2 et G5 non dans ces cas-ci » |
+| 4. Suiveur quand il va de côté | « Je n'ai pas compris la question » : reposée plus bas |
+| 5. Virgula par une touche maintenue, tirée en danse seule | « ok » |
+| 6. La touche de l'ida pendant une figure transforme le prochain pas possible | « ok » |
 
-1. **Où** : à la fin d'une action, si le pas suivant du leader avance ou recule.
+## Modèle
+
+Il prolonge l'ida inséré de #91.
+
+1. **Où** : avant un pas du leader qui avance ou recule. On note la **position** `p` : la fin de
+   l'action `p`, donc `p = 0` avant le premier pas de la figure (le G1 de la sortie garçon, exemple du
+   propriétaire), `p = 3` avant le D4 de la sortie fille (son autre exemple).
 2. **Quoi** : ce pied part dans le sens de son pas, sur un temps, et revient sur le temps suivant. C'est
    un créneau de 2 temps du cycle de l'ida e volta en paire (#107), ajouté à la position tenue.
-3. **Poids** : touche. Le poids passe sur le pied sorti au temps, puis revient ; le retour se fait sans
-   poids. Le danseur finit sur l'appui qu'il avait.
-4. **Ensuite** : la figure reprend au pas qui était prévu. Elle dure 2 temps de plus par aller-retour.
-5. **Suiveur** : le miroir, avec le pied qui allait faire son propre pas.
+3. **Poids** : touche, marka. Le poids est sur l'autre pied au début et à la fin ; le pied qui est sorti
+   n'a pas pris l'appui, c'est donc encore à lui de bouger.
+4. **Ensuite** : la figure reprend au pas qui était prévu, et c'est ce pas qui fait le transfert de
+   poids. La figure dure 2 temps de plus par aller-retour.
+5. **Suiveur** : le miroir de l'ida e volta en paire. Quand le leader avance son pied, le suiveur recule
+   le sien, dans le même couloir ; quand il recule, le suiveur avance. C'est ce que fait déjà l'ida inséré
+   de la sortie fille (#91). *À confirmer* pour les pas où le suiveur allait de côté (question 4).
 6. **Virgula** : quand c'est le G du leader qui avance, le pied peut se poser perpendiculaire (R26), avec
    la géométrie de #127. Sans effet sur le suiveur.
-7. **Plusieurs fois** : chaque pas possible d'une même figure peut devenir un aller-retour.
+7. **Plusieurs fois** : chaque pas possible d'une même figure peut devenir un aller-retour, une fois.
 
-Conséquences pour le code, à chiffrer après les réponses :
+### Positions retenues
 
-- `src/insertion.ts` : l'insertion prend un hôte, une position et un pied, au lieu des deux cas fixes.
-- `src/guidage.ts` : un segment porte la liste de ses allers-retours ; sa durée en dépend.
-- Chaque nouveau point d'insertion demande ses contrôles sur le GLB (continuité, semelles, aucun
-  croisement d'os des jambes), comme #91 l'a demandé pour la position 2 : dans la sortie garçon il avait
-  fallu ouvrir le D du suiveur de 3 cm pour qu'il ne frotte pas.
+| Figure | Positions | Pas du leader qui devient l'aller-retour |
+|---|---|---|
+| Avancer, double | 0 | G en avant |
+| Avancer | 1 | D en avant |
+| Reculer | 0, 1 | G, puis D, en arrière |
+| Quart de tour | 0, 1 | G, puis D, en avant |
+| Sortie garçon | 0, 1, 2, 3 | G1, D2, G3, D4, en avant |
+| Sortie fille | 0, 2, 3, 4 | G1 en avant ; G3, D4, G5 en arrière |
+| Enchaînement (#90) | celles de la sortie fille jusqu'à sa position 3, puis le pont et la fin de la sortie garçon | |
+
+Non retenus : le D2 de la sortie fille (de côté), le G5 de la sortie garçon (fermeture), le second pas
+du double (il tombe à un demi-temps). Une position n'est gardée que si ses contrôles sur le GLB passent
+(critère 3) ; celles qui croisent des os sont listées dans le rapport avec leur mesure.
 
 ## Mode jeu et danse automatique
 
-- **Commande** (question 6) : aujourd'hui, la touche de l'ida pressée pendant une figure met un ida e
-  volta de 8 temps dans la file, sauf au début d'une sortie. Proposition : pendant une figure, elle
-  transforme le prochain pas possible en aller-retour ; à la position neutre, elle garde son sens.
+- **Commande** : la touche de l'ida transforme en aller-retour le **prochain pas possible** de la danse
+  en cours : celui de la figure qui se danse, sinon le premier pas possible de la figure qui attend en
+  tête de file. Sans figure en cours ni en attente (pas de base), elle commande l'ida e volta de
+  8 temps, comme avant. *Choix de l'agent, à essayer* : viser aussi la figure en attente est ce qui rend
+  accessible le G1 d'une figure (« sortie garçon (G1) peut être remplacée par une ida volta ») ; en
+  contrepartie, pour danser un ida e volta de 8 temps après une figure, il faut le commander quand elle
+  n'a plus de pas possible devant elle.
+- **Sens** : l'aller-retour suit le sens du pas qu'il précède. Les flèches maintenues (jambe droite,
+  arrière d'abord) ne le changent pas.
+- **Virgula** : une touche maintenue (Maj) avec la touche de l'ida, quand le pas visé est un G du leader
+  qui avance. Sur écran tactile : un bouton à bascule « Virgula ».
 - **Danse automatique** : « à chaque position le choix de faire le début d'une figure si possible ou de
-  terminer l'actuelle » (#140). Avec cette règle, chaque pas du tableau devient un choix : faire le pas,
-  ou l'aller-retour. Le tirage de #140 (probabilité par jonction, préférence de phrase) s'y applique
-  tel quel.
+  terminer l'actuelle » (#140). Chaque position retenue devient un choix : faire le pas, ou
+  l'aller-retour d'abord. Le tirage de #140 s'y applique (probabilité plus forte quand l'aller-retour
+  amène une position neutre sur la fin de phrase, plus faible quand il l'en éloigne). La virgula est
+  tirée quand elle est possible.
+- Les deux insertions de #91 (position 2 des sorties) deviennent deux cas de ce modèle. Une sortie fille
+  peut désormais être à la fois ornée d'allers-retours et enchaînée (#90).
 
-## Questions pour le propriétaire
+## Question reposée au propriétaire
 
-1. **Durée** : l'aller-retour ajoute-t-il 2 temps à la figure (aller, retour, puis le pas prévu), comme
-   l'ida inséré de #91 ? Ou remplace-t-il le pas, la figure gardant sa durée ?
-2. **Poids** : touche avec le poids qui passe sur le pied sorti au temps (comme #91), ou pied sorti sans
-   poids ?
-3. **Quels pas** : les 16 pas du tableau du leader ? Les pas de côté (D2 de la sortie fille) et la
-   fermeture (G5 de la sortie garçon) restent-ils exclus ?
-4. **Suiveur** : dans la sortie fille et le quart de tour, il va de côté pendant que le leader avance ou
-   recule. Fait-il alors un aller-retour de côté, reste-t-il en place, ou l'aller-retour du leader n'est-il
-   pas possible à ces pas ?
-5. **Virgula** : qui la choisit ? Une touche maintenue par le joueur, un réglage, ou la figure ?
-6. **Commande** : la touche de l'ida pendant une figure transforme-t-elle le prochain pas possible ?
+4. Pendant l'aller-retour du leader, que fait la suiveuse ? Dans l'ida e volta en paire, elle fait le
+   miroir : il avance son pied, elle recule le sien. La spec applique ce miroir partout. Mais dans la
+   sortie fille et le quart de tour, au moment où le leader va faire son pas en avant ou en arrière, la
+   suiveuse s'apprêtait à faire un pas **de côté**. Doit-elle quand même faire le miroir (son pied recule
+   ou avance puis revient), ou rester en appui sans bouger le pied pendant que le leader fait son
+   aller-retour ?
 
-## Critères (tests, après validation du modèle)
+## Critères (tests)
 
 1. Avant l'aller-retour, la figure est inchangée ; après, elle reprend à l'identique, décalée de 2 temps.
 2. Le pied part dans le sens de son pas ; le retour se fait sans poids ; le suiveur n'est jamais en
