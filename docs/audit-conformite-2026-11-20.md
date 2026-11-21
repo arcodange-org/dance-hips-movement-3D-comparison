@@ -15,6 +15,42 @@ signalés quand ils changent le verdict. Aucun correctif dans ce chantier.
 > corridinho), les os des jambes des partenaires se croisent dans les six styles**, sans aucun
 > test pour le voir.
 
+## Mise à jour du 21 novembre 2026
+
+La sonde a été relancée sur `main` après les fusions #104 à #123 (`node scripts/audit_conformite.mjs`). Les
+valeurs ci-dessous sont l'amplitude 1, en plage sur les six styles. Les tableaux plus bas restent ceux du
+20 novembre.
+
+| Figure | Écart avant-arrière des bassins (Δ) | Décalage latéral max | Hauteur bassin leader / suiveur | Plexus max |
+|---|---|---|---|---|
+| Sortie garçon | 16,6–19 → 48–52,4 cm (Δ 29–33,8 ; 32–36,8 avant) | 27,6–31,4 cm (40–44 avant) | 5,5–7,5 / 13,9–15 cm (16–17,1 avant) | 21–27,7 cm (15,7–17,5 avant) |
+| Sortie fille, crochet | 14,3–18,7 → 44,8 cm (Δ 26,1–30,5 ; 49–53,4 avant) | 43,9–53,4 cm | 3–4,6 / 13,8–15,5 cm | **35,9–43,5 cm** (15–16 avant) |
+| Sortie fille, recul | 11,2–15,6 → 45–46,1 cm (Δ 29,4–34,6 ; 47,7–52,7 avant) | 30,6–39,9 cm | 6,3–7,5 / 11,3–12,8 cm | 26,7–29 cm (17,6–18,2 avant) |
+| Quarts de tour | 25,4 → 31,1–31,6 cm (Δ 5,7–6,2 ; 10,3–10,9 avant) | 8,1 cm | 3,1–4,7 / 5,7–6,3 cm | 6,4–10,3 cm |
+| Ida e volta | 25,7–26,3 → 28,9–29,6 cm (Δ 2,6–3,9 ; 0–0,4 avant) | 12,5–13,4 cm (voir note) | 2–2,9 / 2–3,1 cm | 5,4–7,8 cm |
+
+Lecture :
+- **R2** s'améliore nettement dans la sortie fille (#105) et dans les quarts (#106). Dans l'ida, l'écart
+  varie de 3 à 4 cm : c'est le pivot de bassin sur la hanche d'appui (#84).
+- **R3** s'améliore un peu dans les sorties (suiveur 11 à 15,5 cm, contre 13 à 17 cm).
+- **R4 se dégrade dans les sorties**, surtout la sortie fille en crochet : les repères de poitrine
+  s'écartent jusqu'à 36–44 cm. Les pas raccourcis aux unités du propriétaire (#105) ont changé la
+  géométrie. La garde de `test_plexus.mjs` (41 cm, kizomba et kompa seulement) ne l'a pas signalé. C'est
+  l'écart au contact plexus que #75 demande de tester avec le seuil de la règle.
+- **Décalage latéral de l'ida** : la sonde le mesure dans l'axe du bassin du leader, que le pivot de #84
+  tourne. Dans l'axe de ses pieds, le couple reste en quinconce (`scripts/test_ontologie.mjs`, PR #117).
+- **Glissement des pieds porteurs** : la mesure de la sonde (barycentre des sommets de semelle au sol)
+  saute chaque fois que le talon quitte le sol. Elle surestime donc le glissement quand le pied bascule :
+  jusqu'à 2,6 mm par 1/32 temps dans les quarts (D du leader sur sa demi-pointe) et sur place. Le test
+  dédié de #73 (`scripts/test_appui_fixe.mjs`) vérifie le point de pivot (demi-pointe ou talon) et
+  mesure 0,00 mm sur 1 344 poses.
+- **Règles sorties du statut « non respecté »** :
+  - R13 et R14 (ginga, #42 et #59, fusionnés) ;
+  - l'appui qui glisse sur place (#73, #121) ;
+  - le croisement des os pendant le pivot de l'ida (#84, #120, 0 croisement).
+- **R9** : en position 2 de la sortie garçon, les pieds D sont maintenant à 12 cm (#110), et non plus bord
+  à bord. Décision du propriétaire attendue.
+
 ## Méthode
 
 - Sonde indépendante [`scripts/audit_conformite.mjs`](../scripts/audit_conformite.mjs) (hors
