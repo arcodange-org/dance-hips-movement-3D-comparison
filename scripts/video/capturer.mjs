@@ -8,7 +8,7 @@ import { join } from "node:path";
 import { RACINE, dossier, ecrireJson, empreinte, ffmpegFlux, lireJson, navigateur } from "./outils.mjs";
 
 /** À augmenter quand la façon de filmer change : les plans en cache sont alors refaits. */
-const VERSION_CAPTURE = 2;
+const VERSION_CAPTURE = 3;
 
 /** Construit l'application dans le dossier de travail et la sert ; rend l'adresse et `fermer()`. */
 export async function servirApplication({ reconstruire = true } = {}) {
@@ -49,7 +49,8 @@ async function attendreModeles(page) {
  * @param {number} plan.hauteur
  * @param {number} [plan.avance]   images de danse à passer avant d'enregistrer (le plan commence en cours de danse)
  * @param {(i: number, t: number) => object} [plan.cadrage] cadrage de l'image i (voir FilmView, src/film.ts)
- * @returns {Promise<{fichier: string, images: number, temps: number, neuf: boolean}>} `temps` : temps de danse atteint
+ * @returns {Promise<{fichier: string, images: number, temps: number, bassin: number[][], neuf: boolean}>} `temps` : temps de danse
+ *   atteint ; `bassin` : position du bassin (mètres) à chaque image
  */
 export async function filmer(plan, { adresse, version = "", navigateurOuvert, refaire = false, journal = () => {} }) {
   const dir = dossier("plans");
@@ -59,7 +60,7 @@ export async function filmer(plan, { adresse, version = "", navigateurOuvert, re
   const avance = plan.avance ?? 0;
   const cle = empreinte({ url: plan.url, images: plan.images, avance, ips: plan.ips, l: plan.largeur, h: plan.hauteur, cadrages, version: VERSION_CAPTURE, application: version });
   const connu = lireJson(fiche);
-  if (!refaire && connu?.cle === cle && existsSync(fichier)) return { fichier, images: plan.images, temps: connu.temps, neuf: false };
+  if (!refaire && connu?.cle === cle && existsSync(fichier)) return { fichier, images: plan.images, temps: connu.temps, bassin: connu.bassin ?? [], neuf: false };
 
   const page = await navigateurOuvert.newPage({ viewport: { width: plan.largeur, height: plan.hauteur }, deviceScaleFactor: 1 });
   try {
@@ -76,15 +77,18 @@ export async function filmer(plan, { adresse, version = "", navigateurOuvert, re
     // Images passées sans être enregistrées : la danse avance au même pas, par paquets.
     for (let j = 1; j < avance; j += 50)
       await page.evaluate(([a, b, ips, v]) => { for (let k = a; k < b; k++) window.__film.frame(k / ips, v ?? undefined, 0.1); }, [j, Math.min(avance, j + 50), plan.ips, cadrages[0]]);
+    // À chaque image, la position du bassin du premier danseur : l'habillage en trace le trajet.
+    const bassin = [];
     for (let i = 0; i < plan.images; i++) {
-      const url = await page.evaluate(([t, v]) => window.__film.frame(t, v ?? undefined), [(avance + i) / plan.ips, cadrages[i]]);
+      const [url, ou] = await page.evaluate(([t, v]) => [window.__film.frame(t, v ?? undefined), window.__film.pelvis()[0] ?? null], [(avance + i) / plan.ips, cadrages[i]]);
+      if (ou) bassin.push(ou.map(x => Math.round(x * 1e4) / 1e4));
       await sortie.ecrire(Buffer.from(url.slice(url.indexOf(",") + 1), "base64"));
       if (i % 100 === 0) journal(`  ${plan.id} : image ${i}/${plan.images}`);
     }
     await sortie.fin();
     const temps = await page.evaluate(() => window.__film.beat());
-    ecrireJson(fiche, { cle, url: plan.url, images: plan.images, ips: plan.ips, temps, maillages, secondes: (Date.now() - debut) / 1000 });
-    return { fichier, images: plan.images, temps, neuf: true };
+    ecrireJson(fiche, { cle, url: plan.url, images: plan.images, ips: plan.ips, temps, maillages, secondes: (Date.now() - debut) / 1000, bassin });
+    return { fichier, images: plan.images, temps, bassin, neuf: true };
   } finally {
     await page.close();
   }

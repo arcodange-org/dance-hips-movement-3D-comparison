@@ -67,6 +67,8 @@ Une phrase :
   "faits": ["F012"],            // au moins un, sauf "lien": true (phrase de liaison, 15 % au plus)
   "repere": "…",                // optionnel : mot-clé affiché pendant la phrase (44 caractères au plus)
   "accent": ["semba", "kompa"], // comparaison seulement : les styles dont on parle restent éclairés
+  "voile": false,               // avec "accent" : cadres seuls, les autres styles restent éclairés (on compare les six)
+  "plan": "grille",             // comparaison seulement : la grille des bassins commence sur cette phrase
   "point": "…",                 // limites seulement : la ligne ajoutée à la liste à l'écran (90 caractères au plus)
   "pause": 0.6                  // optionnel : silence avant la phrase, en secondes
 }
@@ -74,10 +76,17 @@ Une phrase :
 
 - **Les voix** : `guide` conduit le film (ouverture, comparaison, limites, final) ; `histoire` raconte d'où
   vient un style et ce qui l'a influencé ; `geste` décrit ce que fait le corps.
-- **Ce qu'on voit pendant un chapitre de style** : le danseur seul, de face en pied, puis le bassin en gros
-  plan, puis de trois quarts ; sur place, les pieds restent au sol. La comparaison montre une rangée de
-  six corps entiers au même tempo, puis une grille de six bassins. Le final montre le couple en danse
-  automatique sur la piste kizomba, puis le générique.
+- **Ce qu'on voit pendant un chapitre de style** : un plan par phrase. Les voix `histoire` et `guide` se
+  disent sur le corps entier, de face. La première phrase de la voix `geste` passe sur le bassin en gros
+  plan, fixe et de face, avec son trajet vu de dessus (largeur et rebond mesurés pendant la capture) ; les
+  phrases `geste` suivantes sur le profil, où se lit le buste. Sur place, les pieds restent au sol.
+- **La comparaison** montre une rangée de six corps entiers au même tempo, puis, à partir de la phrase
+  marquée `"plan": "grille"`, six bassins de près avec leurs six trajets à la même échelle. `"titre"` du
+  chapitre s'affiche avant la première phrase (de même pour le final).
+- **Le final** montre le couple en danse automatique, vu de côté (la caméra suit son orientation), puis le
+  générique.
+- **Les sous-titres** sont découpés en cartons de deux lignes au plus, aux fins de phrase : une phrase de
+  `texte` peut donc tenir en deux ou trois cartons, sans rien changer à la voix.
 - **La voix lit mal** les sigles et les chiffres : écrire « dit » en toutes lettres (« cent vingt battements
   par minute »). `scenario.mjs` remplace déjà semba, tarraxinha, ginga par leur écriture phonétique.
 - **Durée** : la voix `guide` dit environ 15 caractères par seconde, les deux autres 19. Un chapitre de style

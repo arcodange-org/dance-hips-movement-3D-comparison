@@ -17,8 +17,9 @@ export function assemblerComparaison({ ordre, fichiers, largeur, hauteur, ips, s
   ordre.forEach(s => entrees.push("-i", fichiers[`comparaison-grille-${s}`]));
   const n = ordre.length, { grille } = COMPARAISON;
   filtres.push(`${ordre.map((_, k) => `[${k}:v]`).join("")}hstack=inputs=${n},pad=${largeur}:${hauteur}:0:${COMPARAISON.haut}:color=${FOND},setsar=1[a]`);
-  const disposition = ordre.map((_, k) => `${(k % grille.colonnes) * grille.largeur}_${Math.floor(k / grille.colonnes) * grille.hauteur}`).join("|");
-  filtres.push(`${ordre.map((_, k) => `[${n + k}:v]`).join("")}xstack=inputs=${n}:layout=${disposition},pad=${largeur}:${hauteur}:0:${COMPARAISON.haut}:color=${FOND},setsar=1[b]`);
+  // Les deux rangées de la grille sont séparées par un écart, de la couleur du fond.
+  const disposition = ordre.map((_, k) => `${(k % grille.colonnes) * grille.largeur}_${Math.floor(k / grille.colonnes) * (grille.hauteur + grille.ecart)}`).join("|");
+  filtres.push(`${ordre.map((_, k) => `[${n + k}:v]`).join("")}xstack=inputs=${n}:layout=${disposition}:fill=${FOND},pad=${largeur}:${hauteur}:0:${COMPARAISON.haut}:color=${FOND},setsar=1[b]`);
   filtres.push(`[a][b]concat=n=2:v=1:a=0,format=yuv420p[v]`);
   ffmpeg([...entrees, "-filter_complex", filtres.join(";"), "-map", "[v]", "-r", String(ips), "-c:v", "libx264", "-preset", "medium", "-crf", "14", "-color_range", "tv", sortie]);
   return sortie;

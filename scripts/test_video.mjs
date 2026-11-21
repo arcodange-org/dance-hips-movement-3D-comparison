@@ -9,8 +9,8 @@ import { fileURLToPath } from "node:url";
 import { RYTHME, adouci, calendrier, coupes } from "./video/calendrier.mjs";
 import { DEBIT, FICHE_DUREES, FICHE_FAITS, clePhrase, controlerNarration, faitsDe } from "./video/controle.mjs";
 import { DOSSIER_PISTES, FICHE_PISTES, VARIANTE_VIDEO, niveauxDe, partiePleine, pistes, tempoPrevu } from "./video/musique.mjs";
-import { ATTRIBUTIONS, COMPARAISON, FILM, PRONONCIATION, STYLES, VOIX, caseDe, chapitresDe, generiqueDe, habillageDe,
-  lireNarration, musiqueDe, plansDe, sourcesDe } from "./video/scenario.mjs";
+import { ATTRIBUTIONS, COMPARAISON, FILM, PRONONCIATION, SOUS_TITRE_MAX, STYLES, VOIX, caseDe, chapitresDe, decouper, generiqueDe,
+  habillageDe, lireNarration, musiqueDe, plansDe, plansDesPhrases, sourcesDe, trajetDe } from "./video/scenario.mjs";
 import { ELEMENTS, generiqueHtml } from "./video/habillage.mjs";
 import { ATTRIBUTION_VOIX, prononcer } from "./video/voix.mjs";
 import { PROMPTS, VARIANTES } from "./musique_prompts.mjs";
@@ -48,7 +48,19 @@ const proche = (a, b, eps = 1e-9) => Math.abs(a - b) <= eps;
   assert.equal(filmShiftPixels(0.2, 1920), 384);
   assert.equal(filmShiftPixels(undefined, 1920), 0);
   assert.equal(filmShiftPixels(-0.12, 1920), -230);
-  console.log("PASS film : instants, temps de danse, caméra et décalage d'objectif");
+  // Caméra qui suit l'orientation du couple : par le plus court chemin, sans à-coup.
+  const { angleDiff, followAngle, FILM_FOLLOW_TAU } = app;
+  assert.ok(proche(angleDiff(0.2, -0.1), 0.3, 1e-12));
+  assert.ok(proche(angleDiff(-3, 3), 2 * Math.PI - 6, 1e-12), "de 3 à −3 rad : par le plus court, en avant");
+  assert.ok(Math.abs(angleDiff(10 * Math.PI + 0.1, 0) - 0.1) < 1e-9, "les tours entiers ne comptent pas");
+  assert.equal(followAngle(1, 2, 0, FILM_FOLLOW_TAU), 2, "première image : sur la cible");
+  const apres = followAngle(0, 1, FILM_FOLLOW_TAU, FILM_FOLLOW_TAU);
+  assert.ok(proche(apres, 1 - Math.exp(-1), 1e-12), "après une constante de temps, 63 % de l'écart");
+  let a = 0;
+  for (let i = 0; i < 25 * 20; i++) a = followAngle(a, 1.2, 1 / 25, FILM_FOLLOW_TAU);
+  assert.ok(Math.abs(a - 1.2) < 1e-4, "la caméra rejoint l'orientation du couple");
+  assert.ok(Math.abs(followAngle(3.1, -3.1, 1 / 25, FILM_FOLLOW_TAU) - 3.1) < 0.01 && followAngle(3.1, -3.1, 1 / 25, FILM_FOLLOW_TAU) > 3.1, "pas de demi-tour au passage de ±π");
+  console.log("PASS film : instants, temps de danse, caméra, décalage d'objectif, suivi du couple");
 }
 
 // ---------------------------------------------------------------- 2. calendrier
@@ -189,27 +201,75 @@ const durees = existsSync(FICHE_DUREES) ? JSON.parse(readFileSync(FICHE_DUREES, 
     if (c.type === "style") assert.match(plans[0].url, new RegExp(`mode=solo&style=${c.style}&.*muscles=1.*travel=0`), `${c.id} : seul, sur place, avec les muscles`);
     if (c.type === "final") assert.match(plans[0].url, /vitrine=1&style=kizomba&graine=\d+/, "final : danse automatique, graine fixée");
     if (c.type === "limites") assert.match(plans[0].url, /muscles=0/, "limites : le squelette seul");
-    // Habillage : chaque élément tient dans le chapitre ; un sous-titre par phrase.
-    const elements = habillageDe(c, k, narration, narration.ordre, composition);
+    // Habillage : chaque élément tient dans le chapitre ; chaque phrase a ses cartons de sous-titre.
+    // Trajet de bassin factice (un « 8 » de 6 cm sur 2 cm, 1 cm de rebond) pour chaque plan filmé.
+    const huit = (n) => Array.from({ length: n }, (_, i) => { const u = 2 * Math.PI * i / 60; return [0.03 * Math.sin(u), 0.9 + 0.005 * Math.sin(2 * u), 0.01 * Math.sin(2 * u)]; });
+    const bassins = Object.fromEntries(plans.map((plan) => [plan.id, huit(plan.images)]));
+    const elements = habillageDe(c, k, narration, narration.ordre, composition, bassins, 100);
     for (const e of elements) {
       assert.ok(ELEMENTS[e.type], `${c.id} : élément connu (${e.type})`);
       assert.ok(e.debut >= 0 && e.fin <= k.duree + 1e-9 && e.fin - e.debut > 0.2, `${c.id} ${e.type} : ${e.debut} → ${e.fin}`);
       assert.ok(typeof ELEMENTS[e.type](e.donnees) === "string");
     }
-    assert.equal(elements.filter((e) => e.type === "soustitre").length, c.phrases.length, `${c.id} : un sous-titre par phrase`);
-    if (c.type === "style") assert.ok(elements.some((e) => e.type === "chapitre") && elements.some((e) => e.type === "cartouche"));
+    const cartons = elements.filter((e) => e.type === "soustitre");
+    assert.ok(cartons.length >= c.phrases.length, `${c.id} : au moins un carton de sous-titre par phrase`);
+    assert.equal(cartons.map((e) => e.donnees.texte).join(" "), c.phrases.map((p) => p.texte).join(" "), `${c.id} : les cartons redonnent le texte, dans l'ordre`);
+    assert.ok(cartons.every((e) => e.donnees.texte.length <= SOUS_TITRE_MAX + 12), `${c.id} : cartons de deux lignes au plus`);
+    for (let i = 1; i < cartons.length; i++) assert.ok(cartons[i].debut >= cartons[i - 1].debut, `${c.id} : cartons dans l'ordre du temps`);
+    if (c.type === "style") {
+      assert.ok(elements.some((e) => e.type === "chapitre") && elements.some((e) => e.type === "cartouche"));
+      // Un plan par phrase : le premier geste en gros plan de face, les suivants de profil, le reste en pied.
+      const vus = plansDesPhrases(c);
+      assert.equal(vus.filter((x) => x === "bassin").length, 1, `${c.id} : un seul gros plan du bassin`);
+      assert.ok(c.phrases.every((p, i) => (p.voix === "geste") === (vus[i] !== "pied")), `${c.id} : l'histoire se raconte sur le corps entier`);
+      composition.segments.forEach((seg, i) => {
+        const v = plans[0].cadrage(0, (seg.debut + seg.fin) / 2);
+        if (seg.plan === "bassin") assert.ok(v.az === 0 && v.fov < 30, `${c.id} : gros plan fixe et de face`);
+        if (seg.plan === "profil") assert.ok(v.az >= 78 && v.az <= 94, `${c.id} : profil`);
+        if (seg.plan === "pied") assert.ok(Math.abs(v.az) <= 16 && v.fov > 30, `${c.id} : en pied, de face`);
+        assert.ok(i === 0 ? seg.debut === 0 : proche(seg.debut, k.phrases[i].debut - 0.25, 1e-9), `${c.id} : coupe juste avant la phrase`);
+      });
+      // Le trajet du bassin s'affiche pendant le gros plan.
+      const trace = elements.find((e) => e.type === "traces"), gros = k.phrases[vus.indexOf("bassin")];
+      assert.ok(trace && trace.debut >= gros.debut && trace.donnees.vignettes.length === 1 && trace.donnees.detail, `${c.id} : trajet du bassin pendant le gros plan`);
+    }
+    if (c.type === "comparaison") {
+      const traces = elements.filter((e) => e.type === "traces");
+      assert.equal(traces.length, 1, "comparaison : les six trajets, dans la grille");
+      assert.equal(traces[0].donnees.vignettes.length, 6);
+      assert.equal(new Set(traces[0].donnees.vignettes.map((v) => v.echelle)).size, 1, "comparaison : même échelle pour les six");
+      assert.ok(traces[0].debut >= composition.coupe, "comparaison : pas de trajet pendant la rangée");
+      // Les noms passent par-dessus le voile.
+      const ordreTypes = elements.map((e) => e.type);
+      assert.ok(ordreTypes.lastIndexOf("etiquettes") > ordreTypes.lastIndexOf("accent"), "comparaison : noms lisibles sous l'accent");
+      assert.ok(elements.some((e) => e.type === "accent" && e.donnees.voiles.length === 0 && e.donnees.liseres.length === 2), "comparaison : cadres seuls quand on compare les six");
+    }
+    if (c.type === "comparaison" || c.type === "final") assert.ok(elements.some((e) => e.type === "intertitre" && e.donnees.texte === c.titre), `${c.id} : le chapitre s'annonce`);
+    if (c.type === "final") assert.ok(plans[0].cadrage(0, 5).relative === true, "final : la caméra suit l'orientation du couple");
     if (c.type === "limites") assert.equal(elements.filter((e) => e.type === "points").at(-1).donnees.points.length, c.phrases.filter((p) => p.point).length);
     assert.ok(PROMPTS[musiqueDe(c)], `${c.id} : musique d'un style connu`);
   }
   // Géométrie de la comparaison : les cases couvrent la largeur, au-dessus de la bande des textes.
   for (const forme of [COMPARAISON.rangee, COMPARAISON.grille]) {
     assert.equal(forme.colonnes * forme.largeur, FILM.largeur);
-    assert.equal(forme.lignes * forme.hauteur, COMPARAISON.hauteur);
+    assert.equal(forme.lignes * forme.hauteur + (forme.lignes - 1) * forme.ecart, COMPARAISON.hauteur);
     const derniere = caseDe(forme, 5);
     assert.equal(derniere.x + derniere.largeur, FILM.largeur);
     assert.ok(derniere.y + derniere.hauteur <= FILM.hauteur - 180, "la bande des sous-titres reste libre");
   }
-  console.log("PASS plans et habillage : cadrages finis, comparaison synchronisée, éléments dans leur chapitre");
+  // Sous-titres : coupés aux fins de phrase, puis à la ponctuation d'une phrase longue ; rien ne se perd.
+  const long = "Dans le modèle, le poids change de pied à chaque temps. Le bassin suit : sept centimètres de chaque côté, à peine incliné. D'après une source, le poids resterait deux temps du même côté.";
+  const morceaux = decouper(long);
+  assert.equal(morceaux.join(" "), long);
+  assert.ok(morceaux.length >= 2 && morceaux.every((m) => m.length <= SOUS_TITRE_MAX), "cartons courts");
+  assert.deepEqual(decouper("Une phrase courte."), ["Une phrase courte."]);
+  assert.deepEqual(decouper("Port-au-Prince, années 1950 : le saxophoniste Nemours Jean-Baptiste crée le kompa."), ["Port-au-Prince, années 1950 : le saxophoniste Nemours Jean-Baptiste crée le kompa."], "pas de coupe dans un nom ni après une abréviation");
+  // Trajet du bassin : centré, en centimètres ; le rebond est l'amplitude de la hauteur.
+  const trajet = trajetDe([[0.10, 0.90, 0.00], [0.16, 0.92, 0.02], [0.13, 0.91, -0.02]]);
+  assert.deepEqual(trajet.points, [[-3, 0], [3, 2], [0, -2]]);
+  assert.equal(trajet.hauteur_rebond, 2);
+  assert.equal(trajetDe([]), null);
+  console.log("PASS plans et habillage : un plan par phrase, comparaison synchronisée, trajets du bassin, sous-titres en cartons");
 }
 
 // ---------------------------------------------------------------- 6. musiques

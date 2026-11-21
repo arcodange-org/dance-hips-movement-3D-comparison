@@ -1,7 +1,7 @@
 /** Game mode (#69, docs/spec-mode-guidage-poc.md; #140, docs/spec-jeu-file-auto.md): `?mode=pair&guidage=1`.
  * The player leads: each key queues a pair figure for the follower; the figures are danced in order, each
  * from the neutral quinconce. Space lets the couple dance by itself. The rest of the app is unchanged. */
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
@@ -102,6 +102,8 @@ export default function GuidageApp() {
   const [playing, setPlaying] = useState(!capture);
   const clock = useMemo(() => createDanceClock(), []);
   const session = useMemo(() => new GuideSession(), []);
+  // #155: the film's side-on camera follows the couple's orientation.
+  const coupleYaw = useCallback(() => session.sample(clock.beat)?.couple.yaw ?? 0, [session, clock]);
   // #140: Space switches between listening to the commands and the automatic dance (`auto=1` opens in
   // it; `graine=N` fixes its seed: same seed, same dance).
   const [auto, setAuto] = useState(settings.auto);
@@ -222,7 +224,7 @@ export default function GuidageApp() {
     <div className="relative w-screen h-screen overflow-hidden bg-slate-950 text-slate-200">
       <Canvas camera={{ position: leaderView ? [LEADER_VIEW.eye.x, LEADER_VIEW.eye.y, LEADER_VIEW.eye.z] : [2.7, 1.5, 3.4], fov: 40 }} dpr={[1, 2]}
         {...(film ? { frameloop: "never" as const, gl: { preserveDrawingBuffer: true } } : {})}>
-        {film && <FilmDriver clock={clock} />}
+        {film && <FilmDriver clock={clock} frameYaw={coupleYaw} />}
         <DanceTransport clock={clock} bpm={bpm} playing={playing} driver={music.driver} />
         <FrameClock clock={clock} last={last} />
         <color attach="background" args={["#0b1220"]} />

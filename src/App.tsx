@@ -401,6 +401,7 @@ export default function App() {
           travel={travel}
           showTorso={showTorso}
           showMuscles={showMuscles}
+          showTrail={!film}
           movement={movement}
           sortieFilleVariant={sortieFilleVariant}
           placement={hasPlacement ? placement : undefined}
@@ -438,6 +439,7 @@ export default function App() {
             travel={travel}
             showTorso={showTorso}
             showMuscles={showMuscles}
+          showTrail={!film}
             movement={movement}
             sortieFilleVariant={sortieFilleVariant}
             placement={hasPlacement ? placement : undefined}

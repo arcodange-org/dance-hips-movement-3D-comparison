@@ -47,7 +47,7 @@
       "cartouche": {
         "lieu": "Luanda, Angola",
         "epoque": "populaire dans les années 1950",
-        "tempo": "sa bande-son : ≈ 120 bpm",
+        "tempo": "sa bande-son : ≈ 120 battements/min",
         "faits": [
           "F059",
           "F068",
@@ -105,7 +105,7 @@
       "cartouche": {
         "lieu": "Port-au-Prince, Haïti",
         "epoque": "1955 ou 1957 selon les sources",
-        "tempo": "sa bande-son : ≈ 120 bpm",
+        "tempo": "sa bande-son : ≈ 120 battements/min",
         "faits": [
           "F018",
           "F098",
@@ -161,7 +161,7 @@
       "cartouche": {
         "lieu": "Angola",
         "epoque": "vers 1980",
-        "tempo": "sa bande-son : ≈ 102 bpm (sources : 85 à 95)",
+        "tempo": "sa bande-son : ≈ 102 battements/min (sources : 85 à 95)",
         "faits": [
           "F016",
           "F027",
@@ -219,7 +219,7 @@
       "cartouche": {
         "lieu": "Province de Benguela, Angola",
         "epoque": "début des années 2000 ou avant",
-        "tempo": "sa bande-son : ≈ 75 bpm",
+        "tempo": "sa bande-son : ≈ 75 battements/min",
         "faits": [
           "F138",
           "F139",
@@ -271,7 +271,7 @@
       "cartouche": {
         "lieu": "Origine non documentée",
         "epoque": "mot attesté une fois, en 2017",
-        "tempo": "sa bande-son : ≈ 72 bpm",
+        "tempo": "sa bande-son : ≈ 72 battements/min",
         "faits": [
           "F172",
           "F173",
@@ -324,7 +324,7 @@
       "cartouche": {
         "lieu": "Brésil",
         "epoque": "début des années 1990",
-        "tempo": "sa bande-son : ≈ 80 bpm",
+        "tempo": "sa bande-son : ≈ 80 battements/min",
         "faits": [
           "F208",
           "F213",
@@ -451,9 +451,15 @@
             "F191",
             "F250",
             "F251"
-          ]
+          ],
+          "accent": [
+            "tarraxinha",
+            "suave"
+          ],
+          "voile": false
         }
-      ]
+      ],
+      "titre": "Les six styles, côte à côte"
     },
     "limites": {
       "titre": "Les limites",
@@ -514,7 +520,8 @@
             "F034"
           ]
         }
-      ]
+      ],
+      "titre": "En couple, en danse automatique"
     }
   },
   "generique": {

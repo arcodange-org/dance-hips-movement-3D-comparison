@@ -91,10 +91,11 @@ export async function generer(args = {}) {
       const k = calDe[c.id], bpm = bpmDe(c);
       // 4. Les plans, filmés au tempo de la musique.
       const { plans, composition } = plansDe(c, k, bpm, narration.ordre);
-      const fichiers = {};
+      const fichiers = {}, bassins = {};
       for (const plan of plans) {
         const r = await filmer(plan, { adresse: site.adresse, version: site.version, navigateurOuvert: chrome, refaire: refaire("plans"), journal });
         fichiers[plan.id] = r.fichier;
+        bassins[plan.id] = r.bassin;
         if (r.neuf) journal(`  plan ${plan.id} : ${plan.images} images`);
       }
       let clip = fichiers[c.id];
@@ -102,7 +103,7 @@ export async function generer(args = {}) {
         clip = assemblerComparaison({ ordre: composition.ordre, fichiers, largeur, hauteur, ips, sortie: join(dossier("plans"), `${c.id}.mp4`) });
       // 5. L'habillage.
       const elements = [];
-      for (const e of habillageDe(c, k, narration, narration.ordre, composition)) {
+      for (const e of habillageDe(c, k, narration, narration.ordre, composition, bassins, bpm)) {
         const image = await rendre(chrome, { type: e.type, donnees: e.donnees, largeur, hauteur }, { refaire: refaire("habillage") });
         elements.push({ type: e.type, fichier: image.fichier, debut: e.debut, fin: e.fin, fondu: e.fondu });
       }

@@ -54,6 +54,7 @@ export function controlerNarration(narration, faits, durees = {}) {
       if (p.lien) { liens++; citer(p.faits ?? [], ou, false); } else citer(p.faits, ou);
       if (p.repere && p.repere.length > LIMITES.repere) erreurs.push(`${ou} : repère de ${p.repere.length} caractères (au plus ${LIMITES.repere})`);
       if (p.accent && (c.type !== "comparaison" || p.accent.some(s => !STYLES[s]))) erreurs.push(`${ou} : accent invalide`);
+      if (p.voile !== undefined && (p.voile !== false || !p.accent?.length)) erreurs.push(`${ou} : « voile » ne vaut que false, avec « accent »`);
       if (p.plan && (c.type !== "comparaison" || p.plan !== "grille" || i === 0)) erreurs.push(`${ou} : « plan » ne vaut que "grille", dans la comparaison, après la première phrase`);
       if (p.point && p.point.length > LIMITES.point) erreurs.push(`${ou} : point de ${p.point.length} caractères (au plus ${LIMITES.point})`);
       if (/\d/.test(p.dit ?? p.texte ?? "") && !p.dit) avertissements.push(`${ou} : chiffres dans le texte dit (écrire « dit » en toutes lettres)`);
@@ -70,6 +71,8 @@ export function controlerNarration(narration, faits, durees = {}) {
       if (c.phrases.filter(p => p.accent?.length).length < 2) erreurs.push("comparaison : au moins deux phrases avec « accent »");
     }
     if (c.type === "limites" && c.phrases.filter(p => p.point).length < 3) erreurs.push("limites : au moins trois points");
+    if ((c.type === "comparaison" || c.type === "final") && c.titre !== undefined && !(typeof c.titre === "string" && c.titre.length <= 40))
+      erreurs.push(`${c.id} : « titre » de 40 caractères au plus`);
   }
   if (phrases && liens / phrases > LIMITES.liens) erreurs.push(`${liens} phrases de liaison sur ${phrases} : trop (au plus ${LIMITES.liens * 100} %)`);
 

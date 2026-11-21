@@ -15,6 +15,9 @@ export interface FilmView {
   /** Vertical field of view in degrees; absent: the view's own. Zooms without moving the camera (the orbit
    * controls keep the camera at least 1.8 m away). */
   fov?: number;
+  /** True: `az` is measured from the couple's own orientation (game view), followed smoothly, so that a
+   * side-on camera stays side-on while the couple turns. Absent: `az` is a world azimuth. */
+  relative?: boolean;
   /** Lens shift, as a fraction of the frame width: 0.2 slides the subject 20 % of the frame to the left.
    * The camera itself does not move, so nothing fights the views that follow the couple. */
   shift?: number;
@@ -38,3 +41,19 @@ export function filmCamera(view: Pick<FilmView, "az" | "el" | "dist">, target: r
 
 /** Horizontal offset of the rendered window for a lens shift, in pixels (`camera.setViewOffset`). */
 export const filmShiftPixels = (shift: number | undefined, width: number): number => Math.round((shift ?? 0) * width);
+
+/** Shortest signed difference between two angles, in radians (result in ]−π, π]). */
+export function angleDiff(to: number, from: number): number {
+  const d = (to - from) % (2 * Math.PI);
+  return d > Math.PI ? d - 2 * Math.PI : d <= -Math.PI ? d + 2 * Math.PI : d;
+}
+
+/** Follows an angle smoothly along the shortest arc: after `tau` seconds, 63 % of the gap is closed.
+ * `dt` ≤ 0 (first frame) jumps to the target. */
+export function followAngle(current: number, target: number, dt: number, tau: number): number {
+  if (!(dt > 0) || !(tau > 0)) return target;
+  return current + angleDiff(target, current) * (1 - Math.exp(-dt / tau));
+}
+
+/** Time constant of the camera's follow of the couple's orientation, in seconds. */
+export const FILM_FOLLOW_TAU = 0.7;

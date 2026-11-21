@@ -82,8 +82,11 @@ seule : le script demande chaque image.
 
 - `src/film.ts` (pur) : lecture du paramètre, temps d'une image, position de la caméra pour un cadrage.
 - `src/components/FilmDriver.tsx` : expose `window.__film.frame(t, cadrage)`, qui avance la scène jusqu'à
-  l'instant `t` (pas fixe d'une image), place la caméra et rend l'image ; `window.__film.ready()` dit quand
-  les modèles sont chargés.
+  l'instant `t` (pas fixe d'une image), place la caméra et rend l'image ; `meshes()` dit quand les modèles
+  sont chargés, `beat()` donne le temps de danse, `pelvis()` la position du bassin (le film en trace le
+  trajet). Un cadrage `relative` suit en douceur l'orientation du couple, pour le filmer de côté.
+- En mode film, la ligne du trajet du bassin que l'application dessine dans la scène est masquée : le film
+  affiche sa propre vue de dessus.
 - L'horloge de danse reste celle de l'application (`DanceTransport`) : ce que la vidéo montre est ce que
   l'application montre, au tempo demandé par l'URL (`bpm=`).
 - Sans `film=1`, rien ne change.
@@ -118,6 +121,16 @@ filmé à ce tempo, et le montage cale le premier temps de la musique sur le tem
   `docs/musique/`, tempos tenus (119,98 ; 119,98 ; 75,00 ; 72,00 ; 79,99 bpm). **Choisis par la mesure, pas à
   l'oreille** : l'écoute revient au propriétaire. Seule la partie pleine de chaque extrait sert au film.
 - **Première version** : 5 min 40, 1920 × 1080, −16 LUFS, remise au propriétaire le 21 novembre 2026.
+- **Relecture du film monté** par trois agents sans contexte, sur une image par phrase : un spectateur neuf,
+  un contrôle de la correspondance entre image et texte, un contrôle de la lisibilité (notes 6, 6 et 7 sur 10 ;
+  aucune information trompeuse, les 39 sous-titres et les attributions conformes). Leurs constats ont donné la
+  deuxième version : un plan par phrase (l'histoire en pied, le premier geste en gros plan fixe et de face, les
+  suivants de profil), sous-titres en cartons de deux lignes, trajet du bassin vu de dessus mesuré pendant la
+  capture (le « 8 » du suave, la largeur et le rebond de chaque style, les six trajets à la même échelle dans
+  la comparaison), grille des bassins plus proche et aérée, noms lisibles sous le voile, caméra du final qui
+  reste de côté en suivant l'orientation du couple, intertitres, textes qui ne débordent plus sur le danseur.
+- **Gardé tel quel** : les réserves dites dans les phrases de geste (elles disent où le modèle s'écarte des
+  sources) ; le générique en petits caractères (143 sources en une minute).
 - **Buste** : demande du propriétaire en cours de travail, « Si on affiche les os et muscle du buste il n'y a
   pas de raison d'afficher les blocs gris. » Avec la couche de muscles, les blocs gris du tronc sont masqués
   (`trunkBlocksVisible`, `src/muscles.ts`).
