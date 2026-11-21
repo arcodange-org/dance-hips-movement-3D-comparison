@@ -130,6 +130,10 @@ transferts d'appui du cycle sont explicites, point d'accroche du ginga (#42). Te
 semelles disjointes, aucun croisement des os des jambes (six styles, trois amplitudes, trois placements,
 avec ou sans plexus).
 
+**Virgula du leader (effet de style, #128)** : case à cocher sous le placement, ou `virgula=1`. Quand
+son G avance, il se pose perpendiculaire, pointe à gauche, talon près de son D ; son bassin s'ouvre et son
+buste garde sa direction. Le pas du suiveur ne change pas.
+
 ![Ida e volta en paire, quinconce, plexus contre plexus](docs/gifs/ida-paire-couple.gif)
 <details><summary>Détails & source</summary>
 

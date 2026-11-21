@@ -64,6 +64,13 @@ et le gauche du suiveur avance en diagonale. `sortieBeat=0..5` partage une pose.
 Les repères D/D sont visibles autour du troisième arrêt. Les limites IK de la sortie garçon
 s'appliquent aussi à cette figure. `sortieGF=1` conserve son cycle historique de 16 temps.
 
+## Virgula (#127, #128, 21 novembre 2026)
+
+Vocabulaire du propriétaire : la virgula est le pied gauche du leader qui avance et se pose
+perpendiculaire. Dans la sortie fille, variante crochet, c'est son premier pas. Dans l'ida e volta en
+paire, c'est une option : `virgula=1` (effet de style, éteint par défaut). Constantes :
+`SORTIE_FILLE_VIRGULA` et `IDA_VIRGULA`.
+
 ## Paramètres d'URL (captures + partage)
 
 `?mode=solo|observe|compare|pair&style=kizomba&styleB=kompa&bpm=90&travel=0.6&amp=1&playing=1&ghost=none&contacts=1`

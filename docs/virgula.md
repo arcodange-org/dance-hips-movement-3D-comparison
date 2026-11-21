@@ -62,5 +62,6 @@ Emplois dans l'app :
 - sortie fille, variante crochet : G1 du leader, avec le buste qui ne suit pas le bassin
   (contraposition), pour que le buste du suiveur reste stable
   ([spec, #127](spec-sortie-fille.md#virgula-du-leader-au-premier-temps-variante-crochet-127-21-novembre-2026)) ;
-- ida e volta : effet de style proposé (#128).
+- ida e volta en paire : effet de style du leader, en option (`virgula=1`), quand son G avance
+  ([spec, #128](spec-ida-paire.md#virgula-du-leader-effet-de-style-128-21-novembre-2026)).
 

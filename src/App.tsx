@@ -99,6 +99,8 @@ export default function App() {
   const [contraposition, setContraposition] = usePersistentState<number>("contraposition", 1);
   const [sortieVariant, setSortieVariant] = usePersistentState<SortieVariant>("sortieVariant", "line");
   const [sortieContra, setSortieContra] = usePersistentState("sortieContra", DEFAULT_SORTIE_CONTRA);
+  // #128: virgula of the leader's G forward step in the pair ida e volta (style effect).
+  const [idaVirgula, setIdaVirgula] = usePersistentState("idaVirgula", false);
   // Phase 14 — déplacements = options NON combinables (radio) : un seul actif à la fois.
   const chosenMovement = movementOf({ corridinho, quarts, temps3, ida, sortieG, sortieF, sortieGF });
   // A style may offer only some movements (kompa: on the spot and ida e volta); otherwise on the spot.
@@ -162,6 +164,7 @@ export default function App() {
     if (s.contraposition !== undefined) setContraposition(s.contraposition);
     if (s.sortieVariant) setSortieVariant(s.sortieVariant);
     if (s.sortieContra !== undefined) setSortieContra(s.sortieContra);
+    if (s.virgula !== undefined) setIdaVirgula(s.virgula);
     if (s.seek !== undefined) seekClock(clock, s.seek);
     if (s.ligne !== undefined) setShowLigne(s.ligne);
     if (s.iso !== undefined) setIso(s.iso);
@@ -235,6 +238,7 @@ export default function App() {
       sortieG: movement === "sortieG" ? true : undefined,
       sortieVariant: isSortieGarcon ? sortieVariant : undefined,
       sortieContra: isSortieGarcon ? sortieContra : undefined,
+      virgula: isIdaPaire && idaVirgula ? true : undefined,
       sortieFilleVariant: isSortieFille ? sortieFilleVariant : undefined,
       placement: hasPlacement ? placement : undefined,
       contra: hasPlacement ? contraposition : undefined,
@@ -392,6 +396,7 @@ export default function App() {
           contraposition={contraposition}
           sortieVariant={sortieVariant}
           sortieContra={sortieContra}
+          idaVirgula={isIdaPaire && idaVirgula}
           showAppui={showAppui}
           stats={statsRef}
           plant={plant}
@@ -428,6 +433,7 @@ export default function App() {
           contraposition={contraposition}
             sortieVariant={sortieVariant}
             sortieContra={sortieContra}
+            idaVirgula={isIdaPaire && idaVirgula}
             showAppui={showAppui}
             stats={statsBRef}
             plant={plant}
@@ -592,6 +598,11 @@ export default function App() {
       {hasPlacement && <PlacementControl clock={clock} placement={placement}
         onPlacement={setPlacement} onPlaying={setPlaying} quarts={isQuartsPaire} ida={isIdaPaire}
         contraposition={contraposition} onContraposition={setContraposition} />}
+      {isIdaPaire && <label className="mt-3 flex items-start gap-2 text-sm">
+        <input type="checkbox" className="mt-1" checked={idaVirgula} onChange={event => setIdaVirgula(event.target.checked)} />
+        <span>Virgula du leader (effet de style) : quand son gauche avance, il se pose perpendiculaire,
+          pointe à gauche, talon près du droit ; son bassin s’ouvre et son buste garde sa direction.</span>
+      </label>}
       {isSortieFille && <SortieFilleControls clock={clock} variant={sortieFilleVariant}
         onVariant={setSortieFilleVariant} onPlaying={setPlaying} />}
       <SoundControls
