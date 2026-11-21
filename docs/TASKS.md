@@ -299,3 +299,13 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] `docs/features/mode-jeu.feature` : sept scénarios dans `npm test`.
 - [x] GIFs du mode jeu recapturés avec les muscles.
 - [ ] Essai par le propriétaire : poids du tirage (`GUIDE_AUTO`), part des fins de phrase en position neutre.
+
+## Élections de variantes en GIF (#148)
+
+- [x] Issue #148 et spécification poussée en premier ([spec](spec-elections-variantes.md)).
+- [ ] Prototypes derrière `?essai=` (`src/essais.ts`) : ida même pied (#86), ligne dans l'axe des bustes (#72), marche déroulée (#73), croisé à pas égaux (#56).
+- [ ] GIFs des candidats, avec les muscles (`docs/elections/2026-11-21/`).
+- [ ] Page d'élection publiée, lien donné au propriétaire.
+- [ ] Votes recopiés mot pour mot dans les issues ; variantes élues implémentées, interrupteurs retirés.
+- [ ] #67 (distance bassin-bassin) : candidats à étudier, sinon second tour.
+
