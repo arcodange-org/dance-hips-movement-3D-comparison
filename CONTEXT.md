@@ -61,6 +61,16 @@ Suite : règles de pose des 13 autres mouvements (le script les refuse pour l'in
 le poids versionné (≈ 2,5 Mo par mouvement, 7,4 Mo pour les trois planches du bassin), fiches muscles (prototype Blender hors dépôt :
 `~/Work/Danse/anatomie-3d/`), sourcing des ROM, viewer `?atlas=` complet + branchement oracle.
 
+## Vitrine : danse automatique en musique, lien direct (#150, 21 novembre 2026)
+
+- `?vitrine=1` ouvre le mode jeu en danse automatique, au tempo de la piste enregistrée, muscles et
+  buste lisibles, vue libre qui tourne, interface réduite ; bouton « Partager » (style et graine)
+  ([spec](docs/spec-vitrine-danse-auto.md), `src/vitrine.ts`). Dans le mode jeu, la danse automatique
+  prend aussi le tempo de la piste et affiche les muscles.
+- Destiné à être intégré sur un autre site par Arcodange (fragment `iframe` dans la spec).
+  **Hors périmètre, prévu plus tard** : les mascottes Rémi et Corinne à la place des corps.
+- La branche part de la musique (#143) : la PR s'annonce « Stacks on #143 » tant que celle-ci est ouverte.
+
 ## Musique enregistrée générée par ElevenLabs (#142, PR #143, 21 novembre 2026)
 
 - Le bouton « Son » joue une boucle enregistrée par style quand elle existe, sinon la synthèse

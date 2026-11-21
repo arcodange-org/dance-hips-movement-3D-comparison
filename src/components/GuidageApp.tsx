@@ -11,6 +11,9 @@ import GridFloor from "./GridFloor";
 import { createDanceClock, seekClock, type DanceClock } from "../clock";
 import { STYLES } from "../styles";
 import { useMusic } from "../music/useMusic";
+import { RECORDING_CREDIT } from "../music/recordings";
+import { SOLID_TORSO_OPACITY } from "../cameras";
+import { danceBpm, listenBpm, openingBpm, showcaseLook, vitrineSettings, vitrineUrl } from "../vitrine";
 import TransitionCard from "./TransitionCard";
 import { transitionAt } from "../transitions";
 import {
@@ -74,12 +77,14 @@ export default function GuidageApp() {
   const styleKey = STYLES[params.get("style") ?? ""] ? params.get("style")! : "kizomba";
   // `bare=1`: canvas and a one-line caption only (GIF captures).
   const bare = params.get("bare") === "1";
-  // #137: the muscle layer for the captures (`muscles=1`), as in the app.
-  const muscles = params.get("muscles") === "1";
-  // #87: the leader's point of view by default (`vue=libre` for the free orbit view).
-  const [leaderView, setLeaderView] = useState(params.get("vue") !== "libre");
-  const initialBpm = Number(params.get("bpm"));
-  const [bpm, setBpm] = useState(Number.isFinite(initialBpm) && initialBpm >= 40 && initialBpm <= 130 ? initialBpm : 60);
+  // #150: the showcase settings read from the URL (`vitrine=1`, `auto=1`, `muscles=1`, `vue=`, `bpm=`).
+  const settings = useMemo(() => vitrineSettings(params), [params]);
+  // #87: the leader's point of view by default (`vue=libre` for the free orbit view); the showcase opens
+  // in the free view.
+  const [leaderView, setLeaderView] = useState(settings.leaderView);
+  // #150: the automatic dance takes the tempo of the style's recorded track (a `bpm=` in the URL wins).
+  const [bpm, setBpm] = useState(() => openingBpm(settings, styleKey));
+  const listenTempo = useRef(listenBpm(settings));
   // #140 (owner: « par défaut le simulateur "écoute" (pas besoin d'appuyer sur espace) »): the couple dances
   // and the keys are listened to as soon as the view opens. `beat=` (or `sortieBeat=`,
   // scripts/capture_figure_gif.mjs) shows that beat, paused, for frame-by-frame captures.
@@ -89,14 +94,17 @@ export default function GuidageApp() {
   const session = useMemo(() => new GuideSession(), []);
   // #140: Space switches between listening to the commands and the automatic dance (`auto=1` opens in
   // it; `graine=N` fixes its seed: same seed, same dance).
-  const [auto, setAuto] = useState(params.get("auto") === "1");
+  const [auto, setAuto] = useState(settings.auto);
+  // #150: in the automatic dance the muscles are shown and the bust reads as a body (#137: `muscles=1`
+  // shows the muscle layer while listening too).
+  const look = showcaseLook(settings, auto);
   // #62: the style offers some figures only (kompa: the walks).
   const offered = guideFiguresFor(styleKey);
   useMemo(() => {
     const seed = Number(params.get("graine"));
     session.seed = params.has("graine") && Number.isFinite(seed) ? Math.trunc(seed) : Date.now() % 2147483647;
     session.offered = guideFiguresFor(styleKey);
-    session.reset(params.get("auto") === "1");
+    session.reset(settings.auto);
     // `demo=…`: the demonstration sessions (commands already pressed).
     if (params.get("demo") === "1") session.intentions = GUIDE_DEMO.map(i => ({ ...i }));
     if (params.get("demo") === "fleches") session.intentions = GUIDE_DEMO_ARROWS.map(i => ({ ...i }));
@@ -135,6 +143,18 @@ export default function GuidageApp() {
     const next = !session.auto;
     session.setAuto(beatAt(time), next);
     setAuto(next);
+    // #150: the automatic dance runs at the tempo of the track; listening gets its own tempo back.
+    const dance = danceBpm(settings, styleKey);
+    if (dance === null) return;
+    if (next) { listenTempo.current = bpm; setBpm(dance); } else setBpm(listenTempo.current);
+  };
+  // #150: the direct link of the showcase, with the style and the seed (same seed, same dance).
+  const [shared, setShared] = useState<string | null>(null);
+  const share = () => {
+    const url = vitrineUrl(window.location.origin + window.location.pathname, { style: styleKey, graine: session.seed });
+    setShared(url);
+    void navigator.clipboard?.writeText(url).catch(() => undefined);
+    window.setTimeout(() => setShared(current => (current === url ? null : current)), 6000);
   };
   const restart = () => {
     // Without `graine=`, the automatic dance draws another dance each time.
@@ -197,11 +217,13 @@ export default function GuidageApp() {
             {(["leader", "follower"] as const).map(side => (
               <Rig key={side} styleKey={styleKey} bpm={bpm} clock={clock} amp={1} playing={playing}
                 offset={[0, 0, side === "leader" ? -GUIDE_PAIR_DZ : GUIDE_PAIR_DZ]} rotationY={side === "leader" ? 0 : Math.PI}
-                embrace pair={pair} side={side} placement="quinconce" movement="none" guide={session} showMuscles={muscles} />
+                embrace pair={pair} side={side} placement="quinconce" movement="none" guide={session} showMuscles={look.muscles}
+                torsoOpacity={look.solidTorso ? SOLID_TORSO_OPACITY : undefined} />
             ))}
           </CoupleFrame>
         </React.Suspense>
-        <OrbitControls makeDefault target={leaderView ? [LEADER_VIEW.target.x, LEADER_VIEW.target.y, LEADER_VIEW.target.z] : [0, 0.8, 0]} enableDamping dampingFactor={0.08} minDistance={1.4} maxDistance={7} />
+        <OrbitControls makeDefault target={leaderView ? [LEADER_VIEW.target.x, LEADER_VIEW.target.y, LEADER_VIEW.target.z] : [0, 0.8, 0]} enableDamping dampingFactor={0.08} minDistance={1.4} maxDistance={7}
+          autoRotate={settings.vitrine && !leaderView && !capture} autoRotateSpeed={0.6} />
         <CameraFollow session={session} clock={clock} paused={paused} leaderView={leaderView} />
       </Canvas>
 
@@ -213,7 +235,46 @@ export default function GuidageApp() {
           <span className="block text-[10px] text-slate-500">Mode jeu · BodyParts3D © DBCLS, CC BY-SA 2.1 Japan</span>
         </div>
       )}
-      {!bare && <>
+      {!bare && settings.vitrine && <>
+      {/* #150: the showcase — the count, the figure, the music, the share link; no figure buttons. */}
+      <div className="absolute top-3 left-3 right-3 flex flex-wrap items-start justify-between gap-3 pointer-events-none">
+        <div className="rounded-2xl bg-slate-900/70 border border-slate-800 px-4 py-2.5 pointer-events-auto">
+          <h1 className="text-sm font-semibold text-slate-100">{STYLES[styleKey].label ?? styleKey} <span className="text-slate-400 font-normal">· {auto ? "danse seule" : "écoute"} · {bpm} bpm</span></h1>
+          <div className="mt-1 flex items-center gap-3 text-xs">
+            <span className="text-2xl font-semibold tabular-nums text-slate-100" aria-label="compte">{count}</span>
+            <span className="text-slate-100">{KIND_LABEL(hud.kind)}</span>
+          </div>
+        </div>
+        <div className="rounded-2xl bg-slate-900/70 border border-slate-800 px-3 py-2 text-xs flex flex-wrap gap-2 pointer-events-auto">
+          <button className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" aria-pressed={music.status === "on"} onClick={() => void music.toggle()}>
+            {music.status === "on" ? "Couper le son" : "Lancer la musique"}
+          </button>
+          <button className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" onClick={share}
+            title="Copie le lien direct de cette vitrine : il rouvre la même danse">
+            {shared ? "Lien copié" : "Partager"}
+          </button>
+          <a className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" href={`?mode=pair&guidage=1&style=${styleKey}`}
+            title="Ouvre le mode jeu : vous guidez la suiveuse figure par figure">Prendre la main</a>
+        </div>
+      </div>
+      {music.status !== "on" && playing && (
+        <div className="absolute inset-x-0 bottom-16 flex justify-center pointer-events-none">
+          <button className="pointer-events-auto rounded-full bg-violet-500 px-7 py-3.5 text-base font-semibold text-slate-950 shadow-lg shadow-violet-900/40 hover:bg-violet-400"
+            onClick={() => void music.toggle()}>
+            ▶ Lancer la musique
+          </button>
+        </div>
+      )}
+      <div className="absolute bottom-2 inset-x-3 flex flex-col items-center gap-1.5">
+        {shared && <input readOnly value={shared} aria-label="Lien direct de la vitrine" onFocus={e => e.currentTarget.select()}
+          className="w-full max-w-xl rounded-lg bg-slate-900/85 border border-slate-700 px-3 py-1.5 text-xs text-slate-200" />}
+        <p className="self-stretch text-[10px] text-slate-500">
+          Anatomie : BodyParts3D, © The Database Center for Life Science, licence CC BY-SA 2.1 Japan.
+          {music.recording ? ` ${RECORDING_CREDIT}.` : ""} Animation paramétrique illustrative, sans validation chorégraphique.
+        </p>
+      </div>
+      </>}
+      {!bare && !settings.vitrine && <>
       <div className="absolute top-3 left-3 right-3 flex flex-wrap items-start justify-between gap-3 pointer-events-none">
         <div className="rounded-2xl bg-slate-900/80 border border-slate-800 px-4 py-3 max-w-md pointer-events-auto">
           <h1 className="text-sm font-semibold text-slate-100">Mode jeu <span className="text-slate-400 font-normal">· {auto ? "danse seule" : "écoute"}</span></h1>
@@ -243,6 +304,10 @@ export default function GuidageApp() {
             {auto ? "Danse seule" : "Écoute"} <kbd className="text-slate-500">Espace</kbd>
           </button>
           <button className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" onClick={restart}>Recommencer</button>
+          {auto && <button className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" onClick={share}
+            title="Copie le lien direct de la vitrine (#150) : la même danse, en musique, sans les commandes">
+            {shared ? "Lien copié" : "Partager"}
+          </button>}
           <button className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" aria-pressed={leaderView} onClick={() => setLeaderView(v => !v)}
             title="Point de vue du guideur (derrière son épaule) ou vue libre">
             Vue : {leaderView ? "guideur" : "libre"}
