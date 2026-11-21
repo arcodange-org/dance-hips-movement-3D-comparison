@@ -31,6 +31,8 @@ import { DIR_LABELS, isDiagonal } from "./directions";
 import SoundControls from "./components/SoundControls";
 import { useMusic, type MusicSource } from "./music/useMusic";
 import { recordingOf } from "./music/recordings";
+import FilmDriver from "./components/FilmDriver";
+import { filmEnabled } from "./film";
 
 function readParams(): URLSearchParams {
   if (typeof window === "undefined") return new URLSearchParams();
@@ -192,6 +194,8 @@ export default function App() {
   }, [showAppui]);
 
   const bare = params.get("bare") === "1";
+  // #155: `film=1` hands the frames to a script (scripts/video/capturer.mjs), one at a time.
+  const film = filmEnabled(params);
   const demoKey = params.get("demo");
   const demo = demoKey && DEMOS[demoKey] ? DEMOS[demoKey] : null;
   // Preset caméra pour les captures : ?cam=hip zoome sur le bassin (sans recadrage,
@@ -365,7 +369,9 @@ export default function App() {
   // #31: one scene for the bare (captures) and the full view; the bare view keeps its own clock (no music
   // driver) and no pan.
   const renderScene = (bare: boolean, driver: typeof music.driver | null) => (
-    <Canvas camera={{ position: camPosParam ?? cam.position, fov: 42 }} dpr={[1, 2]}>
+    <Canvas camera={{ position: camPosParam ?? cam.position, fov: 42 }} dpr={[1, 2]}
+      {...(film ? { frameloop: "never" as const, gl: { preserveDrawingBuffer: true } } : {})}>
+      {film && <FilmDriver clock={clock} controls={controlsRef} />}
       {!isFiveActionFigure && <DanceTransport clock={clock} bpm={bpm} playing={playing} driver={driver} />}
       <color attach="background" args={["#0b1220"]} />
       <ambientLight intensity={0.65} />

@@ -37,6 +37,9 @@ registre généré `src/music/recordings.data.ts`, pistes `public/musique/`, `sc
 `scripts/test_musique_enregistree.mjs`) ; la clé ElevenLabs ne s'écrit nulle part, une prise coûte des crédits : accord du propriétaire.
 Vitrine (#150) : [spec](docs/spec-vitrine-danse-auto.md) (`src/vitrine.ts` pur, `?vitrine=1` ouvre la vue du mode jeu en danse
 automatique, en musique, au tempo de la piste ; `scripts/test_vitrine.mjs`).
+Vidéo éducative (#155) : [spec](docs/spec-video-pas-de-base.md) ; la chaîne `scripts/video/` (scénario, voix Phonon locales, musiques,
+capture image par image avec `film=1` — `src/film.ts`, `src/components/FilmDriver.tsx` —, habillage, montage) régénère la vidéo ; la
+narration ne dit que ce que porte la fiche de faits `docs/video/faits-pas-de-base.md` ; la vidéo elle-même n'est pas versionnée.
 Mode jeu (#140, [spec](docs/spec-jeu-file-auto.md)) : les commandes s'empilent dans une file (plus de note ni
 de refus), Espace bascule entre l'écoute et la danse automatique (tirage reproductible par graine) ; un plan
 ne réécrit jamais son passé.
