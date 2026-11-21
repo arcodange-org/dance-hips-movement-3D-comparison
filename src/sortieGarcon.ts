@@ -19,7 +19,7 @@ export const DEFAULT_SORTIE_CONTRA = 12;
 const STEP1_LEAD = 0.1;
 /** Lateral geometry of the exit (#50, #110, calibrated on the GLB): offsets in the leader's frame from his
  * rest ankles. #110: the leader alone makes the room for his exit (G1 one hip width, D2 0.30 m). */
-export const SORTIE_GARCON_EXIT = { step1X: 0.28, step2X: 0.34, body0X: 0.15, body1X: 0.40, aside: 0, back: 0.05 };
+export const SORTIE_GARCON_EXIT = { step1X: 0.28, step2X: 0.26, body0X: 0.15, body1X: 0.40, aside: 0.03, back: 0.05 };
 /** #104 (owner, 20 Nov.: « la hanche est au dessus du pied : contact cuisse cuisse ») and #110 (« le suiveur
  * ne fait que des marche arrière sans être dérangé par le leader qui est le seul à sortir puis revenir sur
  * la ligne de danse. C'est au leader de gérer l'espace de son décalage à gauche pour être le plus proche
@@ -30,7 +30,7 @@ export const SORTIE_GARCON_EXIT = { step1X: 0.28, step2X: 0.34, body0X: 0.15, bo
  * mid-step. Measured on the GLB: right thighs in side contact (envelopes 3.2 cm into each other), no
  * leg-bone crossing, soles apart (the D feet 12 cm apart: edge to edge, R9, the femurs cross with his
  * pelvis over his D). Closer (D2 at 0.30 m) the thighs press 7 cm. */
-export const SORTIE_GARCON_POS2 = { d1: 0.16, g2: 0.25, pass: 0.05 };
+export const SORTIE_GARCON_POS2 = { d1: 0.16, g2: 0.25, pass: 0.05, back: 0.06, inward: 0.08 };
 const STEP3_LEAD = 0.2;
 /** #56: progression of the couple along the line after each action (m, validated figure), and the
  * share of it kept. Steps of about one foot length: only the common translation shrinks, the
@@ -126,7 +126,7 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
     !follower && action === 0 ? { x: SORTIE_GARCON_EXIT.body0X, z: 0.18 }
     // #104 (owner: « la hanche est au dessus du pied : contact cuisse cuisse : hanche juste devant celle du
     // suiveur ») : at position 2 the pelvis stands over the D, which carries the weight.
-    : !follower && action === 1 ? { x: rest.R.x + SORTIE_GARCON_EXIT.step2X, z: offset.z }
+    : !follower && action === 1 ? { x: rest.R.x + SORTIE_GARCON_EXIT.step2X + SORTIE_GARCON_POS2.inward, z: offset.z - SORTIE_GARCON_POS2.back }
     : !follower && action === 2 ? { x: 0.17, z: mix(0.55, 0.62, touch) }
     // #56: closer to the leader after the shorter progression, the partner's pelvis stays 1.5 cm behind
     // her G4: over it, her G thigh meets his D thigh in the interleaved quinconce (right variant).
