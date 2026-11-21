@@ -66,3 +66,16 @@ export function footHullsOverlap(a, b) {
   }
   return true;
 }
+
+/** Distance between two disjoint convex foot hulls (m); −1 when they overlap. */
+export function hullGap(a, b) {
+  if (footHullsOverlap(a, b)) return -1;
+  const segmentDistance = (p, s, e) => {
+    const dx = e[0] - s[0], dz = e[1] - s[1], l = dx * dx + dz * dz;
+    const t = l ? Math.max(0, Math.min(1, ((p[0] - s[0]) * dx + (p[1] - s[1]) * dz) / l)) : 0;
+    return Math.hypot(p[0] - s[0] - t * dx, p[1] - s[1] - t * dz);
+  };
+  let d = Infinity;
+  for (const [P, Q] of [[a, b], [b, a]]) for (const p of P) for (let i = 0; i < Q.length; i++) d = Math.min(d, segmentDistance(p, Q[i], Q[(i + 1) % Q.length]));
+  return d;
+}

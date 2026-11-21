@@ -66,8 +66,11 @@ validé à l'amplitude 2, pour que les os des genoux ne se croisent pas. Partage
 
 ## Sortie fille — cinq actions en paire
 
-Le leader avance G puis dessine un crochet du droit. Le suiveur recule D puis sort à gauche.
-Dans la variante recul, le leader recule D pendant que le suiveur avance G en diagonale gauche.
+Le leader avance G en **virgula** (pied posé perpendiculaire, pointe à gauche, #127) puis dessine un
+crochet du droit. Le suiveur recule D puis sort à gauche. Pendant la virgula, le bassin du leader
+s'ouvre à gauche et son buste garde sa direction (contraposition) : le buste du suiveur ne tourne pas.
+Dans la variante recul, le leader avance G droit puis recule D pendant que le suiveur avance G en
+diagonale gauche.
 L’ouverture du buste du leader guide la sortie dans le cadre. Le droit du suiveur avance en
 diagonale et arrive à côté du droit du leader. Le leader dégage ensuite le passage au croisé. Au marka, le leader
 reste sur D et le suiveur sur G. La lecture conserve cette pose finale.
