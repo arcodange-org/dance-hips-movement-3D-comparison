@@ -3,7 +3,9 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 
 // #69: guide mode proof of concept (docs/spec-mode-guidage-poc.md), a separate view.
-const guidage = new URLSearchParams(window.location.search).get("guidage") === "1";
+// #150: `vitrine=1` opens the same view as a showcase (docs/spec-vitrine-danse-auto.md).
+const query = new URLSearchParams(window.location.search);
+const guidage = query.get("guidage") === "1" || query.get("vitrine") === "1";
 // #31: each view is its own chunk; only the one opened is downloaded.
 const View = guidage ? lazy(() => import("./components/GuidageApp")) : lazy(() => import("./App"));
 
