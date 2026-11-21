@@ -518,7 +518,9 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     model.lift[s] = feet[s].lift;
     // #49: a rolling foot pivots on its ball or heel: that sole point stays where it is when flat.
     let x = feet[s].x, z = feet[s].z;
-    const pivot = feet[s].pivot;
+    // #73: outside figures the style's own foot rock (`extraL`, `extraR`) also pivots on a ground point,
+    // the ball when the heel rises, the heel when the toes rise: the support foot no longer slides.
+    const pivot = figure ? feet[s].pivot : extra > 0 ? "ball" : extra < 0 ? "heel" : null;
     if (pivot && extra !== 0) {
       const point = model.legs[s][pivot];
       const shift = point.clone().applyQuaternion(flat).sub(point.clone().applyQuaternion(q));

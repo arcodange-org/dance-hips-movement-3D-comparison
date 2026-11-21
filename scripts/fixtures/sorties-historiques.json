@@ -1,5 +1,5 @@
 {
-  "source": "1322a24 + #28 (G) + fin en quinconce, contact des pieds D, pas de marche #48 #49 #50 (G), 2621e59 unchanged at fa551c3 (GF) + pas plus courts #56 (G) + tarraxinha #61 (GF) + kompa en un transfert tous les deux temps #62 + suiveur jamais en avance #88 (G) + bassin du leader au-dessus de son D en position 2 #104 (G) + le leader gère seul son décalage, le suiveur recule droit #110 (G) + le leader gère seul son décalage, le suiveur recule droit #110 (G)",
+  "source": "1322a24 + #28 (G) + fin en quinconce, contact des pieds D, pas de marche #48 #49 #50 (G), 2621e59 unchanged at fa551c3 (GF) + pas plus courts #56 (G) + tarraxinha #61 (GF) + kompa en un transfert tous les deux temps #62 + suiveur jamais en avance #88 (G) + bassin du leader au-dessus de son D en position 2 #104 (G) + le leader gère seul son décalage, le suiveur recule droit #110 (G) + le leader gère seul son décalage, le suiveur recule droit #110 (G) + bascule du pied du style sur la demi-pointe ou le talon, appui qui ne glisse plus (semba, suave) #73 (GF)",
   "cases": [
     {
       "movement": "sortieGF",
@@ -237,7 +237,7 @@
         ],
         [
           0.3,
-          "f51aa1bee56fd30572c62d4e7cfcb85bcb83f6f944ff30a2e5090ad3d5a6b668"
+          "ccb6cd1f3c2652735aac9fb76553f4c6bd88507fb0578197ac9bf6b1fd865c5b"
         ],
         [
           1,
@@ -249,7 +249,7 @@
         ],
         [
           4.8,
-          "e2c25c314990b6dc8b8479257e0ebb1063a478191b2b4d77ed32cd4911b1fa9a"
+          "6799d46e5b175b4e2428e8e1b532f816bf1e14f15fd798d10570b40a1647edd8"
         ],
         [
           5,
@@ -257,7 +257,7 @@
         ],
         [
           7.99,
-          "a28e61ed022c3fb868472cbaefe6f55e635c7f6c8bb72eb7ddc91657d27bc128"
+          "bee06c30509f27466c91d22fed4f7e5658274cebbaa1c8337d691677c88420f8"
         ],
         [
           8,
@@ -269,11 +269,11 @@
         ],
         [
           11.2,
-          "2a87ec1c38982f11edc37b1d9fca2db7b06cefbd77d5f27c1c92fd4a938cac57"
+          "4d2d0bab86286ec7b16a25bade699a2e6becfdf12ffe20fa941bf05adaedbd41"
         ],
         [
           15.99,
-          "a28e61ed022c3fb868472cbaefe6f55e635c7f6c8bb72eb7ddc91657d27bc128"
+          "bee06c30509f27466c91d22fed4f7e5658274cebbaa1c8337d691677c88420f8"
         ],
         [
           16,
@@ -293,7 +293,7 @@
         ],
         [
           0.3,
-          "7bea94a79960daa129aa6e3d95edb0594a074127f29de27535cf1982e2afbac2"
+          "f5cac1b64e1c0d9bdfc857602bc5927f22cd9fc648e4d1879f812462f5bd524c"
         ],
         [
           1,
@@ -305,7 +305,7 @@
         ],
         [
           4.8,
-          "ed18531fc4548a744f7b990f284f55d32a4bd1ad055b346693b07c205e041e71"
+          "e6dc99f2ba9d463c9cf4405e922c877c4e5bb73341c1f32f508a8d1836f979f4"
         ],
         [
           5,
@@ -313,7 +313,7 @@
         ],
         [
           7.99,
-          "e917c758a3eefe3f33e69c2ed95146ab3e6fd555063b2ea899fa402ce6563ed7"
+          "362bcf735cb642f00c466f61dd37cc08438d4d4a7f7a2e0a0b0f5055ba9dbb41"
         ],
         [
           8,
@@ -325,11 +325,11 @@
         ],
         [
           11.2,
-          "990da784e02894d83fe38b52790f0028b8f4dcb01ba9b857d4421d59e75111e9"
+          "274ed3d3ebf2a816f862b557b3d43d272a4d9fe53e70d671688f3c6723a3d3c7"
         ],
         [
           15.99,
-          "e917c758a3eefe3f33e69c2ed95146ab3e6fd555063b2ea899fa402ce6563ed7"
+          "362bcf735cb642f00c466f61dd37cc08438d4d4a7f7a2e0a0b0f5055ba9dbb41"
         ],
         [
           16,
@@ -349,7 +349,7 @@
         ],
         [
           0.3,
-          "d51cc5146d6456d45c0daf6a8d5ea33a6987d97faa353b02cdc2cae602f76aa2"
+          "75766da1ee809d4a31718647ddd0f63e6a8529e6972431d06b102a8cd6f7c0de"
         ],
         [
           1,
@@ -361,7 +361,7 @@
         ],
         [
           4.8,
-          "f9972b1960bc29f22f5b2e874952f16b63b1cc7598f7e7aa924f44c19f0d802a"
+          "4ab49044595a4c0b8158dd6d0d33dad3ea522478869a5d881dff6c879c0f2954"
         ],
         [
           5,
@@ -369,7 +369,7 @@
         ],
         [
           7.99,
-          "63ea24fce4ac4c8d352e501c968d905267a0e13e2156beb12fab1c27f6e1e09e"
+          "6448b8f6f709abe705d5a115adcbe970ada9a06967f527af97fded117a6abbfe"
         ],
         [
           8,
@@ -381,11 +381,11 @@
         ],
         [
           11.2,
-          "086ab13a8394caee259575752cd27abc88f870c8f28355843330503449c5aba0"
+          "33b57cc7e7e2e613dd7171dc2d9878b90ad6b3b26bd2665c9e7fb94adda01011"
         ],
         [
           15.99,
-          "63ea24fce4ac4c8d352e501c968d905267a0e13e2156beb12fab1c27f6e1e09e"
+          "6448b8f6f709abe705d5a115adcbe970ada9a06967f527af97fded117a6abbfe"
         ],
         [
           16,
@@ -405,7 +405,7 @@
         ],
         [
           0.3,
-          "9c16ce6ff74c30b5203e031f7c4f1363a5664ca58563722f34f1a9d1fdfa69dd"
+          "3d3a389473fa1e9d81f336d2bddbd9608c2e31e3092c1166a7a6d3bca1ea71bd"
         ],
         [
           1,
@@ -417,7 +417,7 @@
         ],
         [
           4.8,
-          "292881d8531e8ca7635b827a576990dda1a851cc5254adf1efb775c38f8c29df"
+          "7de8bfca6304c297aafdcfc907085e67370fa39912553988198f583404a96095"
         ],
         [
           5,
@@ -425,7 +425,7 @@
         ],
         [
           7.99,
-          "d5c5a2dd663d11d2d6b765732ece4a78100e0c91f841b93180d3d538bb5af27f"
+          "258ed76b56074da6e4255ac223ed6b13aa4b8296d0d8f64c4cd0bf59d07ffc4f"
         ],
         [
           8,
@@ -437,11 +437,11 @@
         ],
         [
           11.2,
-          "358ccc0c7e9ec1a008d23d3ba50536ba865d9ac6f9a67d0c82381c9cc38304c7"
+          "a99f6fb260c0c0522bade7e42bc1ba1ead88a0b4ed40a442988ee9f70c86b021"
         ],
         [
           15.99,
-          "d5c5a2dd663d11d2d6b765732ece4a78100e0c91f841b93180d3d538bb5af27f"
+          "258ed76b56074da6e4255ac223ed6b13aa4b8296d0d8f64c4cd0bf59d07ffc4f"
         ],
         [
           16,
@@ -909,7 +909,7 @@
         ],
         [
           0.3,
-          "00facdf8612b3c2c257edc7e9cdcc066ab2c2a4efec8616df47a2d12f144ccf5"
+          "36e2842cd698902221fc55161bedd8b148a1d84a9c50cd27eb6954f808b7d551"
         ],
         [
           1,
@@ -921,7 +921,7 @@
         ],
         [
           4.8,
-          "c77bc1bfe52a5242975e2d632ab721347e439a96296353e8f4e872f853005ca6"
+          "c5bcb60d6f565f60d7062fab3440e872afe0e0d3e1f41486b4cba61f3ee08fa5"
         ],
         [
           5,
@@ -929,7 +929,7 @@
         ],
         [
           7.99,
-          "f181d1888458cbe8873657b2194e15b67daf2d320a0eba5e0d96870875651f1b"
+          "a4d2ea5092f6683961d8f18b55d355b17b32347258797dd0135fbc975b591e67"
         ],
         [
           8,
@@ -941,11 +941,11 @@
         ],
         [
           11.2,
-          "85e89467ee7a6bff7a358178b6d1a51a11269247717b4c582253ea67076e6543"
+          "10649db81a49ad4d1cdfd89b3ac5c95c7abfc475d7ba363628e1c9c101ecedde"
         ],
         [
           15.99,
-          "f181d1888458cbe8873657b2194e15b67daf2d320a0eba5e0d96870875651f1b"
+          "a4d2ea5092f6683961d8f18b55d355b17b32347258797dd0135fbc975b591e67"
         ],
         [
           16,
@@ -965,7 +965,7 @@
         ],
         [
           0.3,
-          "ade703a1ab2d88ae027b7e49f3fbc84fe0094015c6879c5f8cde1068c77331f2"
+          "56e4760c79ed8d741632ad7b34994d823b6924a03210f2a8809ade0435367696"
         ],
         [
           1,
@@ -977,7 +977,7 @@
         ],
         [
           4.8,
-          "60d39c6d96605b44013f8f742758543702e90b387b4564a16d8c243a437a54bd"
+          "1cf5934c0735304ca8bb9ed1b3b80f30847e08e3ad2c844a919fbdc8a9a36d94"
         ],
         [
           5,
@@ -985,7 +985,7 @@
         ],
         [
           7.99,
-          "facb6ee8918b2b3f7c55b227391dd85aa698efcc3731f9048320092a05b89905"
+          "2d6ebe102d5f92b0edd1643dce64082d41f5a868d4eba5942d83cb9274fca109"
         ],
         [
           8,
@@ -997,11 +997,11 @@
         ],
         [
           11.2,
-          "21da2657add5015be05eec3fe24f8476f230951257f5cea68283626883f034c9"
+          "67d2c3dd656d91fe95a9dd6898384321c2fe3496ef1662d21fb3030d34ed8669"
         ],
         [
           15.99,
-          "facb6ee8918b2b3f7c55b227391dd85aa698efcc3731f9048320092a05b89905"
+          "2d6ebe102d5f92b0edd1643dce64082d41f5a868d4eba5942d83cb9274fca109"
         ],
         [
           16,
@@ -1021,7 +1021,7 @@
         ],
         [
           0.3,
-          "0ac7c8a8ffab233d1b4c5d3833e8b7666b510f52864c7b878e75c3cacd607f4e"
+          "a8d387fd79640e5ba68ed5a6005ab2405714f9d5065c773c7824b76257074992"
         ],
         [
           1,
@@ -1033,7 +1033,7 @@
         ],
         [
           4.8,
-          "8c34ed75a8ac6022f51999a61b788232f44eff7efbe607132a300991b4c2baf7"
+          "837b69cb619a4d2d76680d6d982abe4ed085f7d68a16e89240183605cc05c33b"
         ],
         [
           5,
@@ -1041,7 +1041,7 @@
         ],
         [
           7.99,
-          "5da7c78b1b0f59bf4b8bea0210150e4d54938a14419cd16a890c8c7ba2429530"
+          "51ccd083e2a2926bba5d98258140121fa9e24c2b786e614feabcb22f5308e69f"
         ],
         [
           8,
@@ -1053,11 +1053,11 @@
         ],
         [
           11.2,
-          "7c71ad0a262c2aa097900a0d4c3fed58f37f058dd6756d287245ba0074dc3f51"
+          "5bbbc8abd3ad34701a6aec4d816344c43280fc88a47e3657289dbb34d90b4a89"
         ],
         [
           15.99,
-          "5da7c78b1b0f59bf4b8bea0210150e4d54938a14419cd16a890c8c7ba2429530"
+          "51ccd083e2a2926bba5d98258140121fa9e24c2b786e614feabcb22f5308e69f"
         ],
         [
           16,
@@ -1077,7 +1077,7 @@
         ],
         [
           0.3,
-          "3c1197f0cb09861770eac7e81c3e2ffdc364e957084b617f0222294a7cf58309"
+          "d056b8a96551585b2bb50ceaed480d8598c80e042c58807b658354dc9ed7d686"
         ],
         [
           1,
@@ -1089,7 +1089,7 @@
         ],
         [
           4.8,
-          "061afd5eec0681c4b1fbc37ce4f2e4c9c5a7cc48892be6e82c275a0828418e64"
+          "01b855815d5f8d149ce0018a5209178ac62c5495e6244c31f16545bb3930c794"
         ],
         [
           5,
@@ -1097,7 +1097,7 @@
         ],
         [
           7.99,
-          "e86febd82463a21707b11e013a20786da997e3e595ad0e8ed1af65102641ff65"
+          "14e94514dc0a2f9631c3d2ab7a0fe0859a04959386d861324d0f8749c768ccf9"
         ],
         [
           8,
@@ -1109,11 +1109,11 @@
         ],
         [
           11.2,
-          "fd4bef5a4c5d0f5d02a3cbbff7038d4023d3e5214a65009db1e3d3cce90dc387"
+          "c148eeb23cf1df156d7bb22557962df25a8b7532ae4fece9b0b3ca4ffed0fa76"
         ],
         [
           15.99,
-          "e86febd82463a21707b11e013a20786da997e3e595ad0e8ed1af65102641ff65"
+          "14e94514dc0a2f9631c3d2ab7a0fe0859a04959386d861324d0f8749c768ccf9"
         ],
         [
           16,
