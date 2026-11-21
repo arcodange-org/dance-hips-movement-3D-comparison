@@ -295,7 +295,7 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Issue #132 publiée avant le code (périmètre réservé : atlas open maison, format inspiré d'anatobase.com sans rien copier).
 - [x] Branche `arcodange/atlas-anatomique`, worktree `.claude/worktrees/atlas-anatomique`, PR draft ouverte tôt.
 - [x] PRD poussé en premier : [spec](spec-atlas-anatomique.md) + [ADR 005](adr/005-atlas-donnees-ouvertes.md) (BodyParts3D CC BY-SA 2.1 Japan, Z-Anatomy CC BY-SA 4.0, Gray 1918 PD, Wikidata CC0) + [docs/atlas/README.md](atlas/README.md).
-- [x] Manifeste v1 : [docs/atlas/manifest.json](atlas/manifest.json) — 15 mouvements articulaires, bassin/hanche/genou en priorité 1.
+- [x] Manifeste v1 : [docs/atlas/manifest.json](atlas/manifest.json) — 16 mouvements articulaires, bassin/hanche/genou en priorité 1.
 - [x] `scripts/test_atlas_manifest.mjs` dans `npm test` : articulations résolues contre les nœuds réels du GLB, ROM bornées, priorités 1 sur Pelvis/HipPivot_R.
 - [ ] `scripts/capture_atlas.mjs` : planches mouvements (5 vues × frames) générées via `src/pose.ts` + `src/cameras.ts`, `meta.json` avec ROM mesurée sur le GLB.
 - [ ] Fiches muscles industrialisées depuis le prototype `~/Work/Danse/anatomie-3d/` (Blender, Z-Anatomy CC BY-SA 4.0) → `docs/atlas/muscles/`.

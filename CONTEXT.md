@@ -13,7 +13,7 @@ ouvertes (format inspiré, jamais de contenu copié — la licence AnatoBase est
 et ce dépôt est public). Livré : PRD [docs/spec-atlas-anatomique.md](docs/spec-atlas-anatomique.md),
 [ADR 005](docs/adr/005-atlas-donnees-ouvertes.md) (BodyParts3D CC BY-SA 2.1 Japan © DBCLS,
 Z-Anatomy CC BY-SA 4.0, Gray 1918 domaine public, Wikidata CC0), [manifeste v1](docs/atlas/manifest.json)
-(15 mouvements, bassin/hanche/genou en priorité 1) + `scripts/test_atlas_manifest.mjs` dans
+(16 mouvements, bassin/hanche/genou en priorité 1) + `scripts/test_atlas_manifest.mjs` dans
 `npm test` (articulations résolues contre les nœuds réels du GLB). Prototype Blender existant
 hors dépôt : `~/Work/Danse/anatomie-3d/` (fiches Z-Anatomy). Suite : `scripts/capture_atlas.mjs`
 (planches 5 vues via `pose.ts`), fiches muscles, sourcing des ROM dans `docs/recherche-biomecanique/`,

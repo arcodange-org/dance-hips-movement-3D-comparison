@@ -88,7 +88,7 @@ Voir `docs/atlas/manifest.json`. Champs par mouvement : `id` (kebab-case, unique
 (x|y|z), `romDeg` [min, max] (min < max, |·| ≤ 180), `cote` (R | L | les deux), `priorite`
 (1 = bassin/hanche/genou, cœur du comparateur), `preuve`, `notes`.
 
-Premier lot (2026-11-21) : 15 mouvements — bassin (obliquité, rotation, antéversion),
+Premier lot (2026-11-21) : 16 mouvements — bassin (obliquité, rotation, antéversion),
 hanche (flexion, extension, abduction, adduction, rotations médiale/latérale), genou (flexion),
 cheville (dorsiflexion, flexion plantaire), tronc (rotation, flexion latérale, flexion/extension,
 respiration).
