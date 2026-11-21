@@ -289,3 +289,13 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Synthèse Web Audio, horloge audio maîtresse, bouton « Son », choix A/B, URL.
 - [x] `scripts/test_music.mjs` et `son-synthese.feature` dans `npm test` ; contrôle navigateur.
 - [ ] Écoute de validation par le propriétaire (grilles, équilibre, tempos) et décisions ouvertes.
+
+## Musique enregistrée générée par ElevenLabs (#142)
+
+- [x] Issue #142 et spécification poussée en premier ([spec](spec-musique-elevenlabs.md)).
+- [ ] Lecteur de boucle synchronisé (`src/music/loop.ts`, `loopOutput.ts`), repli sur la synthèse, interface.
+- [ ] Script de génération et analyse de tempo (`scripts/generer_musique.mjs`, `scripts/tempo.mjs`).
+- [ ] `scripts/test_musique_enregistree.mjs` et `musique-enregistree.feature` dans `npm test`.
+- [ ] Génération des six pistes : **en attente de la clé ElevenLabs** et de l'accord du propriétaire (crédits, publication).
+- [ ] Écoute de validation par le propriétaire (calage du temps 1, raccord de boucle, qualité).
+
