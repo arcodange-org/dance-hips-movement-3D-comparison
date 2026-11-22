@@ -22,7 +22,7 @@ function poseAt(r: RigHandle, model: PoseModel, kind: GuideKind, beat: number, b
   const styleKey = guideStyleOf(kind, base.styleKey ?? "kizomba");
   const stats = applyPose(r, model, beat, {
     ...base, styleKey, styleBlend: blendFrom ? { key: guideStyleOf(blendFrom, base.styleKey ?? "kizomba"), weight: 1 } : null,
-    ...guidePoseOptions({ kind, movement: movementOf(kind), rootOffset: offsets, touches, ginga }, follower),
+    ...guidePoseOptions({ kind, movement: movementOf(kind), rootOffset: offsets, touches, ginga, previous: blendFrom }, follower),
     pelvisOffset: pelvis ? { position: [pelvis[1], pelvis[2], pelvis[3]], rotation: [pelvis[4], pelvis[5], pelvis[6]] } : null,
     trunkOffset: pelvis ? pelvis.slice(7, 16) : null,
   });
@@ -64,7 +64,7 @@ export function applyGuidePose(r: RigHandle, model: PoseModel, sample: GuideSamp
   const blendKey = previous !== null ? guideStyleOf(previous, base.styleKey ?? "kizomba") : null;
   return applyPose(r, model, sample.localBeat, {
     ...base, styleKey, styleBlend: blendKey && blendKey !== styleKey && w > 0 ? { key: blendKey, weight: w } : null,
-    ...guidePoseOptions(sample, follower),
+    ...guidePoseOptions({ ...sample, previous }, follower),
     rootOffset: { ...sample.rootOffset[role], y: d ? d[0] : 0 },
     pelvisOffset: d ? { position: [d[1], d[2], d[3]], rotation: [d[4], d[5], d[6]] } : null,
     trunkOffset: d ? d.slice(7, 16) : null,
