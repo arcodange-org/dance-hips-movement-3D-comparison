@@ -14,6 +14,11 @@ style, B est plus naturelle et plus courante). Détail et suites dans
 La page publiée a reçu depuis un second tour (questions 4 à 7, le « 8 » des hanches) qui appartient à
 l'élection du ginga (#159, PR #160) ; `election.html` reste la source du premier tour.
 
+Les interrupteurs `idaMemePied`, `ligneBustes` et `marcheDeroulee` ont été retirés avec l'implémentation des
+variantes élues : les commandes ci-dessous refont les films A et B à partir du commit `06d1a33` (dossier de
+décision). Aujourd'hui, la ligne dans l'axe des bustes (en paire) et la marche déroulée du corridinho sont
+le comportement de l'app.
+
 Tous les films : kizomba, 90 bpm, 12 images par seconde, avec les muscles, en boucle.
 
 ## Q1 — Ida e volta en paire : quel pied bouge chez le suiveur ? (#86, #144)

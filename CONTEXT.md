@@ -144,7 +144,13 @@ et les specs. Résumé de la journée du 21 :
   ([spec](docs/spec-elections-variantes.md)). **Votes du 21 novembre** : Q1, A (pied opposé, rien ne
   change) ; Q2, B (en paire, la ligne passe par les deux danseurs ; R6 réécrite) ; Q3, B (marche déroulée
   hors figure ; convention « pieds plats » et oracle à amender). Les variantes élues sont implémentées dans
-  une PR empilée ; le choix est consigné dans chaque issue, sans citation.
+  une PR empilée ; le choix est consigné dans chaque issue, sans citation. **Implémenté** (PR empilée sur
+  #149) : `LineOfDance` suit l'axe z en paire ; `plannedFeet` déroule le pied dans le cercle du corridinho
+  (`gaitStep`, réglages `ROLLED_WALK` ; cheville continue au décollage et à la pose, genou qui plie au lieu
+  de soulever le bassin : le bassin n'est pas plus brusque qu'avec la marche à plat, [spec](docs/spec-marche-naturelle.md),
+  `scripts/test_marche_deroulee.mjs`) ; l'ida e volta et les quarts de tour en solo, les sorties historiques
+  et le « Déplacement » restent à plat (oracle intact, aucun test existant modifié). Les interrupteurs
+  `idaMemePied`, `ligneBustes` et `marcheDeroulee` sont retirés ; `src/essais.ts` ne garde que `temoin`.
 - PR brouillon en relecture du propriétaire : #117 (ontologie), #76 (audit).
 - Pièges : `npm test` complet dure 25 min ou plus en local. Lancer ses scripts en parallèle, un journal
   par script, le ramène à une dizaine de minutes ; `test_placements` et `test_plexus` rejouent d'autres

@@ -1,10 +1,10 @@
 import { useMemo } from "react";
 import * as THREE from "three";
 
-// Ligne de danse : axe x monde passant par le repère fixe (origine). Le couple en mode
-// paire est placé SUR cette ligne (face à face selon z) ; la sortie est perpendiculaire
-// à la ligne (axe x) : sortir de la ligne puis revenir dessus. Elle reste perpendiculaire aux
-// bustes dans toutes les vues, figures comprises (#60).
+// Ligne de danse, passant par le repère fixe (origine). En paire (axis "z", #72, élu le 21 novembre
+// 2026) elle passe par les deux danseurs, face à face selon z : le couple progresse le long de la
+// ligne, le leader en sort sur le côté (axe x) et y revient. En solo et en comparaison (axis "x")
+// elle suit le déplacement latéral des danseurs.
 // Rendu en rubans (boxes) et non en THREE.Line : les lignes WebGL font 1 px et
 // disparaissent au rééchantillonnage des GIFs ; les boxes restent lisibles.
 export default function LineOfDance({
@@ -16,7 +16,7 @@ export default function LineOfDance({
   visible?: boolean;
   color?: string;
   halfLength?: number;
-  /** Trial #72 (`?essai=ligneBustes`, src/essais.ts): "z" draws the line along the busts' axis. */
+  /** "z": along the busts' axis (pair views); "x": along the lateral travel (solo, comparison). */
   axis?: "x" | "z";
 }) {
   const dashes = useMemo(() => {
