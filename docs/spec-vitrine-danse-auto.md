@@ -13,7 +13,7 @@ Fil d'Ariane : [docs](./) › **spec vitrine** · dépend du [mode jeu (#140)](s
 ## Objectif
 
 La danse automatique du mode jeu devient une **vitrine** : le couple danse seul sur la piste
-enregistrée du style, à son tempo, avec les muscles et un buste lisible. Une adresse courte ouvre
+enregistrée du style, à son tempo, avec les muscles et sans bloc gris sur le buste. Une adresse courte ouvre
 directement cette vue, pour la partager ou l'intégrer dans une autre page.
 
 ## Lien direct
@@ -24,7 +24,8 @@ https://arcodange-org.github.io/dance-hips-movement-3D-comparison/?vitrine=1
 
 | Paramètre | Effet | Défaut |
 |---|---|---|
-| `vitrine=1` | ouvre la vitrine : danse automatique, muscles, buste lisible, vue libre qui tourne lentement, interface réduite | — |
+| `vitrine=1` | ouvre la vitrine : danse automatique, muscles, vue libre qui tourne lentement, interface réduite | — |
+| `muscles=0` | masque les muscles ; le buste stylisé gris revient | muscles affichés |
 | `style=` | style dansé | `kizomba` |
 | `graine=` | graine du tirage : même graine, même danse | tirée à l'ouverture |
 | `bpm=` | tempo imposé | tempo de la piste du style, à défaut tempo conseillé du style |
@@ -36,9 +37,9 @@ https://arcodange-org.github.io/dance-hips-movement-3D-comparison/?vitrine=1
 
 | Situation | Tempo | Musique | Muscles | Buste | Interface |
 |---|---|---|---|---|---|
-| Mode jeu, écoute | celui du champ bpm | au choix (bouton « Son ») | `muscles=1` | translucide | complète |
-| Mode jeu, danse automatique | **tempo de la piste** du style | piste enregistrée | **affichés** | **lisible** | complète |
-| Vitrine (`vitrine=1`) | tempo de la piste | piste enregistrée | affichés | lisible | réduite |
+| Mode jeu, écoute | celui du champ bpm | au choix (bouton « Son ») | affichés | sans bloc gris | complète |
+| Mode jeu, danse automatique | **tempo de la piste** du style | piste enregistrée | affichés | sans bloc gris | complète |
+| Vitrine (`vitrine=1`) | tempo de la piste | piste enregistrée | affichés | sans bloc gris | réduite |
 
 - **Tempo** : en entrant en danse automatique, le tempo prend celui de la piste enregistrée du style
   (`recordingTempo`, 102 bpm pour la kizomba). Un `bpm=` dans l'URL l'emporte. En revenant à l'écoute,
@@ -46,8 +47,13 @@ https://arcodange-org.github.io/dance-hips-movement-3D-comparison/?vitrine=1
 - **Son** : un navigateur ne laisse pas démarrer l'audio sans geste. La vitrine affiche donc un bouton
   « ▶ Lancer la musique » au centre ; un clic démarre la piste, calée sur le temps de la danse
   (l'horloge audio pilote alors la danse). Sans clic, le couple danse en silence au même tempo.
-- **Esthétique** : couche des muscles affichée ; buste à l'opacité des captures « corps »
-  (`SOLID_TORSO_OPACITY`), pour lire des corps plutôt que des squelettes.
+- **Esthétique (#173)** : la couche des muscles est affichée dans tout le mode jeu, en écoute comme en danse
+  automatique. Avec elle, les six volumes gris du tronc (colonne, lombaires, dorsales, cage, deux épaules) ne
+  sont plus dessinés (`trunkBlocksVisible`, `src/muscles.ts`) : quand les os et les muscles du buste sont là,
+  les blocs stylisés n'ont pas de raison d'être. La tête et les bras restent des volumes stylisés,
+  translucides : le modèle n'a ni leurs os ni leurs muscles. `muscles=0` masque les muscles ; le buste
+  stylisé revient alors, translucide en écoute, à l'opacité des captures « corps » (`SOLID_TORSO_OPACITY`)
+  en danse automatique. La première version (#150) dessinait le tronc gris opaque par-dessus les muscles.
 - **Vue** : en vitrine, vue libre qui tourne lentement autour du couple ; la souris reprend la main.
 - **Partage** : un bouton « Partager » copie le lien direct de la vitrine avec le style et la graine en
   cours : celui qui l'ouvre voit la même danse. Le bouton existe aussi dans le mode jeu en danse
@@ -78,11 +84,12 @@ La vitrine remplit le cadre qu'on lui donne. Le son démarre au premier clic dan
 
 ## Critères d'acceptation
 
-1. `vitrine=1` ouvre la danse automatique, muscles affichés, buste lisible, au tempo de la piste du
+1. `vitrine=1` ouvre la danse automatique, muscles affichés, tronc sans bloc gris, au tempo de la piste du
    style ; `bpm=` l'emporte ; un style sans piste garde le tempo conseillé du style.
 2. Le lien de partage contient `vitrine=1`, le style et la graine, et rien d'autre ; rouvert, il donne
    les mêmes réglages.
-3. Mode jeu en écoute : comportement inchangé (tempo, muscles sur demande, buste translucide).
+3. Mode jeu en écoute : tempo inchangé ; muscles affichés, tronc sans bloc gris (#173) ; `muscles=0` rend le
+   buste stylisé translucide.
 4. Passage écoute → danse automatique → écoute : le tempo d'écoute est rétabli.
 5. Sans geste, aucun contexte audio n'est créé ; la danse tourne au tempo de la piste.
 6. Les mentions BodyParts3D et « musique générée par IA » sont dans la vitrine.

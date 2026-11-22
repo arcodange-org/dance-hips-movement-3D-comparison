@@ -35,10 +35,13 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
 
 ## Vitrine : danse automatique en musique, lien direct (#150, 21 novembre 2026)
 
-- `?vitrine=1` ouvre le mode jeu en danse automatique, au tempo de la piste enregistrée, muscles et
-  buste lisibles, vue libre qui tourne, interface réduite ; bouton « Partager » (style et graine)
+- `?vitrine=1` ouvre le mode jeu en danse automatique, au tempo de la piste enregistrée, muscles
+  affichés, vue libre qui tourne, interface réduite ; bouton « Partager » (style et graine)
   ([spec](docs/spec-vitrine-danse-auto.md), `src/vitrine.ts`). Dans le mode jeu, la danse automatique
-  prend aussi le tempo de la piste et affiche les muscles.
+  prend aussi le tempo de la piste.
+- **Buste sans bloc gris (#173)** : tout le mode jeu affiche les muscles, en écoute comme en danse
+  automatique, et avec eux les volumes gris du tronc ne sont plus dessinés (`trunkBlocksVisible`,
+  `src/muscles.ts`). `muscles=0` rend le buste stylisé. Tête et bras restent stylisés.
 - Destiné à être intégré sur un autre site par Arcodange (fragment `iframe` dans la spec).
   **Hors périmètre, prévu plus tard** : les mascottes Rémi et Corinne à la place des corps.
 - La branche part de la musique (#143) : la PR s'annonce « Stacks on #143 » tant que celle-ci est ouverte.
@@ -132,6 +135,16 @@ et les specs. Résumé de la journée du 21 :
   moyennée sur une demi-temps de chaque côté et se poursuit d'une figure à la suivante (`gingaFrom` ; 2,05 → 0,98 fois un
   balancier). Restent : la hauteur du bassin, son trajet dans le quart de tour et les sorties. Croisements d'os déjà présents
   aux frontières : #171. Posture (R33) : #166.
+- **#148 (PR #149, brouillon : dossier de décision)** : élections de variantes en GIF. Le propriétaire tranche
+  les questions de mouvement en élisant un candidat filmé, avec un commentaire optionnel. Premier tour :
+  ida e volta, pied opposé ou même pied (#86, #144) ; ligne de danse perpendiculaire aux bustes ou dans
+  leur axe (#72) ; marche hors figure à plat ou déroulée (#73). Reportées : #56, #67. Candidats derrière
+  `?essai=` (`src/essais.ts`, inertes sans le paramètre), mesures `scripts/mesure_essai_*.mjs`, films et
+  page dans [`docs/elections/2026-11-21/`](docs/elections/2026-11-21/README.md)
+  ([spec](docs/spec-elections-variantes.md)). **Votes du 21 novembre** : Q1, A (pied opposé, rien ne
+  change) ; Q2, B (en paire, la ligne passe par les deux danseurs ; R6 réécrite) ; Q3, B (marche déroulée
+  hors figure ; convention « pieds plats » et oracle à amender). Les variantes élues sont implémentées dans
+  une PR empilée ; le choix est consigné dans chaque issue, sans citation.
 - PR brouillon en relecture du propriétaire : #117 (ontologie), #76 (audit).
 - Pièges : `npm test` complet dure 25 min ou plus en local. Lancer ses scripts en parallèle, un journal
   par script, le ramène à une dizaine de minutes ; `test_placements` et `test_plexus` rejouent d'autres

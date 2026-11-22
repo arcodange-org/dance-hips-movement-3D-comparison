@@ -15,8 +15,8 @@ movements hips down are the dominant ones, not the upper body movements »).
 
 **Lien direct : https://arcodange-org.github.io/dance-hips-movement-3D-comparison/?vitrine=1**
 
-Le couple danse seul sur la piste enregistrée du style, à son tempo, avec les muscles et un buste
-lisible ; la vue tourne lentement. Un bouton lance la musique (un navigateur ne démarre pas le son
+Le couple danse seul sur la piste enregistrée du style, à son tempo, avec les muscles et sans bloc
+gris sur le buste ; la vue tourne lentement. Un bouton lance la musique (un navigateur ne démarre pas le son
 sans clic), un autre copie le lien, qui garde le style et la graine : la même danse se rejoue.
 Pour l'intégrer dans une autre page :
 

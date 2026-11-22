@@ -64,6 +64,10 @@ Règles de mouvement du propriétaire, consolidées et vérifiables : [`docs/reg
 Recherche sur la danse, style par style (pas et bassin selon les sources, paroles du propriétaire, trajets du
 bassin mesurés) : [`docs/recherche-danse/`](docs/recherche-danse/README.md) ; le kompa du modèle est à refaire (#161).
 
+Décision de mouvement en attente du propriétaire (#148) : filmer les candidats et les lui faire élire
+([spec](docs/spec-elections-variantes.md), [procédure](.vibe/CONTRIBUTING.md), `src/essais.ts` : `?essai=` inerte sans
+le paramètre, `scripts/mesure_essai_*.mjs`, `docs/elections/`). Rien n'est implémenté avant son vote.
+
 **Lire ce fichier en premier dans toute session.** Le harness complet pour travailler sur ce projet
 en autonomie (méthode anti-amnésie, conventions, contribution agentique) est dans **[`.vibe/`](.vibe/)**
 — commencer par [`.vibe/HARNESS.md`](.vibe/HARNESS.md), puis [`.vibe/CONTRIBUTING.md`](.vibe/CONTRIBUTING.md)
