@@ -380,6 +380,7 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Mesures des candidats sur le vrai GLB (`scripts/mesure_essai_ida.mjs`, `scripts/mesure_essai_marche.mjs`).
 - [x] GIFs des candidats, avec les muscles ([premier tour](elections/2026-11-21/README.md)).
 - [x] Page d'élection publiée (source : `docs/elections/2026-11-21/election.html`), lien donné au propriétaire.
-- [ ] Votes du propriétaire (Q1 #86/#144, Q2 #72, Q3 #73).
-- [ ] Votes recopiés mot pour mot dans les issues ; variantes élues implémentées dans une PR propre, interrupteurs retirés.
+- [x] Votes du propriétaire (21 novembre) : Q1 A, pied opposé (#86/#144) ; Q2 B, ligne dans l'axe des bustes (#72) ; Q3 B, marche déroulée (#73).
+- [x] Votes consignés dans les issues (choix, commentaire reformulé sans citation) et dans la spec.
+- [ ] Variantes élues implémentées dans une PR empilée sur #149, interrupteurs retirés.
 - [ ] Second tour : #56 (croisé de la sortie garçon, géométrie du couple à régler pour chaque piste) et #67 (distance bassin-bassin, même figure à filmer à plusieurs distances).

@@ -88,6 +88,6 @@ ne la pose pas en mots : on filme les candidats et il en élit un
    durée, une capture à la fois, dans `docs/elections/<date>/`.
 4. Page d'élection : candidats côte à côte, une scène concrète, les mesures, un choix (dont « aucune
    ne convient ») et un commentaire optionnel. La page ne dit pas quelle variante est la bonne.
-5. Recopier le vote et le commentaire mot pour mot dans l'issue, implémenter la variante élue dans
+5. Consigner le vote dans l'issue (choix, commentaire reformulé sans citation), implémenter la variante élue dans
    une PR propre, retirer l'interrupteur. Une question dont les candidats ne se prototypent pas
    proprement est reportée, avec sa raison.

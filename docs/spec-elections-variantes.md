@@ -2,10 +2,10 @@
 
 Fil d'Ariane : [docs](./) › **spec élections de variantes** · règles : [règles du propriétaire](regles-proprietaire.md)
 
-## Demande du propriétaire (21 novembre 2026)
+## Origine (21 novembre 2026)
 
-> pour trancher tes questions le mieux c'est de présenter les différents variants en GIF et de me
-> les faire élire avec un commentaire optionnel
+Les questions de mouvement en attente du propriétaire se tranchent en lui montrant les variantes en
+GIF : il en élit une, avec un commentaire s'il le souhaite.
 
 Une question de mouvement posée en mots (quel pied, quelle direction, quel seuil) se tranche mal
 sans la voir. Chaque décision ouverte est donc présentée avec ses candidats **filmés** ; le
@@ -22,7 +22,7 @@ propriétaire élit une variante et peut laisser un commentaire.
 | Mesure | Chaque candidat est mesuré sur le vrai GLB avec les outils des tests (`scripts/mesure_essai_*.mjs`) : semelles, os des jambes, inclinaison du pied. Un candidat filmé sans mesure le dit. |
 | Page d'élection | Candidats côte à côte, une phrase qui dit ce qui change, les mesures utiles, un choix à cocher (dont « aucune ne convient »), un commentaire optionnel. |
 | Neutralité | La page montre et mesure ; elle ne dit pas quelle variante est « la bonne ». |
-| Trace | Le choix et le commentaire sont recopiés **mot pour mot** dans l'issue concernée. |
+| Trace | Le choix est consigné dans l'issue concernée ; le commentaire y est reformulé en mots simples, sans citation (règle du 22 novembre : le propriétaire ne veut pas être cité). |
 | Suite | La variante élue est implémentée dans une PR propre ; son interrupteur d'essai est retiré. Les candidats non élus disparaissent avec lui. |
 
 Les interrupteurs d'essai ne sont **pas** des options de l'app : ils servent à filmer.
@@ -116,9 +116,18 @@ même figure filmée à plusieurs distances, ce qui demande de régler à nouvea
 2. Chaque interrupteur est déclaré dans `src/essais.ts` avec sa question et son issue.
 3. Chaque question présentée a un GIF par candidat, même cadrage, avec les muscles.
 4. La page d'élection propose « aucune ne convient » et un commentaire pour chaque question.
-5. Chaque vote est recopié mot pour mot dans son issue avant toute implémentation.
+5. Chaque vote est consigné dans son issue avant toute implémentation (choix, commentaire reformulé sans citation).
 6. Une question reportée est nommée, avec sa raison.
 
-## Résultats
+## Résultats du premier tour (votes du 21 novembre 2026)
 
-À remplir après les votes.
+| Question | Variante élue | Commentaire, reformulé | Suite |
+|---|---|---|---|
+| Q1 — ida e volta en paire, pied du suiveur (#86, #144) | **A, pied opposé** (la figure d'aujourd'hui) | aucun | Rien ne change dans la figure. L'interrupteur `idaMemePied` est retiré. La même question posée dans la PR #153 est tranchée par ce vote. |
+| Q2 — ligne de danse (#72) | **B, dans l'axe des bustes** | aucun | En paire, la ligne passe par les deux danseurs : le couple progresse le long de la ligne, le leader en sort sur le côté et y revient. La règle R6 est réécrite : ce vote revient sur la lecture faite en #60 et #64 (ligne perpendiculaire aux bustes). L'interrupteur `ligneBustes` est retiré. |
+| Q3 — marche hors figure (#73) | **B, déroulée** | Les deux conviennent, c'est une affaire de style. B est plus naturelle et plus courante. A reste bonne. | La marche déroulée devient la marche par défaut hors figure. La convention « pieds plats » et le contrat de l'oracle sont amendés pour ces marches. L'interrupteur `marcheDeroulee` est retiré. |
+
+Les variantes élues sont implémentées dans une PR empilée sur celle du dossier (#149).
+
+Les questions 4 à 7 ajoutées à la page le 22 novembre (forme, sens et taille du « 8 » des hanches,
+kompa) appartiennent à l'élection du ginga : voir #159 et la PR #160.

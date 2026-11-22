@@ -4,8 +4,15 @@ Fil d'Ariane : [docs](../../) › [spec élections de variantes](../../spec-elec
 
 Trois questions de mouvement, chacune filmée dans ses deux versions. Le propriétaire vote sur la
 [page d'élection](https://claude.ai/artifact/SzBbjQosJqsvLtotRzuRp2) (Artifact privé : seul le propriétaire peut l'ouvrir ; source :
-[`election.html`](election.html), votes dans `votes/q1`, `votes/q2`, `votes/q3`) ; son choix et son
-commentaire sont recopiés mot pour mot dans l'issue avant toute implémentation.
+[`election.html`](election.html), votes dans `votes/q1`, `votes/q2`, `votes/q3`) ; son choix est
+consigné dans l'issue avant toute implémentation, le commentaire reformulé sans citation.
+
+**Résultats (votes du 21 novembre 2026)** : Q1, **A** (pied opposé, la figure d'aujourd'hui) ; Q2, **B**
+(ligne dans l'axe des bustes) ; Q3, **B** (marche déroulée ; les deux conviennent, c'est une affaire de
+style, B est plus naturelle et plus courante). Détail et suites dans
+[la spec](../../spec-elections-variantes.md#résultats-du-premier-tour-votes-du-21-novembre-2026).
+La page publiée a reçu depuis un second tour (questions 4 à 7, le « 8 » des hanches) qui appartient à
+l'élection du ginga (#159, PR #160) ; `election.html` reste la source du premier tour.
 
 Tous les films : kizomba, 90 bpm, 12 images par seconde, avec les muscles, en boucle.
 
