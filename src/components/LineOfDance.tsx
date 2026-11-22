@@ -11,10 +11,13 @@ export default function LineOfDance({
   visible = true,
   color = "#f472b6",
   halfLength = 1.3,
+  axis = "x",
 }: {
   visible?: boolean;
   color?: string;
   halfLength?: number;
+  /** Trial #72 (`?essai=ligneBustes`, src/essais.ts): "z" draws the line along the busts' axis. */
+  axis?: "x" | "z";
 }) {
   const dashes = useMemo(() => {
     const g = new THREE.Group();
@@ -30,8 +33,9 @@ export default function LineOfDance({
       m.position.set(x + len / 2, 0.003, 0);
       g.add(m);
     }
+    if (axis === "z") g.rotation.y = Math.PI / 2;
     return g;
-  }, [color, halfLength]);
+  }, [color, halfLength, axis]);
   if (!visible) return null;
   return <primitive object={dashes} />;
 }

@@ -372,3 +372,15 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] GIFs des réglages, [page d'élection](elections/ginga-couple.md) ; démonstration `demo=ginga`.
 - [ ] Le chemin en « 8 » du bassin, lié au relais des genoux, lisible vu de dessus et vu de face (précisions du
       propriétaire) : #159. La taille (`ginga=sans|discret|marque|ample`) s'y choisira avec la forme.
+
+## Élections de variantes en GIF (#148)
+
+- [x] Issue #148 et spécification poussée en premier ([spec](spec-elections-variantes.md)).
+- [x] Prototypes derrière `?essai=` (`src/essais.ts`) : ida même pied (#86), ligne dans l'axe des bustes (#72), marche déroulée (#73) ; `temoin` pour filmer l'actuel hors du mode paire.
+- [x] Mesures des candidats sur le vrai GLB (`scripts/mesure_essai_ida.mjs`, `scripts/mesure_essai_marche.mjs`).
+- [x] GIFs des candidats, avec les muscles ([premier tour](elections/2026-11-21/README.md)).
+- [x] Page d'élection publiée (source : `docs/elections/2026-11-21/election.html`), lien donné au propriétaire.
+- [x] Votes du propriétaire (21 novembre) : Q1 A, pied opposé (#86/#144) ; Q2 B, ligne dans l'axe des bustes (#72) ; Q3 B, marche déroulée (#73).
+- [x] Votes consignés dans les issues (choix, commentaire reformulé sans citation) et dans la spec.
+- [ ] Variantes élues implémentées dans une PR empilée sur #149, interrupteurs retirés.
+- [ ] Second tour : #56 (croisé de la sortie garçon, géométrie du couple à régler pour chaque piste) et #67 (distance bassin-bassin, même figure à filmer à plusieurs distances).

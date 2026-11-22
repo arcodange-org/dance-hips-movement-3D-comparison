@@ -1,0 +1,442 @@
+<title>Élections de variantes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+  /* Mise en page : une colonne de bulletins ; dans chaque bulletin, les deux films côte à côte
+     (empilés sur téléphone), puis l'urne (choix, commentaire, enregistrement). */
+  :root {
+    --bg: #eef1f5;
+    --surface: #ffffff;
+    --ink: #121925;
+    --muted: #566274;
+    --line: #d3dae4;
+    --accent: #0c6f68;
+    --accent-ink: #ffffff;
+    --accent-soft: #d8f0ec;
+    --warn: #8a4b00;
+    --warn-soft: #fbecd3;
+    --screen: #0a111c;
+    --screen-ink: #e9eef5;
+    --display: "Bricolage Grotesque", "Instrument Sans", system-ui, sans-serif;
+    --text: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0b1017; --surface: #131a25; --ink: #e7ecf3; --muted: #95a2b5; --line: #273244;
+      --accent: #35d0bd; --accent-ink: #06211e; --accent-soft: #123a36;
+      --warn: #f2c179; --warn-soft: #3a2a10; --screen: #05090f; --screen-ink: #e9eef5;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b1017; --surface: #131a25; --ink: #e7ecf3; --muted: #95a2b5; --line: #273244;
+    --accent: #35d0bd; --accent-ink: #06211e; --accent-soft: #123a36;
+    --warn: #f2c179; --warn-soft: #3a2a10; --screen: #05090f; --screen-ink: #e9eef5;
+    color-scheme: dark;
+  }
+
+  body { background: var(--bg); color: var(--ink); font-family: var(--text); font-size: 16px; line-height: 1.55; }
+  .page { max-width: 1010px; margin: 0 auto; padding-block: 36px 64px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: flex; flex-direction: column; gap: 28px; }
+  a { color: var(--accent); text-underline-offset: 3px; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  .masthead { display: flex; flex-direction: column; gap: 10px; }
+  .eyebrow { font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  h1 { font-family: var(--display); font-weight: 750; font-size: clamp(34px, 6vw, 54px); line-height: 1.02; margin: 0; letter-spacing: -.02em; text-wrap: balance; }
+  .lede { max-width: 62ch; margin: 0; color: var(--muted); }
+  .lede strong { color: var(--ink); font-weight: 600; }
+  .tally { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding-top: 4px; font-size: 14.5px; }
+  .tally-count { font-family: var(--display); font-weight: 700; font-size: 17px; font-variant-numeric: tabular-nums; }
+  .pips { display: flex; gap: 6px; list-style: none; margin: 0; padding: 0; }
+  .pip { min-width: 54px; padding: 3px 9px; border: 1.5px solid var(--line); border-radius: 999px; font-size: 12.5px; font-weight: 600;
+    color: var(--muted); text-align: center; font-variant-numeric: tabular-nums; }
+  .pip[data-done="1"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .notice { margin: 0; padding: 12px 14px; border-radius: 8px; background: var(--warn-soft); color: var(--warn); font-size: 14.5px; font-weight: 500; }
+
+  .ballot { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .ballot-head { padding: 22px 24px 4px; display: flex; flex-direction: column; gap: 8px; }
+  .ballot-meta { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; font-size: 13.5px; color: var(--muted); }
+  .qno { font-family: var(--display); font-weight: 700; color: var(--accent); font-size: 14px; letter-spacing: .06em; text-transform: uppercase; }
+  h2 { font-family: var(--display); font-weight: 700; font-size: clamp(23px, 3.4vw, 30px); line-height: 1.12; margin: 0; letter-spacing: -.01em; text-wrap: balance; }
+  .scene { margin: 0; max-width: 68ch; }
+  .film { margin: 0; font-size: 13.5px; color: var(--muted); }
+
+  .count { margin: 4px 24px 0; overflow-x: auto; }
+  .count table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+  .count th, .count td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  .count thead th { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .count tbody th { font-weight: 600; }
+  .count tbody tr:last-child th, .count tbody tr:last-child td { border-bottom: 0; }
+  .count .diff { font-weight: 600; color: var(--accent); }
+
+  .cands { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; padding: 18px 24px 22px; }
+  .cand { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .screen { position: relative; background: var(--screen); border-radius: 10px; overflow: hidden; aspect-ratio: 440 / 472; max-width: 100%;
+    outline: 3px solid transparent; outline-offset: 2px; transition: outline-color .15s; }
+  .screen img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .letter { position: absolute; top: 10px; left: 10px; display: flex; align-items: center; gap: 8px; padding: 4px 10px 4px 4px;
+    border-radius: 999px; background: color-mix(in srgb, var(--screen) 78%, transparent); color: var(--screen-ink); font-size: 12.5px; font-weight: 600; }
+  .letter b { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--screen-ink); color: var(--screen);
+    font-family: var(--display); font-size: 15px; font-weight: 800; }
+  .ballot[data-elected="A"] .cand[data-cand="A"] .screen,
+  .ballot[data-elected="B"] .cand[data-cand="B"] .screen { outline-color: var(--accent); }
+  h3 { font-family: var(--display); font-weight: 700; font-size: 19px; line-height: 1.2; margin: 2px 0 0; }
+  .what { margin: 0; }
+  .measures { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .measures li { padding-left: 14px; position: relative; }
+  .measures li::before { content: ""; position: absolute; left: 0; top: .62em; width: 6px; height: 6px; border-radius: 50%; background: var(--line); }
+  .measures strong { color: var(--ink); font-weight: 600; }
+  .caveat { margin: 0; font-size: 13.5px; color: var(--muted); font-style: italic; }
+
+  .urn { border-top: 1px solid var(--line); padding: 18px 24px 22px; display: flex; flex-direction: column; gap: 14px; background: color-mix(in srgb, var(--bg) 45%, var(--surface)); }
+  .urn fieldset { border: 0; margin: 0; padding: 0; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+  .urn legend { padding: 0; font-weight: 600; font-size: 15px; }
+  .choices { display: flex; flex-wrap: wrap; gap: 8px; }
+  .choice { position: relative; }
+  .choice input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .choice span { display: flex; align-items: center; gap: 9px; padding: 9px 15px 9px 11px; border: 1.5px solid var(--line); border-radius: 999px;
+    background: var(--surface); font-weight: 500; font-size: 15px; }
+  .choice span::before { content: ""; width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--muted); flex: none; }
+  .choice input:hover + span { border-color: var(--muted); }
+  .choice input:checked + span { border-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+  .choice input:checked + span::before { border-color: var(--accent); background: radial-gradient(circle, var(--accent) 0 45%, transparent 50%); }
+  .choice input:focus-visible + span { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 14px; font-weight: 600; }
+  .field label small { font-weight: 400; color: var(--muted); font-size: 13.5px; }
+  textarea { font: inherit; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); border-radius: 8px; padding: 10px 12px;
+    min-height: 74px; resize: vertical; width: 100%; box-sizing: border-box; }
+  textarea:focus-visible { border-color: var(--accent); }
+  .send { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+  button.save { font: inherit; font-weight: 600; padding: 10px 18px; border-radius: 8px; border: 0; background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+  button.save:disabled { opacity: .5; cursor: not-allowed; }
+  .status { font-size: 14px; color: var(--muted); min-height: 1.5em; }
+  .status[data-kind="ok"] { color: var(--accent); font-weight: 600; }
+  .status[data-kind="warn"] { color: var(--warn); font-weight: 500; }
+
+  .later { display: flex; flex-direction: column; gap: 12px; }
+  .later h2 { font-size: 22px; }
+  .later ul { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .later li { border: 1px dashed var(--line); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .later li b { font-family: var(--display); font-size: 16.5px; }
+  .later li p { margin: 0; font-size: 14.5px; color: var(--muted); }
+  footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; }
+  footer p { margin: 0 0 4px; }
+
+  @media (max-width: 720px) {
+    .cands, .later ul { grid-template-columns: minmax(0, 1fr); }
+    .ballot-head, .cands, .urn { padding-left: 16px; padding-right: 16px; }
+    .count { margin-left: 16px; margin-right: 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .screen { transition: none; } }
+</style>
+
+<div class="page">
+  <header class="masthead">
+    <div class="eyebrow">Comparateur 3D des styles de danse · chantier #148</div>
+    <h1>Élections de variantes</h1>
+    <p class="lede">Premier tour, 21 novembre 2026. Trois questions de mouvement, chacune <strong>filmée dans ses deux versions</strong>. Regarde les films, coche ta réponse, ajoute un commentaire si tu veux. Rien n'est implémenté avant ton vote, et ton commentaire sera recopié mot pour mot dans l'issue.</p>
+    <div class="tally" aria-live="polite">
+      <span class="tally-count" id="tally-count">0 vote enregistré sur 3</span>
+      <ul class="pips" aria-hidden="true">
+        <li class="pip" id="pip-q1">Q1</li>
+        <li class="pip" id="pip-q2">Q2</li>
+        <li class="pip" id="pip-q3">Q3</li>
+      </ul>
+    </div>
+    <p class="notice" id="notice" hidden></p>
+  </header>
+
+  <!-- Question 1 -->
+  <section class="ballot" data-q="q1" aria-labelledby="q1-title">
+    <div class="ballot-head">
+      <div class="ballot-meta">
+        <span class="qno">Question 1</span>
+        <span>issues <a href="https://github.com/arcodange-org/dance-hips-movement-3D-comparison/issues/86">#86</a> et <a href="https://github.com/arcodange-org/dance-hips-movement-3D-comparison/issues/144">#144</a></span>
+      </div>
+      <h2 id="q1-title">Ida e volta en paire : quel pied bouge chez le suiveur ?</h2>
+      <p class="scene">Le couple est en quinconce. Aux temps 1 et 2, le leader avance son pied gauche puis le ramène. Le suiveur recule en même temps : avec le pied opposé (son droit), ou avec le même pied (son gauche) ?</p>
+      <p class="film">Film : 8 temps, kizomba, 90 bpm, avec les muscles, en boucle. Vue de côté : le suiveur est à gauche, le leader (« Guideur ») à droite.</p>
+    </div>
+    <div class="count">
+      <table>
+        <thead><tr><th scope="col">Temps</th><th scope="col">1 – 2</th><th scope="col">3 – 4</th><th scope="col">5 – 6</th><th scope="col">7 – 8</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Leader</th><td>gauche devant</td><td>gauche derrière</td><td>droit devant</td><td>droit derrière</td></tr>
+          <tr><th scope="row">Suiveur, version A</th><td class="diff">droit derrière</td><td class="diff">droit devant</td><td class="diff">gauche derrière</td><td class="diff">gauche devant</td></tr>
+          <tr><th scope="row">Suiveur, version B</th><td class="diff">gauche derrière</td><td class="diff">gauche devant</td><td class="diff">droit derrière</td><td class="diff">droit devant</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="cands">
+      <article class="cand" data-cand="A">
+        <div class="screen"><img src="q1-ida-A-pied-oppose.gif" alt="Ida e volta en paire, version A : le suiveur bouge le pied opposé à celui du leader." width="440" height="472"><span class="letter"><b>A</b>aujourd'hui</span></div>
+        <h3>Pied opposé</h3>
+        <p class="what">Quand le leader avance le gauche, le suiveur recule le droit. Chaque pas de 18 cm aller, puis retour.</p>
+        <ul class="measures">
+          <li>Semelles des deux danseurs : <strong>aucun recouvrement</strong> (400 instants mesurés sur les 8 temps)</li>
+          <li>Os des jambes : <strong>aucun croisement</strong> entre les danseurs (64 poses)</li>
+        </ul>
+      </article>
+      <article class="cand" data-cand="B">
+        <div class="screen"><img src="q1-ida-B-meme-pied.gif" alt="Ida e volta en paire, version B : le suiveur bouge le même pied que le leader." width="440" height="472"><span class="letter"><b>B</b>variante</span></div>
+        <h3>Même pied</h3>
+        <p class="what">Quand le leader avance le gauche, le suiveur recule le gauche. Mêmes pas de 18 cm.</p>
+        <ul class="measures">
+          <li>Semelles des deux danseurs : <strong>aucun recouvrement</strong> (400 instants)</li>
+          <li>Os des jambes : <strong>19 poses sur 64</strong> où une jambe du leader traverse une jambe du suiveur (cuisses et tibias)</li>
+        </ul>
+        <p class="caveat">Prototype brut : seul le pied du suiveur change. Les bassins et les genoux gardent leurs réglages actuels.</p>
+      </article>
+    </div>
+    <form class="urn" novalidate>
+      <fieldset>
+        <legend>Ton vote pour la question 1</legend>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="q1-choice" id="q1-choice-a" value="A"><span>A · Pied opposé</span></label>
+          <label class="choice"><input type="radio" name="q1-choice" id="q1-choice-b" value="B"><span>B · Même pied</span></label>
+          <label class="choice"><input type="radio" name="q1-choice" id="q1-choice-none" value="aucune"><span>Aucune ne convient</span></label>
+        </div>
+      </fieldset>
+      <div class="field">
+        <label for="q1-comment">Commentaire <small>(optionnel)</small></label>
+        <textarea id="q1-comment" name="q1-comment" placeholder="Ce que tu vois, ce qui manque, ce qu'il faudrait essayer…"></textarea>
+      </div>
+      <div class="send"><button class="save" type="submit" id="q1-save">Enregistrer mon vote</button><span class="status" id="q1-status" role="status"></span></div>
+    </form>
+  </section>
+
+  <!-- Question 2 -->
+  <section class="ballot" data-q="q2" aria-labelledby="q2-title">
+    <div class="ballot-head">
+      <div class="ballot-meta">
+        <span class="qno">Question 2</span>
+        <span>issue <a href="https://github.com/arcodange-org/dance-hips-movement-3D-comparison/issues/72">#72</a></span>
+      </div>
+      <h2 id="q2-title">Où passe la ligne de danse ?</h2>
+      <p class="scene">Sortie garçon, vue de dessus. Les deux films montrent exactement le même mouvement, où le couple avance d'environ 70 cm : seule la ligne rose tracée au sol change de direction.</p>
+      <p class="film">Film : 5 temps, kizomba, 90 bpm, avec les muscles, en boucle. Le leader est au premier plan, de dos.</p>
+    </div>
+    <div class="cands">
+      <article class="cand" data-cand="A">
+        <div class="screen"><img src="q2-ligne-A-perpendiculaire.gif" alt="Sortie garçon vue de dessus, version A : la ligne de danse passe entre les deux danseurs." width="440" height="472"><span class="letter"><b>A</b>aujourd'hui</span></div>
+        <h3>Perpendiculaire aux bustes</h3>
+        <p class="what">La ligne passe entre les deux danseurs, parallèle à leurs épaules au départ.</p>
+        <ul class="measures">
+          <li>Le couple se déplace <strong>en travers</strong> de la ligne</li>
+          <li>Aucune autre mesure : le mouvement est identique, seul le tracé change</li>
+        </ul>
+      </article>
+      <article class="cand" data-cand="B">
+        <div class="screen"><img src="q2-ligne-B-axe-des-bustes.gif" alt="Sortie garçon vue de dessus, version B : la ligne de danse traverse les deux danseurs." width="440" height="472"><span class="letter"><b>B</b>variante</span></div>
+        <h3>Dans l'axe des bustes</h3>
+        <p class="what">La ligne traverse les deux danseurs, de l'un à l'autre, dans la direction où ils se font face au départ.</p>
+        <ul class="measures">
+          <li>Le couple se déplace <strong>le long</strong> de la ligne</li>
+          <li>Aucune autre mesure : le mouvement est identique, seul le tracé change</li>
+        </ul>
+      </article>
+    </div>
+    <form class="urn" novalidate>
+      <fieldset>
+        <legend>Ton vote pour la question 2</legend>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="q2-choice" id="q2-choice-a" value="A"><span>A · Perpendiculaire aux bustes</span></label>
+          <label class="choice"><input type="radio" name="q2-choice" id="q2-choice-b" value="B"><span>B · Dans l'axe des bustes</span></label>
+          <label class="choice"><input type="radio" name="q2-choice" id="q2-choice-none" value="aucune"><span>Aucune ne convient</span></label>
+        </div>
+      </fieldset>
+      <div class="field">
+        <label for="q2-comment">Commentaire <small>(optionnel)</small></label>
+        <textarea id="q2-comment" name="q2-comment" placeholder="Par exemple : comment la figure devrait avancer le long de la ligne…"></textarea>
+      </div>
+      <div class="send"><button class="save" type="submit" id="q2-save">Enregistrer mon vote</button><span class="status" id="q2-status" role="status"></span></div>
+    </form>
+  </section>
+
+  <!-- Question 3 -->
+  <section class="ballot" data-q="q3" aria-labelledby="q3-title">
+    <div class="ballot-head">
+      <div class="ballot-meta">
+        <span class="qno">Question 3</span>
+        <span>issue <a href="https://github.com/arcodange-org/dance-hips-movement-3D-comparison/issues/73">#73</a></span>
+      </div>
+      <h2 id="q3-title">Hors figure, le pied marche-t-il à plat ?</h2>
+      <p class="scene">Un danseur seul marche en cercle (corridinho, temps 9 à 16). Chaque pied fait un pas d'environ 47 cm tous les 2 temps. Regarde le pied qui avance : reste-t-il à plat, ou se déroule-t-il du talon à la pointe ?</p>
+      <p class="film">Film : 8 temps, kizomba, 90 bpm, avec les muscles, en boucle. Cadré sur les jambes.</p>
+    </div>
+    <div class="cands">
+      <article class="cand" data-cand="A">
+        <div class="screen"><img src="q3-marche-A-a-plat.gif" alt="Marche en cercle, version A : le pied reste à plat pendant tout le pas." width="440" height="472"><span class="letter"><b>A</b>aujourd'hui</span></div>
+        <h3>À plat</h3>
+        <p class="what">Le pied se soulève et se repose d'un bloc, semelle toujours parallèle au sol.</p>
+        <ul class="measures">
+          <li>Inclinaison du pied : <strong>0°</strong> pendant les 8 temps</li>
+          <li>Aucun os sous le sol</li>
+        </ul>
+      </article>
+      <article class="cand" data-cand="B">
+        <div class="screen"><img src="q3-marche-B-deroulee.gif" alt="Marche en cercle, version B : le talon se lève, puis le pied se pose par le talon." width="440" height="472"><span class="letter"><b>B</b>variante</span></div>
+        <h3>Déroulée</h3>
+        <p class="what">Comme dans les figures : le talon se lève d'abord, le pied passe, puis il se pose par le talon.</p>
+        <ul class="measures">
+          <li>Talon levé jusqu'à <strong>20°</strong> au départ du pas, pointe relevée jusqu'à <strong>13°</strong> à la pose</li>
+          <li>Les deux pieds sont à plat ensemble 46 % du temps</li>
+          <li>Aucun os sous le sol</li>
+        </ul>
+        <p class="caveat">Élire B demande de modifier la règle « pieds plats » et le contrat de l'oracle (phase 18).</p>
+      </article>
+    </div>
+    <form class="urn" novalidate>
+      <fieldset>
+        <legend>Ton vote pour la question 3</legend>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="q3-choice" id="q3-choice-a" value="A"><span>A · À plat</span></label>
+          <label class="choice"><input type="radio" name="q3-choice" id="q3-choice-b" value="B"><span>B · Déroulée</span></label>
+          <label class="choice"><input type="radio" name="q3-choice" id="q3-choice-none" value="aucune"><span>Aucune ne convient</span></label>
+        </div>
+      </fieldset>
+      <div class="field">
+        <label for="q3-comment">Commentaire <small>(optionnel)</small></label>
+        <textarea id="q3-comment" name="q3-comment" placeholder="Par exemple : trop déroulé, pas assez, seulement en avant…"></textarea>
+      </div>
+      <div class="send"><button class="save" type="submit" id="q3-save">Enregistrer mon vote</button><span class="status" id="q3-status" role="status"></span></div>
+    </form>
+  </section>
+
+  <section class="later" aria-labelledby="later-title">
+    <h2 id="later-title">Reportées au second tour</h2>
+    <ul>
+      <li>
+        <b>Croisé de la sortie garçon : pas égaux ? <a href="https://github.com/arcodange-org/dance-hips-movement-3D-comparison/issues/56">#56</a></b>
+        <p>Les trois pistes relevées dans l'issue changent la géométrie du couple, pas seulement un pas : il faut régler à nouveau les bassins et les pas suivants de la figure. L'essai du 20 novembre (pas de 20 cm de chaque côté) donnait 123 chevauchements de pieds et 15 croisements d'os ; le filmer tel quel aurait faussé le vote.</p>
+      </li>
+      <li>
+        <b>Distance bassin contre bassin <a href="https://github.com/arcodange-org/dance-hips-movement-3D-comparison/issues/67">#67</a></b>
+        <p>C'est un seuil, donc un nombre. Pour le choisir à l'œil il faut la même figure filmée à plusieurs distances, ce qui demande de régler à nouveau chaque figure. Pas de chiffre à choisir à l'aveugle.</p>
+      </li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>Les films viennent de prototypes activés seulement pour la capture (<code>?essai=</code>) : l'app publiée ne change pas tant que tu n'as pas voté.</p>
+    <p>Squelette et muscles : BodyParts3D, CC BY-SA 2.1 Japan © DBCLS.</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var QUESTIONS = ["q1", "q2", "q3"];
+  var NAMES = {
+    q1: { A: "A · Pied opposé", B: "B · Même pied" },
+    q2: { A: "A · Perpendiculaire aux bustes", B: "B · Dans l'axe des bustes" },
+    q3: { A: "A · À plat", B: "B · Déroulée" }
+  };
+  var state = {};
+  var db = null, user = null, loaded = false;
+
+  function $(id) { return document.getElementById(id); }
+  function section(q) { return document.querySelector('.ballot[data-q="' + q + '"]'); }
+  function radios(q) { return Array.prototype.slice.call(document.querySelectorAll('input[name="' + q + '-choice"]')); }
+  function chosen(q) { var r = radios(q).filter(function (i) { return i.checked; })[0]; return r ? r.value : null; }
+  function label(q, choice) { return choice === "aucune" ? "Aucune ne convient" : (NAMES[q][choice] || choice); }
+  function hour(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleDateString("fr-FR", { day: "numeric", month: "long" }) + " à " + d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  }
+  function setStatus(q, text, kind) { var el = $(q + "-status"); el.textContent = text; if (kind) el.dataset.kind = kind; else delete el.dataset.kind; }
+  function mark(q) { var c = chosen(q); var s = section(q); if (c === "A" || c === "B") s.dataset.elected = c; else delete s.dataset.elected; }
+
+  function fill(q, vote) {
+    radios(q).forEach(function (i) { i.checked = !!vote && i.value === vote.choice; });
+    $(q + "-comment").value = vote && typeof vote.comment === "string" ? vote.comment : "";
+    mark(q);
+  }
+  function showSaved(q) {
+    var v = state[q].saved;
+    if (state[q].dirty) setStatus(q, "Modifié, pas encore enregistré.", "warn");
+    else if (v) setStatus(q, "Vote enregistré : " + label(q, v.choice) + (v.votedAt ? " (" + hour(v.votedAt) + ")" : "") + ".", "ok");
+    else setStatus(q, loaded ? "Pas encore de vote enregistré." : "");
+  }
+  function tally() {
+    var n = QUESTIONS.filter(function (q) { return state[q].saved; }).length;
+    $("tally-count").textContent = n + (n > 1 ? " votes enregistrés" : " vote enregistré") + " sur " + QUESTIONS.length;
+    QUESTIONS.forEach(function (q) { $("pip-" + q).dataset.done = state[q].saved ? "1" : "0"; });
+  }
+  function notice(text) { var el = $("notice"); el.textContent = text; el.hidden = !text; }
+  function lock(locked) { QUESTIONS.forEach(function (q) { $(q + "-save").disabled = locked || state[q].saving; }); }
+
+  QUESTIONS.forEach(function (q) {
+    state[q] = { saved: null, dirty: false, saving: false };
+    var form = section(q).querySelector("form");
+    form.addEventListener("input", function () { state[q].dirty = true; mark(q); showSaved(q); });
+    form.addEventListener("submit", function (e) { e.preventDefault(); save(q); });
+    mark(q);
+  });
+  lock(true);
+
+  function save(q) {
+    var choice = chosen(q);
+    if (!choice) { setStatus(q, "Coche d'abord une réponse.", "warn"); return; }
+    if (!db) { setStatus(q, "Cette vue ne peut pas enregistrer. Écris ton choix dans la conversation.", "warn"); return; }
+    if (state[q].saving) return;
+    state[q].saving = true; lock(false);
+    setStatus(q, "Enregistrement…");
+    var vote = { question: q, tour: "2026-11-21", choice: choice, choiceLabel: label(q, choice),
+      comment: $(q + "-comment").value.trim(), votedAt: new Date().toISOString() };
+    var who = user && user.id ? user.id().catch(function () { return null; }) : Promise.resolve(null);
+    who.then(function (id) { if (id) vote.voter = id; return db.doc("votes/" + q).set(vote); })
+      .then(function () {
+        state[q].saving = false; state[q].dirty = false; state[q].saved = vote;
+        lock(false); showSaved(q); tally();
+      })
+      .catch(function (err) {
+        state[q].saving = false; lock(false);
+        var code = err && err.code ? err.code : "erreur inconnue";
+        setStatus(q, "Le vote n'a pas été enregistré (" + code + "). Réessaie, ou écris ton choix dans la conversation.", "warn");
+      });
+  }
+
+  var slow = setTimeout(function () {
+    if (!loaded) notice("Les votes déjà enregistrés tardent à se charger. Tu peux regarder les films ; si l'enregistrement reste impossible, écris tes choix dans la conversation (par exemple : « Q1 B, Q2 A, Q3 aucune »).");
+  }, 10000);
+
+  function degraded() {
+    clearTimeout(slow); loaded = true; lock(true);
+    notice("Cette vue ne peut pas enregistrer les votes. Regarde les films, puis écris tes choix dans la conversation (par exemple : « Q1 B, Q2 A, Q3 aucune : … »).");
+    QUESTIONS.forEach(showSaved);
+  }
+
+  function start() {
+    var use = window.claude && window.claude.use;
+    if (!use) { degraded(); return; }
+    Promise.all([
+      window.claude.use("db").catch(function () { return null; }),
+      window.claude.use("user").catch(function () { return null; })
+    ]).then(function (caps) {
+      db = caps[0]; user = caps[1];
+      if (!db) { degraded(); return; }
+      db.collection("votes").onSnapshot(function (snap) {
+        clearTimeout(slow); notice("");
+        var seen = {};
+        snap.docs.forEach(function (d) { if (d.exists && QUESTIONS.indexOf(d.id) >= 0) seen[d.id] = d.data(); });
+        loaded = true;
+        QUESTIONS.forEach(function (q) {
+          state[q].saved = seen[q] || null;
+          if (!state[q].dirty && !state[q].saving) fill(q, state[q].saved);
+          showSaved(q);
+        });
+        lock(false); tally();
+      }, function (err) {
+        clearTimeout(slow); loaded = true; lock(true);
+        notice("Les votes ne peuvent plus être lus ni enregistrés ici (" + (err && err.code ? err.code : "erreur") + "). Écris tes choix dans la conversation.");
+      });
+    });
+  }
+  start();
+})();
+</script>
