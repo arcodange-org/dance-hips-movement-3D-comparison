@@ -5,7 +5,7 @@
 //   node scripts/build_upper_body.mjs [--cache extracted/bp3d] [--cell-bone 0.0025] [--cell-muscle 0.003] [--raw]
 //
 // The three BodyParts3D files (see scripts/bp3d.mjs) go in the cache folder; nothing is downloaded here.
-// Output: one GLB, meshes weighted on 18 joints (standard glTF skin), Draco-compressed with
+// Output: one GLB, meshes weighted on 48 joints (trunk, arms, and three per finger; standard glTF skin), Draco-compressed with
 // @gltf-transform/cli (--raw: no compression); the manifest (rest joints, axes, pieces, measures) is the
 // `extras` of its scene. Same frame as public/anatomy.glb. The skin weights are computed here, once: nothing
 // is deformed by hand while dancing.
@@ -158,6 +158,12 @@ const bones = {};
 for (const s of SIDES) for (const [name, , list] of PAIRED_BONES) bones[name + s] = b.load(b.resolve(list, s));
 const ribCage = b.load(b.resolve(RIB_CAGE, "C"));
 const rest = { ...ENGINE }, axes = {}, measures = {};
+/** Fingers: three joints each, from the hand outwards. The thumb's first joint carries its metacarpal. */
+const FINGERS = [["thumb", "thumb"], ["index", "index finger"], ["middle", "middle finger"], ["ring", "ring finger"], ["little", "little finger"]];
+const fingerBones = {}, palmBones = {};
+const mean = pts => mul(pts.reduce((a, q) => add(a, q), [0, 0, 0]), 1 / pts.length);
+/** Rotation of v about the unit axis a by t radians. */
+const turn = (v, a, t) => add(add(mul(v, Math.cos(t)), mul(cross(a, v), Math.sin(t))), mul(a, dot(a, v) * (1 - Math.cos(t))));
 for (const s of SIDES) {
   const hum = bones["Humerus" + s].pos, rad = bones["Radius" + s].pos, uln = bones["Ulna" + s].pos;
   const bh = box(hum);
@@ -192,14 +198,56 @@ for (const s of SIDES) {
     forearm: +norm(sub(wrist, elbow)).toFixed(4), elbowToPalm: +norm(sub(palm, elbow)).toFixed(4),
     wristToMiddleTip: +norm(sub(tip, wrist)).toFixed(4),
   };
+  // Fingers (#179): each joint is the end of its bone on the wrist's side. Flexion axis: a positive rotation
+  // closes the finger towards the palm. The thumb's first joint opens it away from the index, in the palm's plane.
+  const boneOf = n => b.load(b.resolve([n], s)).pos;
+  const ends = pos => {
+    const pts = pointsOf(pos), c = centroid(pos), axis = principalAxes(pts)[0].axis;
+    const along = pts.map(q => dot(sub(q, c), axis)), lo = Math.min(...along), hi = Math.max(...along), band = 0.12 * (hi - lo);
+    const low = mean(pts.filter((_, i) => along[i] < lo + band)), high = mean(pts.filter((_, i) => along[i] > hi - band));
+    return norm(sub(low, wrist)) < norm(sub(high, wrist)) ? { base: low, tip: high } : { base: high, tip: low };
+  };
+  fingerBones[s] = {}; palmBones[s] = [];
+  const flexion = {}, tips = {}, direction = {};
+  for (const [key, label] of FINGERS) {
+    const segments = key === "thumb" ? ["first metacarpal bone", "proximal phalanx of thumb", "distal phalanx of thumb"]
+      : [`proximal phalanx of ${label}`, `middle phalanx of ${label}`, `distal phalanx of ${label}`];
+    const e = segments.map(n => ends(boneOf(n)));
+    segments.forEach((n, k) => { rest[`${key}${k + 1}${s}`] = e[k].base; fingerBones[s][`${key}${k + 1}${s}`] = boneOf(n); });
+    tips[key] = rounded(e[2].tip, 5);
+    direction[key] = unit(sub(e[2].tip, e[0].base));
+  }
+  const n = unit(palmNormal);
+  for (const [key] of FINGERS) {
+    const d = direction[key];
+    if (key === "thumb") {
+      // Opening: about the palm's normal, the way that takes the thumb away from the index.
+      const away = t => Math.acos(Math.max(-1, Math.min(1, dot(turn(d, n, t), direction.index))));
+      const open = away(0.1) > away(-0.1) ? n : mul(n, -1);
+      // Flexion of its two phalanges: towards the palm's centre.
+      const toPalm = sub(palm, rest[`thumb2${s}`]), across = unit(sub(toPalm, mul(d, dot(toPalm, d))));
+      const close = unit(cross(d, across));
+      flexion[key] = [rounded(open), rounded(close), rounded(close)];
+    } else {
+      const across = unit(sub(n, mul(d, dot(n, d))));
+      const close = unit(cross(d, across));
+      flexion[key] = [rounded(close), rounded(close), rounded(close)];
+    }
+  }
+  axes[s].flexion = flexion; axes[s].tips = tips;
+  measures[s].thumbToIndex = +Math.acos(dot(direction.thumb, direction.index)).toFixed(4);
+  for (const m of ["second", "third", "fourth", "fifth"]) palmBones[s].push(boneOf(`${m} metacarpal bone`));
+  for (const c of ["scaphoid", "lunate", "triquetral", "pisiform", "trapezium", "trapezoid", "capitate", "hamate"]) palmBones[s].push(boneOf(c));
 }
 
 // ---------- skin: joints and weights ----------
-const JOINTS = ["pelvis", "spine", "chest", "head", ...SIDES.flatMap(s => ["arm", "fore0", "fore1", "fore2", "fore3", "fore4", "hand"].map(n => n + s))];
+const FINGER_JOINTS = SIDES.flatMap(s => FINGERS.flatMap(([key]) => [1, 2, 3].map(k => `${key}${k}${s}`)));
+const JOINTS = ["pelvis", "spine", "chest", "head", ...SIDES.flatMap(s => ["arm", "fore0", "fore1", "fore2", "fore3", "fore4", "hand"].map(n => n + s)), ...FINGER_JOINTS];
 const PARENT = { spine: "pelvis", chest: "spine", head: "chest" };
 for (const s of SIDES) {
   PARENT["arm" + s] = "chest"; PARENT["fore0" + s] = "arm" + s; PARENT["hand" + s] = "fore4" + s;
   for (let k = 1; k <= 4; k++) PARENT[`fore${k}${s}`] = "fore0" + s;
+  for (const [key] of FINGERS) for (const k of [1, 2, 3]) PARENT[`${key}${k}${s}`] = k === 1 ? "hand" + s : `${key}${k - 1}${s}`;
 }
 const jointIndex = Object.fromEntries(JOINTS.map((n, i) => [n, i]));
 
@@ -224,6 +272,21 @@ for (const s of SIDES) {
   toHumerus[s] = cloud(bones["Humerus" + s].pos);
 }
 const Y_C7 = 0.515, Y_ATLAS = 0.615;
+// The hand's share of a vertex goes to the finger whose bone is nearest: bones entirely, muscles and tendons
+// progressively (a tendon crosses the knuckle).
+const toFinger = {}, toPalm = {};
+for (const s of SIDES) {
+  toFinger[s] = Object.entries(fingerBones[s]).map(([joint, pos]) => ({ joint, distance: cloud(pos) }));
+  toPalm[s] = cloud(...palmBones[s]);
+}
+function fingers(w, s, p, soft) {
+  const hand = w["hand" + s];
+  if (!(hand > 0)) return w;
+  let best = null, d = Infinity;
+  for (const f of toFinger[s]) { const x = f.distance(p); if (x < d) { d = x; best = f.joint; } }
+  const dp = toPalm[s](p), share = soft ? smooth(0.35, 0.65, dp / (dp + d + 1e-9)) : (d < dp ? 1 : 0);
+  return { ...w, ["hand" + s]: hand * (1 - share), [best]: (w[best] ?? 0) + hand * share };
+}
 
 /** Weights of a vertex for the piece's class: { joint: weight }. */
 function weights(cls, s, p) {
@@ -302,7 +365,8 @@ function piece(name, kind, group, cls, s, fjs) {
   const source = b.load(fjs), m = lighten(source, kind === "bone" ? CELL_BONE : CELL_MUSCLE), nv = m.pos.length / 3;
   const joints = new Uint8Array(nv * 4), w = new Float32Array(nv * 4);
   for (let i = 0; i < nv; i++) {
-    const e = Object.entries(weights(cls, s, [m.pos[i * 3], m.pos[i * 3 + 1], m.pos[i * 3 + 2]]))
+    const at = [m.pos[i * 3], m.pos[i * 3 + 1], m.pos[i * 3 + 2]];
+    const e = Object.entries(s === "C" ? weights(cls, s, at) : fingers(weights(cls, s, at), s, at, kind === "muscle"))
       .filter(([, v]) => v > 1e-4).sort((x, y) => y[1] - x[1]).slice(0, 4);
     const total = e.reduce((a, [, v]) => a + v, 0);
     e.forEach(([joint, v], k) => { joints[i * 4 + k] = jointIndex[joint]; w[i * 4 + k] = v / total; });

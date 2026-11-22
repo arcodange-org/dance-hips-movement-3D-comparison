@@ -57,7 +57,8 @@ const options = { boneMaterial: new THREE.MeshBasicMaterial(), muscleMaterial: (
   for (const [label, dz, beats, opt] of cases) {
     const pair = [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];
     const uppers = pair.map(f => new api.UpperBody(f.r, model, options));
-    const seen = { error: 0, holds: { back: 0, hands: 0, free: 0 }, elbow: [Infinity, 0], pronation: [Infinity, -Infinity], jump: 0, rigJump: 0, yaw: [Infinity, 0] };
+    const seen = { error: 0, holds: { back: 0, hands: 0, free: 0 }, elbow: [Infinity, 0], pronation: [Infinity, -Infinity], jump: 0, rigJump: 0, yaw: [Infinity, 0],
+      grip: 0, wrist: 0, facing: 0, crossed: [Infinity, 0] };
     const before = [{}, {}];
     for (let b = 0; b <= beats; b += 1 / 16) {
       pair.forEach((f, i) => api.applyPose(f.r, f.model, b, { ...opt, embrace: true, placement: "quinconce", follower: !!i, styleKey: "kizomba", amp: 1, plexus: true }));
@@ -74,7 +75,17 @@ const options = { boneMaterial: new THREE.MeshBasicMaterial(), muscleMaterial: (
           assert(Math.abs(S.distanceTo(C) - manifest.measures[s].arm) < 2e-4, `${label} ${b} ${s}: arm length`);
           assert(e.pronation >= api.PRONATION.min - 1e-9 && e.pronation <= api.PRONATION.max + 1e-9, `${label} ${b} ${s}: pronation out of range`);
           const flexion = Math.acos(Math.max(-1, Math.min(1, S.clone().sub(C).normalize().dot(e.palm.clone().sub(C).normalize())))) * 180 / Math.PI;
-          seen.error = Math.max(seen.error, e.error); seen.holds[e.hold]++;
+          seen.holds[e.hold]++;
+          // #179: the follower's hand that takes the leader's is placed from his hand, not on the rig's point:
+          // its palm stays against his, facing it, across it (her fingers towards his index).
+          if (i && e.hold === "hands") {
+            const his = uppers[0].hand("L"), hers = u.hand(s);
+            seen.grip = Math.max(seen.grip, hers.palm.distanceTo(his.palm)); seen.wrist = Math.max(seen.wrist, e.wrist);
+            seen.facing = Math.max(seen.facing, Math.PI - hers.normal.angleTo(his.normal));
+            const across = hers.fingers.angleTo(his.radial);
+            seen.crossed = [Math.min(seen.crossed[0], across), Math.max(seen.crossed[1], across)];
+            assert(e.wrist <= api.GRIP.wrist + 1e-9, `${label} ${b}: wrist bent beyond its range`);
+          } else seen.error = Math.max(seen.error, e.error);
           seen.elbow = [Math.min(seen.elbow[0], flexion), Math.max(seen.elbow[1], flexion)];
           seen.pronation = [Math.min(seen.pronation[0], e.pronation), Math.max(seen.pronation[1], e.pronation)];
           // Continuity: the elbow, seen from the chest, from one sample to the next, against the rig's own.
@@ -85,12 +96,15 @@ const options = { boneMaterial: new THREE.MeshBasicMaterial(), muscleMaterial: (
       });
     }
     assert(seen.error < 0.001, `${label}: the palm misses the rig's hand by ${(seen.error * 1000).toFixed(1)} mm`);
+    assert(seen.grip < 0.06, `${label}: the follower's palm is ${(seen.grip * 100).toFixed(1)} cm from the leader's (#179)`);
     // The elbow never jumps more than the rig's own elbow does (a released hand jumps in the rig too).
     assert(seen.jump < seen.rigJump + 0.02, `${label}: elbow jump ${(seen.jump * 100).toFixed(1)} cm, rig ${(seen.rigJump * 100).toFixed(1)} cm`);
     table.push({ figure: label, "écart paume (mm)": +(seen.error * 1000).toFixed(2), "angle au coude (°)": seen.elbow.map(x => Math.round(x)).join(" à "),
       "pronation (°)": seen.pronation.map(x => Math.round(x * 180 / Math.PI)).join(" à "), "saut du coude (cm)": +(seen.jump * 100).toFixed(1),
       "celui du rig (cm)": +(seen.rigJump * 100).toFixed(1), "port de tête (°)": seen.yaw.map(x => Math.round(x * 180 / Math.PI)).join(" à "),
-      "mains : dos / jointes / libres": `${seen.holds.back} / ${seen.holds.hands} / ${seen.holds.free}` });
+      "mains : dos / jointes / libres": `${seen.holds.back} / ${seen.holds.hands} / ${seen.holds.free}`,
+      "prise : paumes (cm)": +(seen.grip * 100).toFixed(1), "poignet (°)": Math.round(seen.wrist * 180 / Math.PI),
+      "paumes face à face (°)": Math.round(seen.facing * 180 / Math.PI), "doigts / index du guideur (°)": seen.crossed.map(x => Math.round(x * 180 / Math.PI)).join(" à ") });
     uppers.forEach(u => u.dispose());
   }
   console.table(table);

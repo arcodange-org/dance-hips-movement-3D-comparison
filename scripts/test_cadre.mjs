@@ -36,7 +36,7 @@ const cases = [
 ];
 for (const [label, dz, beats, opt] of cases) {
   const pair = [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];
-  let worst = 0, clamped = 0, solved = 0, depth = 0, released = 0, lowest = Infinity, leaderReleased = 0;
+  let worst = 0, clamped = 0, solved = 0, depth = 0, released = 0, lowest = Infinity, leaderReleased = 0, lean = 0, leans = 0;
   for (let b = 0; b <= beats; b += .25) {
     pair.forEach((f, i) => api.applyPose(f.r, f.model, b, { ...opt, embrace: true, placement: 'quinconce', follower: !!i, styleKey: 'kizomba', amp: 1, plexus: true }));
     const before = pair.map(f => snapshot(f.r));
@@ -53,6 +53,13 @@ for (const [label, dz, beats, opt] of cases) {
         if (!i && s === 'R') {
           lowest = Math.min(lowest, f.r.chest.worldToLocal(res[s].hand.clone()).y);
           if (res[s].released) leaderReleased++;
+        }
+        // #180: the follower's left elbow seeks the leader's right arm (distance to his upper arm, when her hand
+        // is on his shoulder).
+        if (i && s === 'L' && !res[s].clamped && !res[s].released) {
+          const a = world(pair[0].r.armUR), b = world(pair[0].r.armFR), ab = b.clone().sub(a);
+          const t = Math.max(0, Math.min(1, res[s].elbow.clone().sub(a).dot(ab) / ab.lengthSq()));
+          lean += res[s].elbow.distanceTo(a.addScaledVector(ab, t)); leans++;
         }
         if (res[s].clamped) clamped++; else worst = Math.max(worst, res[s].hand.distanceTo(res[s].target));
         solved++;
@@ -76,5 +83,5 @@ for (const [label, dz, beats, opt] of cases) {
   assert(released <= (label.startsWith('sortie') ? .2 : 0) * solved, `${label}: released hands (${released}/${solved})`);
   assert(lowest >= -0.15, `${label}: the leader's right hand comes down to ${(lowest * 100).toFixed(1)} cm in his chest frame (#178: never lowered)`);
   console.log(`PASS cadre ${label} : mains sur leurs sites, ${clamped}/${solved} bras bornés, ${released} mains lâchées, au plus ${(depth * 100).toFixed(1)} cm dans le torse du partenaire ; ` +
-    `main droite du guideur jamais plus bas que ${(lowest * 100).toFixed(0)} cm dans le repère de sa poitrine (épaule à +10 ; ${leaderReleased} fois hors du dos)`);
+    `main droite du guideur jamais plus bas que ${(lowest * 100).toFixed(0)} cm dans le repère de sa poitrine (épaule à +10 ; ${leaderReleased} fois hors du dos) ; coude gauche de la suiveuse à ${leans ? (lean / leans * 100).toFixed(1) : '—'} cm du bras droit du guideur en moyenne (${leans} poses, main sur son épaule)`);
 }

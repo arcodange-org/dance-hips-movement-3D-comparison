@@ -15,12 +15,16 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   plusieurs attitudes et a décrit la prise (phalanges serrées, pouce ouvert, main de la suiveuse en travers de celle
   du guideur, refermée autour de son index, pouces croisés). Attitudes filmables : `?essai=mainsCote`,
   `?essai=mainsBasses`, inertes sans le paramètre ([dossier](docs/elections/2026-11-22-mains/README.md)).
-  Restent : poignet et doigts articulés, main de la suiveuse placée par rapport à celle du guideur.
+  Fait dans le haut du corps anatomique : doigts articulés, formes de main, poignet de la suiveuse articulé, sa main
+  posée en travers de celle du guideur ([spec](docs/spec-haut-du-corps.md)). Reste : son poignet va au bout de son
+  amplitude, les doigts ne se serrent pas, et le rig stylisé (sans `haut=1`) n'a pas de doigts.
+- **Règle R37 (#180)** : la main gauche de la suiveuse sur l'épaule droite du guideur (devant et côté), son coude vers
+  le bras droit du guideur (`CADRE_SITES.shoulderR`, `armR`) : coude à 10 à 11 cm de l'axe de son bras en moyenne.
 
 ## Haut du corps anatomique : buste, bras et mains (#176, 22 novembre 2026)
 
 - Option `haut=1` (toutes les vues) : les volumes gris du buste, des bras et de la tête laissent la place aux os et
-  aux muscles de BodyParts3D (`public/anatomy_upper.glb` : 16 pièces osseuses, 108 muscles, 18 articulations).
+  aux muscles de BodyParts3D (`public/anatomy_upper.glb` : 16 pièces osseuses, 108 muscles, 48 articulations dont trois par doigt).
   Sans l'option, rien ne change ([spec](docs/spec-haut-du-corps.md), `src/upperBody.ts`, `scripts/test_upper_body.mjs`).
 - La paume vient où le rig pose la main, avec un bras aux longueurs anatomiques (28,0 cm et 29,3 cm jusqu'à la paume,
   contre 26 et 24 pour le rig) ; le radius tourne autour de l'ulna ; port de tête joue contre joue en danse serrée.

@@ -23,7 +23,7 @@ pose du rig à l'image courante : rien ne dépend du temps ni d'une figure.
 
 | Fichier | Rôle |
 |---|---|
-| `public/anatomy_upper.glb` (1,9 Mo) | 16 pièces osseuses et 108 muscles pesés sur 18 articulations (peau glTF standard) ; son manifeste (articulations au repos, axes, mesures, pièces) est l'`extras` de sa scène |
+| `public/anatomy_upper.glb` (1,9 Mo) | 16 pièces osseuses et 108 muscles pesés sur 48 articulations (tronc, bras, et trois par doigt) (peau glTF standard) ; son manifeste (articulations au repos, axes, mesures, pièces) est l'`extras` de sa scène |
 | `scripts/build_upper_body.mjs`, `scripts/bp3d.mjs` | construction depuis BodyParts3D 4.0 (les trois fichiers source dans `extracted/bp3d/`) |
 | `src/upperBody.ts` | three.js pur : peau, coude, pronation, paume, port de tête |
 | `src/components/UpperBodyLayer.tsx` | pose la couche sur un rig ; morceau à part, chargé avec son GLB seulement si l'option est demandée |
@@ -54,21 +54,42 @@ longueurs anatomiques, depuis l'articulation réelle de l'épaule.
 
 Ces amplitudes sont des paramètres de ce modèle, pas des normes cliniques ni des angles déduits des sources.
 
+## Les doigts, le poignet et la prise des mains (#179)
+
+- **Doigts** : trois articulations par doigt (la première du pouce porte son métacarpien), placées au bout de chaque
+  os du côté du poignet. Une rotation positive referme le doigt vers la paume ; la première articulation du pouce
+  l'ouvre, dans le plan de la paume. Les os suivent leur articulation ; les muscles et les tendons de la main passent
+  d'un doigt à l'autre progressivement.
+- **Formes de main** (`HAND_SHAPES`) : détendue (main libre), à plat (sur le dos ou l'épaule du partenaire), « offre »
+  (main gauche du guideur : phalanges ensemble, pouce ouvert, presque à angle droit), « referme » (main droite de la
+  suiveuse : phalanges refermées, flexions lues sur les doigts de la suiveuse dans le tour de salsa de ReCoDanse).
+- **Prise en position fermée** (`GRIP`) : la paume du guideur regarde la suiveuse, tournée vers l'intérieur. La main
+  de la suiveuse ne vise plus le point du rig : elle se place sur la main du guideur, paume contre paume, en travers,
+  le bas de sa paume au bord de la main du guideur, ses doigts vers son index, son pouce vers le sien. Son poignet
+  s'articule pour cela (jusqu'à 57° hors de l'axe de l'avant-bras), et sa main peut tourner de 40° sur la paume du
+  guideur vers la ligne de son propre avant-bras.
+- La caméra s'approche jusqu'à 35 cm quand l'option est active (1,8 m sinon), pour voir les mains.
+
 ## Mesures (`scripts/test_upper_body.mjs`, GLB réel, seizième de temps, kizomba)
 
-| Figure | Écart paume / main du rig | Angle au coude | Saut du coude entre deux échantillons (celui du rig) | Port de tête |
-|---|---|---|---|---|
-| Sortie garçon | 0 mm | 32° à 124° | 3,6 cm (4,1) | 36° à 42° |
-| Sortie fille | 0 mm | 31° à 143° | 32 cm (34,1) : la main lâche le dos, comme dans le rig | 8° à 42° |
-| Quarts de tour | 0 mm | 27° à 88° | 2,0 cm (1,9) | 42° |
-| Ida e volta | 0 mm | 31° à 89° | 2,5 cm (2,5) | 42° |
-| Sur place | 0 mm | 31° à 87° | 0,4 cm (0,4) | 42° |
+| Figure | Écart paume / main du rig | Angle au coude | Saut du coude (celui du rig) | Prise : paumes | Poignet de la suiveuse | Paumes face à face, à | Doigts de la suiveuse / ligne de l'index du guideur |
+|---|---|---|---|---|---|---|---|
+| Sortie garçon | 0 mm | 32° à 124° | 5,1 cm (5,2) | 1,3 cm | jusqu'à 57° | 33° près | 14° à 42° |
+| Sortie fille | 0 mm | 31° à 130° | 9,4 cm (9,9) | 1,3 cm | jusqu'à 57° | 36° près | 5° à 42° |
+| Quarts de tour | 0 mm | 27° à 88° | 4,2 cm (3,4) | 1,3 cm | jusqu'à 57° | 21° près | 8° à 17° |
+| Ida e volta | 0 mm | 31° à 89° | 2,1 cm (1,9) | 1,3 cm | jusqu'à 57° | 23° près | 14° à 23° |
+| Sur place | 0 mm | 31° à 87° | 0,4 cm (0,4) | 1,3 cm | jusqu'à 57° | 21° près | 14° à 16° |
 
-Seul, dans les six styles : écart de paume 0 mm, tête de face. `dispose()` rend le rig intact.
+L'écart paume / main du rig vaut pour toutes les mains sauf celle de la suiveuse dans la prise, placée sur la main du
+guideur. Seul, dans les six styles : écart de paume 0 mm, tête de face. `dispose()` rend le rig intact.
 
 ## Limites
 
-- Doigts raides (main ouverte), poignet droit, omoplates et clavicules fixes sur le thorax.
+- Le poignet de la suiveuse va souvent au bout de son amplitude : les paumes ne sont face à face qu'à 20° à 35° près.
+  Les mains jointes entre les deux poitrines (attitude d'aujourd'hui) y sont pour beaucoup : voir
+  [les attitudes](elections/2026-11-22-mains/README.md).
+- Les doigts ne s'écartent ni ne se serrent latéralement ; rien ne les empêche d'entrer dans la main de l'autre.
+- Omoplates et clavicules fixes sur le thorax.
 - Coude jusqu'à 27° : les bras anatomiques sont plus longs que ceux du rig, ils plient davantage.
 - La pronation bute sur son amplitude dans certaines poses : la paume ne regarde alors pas exactement où il faudrait.
 - BodyParts3D 4.0 ne liste pas le grand dorsal.
@@ -78,7 +99,7 @@ Seul, dans les six styles : écart de paume 0 mm, tête de face. `dispose()` ren
 ## Suites possibles
 
 1. Bras du rig aux longueurs anatomiques (`ARM_JOINTS`) : la couche n'aurait plus à résoudre le coude.
-2. Doigts articulés (prises des mains), omoplate qui glisse avec le bras.
+2. Doigts qui se serrent, contact des doigts sur la main de l'autre ; omoplate qui glisse avec le bras.
 3. L'option par défaut, quand elle aura été regardée.
 
 ## Refaire le fichier

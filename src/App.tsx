@@ -468,7 +468,8 @@ export default function App() {
         target={camTgtParam ?? cam.target}
         enableDamping
         dampingFactor={0.08}
-        minDistance={1.8}
+        // Avec le haut du corps anatomique on vient voir les mains de près (#179).
+        minDistance={upperBody ? 0.35 : 1.8}
         maxDistance={7}
         {...(bare ? { enablePan: false } : {})}
       />

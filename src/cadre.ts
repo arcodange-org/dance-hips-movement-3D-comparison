@@ -24,6 +24,10 @@ export const CADRE_SITES = {
   scapulaL: [0.15, 0.03, -0.1] as Vec3,
   /** Follower's left hand on the leader's right shoulder blade (same reasoning). */
   scapulaR: [-0.15, 0.03, -0.1] as Vec3,
+  /** #180: follower's left hand on the leader's right shoulder, against its front and its side. */
+  shoulderR: [-0.215, 0.125, 0.04] as Vec3,
+  /** #180: where the follower's left elbow seeks the leader's right arm: under his shoulder, on its outer side. */
+  armR: [-0.27, -0.2, 0.04] as Vec3,
   /** Leader's right elbow kept towards his right ribs (owner gesture: elbow to the ribs). */
   ribsR: [-0.15, -0.10, 0] as Vec3,
 };
@@ -98,9 +102,11 @@ export function solveFrame(own: ArmRig, partner: ArmRig, follower: boolean) {
   const down = (rig: ArmRig, s: "L" | "R", out: number, drop: number) =>
     site(rig, [(s === "L" ? 1 : -1) * out, drop, 0]);
   const arms = follower ? {
-    // Follower: left hand on the leader's right shoulder blade, elbow raised outwards; right hand in
-    // the leader's left hand, elbow down.
-    L: { target: site(partner, CADRE_SITES.scapulaR), pole: down(own, "L", 0.45, 0.10) },
+    // Follower (#180): left hand on the leader's right shoulder, against its front and side; her left elbow
+    // seeks his right arm, on which she leans when he lifts her. Right hand in the leader's left hand, elbow down.
+    // (The pole is under his right shoulder, on the outer side, where his upper arm hangs: her forearm lies on
+    // his arm, outside his torso. It does not follow his forearm, so her elbow never swings with it.)
+    L: { target: site(partner, CADRE_SITES.shoulderR), pole: site(partner, CADRE_SITES.armR) },
     R: { target: joined, pole: down(own, "R", 0.25, -0.35) },
   } : {
     // Leader: right hand on the follower's left shoulder blade, elbow towards his right ribs; left hand
@@ -136,7 +142,7 @@ export function solveFrame(own: ArmRig, partner: ArmRig, follower: boolean) {
   for (const s of ["L", "R"] as const) {
     const S = shoulder(own, s);
     let solved = solveArm(S, arms[s].target, upper, fore, arms[s].pole);
-    const back = s === (follower ? "L" : "R") ? (follower ? CADRE_SITES.scapulaR : CADRE_SITES.scapulaL) : null;
+    const back = !follower && s === "R" ? CADRE_SITES.scapulaL : null;
     if (back) for (let d = 0.01; d <= CADRE.slide + 1e-9 && crosses(S, solved.elbow, solved.hand); d += 0.01) {
       const slid = site(partner, [back[0] + Math.sign(back[0]) * d, back[1], back[2]]);
       solved = solveArm(S, slid, upper, fore, arms[s].pole);
