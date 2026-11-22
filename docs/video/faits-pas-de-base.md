@@ -852,13 +852,14 @@ Ajouté après la fusion de `main` (#158). Les numéros de ligne valent pour l'�
   danseurs se balancent au rythme de la musique » (`docs/spec-ginga-couple.md:11-12`).
 - **F316** En danse de couple, le mode jeu ajoute dans toutes les figures un balancement latéral du bassin, sur
   les transferts d'appui, et un rebond vertical, le plus bas sur chaque temps. Quatre réglages : sans,
-  discret, marqué (par défaut), ample (`src/guidage.ts:121-133`).
+  discret, marqué, ample. Le réglage par défaut était « marqué » ; il est « ample » depuis #163
+  (`src/guidage.ts`, `GUIDE_GINGA`, `GUIDE_GINGA_DEFAULT`).
 - **F317** Mesure dans le final de la vidéo, réglage « marqué », bassin du premier danseur, même danse comparée
   image par image avant et après : un rebond d'environ 1 cm, une fois par temps ; un déplacement de côté
   de 2,4 cm au plus (`docs/spec-video-pas-de-base.md`, « Troisième version »).
-- **F318** Le propriétaire a jugé ce réglage, filmé en pied : « Trop discret. » (22 novembre 2026). Le film prend
-  donc le réglage « ample » et s'approche des hanches (`scripts/video/scenario.mjs`, `FINAL_GINGA`,
-  `FINAL_HANCHES`).
+- **F318** Le propriétaire a jugé ce réglage, filmé en pied : « Trop discret. » (22 novembre 2026). L'application
+  a pris le réglage « ample » par défaut (#163) et le film s'approche des hanches
+  (`scripts/video/scenario.mjs`, `FINAL_HANCHES`).
 - **F319** Ce balancement va et vient par le même chemin. Pour le propriétaire, le bassin « fait un 8 »
   (`docs/spec-ginga-couple.md:19-21`) ; ce « 8 » n'est pas encore dans le modèle, c'est le chantier #159
   (`docs/spec-ginga-couple.md:39`).

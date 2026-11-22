@@ -87,7 +87,7 @@ Une phrase :
   la phrase marquée `"plan": "hanches"`, la caméra s'approche des deux bassins, de trois quarts, puis recule
   avant le générique. Ensuite elle va lentement du trois quarts au profil puis à l'autre trois quarts : de
   profil, l'un ne cache pas l'autre ; de trois quarts, le balancement des hanches se lit. Le ginga du couple
-  y est au réglage « ample » (`FINAL_GINGA`).
+  y est celui de l'application, sans réglage forcé.
 - **Les sous-titres** sont découpés en cartons de deux lignes au plus, aux fins de phrase : une phrase de
   `texte` peut donc tenir en deux ou trois cartons, sans rien changer à la voix.
 - **La voix lit mal** les sigles et les chiffres : écrire « dit » en toutes lettres (« cent vingt battements

@@ -251,7 +251,7 @@ const durees = existsSync(FICHE_DUREES) ? JSON.parse(readFileSync(FICHE_DUREES, 
       const az = Array.from({ length: 70 }, (_, t) => vue(t).az);
       assert.ok(Math.min(...az) <= 50 && Math.max(...az) >= 130, "final : la caméra passe par les deux trois quarts, où le balancement des hanches se lit");
       assert.ok(az.some((a) => Math.abs(a - 90) < 8), "final : et par le profil, où l'un ne cache pas l'autre");
-      assert.match(plans[0].url, /ginga=ample/, "final : le ginga du couple au réglage le plus ample (« Trop discret » au réglage par défaut)");
+      assert.ok(!/ginga=/.test(plans[0].url), "final : le ginga du couple est celui de l'application, sans réglage forcé");
       // Le gros plan sur les hanches : pendant la phrase marquée, de trois quarts ; en pied avant, et au générique.
       const i = c.phrases.findIndex((p) => p.plan === "hanches");
       assert.ok(i > 0, "final : une phrase porte le gros plan sur les hanches");

@@ -152,8 +152,9 @@ filmé à ce tempo, et le montage cale le premier temps de la musique sur le tem
 - **Quatrième version (22 novembre 2026), après trois paroles du propriétaire.**
   - Sur le ginga du couple, au réglage par défaut, filmé en pied : « Trop discret. » Le final ouvre
     maintenant sur le couple en pied, puis s'approche des deux bassins, de trois quarts, pendant une quinzaine
-    de secondes (`"plan": "hanches"`, `FINAL_HANCHES`). Le ginga y est au réglage « ample » de l'application
-    (`FINAL_GINGA`). Une phrase dit ce qu'on regarde, et que le « 8 » manque encore.
+    de secondes (`"plan": "hanches"`, `FINAL_HANCHES`). Le ginga y est celui de l'application : d'abord forcé
+    au réglage « ample », puis sans réglage forcé quand « ample » est devenu le défaut (#163, #164). Une phrase
+    dit ce qu'on regarde, et que le « 8 » manque encore.
   - Sur le kompa : « Le konpa est complètement faux actuellement: c'est le 8 le plus prononcé justement.
     Complémente les connaissances sur ce style. » La recherche est dans
     [`docs/recherche-danse/kompa.md`](recherche-danse/kompa.md) (#161). Le chapitre kompa dit maintenant que
