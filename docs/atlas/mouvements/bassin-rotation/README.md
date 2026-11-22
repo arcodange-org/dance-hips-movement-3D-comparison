@@ -38,6 +38,7 @@ Hanche : avancée du centre articulaire gauche par rapport au droit (positif : g
 
 - Règle de la planche : **thorax de face** (A). La colonne contre-tourne : thorax, tête et bras restent face au partenaire.
 - Variante : buste solidaire (B). Pas de contre-rotation : tout le haut du corps tourne avec le bassin. Dans l'application : `?atlas=bassin-rotation&vue=face&frame=4&frames=9&muscles=1&variante=solidaire`.
+- Variante : thorax à l'opposé (C). La colonne tourne deux fois l'angle : le thorax tourne d'autant dans l'autre sens. Dans l'application : `?atlas=bassin-rotation&vue=face&frame=4&frames=9&muscles=1&variante=oppose`.
 - Choix du propriétaire : [élection](../../../../docs/elections/rotation-buste.md).
 
 ![Rotation du bassin : le buste tourne-t-il avec lui ?](../../../../docs/gifs/election-rotation-buste.gif)

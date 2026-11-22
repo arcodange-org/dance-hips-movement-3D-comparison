@@ -43,6 +43,13 @@
         "label": "buste solidaire",
         "description": "pas de contre-rotation : tout le haut du corps tourne avec le bassin",
         "url": "?atlas=bassin-rotation&vue=face&frame=4&frames=9&muscles=1&variante=solidaire"
+      },
+      {
+        "id": "oppose",
+        "lettre": "C",
+        "label": "thorax à l'opposé",
+        "description": "la colonne tourne deux fois l'angle : le thorax tourne d'autant dans l'autre sens",
+        "url": "?atlas=bassin-rotation&vue=face&frame=4&frames=9&muscles=1&variante=oppose"
       }
     ]
   },

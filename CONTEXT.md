@@ -64,8 +64,8 @@ jambes ne bougent pas).
   « 8 » est le chantier #159 (PR #160, sa propre élection) : l'atlas n'en produit pas de planche.
   Le vote B lui a été transmis ; dans l'atlas, « relais » nomme la règle non retenue.
 - **Rotation : élection ouverte, vote attendu** (D16, accord du 22 novembre 2026 : « Oui »). A thorax
-  de face (règle de la planche, ma proposition) ou B buste solidaire, variante
-  `?atlas=bassin-rotation&variante=solidaire`, GIF `docs/gifs/election-rotation-buste.gif`, page
+  de face (règle de la planche, ma proposition), B buste solidaire ou C thorax à l'opposé (ajoutée à
+  sa demande), variantes `?atlas=bassin-rotation&variante=solidaire|oppose`, GIF `docs/gifs/election-rotation-buste.gif`, page
   [`docs/elections/rotation-buste.md`](docs/elections/rotation-buste.md). Mesure `thoraxLacetDeg`
   ajoutée au module (non sérialisée). Présentation du GIF propre à chaque élection
   (`PRESENTATIONS` dans `scripts/capture_atlas.mjs`).

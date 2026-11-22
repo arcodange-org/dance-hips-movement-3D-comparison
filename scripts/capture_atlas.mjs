@@ -32,6 +32,7 @@ import {
 /** Image d'élection (D14) : frames, échelle de capture, largeur d'une colonne et couleurs du GIF. */
 const ELECTION = { frames: 17, echelle: 2, colonnePx: 320, couleurs: 96 };
 const fr = (value, digits = 1) => value.toFixed(digits).replace(".", ",").replace("-", "−");
+const entier = (value) => Math.round(value) || 0; // jamais « −0 »
 
 /** Présentation propre à chaque élection (D14, D16) : vues, zone gardée de chaque image (px de la vue),
  * mesures sous chaque colonne, ligne repère de hauteur ou non, légende. */
@@ -43,9 +44,9 @@ const PRESENTATIONS = {
   },
   "rotation-buste": {
     vues: ["face", "troisQuarts"], zone: { x: 95, y: 52, w: 210, h: 400 }, ligne: false,
-    mesures: (m, ctx) => [["bassin tourné", `${fr(Math.abs(ctx.angle), 0)}°`], ["thorax tourné", `${fr(Math.abs(m.thoraxLacetDeg), 0)}°`],
-      ["torsion du dos", `${fr(Math.abs(ctx.angle - m.thoraxLacetDeg), 0)}°`]],
-    legende: "« thorax tourné » : par rapport à la pose de départ · « torsion du dos » : rotation du bassin moins celle du thorax.",
+    mesures: (m, ctx) => [["bassin tourné", `${fr(entier(ctx.angle), 0)}°`], ["thorax tourné", `${fr(entier(m.thoraxLacetDeg), 0)}°`],
+      ["torsion du dos", `${fr(entier(Math.abs(ctx.angle - m.thoraxLacetDeg)), 0)}°`]],
+    legende: "Angles signés, même sens de rotation pour le bassin et le thorax : un signe opposé veut dire « en sens inverse ». « Torsion du dos » : rotation du bassin moins celle du thorax.",
   },
 };
 
@@ -238,7 +239,7 @@ function electionHtml(api, mouvement, election, regles, vues, index, reperes, da
   return `<!doctype html><meta charset="utf-8"><style>
     * { box-sizing: border-box; }
     body { margin: 0; background: #0b1220; color: #e2e8f0; font: 13px/1.35 -apple-system, "Segoe UI", "DejaVu Sans", Arial, sans-serif; }
-    #election { display: inline-block; padding: 12px 14px 10px; width: ${2 * colonnePx + 38}px; }
+    #election { display: inline-block; padding: 12px 14px 10px; width: ${regles.length * colonnePx + (regles.length - 1) * 10 + 28}px; }
     h1 { margin: 0; font-size: 17px; font-weight: 650; }
     .sub { margin: 1px 0 8px; color: #94a3b8; font-size: 12.5px; }
     .sub b { color: #5eead4; font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -260,7 +261,7 @@ function electionHtml(api, mouvement, election, regles, vues, index, reperes, da
     footer span { color: #fbbf24; }
   </style><div id="election">
     <h1>${escapeHtml(election.question)}</h1>
-    <p class="sub">${escapeHtml(mouvement.label)} · bassin à <b>${escapeHtml(api.atlasAngleLabel(angle))}</b> · même caméra et même angle de bassin des deux côtés</p>
+    <p class="sub">${escapeHtml(mouvement.label)} · bassin à <b>${escapeHtml(api.atlasAngleLabel(angle))}</b> · même caméra et même angle de bassin ${regles.length === 2 ? "des deux côtés" : "dans chaque colonne"}</p>
     <div class="cols">${regles.map(colonne).join("")}</div>
     <footer>${presentation.legende}<br>
       ${escapeHtml(api.ATLAS_ATTRIBUTION)}. Généré paramétriquement : pas une mesure sur une personne.</footer>
@@ -274,16 +275,20 @@ async function election(api, manifest, options) {
   if (!mouvement) throw new Error(`mouvement « ${options.mouvement} » absent du manifeste`);
   const support = api.atlasSupport(mouvement);
   if (!support.ok) throw new Error(support.raison);
-  const choix = api.atlasRegle(mouvement, options.variante);
-  if (!choix.ok) throw new Error(choix.raison);
-  if (!choix.variante) throw new Error(`« ${options.variante} » est la règle de la planche ${mouvement.id} : rien à comparer`);
+  // `--variante b,c` : plusieurs variantes, une colonne chacune à côté de la règle de la planche (D16).
+  const noms = options.variante.split(",").map(v => v.trim()).filter(Boolean);
+  for (const nom of noms) {
+    const choix = api.atlasRegle(mouvement, nom);
+    if (!choix.ok) throw new Error(choix.raison);
+    if (!choix.variante) throw new Error(`« ${nom} » est la règle de la planche ${mouvement.id} : rien à comparer`);
+  }
   const election = api.ATLAS_ELECTIONS[mouvement.id], presentation = PRESENTATIONS[election.id];
   if (!presentation) throw new Error(`élection ${election.id} : pas de présentation dans capture_atlas.mjs (PRESENTATIONS)`);
   const frames = options.frames ?? ELECTION.frames, vues = options.vues ?? presentation.vues;
   if (!Number.isInteger(frames) || frames < 2 || frames > api.ATLAS_FRAMES_MAX) throw new Error(`--frames entre 2 et ${api.ATLAS_FRAMES_MAX}`);
   const inconnues = vues.filter(v => !manifest.views.includes(v));
   if (inconnues.length) throw new Error(`vues inconnues : ${inconnues.join(", ")}`);
-  const regles = election.regles.filter(r => r.id === election.retenue || r.id === choix.regle.id)
+  const regles = election.regles.filter(r => r.id === election.retenue || noms.includes(r.id))
     .map(r => ({ ...r, retenue: r.id === election.retenue, ...measureMovement(api, mouvement, frames, r.id) }));
   // Ligne fixe : le centre du bassin à sa hauteur la plus basse, projeté par la caméra de chaque vue.
   const bas = regles.flatMap(r => r.samples).reduce((a, b) => (b.mesure.bassinMm < a.mesure.bassinMm ? b : a));

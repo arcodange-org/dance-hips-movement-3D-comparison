@@ -428,14 +428,20 @@ n'est pas versionnée. Le choix revient au propriétaire. »
     tourne seul sous un buste immobile.
   - **B — buste solidaire.** Pas de contre-rotation : tout le haut du corps tourne avec le bassin,
     sur des pieds plantés. Les hanches (articulation fémorale) absorbent seules la rotation.
+  - **C — thorax à l'opposé**, ajoutée à la demande du propriétaire (2026-11-22 : « propose aussi le
+    thorax qui va à l'opposé »). La colonne tourne de deux fois l'angle : le thorax tourne du même
+    angle que le bassin, en sens inverse (torsion du dos de 30° aux bornes). La taille est un choix ;
+    une autre (la moitié, par exemple) se montre sur demande.
 - **Modèle.** `ATLAS_ELECTIONS["bassin-rotation"]`, élection `rotation-buste`, règles `thorax-face`
-  (A, retenue tant que le propriétaire n'a pas voté) et `solidaire` (B). `applyAtlasPose` ne
+  (A, retenue tant que le propriétaire n'a pas voté), `solidaire` (B) et `oppose` (C, contre-rotation
+  de la colonne doublée). `applyAtlasPose` ne
   contre-tourne la colonne que pour l'axe `y` et hors de la règle `solidaire`. Sans variante, la
   planche `bassin-rotation` ne change pas : ni régénérée, ni mesures modifiées (contrôle de fraîcheur).
-- **Vue.** `?atlas=bassin-rotation&variante=solidaire` ; la bande du haut nomme la variante.
+- **Vue.** `?atlas=bassin-rotation&variante=solidaire` (ou `oppose`) ; la bande du haut nomme la variante.
 - **Image d'élection.** `node scripts/capture_atlas.mjs --mouvement bassin-rotation --variante
-  solidaire` écrit `docs/gifs/election-rotation-buste.gif` : un seul GIF synchronisé, A à gauche,
-  B à droite, vues de face et de trois-quarts, **corps entier** (la question porte sur le buste).
+  solidaire,oppose` écrit `docs/gifs/election-rotation-buste.gif` : un seul GIF synchronisé, une
+  colonne par règle dans l'ordre des lettres (`--variante` accepte plusieurs variantes séparées par
+  des virgules), vues de face et de trois-quarts, **corps entier** (la question porte sur le buste).
   La présentation (vues, cadrage, mesures, ligne repère) est propre à chaque élection. Mesures sous
   chaque colonne, image par image : rotation du thorax par rapport à la pose neutre, et torsion de
   la colonne (angle du bassin moins lacet du thorax). Pas de ligne de hauteur : elle n'a pas de
@@ -447,17 +453,18 @@ n'est pas versionnée. Le choix revient au propriétaire. »
   entraîne, ma proposition et ses raisons, comment voter ; le résultat recopié mot pour mot après le vote.
 - **Test** (`scripts/test_atlas_planches.mjs`). Sur le GLB : même angle et même repère de bassin
   (avancée des hanches) dans les deux règles ; A thorax immobile (≤ 0,01°) ; B lacet du thorax égal
-  à l'angle du bassin (≤ 0,5°) et torsion nulle ; pieds plantés et os au-dessus du sol dans les
-  deux ; variante inconnue refusée ; règle par défaut = règle retenue ; GIF et page présents.
-- **Ce que le choix entraîne.** A élu : rien ne change, B reste montrée en variante avec le GIF.
-  B élu : B devient la règle de `bassin-rotation`, la planche est régénérée et ses limites le disent.
+  à l'angle du bassin (≤ 0,5°) et torsion nulle ; C lacet du thorax opposé à l'angle du bassin (≤ 0,5°) ; pieds plantés et os au-dessus du sol dans les
+  trois ; variante inconnue refusée ; règle par défaut = règle retenue ; GIF et page présents.
+- **Ce que le choix entraîne.** A élu : rien ne change, B et C restent montrées en variantes avec le
+  GIF. B ou C élu : la règle élue devient celle de `bassin-rotation`, la planche est régénérée et ses
+  limites le disent.
 - **Limite.** Aucune des deux règles n'est mesurée sur une personne ; le modèle ne dit pas comment
   une colonne réelle répartit une torsion entre ses vertèbres.
 - **Résultat (2026-11-22).** Mesuré sur le GLB, 17 images : en A le thorax reste dans son
   orientation neutre ; en B son lacet suit l'angle du bassin à moins de 0,01° près (15,0° aux
-  bornes) et il ne tourne qu'autour de la verticale. Hanches (43,9 mm devant à 43,2 mm derrière),
-  genoux (6,9° à 7,2°) et pieds identiques dans les deux règles. GIF : 36 images, 678 × 1438 px,
-  2,8 Mo, corps entier, vues de face et de trois-quarts. La planche `bassin-rotation` gagne le champ
+  bornes) et il ne tourne qu'autour de la verticale ; en C il tourne du même angle en sens inverse
+  (−15,0° à +15°). Hanches (43,9 mm devant à 43,2 mm derrière), genoux (6,9° à 7,2°) et pieds
+  identiques dans les trois règles. GIF : 36 images, 1008 × 1438 px, 4,3 Mo, corps entier, vues de face et de trois-quarts. La planche `bassin-rotation` gagne le champ
   `regle` dans `meta.json`, une section « Règle de pose et variante » dans sa page et une ligne dans
   le pied de `planche.png` ; ses 45 images et 5 GIF sont identiques à l'octet. La limite « thorax de
   face » de la planche est devenue celle de la règle (`LIMITES_REGLE`), texte inchangé, avec un

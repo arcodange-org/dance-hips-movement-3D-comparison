@@ -59,6 +59,7 @@ export const ATLAS_ELECTIONS: Record<string, AtlasElection> = {
     regles: [
       { id: "thorax-face", lettre: "A", label: "thorax de face", regle: "la colonne contre-tourne : thorax, tête et bras restent face au partenaire" },
       { id: "solidaire", lettre: "B", label: "buste solidaire", regle: "pas de contre-rotation : tout le haut du corps tourne avec le bassin" },
+      { id: "oppose", lettre: "C", label: "thorax à l'opposé", regle: "la colonne tourne deux fois l'angle : le thorax tourne d'autant dans l'autre sens" },
     ],
     // Règle de la planche depuis D13 ; élection D16 ouverte le 22 novembre 2026, vote attendu.
     retenue: "thorax-face",
@@ -100,7 +101,8 @@ export function applyAtlasPose(r: RigHandle, model: PoseModel, m: AtlasMouvement
     return applyPose(r, model, 0, {
       neutral: true, amp: 0, travel: 0, plant: true, iso: true, cadre: true,
       pelvisOffset: { position: [0, 0, 0], rotation },
-      trunkOffset: m.axeLocal === "y" && choix.regle?.id !== "solidaire" ? [0, -radians, 0, 0, 0, 0, 0, 0, 0] : null,
+      trunkOffset: m.axeLocal === "y" && choix.regle?.id !== "solidaire"
+        ? [0, (choix.regle?.id === "oppose" ? -2 : -1) * radians, 0, 0, 0, 0, 0, 0, 0] : null,
       rootOffset: abaissement ? { x: 0, z: 0, y: abaissement } : null,
     });
   };
