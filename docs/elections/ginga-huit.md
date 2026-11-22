@@ -146,6 +146,19 @@ moteur) ; le relâché du bassin juste avant chaque appui n'est pas montré. Le 
   `?mode=pair&guidage=1&demo=ginga&ginga=huit`, `huitRond`, `huitInverse`, `huitAmple` ou `huitGrand` ;
   pour le kompa seul : `?style=kompa&kompa=huit`, `huitGrand` ou `huitInverse`.
 
-## Résultat
+## Résultat (vote du 22 novembre 2026, page de vote)
 
-En attente du vote du propriétaire.
+| Question | Choix | Ce que dit le commentaire, reformulé |
+|---|---|---|
+| Forme (A ou C) | **aucune** | C est meilleure que A, mais le mouvement est encore saccadé. Le « 8 » doit se lire dans le fessier, donc dans la hanche vue de face. |
+| Sens (C ou D) | **D**, vers l'appui en reculant | Le danseur « s'assoit » dans son fessier : le bassin recule du côté de l'appui. Piste : le déhanché de la bachata traditionnelle (dominicaine) et ses variantes. |
+| Taille (C, E ou F) | **F**, très ample | Plus c'est ample, mieux c'est, tant que le mouvement respecte la mesure. |
+| Kompa (K0 à K3) | **aucune** | K2 en principe, mais le danseur a l'air de faire du ski. Comme dans les autres danses, les flexions des genoux alternent en se chevauchant. |
+
+Ce qui en découle :
+1. Le sens D et la taille F sont choisis.
+2. La forme reste ouverte : le « 8 » vu de face (hanche et fessier) est à construire, et le mouvement doit être continu. Les
+   prototypes le font venir du bassin ; le vote rejoint la règle « genoux chevauchés » (atlas #132) : faire mener le « 8 »
+   par l'alternance chevauchée des flexions de genoux.
+3. Kompa : même direction (genoux chevauchés), avec l'ampleur de K2.
+4. Recherche à faire : la bachata dominicaine.
