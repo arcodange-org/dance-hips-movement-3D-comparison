@@ -18,6 +18,7 @@ import { InfoCard, PairInfoCard } from "./components/InfoCards";
 import DemoOverlay, { DEMOS } from "./components/DemoOverlay";
 import OriginMarker from "./components/OriginMarker";
 import LineOfDance from "./components/LineOfDance";
+import { essaiEnCours } from "./essais";
 import CompassRose from "./components/CompassRose";
 import { resolveCam, resolveView, viewAnglesOf, SOLID_TORSO_OPACITY } from "./cameras";
 import { usePersistentState } from "./hooks/usePersistentState";
@@ -169,6 +170,8 @@ export default function App() {
     if (s.sortieContra !== undefined) setSortieContra(s.sortieContra);
     if (s.virgula !== undefined) setIdaVirgula(s.virgula);
     if (s.seek !== undefined) seekClock(clock, s.seek);
+    // Élections (#148) : pendant une capture d'essai, `sortieBeat` avance l'horloge dans tous les modes.
+    else if (essaiEnCours() && Number(params.get("sortieBeat")) >= 0) seekClock(clock, Number(params.get("sortieBeat")));
     if (s.ligne !== undefined) setShowLigne(s.ligne);
     if (s.iso !== undefined) setIso(s.iso);
     if (s.cadre !== undefined) setCadre(s.cadre);
@@ -374,8 +377,8 @@ export default function App() {
       <GridFloor />
       <OriginMarker visible={showRepere} />
       <CompassRose visible={showBoussole && showRepere} />
-      {/* #60: the line of dance is perpendicular to the dancers' torsos in every view. */}
-      <LineOfDance visible={ligneVisible} />
+      {/* #72 (elected 2026-11-21): in pair, the line of dance runs through both dancers. */}
+      <LineOfDance visible={ligneVisible} axis={isPair ? "z" : "x"} />
       <React.Suspense fallback={null}>
         {isFiveActionFigure && <DanceTransport clock={clock} bpm={bpm} playing={playing}
           endBeat={endBeat} onEnd={() => setPlaying(false)} driver={driver} />}
@@ -538,11 +541,11 @@ export default function App() {
         <p className="text-xs md:text-sm text-slate-400 mt-1">
           {isSortieGarcon ? <>Sortie garçon : le leader avance et sort à sa gauche, puis rentre par un croisé.
             La partenaire recule. Les cinq actions distinguent pieds posés et transferts d’appui ;
-            le marka final laisse le gauche du leader disponible. La ligne rose est la ligne de danse, perpendiculaire aux bustes.</> : isSortieFille ? <>
+            le marka final laisse le gauche du leader disponible. La ligne rose est la ligne de danse : elle passe par les deux danseurs.</> : isSortieFille ? <>
             Le buste du leader ouvre le cadre pour guider le pas gauche du suiveur hors de la ligne.
             Au troisième pas, le droit du suiveur avance en diagonale et se place à côté du droit du leader.
             Le leader libère ensuite le passage au croisé.
-            La ligne rose est la ligne de danse, perpendiculaire aux bustes.</> : <>
+            La ligne rose est la ligne de danse : elle passe par les deux danseurs.</> : <>
           Anatomie du bassin au pied (BodyParts3D), animation paramétrique illustrative. Le
           curseur « Déplacement » passe du sur place à une amplitude latérale d'une largeur de
           hanche (les pieds marchent quand Déplacement &gt; 0). Le tracé coloré visualise l'orbite
