@@ -31,6 +31,21 @@ export interface StyleDef {
  * 0.4 beat before beat 1, holds through the touch on 2, moves to the right foot before beat 3 and holds
  * through 4. `b` is the motion beat (clock − 0,5). */
 export const KOMPA = { transition: 0.4 };
+/** #161, #159 (owner, 22 Nov.: « Le konpa est complètement faux actuellement: c'est le 8 le plus prononcé
+ * justement » ; docs/spec-ginga-huit.md): PROTOTYPES of the kompa's « 8 », to elect, off by default
+ * (`?kompa=huit|huitGrand|huitInverse`). Source (Jasmin's teachers' manual, quoted by Le Nouvelliste, see
+ * docs/recherche-danse/kompa.md on the research branch): at the slow rhythm, « on dessine un demi 8 avec
+ * le bassin sur chaque appui », the hip going from the front to the back by the side.
+ * `depth` (m): how far the pelvis goes forward then back on each support; `round` (0 to 1): the lateral
+ * path leaves the hold-then-cross of today for a continuous swing; `sense` (−1: back first). */
+export const KOMPA_EIGHTS: Record<string, { depth: number; round: number; sense: number }> = {
+  huit: { depth: 0.03, round: 1, sense: 1 },
+  huitGrand: { depth: 0.05, round: 1, sense: 1 },
+  huitInverse: { depth: 0.03, round: 1, sense: -1 },
+};
+/** The prototype in use (null: the model of today). Set once from the address, read by the kompa style. */
+export const KOMPA_PROTO: { eight: { depth: number; round: number; sense: number } | null } = { eight: null };
+export const setKompaProto = (name: string | null | undefined) => { KOMPA_PROTO.eight = (name && KOMPA_EIGHTS[name]) || null; };
 export function kompaSupport(b: number): number {
   const c = ((((b + 0.5) % 4) + 4) % 4), d = KOMPA.transition;
   const s = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * (3 - 2 * t); };
@@ -104,7 +119,11 @@ export const STYLES: Record<string, StyleDef> = {
     // transfer every two beats, the weight landing on 1 and 3 (motion beats 0,5 and 2,5, see ON_BEAT_SHIFT).
     support: (b) => kompaSupport(b),
     apply: (r, b, a) => {
-      const w = -kompaSupport(b);
+      // Prototype of the « 8 »: the lateral swing never waits (its zeros are the support's, at motion beats
+      // 0.3 and 2.3), and the pelvis goes forward as it leaves for the support, back as it returns.
+      const eight = KOMPA_PROTO.eight, turn = 2 * Math.PI * (b - (0.5 - KOMPA.transition / 2)) / 4;
+      const held = -kompaSupport(b), w = eight ? held + (Math.sin(turn) - held) * eight.round : held;
+      if (eight) r.root.position.z = eight.depth * eight.sense * Math.sin(2 * turn) * a;
       const sw = 0.9 * w;
       r.root.position.x = 0.09 * sw * a;
       r.root.position.y = -0.06 * a;

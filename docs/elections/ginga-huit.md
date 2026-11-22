@@ -17,11 +17,12 @@ Et le 22 novembre, sur le ginga du couple tel qu'il est aujourd'hui dans le film
 
 > Trop discret.
 
-Trois questions, à trancher à l'œil. Pour chaque variante : **la danse** (mode jeu, kizomba, 90 bpm, muscles
+Quatre questions, à trancher à l'œil. Pour chaque variante : **la danse** (mode jeu, kizomba, 90 bpm, muscles
 affichés : avancer, reculer, sortie garçon, quart de tour) et **le tracé** du chemin des deux hanches de la
-suiveuse, vu de dessus, de face et de profil, mesuré sur le modèle pendant la marche.
+suiveuse, vu de dessus, de face et de profil, mesuré sur le modèle pendant la marche. La question 4 porte
+sur le kompa, danseur seul.
 
-Pour voter : répondre par une lettre par question (par exemple « 1 C, 2 C, 3 E »), avec un commentaire si
+Pour voter : répondre par une lettre par question (par exemple « 1 C, 2 C, 3 E, 4 K1 »), avec un commentaire si
 besoin. Le choix et le commentaire seront recopiés mot pour mot dans l'issue #159. « Trop discret » répond
 déjà en partie à la question 3 : elle propose maintenant deux tailles plus grandes.
 
@@ -47,7 +48,9 @@ Même forme, parcourue dans un sens ou dans l'autre.
 | ![C, le tracé](../gifs/trace-huit-huitRond.gif) | ![D, le tracé](../gifs/trace-huit-huitInverse.gif) |
 | Le bassin part vers le pied d'appui en avançant, et en revient en reculant. | Le bassin part vers le pied d'appui en reculant, et en revient en avançant. |
 
-Je ne sais pas lequel est celui de la danse : pas de proposition.
+Je ne sais pas lequel est celui de la kizomba. Un indice, pour le kompa seulement : un manuel de professeurs
+(Cliford et Gaëlle Jasmin, cité par *Le Nouvelliste*) décrit la hanche qui va « de l'avant vers l'arrière en
+passant par le côté » sur chaque appui. C'est le sens de C.
 
 ## Question 3 — la taille
 
@@ -65,6 +68,37 @@ dans l'avance-recul et les rotations seulement. Les rendre visibles dans les sor
 (#163).
 
 Ma proposition : **E ou F**, à l'œil. Je ne sais pas laquelle se voit assez sans paraître forcée.
+
+## Question 4 — le kompa
+
+Parole du propriétaire (22 novembre) : « Le konpa est complètement faux actuellement: c'est le 8 le plus
+prononcé justement. » La recherche de sources (#161) confirme un « 8 » dans le kompa lent et collé : « on
+dessine un demi 8 avec le bassin sur chaque appui ».
+
+Danseur seul, pas de base du kompa sur place, 90 bpm. Aujourd'hui le bassin va et vient sur une ligne de
+20,6 cm et s'arrête plus d'une demi-temps de chaque côté.
+
+| K0 — aujourd'hui | K1 — « 8 » |
+|---|---|
+| ![K0, la danse](../gifs/election-kompa-aujourdhui.gif) | ![K1, la danse](../gifs/election-kompa-huit.gif) |
+| ![K0, le tracé](../gifs/trace-kompa-aujourdhui.gif) | ![K1, le tracé](../gifs/trace-kompa-huit.gif) |
+| Une ligne : 20,6 cm de large, 0,3 cm d'avant en arrière. Arrêt de 0,56 temps. | 20,1 cm de large, 6 cm d'avant en arrière. Chaque hanche entoure environ 79 cm² vu de dessus. Aucun arrêt. |
+
+| K2 — « 8 » plus grand | K3 — « 8 », autre sens |
+|---|---|
+| ![K2, la danse](../gifs/election-kompa-huitGrand.gif) | ![K3, la danse](../gifs/election-kompa-huitInverse.gif) |
+| ![K2, le tracé](../gifs/trace-kompa-huitGrand.gif) | ![K3, le tracé](../gifs/trace-kompa-huitInverse.gif) |
+| 10 cm d'avant en arrière, environ 132 cm² entourés. | Comme K1, mais le bassin part vers l'appui en reculant. |
+
+Pour comparer : le « 8 » du suave, le seul style qui en trace un aujourd'hui, entoure 17,6 cm². K1 et K2 font
+du kompa le « 8 » le plus grand des six styles.
+
+Ma proposition : **K1 ou K2**, dans le sens du manuel (K1, K2), à l'œil pour la taille.
+
+Ce que ces prototypes du kompa ne changent pas, alors que les sources le contredisent : le rythme reste
+celui du kompa lent (deux temps par pied) ; les genoux restent pliés du même angle (les sources en font le
+moteur) ; le relâché du bassin juste avant chaque appui n'est pas montré. Le détail est dans la recherche
+(`docs/recherche-danse/kompa.md`, branche de la vidéo).
 
 ## Ce que valent ces images
 
@@ -85,7 +119,8 @@ Ma proposition : **E ou F**, à l'œil. Je ne sais pas laquelle se voit assez sa
   (#161, recherche en cours), en semba le deuxième rebond refait « un petit rond du "8" » (#162). Ces images
   sont en kizomba ; les deux styles viendront après ce vote.
 - Pour les voir dans l'app (branche de la PR, non fusionnée) :
-  `?mode=pair&guidage=1&demo=ginga&ginga=huit`, `huitRond`, `huitInverse`, `huitAmple` ou `huitGrand`.
+  `?mode=pair&guidage=1&demo=ginga&ginga=huit`, `huitRond`, `huitInverse`, `huitAmple` ou `huitGrand` ;
+  pour le kompa seul : `?style=kompa&kompa=huit`, `huitGrand` ou `huitInverse`.
 
 ## Résultat
 

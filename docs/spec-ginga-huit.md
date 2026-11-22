@@ -45,7 +45,7 @@ Ce que ces paroles changent ici :
 | Parole | Conséquence | Où |
 |---|---|---|
 | « Trop discret. » | La taille de `marque` (A, B, C, D) ne suffit pas. Une variante plus grande est ajoutée à l'élection (F). Le réglage par défaut de `main` passe au plus grand réglage calibré. | ici, et #163 |
-| Kompa : « c'est le 8 le plus prononcé » | Le modèle du kompa est à refaire après la recherche de sources. Dans le mode jeu, le kompa ne reçoit aujourd'hui que le rebond : ni phase, ni « 8 ». | #161 |
+| Kompa : « c'est le 8 le plus prononcé » | La recherche de sources est faite (#161). Prototypes du « 8 » du kompa, danseur seul, ajoutés à l'élection (question 4). Dans le mode jeu, le kompa ne reçoit aujourd'hui que le rebond : ni phase, ni « 8 ». | #161, plus bas |
 | Semba : le 2e rebond « comme un chacha » | Le « 8 » du semba n'est pas régulier : un petit rond rapide au deuxième rebond, puis le grand. À prototyper sur le « 8 » élu. | #162 |
 
 ## Constat mesuré, après #157
@@ -138,6 +138,38 @@ chaque figure, donc toutes les deux temps dans la marche. Seuls les prototypes l
 Elles se voient dans l'app avec `?mode=pair&guidage=1&demo=ginga&ginga=huitRond` (branche de cette PR, non
 fusionnée). Les tracés viennent de `scripts/tracer_hanches.mjs`, les GIF de danse de
 `scripts/capture_session_gif.mjs`.
+
+## Le kompa : « c'est le 8 le plus prononcé » (#161)
+
+La recherche de sources est sur la branche de la vidéo (`docs/recherche-danse/kompa.md`, #161). Ce qu'elle
+apporte ici :
+
+- au kompa lent, près de deux temps par pied, « on dessine un demi 8 avec le bassin sur chaque appui », la
+  hanche allant « de l'avant vers l'arrière en passant par le côté » (manuel de Cliford et Gaëlle Jasmin,
+  cité par *Le Nouvelliste*) ; hanches en huit dans la danse collée (Averill 1997, McAlister 2002) ;
+- les genoux balancent les hanches, pieds au sol ;
+- aucune source ne dit que ce « 8 » est le plus prononcé des styles : il n'y a là que la parole du
+  propriétaire.
+
+Le modèle (`src/styles.ts`) a le rythme du kompa lent, mais son bassin trace une ligne. Mesures, danseur
+seul sur place, sur quatre temps :
+
+| | `?style=kompa&kompa=` | Largeur | Avant-arrière | Entouré vu de dessus | Arrêt |
+|---|---|---|---|---|---|
+| K0 — aujourd'hui | (rien) | 20,6 cm | 0,3 cm | 1,0 cm² | 0,56 temps |
+| K1 — « 8 » | `huit` | 20,1 cm | 6,0 cm | 76 à 82 cm² | aucun |
+| K2 — « 8 » plus grand | `huitGrand` | 20,1 cm | 10,0 cm | 129 à 135 cm² | aucun |
+| K3 — « 8 », autre sens | `huitInverse` | 20,1 cm | 6,0 cm | 77 à 82 cm² | aucun |
+
+Pour comparer : le « 8 » du suave entoure 17,6 cm².
+
+- **Le prototype** (`KOMPA_EIGHTS`, éteint par défaut) : le déplacement latéral ne s'arrête plus sur l'appui
+  (il garde ses passages au centre, donc l'instant du transfert de poids) ; le bassin avance en partant vers
+  l'appui et recule en revenant : c'est le sens du manuel. K3 fait l'inverse.
+- **Ce qu'il ne change pas**, et que les sources contredisent : les genoux restent pliés du même angle (53°
+  à 60°, sans mouvement en sens inverse : ils ne sont pas le moteur) ; le relâché du bassin sur le
+  demi-temps avant chaque appui n'est pas montré ; le rythme reste celui du kompa lent.
+- En couple, le pas de base du kompa et ses marches ne reçoivent pas encore ce prototype.
 
 ## Les genoux : le propriétaire a élu « genoux chevauchés »
 

@@ -4,6 +4,8 @@
 // de hanche et du centre du bassin d'un danseur, dans son propre repère, déplacement de la figure retiré.
 // Sortie : un GIF (les chemins, un point qui les parcourt) et les surfaces entourées dans chaque vue.
 // Usage : CHROME_PATH=... node scripts/tracer_hanches.mjs out.gif <ginga> [suiveur|leader] [figure] [style]
+//         … out.gif <variante> seul base <style> : le danseur seul, pas de base sur place du style (4 temps) ;
+//         pour le kompa, <variante> est un prototype de son « 8 » (`huit`, `huitGrand`, `huitInverse`) ou `aujourdhui`.
 //         MESURES=1 n'écrit pas de GIF : seulement les mesures (JSON sur la sortie standard).
 import { buildSync } from "esbuild";
 import { execFileSync } from "node:child_process";
@@ -18,20 +20,24 @@ buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'rigJoints', 'place
 const api = await import(bundle.href); unlinkSync(bundle);
 
 const STEPS = 32; // samples per beat
-const follower = role !== "leader", dz = api.GUIDE_PAIR_DZ, beats = api.GUIDE_FIGURES[kind].beats, movement = api.GUIDE_FIGURES[kind].movement;
-const f = follower ? fixture(api, { rotation: Math.PI, offset: [0, 0, dz] }) : fixture(api, { offset: [0, 0, -dz] });
+const solo = role === "seul";
+const follower = !solo && role !== "leader", dz = api.GUIDE_PAIR_DZ, beats = solo ? 4 : api.GUIDE_FIGURES[kind].beats, movement = solo ? "none" : api.GUIDE_FIGURES[kind].movement;
+if (solo) api.setKompaProto(ginga);
+const f = solo ? fixture(api) : follower ? fixture(api, { rotation: Math.PI, offset: [0, 0, dz] }) : fixture(api, { offset: [0, 0, -dz] });
 const rest = { L: f.model.legs.L.rest, R: f.model.legs.R.rest }, stance = (f.model.legs.L.hipX - rest.L.x + rest.R.x - f.model.legs.R.hipX) / 2;
 const ZERO = { leader: { x: 0, z: 0 }, follower: { x: 0, z: 0 } };
 const points = { L: [], R: [], C: [] }, loads = [], knees = { L: [], R: [] };
 for (let i = 0; i < beats * STEPS; i++) {
   const beat = i / STEPS;
-  api.applyPose(f.r, f.model, beat, { ...api.guidePoseOptions({ movement, rootOffset: ZERO, kind, ginga, previous: kind }, follower), placement: 'quinconce', contraposition: 1, styleKey: api.guideStyleOf(kind, styleKey), amp: 1 });
+  if (solo) api.applyPose(f.r, f.model, beat, { styleKey, amp: 1 });
+  else api.applyPose(f.r, f.model, beat, { ...api.guidePoseOptions({ movement, rootOffset: ZERO, kind, ginga, previous: kind }, follower), placement: 'quinconce', contraposition: 1, styleKey: api.guideStyleOf(kind, styleKey), amp: 1 });
   f.r.root.updateWorldMatrix(true, true);
-  const root = f.r.root.position, inverse = f.r.root.parent.matrixWorld.clone().invert();
+  // In pair the figure's travel (root) is removed; alone on the spot the root itself carries the sway.
+  const root = solo ? { x: 0, z: 0 } : f.r.root.position, inverse = f.r.root.parent.matrixWorld.clone().invert();
   // Dancer's own frame: x to the dancer's right, y up, z forward; the figure's travel (root) is removed.
   const local = name => { const p = f.r[name].getWorldPosition(new THREE.Vector3()).applyMatrix4(inverse); return [-(p.x - root.x) * 100, p.y * 100, (p.z - root.z) * 100]; };
   points.L.push(local('hipL')); points.R.push(local('hipR')); points.C.push(local('pelvis'));
-  loads.push(api.sampleKind(kind, beat, follower, { rest, stance, placement: 'quinconce', amp: 1 }).loadR);
+  loads.push(solo ? (api.STYLES[styleKey].support(beat - 0.5) + 1) / 2 : api.sampleKind(kind, beat, follower, { rest, stance, placement: 'quinconce', amp: 1 }).loadR);
   // Knee flexion (degrees) after the leg solver: 0 = straight.
   for (const side of ['L', 'R']) knees[side].push(Math.abs(f.r['knee' + side].rotation.x) * 180 / Math.PI);
 }
@@ -81,7 +87,9 @@ if (process.env.MESURES === '1' || !out) process.exit(0);
 
 // Drawing: three panels at the same scale (true distances), centred on the mean position of the pelvis.
 const mean = a => points.C.reduce((s, p) => s + p[a], 0) / points.C.length, centre = [mean(0), mean(1), mean(2)];
-const SCALE = 21, W = 560, H = 600;
+// True distances, the same scale in the three panels: 21 px per cm, less when the path is wider than the panel.
+const extent = a => Math.max(...['L', 'R', 'C'].flatMap(k => points[k].map(p => p[a]))) - Math.min(...['L', 'R', 'C'].flatMap(k => points[k].map(p => p[a])));
+const W = 560, H = 600, SCALE = Math.min(21, 500 / extent(0), 120 / Math.max(extent(1), extent(2)));
 const panels = [
   { title: "Vu de dessus", hint: "avant ↑", a: 0, b: 2, cx: W / 2, cy: 150 },
   { title: "Vu de face", hint: "haut ↑", a: 0, b: 1, cx: W / 2, cy: 334 },
@@ -90,7 +98,7 @@ const panels = [
 const at = (panel, p) => [panel.cx + (p[panel.a] - centre[panel.a]) * SCALE, panel.cy - (p[panel.b] - centre[panel.b]) * SCALE];
 const path = (panel, pts) => pts.map((p, i) => `${i ? 'L' : 'M'}${at(panel, p).map(v => v.toFixed(1)).join(' ')}`).join(' ') + ' Z';
 const COLORS = { L: '#fb923c', R: '#22d3ee', C: '#94a3b8' };
-const label = { marque: 'aller-retour (aujourd’hui)', huit: '« 8 » anguleux', huitRond: '« 8 » arrondi', huitInverse: '« 8 » arrondi, autre sens', huitAmple: '« 8 » arrondi, ample', huitGrand: '« 8 » arrondi, très ample' }[ginga] ?? ginga;
+const label = solo ? ({ huit: '« 8 »', huitGrand: '« 8 » plus grand', huitInverse: '« 8 », autre sens' }[ginga] ?? 'aujourd’hui') : { marque: 'aller-retour (aujourd’hui)', huit: '« 8 » anguleux', huitRond: '« 8 » arrondi', huitInverse: '« 8 » arrondi, autre sens', huitAmple: '« 8 » arrondi, ample', huitGrand: '« 8 » arrondi, très ample' }[ginga] ?? ginga;
 const fixed = panels.map(panel => `
   <text x="16" y="${panel.cy - 70}" class="t">${panel.title}</text><text x="16" y="${panel.cy - 52}" class="h">${panel.hint}</text>
   ${['C', 'L', 'R'].map(k => `<path d="${path(panel, points[k])}" fill="none" stroke="${COLORS[k]}" stroke-width="${k === 'C' ? 1 : 2}" stroke-opacity="${k === 'C' ? 0.5 : 0.85}"/>`).join('')}`).join('');
@@ -98,7 +106,7 @@ const html = `<!doctype html><html><body style="margin:0;background:#0b1220"><sv
   <style>.t{fill:#e2e8f0;font-size:15px;font-weight:600}.h{fill:#64748b;font-size:11px}.n{fill:#cbd5e1;font-size:12px}</style>
   <rect width="${W}" height="${H}" fill="#0b1220"/>
   <text x="16" y="26" class="t">Chemin des hanches — ${label}</text>
-  <text x="16" y="44" class="h">${follower ? 'suiveuse' : 'leader'}, marche en ${styleKey}, déplacement de la figure retiré · mesuré sur le modèle</text>
+  <text x="16" y="44" class="h">${solo ? `danseur seul, pas de base du ${styleKey} sur place` : `${follower ? 'suiveuse' : 'leader'}, marche en ${styleKey}, déplacement de la figure retiré`} · mesuré sur le modèle</text>
   ${fixed}
   <g id="dots"></g>
   <line x1="${W - 16 - SCALE}" y1="${H - 22}" x2="${W - 16}" y2="${H - 22}" stroke="#e2e8f0" stroke-width="2"/><text x="${W - 16 - SCALE / 2}" y="${H - 28}" class="n" text-anchor="middle">1 cm</text>

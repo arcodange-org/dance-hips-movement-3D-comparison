@@ -6,6 +6,8 @@
 // la page à chaque image (une minute par image sur une machine chargée, contre une seconde ici).
 // Rendu par la carte graphique par défaut ; SOFTWARE=1 pour le rendu logiciel (SwiftShader).
 // Usage : CHROME_PATH=... BPM=90 node scripts/capture_session_gif.mjs out.gif "<URL sans sortieBeat>" <temps de départ> <temps> [images/s]
+//   Mode jeu : l'URL du mode jeu (la page ajoute `sortieBeat`, qui met l'horloge à l'arrêt).
+//   App de comparaison (danseur seul) : ajouter `playing=0` à l'URL.
 //   CHECK=temps,chemin.png enregistre aussi l'image de ce temps (à comparer à une image prise avec sortieBeat=temps).
 // Fragile par nature (structure interne de React) : quand le mode `film=1` (#155) sera fusionné, préférer
 // son interface `window.__film`.
@@ -34,7 +36,8 @@ const found = await page.evaluate(() => {
   for (let fiber = dom[key]; fiber; fiber = fiber.return) {
     for (let hook = fiber.memoizedState, n = 0; hook && typeof hook === 'object' && n < 200; hook = hook.next, n++) {
       const m = hook.memoizedState;
-      for (const v of [m, ...(Array.isArray(m) ? m : [])]) if (isClock(v)) { window.__captureClock = v; return v.beat; }
+      // The clock is kept by `useMemo` (a [value, deps] pair) in the game view, by `useRef` in the solo app.
+      for (const v of [m, m?.current, ...(Array.isArray(m) ? m : [])]) if (isClock(v)) { window.__captureClock = v; return v.beat; }
     }
   }
   return null;

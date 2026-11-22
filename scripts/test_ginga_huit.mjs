@@ -62,5 +62,16 @@ const api = await import(bundle.href); unlinkSync(bundle);
     assert.ok(Math.abs(other[hip].dessus - round[hip].dessus) < 0.2 * round[hip].dessus, 'the other sense has the same size');
   }
   assert.ok(today.C.arret > 0.1 && round.C.arret < 0.05 && other.C.arret < 0.05 && large.C.arret < 0.05 && angular.C.arret < today.C.arret, `stops: ${today.C.arret} → ${angular.C.arret}, ${round.C.arret}`);
+  // The kompa alone (#161): today a line with a long stop on each side; the prototypes go round, the largest
+  // « 8 » of the styles, and never stop. The model of today is untouched unless a prototype is chosen.
+  const kompa = name => JSON.parse(execFileSync('node', [fileURLToPath(new URL('./tracer_hanches.mjs', import.meta.url)), '', name, 'seul', 'base', 'kompa'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })).mesures;
+  assert.equal(api.KOMPA_PROTO.eight, null, 'no kompa prototype by default');
+  assert.deepEqual(Object.keys(api.KOMPA_EIGHTS), ['huit', 'huitGrand', 'huitInverse']);
+  const k0 = kompa('aujourdhui'), k1 = kompa('huit'), k2 = kompa('huitGrand'), k3 = kompa('huitInverse');
+  assert.ok(k0.C.profondeur < 0.5 && k0.L.dessus < 2 && k0.C.arret > 0.4, `kompa today: a line (${k0.C.profondeur} cm deep, ${k0.L.dessus} cm², stop ${k0.C.arret})`);
+  for (const [name, m] of [['huit', k1], ['huitGrand', k2], ['huitInverse', k3]]) assert.ok(m.L.dessus > 50 && m.R.dessus > 50 && m.C.arret < 0.05 && Math.abs(m.C.largeur - k0.C.largeur) < 1, `kompa ${name}: ${m.L.dessus} cm², stop ${m.C.arret}, ${m.C.largeur} cm wide`);
+  assert.ok(k2.L.dessus > 1.5 * k1.L.dessus && Math.abs(k3.L.dessus - k1.L.dessus) < 0.1 * k1.L.dessus, 'kompa: sizes and senses');
+  assert.ok(k1.L.dessus > 2 * large.L.dessus, 'the kompa prototype is the largest « 8 »');
+  console.log(`PASS kompa seul : aujourd'hui une ligne (${k0.C.profondeur} cm d'avant en arrière, arrêt de ${k0.C.arret} temps) ; prototypes : ${k1.L.dessus} et ${k2.L.dessus} cm² entourés vu de dessus, aucun arrêt`);
   console.log(`PASS mesure du « 8 » (suiveuse, marche) : vu de dessus chaque hanche entoure ${today.L.dessus} cm² aujourd'hui, ${angular.L.dessus} (anguleux), ${round.L.dessus} (arrondi), ${large.L.dessus} (ample), ${larger.L.dessus} (très ample) ; arrêt le plus long du bassin ${today.C.arret} → ${round.C.arret} temps`);
 }

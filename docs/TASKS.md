@@ -360,7 +360,9 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] [Élection](elections/ginga-huit.md) : danse et tracé de chaque variante ; `scripts/test_ginga_huit.mjs`.
 - [x] Paroles du 22 novembre consignées (R30 à R32) : « Trop discret. » → variante F à l'élection et #163 ; kompa → #161 ;
       semba → #162.
-- [ ] Vote du propriétaire : forme, sens, taille.
+- [x] Kompa (#161, « c'est le 8 le plus prononcé ») : prototypes `KOMPA_EIGHTS` du danseur seul (`?style=kompa&kompa=huit`),
+      question 4 de l'élection ; la recherche de sources est sur la branche de la vidéo.
+- [ ] Vote du propriétaire : forme, sens, taille, kompa.
 - [ ] Variante élue : contrôles sur le GLB dans toutes les figures (marges), ida e volta, pas de base.
 - [ ] Faire mener le « 8 » par les genoux chevauchés (règle B de l'atlas #132, élue : « pour la danse on veut B ») :
       aujourd'hui les genoux suivent le bassin, et les prototypes s'éloignent de cette règle (mesures dans la spec).
