@@ -1,0 +1,29 @@
+{
+  "corinne": {
+    "fichier": "~/chemin/vers/personnages/corinne.blend",
+    "squelette": "NOM_DU_SQUELETTE",
+    "os": { "tete": "head", "piedL": "foot.L" },
+    "fils": 2,
+    "pieces": {
+      "tete": {
+        "objets": ["OBJET_TETE", "OBJET_BEC", "OBJET_CRETE"],
+        "pivot": "head",
+        "sommets": { "OBJET_TETE": 110000, "OBJET_CRETE": 30000 },
+        "cible": 20000
+      },
+      "piedL": { "objets": ["OBJET_PIED_CHAUSSE.L"], "cheville": "coupe", "hauteurCheville": 0.108, "cible": 45000 },
+      "piedR": { "objets": ["OBJET_PIED_CHAUSSE.R"], "cheville": "coupe", "hauteurCheville": 0.108, "cible": 45000 },
+      "piedL_autre": { "objets": ["OBJET_PIED.L", "OBJET_SEMELLE.L"], "cheville": "shin.L", "cible": 6000 }
+    }
+  },
+  "remi": {
+    "fichier": "~/chemin/vers/personnages/remi.blend",
+    "squelette": "NOM_DU_SQUELETTE",
+    "os": { "tete": "head", "piedL": "foot.L" },
+    "pieces": {
+      "tete": { "objets": ["OBJET_TETE", "OBJET_COU"], "pivot": "head", "sommets": { "OBJET_TETE": 110000 }, "cible": 20000 },
+      "piedL": { "objets": ["OBJET_SOULIER.L", "OBJET_SEMELLE.L"], "cheville": "shin.L", "cible": 8000 },
+      "piedR": { "objets": ["OBJET_SOULIER.R", "OBJET_SEMELLE.R"], "cheville": "shin.R", "cible": 8000 }
+    }
+  }
+}

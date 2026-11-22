@@ -1,0 +1,6 @@
+.cache/
+dist/
+# Maillages des mascottes : propriété de ReCoDanse, jamais versés dans ce dépôt public.
+actifs/mascottes/*
+!actifs/mascottes/LISEZMOI.md
+scripts/.*.mjs

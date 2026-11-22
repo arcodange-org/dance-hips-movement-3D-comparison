@@ -39,6 +39,9 @@ registre généré `src/music/recordings.data.ts`, pistes `public/musique/`, `sc
 `scripts/test_musique_enregistree.mjs`) ; la clé ElevenLabs ne s'écrit nulle part, une prise coûte des crédits : accord du propriétaire.
 Vitrine (#150) : [spec](docs/spec-vitrine-danse-auto.md) (`src/vitrine.ts` pur, `?vitrine=1` ouvre la vue du mode jeu en danse
 automatique, en musique, au tempo de la piste ; `scripts/test_vitrine.mjs`).
+Pont ReCoDanse (#176) : [spec](recodanse/SPEC.md) ; dossier isolé `recodanse/` (hors `npm test`, hors build, hors site publié) :
+Rémi et Corinne sur le corps anatomique, buste, bras et mains complétés en os et en muscles. Après un changement du Rig, du
+buste ou du cadre des bras : `npm --prefix recodanse test` (contrat, 1 s).
 Mode jeu (#140, [spec](docs/spec-jeu-file-auto.md)) : les commandes s'empilent dans une file (plus de note ni
 de refus), Espace bascule entre l'écoute et la danse automatique (tirage reproductible par graine) ; un plan
 ne réécrit jamais son passé. Hasard tenu (#152) : le tirage se souvient des figures et des paires récentes
