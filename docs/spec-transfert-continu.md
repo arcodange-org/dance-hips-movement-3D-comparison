@@ -5,18 +5,11 @@
 [Ginga du couple](spec-ginga-couple.md) (#157, #163) · [Marche naturelle](spec-marche-naturelle.md) ·
 [Mode jeu](spec-jeu-file-auto.md)
 
-## Paroles du propriétaire
+## La règle (R34, 22 novembre 2026)
 
-Le 22 novembre 2026, après la quatrième version de la vidéo (#155) :
-
-> Le plus important c'est de ne pas saccader / teleporter subitement et de ne pas avoir un effet relais
-> soudain entre gauche et droite: c'est la transition (le transfert de poids) qui est la source du
-> jinga/dehanché/ trajectoire des fessiers "en 8".
-
-Le 21 novembre, sur le ginga (#157) :
-
-> C'est important cet aspect car ça va corriger le soucis de timing / changement de position brusque, qui
-> font que les déplacements sont "robotiques" et non "organiques".
+Le plus important dans le mouvement : ni saccade, ni téléportation, ni relais soudain entre la gauche et la
+droite. La transition, c'est-à-dire le transfert de poids, est la source du déhanché et de la trajectoire
+« en 8 ». Les changements de position brusques rendent les déplacements robotiques au lieu d'organiques.
 
 ## Ce que cela demande
 
@@ -78,6 +71,8 @@ huitième de temps (médiane) : 0,3 cm en hauteur, 0,5 à 1 cm à l'horizontale.
 
 - En couple, le bassin attend sur l'appui puis passe de l'autre côté deux fois plus brusquement qu'un
   balancier.
+- Dans la marche, le poids passe d'un pied à l'autre en trois seizièmes de temps (125 ms à 90 bpm), juste
+  avant le temps ; le bassin fait pendant ce court instant la moitié de son trajet.
 - Dans une marche, les deux passages ne se ressemblent pas. Le premier se fait en une demi-temps, puis le
   bassin attend. Le second est coupé par la frontière entre deux figures : la phase du ginga repart
   « posée » à chaque figure, le jeu efface l'écart en un temps, et ce passage finit lentement.
@@ -85,7 +80,7 @@ huitième de temps (médiane) : 0,3 cm en hauteur, 0,5 à 1 cm à l'horizontale.
 ### Lecture
 
 Dans le modèle, le transfert de poids d'une figure tient dans une courte fenêtre : le bassin attend,
-traverse vite, attend. Le propriétaire décrit l'inverse : la transition occupe tout l'intervalle entre deux
+traverse vite, attend. La règle demande l'inverse : la transition occupe tout l'intervalle entre deux
 appuis.
 
 ## Étapes
@@ -104,12 +99,11 @@ arrive sur le temps).
 4. **Le passage latéral du ginga calibré.** Aussi progressif qu'un balancier, et poursuivi d'une figure à la
    suivante.
 
-Les seuils à atteindre ne sont pas fixés ici : ils le seront après la première correction, sur ce que le
-propriétaire juge à l'œil. Le cliquet de l'étape 1 garantit seulement que rien n'empire.
+Les seuils à atteindre ne sont pas fixés ici : ils le seront après la première correction, à l'œil. Le cliquet de l'étape 1 garantit seulement que rien n'empire.
 
 ## Ce que cette spec ne fait pas
 
 - La forme, le sens et la taille du « 8 » : élection de #159 (PR #160).
-- La posture (« le buste doit être au-dessus et légèrement devant les genoux ») : #166.
+- La posture (le buste au-dessus des genoux, légèrement devant) : #166.
 - Le double rebond du semba : #162.
 - Ces mesures ne valident pas la chorégraphie.

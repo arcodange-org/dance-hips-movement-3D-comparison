@@ -1,7 +1,7 @@
 // #167 — sudden moves of the pelvis in the game mode (docs/spec-transfert-continu.md), on the real GLB.
-// Owner, 22 Nov. 2026: « Le plus important c'est de ne pas saccader / teleporter subitement et de ne pas
-// avoir un effet relais soudain entre gauche et droite ». Two measures, taken in sessions of the game itself
-// (planGuide, applyGuidePose: what the game shows, boundaries included):
+// Rule R34 (22 Nov. 2026), the one put first: no jolt, no teleporting, no sudden relay between left and
+// right. Two measures, taken in sessions of the game itself (planGuide, applyGuidePose: what the game
+// shows, boundaries included):
 //  - the largest move of the pelvis within an eighth of a beat (83 ms at 90 bpm), up or down and in the
 //    horizontal plane, for every figure the game offers and both dancers;
 //  - the passage from one side to the other in the walk, against a pendulum of the same width and period

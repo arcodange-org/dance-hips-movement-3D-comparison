@@ -344,7 +344,7 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 
 ## Transfert de poids continu : ni saccade, ni relais soudain (#167)
 
-- [x] Issue #167 avec les paroles du propriétaire (22 et 21 novembre) et les mesures ; [spec](spec-transfert-continu.md)
+- [x] Issue #167 avec la règle (22 novembre) et les mesures ; [spec](spec-transfert-continu.md)
       poussée en premier ; règle R34.
 - [x] Étape 1 : `scripts/test_saccades.mjs` dans `npm test`, état d'aujourd'hui enregistré (`scripts/fixtures/saccades.json`).
 - [ ] Étape 2 : hauteur du bassin étalée dans le temps (sorties : 12,9 et 10,5 cm en un huitième de temps).
