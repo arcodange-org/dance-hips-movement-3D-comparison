@@ -18,7 +18,9 @@ Et le 22 novembre, sur le ginga du couple du film (réglage `marque`, la taille 
 > Trop discret.
 
 Depuis, le mode jeu danse avec le réglage `ample` par défaut (#163, fusionnée) : le même aller-retour que A, à
-la taille de E. La forme du chemin n'a pas changé : c'est ce vote qui la décide.
+la taille de E. Et le bassin y passe d'un côté à l'autre comme un balancier, sans attendre sur l'appui, d'une
+figure à la suivante (#172, fusionnée). La forme du chemin n'a pas changé : c'est ce vote qui la décide. Les
+images de cette page ont été reprises après #172.
 
 Le 22 novembre encore, une règle passe avant les autres : ni saccade, ni téléportation, ni relais soudain entre
 la gauche et la droite ; c'est la transition, le transfert de poids, qui est la source du déhanché et de la
@@ -26,7 +28,7 @@ trajectoire « en 8 ».
 
 Une mesure est donc ajoutée à chaque variante, **le passage d'un côté à l'autre** : la vitesse de pointe du
 bassin, comparée à celle d'un balancier de même largeur et de même période. 1 = aussi progressif qu'un
-balancier ; 2 = deux fois plus brusque.
+balancier ; 2 = deux fois plus brusque. Depuis #172, toutes les variantes du couple sont à 1,0.
 
 Quatre questions, à trancher à l'œil. Pour chaque variante : **la danse** (mode jeu, kizomba, 90 bpm, muscles
 affichés : avancer, reculer, sortie garçon, quart de tour) et **le tracé** du chemin des deux hanches de la
@@ -40,16 +42,19 @@ déjà en partie à la question 3 : elle propose maintenant deux tailles plus gr
 ## Question 1 — la forme du chemin
 
 Aujourd'hui, chaque hanche va et vient sur une ligne : c'est A, montré ici à la taille du film (`marque`)
-pour comparer les trois formes à taille égale. En B et C elle trace un « 8 ».
+pour comparer les formes à taille égale. En C elle trace un « 8 ».
 
-| A — aller-retour (le chemin d'aujourd'hui) | B — « 8 » anguleux | C — « 8 » arrondi |
-|---|---|---|
-| ![A, la danse](../gifs/election-ginga-marque.gif) | ![B, la danse](../gifs/election-huit-huit.gif) | ![C, la danse](../gifs/election-huit-huitRond.gif) |
-| ![A, le tracé](../gifs/trace-huit-marque.gif) | ![B, le tracé](../gifs/trace-huit-huit.gif) | ![C, le tracé](../gifs/trace-huit-huitRond.gif) |
-| Le bassin va sur l'appui, y reste, revient par le même chemin. Arrêt le plus long : 0,22 temps (0,13 temps avec `ample`, le réglage par défaut). Passage d'un côté à l'autre : **2,0** fois plus brusque qu'un balancier. | Le bassin attend sur l'appui puis traverse, mais pendant l'attente il recule et tourne. Arrêt : 0,06 temps. Passage : 1,9 fois plus brusque qu'un balancier. | Le bassin ne s'arrête jamais : il glisse d'un côté à l'autre en avançant et en reculant. Passage : 1,0, comme un balancier. |
+| A — aller-retour (le chemin d'aujourd'hui) | C — « 8 » arrondi |
+|---|---|
+| ![A, la danse](../gifs/election-ginga-marque.gif) | ![C, la danse](../gifs/election-huit-huitRond.gif) |
+| ![A, le tracé](../gifs/trace-huit-marque.gif) | ![C, le tracé](../gifs/trace-huit-huitRond.gif) |
+| Le bassin va sur l'appui et revient par le même chemin, comme un balancier (passage : 1,0). Vu de dessus, chaque hanche n'entoure rien. Il marque un court arrêt sur l'appui : 0,13 temps (0,09 avec `ample`). | Le bassin ne s'arrête jamais : il glisse d'un côté à l'autre en avançant et en reculant. Chaque hanche entoure 5,7 cm² vu de dessus. Passage : 1,0. |
 
-Ma proposition : **C**. C'est la seule des trois où le bassin ne marque aucun arrêt et passe d'un côté à
-l'autre aussi progressivement qu'un balancier : ce que la règle du 22 novembre met en premier.
+La variante B (« 8 » anguleux) a disparu : elle ne différait de C que par un bassin qui attendait sur l'appui.
+Depuis #172, le passage est progressif dans toutes les variantes, et B trace exactement le chemin de C.
+
+Ma proposition : **C**. Les deux passent maintenant d'un côté à l'autre comme un balancier ; seule C fait
+un « 8 » et ne marque aucun arrêt.
 
 ## Question 2 — le sens du « 8 »
 
@@ -117,8 +122,9 @@ moteur) ; le relâché du bassin juste avant chaque appui n'est pas montré. Le 
 
 - Ce sont des **prototypes**. Ils n'ont pas passé les contrôles sur le GLB. Un comptage sur 3 168 poses par
   variante (au seizième de temps dans les sorties et l'ida e volta, au huitième ailleurs) relève des
-  croisements d'os : 13 en B, 11 en C, 8 en D (dans le quart de tour et la sortie fille), 27 en E et 37 en F
-  (surtout dans le quart de tour). Aucun dans la marche ni dans la sortie garçon.
+  croisements d'os : 11 en C, 8 en D (dans le quart de tour et la sortie fille), 27 en E et 37 en F
+  (surtout dans le quart de tour). Aucun dans la marche ni dans la sortie garçon. Ce comptage date d'avant
+  #172 ; la variante élue sera recomptée.
   La variante élue sera ensuite codée et contrôlée dans toutes les figures.
 - **Le « 8 » vient du bassin, pas encore des genoux.** Le propriétaire a élu « genoux chevauchés » pour la
   danse (atlas #132 : « pour la danse on veut B ») : les deux genoux bougent en sens inverse, sans palier,

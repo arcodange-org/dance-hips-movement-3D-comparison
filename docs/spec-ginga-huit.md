@@ -97,8 +97,9 @@ de même largeur et de même période. 1 = aussi progressif qu'un balancier ; 2 
 
 | | `soudain` | Passage |
 |---|---|---|
-| Couple, marche, `marque` (A) ou `ample` (par défaut) | **2,0** | 0,19 temps |
-| B — « 8 » anguleux | 1,9 | 0,16 temps |
+| Couple, marche, `marque` (A) ou `ample` (par défaut), avant #172 | **2,0** | 0,19 temps |
+| Les mêmes depuis #172 (fusionnée) | **1,0** | 0,34 temps |
+| B — « 8 » anguleux, avant #172 | 1,9 | 0,16 temps |
 | C, D, E, F — « 8 » arrondis | 1,0 | 0,34 temps |
 | Danseur seul : kizomba, semba, suave, tarraxinha, zouk | 1,0 | 0,34 temps |
 | Danseur seul, kompa aujourd'hui (K0) | 4,6 | 0,16 temps (sur un cycle de 4 temps) |
@@ -116,6 +117,23 @@ de même largeur et de même période. 1 = aussi progressif qu'un balancier ; 2 
   rotations : un aller-retour progressif, sans « 8 », est possible aussi.
 - Les à-coups des figures elles-mêmes (hauteur du bassin dans les sorties, trajet du bassin dans la marche
   et le quart de tour) existent avec et sans ginga : ils sont mesurés et traités dans #167.
+
+### Depuis #172 : la variante B rejoint C
+
+#172 (transfert de poids continu, #167) moyenne la phase du déhanché sur une demi-temps de chaque côté et la
+poursuit d'une figure à la suivante, dans tous les réglages. Mesuré ensuite dans une séance du jeu :
+
+| | Passage | Entouré dessus (suiveuse) | Arrêt le plus long |
+|---|---|---|---|
+| A — aller-retour, `marque` | 0,98 | 0,0 cm² | 0,13 temps |
+| Aller-retour, `ample` (par défaut) | 0,98 | 0,0 cm² | 0,09 temps |
+| B — « 8 » anguleux | 0,98 | 5,7 cm² | aucun |
+| C — « 8 » arrondi | 0,98 | 5,7 cm² | aucun |
+| D, E, F | 0,98 | 5,7 ; 16,8 ; 33,5 cm² | aucun |
+
+B ne différait de C que par la phase étroite de son déplacement latéral ; elle est maintenant aussi large que
+celle de C, et B trace exactement le chemin de C. B est retirée de l'élection ; `ginga=huit` reste dans le code.
+Les mesures de la suite de cette spec, sauf indication, datent d'avant #172.
 
 ## Idée : dans un « 8 », le bassin ne s'arrête jamais
 
