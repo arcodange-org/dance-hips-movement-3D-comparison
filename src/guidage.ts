@@ -517,9 +517,12 @@ export function movementOf(kind: GuideKind): MovementKey {
 
 /** Pose options of one dancer for a guide sample (shared by the view and the GLB tests): the pair
  * figure models, plexus contact, and the inertialized pelvis offsets of both dancers. */
-export function guidePoseOptions(s: Pick<GuideSample, "movement" | "rootOffset"> & { kind?: GuideKind; touches?: Touch[]; ginga?: GuideGinga }, follower: boolean) {
+export function guidePoseOptions(s: Pick<GuideSample, "movement" | "rootOffset"> & { kind?: GuideKind; touches?: Touch[]; ginga?: GuideGinga; previous?: GuideKind | null }, follower: boolean) {
   const role = follower ? "follower" : "leader", partner = follower ? "leader" : "follower";
+  // #167: the figure danced just before, for the ginga's phase to continue from it.
+  const before = s.previous && s.previous !== "base" ? GUIDE_FIGURES[s.previous] : null;
   return {
+    gingaFrom: before && { movement: before.movement, ...figureOptions(s.previous!), quartsPaire: before.movement === "quarts", idaPaire: before.movement === "ida", placePaire: false, beats: before.beats },
     movement: s.movement, embrace: true, follower, ...figureOptions(s.kind ?? "base"), touches: s.touches ?? [],
     ginga: GUIDE_GINGA[s.ginga ?? GUIDE_GINGA_DEFAULT],
     quartsPaire: s.movement === "quarts", idaPaire: s.movement === "ida", placePaire: s.movement === "none", plexus: true,

@@ -92,11 +92,20 @@ gardaient : le ginga le cale sur les transferts et ajoute le rebond, sans l'agra
 ### Un balancement de pendule
 
 Les figures transfèrent le poids en un cinquième de temps. Suivie telle quelle, la phase ferait claquer
-les hanches d'un côté à l'autre. Elle est donc moyennée sur un quart de temps de part et d'autre
-(`GINGA_SWING`) : les hanches se balancent autour de chaque transfert, comme un pendule, et sont sur
-l'appui dès que le poids y est resté une demi-temps.
+les hanches d'un côté à l'autre. Elle est donc moyennée de part et d'autre (`GINGA_SWING`) : les hanches
+se balancent autour de chaque transfert, comme un pendule.
 
-**Une jonction garde son passé.** La moyenne regarde un quart de temps en avant. Or une sortie fille peut
+**Une demi-temps de chaque côté, et d'une figure à la suivante (#167).** La moyenne portait sur un quart de
+temps de chaque côté : les hanches attendaient sur l'appui, puis passaient de l'autre côté deux fois plus
+brusquement qu'un balancier (2,05, mesure `soudain` de `scripts/test_saccades.mjs`). Et la phase repartait
+posée sur l'appui au début de chaque figure : dans une marche, un passage sur deux était coupé par la
+frontière. Elle porte maintenant sur une demi-temps de chaque côté, et elle regarde les appuis de la figure
+dansée juste avant (`gingaFrom`) : le passage occupe tout l'intervalle entre deux appuis (0,98, un
+balancier) et se poursuit d'une figure à la suivante. Deux exceptions : après le pas de base, et après un
+ida e volta, qui donne sa propre phase (#42), la figure démarre posée sur l'appui comme avant. Mesuré sur le
+GLB : poursuivre après un ida e volta rapproche les fémurs au début d'une sortie fille enchaînée.
+
+**Une jonction garde son passé.** La moyenne regarde une demi-temps en avant. Or une sortie fille peut
 être enchaînée à sa position 3 (#90) : la suite n'est pas la même. Mesuré avant correction : la sortie
 enchaînée différait de la sortie fille de 8 mm (genou du suiveur) juste avant la jonction, et le plan
 réécrivait son passé. La figure déclare donc ses jonctions (`gingaJunctions`) : avant une jonction, la

@@ -117,17 +117,17 @@
           "temps": 1.72
         },
         "horizontal": {
-          "cm": 13,
+          "cm": 13.4,
           "temps": 0.75
         }
       },
       "suiveur": {
         "vertical": {
-          "cm": 3.2,
+          "cm": 3.3,
           "temps": 0.81
         },
         "horizontal": {
-          "cm": 13.9,
+          "cm": 13.1,
           "temps": 0.75
         }
       }
@@ -139,8 +139,8 @@
           "temps": 0.5
         },
         "horizontal": {
-          "cm": 5.5,
-          "temps": 2.5
+          "cm": 5.4,
+          "temps": 2.53
         }
       },
       "suiveur": {
@@ -161,8 +161,8 @@
           "temps": 2.63
         },
         "horizontal": {
-          "cm": 7.5,
-          "temps": 3.44
+          "cm": 7.6,
+          "temps": 3.41
         }
       },
       "suiveur": {
@@ -171,8 +171,8 @@
           "temps": 1.31
         },
         "horizontal": {
-          "cm": 9.3,
-          "temps": 1.72
+          "cm": 8.5,
+          "temps": 1.47
         }
       }
     },
@@ -180,28 +180,28 @@
       "leader": {
         "vertical": {
           "cm": 0.6,
-          "temps": 2.63
+          "temps": 0.19
         },
         "horizontal": {
-          "cm": 2.7,
-          "temps": 0.47
+          "cm": 2.6,
+          "temps": 0.44
         }
       },
       "suiveur": {
         "vertical": {
-          "cm": 0.9,
-          "temps": 1.13
+          "cm": 1,
+          "temps": 1.06
         },
         "horizontal": {
-          "cm": 2.7,
-          "temps": 0.44
+          "cm": 2.6,
+          "temps": 0.41
         }
       }
     },
     "recule": {
       "leader": {
         "vertical": {
-          "cm": 1.8,
+          "cm": 2,
           "temps": 1.09
         },
         "horizontal": {
@@ -211,8 +211,8 @@
       },
       "suiveur": {
         "vertical": {
-          "cm": 0.9,
-          "temps": 0.63
+          "cm": 0.7,
+          "temps": 2.66
         },
         "horizontal": {
           "cm": 3.1,
@@ -224,7 +224,7 @@
       "leader": {
         "vertical": {
           "cm": 0.6,
-          "temps": 2.09
+          "temps": 0.13
         },
         "horizontal": {
           "cm": 5.6,
@@ -245,12 +245,12 @@
   },
   "soudain": {
     "leader": {
-      "largeur": 4.2,
-      "soudain": 2.05
+      "largeur": 4.4,
+      "soudain": 0.98
     },
     "suiveur": {
-      "largeur": 6,
-      "soudain": 2.05
+      "largeur": 6.3,
+      "soudain": 0.98
     }
   }
 }
