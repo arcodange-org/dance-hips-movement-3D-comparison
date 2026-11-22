@@ -85,7 +85,8 @@ ne la pose pas en mots : on filme les candidats et il en élit un
 2. Mesurer chaque candidat sur le vrai GLB (`scripts/mesure_essai_*.mjs`) et vérifier sur une image
    fixe (`scripts/capture_still.mjs`) que la différence se voit avant de filmer.
 3. Un GIF par candidat (`scripts/capture_figure_gif.mjs`), avec les muscles, même cadrage et même
-   durée, une capture à la fois, dans `docs/elections/<date>/`.
+   durée, une capture à la fois, dans `docs/elections/<date>/`. `GPU=1` fait le rendu par la carte
+   graphique : à préférer quand la machine est chargée (le rendu logiciel dépasse alors les délais).
 4. Page d'élection : candidats côte à côte, une scène concrète, les mesures, un choix (dont « aucune
    ne convient ») et un commentaire optionnel. La page ne dit pas quelle variante est la bonne.
 5. Consigner le vote dans l'issue (choix, commentaire reformulé sans citation), implémenter la variante élue dans

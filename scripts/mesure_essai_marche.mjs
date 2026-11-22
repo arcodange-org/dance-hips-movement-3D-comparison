@@ -1,6 +1,8 @@
 // #148 (élections de variantes) — mesure d'un candidat de la marche hors figure (#73) sur le vrai GLB.
 // Ce n'est pas un test : il chiffre ce que montre le GIF (kizomba, solo, corridinho, amplitude 1,
 // temps 8 à 16 : le danseur marche le cercle, un pas d'environ 47 cm tous les 2 temps par pied).
+// Depuis le vote du 21 novembre 2026, la marche déroulée est le comportement : `ESSAI=marcheDeroulee` n'a plus d'effet
+// (les mesures A et B du dossier se refont au commit 06d1a33).
 // Usage : node scripts/mesure_essai_marche.mjs                       (marche actuelle, à plat)
 //         ESSAI=marcheDeroulee node scripts/mesure_essai_marche.mjs  (candidat « déroulée »)
 import { buildSync } from "esbuild";

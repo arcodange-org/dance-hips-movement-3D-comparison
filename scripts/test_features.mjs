@@ -15,7 +15,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const bundle = join(root, "scripts", ".test-features-bundle.mjs");
 esbuild.buildSync({
   stdin: {
-    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon"; export * from "../src/sortieFille"; export * from "../src/idaPaire"; export * from "../src/gait"; export * from "../src/music/patterns"; export * from "../src/music/scheduler"; export * as guidage from "../src/guidage"; export * as insertion from "../src/insertion"; export { gingaPhase } from "../src/pose"; export * from "../src/music/loop"; export * from "../src/vitrine"; export * from "../src/music/recordings";',
+    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon"; export * from "../src/sortieFille"; export * from "../src/idaPaire"; export * from "../src/gait"; export * from "../src/music/patterns"; export * from "../src/music/scheduler"; export * as guidage from "../src/guidage"; export * as insertion from "../src/insertion"; export { gingaPhase } from "../src/pose"; export * from "../src/music/loop"; export * from "../src/vitrine"; export { trunkBlocksVisible } from "../src/muscles"; export * from "../src/music/recordings";',
     resolveDir: join(root, "scripts"),
     loader: "ts",
   },
@@ -162,9 +162,15 @@ const steps = [
   [/^la vue s'ouvre en (danse automatique|écoute)$/, (c, m) => {
     if (c.vitrine.auto !== (m[1] === "danse automatique")) throw new Error(`auto=${c.vitrine.auto}`);
   }],
-  [/^les muscles sont (affichés|masqués) et le buste est (lisible|translucide)$/, (c, m) => {
+  // #173 : avec les muscles, le tronc n'a plus de bloc gris ; `muscles=0` rend le buste stylisé.
+  [/^les muscles sont (affichés|masqués) et le tronc (n'a plus de bloc gris|garde ses blocs gris)$/, (c, m) => {
     const look = mod.showcaseLook(c.vitrine, c.vitrine.auto);
-    if (look.muscles !== (m[1] === "affichés") || look.solidTorso !== (m[2] === "lisible")) throw new Error(JSON.stringify(look));
+    const blocs = mod.trunkBlocksVisible(look.muscles);
+    if (look.muscles !== (m[1] === "affichés") || blocs !== (m[2] === "garde ses blocs gris")) throw new Error(JSON.stringify({ look, blocs }));
+  }],
+  [/^le buste est (lisible|translucide)$/, (c, m) => {
+    const look = mod.showcaseLook(c.vitrine, c.vitrine.auto);
+    if (look.solidTorso !== (m[1] === "lisible")) throw new Error(JSON.stringify(look));
   }],
   [/^le tempo d'ouverture du style "(\w+)" est (celui de sa piste enregistrée|le tempo d'écoute|(\d+) bpm)$/, (c, m) => {
     const got = mod.openingBpm(c.vitrine, m[1]);

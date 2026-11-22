@@ -65,6 +65,9 @@ Règles de mouvement du propriétaire, consolidées et vérifiables : [`docs/reg
 Décision de mouvement en attente du propriétaire (#148) : filmer les candidats et les lui faire élire
 ([spec](docs/spec-elections-variantes.md), [procédure](.vibe/CONTRIBUTING.md), `src/essais.ts` : `?essai=` inerte sans
 le paramètre, `scripts/mesure_essai_*.mjs`, `docs/elections/`). Rien n'est implémenté avant son vote.
+Premier tour voté (21 novembre) : en paire la ligne de danse passe par les deux danseurs (R6 réécrite) ; hors
+figure, le cercle du corridinho se marche pied déroulé (`plannedFeet`, `scripts/test_marche_deroulee.mjs`,
+[spec](docs/spec-marche-naturelle.md)) ; l'ida e volta en paire garde le pied opposé du suiveur.
 
 **Lire ce fichier en premier dans toute session.** Le harness complet pour travailler sur ce projet
 en autonomie (méthode anti-amnésie, conventions, contribution agentique) est dans **[`.vibe/`](.vibe/)**
