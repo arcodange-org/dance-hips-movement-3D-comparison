@@ -855,8 +855,9 @@ Ajouté après la fusion de `main` (#158). Les numéros de ligne valent pour l'�
   discret, marqué, ample. Le réglage par défaut était « marqué » ; il est « ample » depuis #163
   (`src/guidage.ts`, `GUIDE_GINGA`, `GUIDE_GINGA_DEFAULT`).
 - **F317** Mesure dans le final de la vidéo, réglage « marqué », bassin du premier danseur, même danse comparée
-  image par image avant et après : un rebond d'environ 1 cm, une fois par temps ; un déplacement de côté
-  de 2,4 cm au plus (`docs/spec-video-pas-de-base.md`, « Troisième version »).
+  image par image avant et après : un rebond d'environ 1 cm, une fois par temps ; un écart de côté de 2,4 cm
+  au plus. Au réglage « ample », par défaut depuis #163 : 3,4 cm au plus d'un côté, et un rebond de 1,2 cm
+  (`docs/spec-video-pas-de-base.md`, « Troisième version » et « Quatrième version »).
 - **F318** Le propriétaire a jugé ce réglage, filmé en pied : « Trop discret. » (22 novembre 2026). L'application
   a pris le réglage « ample » par défaut (#163) et le film s'approche des hanches
   (`scripts/video/scenario.mjs`, `FINAL_HANCHES`).
