@@ -5,6 +5,18 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Cadre des bras : bras droit du guideur, mains jointes (#178, #179, 22 novembre 2026)
+
+- **Règle R35 (#178)** : le bras droit du guideur ne se baisse pas. Hors du dos de la suiveuse (sortie fille), sa
+  main attend devant son flanc, avant-bras levé (`CADRE.openFrame`), et elle quitte le dos peu à peu (`CADRE.leave`) :
+  saut du coude 31 → 9 cm par seizième de temps ([spec](docs/cadre/spec-implementation.md), `scripts/test_cadre.mjs`).
+- **Prise des mains (#179, R36)** : la main droite de la suiveuse dans la main gauche du guideur. Aujourd'hui les
+  mains jointes sont entre les deux poitrines (cachées, coudes repliés). Le propriétaire a précisé qu'il existe
+  plusieurs attitudes et a décrit la prise (phalanges serrées, pouce ouvert, main de la suiveuse en travers de celle
+  du guideur, refermée autour de son index, pouces croisés). Attitudes filmables : `?essai=mainsCote`,
+  `?essai=mainsBasses`, inertes sans le paramètre ([dossier](docs/elections/2026-11-22-mains/README.md)).
+  Restent : poignet et doigts articulés, main de la suiveuse placée par rapport à celle du guideur.
+
 ## Haut du corps anatomique : buste, bras et mains (#176, 22 novembre 2026)
 
 - Option `haut=1` (toutes les vues) : les volumes gris du buste, des bras et de la tête laissent la place aux os et

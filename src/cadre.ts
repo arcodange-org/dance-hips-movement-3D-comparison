@@ -5,6 +5,7 @@
  * Frames: GLB, +x left, +y up, +z forward, in each dancer's own chest frame for the sites. */
 import * as THREE from "three";
 import { ARM_JOINTS } from "./rigJoints";
+import { essai } from "./essais";
 
 type Vec3 = [number, number, number];
 interface ArmRig {
@@ -27,7 +28,18 @@ export const CADRE_SITES = {
   ribsR: [-0.15, -0.10, 0] as Vec3,
 };
 /** Proposals to validate by eye: height of the joined hands below the shoulders' mean (m), poles. */
-export const CADRE = { handsDrop: 0.06, slack: 0.005, slide: 0.2, torso: [0.15, 0.13, 0.09] as Vec3 };
+export const CADRE = {
+  handsDrop: 0.06, slack: 0.005, slide: 0.2, torso: [0.15, 0.13, 0.09] as Vec3,
+  /** #178: where the leader's right hand waits once it has left the follower's back, in his chest frame:
+   * the arm stays in frame, forearm raised, never along his body. In front first, then wider. */
+  openFrame: [[-0.22, -0.06, 0.26], [-0.34, -0.06, 0.16], [-0.42, -0.04, 0.02]] as Vec3[],
+  /** #178: how deep (m) his arm would enter her torso, aimed at her back, for the hand to have fully left it.
+   * Below that depth the hand is on its way: no jump between the back and the open frame. */
+  leave: 0.05,
+  /** #179 (election, `?essai=`): the joined hands carried to the couple's side instead of between the two
+   * chests. `out`: metres outwards from the shoulders' midpoint; `drop`: metres lower than `handsDrop`. */
+  handsSide: { out: 0.2, drop: 0 }, handsLow: { out: 0.14, drop: 0.14 },
+};
 
 const Y_DOWN = new THREE.Vector3(0, -1, 0);
 const v = (a: Vec3) => new THREE.Vector3(...a);
@@ -76,6 +88,13 @@ export function solveFrame(own: ArmRig, partner: ArmRig, follower: boolean) {
   const leaderRig = follower ? partner : own, followerRig = follower ? own : partner;
   const joined = shoulder(leaderRig, "L").add(shoulder(followerRig, "R")).multiplyScalar(0.5);
   joined.y -= CADRE.handsDrop;
+  // #179: candidates of the election, inert without `?essai=`.
+  const carried = essai("mainsCote") ? CADRE.handsSide : essai("mainsBasses") ? CADRE.handsLow : null;
+  if (carried) {
+    const centre = leaderRig.chest.getWorldPosition(new THREE.Vector3()).add(followerRig.chest.getWorldPosition(new THREE.Vector3())).multiplyScalar(0.5);
+    joined.addScaledVector(joined.clone().sub(centre).setY(0).normalize(), carried.out);
+    joined.y -= carried.drop;
+  }
   const down = (rig: ArmRig, s: "L" | "R", out: number, drop: number) =>
     site(rig, [(s === "L" ? 1 : -1) * out, drop, 0]);
   const arms = follower ? {
@@ -104,6 +123,16 @@ export function solveFrame(own: ArmRig, partner: ArmRig, follower: boolean) {
     }
     return false;
   };
+  /** How deep the arm enters the partner's torso box (m; 0 when it stays outside). */
+  const depth = (S: THREE.Vector3, elbow: THREE.Vector3, hand: THREE.Vector3) => {
+    let deep = 0;
+    for (let k = 1; k < 20; k++) for (const p of [S.clone().lerp(elbow, k / 20), elbow.clone().lerp(hand, k / 20)]) {
+      if (p.distanceTo(hand) <= 0.04) continue;
+      const q = partner.chest.worldToLocal(p);
+      deep = Math.max(deep, Math.min(CADRE.torso[0] - Math.abs(q.x), CADRE.torso[1] - Math.abs(q.y), CADRE.torso[2] - Math.abs(q.z)));
+    }
+    return deep;
+  };
   for (const s of ["L", "R"] as const) {
     const S = shoulder(own, s);
     let solved = solveArm(S, arms[s].target, upper, fore, arms[s].pole);
@@ -113,13 +142,30 @@ export function solveFrame(own: ArmRig, partner: ArmRig, follower: boolean) {
       solved = solveArm(S, slid, upper, fore, arms[s].pole);
       arms[s].target = slid;
     }
-    // Still across her torso (she passes beside him): the hand lets go and the arm comes back along the
-    // dancer's own side (the contact is released, the frame opens).
+    // Still across her torso (she passes beside him): the hand lets go (the contact is released, the frame
+    // opens).
     let released = false;
     if (crosses(S, solved.elbow, solved.hand)) {
-      const side = site(own, [(s === "L" ? 1 : -1) * 0.22, -0.42, 0.06]);
-      solved = solveArm(S, side, upper, fore, down(own, s, 0.1, -0.2));
-      arms[s].target = side; released = true;
+      if (!follower && s === "R") {
+        // #178: the leader's right arm is never lowered. It stays in frame, forearm raised, on the first
+        // place that keeps the arm out of her torso. The hand goes there little by little, as the arm
+        // aimed at her back would enter her torso: nothing jumps.
+        const last = arms[s].target, pole = site(own, CADRE_SITES.ribsR);
+        const places = CADRE.openFrame.map(p => {
+          const target = site(own, p), arm = solveArm(S, target, upper, fore, pole);
+          return { target, free: !crosses(S, arm.elbow, arm.hand) };
+        });
+        const place = (places.find(p => p.free) ?? places[0]).target;
+        const t = Math.min(1, depth(S, solved.elbow, solved.hand) / CADRE.leave), gone = t * t * (3 - 2 * t);
+        arms[s].target = last.clone().lerp(place, gone);
+        solved = solveArm(S, arms[s].target, upper, fore, pole);
+      } else {
+        // The other arms come back along the dancer's own side.
+        const side = site(own, [(s === "L" ? 1 : -1) * 0.22, -0.42, 0.06]);
+        solved = solveArm(S, side, upper, fore, down(own, s, 0.1, -0.2));
+        arms[s].target = side;
+      }
+      released = true;
     }
     const { elbow, hand, clamped } = solved;
     orientArm(s === "L" ? own.armUL : own.armUR, s === "L" ? own.armFL : own.armFR, elbow, hand);

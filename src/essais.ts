@@ -7,11 +7,16 @@
  * question tranchée, la variante élue devient le comportement et son interrupteur disparaît.
  *
  * Premier tour (votes du 21 novembre 2026) : `idaMemePied` (#86), `ligneBustes` (#72) et `marcheDeroulee`
- * (#73) ont été retirés ; seul le témoin reste, pour les prochains tours.
+ * (#73) ont été retirés ; le témoin reste, pour les prochains tours.
+ * Tour des mains (#179, 22 novembre 2026) : `mainsCote`, `mainsBasses`.
  */
 export const ESSAIS = {
   /** Témoin : ne change rien. Sert à filmer le comportement actuel image par image hors du mode paire. */
   temoin: "témoin : comportement actuel",
+  /** #179 : les mains jointes tenues sur le côté du couple, à hauteur d'épaule. */
+  mainsCote: "mains jointes sur le côté du couple, à hauteur d'épaule",
+  /** #179 : les mains jointes sur le côté du couple, plus bas et plus près, coudes détendus. */
+  mainsBasses: "mains jointes sur le côté du couple, plus bas",
 } as const;
 export type Essai = keyof typeof ESSAIS;
 

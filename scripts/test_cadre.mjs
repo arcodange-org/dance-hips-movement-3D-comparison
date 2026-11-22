@@ -36,7 +36,7 @@ const cases = [
 ];
 for (const [label, dz, beats, opt] of cases) {
   const pair = [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];
-  let worst = 0, clamped = 0, solved = 0, depth = 0, released = 0;
+  let worst = 0, clamped = 0, solved = 0, depth = 0, released = 0, lowest = Infinity, leaderReleased = 0;
   for (let b = 0; b <= beats; b += .25) {
     pair.forEach((f, i) => api.applyPose(f.r, f.model, b, { ...opt, embrace: true, placement: 'quinconce', follower: !!i, styleKey: 'kizomba', amp: 1, plexus: true }));
     const before = pair.map(f => snapshot(f.r));
@@ -48,6 +48,12 @@ for (const [label, dz, beats, opt] of cases) {
         // The hand sphere is where the solver put it.
         assert(f.r['armF' + s].localToWorld(new THREE.Vector3(...api.ARM_JOINTS.hand)).distanceTo(res[s].hand) < 1e-9, `${label} ${b}: hand placed`);
         if (res[s].released) released++;
+        // #178: the leader's right arm is never lowered, also when his hand has left the follower's back:
+        // the hand stays above his waist (height in his chest frame; along the body it was at -0.42).
+        if (!i && s === 'R') {
+          lowest = Math.min(lowest, f.r.chest.worldToLocal(res[s].hand.clone()).y);
+          if (res[s].released) leaderReleased++;
+        }
         if (res[s].clamped) clamped++; else worst = Math.max(worst, res[s].hand.distanceTo(res[s].target));
         solved++;
         const pts = [];
@@ -68,5 +74,7 @@ for (const [label, dz, beats, opt] of cases) {
   const deep = label.startsWith('sortie') ? .03 : .015;
   assert(depth <= deep, `${label}: forearms along the partner's flank, at most ${deep * 100} cm into the torso box (${depth})`);
   assert(released <= (label.startsWith('sortie') ? .2 : 0) * solved, `${label}: released hands (${released}/${solved})`);
-  console.log(`PASS cadre ${label} : mains sur leurs sites, ${clamped}/${solved} bras bornés, ${released} mains lâchées, au plus ${(depth * 100).toFixed(1)} cm dans le torse du partenaire`);
+  assert(lowest >= -0.15, `${label}: the leader's right hand comes down to ${(lowest * 100).toFixed(1)} cm in his chest frame (#178: never lowered)`);
+  console.log(`PASS cadre ${label} : mains sur leurs sites, ${clamped}/${solved} bras bornés, ${released} mains lâchées, au plus ${(depth * 100).toFixed(1)} cm dans le torse du partenaire ; ` +
+    `main droite du guideur jamais plus bas que ${(lowest * 100).toFixed(0)} cm dans le repère de sa poitrine (épaule à +10 ; ${leaderReleased} fois hors du dos)`);
 }
