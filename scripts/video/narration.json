@@ -79,9 +79,8 @@
         },
         {
           "voix": "geste",
-          "texte": "Pour l'auteur du projet, le double rebond est un transfert doublé du même côté : on amorce le passage vers l'autre pied, puis on revient. Le modèle ne le fait pas encore.",
+          "texte": "Le double rebond est un transfert doublé du même côté : on amorce le passage vers l'autre pied, puis on revient. Le modèle ne le fait pas encore.",
           "faits": [
-            "F320",
             "F321",
             "F336"
           ],
@@ -143,11 +142,12 @@
         },
         {
           "voix": "geste",
-          "texte": "À l'image, le bassin va d'un côté à l'autre, en ligne droite. C'est faux : en kompa il dessine un « 8 », le plus prononcé des six styles pour l'auteur du projet.",
-          "dit": "À l'image, le bassin va d'un côté à l'autre, en ligne droite. C'est faux : en kompa il dessine un huit, le plus prononcé des six styles pour l'auteur du projet.",
+          "texte": "À l'image, le bassin va d'un côté à l'autre, en ligne droite. C'est faux : dansé lentement et collé, le kompa fait dessiner un « 8 » au bassin.",
+          "dit": "À l'image, le bassin va d'un côté à l'autre, en ligne droite. C'est faux : dansé lentement et collé, le kompa fait dessiner un huit au bassin.",
           "faits": [
-            "F322",
-            "F323"
+            "F323",
+            "F326",
+            "F327"
           ],
           "repere": "À refaire : il manque le « 8 »"
         },
