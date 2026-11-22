@@ -39,13 +39,20 @@ assert.equal(api.GUIDE_GINGA.sans, null);
 for (const [a, b] of [['discret', 'marque'], ['marque', 'ample']]) assert.ok(api.GUIDE_GINGA[a].sway < api.GUIDE_GINGA[b].sway && api.GUIDE_GINGA[a].bounce < api.GUIDE_GINGA[b].bounce, `${a} < ${b}`);
 const DEFAULT = api.GUIDE_GINGA_DEFAULT, G = api.GUIDE_GINGA[DEFAULT];
 assert.ok(G && G.sway > 0 && G.bounce > 0, 'the game dances with the ginga by default');
+// #163 (owner, on `marque` seen in the couple: « Trop discret. »): the default is the largest calibrated one.
+assert.equal(DEFAULT, 'ample');
+for (const name of Object.keys(api.GUIDE_GINGA)) if (api.GUIDE_GINGA[name]) assert.ok(api.GUIDE_GINGA[name].sway <= G.sway && api.GUIDE_GINGA[name].bounce <= G.bounce, `${name} is not larger than the default`);
+// The leader's sample of a figure (loads, room and cap it declares for the ginga).
+const F0 = fixture(api), REST = { L: F0.model.legs.L.rest, R: F0.model.legs.R.rest };
+const STANCE = (F0.model.legs.L.hipX - REST.L.x + REST.R.x - F0.model.legs.R.hipX) / 2;
+const figureSample = (kind, t) => api.sampleKind(kind, t, false, { rest: REST, stance: STANCE, placement: 'quinconce', amp: 1 });
+// What a setting becomes in a figure at a beat: held to the figure's cap, less the room it leaves above it.
+const heldTo = (value, cap, room) => (cap === undefined || value <= cap ? value : cap + (value - cap) * room);
 
 // 2. Phase (R13): read on the leader's loads; on a support it is that support's (left 0.5, right 1.5,
 // modulo 2), it never jumps, and a completed transfer moves it on by one beat.
 {
-  const f = fixture(api), rest = { L: f.model.legs.L.rest, R: f.model.legs.R.rest };
-  const stance = (f.model.legs.L.hipX - rest.L.x + rest.R.x - f.model.legs.R.hipX) / 2;
-  const sample = (kind, t) => api.sampleKind(kind, t, false, { rest, stance, placement: 'quinconce', amp: 1 });
+  const sample = figureSample;
   const load = (kind, t) => sample(kind, t).loadR;
   let figures = 0;
   for (const kind of api.GUIDE_FIGURE_KEYS) {
@@ -79,6 +86,28 @@ assert.ok(G && G.sway > 0 && G.bounce > 0, 'the game dances with the ginga by de
   }
   check(after > 0.2, `the chain and the sortie fille differ after the junction (${after})`);
   console.log(`PASS phase du ginga lue sur les transferts d'appui du leader (${figures} figures) : sans saut, sur l'appui après chaque transfert ; la sortie fille enchaînée garde sa phase jusqu'à la jonction (temps ${junction})`);
+}
+
+// 2b. #163: the sorties hold the setting to their cap where the couple is tight (start, end, two spots) and
+// leave room above it in between; the chain keeps the sortie fille's room up to its junction, the bridge
+// is open, then the sortie garçon's room.
+{
+  const room = (kind, t) => figureSample(kind, t).gingaCapRoom;
+  for (const t of [0, 0.25, 3.3125, 5, 6]) assert.deepEqual(room('sortieG', t), { sway: 0, bounce: 0 }, `sortie garçon capped at ${t}`);
+  for (const t of [1, 2, 4]) assert.deepEqual(room('sortieG', t), { sway: 1, bounce: 1 }, `sortie garçon open at ${t}`);
+  for (const t of [0, 1, 5, 6]) assert.deepEqual(room('sortieF', t), { sway: 0, bounce: 0 }, `sortie fille capped at ${t}`);
+  for (const t of [1.75, 3, 4]) assert.deepEqual(room('sortieF', t), { sway: 1, bounce: 1 }, `sortie fille open at ${t}`);
+  assert.deepEqual(room('sortieF', 2.25), { sway: 1, bounce: 0 }, 'sortie fille: no larger bounce at 2.25');
+  const [junction] = figureSample('sortieF', 0).gingaJunctions;
+  for (let t = 0; t <= junction; t += 1 / 16) assert.deepEqual(room('sortieFG', t), room('sortieF', t), `the chain keeps the sortie fille's room at ${t}`);
+  assert.deepEqual(room('sortieFG', junction + 1), { sway: 1, bounce: 1 }, 'the bridge is open');
+  const end = api.GUIDE_FIGURES.sortieFG.end;
+  for (const back of [0, 1, 1.6875, 3]) assert.deepEqual(room('sortieFG', end - back), room('sortieG', 5 - back), `the chain ends as the sortie garçon (${back} before its end)`);
+  for (const kind of ['sortieG', 'sortieF', 'sortieFG']) for (let t = 0; t <= api.GUIDE_FIGURES[kind].beats; t += 1 / 16) {
+    const r = room(kind, t), next = room(kind, t + 1 / 16);
+    assert.ok(Math.abs(next.sway - r.sway) < 0.4 && Math.abs(next.bounce - r.bounce) < 0.4, `${kind}: the room does not jump at ${t}`);
+  }
+  console.log(`PASS marge des sorties au-dessus de leur plafond : fermée au début, à la fin et aux deux instants serrés, ouverte entre les deux, sans saut ; l'enchaînement garde celle de la sortie fille jusqu'à la jonction`);
 }
 
 // 3. What one sees (GLB, default setting): the hips sway in every figure, towards the support, the
@@ -122,12 +151,20 @@ assert.ok(G && G.sway > 0 && G.bounce > 0, 'the game dances with the ginga by de
       const onBeat = Math.abs(beat - Math.round(beat)) < 1e-9;
       // The quarter turn leaves no vertical room while the legs cross (its beat 1): no bounce there.
       const crossing = kind === 'quart' && beat > 0.5 && beat < 1.7;
-      if (!crossing) check(Math.abs(drop[0] - (onBeat ? G.bounce : 0)) < 1e-9, `${styleKey} ${kind}: bounce ${drop[0]} at ${beat}`);
+      // A capped figure (the sorties) holds the bounce to its cap, less the room it leaves at this beat.
+      const figure = kind === 'base' ? null : figureSample(kind, beat);
+      const held = figure ? heldTo(G.bounce, figure.gingaCap?.bounce, figure.gingaCapRoom?.bounce ?? 0) * (figure.gingaRoom?.bounce ?? 1) : G.bounce;
+      if (!crossing) check(Math.abs(drop[0] - (onBeat ? held : 0)) < 1e-9, `${styleKey} ${kind}: bounce ${drop[0]} at ${beat} (${held} expected)`);
       else check(drop[0] > -1e-9 && drop[0] < G.bounce + 1e-9, `${styleKey} ${kind}: bounce ${drop[0]} at ${beat}`);
       if (onBeat) low += drop[0]; else high += drop[0];
       samples++;
     }
   }
+  // #163: in the open part of the sortie garçon the default sways and bounces more than the cap allows.
+  const open = ginga => { const pair = couple(), xs = [[], []]; for (let beat = 0.8; beat <= 2.9; beat += 1 / 16) { pose(pair, 'sortieG', beat, ginga, 'kizomba'); pair.forEach((f, i) => xs[i].push(f.r.pelvis.position.x)); } return xs.map(range); };
+  const capped = open('marque'), wide = open(DEFAULT);
+  check(wide[0] > 1.3 * capped[0] && wide[1] > 1.3 * capped[1], `sortie garçon, open part: sway ${wide} with the default, ${capped} at the cap`);
+  console.log(`PASS sortie garçon, partie ouverte (temps 0,8 à 2,9) : balancement de ${cm(wide[0])} et ${cm(wide[1])} cm avec le réglage par défaut, ${cm(capped[0])} et ${cm(capped[1])} cm au plafond`);
   console.log(`PASS ginga visible (réglage ${DEFAULT}) : balancement du bassin de ${cm(Math.min(...rows.map(r => r[0])))} à ${cm(Math.max(...rows.map(r => r[1])))} cm dans la marche, le quart de tour et les sorties en kizomba et en semba (0 sans le ginga), suiveur plus que leader ; rebond de ${(G.bounce * 1000).toFixed(0)} mm, au plus bas sur le temps, commun aux deux danseurs (${samples} poses, six styles)`);
 }
 
@@ -141,7 +178,11 @@ let poses = 0;
 const amps = process.env.AMP ? process.env.AMP.split(',').map(Number) : [1];
 for (const ginga of settings) for (const kind of KINDS) for (const styleKey of stylesOf(kind)) for (const amp of amps) {
   const pair = couple(), key = `${ginga} ${kind}`;
-  for (let beat = 0; beat <= beatsOf(kind) + 1e-9; beat += ginga === DEFAULT ? .125 : .25) {
+  // #163: three crossings of #157 sat between two samples taken every eighth of a beat, in the sorties. The
+  // default (the largest setting) is now sampled every sixteenth there and in the ida e volta. Not in the
+  // quarter turn: in suave it crosses bones at 0.94 without any ginga (the figure's own defect, #165).
+  const tight = /^sortie|^ida/.test(kind);
+  for (let beat = 0; beat <= beatsOf(kind) + 1e-9; beat += ginga !== DEFAULT ? .25 : tight ? .0625 : .125) {
     pose(pair, kind, beat, ginga, styleKey, amp);
     for (const f of pair) check(minimumBoneY(f.r) >= -.0001, `${key} floor ${styleKey} ${amp} ${beat}`, `${key} floor`);
     const polygons = pair.flatMap(f => ['L', 'R'].map(side => footHull(f.model.legs[side].sole.map(p => p.clone().applyMatrix4(f.r['foot' + side].matrixWorld)))));

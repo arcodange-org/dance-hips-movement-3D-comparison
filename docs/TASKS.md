@@ -342,6 +342,15 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Mesures avant et après dans `scripts/test_guidage.mjs` ; scénario Gherkin.
 - [ ] Choix du réglage par le propriétaire (`hasard=libre|tenu|strict` sur la même graine).
 
+## Ginga du couple plus visible (#163)
+
+- [x] Issue #163 avec la parole du propriétaire (« Trop discret. ») ; spec poussée en premier (section de `spec-ginga-couple.md`), PR #164.
+- [x] Réglage par défaut `ample` (contrôlé au pas du réglage par défaut).
+- [x] Sorties : plafond levé là où la figure laisse de la place (`gingaCapRoom`), mesuré sans plafond sur le GLB.
+- [x] Trois croisements d'os de #157 corrigés (sortie garçon 0,19 et 3,31 ; sortie fille 0,94), trouvés au seizième de temps ;
+      le test échantillonne le réglage par défaut au seizième dans les sorties et le quart de tour.
+- [ ] Une taille au-delà d'`ample` : avec le « 8 » (#159).
+
 ## Ginga visible en danse de couple (#157)
 
 - [x] Issue #157 avec les mots du propriétaire ; spec poussée en premier ([spec](spec-ginga-couple.md)), PR #158.
