@@ -5,6 +5,18 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Haut du corps anatomique : buste, bras et mains (#176, 22 novembre 2026)
+
+- Option `haut=1` (toutes les vues) : les volumes gris du buste, des bras et de la tête laissent la place aux os et
+  aux muscles de BodyParts3D (`public/anatomy_upper.glb` : 16 pièces osseuses, 108 muscles, 18 articulations).
+  Sans l'option, rien ne change ([spec](docs/spec-haut-du-corps.md), `src/upperBody.ts`, `scripts/test_upper_body.mjs`).
+- La paume vient où le rig pose la main, avec un bras aux longueurs anatomiques (28,0 cm et 29,3 cm jusqu'à la paume,
+  contre 26 et 24 pour le rig) ; le radius tourne autour de l'ulna ; port de tête joue contre joue en danse serrée.
+- Demande du propriétaire : ces contributions au buste et aux bras vivent dans ce dépôt ; l'habillage des mascottes
+  Rémi et Corinne vit du côté de ReCoDanse, qui exploite ce dépôt et lit `rig.upperBody`.
+- Restent : doigts raides, omoplates fixes, option pas encore par défaut ; l'écart de longueur des bras du rig est
+  mesuré dans la spec, pas corrigé.
+
 ## Vitrine : danse automatique en musique, lien direct (#150, 21 novembre 2026)
 
 - `?vitrine=1` ouvre le mode jeu en danse automatique, au tempo de la piste enregistrée, muscles
