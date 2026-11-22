@@ -64,8 +64,8 @@ export const ATLAS_ELECTIONS: Record<string, AtlasElection> = {
       { id: "solidaire", lettre: "B", label: "buste solidaire", regle: "pas de contre-rotation : tout le haut du corps tourne avec le bassin" },
       { id: "oppose", lettre: "C", label: "thorax à l'opposé", regle: "la colonne tourne deux fois l'angle : le thorax tourne d'autant dans l'autre sens" },
     ],
-    // Vote du propriétaire, 22 novembre 2026 (D17) : « pour mettre en evidence la rotation du bassin le mieux
-    // c'est A. Pour la logique de la dance en contraposition ce serait C ».
+    // Vote du propriétaire, 22 novembre 2026 (D17) : A pour la planche (elle montre le mieux le bassin),
+    // C pour la danse (contraposition).
     retenue: "thorax-face",
     danse: "oppose",
   },

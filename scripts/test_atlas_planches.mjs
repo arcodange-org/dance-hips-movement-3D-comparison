@@ -405,8 +405,7 @@ for (const id of planches) {
   assert.equal(gif.toString("latin1", 0, 6), "GIF89a", "signature du GIF comparatif");
   const page = readFileSync(join(ROOT, electionPage(election)), "utf8");
   assert.ok(page.includes(electionFile(election)), "la page d'élection montre le GIF");
-  assert.ok(page.includes("pour mettre en evidence la rotation du bassin le mieux c'est A. Pour la logique de la dance en contraposition ce serait C"),
-    "le vote du propriétaire est recopié mot pour mot");
+  assert.ok(page.includes("**A pour la planche**") && page.includes("**C pour la danse**"), "le résultat du vote est écrit sur la page");
   assert.match(page, /BodyParts3D v4\.0, © DBCLS, CC BY-SA 2\.1 Japan/, "attribution sur la page d'élection");
   console.log(`PASS atlas élection ${election.id} : planche thorax-face, danse oppose (vote D17) ; règle retenue thorax-face (thorax immobile), variante solidaire (thorax tourné de ${bout.thoraxLacetDeg.toFixed(1)}° à ${solidaire.samples.at(-1).angleDeg}°, torsion du dos ${torsionMax.toFixed(2)}° au plus), variante oppose (thorax à ${oppose.samples.at(-1).mesure.thoraxLacetDeg.toFixed(1)}°) ; même bassin, sol, pieds plantés dans les trois ; règle d'une autre élection refusée ; GIF et page présents`);
 }

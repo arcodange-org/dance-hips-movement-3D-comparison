@@ -64,8 +64,8 @@ jambes ne bougent pas).
   « 8 » est le chantier #159 (PR #160, sa propre élection) : l'atlas n'en produit pas de planche.
   Le vote B lui a été transmis ; dans l'atlas, « relais » nomme la règle non retenue.
 - **Rotation : vote rendu, A pour la planche, C pour la danse** (D17, R36, 22 novembre 2026 :
-  « pour mettre en evidence la rotation du bassin le mieux c'est A. Pour la logique de la dance en contraposition ce serait C »). Écart non tranché : la `contraposition` du moteur du couple (#51) est plus proche
-  de A. Élection préparée en D16 (accord du 22 novembre 2026 : « Oui »). A thorax
+  A pour la planche, parce qu'elle met le mieux la rotation du bassin en évidence ; C pour la danse, au nom de la contraposition). Écart non tranché : la `contraposition` du moteur du couple (#51) est plus proche
+  de A. Élection préparée en D16 (avec l'accord du propriétaire, 22 novembre 2026). A thorax
   de face (règle de la planche, ma proposition), B buste solidaire ou C thorax à l'opposé (ajoutée à
   sa demande), variantes `?atlas=bassin-rotation&variante=solidaire|oppose`, GIF `docs/gifs/election-rotation-buste.gif`, page
   [`docs/elections/rotation-buste.md`](docs/elections/rotation-buste.md). Mesure `thoraxLacetDeg`

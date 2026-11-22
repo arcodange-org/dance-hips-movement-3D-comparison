@@ -417,7 +417,7 @@ mais pour la danse on veut B ». D15 remplace, dans D14, ce qui décrivait l'ét
 
 ### D16 — Élection : rotation du bassin, thorax de face ou buste solidaire
 
-Le propriétaire a accepté de voir cette question en image (« Oui », 2026-11-22), dans le format
+Le propriétaire a accepté de voir cette question en image (2026-11-22), dans le format
 de l'obliquité (D14, D15). Elle était laissée ouverte par D13 : « La variante « buste solidaire »
 n'est pas versionnée. Le choix revient au propriétaire. »
 
@@ -428,8 +428,7 @@ n'est pas versionnée. Le choix revient au propriétaire. »
     tourne seul sous un buste immobile.
   - **B — buste solidaire.** Pas de contre-rotation : tout le haut du corps tourne avec le bassin,
     sur des pieds plantés. Les hanches (articulation fémorale) absorbent seules la rotation.
-  - **C — thorax à l'opposé**, ajoutée à la demande du propriétaire (2026-11-22 : « propose aussi le
-    thorax qui va à l'opposé »). La colonne tourne de deux fois l'angle : le thorax tourne du même
+  - **C — thorax à l'opposé**, ajoutée à la demande du propriétaire (2026-11-22). La colonne tourne de deux fois l'angle : le thorax tourne du même
     angle que le bassin, en sens inverse (torsion du dos de 30° aux bornes). La taille est un choix ;
     une autre (la moitié, par exemple) se montre sur demande.
 - **Modèle.** `ATLAS_ELECTIONS["bassin-rotation"]`, élection `rotation-buste`, règles `thorax-face`
@@ -472,7 +471,7 @@ n'est pas versionnée. Le choix revient au propriétaire. »
 
 ### D17 — Vote du propriétaire : A pour la planche, C pour la danse
 
-Vote du 22 novembre 2026, mot pour mot : « pour mettre en evidence la rotation du bassin le mieux c'est A. Pour la logique de la dance en contraposition ce serait C ».
+Vote du 22 novembre 2026 : A pour la planche, parce qu'elle met le mieux la rotation du bassin en évidence ; C pour la danse, au nom de la contraposition. Ses mots ne sont pas recopiés : il ne souhaite pas être cité.
 
 - **Planche.** `bassin-rotation` reste posée en A (thorax de face) : `retenue` ne change pas, les
   images non plus.

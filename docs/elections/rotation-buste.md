@@ -6,8 +6,8 @@
 [Issue #132](https://github.com/arcodange-org/dance-hips-movement-3D-comparison/issues/132)
 
 Même format que l'élection de l'obliquité : les règles côte à côte dans un seul GIF, même caméra,
-même angle de bassin. Préparée avec l'accord du propriétaire (« Oui », 22 novembre 2026). La règle C
-a été ajoutée à sa demande, le même jour : « propose aussi le thorax qui va à l'opposé ».
+même angle de bassin. Préparée avec l'accord du propriétaire, le 22 novembre 2026. La règle C,
+le thorax qui tourne à l'opposé du bassin, a été ajoutée à sa demande le même jour.
 
 **Vote rendu : A pour la planche, C pour la danse** (voir [Résultat](#résultat)).
 
@@ -85,9 +85,8 @@ propriétaire.
 
 ## Résultat
 
-Vote du propriétaire, le 22 novembre 2026, mot pour mot :
-
-> pour mettre en evidence la rotation du bassin le mieux c'est A. Pour la logique de la dance en contraposition ce serait C
+Vote du propriétaire, le 22 novembre 2026 : **A pour la planche**, parce qu'elle met le mieux la
+rotation du bassin en évidence ; **C pour la danse**, au nom de la contraposition.
 
 Ce que cela entraîne ([spec, D17](../spec-atlas-anatomique.md)) :
 
