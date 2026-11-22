@@ -152,11 +152,26 @@ et les specs. Résumé de la journée du 21 :
   suit les transferts d'appui du leader (`gingaPhase`, moyennée sur un quart de temps), une part du déhanché
   latéral va au bassin, et un rebond d'une pulsation par temps s'ajoute. Les figures déclarent où il s'efface
   (`gingaRoom`, `gingaCap` : sortie fille, sorties, allers-retours). Réglages `GUIDE_GINGA`
-  (`ginga=sans|discret|marque|ample`, `marque` par défaut ; [aperçu](docs/elections/ginga-couple.md)).
+  (`ginga=sans|discret|marque|ample` ; [aperçu](docs/elections/ginga-couple.md)). **#163** : le propriétaire a jugé
+  `marque` « trop discret » : `ample` est le réglage par défaut, et les sorties lèvent leur plafond là où elles ont de la
+  place (`gingaCapRoom`). Trois croisements d'os de #157, entre deux échantillons du test, sont corrigés ; le test
+  échantillonne maintenant le réglage par défaut au seizième de temps dans les sorties et le quart de tour.
   Calibré à l'amplitude 1, celle du mode jeu. Une figure modifiée à une jonction garde son passé, ginga compris
   (`gingaJunctions`) ([spec](docs/spec-ginga-couple.md)). **Ne fait pas encore le « 8 »** demandé par le propriétaire
   (chemin du bassin lié au relais des genoux, « le 8 se lit dans les deux plans ») : chantier #159, où la taille se
   choisira avec la forme.
+- **#167, transfert de poids continu** (R34, la règle mise en premier le 22 nov. : ni saccade, ni téléportation, ni relais
+  soudain entre la gauche et la droite) : [spec](docs/spec-transfert-continu.md).
+  Mesuré dans des séances du jeu : les à-coups du bassin viennent des figures, avec ou sans ginga (suiveuse, sortie
+  garçon : 12,9 cm vers le haut en un huitième de temps ; quart de tour : 13 à 14 cm à l'horizontale ; marche : 7,5 cm),
+  et le ginga par défaut passe d'un côté à l'autre 2,0 fois plus brusquement qu'un balancier. Étape 1 faite :
+  `scripts/test_saccades.mjs` enregistre cet état (`scripts/fixtures/saccades.json`) et échoue si une figure fait pire.
+  Marche fluide : le bassin voyage pendant tout le pas au lieu de suivre le poids dans le dernier cinquième du temps
+  (7,5 → 2,7 cm en un huitième de temps) ; ida e volta fluide : le bassin sort sur tout le pas et revient en une
+  demi-temps (`IDA_PAIR.pelvisBack`, 8 → 3,5 à 4,2 cm) ; passage d'un côté à l'autre progressif : la phase du ginga est
+  moyennée sur une demi-temps de chaque côté et se poursuit d'une figure à la suivante (`gingaFrom` ; 2,05 → 0,98 fois un
+  balancier). Restent : la hauteur du bassin, son trajet dans le quart de tour et les sorties. Croisements d'os déjà présents
+  aux frontières : #171. Posture (R33) : #166.
 - PR brouillon en relecture du propriétaire : #117 (ontologie), #76 (audit).
 - Pièges : `npm test` complet dure 25 min ou plus en local. Lancer ses scripts en parallèle, un journal
   par script, le ramène à une dizaine de minutes ; `test_placements` et `test_plexus` rejouent d'autres

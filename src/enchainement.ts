@@ -93,5 +93,6 @@ export function sampleSortieFG(beat: number, follower: boolean, rest: Record<Fig
   return { beat: b, feet, root, loadR, loadL: 1 - loadR, chestYaw: mix(from.chestYaw, to.chestYaw, turn),
     coupling: mix(from.coupling, to.coupling, turn),
     rotationCap: mix(0.12, w.rotationCap, hold), sway: mix(1, w.sway, hold), kneeCap: mix(0.45, w.kneeCap, hold),
-    gingaCap: SORTIE_GINGA_CAP, chain: "pont" as const };
+    // #163: no crossing measured on the bridge with the cap ignored: it joins the two sorties' open rooms.
+    gingaCap: SORTIE_GINGA_CAP, gingaCapRoom: { sway: 1, bounce: 1 }, chain: "pont" as const };
 }

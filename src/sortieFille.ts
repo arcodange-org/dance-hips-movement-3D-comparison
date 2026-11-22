@@ -1,5 +1,5 @@
 import { HIP_WIDTH } from "./anatomy";
-import { SORTIE_GINGA_CAP, type FigureFoot, type FigureFootPose, type FootPoint } from "./sortieGarcon";
+import { SORTIE_GINGA_CAP, gingaWindow, type FigureFoot, type FigureFootPose, type FootPoint } from "./sortieGarcon";
 import { gaitStep } from "./gait";
 import { placementOffset, startCoupling, endCoupling, type CouplePlacement, type PlacementOffset } from "./placement";
 
@@ -108,7 +108,15 @@ interface Action {
 /** Beat (position 3) where the sortie fille may be chained into the sortie garçon (#90): the figure and
  * its chained form are the same up to it, the ginga included (`gingaJunctions`). */
 export const SORTIE_FILLE_JUNCTION = 3;
-export const SORTIE_FILLE_GINGA = { bounceFrom: 0.35, swayOff: [1.05, 1.45], ramp: 0.3 };
+export const SORTIE_FILLE_GINGA = { bounceFrom: 0.35, swayOff: [0.95, 1.45], ramp: 0.3,
+  // #163: found at a sixteenth of a beat (the checks of #157 sampled every eighth): at 0.94 the leader's
+  // right femur meets the follower's left kneecap with the bounce of `marque` (semba), not with 5 mm. The
+  // bounce keeps `keep` of itself over `window` (down, held, up); the sway is off from 0.95.
+  bounceDip: { window: [0.7, 0.85, 1.05, 1.2], keep: 0.4 },
+  // #163: room above the sorties' cap (beats), measured with the cap ignored and the `ample` setting: the
+  // leg bones cross up to 1.0 and from 4.81 on; the larger bounce also once around 2.25.
+  capSway: { from: [1.2, 1.55], until: [4.2, 4.6] },
+  capBounce: { from: [1.2, 1.55], notch: [1.87, 2.12, 2.38, 2.63], until: [4.2, 4.6] } };
 
 export function sampleSortieFille(beat: number, follower: boolean,
   rest: Record<FigureFoot, FootPoint>, variant: SortieFilleVariant = "hook",
@@ -280,9 +288,11 @@ export function sampleSortieFille(beat: number, follower: boolean,
   // measured on the GLB: the bounce over its first third of a beat (the knees meet as the leader's G leaves),
   // the hip sway around its beat 1.25 (the leader's right thigh against the follower's left leg, in semba).
   const G = SORTIE_FILLE_GINGA;
-  const gingaRoom = { bounce: smooth((b - G.bounceFrom) / G.ramp),
+  const D = G.bounceDip.window, dip = smooth((b - D[0]) / (D[1] - D[0])) * (1 - smooth((b - D[2]) / (D[3] - D[2])));
+  const gingaRoom = { bounce: smooth((b - G.bounceFrom) / G.ramp) * (1 - (1 - G.bounceDip.keep) * dip),
     sway: 1 - smooth((b - (G.swayOff[0] - G.ramp)) / G.ramp) * (1 - smooth((b - G.swayOff[1]) / G.ramp)) };
-  const sample = { beat: b, feet, root, loadR, chestYaw, coupling: Math.max(startCoupling(b, o), endCoupling(b, o)), gingaRoom, gingaCap: SORTIE_GINGA_CAP, gingaJunctions: [SORTIE_FILLE_JUNCTION] };
+  const sample = { beat: b, feet, root, loadR, chestYaw, coupling: Math.max(startCoupling(b, o), endCoupling(b, o)), gingaRoom, gingaCap: SORTIE_GINGA_CAP,
+    gingaCapRoom: { sway: gingaWindow(b, G.capSway), bounce: gingaWindow(b, G.capBounce) }, gingaJunctions: [SORTIE_FILLE_JUNCTION] };
   if (!comma) return sample;
   // #127: the pelvis opens with the virgula (over the end of its flight) and squares up during the hook;
   // the chest keeps its own direction (contraposition); the G knee points out between the pelvis and the

@@ -122,7 +122,8 @@ export const GUIDE_AUTO = {
  * pour montrer que les danseurs se balancent au rythme de la musique », docs/spec-ginga-couple.md): the
  * ginga of the couple dance. `sway`: share of the style's lateral hip shift, in every figure, on the
  * support transfers; `bounce` (m): vertical pulse, lowest on each beat. Calibrated on the GLB; the
- * setting is the owner's to elect (`?ginga=sans|discret|marque|ample`). */
+ * setting is the owner's to elect (`?ginga=sans|discret|marque|ample`). #163 (owner, on `marque` seen in
+ * the couple: « Trop discret. »): the default is the largest calibrated setting. */
 export type GuideGinga = "sans" | "discret" | "marque" | "ample";
 export const GUIDE_GINGA: Record<GuideGinga, { sway: number; bounce: number } | null> = {
   sans: null,
@@ -130,7 +131,7 @@ export const GUIDE_GINGA: Record<GuideGinga, { sway: number; bounce: number } | 
   marque: { sway: 0.3, bounce: 0.009 },
   ample: { sway: 0.45, bounce: 0.014 },
 };
-export const GUIDE_GINGA_DEFAULT: GuideGinga = "marque";
+export const GUIDE_GINGA_DEFAULT: GuideGinga = "ample";
 
 /** A command: the figure asked for, dated on the beat clock. #144: `virgula` (a key held with the ida's)
  * asks for the touch as a virgula, where the step offers it. */
@@ -516,9 +517,12 @@ export function movementOf(kind: GuideKind): MovementKey {
 
 /** Pose options of one dancer for a guide sample (shared by the view and the GLB tests): the pair
  * figure models, plexus contact, and the inertialized pelvis offsets of both dancers. */
-export function guidePoseOptions(s: Pick<GuideSample, "movement" | "rootOffset"> & { kind?: GuideKind; touches?: Touch[]; ginga?: GuideGinga }, follower: boolean) {
+export function guidePoseOptions(s: Pick<GuideSample, "movement" | "rootOffset"> & { kind?: GuideKind; touches?: Touch[]; ginga?: GuideGinga; previous?: GuideKind | null }, follower: boolean) {
   const role = follower ? "follower" : "leader", partner = follower ? "leader" : "follower";
+  // #167: the figure danced just before, for the ginga's phase to continue from it.
+  const before = s.previous && s.previous !== "base" ? GUIDE_FIGURES[s.previous] : null;
   return {
+    gingaFrom: before && { movement: before.movement, ...figureOptions(s.previous!), quartsPaire: before.movement === "quarts", idaPaire: before.movement === "ida", placePaire: false, beats: before.beats },
     movement: s.movement, embrace: true, follower, ...figureOptions(s.kind ?? "base"), touches: s.touches ?? [],
     ginga: GUIDE_GINGA[s.ginga ?? GUIDE_GINGA_DEFAULT],
     quartsPaire: s.movement === "quarts", idaPaire: s.movement === "ida", placePaire: s.movement === "none", plexus: true,

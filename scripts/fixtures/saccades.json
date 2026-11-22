@@ -1,0 +1,256 @@
+{
+  "figures": {
+    "base": {
+      "leader": {
+        "vertical": {
+          "cm": 0.4,
+          "temps": 1.63
+        },
+        "horizontal": {
+          "cm": 1.2,
+          "temps": -0.06
+        }
+      },
+      "suiveur": {
+        "vertical": {
+          "cm": 0.5,
+          "temps": -0.37
+        },
+        "horizontal": {
+          "cm": 1.2,
+          "temps": -0.06
+        }
+      }
+    },
+    "ida": {
+      "leader": {
+        "vertical": {
+          "cm": 1,
+          "temps": 5.19
+        },
+        "horizontal": {
+          "cm": 3.5,
+          "temps": 7.06
+        }
+      },
+      "suiveur": {
+        "vertical": {
+          "cm": 1.2,
+          "temps": 3.19
+        },
+        "horizontal": {
+          "cm": 4.2,
+          "temps": 5.06
+        }
+      }
+    },
+    "idaD": {
+      "leader": {
+        "vertical": {
+          "cm": 1,
+          "temps": 1.19
+        },
+        "horizontal": {
+          "cm": 3.5,
+          "temps": 3.06
+        }
+      },
+      "suiveur": {
+        "vertical": {
+          "cm": 1.2,
+          "temps": 7.19
+        },
+        "horizontal": {
+          "cm": 4.2,
+          "temps": 1.06
+        }
+      }
+    },
+    "idaArr": {
+      "leader": {
+        "vertical": {
+          "cm": 1,
+          "temps": 3.19
+        },
+        "horizontal": {
+          "cm": 3.5,
+          "temps": 5.06
+        }
+      },
+      "suiveur": {
+        "vertical": {
+          "cm": 1.2,
+          "temps": 1.19
+        },
+        "horizontal": {
+          "cm": 4.2,
+          "temps": 3.06
+        }
+      }
+    },
+    "idaArrD": {
+      "leader": {
+        "vertical": {
+          "cm": 1,
+          "temps": 7.19
+        },
+        "horizontal": {
+          "cm": 3.5,
+          "temps": 1.06
+        }
+      },
+      "suiveur": {
+        "vertical": {
+          "cm": 1.2,
+          "temps": 5.19
+        },
+        "horizontal": {
+          "cm": 4.2,
+          "temps": 3.06
+        }
+      }
+    },
+    "quart": {
+      "leader": {
+        "vertical": {
+          "cm": 2.7,
+          "temps": 1.72
+        },
+        "horizontal": {
+          "cm": 13.4,
+          "temps": 0.75
+        }
+      },
+      "suiveur": {
+        "vertical": {
+          "cm": 3.3,
+          "temps": 0.81
+        },
+        "horizontal": {
+          "cm": 13.1,
+          "temps": 0.75
+        }
+      }
+    },
+    "sortieG": {
+      "leader": {
+        "vertical": {
+          "cm": 3.9,
+          "temps": 0.5
+        },
+        "horizontal": {
+          "cm": 5.4,
+          "temps": 2.53
+        }
+      },
+      "suiveur": {
+        "vertical": {
+          "cm": 12.9,
+          "temps": 3.25
+        },
+        "horizontal": {
+          "cm": 10.5,
+          "temps": 2.53
+        }
+      }
+    },
+    "sortieF": {
+      "leader": {
+        "vertical": {
+          "cm": 1.6,
+          "temps": 2.63
+        },
+        "horizontal": {
+          "cm": 7.6,
+          "temps": 3.41
+        }
+      },
+      "suiveur": {
+        "vertical": {
+          "cm": 10.5,
+          "temps": 1.31
+        },
+        "horizontal": {
+          "cm": 8.5,
+          "temps": 1.47
+        }
+      }
+    },
+    "avance": {
+      "leader": {
+        "vertical": {
+          "cm": 0.6,
+          "temps": 0.19
+        },
+        "horizontal": {
+          "cm": 2.6,
+          "temps": 0.44
+        }
+      },
+      "suiveur": {
+        "vertical": {
+          "cm": 1,
+          "temps": 1.06
+        },
+        "horizontal": {
+          "cm": 2.6,
+          "temps": 0.41
+        }
+      }
+    },
+    "recule": {
+      "leader": {
+        "vertical": {
+          "cm": 2,
+          "temps": 1.09
+        },
+        "horizontal": {
+          "cm": 3,
+          "temps": 0.5
+        }
+      },
+      "suiveur": {
+        "vertical": {
+          "cm": 0.7,
+          "temps": 2.66
+        },
+        "horizontal": {
+          "cm": 3.1,
+          "temps": 0.5
+        }
+      }
+    },
+    "double": {
+      "leader": {
+        "vertical": {
+          "cm": 0.6,
+          "temps": 0.13
+        },
+        "horizontal": {
+          "cm": 5.6,
+          "temps": 0.22
+        }
+      },
+      "suiveur": {
+        "vertical": {
+          "cm": 0.9,
+          "temps": 0.47
+        },
+        "horizontal": {
+          "cm": 5.7,
+          "temps": 0.22
+        }
+      }
+    }
+  },
+  "soudain": {
+    "leader": {
+      "largeur": 4.4,
+      "soudain": 0.98
+    },
+    "suiveur": {
+      "largeur": 6.3,
+      "soudain": 0.98
+    }
+  }
+}

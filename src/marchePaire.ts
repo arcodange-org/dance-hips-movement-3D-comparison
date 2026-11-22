@@ -26,7 +26,10 @@ export const MARCHE_BEATS = 2;
  * - double: two half-beat steps (`doubleLeave`, `doubleLand` within each half beat), then the marka
  *   (`markaFrom` → `markaTo`, touch `markaTap` m in the walking direction — 0, in place: forward, his
  *   thigh meets hers —, lifted `markaLift`);
- * - `carry`: share of the weighted foot's position the pelvis follows (the rest follows the feet's mean). */
+ * - `carry`: share of the weighted foot's position the pelvis follows (the rest follows the feet's mean):
+ *   it gives the pelvis's place on each beat. #167: between two beats the pelvis travels through the whole
+ *   step, from the moment the leader's foot leaves to the beat where the weight arrives (the weight itself
+ *   moves in the last fifth of the beat: following it, the pelvis did half its way in an eighth of a beat). */
 export const MARCHE_PAIR = {
   step: IDA_PAIR.step, leave: 0.1, land: 0.8, delay: 0.15, lag: 0.03, backFlight: IDA_PAIR_SYNC.backFlight * 0.8,
   doubleLeave: 0.05, doubleLand: 0.4, markaFrom: 1.1, markaTo: 1.9, markaTap: 0, markaLift: 0.022,
@@ -73,6 +76,9 @@ export function sampleMarchePaire(beat: number, follower: boolean, rest: Record<
   const moved: Record<FigureFoot, number> = { L: 0, R: 0 };
   let loadFirst = 0; // share of the weight on the first foot (it starts on the second one)
   let action = 0;
+  // #167: the pelvis's way through each step (0 → 1), on the leader's clock for both dancers: the couple
+  // travels as one block.
+  const through = order.map((_, index) => { const w = stepWindow(kind, index, false); return smooth((b - w.leave) / (w.weightEnd - w.leave)); });
   order.forEach((side, index) => {
     const w = stepWindow(kind, index, follower);
     const raw = Math.max(0, Math.min(1, (b - w.leave) / (w.land - w.leave)));
@@ -97,10 +103,11 @@ export function sampleMarchePaire(beat: number, follower: boolean, rest: Record<
     action = 2;
   }
   const loadR = first === "R" ? loadFirst : 1 - loadFirst;
-  // The pelvis travels with the weight and the feet: one step forward (or back) at the end.
-  const weighted = moved[first] * loadFirst + moved[second] * (1 - loadFirst);
-  const mean = (moved.L + moved.R) / 2;
-  const root = { x: neutral.root.x, z: neutral.root.z + m.carry * weighted + (1 - m.carry) * mean };
+  // The pelvis travels with the weight and the feet: one step forward (or back) at the end. On each beat
+  // it is where the weight and the feet put it (`carry`): after the first step, over the weighted foot for
+  // `carry` and over the feet's mean for the rest; after the second, one step further.
+  const reach = dir * m.step, afterFirst = m.carry * reach + (1 - m.carry) * reach / 2;
+  const root = { x: neutral.root.x, z: neutral.root.z + afterFirst * through[0] + (reach - afterFirst) * through[1] };
   const moving: FigureFoot = order[Math.min(1, action)];
   return { beat: b, action, moving, feet, root, rootYaw: 0, chestYaw: 0,
     loadR, loadL: 1 - loadR, support: (loadR >= 0.5 ? "R" : "L") as FigureFoot, transfer: null,

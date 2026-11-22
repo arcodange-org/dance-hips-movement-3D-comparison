@@ -379,6 +379,27 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Mesures avant et après dans `scripts/test_guidage.mjs` ; scénario Gherkin.
 - [ ] Choix du réglage par le propriétaire (`hasard=libre|tenu|strict` sur la même graine).
 
+## Transfert de poids continu : ni saccade, ni relais soudain (#167)
+
+- [x] Issue #167 avec la règle (22 novembre) et les mesures ; [spec](spec-transfert-continu.md)
+      poussée en premier ; règle R34.
+- [x] Étape 1 : `scripts/test_saccades.mjs` dans `npm test`, état d'aujourd'hui enregistré (`scripts/fixtures/saccades.json`).
+- [ ] Étape 2 : hauteur du bassin étalée dans le temps (sorties : 12,9 et 10,5 cm en un huitième de temps).
+- [x] Étape 3, marche (avancer, reculer, double) : le bassin voyage pendant tout le pas (7,5 → 2,7 cm en un huitième de temps).
+- [x] Étape 3, ida e volta et allers-retours insérés : le bassin sort sur tout le pas et revient en une demi-temps (8 → 3,5 à 4,2 cm).
+- [ ] Étape 3, suite : quart de tour, sorties.
+- [x] Étape 4 : passage latéral du ginga calibré aussi progressif qu'un balancier (2,05 → 0,98), poursuivi d'une figure à la
+      suivante (`gingaFrom`), sauf après le pas de base et l'ida e volta.
+
+## Ginga du couple plus visible (#163)
+
+- [x] Issue #163 avec la parole du propriétaire (« Trop discret. ») ; spec poussée en premier (section de `spec-ginga-couple.md`), PR #164.
+- [x] Réglage par défaut `ample` (contrôlé au pas du réglage par défaut).
+- [x] Sorties : plafond levé là où la figure laisse de la place (`gingaCapRoom`), mesuré sans plafond sur le GLB.
+- [x] Trois croisements d'os de #157 corrigés (sortie garçon 0,19 et 3,31 ; sortie fille 0,94), trouvés au seizième de temps ;
+      le test échantillonne le réglage par défaut au seizième dans les sorties et le quart de tour.
+- [ ] Une taille au-delà d'`ample` : avec le « 8 » (#159).
+
 ## Ginga visible en danse de couple (#157)
 
 - [x] Issue #157 avec les mots du propriétaire ; spec poussée en premier ([spec](spec-ginga-couple.md)), PR #158.
