@@ -43,6 +43,12 @@ amples, changements de direction nets. Déhanché de marche amplifié (inclinais
 appui), aucune isolation. Tempo ≈ 130 bpm (vs ≈ 90 pour la kizomba).
 
 ### Kompa (konpa haïtien)
+
+> **Description à refaire.** Le propriétaire, le 22 novembre 2026 : « Le konpa est complètement faux
+> actuellement: c'est le 8 le plus prononcé justement. » Ce paragraphe, qui vient de la spec d'origine, décrit
+> un balancier de côté, et le modèle l'applique. Ce que les sources disent du pas et du bassin est dans
+> [la recherche sur la danse kompa](recherche-danse/kompa.md) (#161) ; le mouvement se refera avec le « 8 » (#159).
+
 Translation latérale pure du bassin en balancier + inclinaison (pelvic drop) côté appui. Pattern
 « pas, rassembler, pas, pause » avec pause marquée sur le temps 4 et micro-balancement (hip
 check). Genoux fléchis en continu (≈ 0,28 rad), niveau bas constant. Pieds glissés plein appui,
@@ -109,6 +115,7 @@ l'avant-pied » vient de la **spec biomécanique du handoff**, pas d'une source 
 ### Kompa (Haïti)
 Balancier latéral **sur place**, un transfert de poids par temps
 ([Haitian Music Zone](https://haitianmusiczone.com)), hip check / pause marquée sur le temps 4.
+**À refaire** : voir l'encadré plus haut et [la recherche sur la danse kompa](recherche-danse/kompa.md) (#161).
 
 ### Tarraxinha
 **Sur place**, isolations pelviennes (contact bassin à bassin)

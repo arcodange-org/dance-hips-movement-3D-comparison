@@ -55,7 +55,8 @@ export function controlerNarration(narration, faits, durees = {}) {
       if (p.repere && p.repere.length > LIMITES.repere) erreurs.push(`${ou} : repère de ${p.repere.length} caractères (au plus ${LIMITES.repere})`);
       if (p.accent && (c.type !== "comparaison" || p.accent.some(s => !STYLES[s]))) erreurs.push(`${ou} : accent invalide`);
       if (p.voile !== undefined && (p.voile !== false || !p.accent?.length)) erreurs.push(`${ou} : « voile » ne vaut que false, avec « accent »`);
-      if (p.plan && (c.type !== "comparaison" || p.plan !== "grille" || i === 0)) erreurs.push(`${ou} : « plan » ne vaut que "grille", dans la comparaison, après la première phrase`);
+      const planPermis = (c.type === "comparaison" && p.plan === "grille") || (c.type === "final" && p.plan === "hanches");
+      if (p.plan && (!planPermis || i === 0)) erreurs.push(`${ou} : « plan » ne vaut que "grille" dans la comparaison ou "hanches" dans le final, après la première phrase`);
       if (p.point && p.point.length > LIMITES.point) erreurs.push(`${ou} : point de ${p.point.length} caractères (au plus ${LIMITES.point})`);
       if (/\d/.test(p.dit ?? p.texte ?? "") && !p.dit) avertissements.push(`${ou} : chiffres dans le texte dit (écrire « dit » en toutes lettres)`);
     });

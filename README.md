@@ -298,6 +298,8 @@ Les cellules historiques G/F décrivent les anciennes trajectoires. Les figures 
 - [Recherche biomécanique](docs/recherche-biomecanique/README.md) : podologie, biomécanique,
   kinésithérapie et ostéopathie (sources FR/EN), puis confrontation des paramètres du modèle
   à la littérature, avec verdicts et points à valider.
+- [Recherche sur la danse](docs/recherche-danse/README.md) : ce que les sources disent du pas et du
+  bassin, style par style, quand le dépôt en savait trop peu ; d'abord le kompa et son « 8 » (#161).
 - [Recherche jeux vidéo](docs/recherche-jeux-video/README.md) : ce que le comparateur peut
   emprunter aux jeux de sport (motion matching, EA, inertialisation, jeux de rythme) et concept
   d'un mode « guider sa partenaire » (#63).

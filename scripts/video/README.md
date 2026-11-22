@@ -68,7 +68,7 @@ Une phrase :
   "repere": "…",                // optionnel : mot-clé affiché pendant la phrase (44 caractères au plus)
   "accent": ["semba", "kompa"], // comparaison seulement : les styles dont on parle restent éclairés
   "voile": false,               // avec "accent" : cadres seuls, les autres styles restent éclairés (on compare les six)
-  "plan": "grille",             // comparaison seulement : la grille des bassins commence sur cette phrase
+  "plan": "grille",             // comparaison : la grille des bassins commence sur cette phrase ; final : "hanches", gros plan
   "point": "…",                 // limites seulement : la ligne ajoutée à la liste à l'écran (90 caractères au plus)
   "pause": 0.6                  // optionnel : silence avant la phrase, en secondes
 }
@@ -83,16 +83,18 @@ Une phrase :
 - **La comparaison** montre une rangée de six corps entiers au même tempo, puis, à partir de la phrase
   marquée `"plan": "grille"`, six bassins de près avec leurs six trajets à la même échelle. `"titre"` du
   chapitre s'affiche avant la première phrase (de même pour le final).
-- **Le final** montre le couple en danse automatique, puis le générique. La caméra suit l'orientation du
-  couple et va lentement du trois quarts au profil puis à l'autre trois quarts : de profil, l'un ne cache pas
-  l'autre ; de trois quarts, le balancement des hanches se lit.
+- **Le final** montre le couple en danse automatique, puis le générique. Le couple est d'abord en pied ; sur
+  la phrase marquée `"plan": "hanches"`, la caméra s'approche des deux bassins, de trois quarts, puis recule
+  avant le générique. Ensuite elle va lentement du trois quarts au profil puis à l'autre trois quarts : de
+  profil, l'un ne cache pas l'autre ; de trois quarts, le balancement des hanches se lit. Le ginga du couple
+  y est au réglage « ample » (`FINAL_GINGA`).
 - **Les sous-titres** sont découpés en cartons de deux lignes au plus, aux fins de phrase : une phrase de
   `texte` peut donc tenir en deux ou trois cartons, sans rien changer à la voix.
 - **La voix lit mal** les sigles et les chiffres : écrire « dit » en toutes lettres (« cent vingt battements
   par minute »). `scenario.mjs` remplace déjà semba, tarraxinha, ginga par leur écriture phonétique.
 - **Durée** : la voix `guide` dit environ 15 caractères par seconde, les deux autres 19. Un chapitre de style
-  vise 24 à 36 secondes, le film 4 min 30 à 5 min 45 (le générique, qui cite les 143 sources, dure
-  environ une minute). `controle.mjs` donne l'estimation.
+  vise 24 à 40 secondes, le film 4 min 30 à 6 min 30 (le générique, qui cite les 157 sources, dure
+  un peu plus d'une minute). `controle.mjs` donne l'estimation.
 - **Le générique** : `blocs` porte les attributions (BodyParts3D CC BY-SA 2.1 Japan © DBCLS ; « Voice: Phonon
   by Gradium — gradium.ai », CC BY-NC 4.0 ; musique Eleven Music, ElevenLabs), les outils et les modèles
   d'IA. **Les sources ne s'y écrivent pas** : elles sont ajoutées automatiquement depuis la section 7 de la

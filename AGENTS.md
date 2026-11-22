@@ -58,6 +58,8 @@ Explications des transitions (leader engagé, suiveur reçu, contacts) : [spec](
 (`src/transitions.ts` pur, `src/components/TransitionCard.tsx`, `scripts/test_transitions.mjs`).
 
 Règles de mouvement du propriétaire, consolidées et vérifiables : [`docs/regles-proprietaire.md`](docs/regles-proprietaire.md).
+Recherche sur la danse, style par style (pas et bassin selon les sources, paroles du propriétaire, trajets du
+bassin mesurés) : [`docs/recherche-danse/`](docs/recherche-danse/README.md) ; le kompa du modèle est à refaire (#161).
 
 **Lire ce fichier en premier dans toute session.** Le harness complet pour travailler sur ce projet
 en autonomie (méthode anti-amnésie, conventions, contribution agentique) est dans **[`.vibe/`](.vibe/)**

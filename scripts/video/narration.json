@@ -78,6 +78,16 @@
           ]
         },
         {
+          "voix": "geste",
+          "texte": "Pour l'auteur du projet, le second rebond se danse comme un cha-cha : un petit rond rapide du « 8 », avant de reprendre le grand. Le modèle ne le fait pas encore.",
+          "dit": "Pour l'auteur du projet, le second rebond se danse comme un tcha-tcha : un petit rond rapide du huit, avant de reprendre le grand. Le modèle ne le fait pas encore.",
+          "faits": [
+            "F320",
+            "F321"
+          ],
+          "repere": "Second rebond : comme un cha-cha"
+        },
+        {
           "voix": "histoire",
           "texte": "Parmi ses racines, la massemba, une danse de couple. Avant l'indépendance, le semba est une musique de revendication.",
           "dit": "Parmi ses racines, la massém-ba, une danse de couple. Avant l'indépendance, le semba est une musique de revendication.",
@@ -133,27 +143,34 @@
         },
         {
           "voix": "geste",
-          "texte": "À l'image, le bassin passe d'un côté à l'autre et s'y tient, plus loin que dans les autres styles.",
-          "repere": "Le plus loin de côté",
+          "texte": "À l'image, le bassin va d'un côté à l'autre, en ligne droite. C'est faux : en kompa il dessine un « 8 », le plus prononcé des six styles pour l'auteur du projet.",
+          "dit": "À l'image, le bassin va d'un côté à l'autre, en ligne droite. C'est faux : en kompa il dessine un huit, le plus prononcé des six styles pour l'auteur du projet.",
           "faits": [
-            "F120",
-            "F121",
-            "F130",
-            "F250"
-          ]
+            "F322",
+            "F323"
+          ],
+          "repere": "À refaire : il manque le « 8 »"
         },
         {
           "voix": "geste",
-          "texte": "Le poids reste deux temps sur chaque pied, genoux fléchis, bassin bas. Selon une source anonyme, l'autre pied touche alors le sol sans poids : non montré ici.",
-          "repere": "Deux temps par pied",
+          "texte": "Ses professeurs décrivent une marche en rythme : un appui par temps, le bassin relâché juste avant. Le modèle, lui, tient deux temps par pied : c'est le rythme ralenti.",
           "faits": [
-            "F116",
             "F120",
-            "F122",
-            "F130",
-            "F251",
-            "F289"
-          ]
+            "F324",
+            "F325",
+            "F331"
+          ],
+          "repere": "Une marche en rythme"
+        },
+        {
+          "voix": "geste",
+          "texte": "Au ralenti, selon un manuel de professeurs, le bassin trace un demi-« 8 » sur chaque appui. Et, selon une école, ce sont les genoux qui balancent les hanches, pieds au sol.",
+          "dit": "Au ralenti, selon un manuel de professeurs, le bassin trace un demi-huit sur chaque appui. Et, selon une école, ce sont les genoux qui balancent les hanches, pieds au sol.",
+          "faits": [
+            "F326",
+            "F328"
+          ],
+          "repere": "Au ralenti : un demi-« 8 » par appui"
         }
       ]
     },
@@ -432,7 +449,7 @@
         },
         {
           "voix": "guide",
-          "texte": "La kizomba et le kompa, à peine. Le semba et le suave, pas du tout.",
+          "texte": "La kizomba, à peine. Le semba et le suave, pas du tout. Le kompa presque pas, à tort : son bassin devrait dessiner un « 8 ».",
           "accent": [
             "kizomba",
             "kompa",
@@ -440,8 +457,11 @@
             "suave"
           ],
           "faits": [
-            "F249"
-          ]
+            "F249",
+            "F322",
+            "F323"
+          ],
+          "dit": "La kizomba, à peine. Le semba et le suave, pas du tout. Le kompa presque pas, à tort : son bassin devrait dessiner un huit."
         },
         {
           "voix": "geste",
@@ -512,6 +532,18 @@
           "texte": "Pour finir, deux danseurs dansent automatiquement, en couple.",
           "lien": true,
           "faits": []
+        },
+        {
+          "voix": "guide",
+          "texte": "De près : les hanches se balancent et rebondissent à chaque temps. C'est le ginga ; il lui manque encore son « 8 ».",
+          "dit": "De près : les hanches se balancent et rebondissent à chaque temps. C'est le ginga ; il lui manque encore son huit.",
+          "faits": [
+            "F315",
+            "F316",
+            "F317",
+            "F319"
+          ],
+          "plan": "hanches"
         },
         {
           "voix": "guide",

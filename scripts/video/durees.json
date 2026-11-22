@@ -5,12 +5,14 @@
   "geste|On regarde le bassin, les genoux, le poids, le haut du corps.": 3.25,
   "histoire|Louanda, années cinquante : le semba est très populaire. Son nom veut dire coup de nombril, en langue kimmboundou.": 5.98,
   "geste|Dans le modèle, le poids change de pied à chaque temps de la musique et le corps rebondit deux fois par temps. Une source anonyme décrit un seul rebond, et une pause après trois pas, absente ici.": 8.84,
+  "geste|Pour l'auteur du projet, le second rebond se danse comme un tcha-tcha : un petit rond rapide du huit, avant de reprendre le grand. Le modèle ne le fait pas encore.": 8.09,
   "histoire|Parmi ses racines, la massém-ba, une danse de couple. Avant l'indépendance, le semba est une musique de revendication.": 6.49,
   "geste|Les pieds basculent sans quitter le sol, plus vite que le poids ne change. Le buste reste dressé.": 4.45,
   "histoire|Port-au-Prince, années cinquante : le saxophoniste Ne-mour Jean-Baptiste crée le kompa.": 4.43,
   "histoire|Le kompa vient de la méringue, une musique plus ancienne, ralentie ou modernisée selon les sources.": 4.92,
-  "geste|À l'image, le bassin passe d'un côté à l'autre et s'y tient, plus loin que dans les autres styles.": 4.47,
-  "geste|Le poids reste deux temps sur chaque pied, genoux fléchis, bassin bas. Selon une source anonyme, l'autre pied touche alors le sol sans poids : non montré ici.": 8.28,
+  "geste|À l'image, le bassin va d'un côté à l'autre, en ligne droite. C'est faux : en kompa il dessine un huit, le plus prononcé des six styles pour l'auteur du projet.": 8.09,
+  "geste|Ses professeurs décrivent une marche en rythme : un appui par temps, le bassin relâché juste avant. Le modèle, lui, tient deux temps par pied : c'est le rythme ralenti.": 8.46,
+  "geste|Au ralenti, selon un manuel de professeurs, le bassin trace un demi-huit sur chaque appui. Et, selon une école, ce sont les genoux qui balancent les hanches, pieds au sol.": 8.61,
   "histoire|Angola, vers mille neuf cent quatre-vingt. Selon Wikipédia, la musique kizomba succède directement au semba, avec une basse plus forte.": 7.92,
   "geste|Dans le modèle, le poids change de pied à chaque temps. Le bassin suit : sept centimètres de chaque côté, à peine incliné. D'après une source, le poids resterait deux temps du même côté.": 8.84,
   "histoire|L'origine de cette musique est discutée. Le récit courant : zouk antillais et semba. Eduardo Païm, présenté comme son père, cite plutôt le kompa haïtien, selon un blog.": 10.19,
@@ -31,16 +33,17 @@
   "geste|Semba et kizomba changent de pied à chaque temps. Le kompa, tous les deux temps. Seul le semba rebondit franchement.": 5.32,
   "geste|Le haut du corps : le suave ondule, le zouk se cambre. Chez les quatre autres, il n'a pas de mouvement propre.": 5.3,
   "guide|De près : tarraxinha et zouk font tourner le bassin.": 3.52,
-  "guide|La kizomba et le kompa, à peine. Le semba et le suave, pas du tout.": 5.49,
+  "guide|La kizomba, à peine. Le semba et le suave, pas du tout. Le kompa presque pas, à tort : son bassin devrait dessiner un huit.": 10.01,
   "geste|Tarraxinha et suave se déplacent le moins : trois centimètres de chaque côté. Le poids n'y passe qu'en partie.": 5.03,
   "guide|Ce film montre un modèle calculé, pas une capture de mouvement.": 4,
   "guide|Ses réglages ne sont pas une norme de danse : aucune validation chorégraphique.": 4.44,
   "guide|Les sources sont parfois faibles, ou en désaccord.": 3.02,
   "guide|La musique et les voix sont générées par intelligence artificielle.": 3.72,
   "guide|Pour finir, deux danseurs dansent automatiquement, en couple.": 3.95,
+  "guide|De près : les hanches se balancent et rebondissent à chaque temps. C'est le ginga ; il lui manque encore son huit.": 6.99,
   "guide|La musique : une fusion kizomba et semba.": 3.16
  },
  "generique": {
-  "hauteur": 4461
+  "hauteur": 4669
  }
 }

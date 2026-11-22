@@ -18,7 +18,7 @@ Puis, pendant le travail : « la vidéo vaut la peine d'avoir un workflow ».
 
 ## Ce que la vidéo contient
 
-Une vidéo de 4 à 6 minutes, 1920 × 1080, 25 images par seconde, sous-titrée en français.
+Une vidéo de 4 à 6 minutes 30, 1920 × 1080, 25 images par seconde, sous-titrée en français.
 
 1. **Ouverture** : le titre, ce qu'est le pas de base sur place et ce qu'on regarde (bassin, genoux, appuis).
 2. **Un chapitre par style** (six) : le danseur seul, avec les muscles, calé sur une musique du style ; la
@@ -149,11 +149,28 @@ filmé à ce tempo, et le montage cale le premier temps de la musique sur le tem
     caméra : on ne le voit pas. La caméra va maintenant lentement du trois quarts au profil puis à l'autre
     trois quarts (`FINAL_BALAYAGE`, `FINAL_PERIODE`), un peu plus près du couple.
 
+- **Quatrième version (22 novembre 2026), après trois paroles du propriétaire.**
+  - Sur le ginga du couple, au réglage par défaut, filmé en pied : « Trop discret. » Le final ouvre
+    maintenant sur le couple en pied, puis s'approche des deux bassins, de trois quarts, pendant une quinzaine
+    de secondes (`"plan": "hanches"`, `FINAL_HANCHES`). Le ginga y est au réglage « ample » de l'application
+    (`FINAL_GINGA`). Une phrase dit ce qu'on regarde, et que le « 8 » manque encore.
+  - Sur le kompa : « Le konpa est complètement faux actuellement: c'est le 8 le plus prononcé justement.
+    Complémente les connaissances sur ce style. » La recherche est dans
+    [`docs/recherche-danse/kompa.md`](recherche-danse/kompa.md) (#161). Le chapitre kompa dit maintenant que
+    l'image est fausse, puis ce que décrivent les professeurs : une marche en rythme, le bassin relâché avant
+    chaque appui, un demi-« 8 » par appui au rythme ralenti, des genoux qui balancent les hanches. La
+    comparaison dit que le kompa devrait dessiner un « 8 ».
+  - Sur le semba : « En semba le 2e rebond est fait comme un chacha en refaisant rapidement un petit rond du
+    "8" de ginga avant de reprendre le mouvement de "8" plus grand. » Une phrase du chapitre semba le dit, et
+    dit que le modèle ne le fait pas encore.
+  - Le film dure maintenant un peu plus de six minutes.
+
 ## Ce qui reste
 
-- **Le « 8 » du ginga** : pour le propriétaire, le bassin « fait un 8 », par des genoux qui se relaient, et
-  c'est ce qui rendra les déplacements organiques. Le balancement filmé ici va et vient par le même chemin.
-  Le « 8 » est le chantier #159 (prototypes à élire) ; la vidéo sera refilmée quand il sera fusionné
+- **Refaire le kompa et le semba dans le modèle.** Le film dit où l'image est fausse ; il ne la corrige pas.
+  Le bassin du kompa trace toujours une ligne droite. C'est le chantier du « 8 » (#159, prototypes à élire) :
+  pour le propriétaire, le bassin « fait un 8 », par des genoux qui se relaient, et c'est ce qui rendra les
+  déplacements organiques. La vidéo sera refilmée quand il sera fusionné
   (`node scripts/video/generer_video.mjs`).
 - **L'écoute des musiques** par le propriétaire ; une musique refusée se régénère avec
   `scripts/video/musique.mjs --generer <style>` (avec son accord : crédits).

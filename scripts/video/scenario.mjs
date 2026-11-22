@@ -36,6 +36,11 @@ export const GRAINE_FINAL = 7;
 /** Caméra du final : elle s'écarte du profil de `FINAL_BALAYAGE` degrés de chaque côté, en `FINAL_PERIODE`
  * secondes l'aller-retour. De profil, le balancement des hanches (#157) part vers la caméra et ne se voit pas. */
 export const FINAL_BALAYAGE = 50, FINAL_PERIODE = 38;
+/** Final : réglage du ginga du couple (`?ginga=`, #157) et gros plan sur les hanches. Le propriétaire a jugé
+ * le réglage par défaut, filmé en pied, « Trop discret » : le film prend le plus ample et s'approche. Le gros
+ * plan commence sur la phrase marquée `"plan": "hanches"` et rend la main `recul` secondes avant le générique. */
+export const FINAL_GINGA = "ample";
+export const FINAL_HANCHES = { fov: 15, el: 6, entree: 2, recul: 4.5, sortie: 3 };
 
 export const lireNarration = (fichier = join(ICI, "narration.json")) => JSON.parse(readFileSync(fichier, "utf8"));
 
@@ -147,9 +152,16 @@ export function plansDe(chapitre, cal, bpm, ordre) {
     // quarts au profil puis à l'autre trois quarts. De profil, l'un ne cache pas l'autre, mais le balancement
     // des hanches part vers la caméra : c'est de trois quarts qu'il se lit. Au générique, le couple glisse vers
     // la gauche de l'image.
+    // Sur la phrase marquée `"plan": "hanches"`, elle s'approche des deux bassins et reste de trois quarts :
+    // c'est là que le balancement et le rebond se voient. Elle recule avant le générique, puis reprend son tour.
     const t0 = cal.credits.debut;
-    return simple(`?vitrine=1&style=kizomba&graine=${GRAINE_FINAL}&bare=1&bpm=${bpm}`,
-      (i, t) => ({ az: 90 - FINAL_BALAYAGE * Math.cos(2 * Math.PI * t / FINAL_PERIODE), relative: true, el: 10, dist: 3.2, fov: 40, shift: 0.23 * adouci((t - (t0 - 1.5)) / 3) }));
+    const marque = chapitre.phrases.findIndex(p => p.plan === "hanches");
+    const H = FINAL_HANCHES, debut = marque < 0 ? Infinity : cal.phrases[marque].debut - 0.4, fin = t0 - H.recul;
+    const pres = t => marque < 0 ? 0 : adouci((t - debut) / H.entree) * (1 - adouci((t - fin) / H.sortie));
+    const tour = t => marque < 0 ? t : Math.max(0, t - fin);
+    return simple(`?vitrine=1&style=kizomba&graine=${GRAINE_FINAL}&bare=1&bpm=${bpm}&ginga=${FINAL_GINGA}`,
+      (i, t) => ({ az: 90 - FINAL_BALAYAGE * Math.cos(2 * Math.PI * tour(t) / FINAL_PERIODE), relative: true,
+        el: entre(10, H.el, pres(t)), dist: 3.2, fov: entre(40, H.fov, pres(t)), shift: 0.23 * adouci((t - (t0 - 1.5)) / 3) }));
   }
   throw new Error(`type de chapitre inconnu : ${chapitre.type}`);
 }

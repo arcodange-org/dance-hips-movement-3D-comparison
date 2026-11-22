@@ -247,9 +247,18 @@ const durees = existsSync(FICHE_DUREES) ? JSON.parse(readFileSync(FICHE_DUREES, 
     if (c.type === "comparaison" || c.type === "final") assert.ok(elements.some((e) => e.type === "intertitre" && e.donnees.texte === c.titre), `${c.id} : le chapitre s'annonce`);
     if (c.type === "final") assert.ok(plans[0].cadrage(0, 5).relative === true, "final : la caméra suit l'orientation du couple");
     if (c.type === "final") {
-      const az = Array.from({ length: 40 }, (_, k) => plans[0].cadrage(k * 25, k).az);
+      const vue = (t) => plans[0].cadrage(Math.round(t * 25), t);
+      const az = Array.from({ length: 70 }, (_, t) => vue(t).az);
       assert.ok(Math.min(...az) <= 50 && Math.max(...az) >= 130, "final : la caméra passe par les deux trois quarts, où le balancement des hanches se lit");
       assert.ok(az.some((a) => Math.abs(a - 90) < 8), "final : et par le profil, où l'un ne cache pas l'autre");
+      assert.match(plans[0].url, /ginga=ample/, "final : le ginga du couple au réglage le plus ample (« Trop discret » au réglage par défaut)");
+      // Le gros plan sur les hanches : pendant la phrase marquée, de trois quarts ; en pied avant, et au générique.
+      const i = c.phrases.findIndex((p) => p.plan === "hanches");
+      assert.ok(i > 0, "final : une phrase porte le gros plan sur les hanches");
+      const milieu = vue((k.phrases[i].debut + k.phrases[i].fin) / 2);
+      assert.ok(milieu.fov <= 16 && Math.abs(milieu.az - 40) < 1, "final : gros plan de trois quarts pendant la phrase des hanches");
+      assert.equal(vue(k.phrases[0].debut).fov, 40, "final : le couple en pied d'abord");
+      assert.equal(vue(k.credits.debut).fov, 40, "final : en pied au générique");
     }
     if (c.type === "limites") assert.equal(elements.filter((e) => e.type === "points").at(-1).donnees.points.length, c.phrases.filter((p) => p.point).length);
     assert.ok(PROMPTS[musiqueDe(c)], `${c.id} : musique d'un style connu`);

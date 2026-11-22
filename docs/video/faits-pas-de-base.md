@@ -351,6 +351,15 @@ Lecture des paramètres du moteur, valable pour les six styles :
 - **F097** Roulis ±5,2° : « non documenté (plausible pour un déhanché amplifié) »
   (`docs/recherche-biomecanique/confrontation-modele.md:38`).
 
+#### Complément du 22 novembre 2026 : paroles du propriétaire
+
+- **F320** Le propriétaire, après la troisième version de la vidéo : « En semba le 2e rebond est fait comme un
+  chacha en refaisant rapidement un petit rond du "8" de ginga avant de reprendre le mouvement de "8" plus
+  grand. » (`docs/recherche-danse/README.md`, « Paroles du propriétaire »).
+- **F321** Le modèle ne trace pas de « 8 » en semba : sur place, le bassin va et vient en ligne droite, 10,0 cm
+  de côté et 0 cm d'avant en arrière, mesurés en mode film (`docs/recherche-danse/README.md`, « Ce que le
+  modèle fait aujourd'hui »).
+
 ### 2.3 Kompa
 
 #### Origine, filiation, influences
@@ -475,6 +484,46 @@ Lecture des paramètres du moteur, valable pour les six styles :
   (`docs/recherche-biomecanique/confrontation-modele.md:38`).
 - **F137** Les titres anciens de Nemours paraissent plus lents que la plage des pédagogues
   (`docs/musique/kompa.md:36-37`).
+
+#### Complément du 22 novembre 2026 : paroles du propriétaire et recherche #161
+
+- **F322** Le propriétaire, après la troisième version de la vidéo : « Le konpa est complètement faux
+  actuellement: c'est le 8 le plus prononcé justement. » (`docs/recherche-danse/README.md`, « Paroles du
+  propriétaire »).
+- **F323** Le modèle ne trace pas de « 8 » en kompa : sur place, le bassin va et vient en ligne droite, 20,6 cm
+  de côté et 0 cm d'avant en arrière, mesurés en mode film. C'est le trajet le plus large des six styles
+  (`docs/recherche-danse/README.md`, « Ce que le modèle fait aujourd'hui »).
+- **F324** Le pas de base selon ses professeurs : une marche en rythme, un appui par temps, avec un transfert
+  franc du poids. Sources : le manuel de Cliford et Gaëlle Jasmin, cité par *Le Nouvelliste* (15 juin 2022) ;
+  les professeurs Dady et Manuela ; l'école Danse Select Canada ; la page de l'UNESCO
+  (`docs/recherche-danse/kompa.md`, « Ce que disent les sources », point 1).
+- **F325** Le bassin se relâche sur le demi-temps, juste avant chaque appui ; le mouvement de base est à la fois
+  vertical et horizontal. Aucune source ne confirme un accent des hanches sur les temps 2 et 4
+  (`docs/recherche-danse/kompa.md`, point 2).
+- **F326** Au rythme ralenti, le *dodo mea*, on reste près de deux temps sur le même pied : « on dessine un demi
+  8 avec le bassin sur chaque appui » (livre des Jasmin, cité par C. B. Sérant). La hanche va de l'avant vers
+  l'arrière en passant par le côté (`docs/recherche-danse/kompa.md`, point 3).
+- **F327** Deux ouvrages universitaires, lus par extraits, décrivent des hanches en huit dans la danse collée
+  sur konpa : *kole mabouya* (Averill 1997, p. 20) et *klere bouk sentiwon* (McAlister 2002, p. 49)
+  (`docs/recherche-danse/kompa.md`, point 3).
+- **F328** Dans le pas *dodomeya*, pieds au sol, ce sont les genoux qui balancent les hanches (Danse Select
+  Canada, transcription automatique d'un cours filmé) (`docs/recherche-danse/kompa.md`, point 4).
+- **F329** Le gouyad est d'abord un mouvement : rouler ou tourner le bassin, souvent en cercle (Averill,
+  McAlister, dictionnaires créoles). Le mot désigne aussi un konpa plus lent
+  (`docs/recherche-danse/kompa.md`, point 5).
+- **F330** Il y a plusieurs pas de base : marqué, méringue, dodomeya, dirèk (Danse Select Canada). Le « pas,
+  touche » de Haitian Music Zone (F116) correspond au pas méringue. Le *kare*, « carré », est le deux-pas des
+  débuts, dans les années 1950 (Averill, Freeman) (`docs/recherche-danse/kompa.md`, point 6).
+- **F331** Le modèle tient le poids deux temps par pied (F120) : c'est le rythme du ralenti, pas celui du pas de
+  base marché (`docs/recherche-danse/kompa.md`, « Le modèle face aux sources »).
+- **F332** Aucune source ne dit que le « 8 » du kompa est le plus prononcé des styles : il n'y a là que la
+  parole du propriétaire. Les sources attachent le « 8 » au ralenti et à la danse collée, pas au pas de base
+  marché. Aucune ne décrit un simple balancier de côté (`docs/recherche-danse/kompa.md`, « Ce que les
+  sources ne disent pas »).
+- **F333** L'inscription du compas d'Haïti par l'UNESCO est vérifiée : élément n° 02273, Liste représentative,
+  2025, décision 20.COM 7.B.22. La page décrit une marche rythmée, avec des mouvements du bassin, des pas
+  alternés et un contact entre les danseurs. Ce fait lève la réserve de F105
+  (`docs/recherche-danse/kompa.md`, source K10).
 
 ### 2.4 Tarraxinha
 
@@ -794,6 +843,26 @@ Lecture des paramètres du moteur, valable pour les six styles :
 - **F239** L'article de Wikipédia sur le zouk brésilien est signalé comme manquant de sources
   (`docs/musique/zouk-bresilien.md:36-37`).
 
+### 2.7 En couple : le ginga (complément du 22 novembre 2026)
+
+Ajouté après la fusion de `main` (#158). Les numéros de ligne valent pour l'état de la branche à cette date.
+
+- **F315** Demande du propriétaire, le 21 novembre 2026, devant la danse automatique : « J'aimerai aussi que le
+  "sway" des hanches et le petit effet de "bounce" , le ginga en fait, soit présent pour montrer que les
+  danseurs se balancent au rythme de la musique » (`docs/spec-ginga-couple.md:11-12`).
+- **F316** En danse de couple, le mode jeu ajoute dans toutes les figures un balancement latéral du bassin, sur
+  les transferts d'appui, et un rebond vertical, le plus bas sur chaque temps. Quatre réglages : sans,
+  discret, marqué (par défaut), ample (`src/guidage.ts:121-133`).
+- **F317** Mesure dans le final de la vidéo, réglage « marqué », bassin du premier danseur, même danse comparée
+  image par image avant et après : un rebond d'environ 1 cm, une fois par temps ; un déplacement de côté
+  de 2,4 cm au plus (`docs/spec-video-pas-de-base.md`, « Troisième version »).
+- **F318** Le propriétaire a jugé ce réglage, filmé en pied : « Trop discret. » (22 novembre 2026). Le film prend
+  donc le réglage « ample » et s'approche des hanches (`scripts/video/scenario.mjs`, `FINAL_GINGA`,
+  `FINAL_HANCHES`).
+- **F319** Ce balancement va et vient par le même chemin. Pour le propriétaire, le bassin « fait un 8 »
+  (`docs/spec-ginga-couple.md:19-21`) ; ce « 8 » n'est pas encore dans le modèle, c'est le chantier #159
+  (`docs/spec-ginga-couple.md:39`).
+
 ## 3. Tableau comparatif
 
 Valeurs du moteur à l'amplitude 1, sur place. Références de ligne dans la dernière colonne, dans
@@ -1059,6 +1128,35 @@ Résumé des influences, tel que le dépôt les rapporte :
 - Haitian Music Zone (1er décembre 2025). « How To Dance Kompa: Beginner Steps, Partner Moves, Timing ».
   https://haitianmusiczone.com/how-to-dance-kompa-beginner-steps-partner-moves-timing/
   (`docs/musique/kompa.md:192-194`).
+- Jasmin, Cliford et Gaëlle (2022). Tout sur la danse compas / konpa, danse sociale d'Haïti, cité par
+  C. B. Sérant, Le Nouvelliste (15 juin 2022), repris par Karibinfo.
+  https://www.karibinfo.com/news/haiti-tout-sur-la-danse-compas/ (`docs/recherche-danse/kompa.md`, K1).
+- Dady et Manuela (2020, 2021). « Les bases de la danse konpa » #1 et #2.
+  https://www.youtube.com/watch?v=yVUW1tZ7ERo (`docs/recherche-danse/kompa.md`, K2, K3).
+- Danse Select Canada (2021). « Cours de danse konpa » 1 et 2.
+  https://www.youtube.com/watch?v=BPtk2pec1E0 (`docs/recherche-danse/kompa.md`, K4, K5).
+- Jaconelli, E. (2026) et Harmange, A. (2024). Reportages sur le konpa, Outre-mer la 1ère.
+  https://la1ere.franceinfo.fr/ (`docs/recherche-danse/kompa.md`, K6, K7).
+- Bordeaux Dance Crew. Page « Konpa ». https://bordeauxdancecrew.com/disciplines/konpa/
+  (`docs/recherche-danse/kompa.md`, K8).
+- Pierre, H. (2025). Articles sur le compas direct, Le Nouvelliste.
+  https://lenouvelliste.com/article/258274/une-histoire-du-compas-direct-haitien-en-30-moments
+  (`docs/recherche-danse/kompa.md`, K9).
+- UNESCO (2025). « Le compas d'Haïti », élément n° 02273, décision 20.COM 7.B.22.
+  https://ich.unesco.org/fr/RL/le-compas-d-haiti-02273 (`docs/recherche-danse/kompa.md`, K10).
+- Averill, G. « Konpa ! La musique populaire en Haïti », Médiathèque Caraïbe (Laméca)
+  (`docs/recherche-danse/kompa.md`, K11).
+- Averill, G. (1997). A Day for the Hunter, a Day for the Prey: Popular Music and Power in Haiti,
+  University of Chicago Press, lu par extraits (`docs/recherche-danse/kompa.md`, K12).
+- McAlister, E. (2002). Rara! Vodou, Power, and Performance in Haiti and Its Diaspora, University of
+  California Press, lu par extraits (`docs/recherche-danse/kompa.md`, K13).
+- Freeman, B. C. et Laguerre, J. (2004). Haitian-English Dictionary, 5e éd., University of Kansas
+  (`docs/recherche-danse/kompa.md`, K14).
+- Vilsaint, F. (2005). Diksyonè kreyòl Vilsen ; Valdman, A. (dir.) (2007). Haitian Creole-English Bilingual
+  Dictionary, lus par extraits (`docs/recherche-danse/kompa.md`, K15).
+- Wikipedya ayisyen. « Gouyad ». https://ht.wikipedia.org/wiki/Gouyad (`docs/recherche-danse/kompa.md`, K16).
+- Sloat, S. (dir.) (2002). Caribbean Dance from Abakuá to Zouk, University Press of Florida, lu par extraits
+  (`docs/recherche-danse/kompa.md`, K17).
 - Udansa. Page d'accueil. https://udansa.com (`docs/styles-de-danse.md:115`).
 - Udansa. « Samba Bounce ».
   https://udansa.com/fr/guide-de-danse/apprendre-samba/samba-competition/apprendre-samba-bounce
