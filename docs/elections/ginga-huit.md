@@ -204,3 +204,16 @@ lieu de glisser genoux pliés au même angle. Avec l'ampleur de K2 :
 
 Images : `election-huit-genoux*.gif`, `trace-huit-genoux*.gif`, `election-kompa-genoux*.gif`,
 `trace-kompa-genoux*.gif`. Le vote se fait sur la page de vote.
+
+### Résultat du troisième tour (22 novembre, page de vote)
+
+| Question | Choix | Commentaire, reformulé |
+|---|---|---|
+| Q8, le « 8 » du couple | **G1**, genoux en même temps | — |
+| Q9, le kompa | **KG2**, genoux une demi-temps après | Il a encore l'air de skier, mais KG2 est un progrès. Le « 8 » vu de face doit être plus marqué que le « 8 » vu de dessus. |
+
+Ce qui en découle :
+1. Couple : G1 est élu (sens D, taille F, genoux également pliés au passage par le centre). Prochaine étape : le régler
+   et le contrôler dans toutes les figures, puis en faire le réglage par défaut.
+2. Kompa : KG2 est la bonne direction ; à reprendre pour que le « 8 » vu de face dépasse le « 8 » vu de dessus (KG2 :
+   44 cm² de face, 129 cm² de dessus) et que le danseur ne glisse plus d'un bloc.

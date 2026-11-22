@@ -390,7 +390,8 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
       `soudain` de chaque variante (2,0 aujourd'hui en couple, 1,0 pour les « 8 » arrondis) et #167 ; semba → #162.
 - [x] Vote du second tour (22 novembre) : sens D, taille F ; forme et kompa à reprendre par les genoux.
 - [x] Troisième tour : les genoux mènent le « 8 » (`GingaEight.knees`, kompa `genoux*`), mesures de fluidité au tracé.
-- [ ] Vote du troisième tour (Q8 couple, Q9 kompa).
+- [x] Vote du troisième tour : G1 élu pour le couple ; kompa KG2, à reprendre (le « 8 » de face doit dominer, encore du ski).
+- [ ] Kompa : « 8 » de face plus marqué que de dessus, sans glisser d'un bloc.
 - [ ] Variante élue : contrôles sur le GLB dans toutes les figures (marges), ida e volta, pas de base.
 
 ## Élections de variantes en GIF (#148)
