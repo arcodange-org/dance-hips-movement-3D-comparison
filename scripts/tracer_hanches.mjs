@@ -2,7 +2,11 @@
 // #159 — tracé du chemin des hanches dans les trois vues (dessus, face, profil), mesuré sur le GLB.
 // Un pas de marche du mode jeu dansé après le même pas (régime établi) : positions des deux articulations
 // de hanche et du centre du bassin d'un danseur, dans son propre repère, déplacement de la figure retiré.
-// Sortie : un GIF (les chemins, un point qui les parcourt) et les surfaces entourées dans chaque vue.
+// En couple la pose est celle du mode jeu lui-même (`planGuide`, `applyGuidePose`) : la figure est
+// commandée cinq fois de suite et la troisième est mesurée, avec ce que le jeu ajoute aux frontières
+// (le résidu de bassin de la figure précédente, effacé en un temps).
+// Sortie : un GIF (les chemins, un point qui les parcourt) et les surfaces entourées dans chaque vue ;
+// `transfert` : le passage d'un côté à l'autre, brusque ou progressif (`soudain`, 1 = un balancier).
 // Usage : CHROME_PATH=... node scripts/tracer_hanches.mjs out.gif <ginga> [suiveur|leader] [figure] [style]
 //         … out.gif <variante> seul base <style> : le danseur seul, pas de base sur place du style (4 temps) ;
 //         pour le kompa, <variante> est un prototype de son « 8 » (`huit`, `huitGrand`, `huitInverse`) ou `aujourdhui`.
@@ -15,7 +19,7 @@ import { fixture } from "./pose_fixture.mjs";
 
 const [out, ginga = "marque", role = "suiveur", kind = "avance", styleKey = "kizomba"] = process.argv.slice(2);
 const bundle = new URL("./.tracer-hanches-bundle.mjs", import.meta.url);
-buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'rigJoints', 'placement', 'insertion', 'guidage'].map(n => `export * from "./src/${n}";`).join('\n'), resolveDir: new URL('../', import.meta.url).pathname },
+buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'rigJoints', 'placement', 'insertion', 'guidage', 'guidagePose', 'placePaire'].map(n => `export * from "./src/${n}";`).join('\n'), resolveDir: new URL('../', import.meta.url).pathname },
   bundle: true, packages: 'external', platform: 'node', format: 'esm', outfile: bundle.pathname, define: { 'import.meta.env.BASE_URL': '"/"' }, logLevel: 'silent' });
 const api = await import(bundle.href); unlinkSync(bundle);
 
@@ -23,14 +27,22 @@ const STEPS = 32; // samples per beat
 const solo = role === "seul";
 const follower = !solo && role !== "leader", dz = api.GUIDE_PAIR_DZ, beats = solo ? 4 : api.GUIDE_FIGURES[kind].beats, movement = solo ? "none" : api.GUIDE_FIGURES[kind].movement;
 if (solo) api.setKompaProto(ginga);
-const f = solo ? fixture(api) : follower ? fixture(api, { rotation: Math.PI, offset: [0, 0, dz] }) : fixture(api, { offset: [0, 0, -dz] });
+const f = { ...fixture(api), cache: new Map() };
 const rest = { L: f.model.legs.L.rest, R: f.model.legs.R.rest }, stance = (f.model.legs.L.hipX - rest.L.x + rest.R.x - f.model.legs.R.hipX) / 2;
-const ZERO = { leader: { x: 0, z: 0 }, follower: { x: 0, z: 0 } };
+// The game's own session: the figure commanded five times in a row, the third one measured.
+const plan = solo ? null : api.planGuide([0, 0.1, 0.2, 0.3, 0.4].map(beat => ({ beat, figure: kind })), api.guideMotions({ rest, stance, placement: 'quinconce', amp: 1 }), 16 + 5 * beats);
+const repeats = solo ? [] : plan.segments.filter(s => s.kind === kind);
+if (!solo && repeats.length < 4) throw new Error(`${kind}: the game does not dance it several times in a row (${plan.segments.map(s => s.kind).join(' ')})`);
+const start = solo ? 0 : repeats[2].start;
 const points = { L: [], R: [], C: [] }, loads = [], knees = { L: [], R: [] };
 for (let i = 0; i < beats * STEPS; i++) {
   const beat = i / STEPS;
   if (solo) api.applyPose(f.r, f.model, beat, { styleKey, amp: 1 });
-  else api.applyPose(f.r, f.model, beat, { ...api.guidePoseOptions({ movement, rootOffset: ZERO, kind, ginga, previous: kind }, follower), placement: 'quinconce', contraposition: 1, styleKey: api.guideStyleOf(kind, styleKey), amp: 1 });
+  else {
+    const sample = api.sampleGuide(plan, start + beat, ginga), t = api.compose(sample.couple, api.outerOf(follower));
+    f.outer.position.set(t.x, 0, t.z); f.outer.rotation.set(0, t.yaw, 0); f.outer.updateMatrixWorld(true);
+    api.applyGuidePose(f.r, f.model, sample, { placement: 'quinconce', contraposition: 1, styleKey, amp: 1 }, follower, f.cache);
+  }
   f.r.root.updateWorldMatrix(true, true);
   // In pair the figure's travel (root) is removed; alone on the spot the root itself carries the sway.
   const root = solo ? { x: 0, z: 0 } : f.r.root.position, inverse = f.r.root.parent.matrixWorld.clone().invert();
@@ -82,7 +94,19 @@ const middle = (Math.max(...points.C.map(p => p[0])) + Math.min(...points.C.map(
 const crossings = points.C.map((p, i) => i).filter(i => (points.C[i][0] - middle) * (points.C[(i + 1) % total][0] - middle) <= 0);
 const genoux = { gauche: kneeRange('L').map(round), droit: kneeRange('R').map(round), sensInverse: round(opposite / total),
   auCentre: crossings.map(i => [round(knees.L[i]), round(knees.R[i])]) };
-console.log(JSON.stringify({ ginga, role, kind, styleKey, genoux, mesures: Object.fromEntries(Object.entries(measures).map(([k, m]) => [k, Object.fromEntries(Object.entries(m).map(([n, v]) => [n, round(v)]))])) }));
+// The passage from one side to the other (owner, 22 Nov.: « ne pas avoir un effet relais soudain entre gauche
+// et droite »). `soudain`: peak lateral speed of the pelvis over that of a pendulum (a sine) of the same
+// width and period: 1 = as smooth as a pendulum, 2 = twice as sudden. `passage`: time (beats) the pelvis
+// takes to cross the middle half of its lateral path, the slowest crossing of the cycle; `periode`: beats
+// per side-to-side cycle.
+const lateral = points.C.map(p => p[0]), width = Math.max(...lateral) - Math.min(...lateral), cycles = Math.max(1, Math.round(crossings.length / 2)), periode = beats / cycles;
+const peak = Math.max(...lateral.map((x, i) => Math.abs(lateral[(i + 1) % total] - x) * STEPS));
+const lowest = Math.min(...lateral);
+const inMiddle = lateral.map(x => (x - lowest) / width > 0.25 && (x - lowest) / width < 0.75);
+let passage = 0, run = 0;
+for (let i = 0; i < 2 * total; i++) { run = inMiddle[i % total] ? run + 1 : 0; passage = Math.max(passage, Math.min(run, total)); }
+const transfert = width < 0.1 ? null : { soudain: round(peak / (Math.PI * width / periode)), passage: round(passage / STEPS), periode: round(periode), largeur: round(width) };
+console.log(JSON.stringify({ ginga, role, kind, styleKey, genoux, transfert, mesures: Object.fromEntries(Object.entries(measures).map(([k, m]) => [k, Object.fromEntries(Object.entries(m).map(([n, v]) => [n, round(v)]))])) }));
 if (process.env.MESURES === '1' || !out) process.exit(0);
 
 // Drawing: three panels at the same scale (true distances), centred on the mean position of the pelvis.

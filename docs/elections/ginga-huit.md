@@ -20,6 +20,16 @@ Et le 22 novembre, sur le ginga du couple du film (réglage `marque`, la taille 
 Depuis, le mode jeu danse avec le réglage `ample` par défaut (#163, fusionnée) : le même aller-retour que A, à
 la taille de E. La forme du chemin n'a pas changé : c'est ce vote qui la décide.
 
+Le 22 novembre encore, sur ce qui compte le plus :
+
+> Le plus important c'est de ne pas saccader / teleporter subitement et de ne pas avoir un effet relais soudain
+> entre gauche et droite: c'est la transition (le transfert de poids) qui est la source du jinga/dehanché/
+> trajectoire des fessiers "en 8".
+
+Une mesure est donc ajoutée à chaque variante, **le passage d'un côté à l'autre** : la vitesse de pointe du
+bassin, comparée à celle d'un balancier de même largeur et de même période. 1 = aussi progressif qu'un
+balancier ; 2 = deux fois plus brusque.
+
 Quatre questions, à trancher à l'œil. Pour chaque variante : **la danse** (mode jeu, kizomba, 90 bpm, muscles
 affichés : avancer, reculer, sortie garçon, quart de tour) et **le tracé** du chemin des deux hanches de la
 suiveuse, vu de dessus, de face et de profil, mesuré sur le modèle pendant la marche. La question 4 porte
@@ -38,9 +48,10 @@ pour comparer les trois formes à taille égale. En B et C elle trace un « 8 »
 |---|---|---|
 | ![A, la danse](../gifs/election-ginga-marque.gif) | ![B, la danse](../gifs/election-huit-huit.gif) | ![C, la danse](../gifs/election-huit-huitRond.gif) |
 | ![A, le tracé](../gifs/trace-huit-marque.gif) | ![B, le tracé](../gifs/trace-huit-huit.gif) | ![C, le tracé](../gifs/trace-huit-huitRond.gif) |
-| Le bassin va sur l'appui, y reste, revient par le même chemin. Arrêt le plus long : 0,22 temps (0,13 temps avec `ample`, le réglage par défaut). | Le bassin attend sur l'appui puis traverse, mais pendant l'attente il recule et tourne. Arrêt : 0,06 temps. | Le bassin ne s'arrête jamais : il glisse d'un côté à l'autre en avançant et en reculant. |
+| Le bassin va sur l'appui, y reste, revient par le même chemin. Arrêt le plus long : 0,22 temps (0,13 temps avec `ample`, le réglage par défaut). Passage d'un côté à l'autre : **2,0** fois plus brusque qu'un balancier. | Le bassin attend sur l'appui puis traverse, mais pendant l'attente il recule et tourne. Arrêt : 0,06 temps. Passage : 1,9 fois plus brusque qu'un balancier. | Le bassin ne s'arrête jamais : il glisse d'un côté à l'autre en avançant et en reculant. Passage : 1,0, comme un balancier. |
 
-Ma proposition : **C**. C'est la seule où le bassin ne marque aucun arrêt.
+Ma proposition : **C**. C'est la seule des trois où le bassin ne marque aucun arrêt et passe d'un côté à
+l'autre aussi progressivement qu'un balancier : ce que la parole du 22 novembre met en premier.
 
 ## Question 2 — le sens du « 8 »
 
@@ -68,7 +79,8 @@ La taille de C est celle que le propriétaire a jugée « trop discrète » dans
 
 Dans la sortie garçon de ces images, les trois tailles se distinguent dans la partie ouverte de la figure
 (temps 0,8 à 2,9) : depuis #163 la sortie y lève son plafond. À ses deux bouts, le balancement et le rebond
-restent ceux de C pour les trois, parce que les fémurs des deux danseurs se touchent au-delà.
+restent ceux de C pour les trois, parce que les fémurs des deux danseurs se touchent au-delà. Les trois
+tailles ont le même passage progressif d'un côté à l'autre (1,0).
 
 Ma proposition : **E ou F**, à l'œil. Je ne sais pas laquelle se voit assez sans paraître forcée.
 
@@ -85,7 +97,7 @@ Danseur seul, pas de base du kompa sur place, 90 bpm. Aujourd'hui le bassin va e
 |---|---|
 | ![K0, la danse](../gifs/election-kompa-aujourdhui.gif) | ![K1, la danse](../gifs/election-kompa-huit.gif) |
 | ![K0, le tracé](../gifs/trace-kompa-aujourdhui.gif) | ![K1, le tracé](../gifs/trace-kompa-huit.gif) |
-| Une ligne : 20,6 cm de large, 0,3 cm d'avant en arrière. Arrêt de 0,56 temps. | 20,1 cm de large, 6 cm d'avant en arrière. Chaque hanche entoure environ 79 cm² vu de dessus. Aucun arrêt. |
+| Une ligne : 20,6 cm de large, 0,3 cm d'avant en arrière. Arrêt de 0,56 temps. Passage d'un côté à l'autre : 4,6 fois plus brusque qu'un balancier. | 20,1 cm de large, 6 cm d'avant en arrière. Chaque hanche entoure environ 79 cm² vu de dessus. Aucun arrêt. Passage : 1,0, comme un balancier (K2 et K3 aussi). |
 
 | K2 — « 8 » plus grand | K3 — « 8 », autre sens |
 |---|---|
@@ -114,11 +126,15 @@ moteur) ; le relâché du bassin juste avant chaque appui n'est pas montré. Le 
   danse (atlas #132 : « pour la danse on veut B ») : les deux genoux bougent en sens inverse, sans palier,
   et sont fléchis du même angle quand le bassin passe au centre. Dans le modèle, les genoux sont calculés à
   partir du bassin et des pieds, et ces prototypes s'en éloignent : les genoux bougent en sens inverse 6 % du
-  temps (22 % avec l'aller-retour), avec 5° d'écart au centre (1° à 2° avec l'aller-retour). Faire mener le « 8 » par les genoux
+  temps (23 à 27 % avec l'aller-retour), avec 5° d'écart au centre (2° à 3° avec l'aller-retour). Faire mener le « 8 » par les genoux
   chevauchés est l'étape suivante ; ce vote-ci porte sur le chemin que l'on veut obtenir.
 - **Vu de face, le chemin est irrégulier** : la hauteur du bassin vient de la portée des jambes de chaque
   figure, et la marche y a un à-coup d'environ 7 mm qui n'est pas du ginga.
 - L'ida e volta et le pas de base ne changent pas dans ces prototypes.
+- **Les à-coups des figures ne sont pas corrigés ici.** Dans les sorties, le quart de tour et la marche, le
+  bassin fait des déplacements brusques qui viennent des figures elles-mêmes, avec ou sans ginga (jusqu'à
+  12,9 cm en un huitième de temps) : chantier #167. La posture (« le buste doit être au-dessus et légèrement
+  devant les genoux ») : #166.
 - **Kompa et semba ont leur propre « 8 »**, d'après le propriétaire : en kompa « c'est le 8 le plus prononcé »
   (#161, recherche en cours), en semba le deuxième rebond refait « un petit rond du "8" » (#162). Ces images
   sont en kizomba ; les deux styles viendront après ce vote.

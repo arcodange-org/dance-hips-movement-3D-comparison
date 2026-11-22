@@ -48,18 +48,40 @@ Ce que ces paroles changent ici :
 | Kompa : « c'est le 8 le plus prononcé » | La recherche de sources est faite (#161). Prototypes du « 8 » du kompa, danseur seul, ajoutés à l'élection (question 4). Dans le mode jeu, le kompa ne reçoit aujourd'hui que le rebond : ni phase, ni « 8 ». | #161, plus bas |
 | Semba : le 2e rebond « comme un chacha » | Le « 8 » du semba n'est pas régulier : un petit rond rapide au deuxième rebond, puis le grand. À prototyper sur le « 8 » élu. | #162 |
 
+### Paroles du 22 novembre 2026 (suite), après la quatrième version de la vidéo
+
+La vidéo montrait chaque style de profil ; les prototypes de cette spec étaient à l'élection.
+
+> Le buste doit etre au dessus et legerement devant les genoux.
+
+> Le plus important c'est de ne pas saccader / teleporter subitement et de ne pas avoir un effet relais
+> soudain entre gauche et droite: c'est la transition (le transfert de poids) qui est la source du
+> jinga/dehanché/ trajectoire des fessiers "en 8".
+
+> Le double rebond du semba c'est le doublement de transfert vers le meme coté en initiant un transfert
+> vers le coté opposé et en re-transferant vers le coté initial a la place
+
+| Parole | Conséquence | Où |
+|---|---|---|
+| Le buste au-dessus des genoux | Mesuré : le buste est 10 à 19 cm derrière les genoux dans tous les styles. Chantier à part. | #166, R33 |
+| Ni saccade, ni téléportation, ni relais soudain | Le « 8 » est la trace d'un transfert de poids continu : un prototype se juge d'abord au passage d'un côté à l'autre (mesure `soudain`, plus bas). Les à-coups des figures, eux, ne viennent pas du ginga : chantier à part. | ici, #167, R34 |
+| Semba : deux transferts de suite vers le même côté | Précise le « petit rond rapide » du matin : le poids part vers l'autre côté, n'y arrive pas, revient. À prototyper sur le « 8 » élu. | #162, R35 |
+
 ## Constat mesuré, après #157
 
 Chemin de chaque hanche (articulation), en couple, pendant deux pas de marche, kizomba, réglage `marque`.
+Depuis le 22 novembre la mesure est prise dans une séance du mode jeu (la marche commandée cinq fois de
+suite, la troisième mesurée), avec ce que le jeu ajoute aux frontières entre figures ; la première mesure
+prenait la figure seule, bouclée sur elle-même (4,2 cm de large pour le suiveur au lieu de 4,0).
 Mesure : la **surface entourée** par le chemin dans chaque vue. Un aller-retour par le même chemin n'entoure
 rien ; une boucle ou un « 8 » entoure une surface.
 
 | | Largeur | Hauteur | Profondeur | Entouré vu de dessus | de face | de profil |
 |---|---|---|---|---|---|---|
-| Marche, hanche du leader | 2,9 cm | 1,9 cm | 0,4 cm | **0,0 cm²** | 1,1 cm² | 0,1 cm² |
-| Marche, hanche du suiveur | 4,2 cm | 1,6 cm | 0,4 cm | **0,0 cm²** | 1,3 cm² | 0,1 cm² |
-| Marche, leader, réglage `ample` (par défaut depuis #163) | 4,4 cm | 2,2 cm | 0,4 cm | **0,0 cm²** | 1,9 cm² | 0,1 cm² |
-| Marche, suiveur, réglage `ample` | 6,3 cm | 2,1 cm | 0,4 cm | **0,0 cm²** | 2,4 cm² | 0,1 cm² |
+| Marche, hanche du leader | 2,8 cm | 1,9 cm | 0,3 cm | **0,0 cm²** | 1,3 cm² | 0,2 cm² |
+| Marche, hanche du suiveur | 4,0 cm | 1,8 cm | 0,4 cm | **0,0 cm²** | 1,6 cm² | 0,1 cm² |
+| Marche, leader, réglage `ample` (par défaut depuis #163) | 4,2 cm | 2,2 cm | 0,3 cm | **0,0 cm²** | 2,2 cm² | 0,2 cm² |
+| Marche, suiveur, réglage `ample` | 6,0 cm | 2,3 cm | 0,4 cm | **0,0 cm²** | 2,8 cm² | 0,1 cm² |
 | Pas de base (suave), pour comparer | 6,0 cm | 1,1 cm | 4,4 cm | 17,6 cm² (un « 8 ») | 0,7 cm² | 0,9 à 2,2 cm² |
 
 - Vu de dessus, la hanche va et vient sur une ligne. Vu de face, elle fait une boucle mince. De profil,
@@ -70,6 +92,35 @@ rien ; une boucle ou un « 8 » entoure une surface.
   l'arrêt, rien ne bouge : c'est l'à-coup que le propriétaire décrit.
 - **Le réglage `ample`**, par défaut depuis #163, agrandit la ligne sans en changer la forme : vu de dessus
   la hanche n'entoure toujours rien, et le bassin s'arrête encore (0,13 temps au lieu de 0,22).
+
+### Le passage d'un côté à l'autre : brusque ou progressif
+
+Mesure ajoutée après la parole du 22 novembre (« ne pas avoir un effet relais soudain entre gauche et
+droite »). `soudain` : la vitesse de pointe du bassin d'un côté à l'autre, divisée par celle d'un balancier
+de même largeur et de même période. 1 = aussi progressif qu'un balancier ; 2 = deux fois plus brusque.
+« Passage » : le temps que met le bassin à traverser la moitié centrale de son trajet.
+
+| | `soudain` | Passage |
+|---|---|---|
+| Couple, marche, `marque` (A) ou `ample` (par défaut) | **2,0** | 0,19 temps |
+| B — « 8 » anguleux | 1,9 | 0,16 temps |
+| C, D, E, F — « 8 » arrondis | 1,0 | 0,34 temps |
+| Danseur seul : kizomba, semba, suave, tarraxinha, zouk | 1,0 | 0,34 temps |
+| Danseur seul, kompa aujourd'hui (K0) | 4,6 | 0,16 temps (sur un cycle de 4 temps) |
+| Danseur seul, kompa, prototypes (K1, K2, K3) | 1,0 | 0,66 temps |
+
+- En couple, le ginga de #157 fait attendre le bassin sur l'appui, puis le fait passer de l'autre côté deux
+  fois plus brusquement qu'un balancier : c'est le relais soudain que décrit le propriétaire.
+- Dans une marche, les deux passages ne se ressemblent pas. Le premier se fait en une demi-temps, puis le
+  bassin attend une demi-temps. Le second est coupé par la frontière entre deux figures : la phase repart
+  « posée » à chaque figure, le jeu efface l'écart en un temps, et ce passage finit lentement.
+- Une première mesure donnait 6,0 : elle bouclait la figure sur elle-même et comptait le saut du bouclage,
+  que le jeu ne montre pas. La mesure est maintenant prise dans une séance du jeu.
+- Les prototypes arrondis ont le passage progressif des pas de base des styles. Ce qui les rend
+  progressifs est le déplacement latéral qui suit la phase large (`round`), pas l'avance-recul ni les
+  rotations : un aller-retour progressif, sans « 8 », est possible aussi.
+- Les à-coups des figures elles-mêmes (hauteur du bassin dans les sorties, trajet du bassin dans la marche
+  et le quart de tour) existent avec et sans ginga : ils sont mesurés et traités dans #167.
 
 ## Idée : dans un « 8 », le bassin ne s'arrête jamais
 
@@ -91,14 +142,14 @@ Deux façons de le faire, qui s'ajoutent :
 
 ## Variantes à élire (prototypes)
 
-Mesures sur la suiveuse, marche en kizomba dansée après une marche (régime établi). « Entouré » : surface
+Mesures sur la suiveuse, marche en kizomba dansée après une marche (régime établi, dans une séance du mode jeu). « Entouré » : surface
 que le chemin d'une hanche entoure dans chaque vue. « Arrêt » : plus longue durée où le bassin bouge de
 moins de 1 mm par seizième de temps.
 
 | | `ginga=` | Balancement | Avance-recul | Entouré dessus | de face | de profil | Arrêt |
 |---|---|---|---|---|---|---|---|
-| A — aller-retour (le chemin d'aujourd'hui, à la taille du film) | `marque` | 4,2 cm | 0 cm | 0,0 cm² | 1,3 cm² | 0,1 cm² | 0,22 temps |
-| Le même aller-retour, réglage par défaut depuis #163 (hors élection) | `ample` | 6,3 cm | 0 cm | 0,0 cm² | 2,4 cm² | 0,1 cm² | 0,13 temps |
+| A — aller-retour (le chemin d'aujourd'hui, à la taille du film) | `marque` | 4,0 cm | 0 cm | 0,0 cm² | 1,6 cm² | 0,1 cm² | 0,22 temps |
+| Le même aller-retour, réglage par défaut depuis #163 (hors élection) | `ample` | 6,0 cm | 0 cm | 0,0 cm² | 2,8 cm² | 0,1 cm² | 0,13 temps |
 | B — « 8 » anguleux | `huit` | 4,2 cm | 2,0 cm | 4,5 cm² | 1,8 à 4,0 cm² | 1,1 à 1,4 cm² | 0,06 temps |
 | C — « 8 » arrondi | `huitRond` | 4,2 cm | 2,0 cm | 5,7 cm² | 1,8 à 3,0 cm² | 1,5 à 1,6 cm² | aucun |
 | D — « 8 » arrondi, autre sens | `huitInverse` | 4,2 cm | 2,0 cm | 5,7 cm² | 1,3 à 2,4 cm² | 1,5 à 1,8 cm² | aucun |
@@ -203,8 +254,8 @@ Ce que font les variantes de cette spec, mesuré en couple sur la suiveuse (marc
 | | Genoux en sens inverse (part du cycle) | Flexions quand le bassin passe au centre |
 |---|---|---|
 | Sans ginga | 44 % | — |
-| A — aller-retour, `marque` | 22 % | 25° et 26° |
-| Aller-retour, `ample` (par défaut depuis #163) | 22 % | 27° et 29° |
+| A — aller-retour, `marque` | 27 % | 24° et 27° |
+| Aller-retour, `ample` (par défaut depuis #163) | 23 % | 27° et 30° |
 | B — « 8 » anguleux | 6 % | 20° et 25° |
 | C — « 8 » arrondi | 6 % | 20° et 25° |
 | D — « 8 » arrondi, autre sens | 11 % | 20° et 23° |
@@ -212,7 +263,7 @@ Ce que font les variantes de cette spec, mesuré en couple sur la suiveuse (marc
 
 - Dans le modèle, les genoux sont calculés à partir du bassin et des pieds : ils suivent, ils ne mènent pas.
 - **Les prototypes du « 8 » s'éloignent de la règle élue** : les genoux y bougent moins souvent en sens
-  inverse (6 % contre 22 % avec l'aller-retour), et ils sont moins égaux au centre (5° d'écart contre 1° à 2°).
+  inverse (6 % contre 23 à 27 % avec l'aller-retour), et ils sont moins égaux au centre (5° d'écart contre 2° à 3°).
 - Le « 8 » de ces prototypes vient donc du bassin. Le « 8 » que décrit le propriétaire vient des genoux
   chevauchés. La suite est de faire mener le bassin par cette règle (`applyAtlasPose`, règle B, sur la
   branche de l'atlas) et de vérifier que le chemin obtenu est bien le « 8 » élu ici.

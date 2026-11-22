@@ -97,7 +97,9 @@ et les specs. Résumé de la journée du 21 :
   défaut). Cinq prototypes (`GUIDE_EIGHT`, `ginga=huit|huitRond|huitInverse|huitAmple|huitGrand`) décalent le roulis et le
   lacet dans le cycle, font avancer et reculer le bassin, retardent le rebond, et poursuivent la phase d'une figure à la
   suivante (`gingaFrom`) ; trois prototypes du kompa seul (`KOMPA_EIGHTS`, #161, `?style=kompa&kompa=huit`) font avancer
-  et reculer son bassin deux fois par cycle. **Prototypes non contrôlés sur le GLB**, à
+  et reculer son bassin deux fois par cycle. Paroles du 22 novembre (R33 à R35) : le passage d'un côté à l'autre se mesure
+  contre un balancier (`soudain` de `tracer_hanches.mjs` : 2,0 aujourd'hui en couple, 1,0 pour les « 8 » arrondis) ; les
+  à-coups des figures (#167) et la posture (#166) sont des chantiers à part. **Prototypes non contrôlés sur le GLB**, à
   élire ([élection](docs/elections/ginga-huit.md), [spec](docs/spec-ginga-huit.md)). Le propriétaire a
   élu « genoux chevauchés » pour la danse (atlas #132) : les prototypes s'en éloignent (mesures dans la spec) ; faire
   mener le « 8 » par cette règle est l'étape suivante.

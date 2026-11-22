@@ -53,7 +53,8 @@ const api = await import(bundle.href); unlinkSync(bundle);
 
 // 3. The measure shown in the election: surface each hip goes around in the three views, longest stop.
 {
-  const measure = (ginga, role = 'suiveur') => JSON.parse(execFileSync('node', [fileURLToPath(new URL('./tracer_hanches.mjs', import.meta.url)), '', ginga, role], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })).mesures;
+  const trace = (...args) => JSON.parse(execFileSync('node', [fileURLToPath(new URL('./tracer_hanches.mjs', import.meta.url)), '', ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }));
+  const sudden = {}, measure = (ginga, role = 'suiveur') => { const t = trace(ginga, role); sudden[ginga] = t.transfert.soudain; return t.mesures; };
   // Today: the default setting (`ample` since #163). The film's: `marque`, the size of the prototypes B, C, D.
   const today = measure(api.GUIDE_GINGA_DEFAULT), film = measure('marque'), round = measure('huitRond'), other = measure('huitInverse'), large = measure('huitAmple'), larger = measure('huitGrand'), angular = measure('huit');
   for (const hip of ['L', 'R']) {
@@ -68,7 +69,7 @@ const api = await import(bundle.href); unlinkSync(bundle);
     `stops: ${film.C.arret} (marque), ${today.C.arret} (${api.GUIDE_GINGA_DEFAULT}) → ${angular.C.arret}, ${round.C.arret}`);
   // The kompa alone (#161): today a line with a long stop on each side; the prototypes go round, the largest
   // « 8 » of the styles, and never stop. The model of today is untouched unless a prototype is chosen.
-  const kompa = name => JSON.parse(execFileSync('node', [fileURLToPath(new URL('./tracer_hanches.mjs', import.meta.url)), '', name, 'seul', 'base', 'kompa'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })).mesures;
+  const kompa = name => { const t = trace(name, 'seul', 'base', 'kompa'); sudden['kompa ' + name] = t.transfert.soudain; return t.mesures; };
   assert.equal(api.KOMPA_PROTO.eight, null, 'no kompa prototype by default');
   assert.deepEqual(Object.keys(api.KOMPA_EIGHTS), ['huit', 'huitGrand', 'huitInverse']);
   const k0 = kompa('aujourdhui'), k1 = kompa('huit'), k2 = kompa('huitGrand'), k3 = kompa('huitInverse');
@@ -76,6 +77,17 @@ const api = await import(bundle.href); unlinkSync(bundle);
   for (const [name, m] of [['huit', k1], ['huitGrand', k2], ['huitInverse', k3]]) assert.ok(m.L.dessus > 50 && m.R.dessus > 50 && m.C.arret < 0.05 && Math.abs(m.C.largeur - k0.C.largeur) < 1, `kompa ${name}: ${m.L.dessus} cm², stop ${m.C.arret}, ${m.C.largeur} cm wide`);
   assert.ok(k2.L.dessus > 1.5 * k1.L.dessus && Math.abs(k3.L.dessus - k1.L.dessus) < 0.1 * k1.L.dessus, 'kompa: sizes and senses');
   assert.ok(k1.L.dessus > 2 * large.L.dessus, 'the kompa prototype is the largest « 8 »');
+  // Owner, 22 Nov.: « ne pas avoir un effet relais soudain entre gauche et droite ». The passage from one
+  // side to the other, against a pendulum of the same width and period (1): today's couple crosses twice as
+  // suddenly, the angular « 8 » still does, the round ones and the kompa prototypes do not. Measured in a
+  // session of the game (a figure looped on itself would count the jump of the loop: 6 instead of 2).
+  const today_ = api.GUIDE_GINGA_DEFAULT;
+  assert.ok(sudden[today_] > 1.5 && sudden[today_] < 3 && sudden.marque > 1.5 && sudden.marque < 3, `today the pelvis crosses suddenly (${sudden[today_]}, ${sudden.marque} × a pendulum)`);
+  assert.ok(sudden.huit > 1.5 && sudden.huit < 3, `the angular « 8 » still crosses suddenly (${sudden.huit})`);
+  for (const name of ['huitRond', 'huitInverse', 'huitAmple', 'huitGrand', 'kompa huit', 'kompa huitGrand', 'kompa huitInverse'])
+    assert.ok(sudden[name] < 1.2, `${name}: a passage as gradual as a pendulum (${sudden[name]})`);
+  assert.ok(sudden['kompa aujourdhui'] > 3, `kompa today crosses suddenly (${sudden['kompa aujourdhui']})`);
+  console.log(`PASS passage d'un côté à l'autre, rapporté à un balancier (1) : ${sudden[today_]} aujourd'hui en couple, ${sudden.huit} (« 8 » anguleux), ${sudden.huitRond} (« 8 » arrondis) ; kompa seul ${sudden['kompa aujourdhui']} aujourd'hui, ${sudden['kompa huit']} avec ses prototypes`);
   console.log(`PASS kompa seul : aujourd'hui une ligne (${k0.C.profondeur} cm d'avant en arrière, arrêt de ${k0.C.arret} temps) ; prototypes : ${k1.L.dessus} et ${k2.L.dessus} cm² entourés vu de dessus, aucun arrêt`);
   console.log(`PASS mesure du « 8 » (suiveuse, marche) : vu de dessus chaque hanche entoure ${today.L.dessus} cm² aujourd'hui (réglage ${api.GUIDE_GINGA_DEFAULT} ; ${film.L.dessus} avec marque, la taille du film), ${angular.L.dessus} (anguleux), ${round.L.dessus} (arrondi), ${large.L.dessus} (ample), ${larger.L.dessus} (très ample) ; arrêt le plus long du bassin ${film.C.arret} (marque), ${today.C.arret} (${api.GUIDE_GINGA_DEFAULT}) → ${round.C.arret} temps`);
 }
