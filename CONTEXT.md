@@ -92,10 +92,12 @@ et les specs. Résumé de la journée du 21 :
   (`gingaJunctions`) ([spec](docs/spec-ginga-couple.md)). **Ne fait pas encore le « 8 »** demandé par le propriétaire
   (chemin du bassin lié au relais des genoux, « le 8 se lit dans les deux plans ») : chantier #159, où la taille se
   choisira avec la forme.
-- **#159 (PR en brouillon, empilée sur #158)** : le « 8 » des hanches. Mesure : après #157 chaque hanche trace une ligne
-  vue de dessus (0,0 cm² entourés), le bassin s'arrête 0,22 temps. Quatre prototypes (`GUIDE_EIGHT`, `ginga=huit|huitRond|
-  huitInverse|huitAmple`) décalent le roulis et le lacet dans le cycle, font avancer et reculer le bassin, retardent le
-  rebond, et poursuivent la phase d'une figure à la suivante (`gingaFrom`). **Prototypes non contrôlés sur le GLB**, à
+- **#159 (PR #160 en brouillon, à jour de `main` après #163)** : le « 8 » des hanches. Mesure : après #157 chaque hanche
+  trace une ligne vue de dessus (0,0 cm² entourés), le bassin s'arrête 0,22 temps (0,13 avec `ample`, le réglage par
+  défaut). Cinq prototypes (`GUIDE_EIGHT`, `ginga=huit|huitRond|huitInverse|huitAmple|huitGrand`) décalent le roulis et le
+  lacet dans le cycle, font avancer et reculer le bassin, retardent le rebond, et poursuivent la phase d'une figure à la
+  suivante (`gingaFrom`) ; trois prototypes du kompa seul (`KOMPA_EIGHTS`, #161, `?style=kompa&kompa=huit`) font avancer
+  et reculer son bassin deux fois par cycle. **Prototypes non contrôlés sur le GLB**, à
   élire ([élection](docs/elections/ginga-huit.md), [spec](docs/spec-ginga-huit.md)). Le propriétaire a
   élu « genoux chevauchés » pour la danse (atlas #132) : les prototypes s'en éloignent (mesures dans la spec) ; faire
   mener le « 8 » par cette règle est l'étape suivante.

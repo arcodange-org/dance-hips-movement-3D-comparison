@@ -13,9 +13,12 @@ Les mots du propriétaire (21 novembre 2026) :
 
 > le 8 se lit dans les deux plans (j'ai envie de dire les 3 plans même)
 
-Et le 22 novembre, sur le ginga du couple tel qu'il est aujourd'hui dans le film (taille de A, B, C et D) :
+Et le 22 novembre, sur le ginga du couple du film (réglage `marque`, la taille de A, B, C et D) :
 
 > Trop discret.
+
+Depuis, le mode jeu danse avec le réglage `ample` par défaut (#163, fusionnée) : le même aller-retour que A, à
+la taille de E. La forme du chemin n'a pas changé : c'est ce vote qui la décide.
 
 Quatre questions, à trancher à l'œil. Pour chaque variante : **la danse** (mode jeu, kizomba, 90 bpm, muscles
 affichés : avancer, reculer, sortie garçon, quart de tour) et **le tracé** du chemin des deux hanches de la
@@ -28,13 +31,14 @@ déjà en partie à la question 3 : elle propose maintenant deux tailles plus gr
 
 ## Question 1 — la forme du chemin
 
-Aujourd'hui (A), chaque hanche va et vient sur une ligne. En B et C elle trace un « 8 ».
+Aujourd'hui, chaque hanche va et vient sur une ligne : c'est A, montré ici à la taille du film (`marque`)
+pour comparer les trois formes à taille égale. En B et C elle trace un « 8 ».
 
-| A — aller-retour (aujourd'hui) | B — « 8 » anguleux | C — « 8 » arrondi |
+| A — aller-retour (le chemin d'aujourd'hui) | B — « 8 » anguleux | C — « 8 » arrondi |
 |---|---|---|
 | ![A, la danse](../gifs/election-ginga-marque.gif) | ![B, la danse](../gifs/election-huit-huit.gif) | ![C, la danse](../gifs/election-huit-huitRond.gif) |
 | ![A, le tracé](../gifs/trace-huit-marque.gif) | ![B, le tracé](../gifs/trace-huit-huit.gif) | ![C, le tracé](../gifs/trace-huit-huitRond.gif) |
-| Le bassin va sur l'appui, y reste, revient par le même chemin. Arrêt le plus long : 0,22 temps. | Le bassin attend sur l'appui puis traverse, mais pendant l'attente il recule et tourne. Arrêt : 0,06 temps. | Le bassin ne s'arrête jamais : il glisse d'un côté à l'autre en avançant et en reculant. |
+| Le bassin va sur l'appui, y reste, revient par le même chemin. Arrêt le plus long : 0,22 temps (0,13 temps avec `ample`, le réglage par défaut). | Le bassin attend sur l'appui puis traverse, mais pendant l'attente il recule et tourne. Arrêt : 0,06 temps. | Le bassin ne s'arrête jamais : il glisse d'un côté à l'autre en avançant et en reculant. |
 
 Ma proposition : **C**. C'est la seule où le bassin ne marque aucun arrêt.
 
@@ -56,16 +60,15 @@ passant par le côté » sur chaque appui. C'est le sens de C.
 
 La taille de C est celle que le propriétaire a jugée « trop discrète » dans le film. Deux tailles plus grandes :
 
-| C — la taille d'aujourd'hui (« Trop discret. ») | E — ample | F — très ample |
+| C — la taille du film (« Trop discret. ») | E — ample (la taille du réglage par défaut depuis #163) | F — très ample |
 |---|---|---|
 | ![C, la danse](../gifs/election-huit-huitRond.gif) | ![E, la danse](../gifs/election-huit-huitAmple.gif) | ![F, la danse](../gifs/election-huit-huitGrand.gif) |
 | ![C, le tracé](../gifs/trace-huit-huitRond.gif) | ![E, le tracé](../gifs/trace-huit-huitAmple.gif) | ![F, le tracé](../gifs/trace-huit-huitGrand.gif) |
 | Balancement de 4,2 cm (elle), avance-recul de 2 cm. Chaque hanche entoure 5,7 cm² vu de dessus. | Balancement de 6,3 cm, avance-recul de 4 cm. 16,8 cm² vu de dessus, près du « 8 » du pas de base (17,6 cm²). | Balancement de 8,4 cm, avance-recul de 6 cm. 33,5 cm² vu de dessus, le double du pas de base. |
 
-Dans la sortie garçon de ces images, le balancement et le rebond restent ceux de C pour les trois : les
-sorties sont plafonnées, parce que les fémurs des deux danseurs se touchent au-delà. La différence s'y voit
-dans l'avance-recul et les rotations seulement. Les rendre visibles dans les sorties est un travail à part
-(#163).
+Dans la sortie garçon de ces images, les trois tailles se distinguent dans la partie ouverte de la figure
+(temps 0,8 à 2,9) : depuis #163 la sortie y lève son plafond. À ses deux bouts, le balancement et le rebond
+restent ceux de C pour les trois, parce que les fémurs des deux danseurs se touchent au-delà.
 
 Ma proposition : **E ou F**, à l'œil. Je ne sais pas laquelle se voit assez sans paraître forcée.
 
@@ -102,15 +105,16 @@ moteur) ; le relâché du bassin juste avant chaque appui n'est pas montré. Le 
 
 ## Ce que valent ces images
 
-- Ce sont des **prototypes**. Ils n'ont pas passé les contrôles sur le GLB. Un premier comptage
-  sur 3 888 poses relève quelques croisements d'os : 4 en B, 2 en C, 2 en D (dans la sortie fille), 13 en E
-  (surtout dans le quart de tour), 31 en F sur 1 896 poses (presque tous dans le quart de tour).
+- Ce sont des **prototypes**. Ils n'ont pas passé les contrôles sur le GLB. Un comptage sur 3 168 poses par
+  variante (au seizième de temps dans les sorties et l'ida e volta, au huitième ailleurs) relève des
+  croisements d'os : 13 en B, 11 en C, 8 en D (dans le quart de tour et la sortie fille), 27 en E et 37 en F
+  (surtout dans le quart de tour). Aucun dans la marche ni dans la sortie garçon.
   La variante élue sera ensuite codée et contrôlée dans toutes les figures.
 - **Le « 8 » vient du bassin, pas encore des genoux.** Le propriétaire a élu « genoux chevauchés » pour la
   danse (atlas #132 : « pour la danse on veut B ») : les deux genoux bougent en sens inverse, sans palier,
   et sont fléchis du même angle quand le bassin passe au centre. Dans le modèle, les genoux sont calculés à
   partir du bassin et des pieds, et ces prototypes s'en éloignent : les genoux bougent en sens inverse 6 % du
-  temps (22 % aujourd'hui), avec 5° d'écart au centre (1° aujourd'hui). Faire mener le « 8 » par les genoux
+  temps (22 % avec l'aller-retour), avec 5° d'écart au centre (1° à 2° avec l'aller-retour). Faire mener le « 8 » par les genoux
   chevauchés est l'étape suivante ; ce vote-ci porte sur le chemin que l'on veut obtenir.
 - **Vu de face, le chemin est irrégulier** : la hauteur du bassin vient de la portée des jambes de chaque
   figure, et la marche y a un à-coup d'environ 7 mm qui n'est pas du ginga.

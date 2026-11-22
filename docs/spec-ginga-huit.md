@@ -44,7 +44,7 @@ Ce que ces paroles changent ici :
 
 | Parole | Conséquence | Où |
 |---|---|---|
-| « Trop discret. » | La taille de `marque` (A, B, C, D) ne suffit pas. Une variante plus grande est ajoutée à l'élection (F). Le réglage par défaut de `main` passe au plus grand réglage calibré. | ici, et #163 |
+| « Trop discret. » | La taille de `marque` (A, B, C, D) ne suffit pas. Une variante plus grande est ajoutée à l'élection (F). Le réglage par défaut de `main` est passé au plus grand réglage calibré, `ample` (#163, PR #164 fusionnée). | ici, et #163 |
 | Kompa : « c'est le 8 le plus prononcé » | La recherche de sources est faite (#161). Prototypes du « 8 » du kompa, danseur seul, ajoutés à l'élection (question 4). Dans le mode jeu, le kompa ne reçoit aujourd'hui que le rebond : ni phase, ni « 8 ». | #161, plus bas |
 | Semba : le 2e rebond « comme un chacha » | Le « 8 » du semba n'est pas régulier : un petit rond rapide au deuxième rebond, puis le grand. À prototyper sur le « 8 » élu. | #162 |
 
@@ -58,6 +58,8 @@ rien ; une boucle ou un « 8 » entoure une surface.
 |---|---|---|---|---|---|---|
 | Marche, hanche du leader | 2,9 cm | 1,9 cm | 0,4 cm | **0,0 cm²** | 1,1 cm² | 0,1 cm² |
 | Marche, hanche du suiveur | 4,2 cm | 1,6 cm | 0,4 cm | **0,0 cm²** | 1,3 cm² | 0,1 cm² |
+| Marche, leader, réglage `ample` (par défaut depuis #163) | 4,4 cm | 2,2 cm | 0,4 cm | **0,0 cm²** | 1,9 cm² | 0,1 cm² |
+| Marche, suiveur, réglage `ample` | 6,3 cm | 2,1 cm | 0,4 cm | **0,0 cm²** | 2,4 cm² | 0,1 cm² |
 | Pas de base (suave), pour comparer | 6,0 cm | 1,1 cm | 4,4 cm | 17,6 cm² (un « 8 ») | 0,7 cm² | 0,9 à 2,2 cm² |
 
 - Vu de dessus, la hanche va et vient sur une ligne. Vu de face, elle fait une boucle mince. De profil,
@@ -66,6 +68,8 @@ rien ; une boucle ou un « 8 » entoure une surface.
   bassin est à gauche, il est aussi incliné et tourné au maximum ; quand il revient, tout revient ensemble.
 - **Le temps** : le bassin reste sur l'appui une demi-temps, puis traverse en une demi-temps. Pendant
   l'arrêt, rien ne bouge : c'est l'à-coup que le propriétaire décrit.
+- **Le réglage `ample`**, par défaut depuis #163, agrandit la ligne sans en changer la forme : vu de dessus
+  la hanche n'entoure toujours rien, et le bassin s'arrête encore (0,13 temps au lieu de 0,22).
 
 ## Idée : dans un « 8 », le bassin ne s'arrête jamais
 
@@ -93,7 +97,8 @@ moins de 1 mm par seizième de temps.
 
 | | `ginga=` | Balancement | Avance-recul | Entouré dessus | de face | de profil | Arrêt |
 |---|---|---|---|---|---|---|---|
-| A — aller-retour (aujourd'hui) | `marque` | 4,2 cm | 0 cm | 0,0 cm² | 1,3 cm² | 0,1 cm² | 0,22 temps |
+| A — aller-retour (le chemin d'aujourd'hui, à la taille du film) | `marque` | 4,2 cm | 0 cm | 0,0 cm² | 1,3 cm² | 0,1 cm² | 0,22 temps |
+| Le même aller-retour, réglage par défaut depuis #163 (hors élection) | `ample` | 6,3 cm | 0 cm | 0,0 cm² | 2,4 cm² | 0,1 cm² | 0,13 temps |
 | B — « 8 » anguleux | `huit` | 4,2 cm | 2,0 cm | 4,5 cm² | 1,8 à 4,0 cm² | 1,1 à 1,4 cm² | 0,06 temps |
 | C — « 8 » arrondi | `huitRond` | 4,2 cm | 2,0 cm | 5,7 cm² | 1,8 à 3,0 cm² | 1,5 à 1,6 cm² | aucun |
 | D — « 8 » arrondi, autre sens | `huitInverse` | 4,2 cm | 2,0 cm | 5,7 cm² | 1,3 à 2,4 cm² | 1,5 à 1,8 cm² | aucun |
@@ -114,10 +119,10 @@ Pour le leader : balancement de 2,9 cm (4,4 cm en E, 5,9 cm en F), 3,1 à 4,0 cm
 - **F** : ajoutée après « Trop discret. » : le double de C (balancement, rotations), avance-recul triplé.
   Deux fois la surface du « 8 » du pas de base. Son rebond reste celui d'`ample` (14 mm) : essayé à 20 mm,
   il faisait se croiser les genoux dans le pas de base et l'ida e volta (67 croisements relevés).
-- Dans les sorties, le balancement et le rebond de toutes les variantes restent plafonnés à ceux de `marque`
-  (`SORTIE_GINGA_CAP`, #157) : les fémurs des deux danseurs se touchent au-delà, au début et à la fin de la
-  figure. Seuls l'avance-recul et les rotations y grandissent. Rendre le ginga visible dans les sorties
-  demande de leur trouver de la place : c'est un travail de la variante élue.
+- Dans les sorties, le balancement et le rebond des variantes sont plafonnés à ceux de `marque`
+  (`SORTIE_GINGA_CAP`, #157) au début et à la fin de la figure : les fémurs des deux danseurs se touchent
+  au-delà. Entre les deux, depuis #163, les sorties lèvent ce plafond (`gingaCapRoom`) : E y prend la taille
+  d'`ample`, F monte au-delà de ce qui a été calibré. L'avance-recul et les rotations ne sont pas plafonnés.
 
 La phase continue d'une figure à la suivante (`gingaFrom`) : en #157 elle repartait posée sur l'appui à
 chaque figure, donc toutes les deux temps dans la marche. Seuls les prototypes l'utilisent.
@@ -127,12 +132,22 @@ chaque figure, donc toutes les deux temps dans la marche. Seuls les prototypes l
 - **Les genoux ne sont pas le moteur, et ils s'éloignent de la règle élue.** Voir la section suivante.
 - **Vu de face, le chemin est irrégulier.** La hauteur du bassin vient de la portée des jambes de la
   figure : dans la marche elle a un à-coup d'environ 7 mm, qui n'est pas du ginga (R3, #67).
-- **Les contrôles sur le GLB ne sont pas passés.** Un premier comptage (3 888 poses, chaque figure
-  dansée seule, les styles qui la proposent, amplitude 1) relève des croisements d'os : 4 en B (sortie
-  fille et son enchaînement), 2 en C, 2 en D, 13 en E (dont 10 dans le quart de tour, 1 dans le pas de
-  base). F, compté au pas deux fois plus fin (1 896 poses) : 31 croisements, dont 26 dans le quart de tour.
-  Les enchaînements de figures, où la phase se poursuit, ne sont pas comptés. La variante élue
-  devra déclarer ses marges (`gingaRoom`), comme #157.
+- **Les contrôles sur le GLB ne sont pas passés.** Comptage des croisements d'os, refait après la fusion
+  de #163 : 3 168 poses par variante, chaque figure dansée seule, les styles qui la proposent, amplitude 1,
+  au seizième de temps dans les sorties et l'ida e volta, au huitième ailleurs.
+
+  | | Quart de tour | Sortie fille et son enchaînement | Ida e volta (semba) | Pas de base (kompa) | Total |
+  |---|---|---|---|---|---|
+  | B | 5 | 8 | 0 | 0 | 13 |
+  | C | 5 | 6 | 0 | 0 | 11 |
+  | D | 2 | 6 | 0 | 0 | 8 |
+  | E | 18 | 4 | 4 | 1 | 27 |
+  | F | 26 | 6 | 4 | 1 | 37 |
+
+  Aucun croisement dans la marche ni dans la sortie garçon, où le plafond est pourtant levé. Le premier
+  comptage, avant #163 et à un pas plus large, en relevait moins (4, 2, 2, 13, et 31 pour F) : le pas plus
+  fin en trouve entre deux échantillons. Les enchaînements de figures, où la phase se poursuit, ne sont pas
+  comptés. La variante élue devra déclarer ses marges (`gingaRoom`), comme #157.
 - L'ida e volta et le pas de base gardent leur chemin actuel.
 
 Elles se voient dans l'app avec `?mode=pair&guidage=1&demo=ginga&ginga=huitRond` (branche de cette PR, non
@@ -188,7 +203,8 @@ Ce que font les variantes de cette spec, mesuré en couple sur la suiveuse (marc
 | | Genoux en sens inverse (part du cycle) | Flexions quand le bassin passe au centre |
 |---|---|---|
 | Sans ginga | 44 % | — |
-| A — aller-retour (aujourd'hui) | 22 % | 25° et 26° |
+| A — aller-retour, `marque` | 22 % | 25° et 26° |
+| Aller-retour, `ample` (par défaut depuis #163) | 22 % | 27° et 29° |
 | B — « 8 » anguleux | 6 % | 20° et 25° |
 | C — « 8 » arrondi | 6 % | 20° et 25° |
 | D — « 8 » arrondi, autre sens | 11 % | 20° et 23° |
@@ -196,7 +212,7 @@ Ce que font les variantes de cette spec, mesuré en couple sur la suiveuse (marc
 
 - Dans le modèle, les genoux sont calculés à partir du bassin et des pieds : ils suivent, ils ne mènent pas.
 - **Les prototypes du « 8 » s'éloignent de la règle élue** : les genoux y bougent moins souvent en sens
-  inverse (6 % contre 22 % aujourd'hui), et ils sont moins égaux au centre (5° d'écart contre 1°).
+  inverse (6 % contre 22 % avec l'aller-retour), et ils sont moins égaux au centre (5° d'écart contre 1° à 2°).
 - Le « 8 » de ces prototypes vient donc du bassin. Le « 8 » que décrit le propriétaire vient des genoux
   chevauchés. La suite est de faire mener le bassin par cette règle (`applyAtlasPose`, règle B, sur la
   branche de l'atlas) et de vérifier que le chemin obtenu est bien le « 8 » élu ici.

@@ -40,28 +40,32 @@ const api = await import(bundle.href); unlinkSync(bundle);
       return [...f.r.pelvis.position.toArray(), f.r.pelvis.rotation.x, f.r.pelvis.rotation.y, f.r.pelvis.rotation.z, f.r.root.position.y];
     };
     for (let beat = 0; beat <= 2; beat += 0.125) {
-      assert.deepEqual(at(beat, 'marque', previous), at(beat, 'marque', null), `marque ${kind} after ${previous} at ${beat}`);
+      for (const calibrated of ['marque', api.GUIDE_GINGA_DEFAULT])
+        assert.deepEqual(at(beat, calibrated, previous), at(beat, calibrated, null), `${calibrated} ${kind} after ${previous} at ${beat}`);
       const a = at(beat, 'huitRond', previous), b = at(beat, 'huitRond', null);
       if (a.some((v, k) => Math.abs(v - b[k]) > 1e-6)) changed++;
       poses++;
     }
   }
   assert.ok(changed > 0, 'the prototypes continue the phase of the figure danced before');
-  console.log(`PASS réglage calibré indifférent à la figure précédente (${poses} poses identiques) ; les prototypes poursuivent la phase de la figure précédente (${changed} poses différentes)`);
+  console.log(`PASS réglages calibrés (marque, ${api.GUIDE_GINGA_DEFAULT}) indifférents à la figure précédente (${poses} poses identiques chacun) ; les prototypes poursuivent la phase de la figure précédente (${changed} poses différentes)`);
 }
 
 // 3. The measure shown in the election: surface each hip goes around in the three views, longest stop.
 {
   const measure = (ginga, role = 'suiveur') => JSON.parse(execFileSync('node', [fileURLToPath(new URL('./tracer_hanches.mjs', import.meta.url)), '', ginga, role], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })).mesures;
-  const today = measure('marque'), round = measure('huitRond'), other = measure('huitInverse'), large = measure('huitAmple'), larger = measure('huitGrand'), angular = measure('huit');
+  // Today: the default setting (`ample` since #163). The film's: `marque`, the size of the prototypes B, C, D.
+  const today = measure(api.GUIDE_GINGA_DEFAULT), film = measure('marque'), round = measure('huitRond'), other = measure('huitInverse'), large = measure('huitAmple'), larger = measure('huitGrand'), angular = measure('huit');
   for (const hip of ['L', 'R']) {
-    assert.ok(today[hip].dessus < 0.1, `today a hip goes and returns on a line seen from above (${today[hip].dessus} cm²)`);
+    for (const [name, m] of [[api.GUIDE_GINGA_DEFAULT, today], ['marque', film]])
+      assert.ok(m[hip].dessus < 0.1, `${name}: a hip goes and returns on a line seen from above (${m[hip].dessus} cm²)`);
     for (const [name, m] of [['huit', angular], ['huitRond', round], ['huitInverse', other], ['huitAmple', large], ['huitGrand', larger]])
       for (const view of ['dessus', 'face', 'profil']) assert.ok(m[hip][view] > 0.5, `${name}: hip ${hip} goes round seen from ${view} (${m[hip][view]} cm²)`);
     assert.ok(round[hip].dessus > 3 && large[hip].dessus > 2 * round[hip].dessus && larger[hip].dessus > 1.5 * large[hip].dessus, `sizes seen from above: ${round[hip].dessus} < ${large[hip].dessus} < ${larger[hip].dessus} cm²`);
     assert.ok(Math.abs(other[hip].dessus - round[hip].dessus) < 0.2 * round[hip].dessus, 'the other sense has the same size');
   }
-  assert.ok(today.C.arret > 0.1 && round.C.arret < 0.05 && other.C.arret < 0.05 && large.C.arret < 0.05 && angular.C.arret < today.C.arret, `stops: ${today.C.arret} → ${angular.C.arret}, ${round.C.arret}`);
+  assert.ok(today.C.arret > 0.1 && film.C.arret > today.C.arret && round.C.arret < 0.05 && other.C.arret < 0.05 && large.C.arret < 0.05 && larger.C.arret < 0.05 && angular.C.arret < today.C.arret,
+    `stops: ${film.C.arret} (marque), ${today.C.arret} (${api.GUIDE_GINGA_DEFAULT}) → ${angular.C.arret}, ${round.C.arret}`);
   // The kompa alone (#161): today a line with a long stop on each side; the prototypes go round, the largest
   // « 8 » of the styles, and never stop. The model of today is untouched unless a prototype is chosen.
   const kompa = name => JSON.parse(execFileSync('node', [fileURLToPath(new URL('./tracer_hanches.mjs', import.meta.url)), '', name, 'seul', 'base', 'kompa'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })).mesures;
@@ -73,5 +77,5 @@ const api = await import(bundle.href); unlinkSync(bundle);
   assert.ok(k2.L.dessus > 1.5 * k1.L.dessus && Math.abs(k3.L.dessus - k1.L.dessus) < 0.1 * k1.L.dessus, 'kompa: sizes and senses');
   assert.ok(k1.L.dessus > 2 * large.L.dessus, 'the kompa prototype is the largest « 8 »');
   console.log(`PASS kompa seul : aujourd'hui une ligne (${k0.C.profondeur} cm d'avant en arrière, arrêt de ${k0.C.arret} temps) ; prototypes : ${k1.L.dessus} et ${k2.L.dessus} cm² entourés vu de dessus, aucun arrêt`);
-  console.log(`PASS mesure du « 8 » (suiveuse, marche) : vu de dessus chaque hanche entoure ${today.L.dessus} cm² aujourd'hui, ${angular.L.dessus} (anguleux), ${round.L.dessus} (arrondi), ${large.L.dessus} (ample), ${larger.L.dessus} (très ample) ; arrêt le plus long du bassin ${today.C.arret} → ${round.C.arret} temps`);
+  console.log(`PASS mesure du « 8 » (suiveuse, marche) : vu de dessus chaque hanche entoure ${today.L.dessus} cm² aujourd'hui (réglage ${api.GUIDE_GINGA_DEFAULT} ; ${film.L.dessus} avec marque, la taille du film), ${angular.L.dessus} (anguleux), ${round.L.dessus} (arrondi), ${large.L.dessus} (ample), ${larger.L.dessus} (très ample) ; arrêt le plus long du bassin ${film.C.arret} (marque), ${today.C.arret} (${api.GUIDE_GINGA_DEFAULT}) → ${round.C.arret} temps`);
 }

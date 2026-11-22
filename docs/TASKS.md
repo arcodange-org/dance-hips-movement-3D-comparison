@@ -371,6 +371,8 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
       semba → #162.
 - [x] Kompa (#161, « c'est le 8 le plus prononcé ») : prototypes `KOMPA_EIGHTS` du danseur seul (`?style=kompa&kompa=huit`),
       question 4 de l'élection ; la recherche de sources est sur la branche de la vidéo.
+- [x] Branche à jour de `main` après #163 (défaut `ample`, sorties moins plafonnées) : GIF de danse repris, croisements
+      d'os recomptés au seizième de temps (13, 11, 8, 27, 37 de B à F ; aucun dans la marche ni la sortie garçon).
 - [ ] Vote du propriétaire : forme, sens, taille, kompa.
 - [ ] Variante élue : contrôles sur le GLB dans toutes les figures (marges), ida e volta, pas de base.
 - [ ] Faire mener le « 8 » par les genoux chevauchés (règle B de l'atlas #132, élue : « pour la danse on veut B ») :
