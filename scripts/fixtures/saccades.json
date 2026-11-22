@@ -25,88 +25,88 @@
     "ida": {
       "leader": {
         "vertical": {
-          "cm": 2.3,
+          "cm": 1,
           "temps": 5.19
         },
         "horizontal": {
-          "cm": 8,
-          "temps": 1.03
+          "cm": 3.5,
+          "temps": 7.06
         }
       },
       "suiveur": {
         "vertical": {
-          "cm": 2.6,
-          "temps": 2.66
+          "cm": 1.2,
+          "temps": 3.19
         },
         "horizontal": {
-          "cm": 8.5,
-          "temps": 3.03
+          "cm": 4.2,
+          "temps": 5.06
         }
       }
     },
     "idaD": {
       "leader": {
         "vertical": {
-          "cm": 2.3,
+          "cm": 1,
           "temps": 1.19
         },
         "horizontal": {
-          "cm": 8,
-          "temps": 1.03
+          "cm": 3.5,
+          "temps": 3.06
         }
       },
       "suiveur": {
         "vertical": {
-          "cm": 2.6,
-          "temps": 6.66
+          "cm": 1.2,
+          "temps": 7.19
         },
         "horizontal": {
-          "cm": 8.5,
-          "temps": 2.84
+          "cm": 4.2,
+          "temps": 1.06
         }
       }
     },
     "idaArr": {
       "leader": {
         "vertical": {
-          "cm": 2.3,
+          "cm": 1,
           "temps": 3.19
         },
         "horizontal": {
-          "cm": 8,
-          "temps": 2.84
+          "cm": 3.5,
+          "temps": 5.06
         }
       },
       "suiveur": {
         "vertical": {
-          "cm": 2.5,
-          "temps": 0.66
+          "cm": 1.2,
+          "temps": 1.19
         },
         "horizontal": {
-          "cm": 8.5,
-          "temps": 1.03
+          "cm": 4.2,
+          "temps": 3.06
         }
       }
     },
     "idaArrD": {
       "leader": {
         "vertical": {
-          "cm": 2.3,
+          "cm": 1,
           "temps": 7.19
         },
         "horizontal": {
-          "cm": 8,
-          "temps": 2.84
+          "cm": 3.5,
+          "temps": 1.06
         }
       },
       "suiveur": {
         "vertical": {
-          "cm": 2.6,
-          "temps": 4.66
+          "cm": 1.2,
+          "temps": 5.19
         },
         "horizontal": {
-          "cm": 8.5,
-          "temps": 5.03
+          "cm": 4.2,
+          "temps": 3.06
         }
       }
     },
@@ -117,17 +117,17 @@
           "temps": 1.72
         },
         "horizontal": {
-          "cm": 13,
+          "cm": 13.4,
           "temps": 0.75
         }
       },
       "suiveur": {
         "vertical": {
-          "cm": 3.2,
+          "cm": 3.3,
           "temps": 0.81
         },
         "horizontal": {
-          "cm": 13.9,
+          "cm": 13.1,
           "temps": 0.75
         }
       }
@@ -139,8 +139,8 @@
           "temps": 0.5
         },
         "horizontal": {
-          "cm": 5.5,
-          "temps": 2.5
+          "cm": 5.4,
+          "temps": 2.53
         }
       },
       "suiveur": {
@@ -161,8 +161,8 @@
           "temps": 2.63
         },
         "horizontal": {
-          "cm": 7.5,
-          "temps": 3.44
+          "cm": 7.6,
+          "temps": 3.41
         }
       },
       "suiveur": {
@@ -171,86 +171,86 @@
           "temps": 1.31
         },
         "horizontal": {
-          "cm": 9.3,
-          "temps": 1.72
+          "cm": 8.5,
+          "temps": 1.47
         }
       }
     },
     "avance": {
       "leader": {
         "vertical": {
-          "cm": 1.3,
-          "temps": 0.66
+          "cm": 0.6,
+          "temps": 0.19
         },
         "horizontal": {
-          "cm": 7.4,
-          "temps": 0.84
+          "cm": 2.6,
+          "temps": 0.44
         }
       },
       "suiveur": {
         "vertical": {
-          "cm": 0.9,
-          "temps": 1.13
+          "cm": 1,
+          "temps": 1.06
         },
         "horizontal": {
-          "cm": 7.6,
-          "temps": 0.84
+          "cm": 2.6,
+          "temps": 0.41
         }
       }
     },
     "recule": {
       "leader": {
         "vertical": {
-          "cm": 1.8,
+          "cm": 2,
           "temps": 1.09
         },
         "horizontal": {
-          "cm": 7.5,
-          "temps": 0.84
+          "cm": 3,
+          "temps": 0.5
         }
       },
       "suiveur": {
         "vertical": {
-          "cm": 2.2,
-          "temps": 0.66
+          "cm": 0.7,
+          "temps": 2.66
         },
         "horizontal": {
-          "cm": 7.7,
-          "temps": 0.84
+          "cm": 3.1,
+          "temps": 0.5
         }
       }
     },
     "double": {
       "leader": {
         "vertical": {
-          "cm": 1.2,
-          "temps": 0.38
+          "cm": 0.6,
+          "temps": 0.13
         },
         "horizontal": {
-          "cm": 9,
-          "temps": 0.38
+          "cm": 5.6,
+          "temps": 0.22
         }
       },
       "suiveur": {
         "vertical": {
-          "cm": 0.8,
-          "temps": 0.66
+          "cm": 0.9,
+          "temps": 0.47
         },
         "horizontal": {
-          "cm": 9,
-          "temps": 0.38
+          "cm": 5.7,
+          "temps": 0.22
         }
       }
     }
   },
   "soudain": {
     "leader": {
-      "largeur": 4.2,
-      "soudain": 2.05
+      "largeur": 4.4,
+      "soudain": 0.98
     },
     "suiveur": {
-      "largeur": 6,
-      "soudain": 2.05
+      "largeur": 6.3,
+      "soudain": 0.98
     }
   }
 }

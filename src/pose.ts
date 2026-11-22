@@ -56,8 +56,8 @@ export interface PoseOptions {
    * lateral hip shift added to the pelvis in every pair figure, with the style's phase driven by the
    * figure's support transfers; `bounce` (m): a small vertical pulse, lowest on each beat of the music. */
   ginga: { sway: number; bounce: number; free?: boolean; eight?: GingaEight } | null;
-  /** #159 (prototype): the pair figure danced just before (its pose options, its length in beats). With
-   * the « 8 », the phase of the ginga continues from its last transfers instead of starting settled. */
+  /** #167: the pair figure danced just before (its pose options, its length in beats): the phase of the
+   * ginga continues from its last transfers instead of starting settled on the support. */
   gingaFrom: (Partial<PoseOptions> & { beats: number }) | null;
   /** #61: in pair on the spot, the couple dances in the neutral quinconce (opt-in, set by the app). */
   placePaire: boolean;
@@ -358,7 +358,10 @@ export const onBeatShift = (o: { movement: MovementKey; sortie?: boolean; embrac
  * weight already gone to the other foot; a completed transfer moves it on by one beat. A rock that comes
  * back (a touch) takes the hips part of the way and back. The figures transfer the weight in a fifth of a
  * beat: the phase is averaged over `GINGA_SWING` beats on each side, so that the hips swing like a
- * pendulum around each transfer instead of snapping across.
+ * pendulum around each transfer instead of snapping across. #167: half a beat on each side (a quarter
+ * before), so that the passage takes the whole interval between two supports (the hips waited on the
+ * support, then crossed twice as suddenly as a pendulum), and the table looks back on the loads of the
+ * figure danced before (`before`, `GINGA_BEFORE`): the swing goes on from one figure to the next.
  *
  * A figure may be changed at a junction (`gingaJunctions`, beats: the sortie fille chained at its
  * position 3) and must keep its past: before a junction the mean never looks beyond it. After it the
@@ -372,7 +375,7 @@ const GINGA_ROOM = -0.008;
 /** Beats over which the ginga fades out when a touch starts, and back in when it ends. */
 const GINGA_TOUCH_FADE = 0.25;
 const smoothstep = (x: number) => { const k = Math.max(0, Math.min(1, x)); return k * k * (3 - 2 * k); };
-export const GINGA_SWING = 0.25;
+export const GINGA_SWING = 0.5;
 /** Beats of look-ahead regained per beat after a junction. */
 export const GINGA_REJOIN = 0.5;
 /** #159 (prototype, docs/spec-ginga-huit.md): the « 8 » of the hips. In #157 the pelvis turns (roll, yaw)
@@ -384,7 +387,8 @@ export const GINGA_REJOIN = 0.5;
 export interface GingaEight { turn: number; rollLag: number; yawLag: number; depth: number; depthLag: number; bounceLag: number; round?: number }
 /** Beats on each side over which the phase of the « 8 » is averaged: it then moves all along the beat. */
 export const GINGA_WIDE = 0.5;
-/** Beats of the figure danced before that the phase table looks back on. */
+/** #167: beats of the figure danced before that the phase table looks back on, so that the hips' swing
+ * continues from one figure to the next instead of starting settled on the support. */
 const GINGA_BEFORE = 1;
 const gingaTables = new Map<string, Float32Array | null>();
 export function gingaPhase(key: string, leader: (beat: number) => { loadR?: number; gingaJunctions?: readonly number[] } | null, beat: number, swing = GINGA_SWING,
@@ -502,12 +506,18 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   // gives its phase (the ida e volta) keeps its calibration.
   if (figure && o.ginga && o.ginga.sway > 0 && !("gingaBeat" in figure) && o.movement !== "none" && o.movement !== "temps3") {
     const own = [o.movement, o.sortieChain, o.marche, o.sortieVariant, o.sortieFilleVariant, o.sortieVirgula, o.quartsPaire, o.placement, o.amp, stance.toFixed(4)].join("|");
-    // #159 (prototype): with the « 8 », the loads before the figure are those of the figure danced before.
-    const from = o.ginga.eight ? o.gingaFrom : null, previous = from ? hostOf({ ...o, ...from, touches: [] }) : null;
+    // #167: the loads before the figure are those of the figure danced before: the swing goes on. Only
+    // after a figure whose swing is this same phase: the ida e volta gives its own (`gingaBeat`, #42), and
+    // a phase read on its loads would not continue what it showed (measured on the GLB: femurs meet at the
+    // start of a chained sortie fille danced after it). After it the figure starts settled, as before.
+    const before0 = o.gingaFrom ? hostOf({ ...o, ...o.gingaFrom, touches: [] }) : null, last = before0?.(0, false);
+    const from = last && !("gingaBeat" in last) ? o.gingaFrom : null, previous = from ? before0 : null;
     const loads = (b: number) => hostFigure(b, false) as { loadR?: number; gingaJunctions?: readonly number[] } | null;
     const before = previous ? (b: number) => previous(from!.beats + b, false) as { loadR?: number } | null : null;
     const key = (from ? [from.movement, from.sortieChain, from.marche, from.idaVariant ? JSON.stringify(from.idaVariant) : "", from.beats].join("|") + ">" : "") + own;
-    const narrow = gingaPhase(key, loads, beat, GINGA_SWING, before), wide = o.ginga.eight ? gingaPhase(key, loads, beat, GINGA_WIDE, before) : null;
+    const narrow = gingaPhase(key, loads, beat, GINGA_SWING, before);
+    // #159 (prototype): the « 8 » reads its roll, yaw and depth on a phase that moves all along the beat.
+    const wide = o.ginga.eight ? gingaPhase(key, loads, beat, GINGA_WIDE, before) : null;
     const phase = narrow !== null && wide !== null ? narrow + (wide - narrow) * (o.ginga.eight?.round ?? 0) : narrow;
     if (phase !== null) Object.assign(figure, { gingaBeat: phase, gingaAmp: o.follower ? IDA_GINGA.follower : IDA_GINGA.leader, gingaOwn: false,
       gingaWide: wide ?? undefined,

@@ -72,7 +72,9 @@ Repère du couple : celui du leader (+x à gauche, +z vers le suiveur). Écartem
 - **Poids et bassins (pas balancé, « rock step »)** : le poids passe sur le pied sorti sur le temps
   (0,8 → 1,0), puis revient sur l'autre pied (1,0 → 1,2), ce qui libère le pied pour son retour, sans poids.
   Après un créneau vers l'arrière, le pied revenu reprend le poids (1,85 → 2,0) pour libérer l'autre jambe
-  au créneau suivant.
+  au créneau suivant. Le bassin, lui, ne suit plus le poids (#167) : il sort pendant tout le pas sortant
+  (0,1 → 1,0) et revient en une demi-temps (1,0 → 1,5). En suivant le poids il donnait un coup en avant
+  puis en arrière, un cinquième de temps chacun. Sa place sur le temps ne change pas.
 - **Transferts d'appui explicites (pour le ginga #42)** : `idaTransfers(follower)` liste les dix
   transferts du cycle, alternés D/G. Pour le leader : D→G à 0,8, G→D à 1, D→G à 2,8, G→D à 3, D→G à 3,85,
   G→D à 4,8, D→G à 5, G→D à 6,8, D→G à 7, G→D à 7,85. Mêmes instants, pieds en miroir, pour le suiveur.
@@ -123,6 +125,7 @@ Repère du couple : celui du leader (+x à gauche, +z vers le suiveur). Écartem
 | `delay` | 0,15 temps | retard du pied du suiveur qui avance sur celui du leader qui recule |
 | `aside` | 2 cm | ouverture du pied G pendant son vol |
 | `carry` | 0,5 | part du pas suivie par les deux bassins (9 cm) |
+| `pelvisBack` | 1,5 temps | instant du créneau où le bassin est revenu (#167). À 1,7 ou plus tard, avec le ginga par défaut, le fémur gauche du leader touche le tibia droit de la suiveuse en semba |
 | `forwardRoll`, `backRoll` | 30 % | roulé du pas (`gaitStep`) |
 | `weight` | 0,8 → 1,0 → 1,2 ; 1,85 → 2,0 | poids sur le pied sorti au temps, retour (pas balancé) ; après un créneau arrière, le pied revenu reprend le poids |
 | `pelvisYaw` | 0,5 | part du lacet de bassin de la phase 15 gardée en paire |

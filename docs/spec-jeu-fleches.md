@@ -49,7 +49,9 @@ suivant est une commande à part.
 - **Marche avant** (leader) : PG en avant, posé sur le 1 ; PD en avant, posé sur le 2. Le suiveur fait
   le pas symétrique (pied opposé, en arrière, même couloir, même longueur : R22). Le pied qui recule
   libère la place sans partir avant le leader (R24, #88) : les deux pieds d'une paire partent ensemble,
-  celui du suiveur se pose plus tôt. Le bassin suit l'appui ; le couple avance d'un bloc.
+  celui du suiveur se pose plus tôt. Le bassin voyage pendant tout le pas, du départ du pied du leader
+  jusqu'au temps où le poids arrive (#167) ; sur chaque temps il est là où l'appui le place. Le couple
+  avance d'un bloc.
 - **Marche arrière** : le leader recule (son pied part le premier), le suiveur avance et suit.
 - **Double** : PG puis PD en un temps (demi-temps chacun), puis marka : le PG du leader touche le sol à
   côté du PD sans poids et revient, le poids reste à droite. Le suiveur fait le miroir (PD, PG, marka du
