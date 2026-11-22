@@ -29,7 +29,10 @@ export const IDA_LEAD = 0.25;
  * - `aside`: a moving left foot (the outer lane of each pair of feet in quinconce: the leader's G next to
  *   the follower's D, the follower's G next to the leader's D) opens this far to its left during its
  *   flight, so the two knees that travel side by side clear each other;
- * - `carry`: share of the step the pelvises travel with the weight;
+ * - `carry`: share of the step the pelvises travel towards the weighted foot; `pelvisBack` (#167): the
+ *   pelvis goes out through the whole outgoing step and is back at this beat of the slot (it followed the
+ *   weight: out and back within a fifth of a beat each way). Back at 1.7 or later, with the default ginga,
+ *   his left femur meets her right tibia in semba (measured on the GLB); 1.5 keeps a margin;
  * - `hip` (#84, owner: « un côté de la hanche avance/recule et l'autre côté reste »): the pelvis turns
  *   about the standing hip; the hip of the moving foot follows this share of the leader's step (forward
  *   for him, backward for her: the gap between the pelvises stays). It replaces the phase 15 pelvis yaw;
@@ -39,7 +42,7 @@ export const IDA_LEAD = 0.25;
 export const IDA_PAIR = {
   step: 0.18, out: [0.1, 0.8], ret: [1.2, 1.85], share: 0.7, delay: 0.15,
   weight: { on: [0.8, 1.0], back: [1.0, 1.2], home: [1.85, 2.0] },
-  aside: 0.02, carry: 0.5, forwardRoll: 0.3, backRoll: 0.3,
+  aside: 0.02, carry: 0.5, pelvisBack: 1.5, forwardRoll: 0.3, backRoll: 0.3,
   hip: 0.15, kneeFoot: 1.2, coupling: 1, kneeCap: 0.22, rotationCap: 0.035, dip: -0.008, sway: 1,
 };
 
@@ -193,7 +196,6 @@ export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<Fig
   // Weight: rock step, onto the outgoing foot on the beat and back onto the other foot; the return comes
   // back unloaded.
   const w = IDA_PAIR.weight;
-  const onMoving = smooth((now.q - w.on[0]) / (w.on[1] - w.on[0])) * (1 - smooth((now.q - w.back[0]) / (w.back[1] - w.back[0])));
   const p0 = ((b % IDA_BEATS) + IDA_BEATS) % IDA_BEATS;
   const loadR = idaLoadR(p0, follower);
   // #84: the pelvis turns about the standing hip; the hip of the moving foot follows the leader's step
@@ -206,7 +208,11 @@ export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<Fig
   const pivot = (moving === "L" ? -1 : 1) * hip / hipSpan;
   // #128: the pelvis opens to his left with the virgula; the chest keeps its own direction (`upper`).
   const lower = pivot + IDA_VIRGULA.pelvis * opening;
-  const root = { x: neutral.root.x, z: neutral.root.z + forward * IDA_PAIR.carry * IDA_PAIR.step * onMoving + hip / 2 };
+  // #167: the pelvis goes out through the whole outgoing step (from the moment the foot leaves to the beat
+  // where the weight arrives) and comes back over half a beat (`pelvisBack`). It followed the weight, which
+  // rocks onto the foot and back within a fifth of a beat each way: a jab. Its place on the beat is unchanged.
+  const through = smooth((now.q - IDA_PAIR.out[0]) / (w.on[1] - IDA_PAIR.out[0])) * (1 - smooth((now.q - w.back[0]) / (IDA_PAIR.pelvisBack - w.back[0])));
+  const root = { x: neutral.root.x, z: neutral.root.z + forward * IDA_PAIR.carry * IDA_PAIR.step * through + hip / 2 };
   // Phase 15 contraposition of the chest, on the dancer's own moving foot (the follower mirrors the
   // leader). The leader's upper body leads by IDA_LEAD.
   const sign = follower ? -1 : 1;

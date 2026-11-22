@@ -99,8 +99,9 @@ et les specs. Résumé de la journée du 21 :
   et le ginga par défaut passe d'un côté à l'autre 2,0 fois plus brusquement qu'un balancier. Étape 1 faite :
   `scripts/test_saccades.mjs` enregistre cet état (`scripts/fixtures/saccades.json`) et échoue si une figure fait pire.
   Marche fluide : le bassin voyage pendant tout le pas au lieu de suivre le poids dans le dernier cinquième du temps
-  (7,5 → 2,7 cm en un huitième de temps). Restent : la hauteur du bassin, son trajet dans le quart de tour, les sorties et
-  l'ida e volta, le passage latéral du ginga. Posture (R33) : #166.
+  (7,5 → 2,7 cm en un huitième de temps) ; ida e volta fluide : le bassin sort sur tout le pas et revient en une
+  demi-temps (`IDA_PAIR.pelvisBack`, 8 → 3,5 à 4,2 cm). Restent : la hauteur du bassin, son trajet dans le quart de tour et
+  les sorties, le passage latéral du ginga. Posture (R33) : #166.
 - PR brouillon en relecture du propriétaire : #117 (ontologie), #76 (audit).
 - Pièges : `npm test` complet dure 25 min ou plus en local. Lancer ses scripts en parallèle, un journal
   par script, le ramène à une dizaine de minutes ; `test_placements` et `test_plexus` rejouent d'autres

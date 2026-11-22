@@ -25,88 +25,88 @@
     "ida": {
       "leader": {
         "vertical": {
-          "cm": 2.3,
+          "cm": 1,
           "temps": 5.19
         },
         "horizontal": {
-          "cm": 8,
-          "temps": 1.03
+          "cm": 3.5,
+          "temps": 7.06
         }
       },
       "suiveur": {
         "vertical": {
-          "cm": 2.6,
-          "temps": 2.66
+          "cm": 1.2,
+          "temps": 3.19
         },
         "horizontal": {
-          "cm": 8.5,
-          "temps": 3.03
+          "cm": 4.2,
+          "temps": 5.06
         }
       }
     },
     "idaD": {
       "leader": {
         "vertical": {
-          "cm": 2.3,
+          "cm": 1,
           "temps": 1.19
         },
         "horizontal": {
-          "cm": 8,
-          "temps": 1.03
+          "cm": 3.5,
+          "temps": 3.06
         }
       },
       "suiveur": {
         "vertical": {
-          "cm": 2.6,
-          "temps": 6.66
+          "cm": 1.2,
+          "temps": 7.19
         },
         "horizontal": {
-          "cm": 8.5,
-          "temps": 2.84
+          "cm": 4.2,
+          "temps": 1.06
         }
       }
     },
     "idaArr": {
       "leader": {
         "vertical": {
-          "cm": 2.3,
+          "cm": 1,
           "temps": 3.19
         },
         "horizontal": {
-          "cm": 8,
-          "temps": 2.84
+          "cm": 3.5,
+          "temps": 5.06
         }
       },
       "suiveur": {
         "vertical": {
-          "cm": 2.5,
-          "temps": 0.66
+          "cm": 1.2,
+          "temps": 1.19
         },
         "horizontal": {
-          "cm": 8.5,
-          "temps": 1.03
+          "cm": 4.2,
+          "temps": 3.06
         }
       }
     },
     "idaArrD": {
       "leader": {
         "vertical": {
-          "cm": 2.3,
+          "cm": 1,
           "temps": 7.19
         },
         "horizontal": {
-          "cm": 8,
-          "temps": 2.84
+          "cm": 3.5,
+          "temps": 1.06
         }
       },
       "suiveur": {
         "vertical": {
-          "cm": 2.6,
-          "temps": 4.66
+          "cm": 1.2,
+          "temps": 5.19
         },
         "horizontal": {
-          "cm": 8.5,
-          "temps": 5.03
+          "cm": 4.2,
+          "temps": 3.06
         }
       }
     },
