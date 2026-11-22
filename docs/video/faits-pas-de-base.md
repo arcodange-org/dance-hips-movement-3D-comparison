@@ -359,6 +359,9 @@ Lecture des paramètres du moteur, valable pour les six styles :
 - **F321** Le modèle ne trace pas de « 8 » en semba : sur place, le bassin va et vient en ligne droite, 10,0 cm
   de côté et 0 cm d'avant en arrière, mesurés en mode film (`docs/recherche-danse/README.md`, « Ce que le
   modèle fait aujourd'hui »).
+- **F336** Le propriétaire, le même jour, précise : « Le double rebond du semba c'est le doublement de transfert
+  vers le meme coté en initiant un transfert vers le coté opposé et en re-transferant vers le coté initial a
+  la place » (`docs/recherche-danse/README.md`, « Le même jour, après la quatrième version »).
 
 ### 2.3 Kompa
 
@@ -864,6 +867,16 @@ Ajouté après la fusion de `main` (#158). Les numéros de ligne valent pour l'�
 - **F319** Ce balancement va et vient par le même chemin. Pour le propriétaire, le bassin « fait un 8 »
   (`docs/spec-ginga-couple.md:19-21`) ; ce « 8 » n'est pas encore dans le modèle, c'est le chantier #159
   (`docs/spec-ginga-couple.md:39`).
+
+### 2.8 Deux règles du propriétaire pour tous les styles (22 novembre 2026)
+
+- **F334** « Le buste doit etre au dessus et legerement devant les genoux. » (`docs/recherche-danse/README.md`,
+  « Le même jour, après la quatrième version »). Mesuré sur le modèle : dans les six styles, le buste est à
+  l'aplomb du bassin, 14 à 20 cm derrière les genoux (`docs/recherche-danse/README.md`, « Le buste et les
+  genoux, de profil »).
+- **F335** « Le plus important c'est de ne pas saccader / teleporter subitement et de ne pas avoir un effet
+  relais soudain entre gauche et droite: c'est la transition (le transfert de poids) qui est la source du
+  jinga/dehanché/ trajectoire des fessiers "en 8". » (`docs/recherche-danse/README.md`, même section).
 
 ## 3. Tableau comparatif
 

@@ -35,6 +35,34 @@ une petite boucle rapide, celle du second rebond, sur le rythme d'un cha-cha, pu
 Ces paroles s'ajoutent à celles du 21 novembre sur le ginga, qui « fait un 8 » par le relais des genoux
 ([spec #157](../spec-ginga-couple.md), chantier #159).
 
+### Le même jour, après la quatrième version de la vidéo
+
+Sur la posture :
+
+> Le buste doit etre au dessus et legerement devant les genoux.
+
+Sur ce qui compte le plus :
+
+> Le plus important c'est de ne pas saccader / teleporter subitement et de ne pas avoir un effet relais
+> soudain entre gauche et droite: c'est la transition (le transfert de poids) qui est la source du
+> jinga/dehanché/ trajectoire des fessiers "en 8".
+
+Sur le double rebond du semba :
+
+> Le double rebond du semba c'est le doublement de transfert vers le meme coté en initiant un transfert vers
+> le coté opposé et en re-transferant vers le coté initial a la place
+
+Lecture de l'auteur de ce document, pas ses mots :
+
+- Le « 8 » n'est pas un mouvement ajouté au bassin. C'est la trace que laisse un transfert de poids continu
+  d'un pied à l'autre. Un mouvement se juge d'abord à sa continuité au moment du transfert, avant sa forme ou
+  sa taille.
+- Double rebond du semba : le poids arrive sur un côté, part vers l'autre, n'y va pas jusqu'au bout et
+  revient sur le premier. Deux arrivées de suite du même côté. C'est le « petit rond rapide » de sa phrase
+  du matin.
+- La règle de posture se lit de profil. Mesurée sur le modèle, elle n'est tenue par aucun des six styles
+  (tableau plus bas).
+
 ## Ce que le modèle fait aujourd'hui : le trajet du bassin, mesuré
 
 Pas de base sur place, danseur seul, huit temps, amplitude 1. Position du bassin relevée image par image en
@@ -54,3 +82,24 @@ style dont le bassin va le plus loin en ligne droite : c'est l'écart le plus gr
 parole. Le semba ne trace pas de « 8 » non plus, ni grand ni petit.
 
 Refaire ces mouvements est le chantier du « 8 » (#159) ; ce dossier lui sert d'entrée.
+
+## Ce que le modèle fait aujourd'hui : le buste et les genoux, de profil
+
+Règle du propriétaire : « Le buste doit etre au dessus et legerement devant les genoux. »
+
+Pas de base sur place, danseur seul, huit temps, amplitude 1, modèle complet (GLB, `applyPose`), le
+22 novembre 2026. Distances d'avant en arrière ; un nombre négatif veut dire « derrière ». Le buste est le
+centre de la cage thoracique, les genoux et les chevilles sont la moyenne des deux côtés.
+
+| Style | Buste par rapport aux genoux | Buste par rapport au bassin | Genoux par rapport aux chevilles |
+|---|---|---|---|
+| Kizomba | −13,9 cm (de −15,8 à −12,0) | 0 cm | +13,8 cm |
+| Semba | −15,7 cm (de −20,8 à −10,4) | 0 cm | +15,1 cm |
+| Kompa | −19,7 cm (de −19,8 à −18,2) | 0 cm | +19,6 cm |
+| Tarraxinha | −15,3 cm (de −16,8 à −12,4) | 0 cm | +15,2 cm |
+| Suave | −14,5 cm (de −18,8 à −10,2) | 0 cm | +14,1 cm |
+| Zouk brésilien | −13,9 cm (de −18,5 à −5,0) | 0 cm | +13,8 cm |
+
+Dans les six styles, le buste est à l'aplomb du bassin et des chevilles, et les genoux partent seuls vers
+l'avant : le buste se retrouve 14 à 20 cm **derrière** les genoux, là où la règle le veut au-dessus et
+légèrement devant. Le kompa est le plus loin de la règle.

@@ -79,13 +79,13 @@
         },
         {
           "voix": "geste",
-          "texte": "Pour l'auteur du projet, le second rebond se danse comme un cha-cha : un petit rond rapide du « 8 », avant de reprendre le grand. Le modèle ne le fait pas encore.",
-          "dit": "Pour l'auteur du projet, le second rebond se danse comme un tcha-tcha : un petit rond rapide du huit, avant de reprendre le grand. Le modèle ne le fait pas encore.",
+          "texte": "Pour l'auteur du projet, le double rebond est un transfert doublé du même côté : on amorce le passage vers l'autre pied, puis on revient. Le modèle ne le fait pas encore.",
           "faits": [
             "F320",
-            "F321"
+            "F321",
+            "F336"
           ],
-          "repere": "Second rebond : comme un cha-cha"
+          "repere": "Double rebond : comme un cha-cha"
         },
         {
           "voix": "histoire",
