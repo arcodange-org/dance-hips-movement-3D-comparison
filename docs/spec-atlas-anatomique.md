@@ -415,6 +415,45 @@ mais pour la danse on veut B ». D15 remplace, dans D14, ce qui décrivait l'ét
 - **Capture sur machine chargée.** Deux captures ont échoué sur le délai de 30 s d'une capture
   d'écran (charge moyenne de 52). Le script attend maintenant jusqu'à 180 s par image.
 
+### D16 — Élection : rotation du bassin, thorax de face ou buste solidaire
+
+Le propriétaire a accepté de voir cette question en image (« Oui », 2026-11-22), dans le format
+de l'obliquité (D14, D15). Elle était laissée ouverte par D13 : « La variante « buste solidaire »
+n'est pas versionnée. Le choix revient au propriétaire. »
+
+- **La question.** Pieds plantés, le bassin tourne de −15° à +15° autour de la verticale : une
+  hanche avance, l'autre recule. Que fait le buste ?
+  - **A — thorax de face** (règle de la planche depuis D13, ma proposition). La colonne contre-tourne
+    du même angle : le thorax, la tête et le cadre des bras restent face au partenaire. Le bassin
+    tourne seul sous un buste immobile.
+  - **B — buste solidaire.** Pas de contre-rotation : tout le haut du corps tourne avec le bassin,
+    sur des pieds plantés. Les hanches (articulation fémorale) absorbent seules la rotation.
+- **Modèle.** `ATLAS_ELECTIONS["bassin-rotation"]`, élection `rotation-buste`, règles `thorax-face`
+  (A, retenue tant que le propriétaire n'a pas voté) et `solidaire` (B). `applyAtlasPose` ne
+  contre-tourne la colonne que pour l'axe `y` et hors de la règle `solidaire`. Sans variante, la
+  planche `bassin-rotation` ne change pas : ni régénérée, ni mesures modifiées (contrôle de fraîcheur).
+- **Vue.** `?atlas=bassin-rotation&variante=solidaire` ; la bande du haut nomme la variante.
+- **Image d'élection.** `node scripts/capture_atlas.mjs --mouvement bassin-rotation --variante
+  solidaire` écrit `docs/gifs/election-rotation-buste.gif` : un seul GIF synchronisé, A à gauche,
+  B à droite, vues de face et de trois-quarts, **corps entier** (la question porte sur le buste).
+  La présentation (vues, cadrage, mesures, ligne repère) est propre à chaque élection. Mesures sous
+  chaque colonne, image par image : rotation du thorax par rapport à la pose neutre, et torsion de
+  la colonne (angle du bassin moins lacet du thorax). Pas de ligne de hauteur : elle n'a pas de
+  sens ici.
+- **Mesure ajoutée.** `thoraxLacetDeg` (lacet signé du thorax autour de la verticale, par rapport à
+  la pose neutre) dans les mesures du module ; `meta.json` ne la sérialise pas, les planches ne
+  changent donc pas.
+- **Page d'élection.** `docs/elections/rotation-buste.md` : question, GIF, ce que chaque choix
+  entraîne, ma proposition et ses raisons, comment voter ; le résultat recopié mot pour mot après le vote.
+- **Test** (`scripts/test_atlas_planches.mjs`). Sur le GLB : même angle et même repère de bassin
+  (avancée des hanches) dans les deux règles ; A thorax immobile (≤ 0,01°) ; B lacet du thorax égal
+  à l'angle du bassin (≤ 0,5°) et torsion nulle ; pieds plantés et os au-dessus du sol dans les
+  deux ; variante inconnue refusée ; règle par défaut = règle retenue ; GIF et page présents.
+- **Ce que le choix entraîne.** A élu : rien ne change, B reste montrée en variante avec le GIF.
+  B élu : B devient la règle de `bassin-rotation`, la planche est régénérée et ses limites le disent.
+- **Limite.** Aucune des deux règles n'est mesurée sur une personne ; le modèle ne dit pas comment
+  une colonne réelle répartit une torsion entre ses vertèbres.
+
 ### Lien avec le ginga : le « 8 » du bassin (#157, #159)
 
 Le propriétaire relie ces planches au ginga de la danse. Ses mots du 21 novembre 2026, tels que
