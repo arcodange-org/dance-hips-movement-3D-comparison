@@ -162,3 +162,45 @@ Ce qui en découle :
    par l'alternance chevauchée des flexions de genoux.
 3. Kompa : même direction (genoux chevauchés), avec l'ampleur de K2.
 4. Recherche à faire : la bachata dominicaine.
+
+## Troisième tour : les genoux mènent le « 8 » (22 novembre)
+
+Suite du vote : sens D, taille F, et le « 8 » mené par l'alternance chevauchée des flexions de genoux. Dans ces
+prototypes, les genoux sont l'entrée : le genou de la jambe libre plie pendant que celui de la jambe d'appui se
+tend, les deux mouvements se chevauchent. Chaque pied posé place sa hanche là où sa jambe l'amène à cette flexion ;
+le bassin en prend la hauteur et l'inclinaison. Le quart de tour garde ses propres genoux (ses jambes
+s'entrecroisent du début à la fin).
+
+Trois variantes, selon le moment où les genoux plient par rapport au balancement :
+
+| | `ginga=` | Accélération du bassin | À l'arrêt | De face, chaque hanche entoure | Genoux au passage par le centre |
+|---|---|---|---|---|---|
+| Aujourd'hui (`ample`) | — | 12,0 m/s² | 6 % du temps | 3,5 cm² | 27° et 33° |
+| F, bassin qui mène | `huitGrand` | 31,7 m/s² | jamais | 6,0 et 9,0 cm² | 20° et 30° |
+| G1 — genoux en même temps | `genoux` | **8,6 m/s²** | jamais | 6,3 et 2,9 cm² | **26° et 25°** |
+| G2 — un quart de temps après | `genouxQuart` | 8,8 m/s² | jamais | 14,6 et 9,4 cm² | 30° et 21° |
+| G3 — une demi-temps après | `genouxRond` | 8,8 m/s² | jamais | **17,9 et 12,7 cm²** | 31° et 20° |
+
+(Suiveuse, marche en kizomba dans une séance du jeu. Accélération : le pire 1 % du temps, à 90 bpm. Vu de dessus,
+les trois entourent 33,5 cm², comme F.)
+
+- G1 tient la règle « genoux chevauchés » à la lettre : les deux genoux également pliés quand le bassin passe au
+  centre. Vu de face, la hanche fait peu de boucle.
+- G3 fait la plus grande boucle vue de face, au prix de genoux moins égaux au centre.
+- Il reste un saut de hauteur de la hanche de 0,7 cm au moment où un pied part : il existe déjà dans la marche
+  d'aujourd'hui (0,6 cm), ce n'est pas un effet de ces prototypes.
+- Croisements d'os relevés (3 168 poses) : 34 en G1 et G2, 38 en G3, contre 37 en F ; aucun dans la marche ;
+  25 dans le quart de tour, dont le défaut #165.
+
+Kompa, même principe (danseur seul) : les genoux alternent en se chevauchant et le bassin s'incline avec eux, au
+lieu de glisser genoux pliés au même angle. Avec l'ampleur de K2 :
+
+| | `kompa=` | Accélération | À l'arrêt | De face, chaque hanche entoure |
+|---|---|---|---|---|
+| K0 — aujourd'hui | — | 14,7 m/s² | 58 % du temps | 0,1 cm² |
+| K2 — « 8 » plus grand | `huitGrand` | 3,3 m/s² | jamais | 0,3 cm² |
+| KG1 — genoux en même temps | `genoux` | 4,2 m/s² | jamais | 0,4 cm² |
+| KG2 — genoux une demi-temps après | `genouxRond` | 4,2 m/s² | jamais | **43,9 cm²** |
+
+Images : `election-huit-genoux*.gif`, `trace-huit-genoux*.gif`, `election-kompa-genoux*.gif`,
+`trace-kompa-genoux*.gif`. Le vote se fait sur la page de vote.

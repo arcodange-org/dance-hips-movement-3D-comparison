@@ -17,7 +17,7 @@ const api = await import(bundle.href); unlinkSync(bundle);
 // 1. Prototypes apart: named, not offered by default, built on a calibrated size.
 {
   const names = Object.keys(api.GUIDE_EIGHT);
-  assert.deepEqual(names, ['huit', 'huitRond', 'huitInverse', 'huitAmple', 'huitGrand']);
+  assert.deepEqual(names, ['huit', 'huitRond', 'huitInverse', 'huitAmple', 'huitGrand', 'genoux', 'genouxQuart', 'genouxRond']);
   for (const name of names) {
     assert.ok(!(name in api.GUIDE_GINGA), `${name} is not a calibrated setting`);
     assert.ok(api.guideGingaOf(name).eight, `${name} carries its « 8 »`);
@@ -76,7 +76,7 @@ const api = await import(bundle.href); unlinkSync(bundle);
   // « 8 » of the styles, and never stop. The model of today is untouched unless a prototype is chosen.
   const kompa = name => { const t = trace(name, 'seul', 'base', 'kompa'); sudden['kompa ' + name] = t.transfert.soudain; return t.mesures; };
   assert.equal(api.KOMPA_PROTO.eight, null, 'no kompa prototype by default');
-  assert.deepEqual(Object.keys(api.KOMPA_EIGHTS), ['huit', 'huitGrand', 'huitInverse']);
+  assert.deepEqual(Object.keys(api.KOMPA_EIGHTS), ['huit', 'huitGrand', 'huitInverse', 'genoux', 'genouxRond']);
   const k0 = kompa('aujourdhui'), k1 = kompa('huit'), k2 = kompa('huitGrand'), k3 = kompa('huitInverse');
   assert.ok(k0.C.profondeur < 0.5 && k0.L.dessus < 2 && k0.C.arret > 0.4, `kompa today: a line (${k0.C.profondeur} cm deep, ${k0.L.dessus} cm², stop ${k0.C.arret})`);
   for (const [name, m] of [['huit', k1], ['huitGrand', k2], ['huitInverse', k3]]) assert.ok(m.L.dessus > 50 && m.R.dessus > 50 && m.C.arret < 0.05 && Math.abs(m.C.largeur - k0.C.largeur) < 1, `kompa ${name}: ${m.L.dessus} cm², stop ${m.C.arret}, ${m.C.largeur} cm wide`);
@@ -90,6 +90,24 @@ const api = await import(bundle.href); unlinkSync(bundle);
     assert.ok(sudden[name] < 1.2, `${name}: a passage as gradual as a pendulum (${sudden[name]})`);
   assert.ok(sudden['kompa aujourdhui'] > 3, `kompa today crosses suddenly (${sudden['kompa aujourdhui']})`);
   console.log(`PASS passage d'un côté à l'autre, rapporté à un balancier (1) : ${sudden[today_]} aujourd'hui en couple, ${sudden.huitRond} avec les « 8 » ; kompa seul ${sudden['kompa aujourdhui']} aujourd'hui, ${sudden['kompa huit']} avec ses prototypes`);
+  // Vote of 22 Nov. (sense D, size F, the knees lead): the knees bend in turn, the pelvis never stops and its
+  // acceleration is lower than with today's walk and with the pelvis-led F; seen from the front each hip goes
+  // round more the later the knees bend; `genoux` keeps both knees bent alike as the pelvis passes the centre.
+  // (In the walk the steps themselves bend the knees from 20° to 45°: the share of the cycle where the knees
+  // move in opposite senses does not tell the variants apart, it is not asserted here.)
+  const fluid = name => trace(name, 'suiveur').fluidite, led = name => trace(name, 'suiveur');
+  const [fToday, fF] = [fluid(today_), fluid('huitGrand')];
+  for (const name of ['genoux', 'genouxQuart', 'genouxRond']) {
+    const t = led(name);
+    assert.ok(t.fluidite.arretPart === 0 && t.fluidite.acceleration99 < fToday.acceleration99 && t.fluidite.acceleration99 < fF.acceleration99,
+      `${name}: never still, smoother (${t.fluidite.acceleration99} m/s² against ${fToday.acceleration99} today and ${fF.acceleration99} for F)`);
+  }
+  const g0 = led('genoux'), g2 = led('genouxRond');
+  assert.ok(g0.genoux.auCentre.every(([l, r]) => Math.abs(l - r) < 2), `genoux: both knees bent alike at the centre (${JSON.stringify(g0.genoux.auCentre)})`);
+  assert.ok(g2.mesures.L.face > 2 * g0.mesures.L.face, `genouxRond: each hip goes round seen from the front (${g2.mesures.L.face} cm²)`);
+  const kg = trace('genouxRond', 'seul', 'base', 'kompa');
+  assert.ok(kg.fluidite.arretPart === 0 && kg.mesures.L.face > 10, `kompa genouxRond: never still, hips round seen from the front (${kg.mesures.L.face} cm²)`);
+  console.log(`PASS genoux qui mènent (vote du 22 novembre) : jamais à l'arrêt, accélération du bassin ${led('genouxQuart').fluidite.acceleration99} m/s² (${fToday.acceleration99} aujourd'hui, ${fF.acceleration99} pour F) ; de face ${g0.mesures.L.face} à ${g2.mesures.L.face} cm² ; kompa ${kg.mesures.L.face} cm²`);
   console.log(`PASS kompa seul : aujourd'hui une ligne (${k0.C.profondeur} cm d'avant en arrière, arrêt de ${k0.C.arret} temps) ; prototypes : ${k1.L.dessus} et ${k2.L.dessus} cm² entourés vu de dessus, aucun arrêt`);
   console.log(`PASS mesure du « 8 » (suiveuse, marche) : vu de dessus chaque hanche entoure ${today.L.dessus} cm² aujourd'hui (réglage ${api.GUIDE_GINGA_DEFAULT} ; ${film.L.dessus} avec marque, la taille du film), ${angular.L.dessus} (anguleux), ${round.L.dessus} (arrondi), ${large.L.dessus} (ample), ${larger.L.dessus} (très ample) ; arrêt le plus long du bassin ${film.C.arret} (marque), ${today.C.arret} (${api.GUIDE_GINGA_DEFAULT}) → ${round.C.arret} temps`);
 }

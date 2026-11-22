@@ -384,7 +384,14 @@ export const GINGA_REJOIN = 0.5;
  * (`GINGA_WIDE`), and scaled by `turn`: each hip goes round. `depth` (m) moves the pelvis forward and back
  * once per transfer (`depthLag`, beats), `bounceLag` (beats) delays the bounce after the beat. `round`
  * (0 to 1) lets the lateral shift follow that moving phase too: the hips then never wait on the support. */
-export interface GingaEight { turn: number; rollLag: number; yawLag: number; depth: number; depthLag: number; bounceLag: number; round?: number }
+export interface GingaEight { turn: number; rollLag: number; yawLag: number; depth: number; depthLag: number; bounceLag: number; round?: number;
+  /** #159 (prototype, vote of 22 Nov.: the « 8 » led by the knees' overlapping alternation, atlas rule B
+   * « genoux chevauchés »). The knees are the input: the free leg's knee bends while the supporting one
+   * straightens, `base` + `swing` (rad) at most, the two curves overlapping (both bent by `base` +
+   * `swing`/2 at the centre), `lag` beats after the wide phase. Each hip then sits where its own leg puts
+   * it: the pelvis height is their mean and its roll their difference, instead of the pelvis rising as
+   * high as the straighter leg allows. */
+  knees?: { base: number; swing: number; lag: number } }
 /** Beats on each side over which the phase of the « 8 » is averaged: it then moves all along the beat. */
 export const GINGA_WIDE = 0.5;
 /** #167: beats of the figure danced before that the phase table looks back on, so that the hips' swing
@@ -565,6 +572,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   // #159 (prototype): the « 8 ». The roll and the yaw of the pelvis are those of the style later in the
   // cycle, on the phase that keeps moving between two transfers; they fade where the figure leaves no room.
   const eight = o.ginga?.eight, wide = (figure as { gingaWide?: number } | null)?.gingaWide;
+  let kneeLed: { share: number; L: number; R: number } | null = null;
   if (eight && wide !== undefined && ginga) {
     const main = styleState(r);
     const turned = (phase: number) => {
@@ -578,6 +586,16 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     const share = gingaRoom.sway * (1 - (blend?.weight ?? 0));
     r.pelvis.rotation.z += (roll - r.pelvis.rotation.z) * share;
     r.pelvis.rotation.y += (yaw - r.pelvis.rotation.y) * share;
+    if (eight.knees) {
+      // Weight on the left at phase 0.5, on the right at 1.5: the free knee is the most bent there.
+      const c = Math.cos(Math.PI * (wide - 0.5 - eight.knees.lag));
+      // Where the figure tightens the knees (`kneeCap` down to 0.12) the led knees give way, as the ginga does
+      // where it has no room.
+      // The quarter turn keeps its own knees altogether: its legs interleave all along (measured on the GLB: led
+      // knees there bring the femurs together, about ninety poses).
+      const tight = o.movement === "quarts" ? 0 : Math.max(0, Math.min(1, (((figure as { kneeCap?: number } | null)?.kneeCap ?? 0.45) - 0.12) / 0.1));
+      kneeLed = { share: share * tight, L: eight.knees.base + eight.knees.swing * (1 - c) / 2, R: eight.knees.base + eight.knees.swing * (1 + c) / 2 };
+    }
   }
   // #61: a figure may keep a share of the style's lateral hip shift on top of its own pelvis path;
   // #42: the ginga's shift towards the support joins it.
@@ -702,7 +720,10 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     const bounds = SIDES.map(s => {
       const leg = model.legs[s];
       const hip = r.root.parent!.worldToLocal(r["hip" + s].getWorldPosition(new THREE.Vector3()));
-      const flex = Math.max(0.12, Math.min(figure ? (figure as { kneeCap?: number }).kneeCap ?? 0.45 : 1.2, posture.knee + desiredKnee[s]));
+      const cap = figure ? (figure as { kneeCap?: number }).kneeCap ?? 0.45 : 1.2;
+      const own = Math.max(0.12, Math.min(cap, posture.knee + desiredKnee[s]));
+      // #159 (prototype): the knees lead; where the figure leaves no room, its own flexion comes back.
+      const flex = kneeLed ? own + (kneeLed[s] - own) * kneeLed.share : own;
       const reach2 = leg.length1 ** 2 + leg.length2 ** 2 + 2 * leg.length1 * leg.length2 * Math.cos(flex);
       return { s, hipOffset: hip.sub(r.root.position), reach2 };
     });
@@ -735,6 +756,27 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     const room = Math.max(0, Math.min(1, ((figure as { dip?: number } | null)?.dip ?? GINGA_ROOM) / GINGA_ROOM));
     // #163: calibrated at amplitude 1 (the game's); beyond, the bounce shrinks as the sway's share does.
     const bounce = gingaSet ? -gingaSet.bounce / Math.max(1, o.amp) * room * gingaRoom.bounce * (0.5 + 0.5 * Math.cos(2 * Math.PI * (clockBeat - (o.ginga?.eight?.bounceLag ?? 0)))) : 0;
+    if (kneeLed) {
+      // Each foot on the floor puts its hip where its leg reaches at its own flexion: the pelvis takes the
+      // height and the tilt that satisfy both (the left hip is on +x: a positive roll lifts it). A foot that
+      // leaves gives up its say; its hip then follows the knees' difference in leg length.
+      const each = {} as Record<Side, number>, free = {} as Record<Side, number>, length = {} as Record<Side, number>;
+      for (const { hipOffset, reach2, s } of bounds) {
+        const hip = hipOffset.clone().add(r.root.position), target = model.targets[s];
+        each[s] = target.y + Math.sqrt(Math.max(0, reach2 - (target.x - hip.x) ** 2 - (target.z - hip.z) ** 2)) - hip.y;
+        // A foot that leaves (its heel rising, no weight on it) gives up its say before it lifts.
+        const load = s === "R" ? (figure as { loadR?: number } | null)?.loadR ?? 0.5 : 1 - ((figure as { loadR?: number } | null)?.loadR ?? 0.5);
+        free[s] = Math.max(smoothstep(feet[s].lift / 0.03), (1 - load) * smoothstep(Math.abs(feet[s].pitch ?? 0) / 0.05));
+        length[s] = Math.sqrt(reach2);
+      }
+      const halfHip = (model.legs.L.hipX - model.legs.R.hipX) / 2, clamp = (v: number) => Math.max(-0.5, Math.min(0.5, v));
+      const solved = clamp((each.L - each.R) / (2 * halfHip)), fromKnees = clamp((length.L - length.R) / (2 * halfHip));
+      const lifted = Math.max(free.L, free.R), sin = solved + (fromKnees - solved) * lifted;
+      const wL = 1 - free.L + 1e-6, wR = 1 - free.R + 1e-6;
+      const led = (wL * (each.L - halfHip * sin) + wR * (each.R + halfHip * sin)) / (wL + wR);
+      height += (led - height) * kneeLed.share;
+      r.pelvis.rotation.z += Math.asin(sin) * kneeLed.share;
+    }
     r.root.position.y = height + Math.min(0, styleY) + bounce + (o.rootOffset?.y ?? 0);
     r.root.updateWorldMatrix(true, true);
     const skeleton = r["Skeleton"] as THREE.Object3D;

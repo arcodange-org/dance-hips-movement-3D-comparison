@@ -37,14 +37,21 @@ export const KOMPA = { transition: 0.4 };
  * docs/recherche-danse/kompa.md on the research branch): at the slow rhythm, « on dessine un demi 8 avec
  * le bassin sur chaque appui », the hip going from the front to the back by the side.
  * `depth` (m): how far the pelvis goes forward then back on each support; `round` (0 to 1): the lateral
- * path leaves the hold-then-cross of today for a continuous swing; `sense` (−1: back first). */
-export const KOMPA_EIGHTS: Record<string, { depth: number; round: number; sense: number }> = {
+ * path leaves the hold-then-cross of today for a continuous swing; `sense` (−1: back first).
+ * `knees` (vote of 22 Nov.: K2 « looks like skiing », the knees bend in turn and overlap as in the other
+ * dances): the free leg's knee bends while the supporting one straightens (`swing` rad on top of today's
+ * flexion), `lag` (share of the 4-beat cycle) after the lateral swing; the pelvis tilts with them, the hip
+ * of the bent knee lower (`tilt` rad per rad of difference), instead of tilting with the swing. */
+export interface KompaEight { depth: number; round: number; sense: number; knees?: { swing: number; lag: number; tilt: number } }
+export const KOMPA_EIGHTS: Record<string, KompaEight> = {
   huit: { depth: 0.03, round: 1, sense: 1 },
   huitGrand: { depth: 0.05, round: 1, sense: 1 },
   huitInverse: { depth: 0.03, round: 1, sense: -1 },
+  genoux: { depth: 0.05, round: 1, sense: 1, knees: { swing: 0.3, lag: 0, tilt: 0.5 } },
+  genouxRond: { depth: 0.05, round: 1, sense: 1, knees: { swing: 0.3, lag: 0.125, tilt: 0.5 } },
 };
 /** The prototype in use (null: the model of today). Set once from the address, read by the kompa style. */
-export const KOMPA_PROTO: { eight: { depth: number; round: number; sense: number } | null } = { eight: null };
+export const KOMPA_PROTO: { eight: KompaEight | null } = { eight: null };
 export const setKompaProto = (name: string | null | undefined) => { KOMPA_PROTO.eight = (name && KOMPA_EIGHTS[name]) || null; };
 export function kompaSupport(b: number): number {
   const c = ((((b + 0.5) % 4) + 4) % 4), d = KOMPA.transition;
@@ -134,6 +141,14 @@ export const STYLES: Record<string, StyleDef> = {
       r.hipR.rotation.x = -0.05;
       r.kneeL.rotation.x = (0.28 + 0.08 * pos(w)) * a;
       r.kneeR.rotation.x = (0.28 + 0.08 * pos(-w)) * a;
+      if (eight?.knees) {
+        // The knees lead: the free knee bends as the weight leaves it, overlapping the other; the hip of the
+        // more bent knee drops.
+        const k = eight.knees, c = Math.sin(turn - 2 * Math.PI * k.lag);
+        r.kneeL.rotation.x = (0.28 + k.swing * (1 - c) / 2) * a;
+        r.kneeR.rotation.x = (0.28 + k.swing * (1 + c) / 2) * a;
+        r.pelvis.rotation.z = k.tilt * (r.kneeL.rotation.x - r.kneeR.rotation.x);
+      }
       r.chest.rotation.z = -0.035 * sw * a;
       // Hip check on the touch (2 and 4).
       if (((b + 0.5) % 2 + 2) % 2 >= 1.5) r.pelvis.position.x += 0.008 * S1(b) * a;

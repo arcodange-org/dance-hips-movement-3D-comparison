@@ -106,7 +106,14 @@ const inMiddle = lateral.map(x => (x - lowest) / width > 0.25 && (x - lowest) / 
 let passage = 0, run = 0;
 for (let i = 0; i < 2 * total; i++) { run = inMiddle[i % total] ? run + 1 : 0; passage = Math.max(passage, Math.min(run, total)); }
 const transfert = width < 0.1 ? null : { soudain: round(peak / (Math.PI * width / periode)), passage: round(passage / STEPS), periode: round(periode), largeur: round(width) };
-console.log(JSON.stringify({ ginga, role, kind, styleKey, genoux, transfert, mesures: Object.fromEntries(Object.entries(measures).map(([k, m]) => [k, Object.fromEntries(Object.entries(m).map(([n, v]) => [n, round(v)]))])) }));
+// The pelvis's acceleration (m/s², at 90 bpm, 99th percentile over the cycle, the figure's travel removed) and
+// the share of time it is still (under 2 cm/s): the same measures as the film's (session of #155), so that the
+// ginga can be judged by whether the pelvis never stops and its speed changes without jolts.
+const dt = 60 / 90 / STEPS, pelvisM = points.C.map(p => p.map(v => v / 100));
+const speed = pelvisM.map((p, i) => { const q = pelvisM[(i + 1) % total]; return [0, 1, 2].map(k => (q[k] - p[k]) / dt); });
+const accel = speed.map((v, i) => { const w = speed[(i + 1) % total]; return Math.hypot(...[0, 1, 2].map(k => (w[k] - v[k]) / dt)); }).sort((a, b) => a - b);
+const fluidite = { acceleration99: round(accel[Math.floor(0.99 * (total - 1))]), arretPart: round(speed.filter(v => Math.hypot(...v) < 0.02).length / total) };
+console.log(JSON.stringify({ ginga, role, kind, styleKey, genoux, transfert, fluidite, mesures: Object.fromEntries(Object.entries(measures).map(([k, m]) => [k, Object.fromEntries(Object.entries(m).map(([n, v]) => [n, round(v)]))])) }));
 if (process.env.MESURES === '1' || !out) process.exit(0);
 
 // Drawing: three panels at the same scale (true distances), centred on the mean position of the pelvis.
