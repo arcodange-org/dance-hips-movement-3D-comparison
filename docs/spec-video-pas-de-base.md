@@ -167,6 +167,11 @@ filmé à ce tempo, et le montage cale le premier temps de la musique sur le tem
     "8" de ginga avant de reprendre le mouvement de "8" plus grand. » Une phrase du chapitre semba le dit, et
     dit que le modèle ne le fait pas encore.
   - Le film dure maintenant un peu plus de six minutes.
+- **Refilmé après les premières corrections de fluidité du couple** (#167 : marche, ida e volta, passage d'un
+  côté à l'autre d'une figure à la suivante). Mesuré sur le bassin du premier danseur du final, même danse :
+  les déplacements de plus de 5 cm en un huitième de temps passent de 204 à 108 images sur 2 200, et la
+  variation du pas d'une image à la suivante de 7,4 à 4,1 cm au plus. Les plus grands sauts restent
+  (14 cm en un huitième de temps) : quarts de tour et sorties ne sont pas encore corrigés.
 
 ## Ce qui reste
 
