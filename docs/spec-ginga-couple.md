@@ -126,6 +126,29 @@ Le mode jeu danse à l'amplitude 1 : le ginga y est calibré et contrôlé. Aux 
 mode jeu n'utilise pas), quelques poses des sorties croisent des os avec le ginga : il n'y est pas
 garanti. Au-delà de l'amplitude 1, la part du déhanché diminue pour que le balancement reste le même.
 
+## « Trop discret. » (#163, 22 novembre 2026)
+
+Le film a été refilmé avec le ginga de cette spec au réglage `marque`, couple en pied, de trois quarts. À
+la question « Le ginga du couple se voit-il assez dans le final ? », le propriétaire a répondu :
+
+> Trop discret.
+
+Mesure dans le final : environ 1 cm de rebond par temps, 2,4 cm de côté au plus.
+
+Ce que #163 change, sans attendre le « 8 » (#159) :
+
+1. **Le réglage par défaut devient `ample`**, le plus grand réglage qui passe les contrôles sur le GLB
+   (contrôlé pour cela au pas du réglage par défaut : 1 896 poses, aucun croisement d'os).
+2. **Dans les sorties, le plafond se lève là où la figure laisse de la place.** Le plafond à `marque`
+   protège le début et la fin, où les fémurs des deux danseurs s'entrecroisent en quinconce. Entre les
+   deux, la figure déclare la place qu'elle laisse (`gingaCapRoom`, 0 à 1) et le réglage monte vers sa
+   valeur. Les temps où la place existe sont mesurés sur le GLB (rapport ci-dessous).
+
+Ce que #163 ne fait pas : le « 8 », et une taille au-delà d'`ample`. Elles se choisissent dans l'élection
+de #159 (variantes E et F).
+
+RAPPORT_163
+
 ## Réglages
 
 L'amplitude est un choix d'œil. Trois réglages, plus l'absence, visibles dans l'app avec
@@ -136,11 +159,11 @@ vote se fera avec la forme du « 8 » (#159), pour ne pas demander deux fois :
 |---|---|---|---|---|
 | `sans` | 0 | 0 | 0 cm hors pas de base et ida | celui du style (0 à 8 mm) |
 | `discret` | 0,2 | 5 mm | 2,0 cm, 2,8 cm | 5 mm |
-| `marque` (par défaut proposé) | 0,3 | 9 mm | 2,9 cm, 4,2 cm | 9 mm |
-| `ample` | 0,45 | 14 mm | 4,4 cm, 6,3 cm (2,9 et 4,2 dans les sorties) | 14 mm (9 dans les sorties) |
+| `marque` | 0,3 | 9 mm | 2,9 cm, 4,2 cm | 9 mm |
+| `ample` (par défaut depuis #163) | 0,45 | 14 mm | 4,4 cm, 6,3 cm | 14 mm |
 
-Chaque réglage passe les contrôles sur le GLB dans toutes les figures et tous les styles. `marque` est
-la valeur par défaut en attendant.
+Chaque réglage passe les contrôles sur le GLB dans toutes les figures et tous les styles. `marque` était
+la valeur par défaut de #157 ; le propriétaire l'a jugée « trop discrète » : `ample` la remplace (#163).
 
 ## Critères (tests)
 
