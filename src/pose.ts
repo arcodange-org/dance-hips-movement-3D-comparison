@@ -55,7 +55,7 @@ export interface PoseOptions {
   /** #157 (docs/spec-ginga-couple.md): the ginga seen in the couple dance. `sway`: share of the style's
    * lateral hip shift added to the pelvis in every pair figure, with the style's phase driven by the
    * figure's support transfers; `bounce` (m): a small vertical pulse, lowest on each beat of the music. */
-  ginga: { sway: number; bounce: number } | null;
+  ginga: { sway: number; bounce: number; free?: boolean } | null;
   /** #61: in pair on the spot, the couple dances in the neutral quinconce (opt-in, set by the app). */
   placePaire: boolean;
   /** #62: false keeps the on-the-spot motion on the clock's phase (guide mode). */
@@ -460,8 +460,13 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   // of the figure, is danced without it (it fades over a quarter of a beat at each end).
   const gingaRoom = { sway: 1, bounce: 1 };
   // The most ginga the figure leaves room for (the sorties declare it): the setting is held to it.
-  const gingaCap = (figure as { gingaCap?: { sway: number; bounce: number } } | null)?.gingaCap;
-  const gingaSet = o.ginga ? { sway: Math.min(o.ginga.sway, gingaCap?.sway ?? Infinity), bounce: Math.min(o.ginga.bounce, gingaCap?.bounce ?? Infinity) } : null;
+  // #163: the cap holds where the figure is tight (the start and the end of the sorties); in between the
+  // figure declares the room it leaves above the cap (`gingaCapRoom`, 0 to 1) and the setting rises towards
+  // its own value. `free` (calibration only) ignores the caps, to measure where that room is.
+  const capped = figure as { gingaCap?: { sway: number; bounce: number }; gingaCapRoom?: { sway: number; bounce: number } } | null;
+  const gingaCap = o.ginga?.free ? undefined : capped?.gingaCap, capRoom = capped?.gingaCapRoom ?? { sway: 0, bounce: 0 };
+  const held = (value: number, cap: number | undefined, room: number) => (cap === undefined || value <= cap ? value : cap + (value - cap) * Math.max(0, Math.min(1, room)));
+  const gingaSet = o.ginga ? { sway: held(o.ginga.sway, gingaCap?.sway, capRoom.sway), bounce: held(o.ginga.bounce, gingaCap?.bounce, capRoom.bounce) } : null;
   if (figure && o.ginga) {
     const declared = (figure as { gingaRoom?: { sway: number; bounce: number } }).gingaRoom;
     const touch = (figure as { inserted?: boolean; touchBeat?: number });
@@ -670,7 +675,8 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     // A figure that leaves no room to lower the pelvis (`dip` 0: the quarter turn while the legs cross)
     // gets none there: lowering it bends the knees into the partner's.
     const room = Math.max(0, Math.min(1, ((figure as { dip?: number } | null)?.dip ?? GINGA_ROOM) / GINGA_ROOM));
-    const bounce = gingaSet ? -gingaSet.bounce * room * gingaRoom.bounce * (0.5 + 0.5 * Math.cos(2 * Math.PI * clockBeat)) : 0;
+    // #163: calibrated at amplitude 1 (the game's); beyond, the bounce shrinks as the sway's share does.
+    const bounce = gingaSet ? -gingaSet.bounce / Math.max(1, o.amp) * room * gingaRoom.bounce * (0.5 + 0.5 * Math.cos(2 * Math.PI * clockBeat)) : 0;
     r.root.position.y = height + Math.min(0, styleY) + bounce + (o.rootOffset?.y ?? 0);
     r.root.updateWorldMatrix(true, true);
     const skeleton = r["Skeleton"] as THREE.Object3D;

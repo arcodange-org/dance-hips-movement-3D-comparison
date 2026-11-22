@@ -118,13 +118,99 @@ laissent de la place ; ailleurs la pose redevient exactement celle de la figure,
 | Sortie fille, premier tiers de temps | le rebond | les rotules se touchent quand le G du leader part |
 | Sortie fille, autour du temps 1,25 | le balancement, et la phase revient au temps de la figure | le fémur droit du leader touche la jambe gauche du suiveur (semba) |
 | Pendant un aller-retour (#144) | tout le ginga, en un quart de temps à chaque bout | la jambe gauche et la jambe droite d'un même danseur se croisent au G5 de la sortie fille |
-| Sorties garçon et fille, enchaînement | le réglage est plafonné à `marque` | au-delà, les fémurs droits se touchent en quinconce, au début et à la fin |
+| Sorties garçon et fille, enchaînement, **au début et à la fin** | le réglage est plafonné à `marque` | au-delà, les fémurs droits se touchent en quinconce. Entre les deux le plafond se lève (#163, plus bas) |
+| Sortie garçon, temps 0 à 0,5 (#163) | le balancement | à 0,19 les deux fémurs droits se touchent avec le balancement de `marque` (kizomba) |
+| Sortie garçon, autour du temps 3,31 (#163) | tout le ginga | le tibia gauche du leader touche sa propre rotule droite, avec n'importe quel réglage (suave) |
+| Sortie fille, autour du temps 0,94 (#163) | 60 % du rebond, et le balancement dès 0,95 | le fémur droit du leader touche la rotule gauche du suiveur avec le rebond de `marque` (semba), pas avec 5 mm |
+| Ida e volta, autour du temps 5 de son cycle (#163) | le rebond au-delà de 9 mm | à 4,81 et 5,19 les os des jambes se croisent avec 14 mm (semba), pas avec 9 mm |
+| Quart de tour, première demi-temps et dernier temps (#163) | le réglage est plafonné à `marque` | en finissant sur `ample`, les deux fémurs droits se touchent un huitième de temps après l'enchaînement (vers la sortie fille, vers le double) : le bassin porte encore l'élan du quart de tour |
 
 ### Amplitude
 
 Le mode jeu danse à l'amplitude 1 : le ginga y est calibré et contrôlé. Aux amplitudes 0,5 et 2 (que le
 mode jeu n'utilise pas), quelques poses des sorties croisent des os avec le ginga : il n'y est pas
-garanti. Au-delà de l'amplitude 1, la part du déhanché diminue pour que le balancement reste le même.
+garanti. Au-delà de l'amplitude 1, la part du déhanché diminue pour que le balancement reste le même, et
+le rebond diminue de même (#163 : à l'amplitude 2, 14 mm croisaient les genoux dans le pas de base en kompa).
+
+## « Trop discret. » (#163, 22 novembre 2026)
+
+Le film a été refilmé avec le ginga de cette spec au réglage `marque`, couple en pied, de trois quarts. À
+la question « Le ginga du couple se voit-il assez dans le final ? », le propriétaire a répondu :
+
+> Trop discret.
+
+Mesure dans le final : environ 1 cm de rebond par temps, 2,4 cm de côté au plus.
+
+Ce que #163 change, sans attendre le « 8 » (#159) :
+
+1. **Le réglage par défaut devient `ample`**, le plus grand réglage qui passe les contrôles sur le GLB
+   (contrôlé pour cela au pas du réglage par défaut : 1 896 poses, aucun croisement d'os).
+2. **Dans les sorties, le plafond se lève là où la figure laisse de la place.** Le plafond à `marque`
+   protège le début et la fin, où les fémurs des deux danseurs s'entrecroisent en quinconce. Entre les
+   deux, la figure déclare la place qu'elle laisse (`gingaCapRoom`, 0 à 1) et le réglage monte vers sa
+   valeur. Les temps où la place existe sont mesurés sur le GLB (rapport ci-dessous).
+
+Ce que #163 ne fait pas : le « 8 », et une taille au-delà d'`ample`. Elles se choisissent dans l'élection
+de #159 (variantes E et F).
+
+### Rapport de #163 (22 novembre 2026)
+
+**Où les sorties ont de la place.** Mesure sur le GLB, plafond ignoré, réglage `ample`, tous les styles, au
+seizième de temps : les os des jambes ne se croisent qu'au début (jusqu'au temps 0,25), autour de 1 et à
+2,25 dans la sortie fille (rebond), à 3,31 dans la sortie garçon, et à partir de 4,8. Le pont de
+l'enchaînement ne croise rien. La place déclarée :
+
+| Figure | Plafond levé (balancement) | Plafond levé (rebond) |
+|---|---|---|
+| Sortie garçon | temps 0,8 à 2,95 et 3,67 à 4,2 | les mêmes |
+| Sortie fille | temps 1,55 à 4,2 | temps 1,55 à 1,87 et 2,63 à 4,2 |
+| Enchaînement | celle de la sortie fille jusqu'à la jonction, le pont en entier, puis celle de la sortie garçon | les mêmes |
+
+Les bords sont adoucis sur 0,25 à 0,4 temps.
+
+**Ce que cela donne** (kizomba, leader puis suiveur) :
+
+| | Avant (#157, `marque`) | Après (`ample`) |
+|---|---|---|
+| Marche ; quart de tour hors de ses deux bouts : balancement | 2,9 cm / 4,2 cm | 4,4 cm / 6,3 cm |
+| Sortie garçon, partie ouverte (temps 0,8 à 2,9) : balancement | 2,9 cm / 4,2 cm | 4,4 cm / 6,3 cm |
+| Sorties, début et fin : balancement | 2,9 cm / 4,2 cm | 2,9 cm / 4,2 cm (plafond) |
+| Rebond, hors plafond | 9 mm | 14 mm |
+| Rebond, aux deux bouts des sorties et du quart de tour, ida e volta autour du temps 5 | 9 mm | 9 mm (plafond) |
+
+**Trois croisements d'os de #157 trouvés et corrigés.** Les contrôles de #157 échantillonnaient tous les
+huitièmes de temps. Au seizième, avec `marque` (donc sur `main` avant cette PR) :
+
+| Où | Quels os | Correction |
+|---|---|---|
+| Sortie garçon, temps 0,19, kizomba | les deux fémurs droits | le balancement s'ouvre de 0,15 à 0,5 |
+| Sortie garçon, temps 3,31, suave | le tibia gauche du leader et sa propre rotule droite | tout le ginga s'efface de 3,2 à 3,42 |
+| Sortie fille, temps 0,94, semba | le fémur droit du leader et la rotule gauche du suiveur | 60 % du rebond en moins de 0,85 à 1,05, balancement éteint dès 0,95 |
+
+**Trois limites trouvées en passant à `ample`**, corrigées par un plafond : l'ida e volta autour du temps
+5 de son cycle (rebond tenu à 9 mm) ; le quart de tour à ses deux bouts (réglage tenu à `marque` : sinon
+le bassin emporte son élan dans la figure suivante et les fémurs se touchent) ; le pas de base à
+l'amplitude 2 (le rebond diminue au-delà de l'amplitude 1).
+
+**Un défaut qui n'est pas du ginga**, signalé à part (#165) : le quart de tour en suave croise des os au
+temps 0,94 même sans ginga.
+
+**Contrôles** :
+
+- `scripts/test_ginga_couple.mjs` : **5 112 poses de couple** avec `discret`, `marque` et `ample`, le réglage
+  par défaut au seizième de temps dans les sorties et l'ida e volta : os au-dessus du sol, semelles
+  disjointes, aucun croisement des os des jambes. La marge des sorties est vérifiée (fermée aux bouts et
+  aux instants serrés, ouverte entre les deux, sans saut ; l'enchaînement garde celle de la sortie fille
+  jusqu'à la jonction).
+- Toutes les figures, tous les styles, au seizième de temps avec `ample` : aucun croisement, hors celui du
+  quart de tour en suave, qui existe sans ginga (#165).
+- `scripts/test_touches.mjs` : 4 482 poses de couple avec un aller-retour. `scripts/test_guidage.mjs` :
+  2 181 poses des séances commandées et 1 094 poses de la danse automatique, pas de base aux amplitudes 0,5
+  à 2.
+- Suite complète : 29 scripts verts.
+
+Ce qui reste discret : le début et la fin des sorties, et tout ce qui dépasse `ample`. La taille se choisit
+avec le « 8 » (#159).
 
 ## Réglages
 
@@ -136,11 +222,11 @@ vote se fera avec la forme du « 8 » (#159), pour ne pas demander deux fois :
 |---|---|---|---|---|
 | `sans` | 0 | 0 | 0 cm hors pas de base et ida | celui du style (0 à 8 mm) |
 | `discret` | 0,2 | 5 mm | 2,0 cm, 2,8 cm | 5 mm |
-| `marque` (par défaut proposé) | 0,3 | 9 mm | 2,9 cm, 4,2 cm | 9 mm |
-| `ample` | 0,45 | 14 mm | 4,4 cm, 6,3 cm (2,9 et 4,2 dans les sorties) | 14 mm (9 dans les sorties) |
+| `marque` | 0,3 | 9 mm | 2,9 cm, 4,2 cm | 9 mm |
+| `ample` (par défaut depuis #163) | 0,45 | 14 mm | 4,4 cm, 6,3 cm | 14 mm |
 
-Chaque réglage passe les contrôles sur le GLB dans toutes les figures et tous les styles. `marque` est
-la valeur par défaut en attendant.
+Chaque réglage passe les contrôles sur le GLB dans toutes les figures et tous les styles. `marque` était
+la valeur par défaut de #157 ; le propriétaire l'a jugée « trop discrète » : `ample` la remplace (#163).
 
 ## Critères (tests)
 
