@@ -134,8 +134,53 @@ suave) tournait le pied autour de la cheville. La demi-pointe reculait alors de 
   1,2 mm).
 - La sortie combinée historique (`sortieGF`) change en semba et en suave. Ses empreintes
   (`scripts/fixtures/sorties-historiques.json`) sont régénérées, et seules ces deux danses changent.
-- Reste de #73 : la marche hors figures (corridinho, temps3, curseur « Déplacement ») n'a pas encore le
-  déroulé du pied de `gaitStep`.
+- La marche hors figure a reçu le déroulé du pied le 22 novembre : section suivante.
+
+## Marche hors figure déroulée (#73, élue le 21 novembre 2026)
+
+Variante élue au premier tour des [élections](spec-elections-variantes.md) (Q3, B) : hors figure, le pied
+qui marche se déroule comme dans les figures, au lieu de voyager à plat.
+
+**Où.** Dans le cercle du corridinho, en solo et en comparaison : c'est la seule marche hors figure où les
+pieds voyagent (pas d'environ 47 cm).
+
+**Ce qui ne change pas, et pourquoi.**
+
+- Curseur « Déplacement » et marka en 3 temps : le bassin va d'un pied à l'autre, mais chaque pied marque
+  le pas là où il est. Il ne voyage pas : il n'y a rien à dérouler.
+- Ida e volta et quarts de tour en solo, sorties historiques : ce sont des figures, décrites pied à plat par
+  [l'oracle](spec-phase18-oracle.md). Leur contrat n'est pas touché.
+- Sur place : la bascule du pied propre au style (semba, suave) reste le petit pivot sur la demi-pointe.
+
+**Modèle** (`plannedFeet`, `src/pose.ts`).
+
+- Le pied qui part suit `gaitStep` (`src/gait.ts`) : impulsion sur la demi-pointe, passage de jambe, pose
+  par le talon quand le pas va vers l'avant, par la demi-pointe quand il va en arrière.
+- Pendant une marche déroulée, le déroulé remplace la bascule du pied propre au style, sur les deux pieds :
+  le pied d'appui reste à plat.
+- Ni saccade ni téléportation (R34) : au décollage, la cheville est là où l'impulsion l'a laissée (pied
+  basculé sur sa demi-pointe) ; à la pose, là où le talon ou la demi-pointe la reçoit. En l'air, elle va de
+  l'un à l'autre. Sans cela elle sautait de 23 mm à l'instant du décollage.
+
+**Critères d'acceptation** (`scripts/test_marche_deroulee.mjs`, vrai GLB, six styles, deux sens du cercle,
+sans relire `gaitStep` : on mesure le pied posé par `applyPose`).
+
+1. Le talon se lève d'au moins 12° à l'impulsion ; la pointe se relève d'au moins 6° à la pose d'un pas vers
+   l'avant ; à reculons, le pied se pose par la demi-pointe (la pointe ne se relève pas).
+2. Tant qu'elle touche le sol, la demi-pointe ou le talon ne glisse pas (moins de 0,5 mm entre deux poses).
+3. Aucun os sous le sol.
+4. Aux changements de phase du pas (départ, décollage, pose, fin), les matrices finales à t−ε, t et t+ε
+   restent voisines (10⁻⁴).
+5. Déplacement latéral, ida e volta en solo et sur place : le pied reste à plat (kizomba, kompa, tarraxinha).
+6. Aucun test existant n'est modifié.
+
+**Mesuré.** Talon levé jusqu'à 20,0°, pointe relevée jusqu'à 12,6° ; point d'appui immobile à 0,02 mm près
+sur 432 poses en bascule ; aucun os sous le sol sur 6 156 poses ; 192 changements de phase continus. Plus
+grand déplacement de la cheville entre deux poses séparées de deux millièmes de temps : 23,0 mm avant la
+correction du décollage, 3,3 mm après (la vitesse du pas).
+
+**Reste.** Les figures elles-mêmes gardent un petit saut de cheville au décollage du pied (5,7 mm mesurés
+sur le leader de la sortie garçon, temps 3,27) : il relève du transfert continu (#167), pas de cette marche.
 
 ## Limites
 

@@ -125,9 +125,18 @@ même figure filmée à plusieurs distances, ce qui demande de régler à nouvea
 |---|---|---|---|
 | Q1 — ida e volta en paire, pied du suiveur (#86, #144) | **A, pied opposé** (la figure d'aujourd'hui) | aucun | Rien ne change dans la figure. L'interrupteur `idaMemePied` est retiré. La même question posée dans la PR #153 est tranchée par ce vote. |
 | Q2 — ligne de danse (#72) | **B, dans l'axe des bustes** | aucun | En paire, la ligne passe par les deux danseurs : le couple progresse le long de la ligne, le leader en sort sur le côté et y revient. La règle R6 est réécrite : ce vote revient sur la lecture faite en #60 et #64 (ligne perpendiculaire aux bustes). L'interrupteur `ligneBustes` est retiré. |
-| Q3 — marche hors figure (#73) | **B, déroulée** | Les deux conviennent, c'est une affaire de style. B est plus naturelle et plus courante. A reste bonne. | La marche déroulée devient la marche par défaut hors figure. La convention « pieds plats » et le contrat de l'oracle sont amendés pour ces marches. L'interrupteur `marcheDeroulee` est retiré. |
+| Q3 — marche hors figure (#73) | **B, déroulée** | Les deux conviennent, c'est une affaire de style. B est plus naturelle et plus courante. A reste bonne. | Le cercle du corridinho, seule marche hors figure où les pieds voyagent, se marche pied déroulé ([spec](spec-marche-naturelle.md)). L'interrupteur `marcheDeroulee` est retiré. |
 
-Les variantes élues sont implémentées dans une PR empilée sur celle du dossier (#149).
+Les variantes élues sont implémentées dans une PR empilée sur celle du dossier (#149). Ce que
+l'implémentation a précisé par rapport aux films :
+
+- **Q2** : la ligne passe par les deux danseurs dans toutes les vues en paire. Les vues en solo et en
+  comparaison, que le vote ne montrait pas, gardent leur ligne le long du déplacement latéral.
+- **Q3** : le contrat de l'oracle n'est finalement pas amendé. L'ida e volta et les quarts de tour en solo,
+  et les sorties historiques, sont des figures que l'oracle décrit pied à plat : ils ne changent pas. Le
+  « Déplacement » latéral non plus : les pieds y marquent le pas sur place. Le film B avait un saut de la
+  cheville de 23 mm au décollage du pied : il est corrigé dans l'implémentation. Aucun test existant n'est
+  modifié ; `scripts/test_marche_deroulee.mjs` contrôle la marche élue.
 
 Les questions 4 à 7 ajoutées à la page le 22 novembre (forme, sens et taille du « 8 » des hanches,
 kompa) appartiennent à l'élection du ginga : voir #159 et la PR #160.
