@@ -521,8 +521,12 @@ Lecture des paramètres du moteur, valable pour les six styles :
   base marché (`docs/recherche-danse/kompa.md`, « Le modèle face aux sources »).
 - **F332** Aucune source ne dit que le « 8 » du kompa est le plus prononcé des styles : il n'y a là que la
   parole du propriétaire. Les sources attachent le « 8 » au ralenti et à la danse collée, pas au pas de base
-  marché. Aucune ne décrit un simple balancier de côté (`docs/recherche-danse/kompa.md`, « Ce que les
-  sources ne disent pas »).
+  marché. Aucune ne décrit le pas du kompa comme un simple balancier de côté ; une seule nomme ce balancier, comme
+  alternative facile au « 8 » (F337) (`docs/recherche-danse/kompa.md`, « Ce que les sources ne disent pas »).
+- **F337** Une école de Miami (Sony Laventure, KOTR Dance Studio, 2020) enseigne la rotation des hanches en « 8 »
+  comme l'une des premières choses du cours ; à deux, c'est le *gouye* : on reste sur place, les hanches
+  tournent, les genoux plient beaucoup. Le balancement d'un côté à l'autre y porte un autre nom, *yayad*, et
+  y est présenté comme l'alternative facile au « 8 » (`docs/recherche-danse/kompa.md`, source K18).
 - **F333** L'inscription du compas d'Haïti par l'UNESCO est vérifiée : élément n° 02273, Liste représentative,
   2025, décision 20.COM 7.B.22. La page décrit une marche rythmée, avec des mouvements du bassin, des pas
   alternés et un contact entre les danseurs. Ce fait lève la réserve de F105
@@ -1157,6 +1161,12 @@ Résumé des influences, tel que le dépôt les rapporte :
 - Pierre, H. (2025). Articles sur le compas direct, Le Nouvelliste.
   https://lenouvelliste.com/article/258274/une-histoire-du-compas-direct-haitien-en-30-moments
   (`docs/recherche-danse/kompa.md`, K9).
+- Laventure, S. (2020). « How to Gouye », KOTR Dance Studio, Miami, lu sur archive.org
+  (`docs/recherche-danse/kompa.md`, K18).
+- Wikipédia EN. « Compas » et « Dance in Haiti ». https://en.wikipedia.org/wiki/Compas
+  (`docs/recherche-danse/kompa.md`, K19, K20).
+- Matiko, S. (2023). « Haiti's Kompa joins Nairobi dance scene », Business Daily Africa
+  (`docs/recherche-danse/kompa.md`, K21).
 - UNESCO (2025). « Le compas d'Haïti », élément n° 02273, décision 20.COM 7.B.22.
   https://ich.unesco.org/fr/RL/le-compas-d-haiti-02273 (`docs/recherche-danse/kompa.md`, K10).
 - Averill, G. « Konpa ! La musique populaire en Haïti », Médiathèque Caraïbe (Laméca)

@@ -11,7 +11,7 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   (`narration.json`), voix Phonon locales, musiques, capture image par image (`film=1`, `src/film.ts`,
   `FilmDriver`), habillage rendu par le navigateur, montage ffmpeg. La vidéo elle-même va dans
   `essais/video/` (ignoré par git). [Spec](docs/spec-video-pas-de-base.md), [mode d'emploi](scripts/video/README.md).
-- **Le texte ne dit que la fiche de faits** `docs/video/faits-pas-de-base.md` (333 faits numérotés, 157 sources
+- **Le texte ne dit que la fiche de faits** `docs/video/faits-pas-de-base.md` (337 faits numérotés, 160 sources
   au générique). Le scénario a été écrit par un workflow : rédacteur, quatre critiques, synthèse,
   contre-vérification. `scripts/test_video.mjs` vérifie que chaque phrase cite des faits qui existent.
 - **Musiques** : cinq extraits Eleven Music générés pour la vidéo (semba, kompa, tarraxinha, suave, zouk),

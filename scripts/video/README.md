@@ -93,7 +93,7 @@ Une phrase :
 - **La voix lit mal** les sigles et les chiffres : écrire « dit » en toutes lettres (« cent vingt battements
   par minute »). `scenario.mjs` remplace déjà semba, tarraxinha, ginga par leur écriture phonétique.
 - **Durée** : la voix `guide` dit environ 15 caractères par seconde, les deux autres 19. Un chapitre de style
-  vise 24 à 40 secondes, le film 4 min 30 à 6 min 30 (le générique, qui cite les 157 sources, dure
+  vise 24 à 40 secondes, le film 4 min 30 à 6 min 30 (le générique, qui cite les 160 sources, dure
   un peu plus d'une minute). `controle.mjs` donne l'estimation.
 - **Le générique** : `blocs` porte les attributions (BodyParts3D CC BY-SA 2.1 Japan © DBCLS ; « Voice: Phonon
   by Gradium — gradium.ai », CC BY-NC 4.0 ; musique Eleven Music, ElevenLabs), les outils et les modèles

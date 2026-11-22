@@ -42,20 +42,28 @@ mesuré, le bassin trace une ligne droite de 20,6 cm, sans aucun trajet d'avant 
 2. **Le bassin se relâche juste avant chaque appui**, sur le demi-temps : les professeurs comptent « et » avant
    chaque temps, et ce « et » est le relâché de hanche [K1, K2, K4]. Le mouvement de base est décrit comme à la
    fois vertical et horizontal [K1]. Ce n'est pas un accent sur les temps 2 et 4.
-3. **Le « 8 » est attesté, par trois sources fortes, dans la danse lente et collée** :
+3. **Le « 8 » est attesté, par quatre sources, dans la danse lente et collée** :
    - au rythme ralenti, le *dodo mea*, où l'on reste près de deux temps sur le même pied : « on dessine un demi
      8 avec le bassin sur chaque appui » (livre de Cliford et Gaëlle Jasmin, cité par C. B. Sérant, *Le
      Nouvelliste*, 15 juin 2022). La hanche y va de l'avant vers l'arrière en passant par le côté [K1] ;
    - dans la danse collée *kole mabouya*, où les hanches ondulent l'une contre l'autre en dessinant un huit
      (Averill 1997, p. 20) [K12] ;
    - dans la variante *klere bouk sentiwon*, « faire briller la boucle de ceinture », où les hanches
-     décrivent un huit (McAlister 2002, p. 49) [K13].
+     décrivent un huit (McAlister 2002, p. 49) [K13] ;
+   - dans le gouyad tel que l'enseigne une école de Miami : la rotation des hanches en « 8 » est l'une des
+     premières choses apprises en cours ; à deux, front contre front et hanches jointes, c'est le *gouye*. On
+     reste sur place, les hanches tournent et les genoux plient beaucoup. Une seconde rotation est un cercle
+     complet, « la moitié d'un 8 » [K18].
 4. **Ce sont les genoux qui balancent les hanches**, pieds au sol, dans le pas *dodomeya* ; le talon peut se
    soulever un peu pour aider [K4]. L'appui reçoit le poids, puis le repousse du sol vers l'autre pied [K1].
+   Dans le gouyad, on plie beaucoup les genoux [K18].
 5. **Le gouyad est d'abord un mouvement** : rouler, tourner ou onduler le bassin, souvent décrit comme un cercle
    [K12, K13, K14, K15, K16]. Le mot désigne aussi, aujourd'hui, un konpa plus lent [K7, K8]. Averill le
    rattache au français « grouiller » et au roulement doux des hanches du mereng, la méringue haïtienne dont
-   vient le konpa [K12].
+   vient le konpa [K12]. La même école de Miami nomme deux autres manières : le *yayad*, un balancement des
+   hanches d'un côté à l'autre, venu du zouk et présenté comme l'alternative facile pour qui n'arrive pas à
+   tourner les hanches en « 8 » ; et le *ploge*, où les hanches vont d'avant en arrière, genoux plus raides
+   [K18].
 6. **Il n'y a pas un pas de base, mais plusieurs.** Une école de Montréal en enseigne quatre : le pas marqué
    (marcher sur place, le pied quitte le sol), le pas méringue (ouvrir, fermer, le pied ramené touchant sur la
    plante), le dodomeya (pieds au sol, genoux moteurs, parfois ralenti à un transfert pour deux temps) et le
@@ -75,7 +83,8 @@ mesuré, le bassin trace une ligne droite de 20,6 cm, sans aucun trajet d'avant 
   document, pas une phrase d'une source.
 - **Dans quel plan se lit le « 8 ».** Seul l'arc « de l'avant vers l'arrière en passant par le côté » [K1]
   indique un trajet vu de dessus.
-- **Un simple balancier de côté** : aucune source ne décrit le kompa ainsi.
+- **Un simple balancier de côté** : aucune source ne décrit ainsi le pas du kompa. La seule qui en parle le
+  nomme *yayad* et en fait l'alternative facile au « 8 » [K18]. C'est ce que fait le modèle.
 - Lequel des deux partenaires prononce le plus le mouvement ; ce que fait le buste (les sources divergent).
 
 ## Le modèle face aux sources
@@ -83,7 +92,7 @@ mesuré, le bassin trace une ligne droite de 20,6 cm, sans aucun trajet d'avant 
 | Point | Le modèle (`src/styles.ts`) | Les sources | Lecture |
 |---|---|---|---|
 | Rythme des appuis | deux temps sur chaque pied | pas de base : un appui par temps ; ralenti : près de deux temps par pied [K1, K3, K4] | le modèle a le rythme du ralenti, pas celui du pas de base |
-| Trajet du bassin | une ligne droite de 20,6 cm, 0 cm d'avant en arrière | relâché vertical et horizontal ; demi-« 8 » par appui au ralenti, avant, côté, arrière [K1] ; hanches en huit [K12, K13] | **faux** : il manque tout le trajet d'avant en arrière |
+| Trajet du bassin | une ligne droite de 20,6 cm, 0 cm d'avant en arrière | relâché vertical et horizontal ; demi-« 8 » par appui au ralenti, avant, côté, arrière [K1] ; hanches en huit [K12, K13, K18] ; le balancement de côté est le *yayad*, l'alternative facile [K18] | **faux** : il manque tout le trajet d'avant en arrière |
 | Moment du mouvement | « hip check » sur les temps 2 et 4 | relâché sur le demi-temps, avant chaque appui [K1, K2, K4] | non confirmé ; le calage est à refaire |
 | Pause au temps 4 | écrite dans la spec d'origine | aucune source | à retirer de la description |
 | Touche sans poids | décrite, non montrée | c'est le pas méringue, un des quatre pas [K4] | un pas parmi d'autres, pas « le » pas de base |
@@ -164,6 +173,24 @@ texte, pas en pages entières.
   Florida, 2002 : l'action des hanches de la méringue haïtienne, et ses appuis sur la plante ou le talon,
   rattachés aux danses du Congo.
 
+### En anglais
+
+- **K18** (fort) Sony Laventure, fondateur de l'école KOTR Dance Studio (Miami), « How to Gouye », 25 juin 2020.
+  Le site est hors ligne ; lu en entier sur sa copie d'archive du 18 mai 2026 :
+  https://web.archive.org/web/20260518000624/https://wikotr.com/how-to-gouye/ . Gouye, gouyad, yayad, ploge.
+- **K19** (faible à moyen) Wikipédia EN, « Compas », section sur la danse : https://en.wikipedia.org/wiki/Compas .
+  Un deux-pas dit « carré », daté de 1962 ; beaucoup de balancement des hanches ; le kompa gouyad, variante
+  plus lente, années 1980.
+- **K20** (faible à moyen) Wikipédia EN, « Dance in Haiti » : https://en.wikipedia.org/wiki/Dance_in_Haiti .
+  Le *gouye* comme geste, le *gouyad* comme style ; le carré ou *kare*, deux-pas du kompa dirèk.
+- **K21** (moyen) Sinda Matiko, *Business Daily Africa*, 1er octobre 2023, avec un professeur de kompa de
+  Nairobi : https://www.businessdailyafrica.com/bd/lifestyle/music/haiti-s-kompa-joins-nairobi-dance-scene--4386250 .
+  Le mouvement des hanches, calé sur le temps, est le trait principal ; danse dite proche de la kizomba.
+- **K22** (moyen, sans technique) École des Jasmin, page des cours filmés :
+  https://www.konpadance.com/en/videos-cours-konpa-dance . L'initiation revient à marcher au rythme du konpa.
+
+Les autres pages en anglais lues ne décrivent ni les temps, ni les appuis, ni les genoux.
+
 ## Ce qui n'a pas été trouvé ou pas pu être lu
 
 - Le livre des Jasmin et ses vidéos, payants ; plusieurs articles du *Nouvelliste* coupés par un mur de
@@ -171,6 +198,8 @@ texte, pas en pages entières.
 - Le dossier de candidature à l'UNESCO, qui décrit peut-être les pas : protégé par un test anti-robot.
 - Jean Fouchard, *La méringue, danse nationale d'Haïti* (1973), connu de seconde main ; Yvonne Daniel,
   *Caribbean and Atlantic Diaspora Dance* ; aucune thèse sur la danse konpa dans theses.fr.
+- En anglais : la page wikiHow sur le kompa et plusieurs tutoriels n'ont pas pu être ouverts ; aucun article
+  du Haitian Times ou de L'Union Suite décrivant la danse n'est remonté.
 - Aucune mesure du mouvement, aucune étude biomécanique du kompa.
 - Une page en français parle d'un « 8 » couché tracé à chaque mesure, mais elle est signée d'une
   « chanteuse IA » et se contredit : elle n'est pas retenue.

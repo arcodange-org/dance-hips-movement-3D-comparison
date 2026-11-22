@@ -342,7 +342,7 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Vidéo refilmée avec le ginga du couple (#157) ; caméra du final de trois quarts, où le balancement se lit.
 - [x] Quatrième version : gros plan sur les hanches dans le final (ginga « ample »), chapitre kompa corrigé,
       second rebond du semba dit à l'image (paroles du propriétaire du 22 novembre).
-- [x] Recherche sur la danse kompa (#161) : `docs/recherche-danse/kompa.md`, faits F320 à F333.
+- [x] Recherche sur la danse kompa (#161) : `docs/recherche-danse/kompa.md`, faits F320 à F337.
 - [ ] Refaire le kompa et le semba dans le modèle avec le « 8 » (#159), puis refilmer.
 - [ ] Os et muscles de la tête et des bras, pour remplacer les derniers volumes stylisés (hors périmètre de #155).
 
