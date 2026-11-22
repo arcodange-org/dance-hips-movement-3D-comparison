@@ -106,6 +106,8 @@ arrive sur le temps).
 | 3 | Avancer : bassin à l'horizontale, leader / suiveuse | 7,4 / 7,6 cm | **2,7 / 2,7 cm** | marche fluide |
 | 3 | Reculer | 7,5 / 7,7 cm | **3,0 / 3,1 cm** | marche fluide |
 | 3 | Double et marka | 9,0 / 9,0 cm | **5,6 / 5,7 cm** | marche fluide |
+| 3 | Ida e volta (quatre variantes), à l'horizontale | 8,0 / 8,5 cm | **3,5 / 4,2 cm** | ida e volta fluide |
+| 3 | Ida e volta, en hauteur | 2,3 / 2,6 cm | **1,0 / 1,2 cm** | ida e volta fluide |
 
 (Plus grand déplacement du bassin en un huitième de temps.)
 
@@ -113,6 +115,12 @@ arrive sur le temps).
 temps (R21). Le bassin suivait le poids : il faisait la moitié de son trajet à ce moment-là. Il voyage
 maintenant pendant tout le pas, du départ du pied du leader jusqu'au temps, sur la même horloge pour les deux
 danseurs. Sa place sur chaque temps ne change pas, ni les pieds, ni l'instant où le poids arrive.
+
+**L'ida e volta.** Le poids va sur le pied sorti puis revient, un cinquième de temps chacun ; le bassin le
+suivait, comme un coup en avant puis en arrière. Il sort maintenant pendant tout le pas sortant et revient en
+une demi-temps. Un retour plus long encore croise des os en semba et en suave (le bassin est encore sorti
+quand le pied revient) : mesuré sur le GLB, le retour fini à 1,5 temps garde une marge. Les allers-retours
+insérés dans les autres figures reprennent ce bassin.
 
 Les seuils à atteindre ne sont pas fixés ici : ils le seront après la première correction, à l'œil. Le cliquet de l'étape 1 garantit seulement que rien n'empire.
 
