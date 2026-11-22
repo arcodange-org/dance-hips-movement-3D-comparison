@@ -217,3 +217,17 @@ Ce qui en découle :
    et le contrôler dans toutes les figures, puis en faire le réglage par défaut.
 2. Kompa : KG2 est la bonne direction ; à reprendre pour que le « 8 » vu de face dépasse le « 8 » vu de dessus (KG2 :
    44 cm² de face, 129 cm² de dessus) et que le danseur ne glisse plus d'un bloc.
+
+## Quatrième tour : le kompa, le « 8 » de face d'abord (22 novembre)
+
+Suite du vote sur KG2 (encore du ski ; le « 8 » vu de face doit dominer). Le corps entier glisse moins d'un côté à
+l'autre (`glide`), les genoux plient davantage et le bassin s'incline davantage avec eux : ce sont les hanches qui
+portent le « 8 ».
+
+| | `kompa=` | De face, chaque hanche entoure | De dessus | Largeur, hauteur de la hanche | Accélération | Genoux |
+|---|---|---|---|---|---|---|
+| KG2 (élu au troisième tour) | `genouxRond` | 44 cm² | 129 cm² | 20,1 cm, 4,6 cm | 4,2 m/s² | 57° à 69° |
+| KG3 — les hanches mènent | `hanches` | **61 cm²** | 30 cm² | 12,5 cm, 10,3 cm | 4,0 m/s² | 61° à 85° |
+| KG4 — plus fort | `hanchesFortes` | **77 cm²** | 24 cm² | 10,6 cm, 15,2 cm | 6,4 m/s² | 63° à 96° |
+
+Jamais à l'arrêt dans les trois. Les genoux de KG4 plient jusqu'à 96° : à juger à l'œil.

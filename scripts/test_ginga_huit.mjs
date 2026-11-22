@@ -76,7 +76,7 @@ const api = await import(bundle.href); unlinkSync(bundle);
   // « 8 » of the styles, and never stop. The model of today is untouched unless a prototype is chosen.
   const kompa = name => { const t = trace(name, 'seul', 'base', 'kompa'); sudden['kompa ' + name] = t.transfert.soudain; return t.mesures; };
   assert.equal(api.KOMPA_PROTO.eight, null, 'no kompa prototype by default');
-  assert.deepEqual(Object.keys(api.KOMPA_EIGHTS), ['huit', 'huitGrand', 'huitInverse', 'genoux', 'genouxRond']);
+  assert.deepEqual(Object.keys(api.KOMPA_EIGHTS), ['huit', 'huitGrand', 'huitInverse', 'genoux', 'genouxRond', 'hanches', 'hanchesFortes']);
   const k0 = kompa('aujourdhui'), k1 = kompa('huit'), k2 = kompa('huitGrand'), k3 = kompa('huitInverse');
   assert.ok(k0.C.profondeur < 0.5 && k0.L.dessus < 2 && k0.C.arret > 0.4, `kompa today: a line (${k0.C.profondeur} cm deep, ${k0.L.dessus} cm², stop ${k0.C.arret})`);
   for (const [name, m] of [['huit', k1], ['huitGrand', k2], ['huitInverse', k3]]) assert.ok(m.L.dessus > 50 && m.R.dessus > 50 && m.C.arret < 0.05 && Math.abs(m.C.largeur - k0.C.largeur) < 1, `kompa ${name}: ${m.L.dessus} cm², stop ${m.C.arret}, ${m.C.largeur} cm wide`);
@@ -107,6 +107,12 @@ const api = await import(bundle.href); unlinkSync(bundle);
   assert.ok(g2.mesures.L.face > 2 * g0.mesures.L.face, `genouxRond: each hip goes round seen from the front (${g2.mesures.L.face} cm²)`);
   const kg = trace('genouxRond', 'seul', 'base', 'kompa');
   assert.ok(kg.fluidite.arretPart === 0 && kg.mesures.L.face > 10, `kompa genouxRond: never still, hips round seen from the front (${kg.mesures.L.face} cm²)`);
+  // Fourth round (vote: still « skiing », the 8 seen from the front must be larger than from above): less glide.
+  for (const name of ['hanches', 'hanchesFortes']) {
+    const k = trace(name, 'seul', 'base', 'kompa');
+    assert.ok(k.fluidite.arretPart === 0 && k.mesures.L.face > 1.5 * k.mesures.L.dessus && k.mesures.R.face > 1.5 * k.mesures.R.dessus,
+      `kompa ${name}: the 8 seen from the front larger than from above (${k.mesures.L.face} against ${k.mesures.L.dessus} cm²)`);
+  }
   console.log(`PASS genoux qui mènent (vote du 22 novembre) : jamais à l'arrêt, accélération du bassin ${led('genouxQuart').fluidite.acceleration99} m/s² (${fToday.acceleration99} aujourd'hui, ${fF.acceleration99} pour F) ; de face ${g0.mesures.L.face} à ${g2.mesures.L.face} cm² ; kompa ${kg.mesures.L.face} cm²`);
   console.log(`PASS kompa seul : aujourd'hui une ligne (${k0.C.profondeur} cm d'avant en arrière, arrêt de ${k0.C.arret} temps) ; prototypes : ${k1.L.dessus} et ${k2.L.dessus} cm² entourés vu de dessus, aucun arrêt`);
   console.log(`PASS mesure du « 8 » (suiveuse, marche) : vu de dessus chaque hanche entoure ${today.L.dessus} cm² aujourd'hui (réglage ${api.GUIDE_GINGA_DEFAULT} ; ${film.L.dessus} avec marque, la taille du film), ${angular.L.dessus} (anguleux), ${round.L.dessus} (arrondi), ${large.L.dessus} (ample), ${larger.L.dessus} (très ample) ; arrêt le plus long du bassin ${film.C.arret} (marque), ${today.C.arret} (${api.GUIDE_GINGA_DEFAULT}) → ${round.C.arret} temps`);

@@ -41,14 +41,18 @@ export const KOMPA = { transition: 0.4 };
  * `knees` (vote of 22 Nov.: K2 « looks like skiing », the knees bend in turn and overlap as in the other
  * dances): the free leg's knee bends while the supporting one straightens (`swing` rad on top of today's
  * flexion), `lag` (share of the 4-beat cycle) after the lateral swing; the pelvis tilts with them, the hip
- * of the bent knee lower (`tilt` rad per rad of difference), instead of tilting with the swing. */
-export interface KompaEight { depth: number; round: number; sense: number; knees?: { swing: number; lag: number; tilt: number } }
+ * of the bent knee lower (`tilt` rad per rad of difference), instead of tilting with the swing.
+ * `glide` (third round, vote: still « skiing », the « 8 » seen from the front must be larger than seen from
+ * above): share of today's lateral glide of the whole body kept (1 = today); the hips then carry the 8. */
+export interface KompaEight { depth: number; round: number; sense: number; knees?: { swing: number; lag: number; tilt: number }; glide?: number }
 export const KOMPA_EIGHTS: Record<string, KompaEight> = {
   huit: { depth: 0.03, round: 1, sense: 1 },
   huitGrand: { depth: 0.05, round: 1, sense: 1 },
   huitInverse: { depth: 0.03, round: 1, sense: -1 },
   genoux: { depth: 0.05, round: 1, sense: 1, knees: { swing: 0.3, lag: 0, tilt: 0.5 } },
   genouxRond: { depth: 0.05, round: 1, sense: 1, knees: { swing: 0.3, lag: 0.125, tilt: 0.5 } },
+  hanches: { depth: 0.02, round: 1, sense: 1, knees: { swing: 0.45, lag: 0.125, tilt: 0.9 }, glide: 0.5 },
+  hanchesFortes: { depth: 0.02, round: 1, sense: 1, knees: { swing: 0.55, lag: 0.125, tilt: 1.2 }, glide: 0.35 },
 };
 /** The prototype in use (null: the model of today). Set once from the address, read by the kompa style. */
 export const KOMPA_PROTO: { eight: KompaEight | null } = { eight: null };
@@ -132,7 +136,7 @@ export const STYLES: Record<string, StyleDef> = {
       const held = -kompaSupport(b), w = eight ? held + (Math.sin(turn) - held) * eight.round : held;
       if (eight) r.root.position.z = eight.depth * eight.sense * Math.sin(2 * turn) * a;
       const sw = 0.9 * w;
-      r.root.position.x = 0.09 * sw * a;
+      r.root.position.x = 0.09 * sw * a * (eight?.glide ?? 1);
       r.root.position.y = -0.06 * a;
       r.pelvis.position.x = 0.02 * sw * a;
       r.pelvis.rotation.z = 0.1 * sw * a;
