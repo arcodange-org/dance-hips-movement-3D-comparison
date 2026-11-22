@@ -51,6 +51,9 @@ Ginga du couple (#157, [spec](docs/spec-ginga-couple.md)) : option `ginga` de `a
 déclarent où il s'efface (`gingaRoom`, `gingaCap`, et la place au-dessus du plafond `gingaCapRoom`, #163) et leurs jonctions (`gingaJunctions` : une figure modifiée à une
 jonction garde son passé) ; `scripts/test_ginga_couple.mjs`. Calibré à l'amplitude 1. [Aperçu des réglages](docs/elections/ginga-couple.md) ;
 le « 8 » du bassin (dessus et face) reste à faire : #159.
+Transfert de poids continu (#167, R34 : ni saccade, ni téléportation, ni relais soudain) : [spec](docs/spec-transfert-continu.md) ;
+`scripts/test_saccades.mjs` mesure, dans des séances du mode jeu, les à-coups du bassin de chaque figure et le passage d'un côté
+à l'autre ; l'état est enregistré (`scripts/fixtures/saccades.json`, cliquet ; `WRITE=1` après un changement voulu).
 Mode guidage (PoC #69) : [spec](docs/spec-mode-guidage-poc.md) (`src/guidage.ts` pur, `src/guidagePose.ts`,
 vue `src/components/GuidageApp.tsx`, `scripts/test_guidage.mjs`) ; recherche : [jeux vidéo](docs/recherche-jeux-video/README.md).
 

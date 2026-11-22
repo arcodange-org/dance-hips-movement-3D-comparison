@@ -120,6 +120,13 @@ et les specs. Résumé de la journée du 21 :
   (`gingaJunctions`) ([spec](docs/spec-ginga-couple.md)). **Ne fait pas encore le « 8 »** demandé par le propriétaire
   (chemin du bassin lié au relais des genoux, « le 8 se lit dans les deux plans ») : chantier #159, où la taille se
   choisira avec la forme.
+- **#167, transfert de poids continu** (R34, la règle mise en premier le 22 nov. : ni saccade, ni téléportation, ni relais
+  soudain entre la gauche et la droite) : [spec](docs/spec-transfert-continu.md).
+  Mesuré dans des séances du jeu : les à-coups du bassin viennent des figures, avec ou sans ginga (suiveuse, sortie
+  garçon : 12,9 cm vers le haut en un huitième de temps ; quart de tour : 13 à 14 cm à l'horizontale ; marche : 7,5 cm),
+  et le ginga par défaut passe d'un côté à l'autre 2,0 fois plus brusquement qu'un balancier. Étape 1 faite :
+  `scripts/test_saccades.mjs` enregistre cet état (`scripts/fixtures/saccades.json`) et échoue si une figure fait pire.
+  Restent : la hauteur du bassin, son trajet d'un appui à l'autre, le passage latéral du ginga. Posture (R33) : #166.
 - PR brouillon en relecture du propriétaire : #117 (ontologie), #76 (audit).
 - Pièges : `npm test` complet dure 25 min ou plus en local. Lancer ses scripts en parallèle, un journal
   par script, le ramène à une dizaine de minutes ; `test_placements` et `test_plexus` rejouent d'autres
