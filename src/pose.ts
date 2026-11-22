@@ -197,7 +197,9 @@ export function createPoseModel(r: RigHandle): PoseModel {
 
 interface FootPlan { x: number; z: number; yaw: number; lift: number;
   /** #49: rolling foot — pitch (+ = heel up) and the sole point kept fixed on the floor. */
-  pitch?: number; pivot?: "ball" | "heel" | null }
+  pitch?: number; pivot?: "ball" | "heel" | null;
+  /** #73: share of the pitched ankle's rise that may hold the pelvis up (rolled walk outside the figures). */
+  bear?: number }
 // Phase 17 — enveloppe de sortie effective pour ce rig : option exclusive `movement`
 // (sortieG/sortieF/sortieGF selon le côté leader/follower), sinon legacy `sortie` (les deux
 // danseurs en même temps). Hors embrace : 0.
@@ -220,6 +222,13 @@ function pivotShift(leg: PoseModel["legs"][Side], yaw: number, pitch: number, pi
   const shift = leg[pivot].clone().applyQuaternion(flat).sub(leg[pivot].clone().applyQuaternion(q));
   return { x: shift.x, z: shift.z };
 }
+/** #73: the rolled walk outside the figures (corridinho). Calibrated on the GLB against the flat walk it
+ * replaces, so that the pelvis moves no more abruptly (R34, docs/spec-marche-naturelle.md):
+ * `flight`: share of the beat the step takes, push-off and landing included (the flat step took 0.6);
+ * `bear`, `bearBack`: share of the heel's rise at push-off that holds the pelvis up, for a step forwards and
+ * for a step backwards; it fades as the foot flies, and a foot in the air or landing bends its knee
+ * instead of lifting the pelvis. */
+export const ROLLED_WALK = { flight: 0.75, bear: 0.75, bearBack: 1 };
 function plannedFeet(b: number, o: PoseOptions, m: PoseModel): Record<Side, FootPlan> {
   const feet = {} as Record<Side, FootPlan>;
   if (o.quarts) {
@@ -265,7 +274,7 @@ function plannedFeet(b: number, o: PoseOptions, m: PoseModel): Record<Side, Foot
     const from = landing(s, last);
     if (stepSide(index) !== s) { feet[s] = rolls ? { ...from, pitch: 0, pivot: null } : from; continue; }
     const to = landing(s, index);
-    const t = Math.max(0, Math.min(1, (b / length - index) / 0.6));
+    const t = Math.max(0, Math.min(1, (b / length - index) / (rolls ? ROLLED_WALK.flight : 0.6)));
     if (!rolls) {
       const e = smooth(t);
       feet[s] = { x: from.x + (to.x - from.x) * e, z: from.z + (to.z - from.z) * e,
@@ -275,15 +284,20 @@ function plannedFeet(b: number, o: PoseOptions, m: PoseModel): Record<Side, Foot
     }
     const travel = { x: to.x - from.x, z: to.z - from.z };
     const roll = gaitStep(t, travel, to.yaw);
-    const e = roll.progress;
+    // The two ends of the flight: toe-off (heel up, on the ball) and touch-down (heel first when the step
+    // goes forwards, ball first otherwise).
+    const off = gaitStep(GAIT.push, travel, to.yaw), on = gaitStep(GAIT.land, travel, to.yaw);
+    // R34: the foot leaves the floor and reaches it without a sudden start or stop. On these long steps
+    // the pelvis height follows the legs' reach: a foot that left at full speed pulled it up at once.
+    const e = smooth(roll.progress);
     feet[s] = { x: from.x + travel.x * e, z: from.z + travel.z * e,
       yaw: from.yaw + angleDelta(from.yaw, to.yaw) * e,
-      lift: roll.lift, pitch: roll.pitch, pivot: roll.pivot };
+      lift: roll.lift, pitch: roll.pitch, pivot: roll.pivot, bear: (on.pivot === "heel" ? ROLLED_WALK.bear : ROLLED_WALK.bearBack) * (1 - e) };
     // R34 (no jerk): at toe-off the ankle is where the push-off left it (the foot pitched about its
     // ball), and it must arrive where the landing takes it (pitched about the heel or the ball). In the
     // air there is no pivot: carry the ankle from the first of these offsets to the second.
     if (t > 0 && t < 1 && roll.pivot === null) {
-      const leg = m.legs[s], off = gaitStep(GAIT.push, travel, to.yaw), on = gaitStep(GAIT.land, travel, to.yaw);
+      const leg = m.legs[s];
       const a = pivotShift(leg, from.yaw, off.pitch, "ball"), c = on.pivot ? pivotShift(leg, to.yaw, on.pitch, on.pivot) : { x: 0, z: 0 };
       feet[s].x += a.x + (c.x - a.x) * e; feet[s].z += a.z + (c.z - a.z) * e;
     }
@@ -676,6 +690,8 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   if (partnerRoot) leanTowards(r, partnerRoot);
   const activeIK = !!figure || o.plant || o.travel > 0 || o.quarts || o.ida || o.corridinho;
   const footOrientations = {} as Record<Side, THREE.Quaternion>;
+  // Height of the ankle that bounds the pelvis height (the ankle target itself, except in a rolled walk).
+  const bearingY = {} as Record<Side, number>;
   for (const s of SIDES) {
     // #73: outside the figures, the feet of a rolled walk carry a pitch from `plannedFeet` and roll like
     // figure feet; feet without a pitch (on the spot, solo ida, historical sorties) keep the style's rock.
@@ -700,6 +716,13 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
       x += shift.x; z += shift.z;
     }
     model.targets[s].set(x, soleHeight(model.legs[s].sole, q) + feet[s].lift, z);
+    // #73, R34: in a rolled walk outside the figures, a foot in the air or landing bends its knee instead
+    // of lifting the pelvis, and the heel rising at push-off holds the pelvis up by a share only (`bear`).
+    // On these long steps the pelvis otherwise jumped up as the trailing heel rose.
+    if (!figure && feet[s].pitch !== undefined) {
+      const flatY = soleHeight(model.legs[s].sole, flat);
+      bearingY[s] = flatY + ((feet[s] as FootPlan).bear ?? 0) * (soleHeight(model.legs[s].sole, q) - flatY);
+    } else bearingY[s] = model.targets[s].y;
   }
   if (activeIK) {
     r.root.position.y = 0;
@@ -732,7 +755,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
       const hip = hipOffset.clone().add(r.root.position);
       const target = model.targets[s];
       const horizontal2 = (target.x - hip.x) ** 2 + (target.z - hip.z) ** 2;
-      height = Math.min(height, target.y + Math.sqrt(Math.max(0, reach2 - horizontal2)) - hip.y);
+      height = Math.min(height, bearingY[s] + Math.sqrt(Math.max(0, reach2 - horizontal2)) - hip.y);
     }
     // #157: the small bounce, one per beat of the music: lowest on the beat, where the weight arrives.
     // A figure that leaves no room to lower the pelvis (`dip` 0: the quarter turn while the legs cross)

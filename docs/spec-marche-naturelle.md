@@ -144,6 +144,8 @@ qui marche se déroule comme dans les figures, au lieu de voyager à plat.
 **Où.** Dans le cercle du corridinho, en solo et en comparaison : c'est la seule marche hors figure où les
 pieds voyagent (pas d'environ 47 cm).
 
+![Marche déroulée dans le cercle du corridinho, kizomba, muscles affichés](gifs/marche-deroulee.gif)
+
 **Ce qui ne change pas, et pourquoi.**
 
 - Curseur « Déplacement » et marka en 3 temps : le bassin va d'un pied à l'autre, mais chaque pied marque
@@ -152,15 +154,23 @@ pieds voyagent (pas d'environ 47 cm).
   [l'oracle](spec-phase18-oracle.md). Leur contrat n'est pas touché.
 - Sur place : la bascule du pied propre au style (semba, suave) reste le petit pivot sur la demi-pointe.
 
-**Modèle** (`plannedFeet`, `src/pose.ts`).
+**Modèle** (`plannedFeet` et `applyPose`, `src/pose.ts` ; réglages `ROLLED_WALK`).
 
 - Le pied qui part suit `gaitStep` (`src/gait.ts`) : impulsion sur la demi-pointe, passage de jambe, pose
   par le talon quand le pas va vers l'avant, par la demi-pointe quand il va en arrière.
 - Pendant une marche déroulée, le déroulé remplace la bascule du pied propre au style, sur les deux pieds :
   le pied d'appui reste à plat.
-- Ni saccade ni téléportation (R34) : au décollage, la cheville est là où l'impulsion l'a laissée (pied
-  basculé sur sa demi-pointe) ; à la pose, là où le talon ou la demi-pointe la reçoit. En l'air, elle va de
-  l'un à l'autre. Sans cela elle sautait de 23 mm à l'instant du décollage.
+- Le pas, impulsion et pose comprises, prend les trois quarts du temps (`flight` 0,75 ; le pas à plat en
+  prenait 0,6).
+
+**Ni saccade ni téléportation (R34).** Le film B de l'élection était un prototype ; trois défauts mesurés
+sur lui sont corrigés.
+
+| Défaut du prototype | Mesure | Correction |
+|---|---|---|
+| La cheville sautait à l'instant du décollage (le pivot sur la demi-pointe cessait d'un coup) | 23,0 mm entre deux poses séparées de deux millièmes de temps | En l'air, la cheville va de là où l'impulsion l'a laissée à là où la pose la reçoit : 3,3 mm, la vitesse du pas |
+| Le pied partait d'un coup à pleine vitesse | changement de vitesse du bassin de 2,75 mm en 1/512 de temps | Départ et arrivée du pied adoucis : 0,66 mm (marche à plat : 0,48 mm) |
+| Le bassin montait d'un coup quand le talon se levait : sur ces grands pas, sa hauteur suit l'allonge des jambes | 105 mm en un huitième de temps, dont 102 mm vers le haut (marche à plat : 69 mm) | Un pied en l'air ou qui se pose plie son genou au lieu de soulever le bassin ; le talon levé à l'impulsion ne le retient qu'en partie (`bear` 0,75 en avant, `bearBack` 1 à reculons) : 61 mm en avant |
 
 **Critères d'acceptation** (`scripts/test_marche_deroulee.mjs`, vrai GLB, six styles, deux sens du cercle,
 sans relire `gaitStep` : on mesure le pied posé par `applyPose`).
@@ -171,16 +181,35 @@ sans relire `gaitStep` : on mesure le pied posé par `applyPose`).
 3. Aucun os sous le sol.
 4. Aux changements de phase du pas (départ, décollage, pose, fin), les matrices finales à t−ε, t et t+ε
    restent voisines (10⁻⁴).
-5. Déplacement latéral, ida e volta en solo et sur place : le pied reste à plat (kizomba, kompa, tarraxinha).
-6. Aucun test existant n'est modifié.
+5. Le bassin ne bouge pas plus brusquement qu'avec la marche à plat qu'elle remplace : son plus grand
+   déplacement en un huitième de temps reste au plus égal à celui de la marche à plat en avant, et au plus
+   15 % au-dessus à reculons (références mesurées sur `main`, commit 5f6a76a).
+6. Déplacement latéral, ida e volta en solo et sur place : le pied reste à plat (kizomba, kompa, tarraxinha).
+7. Aucun test existant n'est modifié.
 
-**Mesuré.** Talon levé jusqu'à 20,0°, pointe relevée jusqu'à 12,6° ; point d'appui immobile à 0,02 mm près
-sur 432 poses en bascule ; aucun os sous le sol sur 6 156 poses ; 192 changements de phase continus. Plus
-grand déplacement de la cheville entre deux poses séparées de deux millièmes de temps : 23,0 mm avant la
-correction du décollage, 3,3 mm après (la vitesse du pas).
+**Mesuré.** Talon levé jusqu'à 20,0°, pointe relevée jusqu'à 12,6° ; point d'appui immobile à 0,10 mm près
+sur 444 poses en bascule ; aucun os sous le sol sur 6 156 poses ; 192 changements de phase continus.
 
-**Reste.** Les figures elles-mêmes gardent un petit saut de cheville au décollage du pied (5,7 mm mesurés
-sur le leader de la sortie garçon, temps 3,27) : il relève du transfert continu (#167), pas de cette marche.
+Plus grand déplacement du bassin en un huitième de temps (mm, amplitude 1) :
+
+| Style | Marche à plat, en avant | Déroulée, en avant | Marche à plat, à reculons | Déroulée, à reculons |
+|---|---|---|---|---|
+| Kizomba | 69,1 | 60,7 | 69,1 | 68,4 |
+| Semba | 107,4 | 81,5 | 100,2 | 81,7 |
+| Kompa | 114,9 | 114,9 | 114,8 | 114,8 |
+| Tarraxinha | 52,7 | 46,7 | 59,8 | 66,6 |
+| Suave | 58,8 | 50,9 | 59,2 | 65,1 |
+| Zouk | 59,8 | 52,3 | 59,2 | 66,9 |
+
+En avant, la marche déroulée est aussi fluide que la marche à plat ou plus fluide. À reculons (cercle en
+sens inversé), elle est plus vive de 11 à 13 % en tarraxinha, en suave et en zouk : écart connu, accepté ici.
+
+**Reste.**
+
+- La hauteur du bassin varie de 11,5 cm dans le cercle du corridinho (742 à 857 mm en kizomba), avec la
+  marche à plat comme avec la marche déroulée : cela vient de la longueur des pas (47 cm), pas du déroulé.
+- Les figures elles-mêmes gardent un petit saut de cheville au décollage du pied (5,7 mm mesurés sur le
+  leader de la sortie garçon, temps 3,27) : il relève du transfert continu (#167), pas de cette marche.
 
 ## Limites
 

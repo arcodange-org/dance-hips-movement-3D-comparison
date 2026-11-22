@@ -5,7 +5,9 @@
 //  2. le point d'appui (demi-pointe ou talon) ne glisse pas tant qu'il touche le sol ;
 //  3. aucun os sous le sol ;
 //  4. aucune saccade aux changements de phase du pas (matrices à t−ε, t, t+ε) ;
-//  5. ce qui ne marche pas garde le pied à plat : le déplacement latéral (les pieds y marquent le pas sur place),
+//  5. le bassin ne bouge pas plus brusquement qu'avec la marche à plat qu'elle remplace (R34) : son plus grand
+//     déplacement en un huitième de temps, comparé à celui mesuré sur `main` avant le changement ;
+//  6. ce qui ne marche pas garde le pied à plat : le déplacement latéral (les pieds y marquent le pas sur place),
 //     l'ida e volta en solo (contrat de l'oracle) et le sur place.
 import assert from "node:assert/strict";
 import { buildSync } from "esbuild";
@@ -32,8 +34,8 @@ api.applyPose(f.r, f.model, 0, { styleKey: "kizomba", amp: 0, movement: "none", 
 f.r.root.updateWorldMatrix(true, true);
 const rest = Object.fromEntries(SIDES.map(s => [s, { slope: slope(s), ball: point(s, "ball").y, heel: point(s, "heel").y }]));
 const pitch = side => slope(side) - rest[side].slope;
-/** Le point touche le sol : à moins d'un demi-millimètre de sa hauteur de repos. */
-const grounded = (side, name) => point(side, name).y - rest[side][name] < 5e-4;
+/** Le point touche le sol : à moins d'un dixième de millimètre de sa hauteur de repos. */
+const grounded = (side, name) => point(side, name).y - rest[side][name] < 1e-4;
 
 const STEP = 1 / 64, FLOOR = -1e-4, SLIDE = 5e-4, FLAT = 1e-6;
 function walk(label, options, from, to, expect) {
@@ -79,8 +81,24 @@ function seams(label, options, times) {
   return times.length;
 }
 
+/** Plus grand déplacement du bassin en un huitième de temps (mm), sur les temps 8 à 16. */
+function pelvisEighth(options) {
+  const N = 256, positions = [];
+  for (let i = 0; i <= 8 * N; i++) {
+    api.applyPose(f.r, f.model, 8 + i / N, options); f.r.root.updateWorldMatrix(true, true);
+    positions.push(f.r.pelvis.getWorldPosition(new THREE.Vector3()));
+  }
+  let worst = 0;
+  for (let i = 0; i + N / 8 < positions.length; i++) worst = Math.max(worst, positions[i].distanceTo(positions[i + N / 8]));
+  return worst * 1000;
+}
+// Référence : la marche à plat de `main` (commit 5f6a76a), même mesure, amplitude 1 : [sens du cercle, sens inversé].
+const FLAT_PELVIS_EIGHTH = { kizomba: [69.1, 69.1], semba: [107.4, 100.2], kompa: [114.9, 114.8],
+  tarraxinha: [52.7, 59.8], suave: [58.8, 59.2], zouk: [59.8, 59.2] };
+
 const report = [];
 let checkedSeams = 0;
+const F = api.ROLLED_WALK.flight;
 // Cercle du corridinho (temps 8 à 16) : pas vers l'avant d'environ 47 cm, pose par le talon.
 for (const styleKey of Object.keys(api.STYLES)) {
   for (const extra of [{}, { reverse: true, follower: true }]) {
@@ -88,9 +106,13 @@ for (const styleKey of Object.keys(api.STYLES)) {
     const label = `corridinho ${styleKey}${extra.reverse ? " inversé" : ""}`;
     // Sens inversé : le cercle se marche à reculons, le pied se pose par la demi-pointe.
     const m = walk(label, options, 8, 16, extra.reverse ? { heelUp: 12, ballLanding: true } : { heelUp: 12, toeUp: 6 });
-    // Un pas par temps : envol de 0 à 0,6 temps, phases du déroulé à 18 % et 78 % de l'envol.
-    checkedSeams += seams(label, options, [8, 9, 10, 11].flatMap(k => [k, k + 0.6 * 0.18, k + 0.6 * 0.78, k + 0.6]));
-    report.push({ label, ...m });
+    // Un pas par temps : envol de 0 à `F` temps, phases du déroulé à 18 % et 78 % de l'envol.
+    checkedSeams += seams(label, options, [8, 9, 10, 11].flatMap(k => [k, k + F * 0.18, k + F * 0.78, k + F]));
+    // Bassin : en avant, pas plus brusque que la marche à plat ; à reculons, au plus 15 % de plus.
+    const flat = FLAT_PELVIS_EIGHTH[styleKey][extra.reverse ? 1 : 0], pelvis = pelvisEighth(options);
+    const limit = extra.reverse ? flat * 1.15 : flat + 0.5;
+    assert(pelvis <= limit, `${label} : le bassin fait ${pelvis.toFixed(1)} mm en un huitième de temps (marche à plat : ${flat} mm, limite ${limit.toFixed(1)} mm)`);
+    report.push({ label, ...m, pelvis, flat });
   }
 }
 // Ce qui ne change pas. Déplacement latéral : le bassin va d'un pied à l'autre, chaque pied marque le pas là où
@@ -108,5 +130,7 @@ console.log(`PASS marche déroulée hors figure : ${report.length} marches (${re
   `talon levé jusqu'à ${deg(worst("heelUp")).toFixed(1)}°, pointe relevée jusqu'à ${deg(Math.max(...corridinho.map(r => r.toeUp))).toFixed(1)}° dans le cercle du corridinho, ` +
   `point d'appui immobile (au plus ${(worst("slide") * 1000).toFixed(2)} mm sur ${report.reduce((n, r) => n + r.pivoting, 0)} poses en bascule), ` +
   `os le plus bas ${(Math.min(...report.map(r => r.floor)) * 1000).toFixed(2)} mm, ${checkedSeams} changements de phase continus ; ` +
+  `bassin en un huitième de temps : en avant ${Math.round(100 * Math.max(...corridinho.filter(r => !r.label.includes("inversé")).map(r => r.pelvis / r.flat)))} % au plus de la marche à plat, ` +
+  `à reculons ${Math.round(100 * Math.max(...corridinho.filter(r => r.label.includes("inversé")).map(r => r.pelvis / r.flat)))} % au plus ; ` +
   `déplacement latéral, ida e volta en solo et sur place à plat`);
-if (process.env.DETAIL) for (const r of report) console.log(`  ${r.label} : talon ${deg(r.heelUp).toFixed(1)}°, pointe ${deg(r.toeUp).toFixed(1)}°, glissement ${(r.slide * 1000).toFixed(2)} mm, sol ${(r.floor * 1000).toFixed(2)} mm`);
+if (process.env.DETAIL) for (const r of report) console.log(`  ${r.label} : talon ${deg(r.heelUp).toFixed(1)}°, pointe ${deg(r.toeUp).toFixed(1)}°, glissement ${(r.slide * 1000).toFixed(2)} mm, sol ${(r.floor * 1000).toFixed(2)} mm, bassin ${r.pelvis.toFixed(1)} mm par huitième de temps (à plat : ${r.flat})`);

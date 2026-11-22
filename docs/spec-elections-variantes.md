@@ -134,9 +134,11 @@ l'implémentation a précisé par rapport aux films :
   comparaison, que le vote ne montrait pas, gardent leur ligne le long du déplacement latéral.
 - **Q3** : le contrat de l'oracle n'est finalement pas amendé. L'ida e volta et les quarts de tour en solo,
   et les sorties historiques, sont des figures que l'oracle décrit pied à plat : ils ne changent pas. Le
-  « Déplacement » latéral non plus : les pieds y marquent le pas sur place. Le film B avait un saut de la
-  cheville de 23 mm au décollage du pied : il est corrigé dans l'implémentation. Aucun test existant n'est
-  modifié ; `scripts/test_marche_deroulee.mjs` contrôle la marche élue.
+  « Déplacement » latéral non plus : les pieds y marquent le pas sur place. Le film B était un prototype :
+  la cheville y sautait de 23 mm au décollage du pied, et le bassin y montait de 10 cm en un huitième de
+  temps quand le talon se levait (7 cm avec la marche à plat). Les deux sont corrigés : en avant, le bassin
+  est maintenant aussi fluide qu'avec la marche à plat, ou plus ([mesures](spec-marche-naturelle.md)).
+  Aucun test existant n'est modifié ; `scripts/test_marche_deroulee.mjs` contrôle la marche élue.
 
 Les questions 4 à 7 ajoutées à la page le 22 novembre (forme, sens et taille du « 8 » des hanches,
 kompa) appartiennent à l'élection du ginga : voir #159 et la PR #160.

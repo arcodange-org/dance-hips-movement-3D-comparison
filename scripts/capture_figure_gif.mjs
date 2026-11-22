@@ -3,6 +3,7 @@
 // Usage: CHROME_PATH=... BPM=90 node scripts/capture_figure_gif.mjs out.gif "<app URL with bare=1&sortieG=1…>" <beats> [fps]
 // The in-app « Exporter un cycle » records in real time, which a slow headless renderer truncates.
 // START=<beat> (default 0) films `beats` beats from that beat, e.g. the second half of a 16-beat cycle.
+// GPU=1 renders with the graphics card (much faster on a loaded machine); default is software rendering.
 import { chromium } from "playwright";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, rmSync } from "node:fs";
@@ -12,13 +13,13 @@ const beats = Number(beatsArg), fps = Number(fpsArg ?? 10), bpm = Number(process
 const start = Number(process.env.START ?? 0);
 const n = Math.round(beats * 60 / bpm * fps);
 const dir = out + '.frames'; rmSync(dir, { recursive: true, force: true }); mkdirSync(dir, { recursive: true });
-const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH, args: ["--no-sandbox", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"] });
+const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH, args: process.env.GPU ? ["--no-sandbox", "--ignore-gpu-blocklist", "--enable-webgl"] : ["--no-sandbox", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"] });
 const page = await browser.newPage({ viewport: { width: 560, height: 600 } });
 for (let i = 0; i <= n; i++) {
   const beat = start + Math.min(beats, i * beats / n);
   await page.goto(`${base}&sortieBeat=${beat.toFixed(4)}`, { waitUntil: "load" });
   await page.waitForSelector("canvas"); await page.waitForTimeout(i === 0 ? 4000 : 1200);
-  await page.locator("canvas").first().screenshot({ path: `${dir}/f${String(i).padStart(3, '0')}.png` });
+  await page.locator("canvas").first().screenshot({ path: `${dir}/f${String(i).padStart(3, '0')}.png`, timeout: 180000 });
 }
 // Hold the final pose for one second.
 for (let k = 1; k <= fps; k++) execFileSync('cp', [`${dir}/f${String(n).padStart(3, '0')}.png`, `${dir}/f${String(n + k).padStart(3, '0')}.png`]);

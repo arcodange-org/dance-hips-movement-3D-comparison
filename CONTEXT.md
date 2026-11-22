@@ -115,7 +115,8 @@ et les specs. Résumé de la journée du 21 :
   hors figure ; convention « pieds plats » et oracle à amender). Les variantes élues sont implémentées dans
   une PR empilée ; le choix est consigné dans chaque issue, sans citation. **Implémenté** (PR empilée sur
   #149) : `LineOfDance` suit l'axe z en paire ; `plannedFeet` déroule le pied dans le cercle du corridinho
-  (`gaitStep`, cheville continue au décollage et à la pose, [spec](docs/spec-marche-naturelle.md),
+  (`gaitStep`, réglages `ROLLED_WALK` ; cheville continue au décollage et à la pose, genou qui plie au lieu
+  de soulever le bassin : le bassin n'est pas plus brusque qu'avec la marche à plat, [spec](docs/spec-marche-naturelle.md),
   `scripts/test_marche_deroulee.mjs`) ; l'ida e volta et les quarts de tour en solo, les sorties historiques
   et le « Déplacement » restent à plat (oracle intact, aucun test existant modifié). Les interrupteurs
   `idaMemePied`, `ligneBustes` et `marcheDeroulee` sont retirés ; `src/essais.ts` ne garde que `temoin`.
