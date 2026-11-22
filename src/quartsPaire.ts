@@ -14,6 +14,12 @@ export const QUARTS_HEEL_AT_TOE: FootPoint = { x: 0.056, z: 0.20 };
 const QUARTER = Math.PI / 2;
 
 const smooth = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * (3 - 2 * t); };
+/** #163 (docs/spec-ginga-couple.md): the pair quarter turn takes the couple's largest ginga setting, and
+ * is held to `cap` (the `marque` setting: share of the style's hip sway, bounce in metres) at both ends of
+ * the quarter: the room opens over `from` and closes over `until` (beats of the quarter). Measured on the
+ * GLB in the game mode's sessions: ending on the `ample` setting, the two right femurs met an eighth of a
+ * beat into the next figure (sortie fille, double), the pelvis still carrying the quarter's sway. */
+export const QUARTS_GINGA = { cap: { sway: 0.3, bounce: 0.009 }, from: [0, 0.5], until: [3.3, 3.8] };
 const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 /** Same convention as quartTurnStep: positive angle = yaw towards the left (anticlockwise). */
 const rotate = (p: FootPoint, th: number): FootPoint =>
@@ -198,10 +204,16 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
   // #82 (« le leader engage le buste avec son pied gauche ») holds: his chest turns with his G, which
   // leaves with her D (#88: she never anticipates); the chest turns with the pelvis (#106).
   const crossing = crossingAt(now.q);
+  // The quarters follow one another (cyclic): the room is the same, closed, at the end of one and at the
+  // start of the next.
+  const ending = smooth((now.q - QUARTS_GINGA.from[0]) / (QUARTS_GINGA.from[1] - QUARTS_GINGA.from[0]))
+    * (1 - smooth((now.q - QUARTS_GINGA.until[0]) / (QUARTS_GINGA.until[1] - QUARTS_GINGA.until[0])));
   const moving = two.flying || two.raw >= 1 ? order[1] : order[0];
   const action = now.quarter * 2 + (now.q >= role[1].start ? 1 : 0);
   return { beat: b, action, moving, feet, root, rootYaw: bodyYaw, chestYaw, loadR, loadL: 1 - loadR,
     coupling: QUARTS_BODY.coupling * Math.min(1, Math.hypot(o.x, o.z) / 0.05), cyclic: true, kneeCap: mix(QUARTS_BODY.kneeCap, QUARTS_BODY.crossing.kneeCap, crossing), sway: QUARTS_BODY.sway,
     rotationCap: mix(QUARTS_BODY.rotationCap, QUARTS_BODY.crossing.rotationCap, crossing),
-    dip: mix(QUARTS_BODY.dip, 0, crossing) };
+    dip: mix(QUARTS_BODY.dip, 0, crossing),
+    // #163: back to the cap over the end of the quarter, whatever the figure that follows.
+    gingaCap: QUARTS_GINGA.cap, gingaCapRoom: { sway: ending, bounce: ending } };
 }

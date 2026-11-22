@@ -37,6 +37,11 @@ le point d'insertion retenu. *Hypothèse à valider* : la numérotation du propr
   (12 cm entre #110 et #130). Pendant l'insertion, il s'ouvre de 3 cm vers sa gauche
   (`INSERTION_OPEN`), marge gardée pour qu'il ne frotte pas en allant et venant, puis revient.
 
+> **Suite (#144, 21 novembre 2026)** : le propriétaire étend ce principe à tout pas qui avance ou recule
+> (R27, [spec](spec-ida-partout.md)). Dans le mode jeu, la position 2 des sorties est maintenant une
+> position parmi d'autres ; la touche de l'ida vise le prochain pas possible, et une sortie avec
+> aller-retour peut s'enchaîner. Le paragraphe ci-dessous décrit #91 tel qu'il a été livré.
+
 ## Mode jeu
 
 La touche de l'ida (n'importe quelle variante) pendant une sortie, de son début à sa position 2, insère
@@ -54,4 +59,4 @@ pression ↑ y est une commande ordinaire. La danse automatique tire le même ch
   - GLB ; semelles disjointes ; aucun croisement d'os des jambes (styles qui proposent les sorties,
     amplitudes 0,5 à 2, placements, plexus).
 - `scripts/test_guidage.mjs` : fenêtre de l'insertion, variantes, continuité du squelette aux
-  196 enchaînements.
+  enchaînements de figures.

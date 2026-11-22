@@ -15,7 +15,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const bundle = join(root, "scripts", ".test-features-bundle.mjs");
 esbuild.buildSync({
   stdin: {
-    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon"; export * from "../src/sortieFille"; export * from "../src/idaPaire"; export * from "../src/gait"; export * from "../src/music/patterns"; export * from "../src/music/scheduler"; export * as guidage from "../src/guidage"; export * from "../src/music/loop"; export * from "../src/vitrine"; export * from "../src/music/recordings";',
+    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon"; export * from "../src/sortieFille"; export * from "../src/idaPaire"; export * from "../src/gait"; export * from "../src/music/patterns"; export * from "../src/music/scheduler"; export * as guidage from "../src/guidage"; export * as insertion from "../src/insertion"; export { gingaPhase } from "../src/pose"; export * from "../src/music/loop"; export * from "../src/vitrine"; export * from "../src/music/recordings";',
     resolveDir: join(root, "scripts"),
     loader: "ts",
   },
@@ -35,7 +35,10 @@ const { Group } = await import(
 
 /** #140: couple motions of the game mode figures, on a rest stance close to the GLB's. */
 let guideMotionsCache = null;
-const guideMotionsOf = () => guideMotionsCache ??= mod.guidage.guideMotions({ rest: { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } }, stance: 0.02, placement: "quinconce", amp: 1 });
+const guideRig = () => ({ rest: { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } }, stance: 0.02, placement: "quinconce", amp: 1 });
+const guideMotionsOf = () => guideMotionsCache ??= mod.guidage.guideMotions(guideRig());
+/** A plan as text: figure, positions of its touches (#144), start. */
+const jeuText = plan => plan.segments.map(s => `${s.kind}${(s.touches ?? []).map(t => `+${t.at}`).join("")}@${s.start}`).join(" ");
 
 // ---------- parsing Gherkin ----------
 function parseFeature(text) {
@@ -255,8 +258,7 @@ const steps = [
     c.jeu = { plan: mod.guidage.planGuide(figures.map((figure, k) => ({ beat: beats[k], figure })), guideMotionsOf(), 60) };
   }],
   [/^les segments du mode jeu sont "([^"]*)"$/, (c, m) => {
-    const got = c.jeu.plan.segments.map(s => `${s.kind}@${s.start}`).join(" ");
-    if (got !== m[1]) throw new Error(`segments ${got}`);
+    if (jeuText(c.jeu.plan) !== m[1]) throw new Error(`segments ${jeuText(c.jeu.plan)}`);
   }],
   [/^aucune commande n'est refusée ni perdue$/, (c) => {
     const { outcomes, queue } = c.jeu.plan;
@@ -274,9 +276,8 @@ const steps = [
     rest.forEach((s, k) => { if (s.start !== (k ? rest[k - 1].end : 4)) throw new Error(`trou avant le temps ${s.start}`); });
   }],
   [/^la même graine redonne la même danse, une autre graine une autre danse$/, (c) => {
-    const text = plan => plan.segments.map(s => `${s.kind}@${s.start}`).join(" ");
-    if (text(c.jeu.plan) !== text(c.jeu.again)) throw new Error("même graine, danse différente");
-    if (text(c.jeu.plan) === text(c.jeu.other)) throw new Error("deux graines, même danse");
+    if (jeuText(c.jeu.plan) !== jeuText(c.jeu.again)) throw new Error("même graine, danse différente");
+    if (jeuText(c.jeu.plan) === jeuText(c.jeu.other)) throw new Error("deux graines, même danse");
   }],
   [/^le couple danse seul pendant (\d+) temps avec les graines (\d+) à (\d+)$/, (c, m) => {
     const until = Number(m[1]), phrase = mod.guidage.GUIDE_AUTO.phrase;
@@ -286,6 +287,26 @@ const steps = [
       for (let end = phrase; end <= until; end += phrase) { ends++; if (starts.has(end)) neutral++; }
     }
     c.jeu = { share: neutral / ends };
+  }],
+  // #152: the draw remembers the figures and the pairs danced lately.
+  [/^le couple danse seul pendant (\d+) temps avec les graines (\d+) à (\d+) et le hasard "(\w+)"$/, (c, m) => {
+    let figures = 0, longest = 0, pairs = 0;
+    for (let seed = Number(m[2]); seed <= Number(m[3]); seed++) {
+      const plan = mod.guidage.planGuide([], guideMotionsOf(), Number(m[1]), { modes: [{ beat: 0, auto: true }], seed, variety: m[4] });
+      const ids = plan.segments.slice(1).map(s => mod.guidage.guideIdentityOf(s.kind));
+      let run = 1;
+      ids.forEach((id, i) => {
+        figures++; run = i > 0 && id === ids[i - 1] ? run + 1 : 1; longest = Math.max(longest, run);
+        if (i > 0) for (let j = Math.max(1, i - 8); j < i; j++) if (ids[j - 1] === ids[i - 1] && ids[j] === id) { pairs++; break; }
+      });
+    }
+    c.jeu = { longest, pairs: pairs / figures };
+  }],
+  [/^la plus longue série de la même figure est de (\d+) au plus$/, (c, m) => {
+    if (c.jeu.longest > Number(m[1])) throw new Error(`série de ${c.jeu.longest}`);
+  }],
+  [/^une paire de figures déjà enchaînée parmi les 8 précédentes revient moins d'une fois sur (\d+)$/, (c, m) => {
+    if (!(c.jeu.pairs < 1 / Number(m[1]))) throw new Error(`part ${c.jeu.pairs}`);
   }],
   [/^une position neutre tombe sur plus de (\d+) % des fins de phrase, et pas sur toutes$/, (c, m) => {
     if (!(c.jeu.share > Number(m[1]) / 100 && c.jeu.share < 1)) throw new Error(`part ${c.jeu.share}`);
@@ -304,6 +325,65 @@ const steps = [
     if (!(before.start <= beat && s.start === before.end && s.start >= beat)) throw new Error(`commande au temps ${s.start}`);
     if (after?.by !== "auto") throw new Error("le tirage ne reprend pas");
     for (let k = 0; k < at; k++) if (plan.segments[k].kind !== alone.segments[k].kind) throw new Error("la danse d'avant a changé");
+  }],
+  // #157: the ginga of the couple dance (docs/spec-ginga-couple.md).
+  [/^on lit la phase du ginga sur les appuis du leader dans chaque figure du mode jeu$/, (c) => {
+    const rig = guideRig();
+    c.ginga = mod.guidage.GUIDE_FIGURE_KEYS.filter(kind => mod.guidage.sampleKind(kind, 0, false, rig).loadR !== undefined).map(kind => {
+      const end = mod.guidage.GUIDE_FIGURES[kind].beats, phases = [];
+      for (let t = 0; t <= end + 1e-9; t += 1 / 16) phases.push(mod.gingaPhase(`feature:${kind}`, b => mod.guidage.sampleKind(kind, b, false, rig), t));
+      return { kind, phases };
+    });
+    if (c.ginga.length < 8) throw new Error(`${c.ginga.length} figures seulement`);
+  }],
+  [/^la phase ne recule pas et ne saute pas$/, (c) => {
+    for (const { kind, phases } of c.ginga) phases.forEach((p, k) => {
+      if (k && !(p >= phases[k - 1] - 0.02 && p - phases[k - 1] < 0.3)) throw new Error(`${kind} : phase ${phases[k - 1]} → ${p}`);
+    });
+  }],
+  [/^chaque figure fait avancer la phase d'au moins un transfert$/, (c) => {
+    for (const { kind, phases } of c.ginga) if (!(phases[phases.length - 1] - phases[0] >= 0.9)) throw new Error(`${kind} : ${phases[0]} → ${phases[phases.length - 1]}`);
+  }],
+  [/^on lit les réglages du ginga du mode jeu$/, (c) => { c.reglages = mod.guidage.GUIDE_GINGA; c.defaut = mod.guidage.GUIDE_GINGA_DEFAULT; }],
+  [/^le réglage par défaut balance les hanches et fait rebondir le bassin$/, (c) => {
+    const g = c.reglages[c.defaut];
+    if (!(g && g.sway > 0 && g.bounce > 0 && g.bounce <= 0.02)) throw new Error(JSON.stringify(g));
+  }],
+  [/^les réglages vont du plus discret au plus ample, et "sans" l'éteint$/, (c) => {
+    const { sans, discret, marque, ample } = c.reglages;
+    if (sans !== null) throw new Error("sans n'éteint pas le ginga");
+    if (!(discret.sway < marque.sway && marque.sway < ample.sway && discret.bounce < marque.bounce && marque.bounce < ample.bounce)) throw new Error("réglages non ordonnés");
+  }],
+  // #144: a touch before any step that goes forward or backward (docs/spec-ida-partout.md).
+  [/^on échantillonne chaque aller-retour proposé par le mode jeu$/, (c) => {
+    const rig = guideRig();
+    c.touches = Object.entries(mod.insertion.TOUCH_POSITIONS).flatMap(([kind, touches]) => touches.map(touch => ({ kind, touch,
+      sample: (beat, follower) => mod.guidage.sampleSegment(kind, [touch], beat, follower, rig),
+      plain: (beat, follower) => mod.guidage.sampleKind(kind, beat, follower, rig) })));
+    if (c.touches.length < 12) throw new Error(`${c.touches.length} allers-retours seulement`);
+  }],
+  [/^le pied part dans le sens de son pas et revient où il était$/, (c) => {
+    for (const { kind, touch, sample } of c.touches) for (const follower of [false, true]) {
+      const side = (touch.side === "L") !== follower ? "L" : "R", way = (touch.back ? -1 : 1) * (follower ? -1 : 1);
+      const held = sample(touch.at, follower).feet[side], out = sample(touch.at + 1, follower).feet[side], back = sample(touch.at + mod.insertion.TOUCH_BEATS, follower).feet[side];
+      if (!((out.z - held.z) * way > 0.1)) throw new Error(`${kind}@${touch.at} ${follower ? "suiveur" : "leader"} : le pied ${side} bouge de ${out.z - held.z}`);
+      if (Math.hypot(back.x - held.x, back.z - held.z) > 1e-6) throw new Error(`${kind}@${touch.at} : le pied ne revient pas`);
+    }
+  }],
+  [/^le poids est sur l'autre pied au début et à la fin, et la figure reprend avec le même pied$/, (c) => {
+    for (const { kind, touch, sample, plain } of c.touches) for (const follower of [false, true]) {
+      const side = (touch.side === "L") !== follower ? "L" : "R", end = touch.at + mod.insertion.TOUCH_BEATS;
+      const onOther = s => (side === "L" ? s.loadR : 1 - s.loadR);
+      for (const beat of [touch.at, end]) {
+        const s = sample(beat, follower);
+        if (s.loadR !== undefined && !(onOther(s) > 0.95)) throw new Error(`${kind}@${touch.at} ${follower ? "suiveur" : "leader"} : poids ${onOther(s)} au temps ${beat}`);
+      }
+      // After the touch the figure dances the step it had planned, with the same foot.
+      for (const d of [0.3, 0.6, 1]) {
+        const a = sample(end + d, follower).feet[side], b = plain(touch.at + d, follower).feet[side];
+        if (Math.hypot(a.x - b.x, a.z - b.z) > 1e-9) throw new Error(`${kind}@${touch.at} : la figure ne reprend pas son pas`);
+      }
+    }
   }],
   // #128: the virgula as a style effect in the pair ida e volta (docs/spec-ida-paire.md).
   [/^on échantillonne l'ida e volta en paire avec la virgula du leader$/, (c) => {

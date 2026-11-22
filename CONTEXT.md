@@ -65,6 +65,45 @@ et les specs. Résumé de la journée du 21 :
   reproductible `graine=N`, `auto=1`). `src/guidage.ts` : `planGuide(commandes, motions, until, { modes,
   seed, offered })`, `GUIDE_AUTO`, `autoFigure` ; un plan ne réécrit jamais son passé
   ([spec](docs/spec-jeu-file-auto.md)).
+- **#144 (PR #145)** : règle R27 du propriétaire, « chaque pied qui avance ou qui recule peut devenir un "ida e
+  volta" (un simple aller retour du pied, en virgula ou non) ». `src/insertion.ts` : `sampleTouched` ajoute un
+  aller-retour (2 temps, en touche) avant un pas d'une figure ; `TOUCH_POSITIONS` liste les 13 pas validés sur le
+  GLB (plus 3 positions de l'enchaînement) avec leurs ajustements. Mode jeu : un segment porte ses allers-retours
+  (`segment.touches`), la touche de l'ida vise le prochain pas possible (figure en cours, sinon figure en attente),
+  Maj = virgula, la danse seule tire les mêmes choix. Restent à trancher par le propriétaire les pieds de la
+  suiveuse (le même pied que le leader ou le pied opposé, issue #86 ; et ce qu'elle fait quand elle allait de
+  côté) : voir « Questions en attente » de [la spec](docs/spec-ida-partout.md) ; le D4 de la sortie
+  garçon n'est pas proposé (jambes croisées).
+- **#152 (PR #154)** : hasard tenu de la danse seule. `autoFigure` reçoit l'historique des figures ; `GUIDE_VARIETY`
+  (`libre`, `tenu` par défaut, `strict`) pèse les figures et les paires dansées récemment et borne les séries.
+  Mesures avant et après dans [la spec](docs/spec-jeu-file-auto.md). Le propriétaire doit élire le réglage en
+  regardant (`?auto=1&graine=7&hasard=…`).
+- **Élection #86 (PR brouillon #153)** : pieds de la suiveuse dans l'ida e volta, deux questions en GIF
+  (`docs/elections/suiveuse-ida.md` sur la branche `arcodange/election-suiveuse`), en attente de son vote.
+- **#157 (PR #158)** : ginga visible en danse de couple. Dans toutes les figures du mode jeu, la phase du style
+  suit les transferts d'appui du leader (`gingaPhase`, moyennée sur un quart de temps), une part du déhanché
+  latéral va au bassin, et un rebond d'une pulsation par temps s'ajoute. Les figures déclarent où il s'efface
+  (`gingaRoom`, `gingaCap` : sortie fille, sorties, allers-retours). Réglages `GUIDE_GINGA`
+  (`ginga=sans|discret|marque|ample` ; [aperçu](docs/elections/ginga-couple.md)). **#163** : le propriétaire a jugé
+  `marque` « trop discret » : `ample` est le réglage par défaut, et les sorties lèvent leur plafond là où elles ont de la
+  place (`gingaCapRoom`). Trois croisements d'os de #157, entre deux échantillons du test, sont corrigés ; le test
+  échantillonne maintenant le réglage par défaut au seizième de temps dans les sorties et le quart de tour.
+  Calibré à l'amplitude 1, celle du mode jeu. Une figure modifiée à une jonction garde son passé, ginga compris
+  (`gingaJunctions`) ([spec](docs/spec-ginga-couple.md)). **Ne fait pas encore le « 8 »** demandé par le propriétaire
+  (chemin du bassin lié au relais des genoux, « le 8 se lit dans les deux plans ») : chantier #159, où la taille se
+  choisira avec la forme.
+- **#167, transfert de poids continu** (R34, la règle mise en premier le 22 nov. : ni saccade, ni téléportation, ni relais
+  soudain entre la gauche et la droite) : [spec](docs/spec-transfert-continu.md).
+  Mesuré dans des séances du jeu : les à-coups du bassin viennent des figures, avec ou sans ginga (suiveuse, sortie
+  garçon : 12,9 cm vers le haut en un huitième de temps ; quart de tour : 13 à 14 cm à l'horizontale ; marche : 7,5 cm),
+  et le ginga par défaut passe d'un côté à l'autre 2,0 fois plus brusquement qu'un balancier. Étape 1 faite :
+  `scripts/test_saccades.mjs` enregistre cet état (`scripts/fixtures/saccades.json`) et échoue si une figure fait pire.
+  Marche fluide : le bassin voyage pendant tout le pas au lieu de suivre le poids dans le dernier cinquième du temps
+  (7,5 → 2,7 cm en un huitième de temps) ; ida e volta fluide : le bassin sort sur tout le pas et revient en une
+  demi-temps (`IDA_PAIR.pelvisBack`, 8 → 3,5 à 4,2 cm) ; passage d'un côté à l'autre progressif : la phase du ginga est
+  moyennée sur une demi-temps de chaque côté et se poursuit d'une figure à la suivante (`gingaFrom` ; 2,05 → 0,98 fois un
+  balancier). Restent : la hauteur du bassin, son trajet dans le quart de tour et les sorties. Croisements d'os déjà présents
+  aux frontières : #171. Posture (R33) : #166.
 - **#148 (PR #149, brouillon : dossier de décision)** : élections de variantes en GIF. Le propriétaire tranche
   les questions de mouvement en élisant un candidat filmé, avec un commentaire optionnel. Premier tour :
   ida e volta, pied opposé ou même pied (#86, #144) ; ligne de danse perpendiculaire aux bustes ou dans

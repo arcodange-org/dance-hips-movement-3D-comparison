@@ -300,6 +300,18 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] GIFs du mode jeu recapturés avec les muscles.
 - [ ] Essai par le propriétaire : poids du tirage (`GUIDE_AUTO`), part des fins de phrase en position neutre.
 
+## Ida e volta à tout pas qui avance ou recule (#144, R27)
+
+- [x] Issue #144 avec les mots du propriétaire ; règle R27 dans `docs/regles-proprietaire.md`.
+- [x] Spec poussée en premier ([spec](spec-ida-partout.md)) : relevé des pas, modèle proposé, questions.
+- [x] Réponses du propriétaire (durée, poids, pas concernés, virgula, commande) ; question 4 (suiveur de côté) reposée.
+- [x] Échantillonneur généralisé (`sampleTouched`, `TOUCH_POSITIONS`), segments du mode jeu avec allers-retours.
+- [x] `scripts/test_touches.mjs` (GLB par position), `scripts/test_guidage.mjs`, `docs/features/mode-jeu.feature`.
+- [x] Danse automatique : choix à chaque pas possible ; virgula ; démonstration `demo=allerretour` et GIF.
+- [ ] Réponses du propriétaire sur les pieds de la suiveuse (issue #86 : même pied ou pied opposé ; suiveuse qui allait de côté).
+- [ ] Essai par le propriétaire des poids du tirage et de la commande (figure en attente).
+- [ ] D4 de la sortie garçon (jambes croisées) : aller-retour dans la direction du pas, à étudier.
+
 ## Musique enregistrée générée par ElevenLabs (#142)
 
 - [x] Issue #142 et spécification poussée en premier ([spec](spec-musique-elevenlabs.md)), PR brouillon #143.
@@ -322,6 +334,44 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Bouton de partage, interface réduite, fragment `iframe`.
 - [x] `scripts/test_vitrine.mjs` et `vitrine.feature` dans `npm test` ; contrôle navigateur.
 - [ ] Essai par le propriétaire ; intégration sur le site d'Arcodange ; mascottes Rémi et Corinne (hors périmètre de #150).
+
+## Danse automatique : un hasard mieux tenu (#152)
+
+- [x] Issue #152 avec les mots du propriétaire ; complément de spec poussé en premier ([spec](spec-jeu-file-auto.md)).
+- [x] Tirage avec mémoire des figures et des paires (`GUIDE_VARIETY`, `GUIDE_MEMORY`), trois réglages.
+- [x] Mesures avant et après dans `scripts/test_guidage.mjs` ; scénario Gherkin.
+- [ ] Choix du réglage par le propriétaire (`hasard=libre|tenu|strict` sur la même graine).
+
+## Transfert de poids continu : ni saccade, ni relais soudain (#167)
+
+- [x] Issue #167 avec la règle (22 novembre) et les mesures ; [spec](spec-transfert-continu.md)
+      poussée en premier ; règle R34.
+- [x] Étape 1 : `scripts/test_saccades.mjs` dans `npm test`, état d'aujourd'hui enregistré (`scripts/fixtures/saccades.json`).
+- [ ] Étape 2 : hauteur du bassin étalée dans le temps (sorties : 12,9 et 10,5 cm en un huitième de temps).
+- [x] Étape 3, marche (avancer, reculer, double) : le bassin voyage pendant tout le pas (7,5 → 2,7 cm en un huitième de temps).
+- [x] Étape 3, ida e volta et allers-retours insérés : le bassin sort sur tout le pas et revient en une demi-temps (8 → 3,5 à 4,2 cm).
+- [ ] Étape 3, suite : quart de tour, sorties.
+- [x] Étape 4 : passage latéral du ginga calibré aussi progressif qu'un balancier (2,05 → 0,98), poursuivi d'une figure à la
+      suivante (`gingaFrom`), sauf après le pas de base et l'ida e volta.
+
+## Ginga du couple plus visible (#163)
+
+- [x] Issue #163 avec la parole du propriétaire (« Trop discret. ») ; spec poussée en premier (section de `spec-ginga-couple.md`), PR #164.
+- [x] Réglage par défaut `ample` (contrôlé au pas du réglage par défaut).
+- [x] Sorties : plafond levé là où la figure laisse de la place (`gingaCapRoom`), mesuré sans plafond sur le GLB.
+- [x] Trois croisements d'os de #157 corrigés (sortie garçon 0,19 et 3,31 ; sortie fille 0,94), trouvés au seizième de temps ;
+      le test échantillonne le réglage par défaut au seizième dans les sorties et le quart de tour.
+- [ ] Une taille au-delà d'`ample` : avec le « 8 » (#159).
+
+## Ginga visible en danse de couple (#157)
+
+- [x] Issue #157 avec les mots du propriétaire ; spec poussée en premier ([spec](spec-ginga-couple.md)), PR #158.
+- [x] Phase du ginga sur les transferts d'appui dans toutes les figures, balancement, petit rebond (`src/pose.ts`).
+- [x] Marges déclarées par les figures (`gingaRoom`, `gingaCap`) ; réglages `GUIDE_GINGA`.
+- [x] `scripts/test_ginga_couple.mjs` et `ginga-couple.feature` dans `npm test` ; allers-retours et séances contrôlés avec le ginga.
+- [x] GIFs des réglages, [page d'élection](elections/ginga-couple.md) ; démonstration `demo=ginga`.
+- [ ] Le chemin en « 8 » du bassin, lié au relais des genoux, lisible vu de dessus et vu de face (précisions du
+      propriétaire) : #159. La taille (`ginga=sans|discret|marque|ample`) s'y choisira avec la forme.
 
 ## Élections de variantes en GIF (#148)
 

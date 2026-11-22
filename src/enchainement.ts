@@ -10,12 +10,12 @@
  * it): two beats of bridge, then the sortie garçon's actions 3 to 5 (and its held marka).
  * Every position is in the dancer's own outer frame (as the figure samplers). */
 import { gaitStep } from "./gait";
-import { sampleSortieFille } from "./sortieFille";
-import { sampleSortieGarcon, DEFAULT_SORTIE_CONTRA, type FigureFoot, type FigureFootPose, type FootPoint } from "./sortieGarcon";
+import { sampleSortieFille, SORTIE_FILLE_JUNCTION } from "./sortieFille";
+import { sampleSortieGarcon, DEFAULT_SORTIE_CONTRA, SORTIE_GINGA_CAP, type FigureFoot, type FigureFootPose, type FootPoint } from "./sortieGarcon";
 import { placementOffset, type CouplePlacement, type PlacementOffset } from "./placement";
 
 /** Beat of the sortie fille where the chain leaves it, beat of the sortie garçon where it joins it. */
-export const CHAIN_FROM = 3, CHAIN_TO = 2;
+export const CHAIN_FROM = SORTIE_FILLE_JUNCTION, CHAIN_TO = 2;
 /** Bridge windows (beats from `CHAIN_FROM`), proposals to validate by eye (owner):
  * - leader: weight onto his planted D (`shift`), then his G placed (`leader`); his pelvis travels over
  *   `leaderBody` (#104: it ends over his D, next to her right thigh, so it waits for her D to clear);
@@ -93,5 +93,6 @@ export function sampleSortieFG(beat: number, follower: boolean, rest: Record<Fig
   return { beat: b, feet, root, loadR, loadL: 1 - loadR, chestYaw: mix(from.chestYaw, to.chestYaw, turn),
     coupling: mix(from.coupling, to.coupling, turn),
     rotationCap: mix(0.12, w.rotationCap, hold), sway: mix(1, w.sway, hold), kneeCap: mix(0.45, w.kneeCap, hold),
-    chain: "pont" as const };
+    // #163: no crossing measured on the bridge with the cap ignored: it joins the two sorties' open rooms.
+    gingaCap: SORTIE_GINGA_CAP, gingaCapRoom: { sway: 1, bounce: 1 }, chain: "pont" as const };
 }

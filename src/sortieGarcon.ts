@@ -62,6 +62,26 @@ export function sortieGarconSettings(params: URLSearchParams): { variant: Sortie
     beat: sortieGarconBeat(Number(params.get("sortieBeat") ?? 0)) };
 }
 
+/** #157 (docs/spec-ginga-couple.md): the most ginga the sorties leave room for (share of the style's hip
+ * sway, bounce in metres), measured on the GLB: beyond, the right thighs meet where the couple is in
+ * quinconce (start and end), and the leader's right thigh meets the follower's left leg in semba. */
+export const SORTIE_GINGA_CAP = { sway: 0.3, bounce: 0.009 };
+/** #163 (owner: « Trop discret. »): where the sortie garçon leaves room above that cap (beats). Measured on
+ * the GLB with the cap ignored and the `ample` setting: the leg bones only cross at the start (up to 0.25),
+ * once around 3.31 and from 4.88 on. The room opens over `from`, closes over `notch` (down, held, up) and
+ * for good over `until`. */
+export const SORTIE_GARCON_GINGA_ROOM = { from: [0.4, 0.8], notch: [2.95, 3.2, 3.42, 3.67], until: [4.2, 4.6] };
+/** #163: two spots where the sortie garçon leaves no room for the ginga at all, found at a sixteenth of a
+ * beat (the checks of #157 sampled every eighth): at 0.19 the two right femurs meet with the sway of
+ * `marque` (kizomba), and at 3.31 the leader's left tibia meets his own right kneecap with any ginga
+ * (suave). The sway opens over `swayFrom`; sway and bounce close over `notch` (down, held, up). */
+export const SORTIE_GARCON_GINGA = { swayFrom: [0.15, 0.5], notch: [3.0, 3.2, 3.42, 3.62] };
+/** Smooth window: 0 before `a`, 1 from `b`. */
+const rise = (x: number, [a, b]: number[]) => smooth((x - a) / (b - a));
+/** Room (0 to 1) of a profile `{ from, notch?, until }` at a beat. */
+export const gingaWindow = (x: number, w: { from: number[]; notch?: number[]; until: number[] }) =>
+  rise(x, w.from) * (1 - rise(x, w.until)) * (w.notch ? 1 - rise(x, w.notch.slice(0, 2)) * (1 - rise(x, w.notch.slice(2))) : 1);
+
 export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record<FigureFoot, FootPoint>,
   variant: SortieVariant = "line", contraDegrees = DEFAULT_SORTIE_CONTRA,
   placement: CouplePlacement | "reference" | PlacementOffset = "reference", contact = 1, stance = 0) {
@@ -221,6 +241,9 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   // Same local yaw for both partners, whose outer frames differ by π.
   const exit = b < 1 ? smooth(b) : b < 2 ? 1 : b < 3 ? 1 - smooth(b - 2) : 0;
   const contra = Number.isFinite(contraDegrees) ? Math.max(0, Math.min(30, contraDegrees)) : DEFAULT_SORTIE_CONTRA;
+  const N = SORTIE_GARCON_GINGA.notch, notchRoom = 1 - rise(b, N.slice(0, 2)) * (1 - rise(b, N.slice(2)));
   return { beat: b, action: Math.ceil(b), moving, feet, root, loadR, loadL: 1 - loadR,
-    chestYaw: -contra * Math.PI / 180 * exit, coupling: Math.max(startCoupling(b, o), endCoupling(b, o)) };
+    chestYaw: -contra * Math.PI / 180 * exit, coupling: Math.max(startCoupling(b, o), endCoupling(b, o)), gingaCap: SORTIE_GINGA_CAP,
+    gingaRoom: { sway: rise(b, SORTIE_GARCON_GINGA.swayFrom) * notchRoom, bounce: notchRoom },
+    gingaCapRoom: { sway: gingaWindow(b, SORTIE_GARCON_GINGA_ROOM), bounce: gingaWindow(b, SORTIE_GARCON_GINGA_ROOM) } };
 }
