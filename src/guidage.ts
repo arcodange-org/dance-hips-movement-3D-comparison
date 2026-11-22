@@ -134,17 +134,20 @@ export const GUIDE_GINGA: Record<Exclude<GuideGinga, GuideEight>, { sway: number
 export const GUIDE_GINGA_DEFAULT: GuideGinga = "marque";
 /** #159 (owner: « on dit souvent que l'"on fait un 8" », « le 8 se lit dans les deux plans », « j'ai envie
  * de dire les 3 plans même », docs/spec-ginga-huit.md): PROTOTYPES of the « 8 » of the hips, to elect
- * (`?ginga=huit|huitRond|huitInverse|huitAmple`). Not checked on the GLB: they are not offered by default.
+ * (`?ginga=huit|huitRond|huitInverse|huitAmple|huitGrand`). Not checked on the GLB: they are not offered by default.
  * - `huit`: the size of `marque`; the pelvis waits on the support, then crosses (an angular « 8 »);
  * - `huitRond`: the same, the lateral shift on the moving phase too: the pelvis never stops;
  * - `huitInverse`: `huitRond` the other way round (back as the weight arrives, forward on the support);
- * - `huitAmple`: `huitRond`, larger. */
-export type GuideEight = "huit" | "huitRond" | "huitInverse" | "huitAmple";
+ * - `huitAmple`: `huitRond`, larger;
+ * - `huitGrand`: larger still (owner, 22 Nov., on the `marque` size in the couple: « Trop discret. »). */
+export type GuideEight = "huit" | "huitRond" | "huitInverse" | "huitAmple" | "huitGrand";
 export const GUIDE_EIGHT: Record<GuideEight, { sway: number; bounce: number; eight: GingaEight }> = {
   huit: { sway: 0.3, bounce: 0.009, eight: { turn: 1, rollLag: 0.25, yawLag: 0.5, depth: 0.01, depthLag: 0, bounceLag: 0.25, round: 0 } },
   huitRond: { sway: 0.3, bounce: 0.009, eight: { turn: 1, rollLag: 0.25, yawLag: 0.5, depth: 0.01, depthLag: 0, bounceLag: 0.25, round: 1 } },
   huitInverse: { sway: 0.3, bounce: 0.009, eight: { turn: 1, rollLag: -0.25, yawLag: -0.5, depth: 0.01, depthLag: 0.5, bounceLag: 0.25, round: 1 } },
   huitAmple: { sway: 0.45, bounce: 0.014, eight: { turn: 1.5, rollLag: 0.25, yawLag: 0.5, depth: 0.02, depthLag: 0, bounceLag: 0.25, round: 1 } },
+  // The bounce stays the one of `ample`: 20 mm crossed the knees in the basic step and the ida e volta (measured).
+  huitGrand: { sway: 0.6, bounce: 0.014, eight: { turn: 2, rollLag: 0.25, yawLag: 0.5, depth: 0.03, depthLag: 0, bounceLag: 0.25, round: 1 } },
 };
 /** The pose setting of a ginga name (a calibrated setting or a prototype of the « 8 »). */
 export const guideGingaOf = (name: GuideGinga) => (name in GUIDE_EIGHT ? GUIDE_EIGHT[name as GuideEight] : GUIDE_GINGA[name as Exclude<GuideGinga, GuideEight>]);

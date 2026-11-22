@@ -90,7 +90,7 @@ const panels = [
 const at = (panel, p) => [panel.cx + (p[panel.a] - centre[panel.a]) * SCALE, panel.cy - (p[panel.b] - centre[panel.b]) * SCALE];
 const path = (panel, pts) => pts.map((p, i) => `${i ? 'L' : 'M'}${at(panel, p).map(v => v.toFixed(1)).join(' ')}`).join(' ') + ' Z';
 const COLORS = { L: '#fb923c', R: '#22d3ee', C: '#94a3b8' };
-const label = { marque: 'aller-retour (aujourd’hui)', huit: '« 8 » anguleux', huitRond: '« 8 » arrondi', huitInverse: '« 8 » arrondi, autre sens', huitAmple: '« 8 » arrondi, ample' }[ginga] ?? ginga;
+const label = { marque: 'aller-retour (aujourd’hui)', huit: '« 8 » anguleux', huitRond: '« 8 » arrondi', huitInverse: '« 8 » arrondi, autre sens', huitAmple: '« 8 » arrondi, ample', huitGrand: '« 8 » arrondi, très ample' }[ginga] ?? ginga;
 const fixed = panels.map(panel => `
   <text x="16" y="${panel.cy - 70}" class="t">${panel.title}</text><text x="16" y="${panel.cy - 52}" class="h">${panel.hint}</text>
   ${['C', 'L', 'R'].map(k => `<path d="${path(panel, points[k])}" fill="none" stroke="${COLORS[k]}" stroke-width="${k === 'C' ? 1 : 2}" stroke-opacity="${k === 'C' ? 0.5 : 0.85}"/>`).join('')}`).join('');

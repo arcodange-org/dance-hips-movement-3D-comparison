@@ -24,6 +24,30 @@ une hanche monte pendant que l'autre descend) :
 
 > (j'ai envie de dire les 3 plans même)
 
+### Paroles du 22 novembre 2026, après avoir vu le film refilmé avec le ginga de #157
+
+À la question « Le ginga du couple se voit-il assez dans le final ? » (réglage `marque`, couple en pied) :
+
+> Trop discret.
+
+Sur le kompa :
+
+> Le konpa est complètement faux actuellement: c'est le 8 le plus prononcé justement. Complémente les
+> connaissances sur ce style.
+
+Sur le semba :
+
+> En semba le 2e rebond est fait comme un chacha en refaisant rapidement un petit rond du "8" de ginga avant
+> de reprendre le mouvement de "8" plus grand.
+
+Ce que ces paroles changent ici :
+
+| Parole | Conséquence | Où |
+|---|---|---|
+| « Trop discret. » | La taille de `marque` (A, B, C, D) ne suffit pas. Une variante plus grande est ajoutée à l'élection (F). Le réglage par défaut de `main` passe au plus grand réglage calibré. | ici, et #163 |
+| Kompa : « c'est le 8 le plus prononcé » | Le modèle du kompa est à refaire après la recherche de sources. Dans le mode jeu, le kompa ne reçoit aujourd'hui que le rebond : ni phase, ni « 8 ». | #161 |
+| Semba : le 2e rebond « comme un chacha » | Le « 8 » du semba n'est pas régulier : un petit rond rapide au deuxième rebond, puis le grand. À prototyper sur le « 8 » élu. | #162 |
+
 ## Constat mesuré, après #157
 
 Chemin de chaque hanche (articulation), en couple, pendant deux pas de marche, kizomba, réglage `marque`.
@@ -74,8 +98,10 @@ moins de 1 mm par seizième de temps.
 | C — « 8 » arrondi | `huitRond` | 4,2 cm | 2,0 cm | 5,7 cm² | 1,8 à 3,0 cm² | 1,5 à 1,6 cm² | aucun |
 | D — « 8 » arrondi, autre sens | `huitInverse` | 4,2 cm | 2,0 cm | 5,7 cm² | 1,3 à 2,4 cm² | 1,5 à 1,8 cm² | aucun |
 | E — « 8 » arrondi, ample | `huitAmple` | 6,3 cm | 4,0 cm | 16,8 cm² | 4,7 à 5,5 cm² | 3,9 à 4,5 cm² | aucun |
+| F — « 8 » arrondi, très ample | `huitGrand` | 8,4 cm | 6,0 cm | 33,5 cm² | 6,8 à 7,8 cm² | 5,7 à 7,0 cm² | aucun |
 
-Pour le leader : balancement de 2,9 cm (4,4 cm en E), 3,1 à 4,0 cm² entourés vu de dessus (11,8 en E).
+Pour le leader : balancement de 2,9 cm (4,4 cm en E, 5,9 cm en F), 3,1 à 4,0 cm² entourés vu de dessus
+(11,8 en E, 23,5 en F).
 
 - **B** : le roulis et le lacet décalés, l'avance-recul du bassin, le rebond retardé. Le déplacement latéral
   garde le rythme de #157 : le bassin attend sur l'appui, puis traverse. Vu de dessus, un nœud papillon.
@@ -85,6 +111,13 @@ Pour le leader : balancement de 2,9 cm (4,4 cm en E), 3,1 à 4,0 cm² entourés 
   D c'est l'inverse. Lequel est celui de la danse n'est pas connu : c'est une question de l'élection.
 - **E** : C en plus grand (balancement et rebond d'`ample`, avance-recul doublé, rotations × 1,5). Il
   approche le « 8 » du pas de base (17,6 cm²).
+- **F** : ajoutée après « Trop discret. » : le double de C (balancement, rotations), avance-recul triplé.
+  Deux fois la surface du « 8 » du pas de base. Son rebond reste celui d'`ample` (14 mm) : essayé à 20 mm,
+  il faisait se croiser les genoux dans le pas de base et l'ida e volta (67 croisements relevés).
+- Dans les sorties, le balancement et le rebond de toutes les variantes restent plafonnés à ceux de `marque`
+  (`SORTIE_GINGA_CAP`, #157) : les fémurs des deux danseurs se touchent au-delà, au début et à la fin de la
+  figure. Seuls l'avance-recul et les rotations y grandissent. Rendre le ginga visible dans les sorties
+  demande de leur trouver de la place : c'est un travail de la variante élue.
 
 La phase continue d'une figure à la suivante (`gingaFrom`) : en #157 elle repartait posée sur l'appui à
 chaque figure, donc toutes les deux temps dans la marche. Seuls les prototypes l'utilisent.
@@ -97,7 +130,8 @@ chaque figure, donc toutes les deux temps dans la marche. Seuls les prototypes l
 - **Les contrôles sur le GLB ne sont pas passés.** Un premier comptage (3 888 poses, chaque figure
   dansée seule, les styles qui la proposent, amplitude 1) relève des croisements d'os : 4 en B (sortie
   fille et son enchaînement), 2 en C, 2 en D, 13 en E (dont 10 dans le quart de tour, 1 dans le pas de
-  base). Les enchaînements de figures, où la phase se poursuit, ne sont pas comptés. La variante élue
+  base). F, compté au pas deux fois plus fin (1 896 poses) : 31 croisements, dont 26 dans le quart de tour.
+  Les enchaînements de figures, où la phase se poursuit, ne sont pas comptés. La variante élue
   devra déclarer ses marges (`gingaRoom`), comme #157.
 - L'ida e volta et le pas de base gardent leur chemin actuel.
 

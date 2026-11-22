@@ -17,7 +17,7 @@ const api = await import(bundle.href); unlinkSync(bundle);
 // 1. Prototypes apart: named, not offered by default, built on a calibrated size.
 {
   const names = Object.keys(api.GUIDE_EIGHT);
-  assert.deepEqual(names, ['huit', 'huitRond', 'huitInverse', 'huitAmple']);
+  assert.deepEqual(names, ['huit', 'huitRond', 'huitInverse', 'huitAmple', 'huitGrand']);
   for (const name of names) {
     assert.ok(!(name in api.GUIDE_GINGA), `${name} is not a calibrated setting`);
     assert.ok(api.guideGingaOf(name).eight, `${name} carries its « 8 »`);
@@ -53,14 +53,14 @@ const api = await import(bundle.href); unlinkSync(bundle);
 // 3. The measure shown in the election: surface each hip goes around in the three views, longest stop.
 {
   const measure = (ginga, role = 'suiveur') => JSON.parse(execFileSync('node', [fileURLToPath(new URL('./tracer_hanches.mjs', import.meta.url)), '', ginga, role], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })).mesures;
-  const today = measure('marque'), round = measure('huitRond'), other = measure('huitInverse'), large = measure('huitAmple'), angular = measure('huit');
+  const today = measure('marque'), round = measure('huitRond'), other = measure('huitInverse'), large = measure('huitAmple'), larger = measure('huitGrand'), angular = measure('huit');
   for (const hip of ['L', 'R']) {
     assert.ok(today[hip].dessus < 0.1, `today a hip goes and returns on a line seen from above (${today[hip].dessus} cm²)`);
-    for (const [name, m] of [['huit', angular], ['huitRond', round], ['huitInverse', other], ['huitAmple', large]])
+    for (const [name, m] of [['huit', angular], ['huitRond', round], ['huitInverse', other], ['huitAmple', large], ['huitGrand', larger]])
       for (const view of ['dessus', 'face', 'profil']) assert.ok(m[hip][view] > 0.5, `${name}: hip ${hip} goes round seen from ${view} (${m[hip][view]} cm²)`);
-    assert.ok(round[hip].dessus > 3 && large[hip].dessus > 2 * round[hip].dessus, `sizes seen from above: ${round[hip].dessus} < ${large[hip].dessus} cm²`);
+    assert.ok(round[hip].dessus > 3 && large[hip].dessus > 2 * round[hip].dessus && larger[hip].dessus > 1.5 * large[hip].dessus, `sizes seen from above: ${round[hip].dessus} < ${large[hip].dessus} < ${larger[hip].dessus} cm²`);
     assert.ok(Math.abs(other[hip].dessus - round[hip].dessus) < 0.2 * round[hip].dessus, 'the other sense has the same size');
   }
   assert.ok(today.C.arret > 0.1 && round.C.arret < 0.05 && other.C.arret < 0.05 && large.C.arret < 0.05 && angular.C.arret < today.C.arret, `stops: ${today.C.arret} → ${angular.C.arret}, ${round.C.arret}`);
-  console.log(`PASS mesure du « 8 » (suiveuse, marche) : vu de dessus chaque hanche entoure ${today.L.dessus} cm² aujourd'hui, ${angular.L.dessus} (anguleux), ${round.L.dessus} (arrondi), ${large.L.dessus} (ample) ; arrêt le plus long du bassin ${today.C.arret} → ${round.C.arret} temps`);
+  console.log(`PASS mesure du « 8 » (suiveuse, marche) : vu de dessus chaque hanche entoure ${today.L.dessus} cm² aujourd'hui, ${angular.L.dessus} (anguleux), ${round.L.dessus} (arrondi), ${large.L.dessus} (ample), ${larger.L.dessus} (très ample) ; arrêt le plus long du bassin ${today.C.arret} → ${round.C.arret} temps`);
 }

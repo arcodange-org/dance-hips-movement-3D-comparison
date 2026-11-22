@@ -358,6 +358,8 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Mesure du chemin des hanches dans les trois vues (`scripts/tracer_hanches.mjs`) : aujourd'hui une ligne vue de dessus.
 - [x] Prototypes `huit`, `huitRond`, `huitInverse`, `huitAmple` (`GUIDE_EIGHT`), phase poursuivie d'une figure à la suivante.
 - [x] [Élection](elections/ginga-huit.md) : danse et tracé de chaque variante ; `scripts/test_ginga_huit.mjs`.
+- [x] Paroles du 22 novembre consignées (R30 à R32) : « Trop discret. » → variante F à l'élection et #163 ; kompa → #161 ;
+      semba → #162.
 - [ ] Vote du propriétaire : forme, sens, taille.
 - [ ] Variante élue : contrôles sur le GLB dans toutes les figures (marges), ida e volta, pas de base.
 - [ ] Faire mener le « 8 » par les genoux chevauchés (règle B de l'atlas #132, élue : « pour la danse on veut B ») :
