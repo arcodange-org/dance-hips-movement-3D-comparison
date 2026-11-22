@@ -41,7 +41,9 @@ export function atlasSupport(m: Pick<AtlasMouvement, "rig" | "articulation" | "i
  * planche, les autres restent visibles comme variantes (`?variante=<id>`). Le vote lui-même vit dans
  * docs/elections/<id>.md. */
 export interface AtlasRegle { id: string; lettre: string; label: string; regle: string }
-export interface AtlasElection { id: string; question: string; regles: AtlasRegle[]; retenue: string }
+/** `retenue` pose la planche ; `danse` est la règle que le propriétaire retient pour la danse (D17), qui peut
+ * différer de celle de la planche. */
+export interface AtlasElection { id: string; question: string; regles: AtlasRegle[]; retenue: string; danse: string }
 export const ATLAS_ELECTIONS: Record<string, AtlasElection> = {
   "bassin-obliquite": {
     id: "obliquite-genoux",
@@ -52,6 +54,7 @@ export const ATLAS_ELECTIONS: Record<string, AtlasElection> = {
     ],
     // Vote du propriétaire, 21 novembre 2026 : « pour la danse on veut B ».
     retenue: "chevauchement",
+    danse: "chevauchement",
   },
   "bassin-rotation": {
     id: "rotation-buste",
@@ -61,8 +64,10 @@ export const ATLAS_ELECTIONS: Record<string, AtlasElection> = {
       { id: "solidaire", lettre: "B", label: "buste solidaire", regle: "pas de contre-rotation : tout le haut du corps tourne avec le bassin" },
       { id: "oppose", lettre: "C", label: "thorax à l'opposé", regle: "la colonne tourne deux fois l'angle : le thorax tourne d'autant dans l'autre sens" },
     ],
-    // Règle de la planche depuis D13 ; élection D16 ouverte le 22 novembre 2026, vote attendu.
+    // Vote du propriétaire, 22 novembre 2026 (D17) : « pour mettre en evidence la rotation du bassin le mieux
+    // c'est A. Pour la logique de la dance en contraposition ce serait C ».
     retenue: "thorax-face",
+    danse: "oppose",
   },
 };
 /** La règle de pose demandée : la règle retenue sans variante, la règle nommée sinon ; ou la raison du refus.

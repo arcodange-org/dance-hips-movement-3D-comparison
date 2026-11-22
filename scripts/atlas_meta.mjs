@@ -105,7 +105,7 @@ const LIMITES_BASSIN = {
 /** D15 — ce que la règle de pose retenue montre et ne montre pas (mouvements qui ont une élection). */
 const LIMITES_REGLE = {
   chevauchement: "Hauteur du bassin : tenue constante, à sa hauteur la plus basse de l'amplitude (colonne « Hauteur du bassin »). Les deux genoux fléchissent ensemble au passage par le centre : aucune jambe n'y est presque tendue. C'est un choix de modèle, élu par le propriétaire pour la danse ; la variante « genoux en relais », où le bassin remonte au centre, est montrée dans la section « Règle de pose et variante ».",
-  "thorax-face": "Le thorax reste de face parce que la colonne contre-tourne du même angle. C'est une règle propre à l'atlas : l'isolation du comparateur compense le roulis et le tangage du bassin, pas le lacet. La variante « buste solidaire », où tout le haut du corps tourne avec le bassin, est montrée dans la section « Règle de pose et variante » ; le choix revient au propriétaire.",
+  "thorax-face": "Le thorax reste de face parce que la colonne contre-tourne du même angle. C'est une règle propre à l'atlas : l'isolation du comparateur compense le roulis et le tangage du bassin, pas le lacet. Le propriétaire retient cette règle pour la planche, parce qu'elle met le mieux la rotation du bassin en évidence ; pour la danse, il retient « thorax à l'opposé » (contraposition). Cette variante et « buste solidaire » sont montrées dans la section « Règle de pose et variante ».",
   solidaire: "Le buste tourne avec le bassin : pas de contre-rotation de la colonne, le thorax, la tête et les bras suivent l'angle du bassin. Les hanches absorbent seules la rotation sur des pieds plantés.",
   relais: "Hauteur du bassin : la plus haute que les jambes permettent. Les genoux fléchissent à tour de rôle et le bassin remonte au passage par le centre (colonne « Hauteur du bassin »).",
 };
@@ -129,6 +129,12 @@ const REPERES = {
     phrase: f => `centre du sacrum ${fr(f.mesure.sacrumHauteurMm)} mm au-dessus de l'axe des hanches`,
   },
 };
+/** D17 — la règle de la danse, quand le propriétaire l'a distinguée de celle de la planche. */
+function danseLigne(regle) {
+  if (regle.danse === regle.id) return "- Pour la danse : la même règle, élue par le propriétaire.";
+  const v = regle.variantes.find(x => x.id === regle.danse);
+  return `- Pour la danse : **${v.label}** (${v.lettre}), élue par le propriétaire ; la planche garde ${regle.label} (${regle.lettre}), qui met mieux le mouvement en évidence.`;
+}
 export const atlasRepere = (meta) => REPERES[meta.articulation.axeLocal];
 
 /** Le `meta.json` d'une planche : provenance, mesures sur le GLB, vues, fichiers. */
@@ -148,7 +154,7 @@ export function buildAtlasMeta(api, manifest, id, { frames = api.ATLAS_FRAMES, v
   // D15 : règle de pose retenue et variantes, pour un mouvement qui a une élection.
   const election = api.ATLAS_ELECTIONS[id], retenue = election?.regles.find(r => r.id === election.retenue);
   const regle = election && {
-    id: retenue.id, lettre: retenue.lettre, label: retenue.label, description: retenue.regle,
+    id: retenue.id, lettre: retenue.lettre, label: retenue.label, description: retenue.regle, danse: election.danse,
     election: { id: election.id, question: election.question, page: electionPage(election), gif: electionGif(election) },
     variantes: election.regles.filter(r => r !== retenue).map(r => ({
       id: r.id, lettre: r.lettre, label: r.label, description: r.regle,
@@ -280,6 +286,7 @@ export function buildPlancheReadme(api, meta) {
       "",
       `- Règle de la planche : **${meta.regle.label}** (${meta.regle.lettre}). ${meta.regle.description[0].toUpperCase() + meta.regle.description.slice(1)}.`,
       ...meta.regle.variantes.map(v => `- Variante : ${v.label} (${v.lettre}). ${v.description[0].toUpperCase() + v.description.slice(1)}. Dans l'application : \`${v.url}\`.`),
+      danseLigne(meta.regle),
       `- Choix du propriétaire : [élection](../../../../${meta.regle.election.page}).`,
       "",
       `![${meta.regle.election.question}](../../../../${meta.regle.election.gif})`,

@@ -9,7 +9,7 @@ Même format que l'élection de l'obliquité : les règles côte à côte dans u
 même angle de bassin. Préparée avec l'accord du propriétaire (« Oui », 22 novembre 2026). La règle C
 a été ajoutée à sa demande, le même jour : « propose aussi le thorax qui va à l'opposé ».
 
-**Vote attendu.** Tant qu'il n'est pas rendu, la planche reste posée en A.
+**Vote rendu : A pour la planche, C pour la danse** (voir [Résultat](#résultat)).
 
 ## La question
 
@@ -85,4 +85,18 @@ propriétaire.
 
 ## Résultat
 
-À venir : le vote et le commentaire du propriétaire, recopiés mot pour mot.
+Vote du propriétaire, le 22 novembre 2026, mot pour mot :
+
+> pour mettre en evidence la rotation du bassin le mieux c'est A. Pour la logique de la dance en contraposition ce serait C
+
+Ce que cela entraîne ([spec, D17](../spec-atlas-anatomique.md)) :
+
+- **La planche reste en A**, thorax de face : c'est la règle qui montre le mieux la rotation du
+  bassin. Rien n'est régénéré, sauf le texte de la planche, qui nomme la règle de la danse.
+- **Pour la danse, C**, thorax à l'opposé : la contraposition. B et C restent montrées en variantes,
+  avec ce GIF.
+- La règle est consignée dans les [règles du propriétaire](../regles-proprietaire.md) (R36).
+- Le comparateur et le mode jeu ne sont pas modifiés. Dans le moteur du couple, la
+  « contraposition » (#51) tourne aujourd'hui la poitrine vers le partenaire pendant que le
+  bassin suit les pieds : c'est plus proche de A que de C. Le rapprochement est à décider avec le
+  propriétaire.

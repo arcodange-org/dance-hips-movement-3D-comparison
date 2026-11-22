@@ -470,6 +470,22 @@ n'est pas versionnée. Le choix revient au propriétaire. »
   face » de la planche est devenue celle de la règle (`LIMITES_REGLE`), texte inchangé, avec un
   renvoi à la variante.
 
+### D17 — Vote du propriétaire : A pour la planche, C pour la danse
+
+Vote du 22 novembre 2026, mot pour mot : « pour mettre en evidence la rotation du bassin le mieux c'est A. Pour la logique de la dance en contraposition ce serait C ».
+
+- **Planche.** `bassin-rotation` reste posée en A (thorax de face) : `retenue` ne change pas, les
+  images non plus.
+- **Danse.** `ATLAS_ELECTIONS[…].danse` nomme la règle que le propriétaire retient pour la danse
+  quand elle diffère de celle de la planche : `oppose` pour la rotation ; `chevauchement` pour
+  l'obliquité, où les deux coïncident (D15). `meta.json` la porte (`regle.danse`), la page de la
+  planche l'écrit dans « Règle de pose et variante », et la limite de la règle A dit les deux choix.
+- **Règle du propriétaire.** R36 dans [`regles-proprietaire.md`](regles-proprietaire.md).
+- **Portée.** L'atlas seulement. Le comparateur et le mode jeu ne sont pas modifiés. Écart relevé,
+  non tranché : dans le moteur du couple, `contraposition` (#51, `src/pose.ts`) tourne la poitrine
+  vers le partenaire pendant que le bassin suit les pieds, ce qui se rapproche de A. Pour C, le
+  thorax devrait partir à l'opposé du bassin. À présenter au propriétaire avant tout changement du moteur.
+
 ### Lien avec le ginga : le « 8 » du bassin (#157, #159)
 
 Le propriétaire relie ces planches au ginga de la danse. Ses mots du 21 novembre 2026, tels que

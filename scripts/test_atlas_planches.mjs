@@ -269,6 +269,7 @@ for (const id of planches) {
   assert.deepEqual(Object.keys(api.ATLAS_ELECTIONS), [id, "bassin-rotation"], "élections de règle de pose : obliquité (D14, D15), rotation (D16)");
   assert.deepEqual(election.regles.map(r => `${r.lettre} ${r.id}`), ["A relais", "B chevauchement"], "lettres du vote");
   assert.equal(election.retenue, "chevauchement", "règle retenue : le vote du propriétaire (B)");
+  assert.equal(election.danse, "chevauchement", "pour la danse, la même règle (D15, D17)");
   const retenue = api.atlasRegle(mouvement, null), variante = api.atlasRegle(mouvement, "relais");
   assert.ok(retenue.ok && retenue.regle.id === "chevauchement" && !retenue.variante, "sans variante : la règle retenue");
   assert.ok(variante.ok && variante.regle.id === "relais" && variante.variante, "« relais » est la variante");
@@ -351,7 +352,11 @@ for (const id of planches) {
   const mouvement = manifest.mouvements.find(m => m.id === id), election = api.ATLAS_ELECTIONS[id];
   assert.equal(election.id, "rotation-buste");
   assert.deepEqual(election.regles.map(r => `${r.lettre} ${r.id}`), ["A thorax-face", "B solidaire", "C oppose"], "lettres de l'élection");
-  assert.equal(election.retenue, "thorax-face", "avant le vote : la règle de la planche depuis D13");
+  assert.equal(election.retenue, "thorax-face", "vote D17 : la planche reste en A");
+  assert.equal(election.danse, "oppose", "vote D17 : pour la danse, C");
+  const meta = JSON.parse(readFileSync(join(DOCS_DIR, id, META_FILE), "utf8"));
+  assert.equal(meta.regle?.danse, "oppose", "meta.json nomme la règle de la danse");
+  assert.ok(readFileSync(join(DOCS_DIR, id, README_FILE), "utf8").includes("Pour la danse : **thorax à l'opposé** (C)"), "la page de la planche nomme la règle de la danse");
   const retenue = api.atlasRegle(mouvement, null), variante = api.atlasRegle(mouvement, "solidaire");
   assert.ok(retenue.ok && retenue.regle.id === "thorax-face" && !retenue.variante, "sans variante : la règle retenue");
   assert.ok(variante.ok && variante.regle.id === "solidaire" && variante.variante, "« solidaire » est la variante");
@@ -400,6 +405,8 @@ for (const id of planches) {
   assert.equal(gif.toString("latin1", 0, 6), "GIF89a", "signature du GIF comparatif");
   const page = readFileSync(join(ROOT, electionPage(election)), "utf8");
   assert.ok(page.includes(electionFile(election)), "la page d'élection montre le GIF");
+  assert.ok(page.includes("pour mettre en evidence la rotation du bassin le mieux c'est A. Pour la logique de la dance en contraposition ce serait C"),
+    "le vote du propriétaire est recopié mot pour mot");
   assert.match(page, /BodyParts3D v4\.0, © DBCLS, CC BY-SA 2\.1 Japan/, "attribution sur la page d'élection");
-  console.log(`PASS atlas élection ${election.id} : règle retenue thorax-face (thorax immobile), variante solidaire (thorax tourné de ${bout.thoraxLacetDeg.toFixed(1)}° à ${solidaire.samples.at(-1).angleDeg}°, torsion du dos ${torsionMax.toFixed(2)}° au plus), variante oppose (thorax à ${oppose.samples.at(-1).mesure.thoraxLacetDeg.toFixed(1)}°) ; même bassin, sol, pieds plantés dans les trois ; règle d'une autre élection refusée ; GIF et page présents`);
+  console.log(`PASS atlas élection ${election.id} : planche thorax-face, danse oppose (vote D17) ; règle retenue thorax-face (thorax immobile), variante solidaire (thorax tourné de ${bout.thoraxLacetDeg.toFixed(1)}° à ${solidaire.samples.at(-1).angleDeg}°, torsion du dos ${torsionMax.toFixed(2)}° au plus), variante oppose (thorax à ${oppose.samples.at(-1).mesure.thoraxLacetDeg.toFixed(1)}°) ; même bassin, sol, pieds plantés dans les trois ; règle d'une autre élection refusée ; GIF et page présents`);
 }

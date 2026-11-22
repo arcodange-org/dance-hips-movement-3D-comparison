@@ -30,6 +30,7 @@
     "lettre": "B",
     "label": "genoux chevauchés",
     "description": "bassin tenu à sa hauteur la plus basse : les deux genoux fléchissent ensemble au centre",
+    "danse": "chevauchement",
     "election": {
       "id": "obliquite-genoux",
       "question": "Obliquité du bassin : le genou opposé attend-il son tour ?",

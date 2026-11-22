@@ -38,6 +38,7 @@ Hanche : écart de hauteur des centres articulaires. Genou : flexion, 0° = jamb
 
 - Règle de la planche : **genoux chevauchés** (B). Bassin tenu à sa hauteur la plus basse : les deux genoux fléchissent ensemble au centre.
 - Variante : genoux en relais (A). Bassin le plus haut que les jambes permettent : un genou fléchit après l'autre. Dans l'application : `?atlas=bassin-obliquite&vue=face&frame=4&frames=9&muscles=1&variante=relais`.
+- Pour la danse : la même règle, élue par le propriétaire.
 - Choix du propriétaire : [élection](../../../../docs/elections/obliquite-genoux.md).
 
 ![Obliquité du bassin : le genou opposé attend-il son tour ?](../../../../docs/gifs/election-obliquite-genoux.gif)
