@@ -94,8 +94,8 @@ const middle = (Math.max(...points.C.map(p => p[0])) + Math.min(...points.C.map(
 const crossings = points.C.map((p, i) => i).filter(i => (points.C[i][0] - middle) * (points.C[(i + 1) % total][0] - middle) <= 0);
 const genoux = { gauche: kneeRange('L').map(round), droit: kneeRange('R').map(round), sensInverse: round(opposite / total),
   auCentre: crossings.map(i => [round(knees.L[i]), round(knees.R[i])]) };
-// The passage from one side to the other (owner, 22 Nov.: « ne pas avoir un effet relais soudain entre gauche
-// et droite »). `soudain`: peak lateral speed of the pelvis over that of a pendulum (a sine) of the same
+// The passage from one side to the other (rule R34, 22 Nov.: no sudden relay between left and right).
+// `soudain`: peak lateral speed of the pelvis over that of a pendulum (a sine) of the same
 // width and period: 1 = as smooth as a pendulum, 2 = twice as sudden. `passage`: time (beats) the pelvis
 // takes to cross the middle half of its lateral path, the slowest crossing of the cycle; `periode`: beats
 // per side-to-side cycle.

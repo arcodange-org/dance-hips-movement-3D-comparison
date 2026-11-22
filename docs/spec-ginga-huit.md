@@ -48,20 +48,15 @@ Ce que ces paroles changent ici :
 | Kompa : « c'est le 8 le plus prononcé » | La recherche de sources est faite (#161). Prototypes du « 8 » du kompa, danseur seul, ajoutés à l'élection (question 4). Dans le mode jeu, le kompa ne reçoit aujourd'hui que le rebond : ni phase, ni « 8 ». | #161, plus bas |
 | Semba : le 2e rebond « comme un chacha » | Le « 8 » du semba n'est pas régulier : un petit rond rapide au deuxième rebond, puis le grand. À prototyper sur le « 8 » élu. | #162 |
 
-### Paroles du 22 novembre 2026 (suite), après la quatrième version de la vidéo
+### Règles du 22 novembre 2026 (suite), après la quatrième version de la vidéo
 
-La vidéo montrait chaque style de profil ; les prototypes de cette spec étaient à l'élection.
+La vidéo montrait chaque style de profil ; les prototypes de cette spec étaient à l'élection. Trois règles
+(R33 à R35) : le buste est au-dessus des genoux, légèrement devant ; le plus important est de n'avoir ni
+saccade, ni téléportation, ni relais soudain entre la gauche et la droite, la transition (le transfert de
+poids) étant la source du déhanché et de la trajectoire « en 8 » ; le double rebond du semba est un transfert
+doublé vers le même côté, commencé vers le côté opposé puis repris vers le côté de départ.
 
-> Le buste doit etre au dessus et legerement devant les genoux.
-
-> Le plus important c'est de ne pas saccader / teleporter subitement et de ne pas avoir un effet relais
-> soudain entre gauche et droite: c'est la transition (le transfert de poids) qui est la source du
-> jinga/dehanché/ trajectoire des fessiers "en 8".
-
-> Le double rebond du semba c'est le doublement de transfert vers le meme coté en initiant un transfert
-> vers le coté opposé et en re-transferant vers le coté initial a la place
-
-| Parole | Conséquence | Où |
+| Règle | Conséquence | Où |
 |---|---|---|
 | Le buste au-dessus des genoux | Mesuré : le buste est 10 à 19 cm derrière les genoux dans tous les styles. Chantier à part. | #166, R33 |
 | Ni saccade, ni téléportation, ni relais soudain | Le « 8 » est la trace d'un transfert de poids continu : un prototype se juge d'abord au passage d'un côté à l'autre (mesure `soudain`, plus bas). Les à-coups des figures, eux, ne viennent pas du ginga : chantier à part. | ici, #167, R34 |
@@ -95,8 +90,8 @@ rien ; une boucle ou un « 8 » entoure une surface.
 
 ### Le passage d'un côté à l'autre : brusque ou progressif
 
-Mesure ajoutée après la parole du 22 novembre (« ne pas avoir un effet relais soudain entre gauche et
-droite »). `soudain` : la vitesse de pointe du bassin d'un côté à l'autre, divisée par celle d'un balancier
+Mesure ajoutée après la règle du 22 novembre (pas de relais soudain entre la gauche et la droite).
+`soudain` : la vitesse de pointe du bassin d'un côté à l'autre, divisée par celle d'un balancier
 de même largeur et de même période. 1 = aussi progressif qu'un balancier ; 2 = deux fois plus brusque.
 « Passage » : le temps que met le bassin à traverser la moitié centrale de son trajet.
 
@@ -110,7 +105,7 @@ de même largeur et de même période. 1 = aussi progressif qu'un balancier ; 2 
 | Danseur seul, kompa, prototypes (K1, K2, K3) | 1,0 | 0,66 temps |
 
 - En couple, le ginga de #157 fait attendre le bassin sur l'appui, puis le fait passer de l'autre côté deux
-  fois plus brusquement qu'un balancier : c'est le relais soudain que décrit le propriétaire.
+  fois plus brusquement qu'un balancier : c'est le relais soudain que la règle écarte.
 - Dans une marche, les deux passages ne se ressemblent pas. Le premier se fait en une demi-temps, puis le
   bassin attend une demi-temps. Le second est coupé par la frontière entre deux figures : la phase repart
   « posée » à chaque figure, le jeu efface l'écart en un temps, et ce passage finit lentement.

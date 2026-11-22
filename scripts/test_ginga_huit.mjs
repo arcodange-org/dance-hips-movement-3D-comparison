@@ -77,7 +77,7 @@ const api = await import(bundle.href); unlinkSync(bundle);
   for (const [name, m] of [['huit', k1], ['huitGrand', k2], ['huitInverse', k3]]) assert.ok(m.L.dessus > 50 && m.R.dessus > 50 && m.C.arret < 0.05 && Math.abs(m.C.largeur - k0.C.largeur) < 1, `kompa ${name}: ${m.L.dessus} cm², stop ${m.C.arret}, ${m.C.largeur} cm wide`);
   assert.ok(k2.L.dessus > 1.5 * k1.L.dessus && Math.abs(k3.L.dessus - k1.L.dessus) < 0.1 * k1.L.dessus, 'kompa: sizes and senses');
   assert.ok(k1.L.dessus > 2 * large.L.dessus, 'the kompa prototype is the largest « 8 »');
-  // Owner, 22 Nov.: « ne pas avoir un effet relais soudain entre gauche et droite ». The passage from one
+  // Rule R34 (22 Nov.): no sudden relay between left and right. The passage from one
   // side to the other, against a pendulum of the same width and period (1): today's couple crosses twice as
   // suddenly, the angular « 8 » still does, the round ones and the kompa prototypes do not. Measured in a
   // session of the game (a figure looped on itself would count the jump of the loop: 6 instead of 2).

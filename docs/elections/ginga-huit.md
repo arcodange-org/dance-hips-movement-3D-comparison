@@ -20,11 +20,9 @@ Et le 22 novembre, sur le ginga du couple du film (réglage `marque`, la taille 
 Depuis, le mode jeu danse avec le réglage `ample` par défaut (#163, fusionnée) : le même aller-retour que A, à
 la taille de E. La forme du chemin n'a pas changé : c'est ce vote qui la décide.
 
-Le 22 novembre encore, sur ce qui compte le plus :
-
-> Le plus important c'est de ne pas saccader / teleporter subitement et de ne pas avoir un effet relais soudain
-> entre gauche et droite: c'est la transition (le transfert de poids) qui est la source du jinga/dehanché/
-> trajectoire des fessiers "en 8".
+Le 22 novembre encore, une règle passe avant les autres : ni saccade, ni téléportation, ni relais soudain entre
+la gauche et la droite ; c'est la transition, le transfert de poids, qui est la source du déhanché et de la
+trajectoire « en 8 ».
 
 Une mesure est donc ajoutée à chaque variante, **le passage d'un côté à l'autre** : la vitesse de pointe du
 bassin, comparée à celle d'un balancier de même largeur et de même période. 1 = aussi progressif qu'un
@@ -51,7 +49,7 @@ pour comparer les trois formes à taille égale. En B et C elle trace un « 8 »
 | Le bassin va sur l'appui, y reste, revient par le même chemin. Arrêt le plus long : 0,22 temps (0,13 temps avec `ample`, le réglage par défaut). Passage d'un côté à l'autre : **2,0** fois plus brusque qu'un balancier. | Le bassin attend sur l'appui puis traverse, mais pendant l'attente il recule et tourne. Arrêt : 0,06 temps. Passage : 1,9 fois plus brusque qu'un balancier. | Le bassin ne s'arrête jamais : il glisse d'un côté à l'autre en avançant et en reculant. Passage : 1,0, comme un balancier. |
 
 Ma proposition : **C**. C'est la seule des trois où le bassin ne marque aucun arrêt et passe d'un côté à
-l'autre aussi progressivement qu'un balancier : ce que la parole du 22 novembre met en premier.
+l'autre aussi progressivement qu'un balancier : ce que la règle du 22 novembre met en premier.
 
 ## Question 2 — le sens du « 8 »
 
@@ -133,8 +131,8 @@ moteur) ; le relâché du bassin juste avant chaque appui n'est pas montré. Le 
 - L'ida e volta et le pas de base ne changent pas dans ces prototypes.
 - **Les à-coups des figures ne sont pas corrigés ici.** Dans les sorties, le quart de tour et la marche, le
   bassin fait des déplacements brusques qui viennent des figures elles-mêmes, avec ou sans ginga (jusqu'à
-  12,9 cm en un huitième de temps) : chantier #167. La posture (« le buste doit être au-dessus et légèrement
-  devant les genoux ») : #166.
+  12,9 cm en un huitième de temps) : chantier #167. La posture (le buste au-dessus des genoux, légèrement
+  devant) : #166.
 - **Kompa et semba ont leur propre « 8 »**, d'après le propriétaire : en kompa « c'est le 8 le plus prononcé »
   (#161, recherche en cours), en semba le deuxième rebond refait « un petit rond du "8" » (#162). Ces images
   sont en kizomba ; les deux styles viendront après ce vote.
