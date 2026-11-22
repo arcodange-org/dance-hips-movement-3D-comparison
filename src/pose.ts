@@ -19,8 +19,7 @@ import { samplePlacePaire, PLACE_PAIR_DZ } from "./placePaire";
 import { SORTIE_GARCON_PAIR_DZ } from "./sortieGarcon";
 import { SORTIE_FILLE_PAIR_DZ } from "./sortieFille";
 import { placementOffset, placementScale, type CouplePlacement } from "./placement";
-import { gaitStep } from "./gait";
-import { essai } from "./essais";
+import { gaitStep, GAIT } from "./gait";
 
 export type Side = "L" | "R";
 const SIDES: Side[] = ["L", "R"];
@@ -212,6 +211,15 @@ function bodyPath(b: number, o: PoseOptions) {
   const p = o.reverse ? reversePath(cp) : cp;
   return { x: p.x + travelOffset(o.travel, o.dir, b) + 0.22 * sortieEnv(b, o) * o.amp, z: p.z, ry: p.ry };
 }
+/** Horizontal move of the ankle when a foot pitched by `pitch` keeps one sole point where it is when flat
+ * (the same pivot rule `applyPose` applies to a rolling foot, #49). */
+function pivotShift(leg: PoseModel["legs"][Side], yaw: number, pitch: number, pivot: "ball" | "heel"): { x: number; z: number } {
+  const flat = new THREE.Quaternion().setFromAxisAngle(Y, yaw);
+  const axis = new THREE.Vector3(Math.cos(leg.toeOut), 0, -Math.sin(leg.toeOut));
+  const q = flat.clone().multiply(new THREE.Quaternion().setFromAxisAngle(axis, pitch));
+  const shift = leg[pivot].clone().applyQuaternion(flat).sub(leg[pivot].clone().applyQuaternion(q));
+  return { x: shift.x, z: shift.z };
+}
 function plannedFeet(b: number, o: PoseOptions, m: PoseModel): Record<Side, FootPlan> {
   const feet = {} as Record<Side, FootPlan>;
   if (o.quarts) {
@@ -230,6 +238,13 @@ function plannedFeet(b: number, o: PoseOptions, m: PoseModel): Record<Side, Foot
     return feet;
   }
   const walking = o.travel > 0 || o.ida || o.corridinho || sortieEnv(b, o) > 0;
+  // #73 (elected 2026-11-21): the walk outside the figures, the corridinho, rolls the foot like the
+  // figures do (src/gait.ts): the heel rises, the leg passes, the foot lands heel first, or on the ball
+  // when it goes backwards. Both feet then carry a pitch (0 on the support foot) and the gait replaces
+  // the style's own foot rock, an on-the-spot device. Elsewhere the feet do not travel: the lateral
+  // « Déplacement » sways the body between two feet that mark time where they are, and the solo ida e
+  // volta and the historical sorties keep the flat step the oracle describes (docs/spec-phase18-oracle.md).
+  const rolls = !!o.corridinho && !o.ida;
   const length = o.ida ? 2 : o.temps3 ? 3 : 1;
   const index = Math.floor(b / length);
   const stepSide = (i: number): Side => o.ida ? idaEVoltaStep(i * length).side : ((i % 2 + 2) % 2 === 0 ? "L" : "R");
@@ -248,17 +263,30 @@ function plannedFeet(b: number, o: PoseOptions, m: PoseModel): Record<Side, Foot
     let last = index - 1;
     while (stepSide(last) !== s) last--;
     const from = landing(s, last);
-    if (stepSide(index) !== s) { feet[s] = from; continue; }
+    if (stepSide(index) !== s) { feet[s] = rolls ? { ...from, pitch: 0, pivot: null } : from; continue; }
     const to = landing(s, index);
     const t = Math.max(0, Math.min(1, (b / length - index) / 0.6));
-    // Trial #73 (`?essai=marcheDeroulee`, src/essais.ts): the walk outside the figures rolls the foot
-    // like the figures do (src/gait.ts) instead of keeping it flat.
-    const roll = essai("marcheDeroulee") ? gaitStep(t, { x: to.x - from.x, z: to.z - from.z }, to.yaw) : null;
-    const e = roll ? roll.progress : smooth(t);
-    feet[s] = { x: from.x + (to.x - from.x) * e, z: from.z + (to.z - from.z) * e,
+    if (!rolls) {
+      const e = smooth(t);
+      feet[s] = { x: from.x + (to.x - from.x) * e, z: from.z + (to.z - from.z) * e,
+        yaw: from.yaw + angleDelta(from.yaw, to.yaw) * e,
+        lift: swingLift(t, o.travel || (o.ida ? 0.5 : 0.4)) };
+      continue;
+    }
+    const travel = { x: to.x - from.x, z: to.z - from.z };
+    const roll = gaitStep(t, travel, to.yaw);
+    const e = roll.progress;
+    feet[s] = { x: from.x + travel.x * e, z: from.z + travel.z * e,
       yaw: from.yaw + angleDelta(from.yaw, to.yaw) * e,
-      lift: roll ? roll.lift : swingLift(t, o.travel || (o.ida ? 0.5 : 0.4)),
-      ...(roll ? { pitch: roll.pitch, pivot: roll.pivot } : {}) };
+      lift: roll.lift, pitch: roll.pitch, pivot: roll.pivot };
+    // R34 (no jerk): at toe-off the ankle is where the push-off left it (the foot pitched about its
+    // ball), and it must arrive where the landing takes it (pitched about the heel or the ball). In the
+    // air there is no pivot: carry the ankle from the first of these offsets to the second.
+    if (t > 0 && t < 1 && roll.pivot === null) {
+      const leg = m.legs[s], off = gaitStep(GAIT.push, travel, to.yaw), on = gaitStep(GAIT.land, travel, to.yaw);
+      const a = pivotShift(leg, from.yaw, off.pitch, "ball"), c = on.pivot ? pivotShift(leg, to.yaw, on.pitch, on.pivot) : { x: 0, z: 0 };
+      feet[s].x += a.x + (c.x - a.x) * e; feet[s].z += a.z + (c.z - a.z) * e;
+    }
   }
   return feet;
 }
@@ -649,8 +677,8 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   const activeIK = !!figure || o.plant || o.travel > 0 || o.quarts || o.ida || o.corridinho;
   const footOrientations = {} as Record<Side, THREE.Quaternion>;
   for (const s of SIDES) {
-    // Trial #73 (`?essai=marcheDeroulee`): outside the figures, a walking foot that `plannedFeet` gave a
-    // pitch rolls like a figure foot. Without the trial no planned foot has a pitch: `rolled` is `!!figure`.
+    // #73: outside the figures, the feet of a rolled walk carry a pitch from `plannedFeet` and roll like
+    // figure feet; feet without a pitch (on the spot, solo ida, historical sorties) keep the style's rock.
     const rolled = !!figure || feet[s].pitch !== undefined;
     const extra = rolled ? feet[s].pitch ?? 0 : s === "L" ? r.extraL : r.extraR;
     const flat = new THREE.Quaternion().setFromAxisAngle(Y, feet[s].yaw);
