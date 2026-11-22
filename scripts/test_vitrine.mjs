@@ -9,26 +9,27 @@ import { fileURLToPath } from "node:url";
 const root = fileURLToPath(new URL("../", import.meta.url));
 const bundle = new URL("./.test-vitrine-bundle.mjs", import.meta.url);
 buildSync({
-  stdin: { contents: ["vitrine", "music/recordings", "music/patterns", "styles"].map((n) => `export * from "./src/${n}";`).join("\n"), resolveDir: root },
+  stdin: { contents: ["vitrine", "music/recordings", "music/patterns", "styles", "muscles"].map((n) => `export * from "./src/${n}";`).join("\n"), resolveDir: root },
   bundle: true, packages: "external", platform: "node", format: "esm", outfile: bundle.pathname,
   define: { "import.meta.env.BASE_URL": '"/"' }, logLevel: "silent",
 });
 const api = await import(bundle.href);
 unlinkSync(bundle);
 const { vitrineSettings, listenBpm, danceBpm, openingBpm, showcaseLook, vitrineUrl, vitrineEmbed, GUIDE_BPM,
-  RECORDINGS, recordingTempo, MUSIC_STYLES, STYLES } = api;
+  RECORDINGS, recordingTempo, MUSIC_STYLES, STYLES, trunkBlocksVisible } = api;
 const settings = (q) => vitrineSettings(new URLSearchParams(q));
 
 // ---------------------------------------------------------------- 1. réglages déduits de l'URL
 {
   const jeu = settings("mode=pair&guidage=1");
-  assert.deepEqual(jeu, { vitrine: false, auto: false, muscles: false, leaderView: true, bpm: null }, "mode jeu : écoute, vue du guideur");
+  assert.deepEqual(jeu, { vitrine: false, auto: false, muscles: true, leaderView: true, bpm: null }, "mode jeu : écoute, muscles affichés, vue du guideur");
   assert.equal(settings("guidage=1&vue=libre").leaderView, false);
   assert.equal(settings("guidage=1&auto=1").auto, true);
   assert.equal(settings("guidage=1&muscles=1").muscles, true);
+  assert.equal(settings("guidage=1&muscles=0").muscles, false, "muscles=0 masque les muscles");
 
   const vitrine = settings("vitrine=1");
-  assert.deepEqual(vitrine, { vitrine: true, auto: true, muscles: false, leaderView: false, bpm: null }, "vitrine : danse automatique, vue libre");
+  assert.deepEqual(vitrine, { vitrine: true, auto: true, muscles: true, leaderView: false, bpm: null }, "vitrine : danse automatique, muscles affichés, vue libre");
   assert.equal(settings("vitrine=1&vue=guideur").leaderView, true, "vitrine : vue du guideur sur demande");
   assert.equal(settings("vitrine=0").vitrine, false);
 
@@ -64,11 +65,17 @@ const settings = (q) => vitrineSettings(new URLSearchParams(q));
 
 // ---------------------------------------------------------------- 3. esthétique
 {
-  assert.deepEqual(showcaseLook(settings("guidage=1"), false), { muscles: false, solidTorso: false }, "écoute : inchangé");
-  assert.deepEqual(showcaseLook(settings("guidage=1&muscles=1"), false), { muscles: true, solidTorso: false }, "écoute : muscles sur demande");
-  assert.deepEqual(showcaseLook(settings("guidage=1"), true), { muscles: true, solidTorso: true }, "danse automatique : muscles et buste lisible");
-  assert.deepEqual(showcaseLook(settings("vitrine=1"), true), { muscles: true, solidTorso: true });
-  console.log("PASS vitrine : muscles et buste lisible en danse automatique, écoute inchangée");
+  // #173 : le mode jeu montre les muscles, en écoute comme en danse automatique, et le tronc n'a plus de bloc gris.
+  for (const [q, auto] of [["guidage=1", false], ["guidage=1", true], ["vitrine=1", true], ["guidage=1&muscles=1", false]]) {
+    const look = showcaseLook(settings(q), auto);
+    assert.deepEqual(look, { muscles: true, solidTorso: false }, `${q}, auto=${auto} : muscles, pas de buste plein`);
+    assert.equal(trunkBlocksVisible(look.muscles), false, `${q}, auto=${auto} : aucun bloc gris sur le tronc`);
+  }
+  // `muscles=0` : le buste stylisé revient, translucide en écoute, lisible en danse automatique.
+  assert.deepEqual(showcaseLook(settings("guidage=1&muscles=0"), false), { muscles: false, solidTorso: false });
+  assert.deepEqual(showcaseLook(settings("vitrine=1&muscles=0"), true), { muscles: false, solidTorso: true });
+  assert.equal(trunkBlocksVisible(false), true, "sans les muscles, les blocs gris du tronc sont dessinés");
+  console.log("PASS vitrine : muscles affichés et tronc sans bloc gris dans tout le mode jeu ; muscles=0 rend le buste stylisé");
 }
 
 // ---------------------------------------------------------------- 4. lien direct

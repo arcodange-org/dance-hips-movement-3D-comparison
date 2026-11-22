@@ -7,10 +7,13 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
 
 ## Vitrine : danse automatique en musique, lien direct (#150, 21 novembre 2026)
 
-- `?vitrine=1` ouvre le mode jeu en danse automatique, au tempo de la piste enregistrée, muscles et
-  buste lisibles, vue libre qui tourne, interface réduite ; bouton « Partager » (style et graine)
+- `?vitrine=1` ouvre le mode jeu en danse automatique, au tempo de la piste enregistrée, muscles
+  affichés, vue libre qui tourne, interface réduite ; bouton « Partager » (style et graine)
   ([spec](docs/spec-vitrine-danse-auto.md), `src/vitrine.ts`). Dans le mode jeu, la danse automatique
-  prend aussi le tempo de la piste et affiche les muscles.
+  prend aussi le tempo de la piste.
+- **Buste sans bloc gris (#173)** : tout le mode jeu affiche les muscles, en écoute comme en danse
+  automatique, et avec eux les volumes gris du tronc ne sont plus dessinés (`trunkBlocksVisible`,
+  `src/muscles.ts`). `muscles=0` rend le buste stylisé. Tête et bras restent stylisés.
 - Destiné à être intégré sur un autre site par Arcodange (fragment `iframe` dans la spec).
   **Hors périmètre, prévu plus tard** : les mascottes Rémi et Corinne à la place des corps.
 - La branche part de la musique (#143) : la PR s'annonce « Stacks on #143 » tant que celle-ci est ouverte.
