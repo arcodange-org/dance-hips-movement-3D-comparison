@@ -333,6 +333,7 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] `src/vitrine.ts`, lien `vitrine=1`, tempo de la piste en danse automatique, muscles et buste.
 - [x] Bouton de partage, interface réduite, fragment `iframe`.
 - [x] `scripts/test_vitrine.mjs` et `vitrine.feature` dans `npm test` ; contrôle navigateur.
+- [x] Buste sans bloc gris (#173) : muscles affichés dans tout le mode jeu, volumes gris du tronc masqués avec eux.
 - [ ] Essai par le propriétaire ; intégration sur le site d'Arcodange ; mascottes Rémi et Corinne (hors périmètre de #150).
 
 ## Danse automatique : un hasard mieux tenu (#152)
