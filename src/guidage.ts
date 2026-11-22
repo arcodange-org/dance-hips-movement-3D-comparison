@@ -123,7 +123,8 @@ export const GUIDE_AUTO = {
  * pour montrer que les danseurs se balancent au rythme de la musique », docs/spec-ginga-couple.md): the
  * ginga of the couple dance. `sway`: share of the style's lateral hip shift, in every figure, on the
  * support transfers; `bounce` (m): vertical pulse, lowest on each beat. Calibrated on the GLB; the
- * setting is the owner's to elect (`?ginga=sans|discret|marque|ample`). */
+ * setting is the owner's to elect (`?ginga=sans|discret|marque|ample`). #163 (owner, on `marque` seen in
+ * the couple: « Trop discret. »): the default is the largest calibrated setting. */
 export type GuideGinga = "sans" | "discret" | "marque" | "ample" | GuideEight;
 export const GUIDE_GINGA: Record<Exclude<GuideGinga, GuideEight>, { sway: number; bounce: number } | null> = {
   sans: null,
@@ -131,7 +132,7 @@ export const GUIDE_GINGA: Record<Exclude<GuideGinga, GuideEight>, { sway: number
   marque: { sway: 0.3, bounce: 0.009 },
   ample: { sway: 0.45, bounce: 0.014 },
 };
-export const GUIDE_GINGA_DEFAULT: GuideGinga = "marque";
+export const GUIDE_GINGA_DEFAULT: GuideGinga = "ample";
 /** #159 (owner: « on dit souvent que l'"on fait un 8" », « le 8 se lit dans les deux plans », « j'ai envie
  * de dire les 3 plans même », docs/spec-ginga-huit.md): PROTOTYPES of the « 8 » of the hips, to elect
  * (`?ginga=huit|huitRond|huitInverse|huitAmple|huitGrand`). Not checked on the GLB: they are not offered by default.

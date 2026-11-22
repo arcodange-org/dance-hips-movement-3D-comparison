@@ -84,7 +84,10 @@ et les specs. Résumé de la journée du 21 :
   suit les transferts d'appui du leader (`gingaPhase`, moyennée sur un quart de temps), une part du déhanché
   latéral va au bassin, et un rebond d'une pulsation par temps s'ajoute. Les figures déclarent où il s'efface
   (`gingaRoom`, `gingaCap` : sortie fille, sorties, allers-retours). Réglages `GUIDE_GINGA`
-  (`ginga=sans|discret|marque|ample`, `marque` par défaut ; [aperçu](docs/elections/ginga-couple.md)).
+  (`ginga=sans|discret|marque|ample` ; [aperçu](docs/elections/ginga-couple.md)). **#163** : le propriétaire a jugé
+  `marque` « trop discret » : `ample` est le réglage par défaut, et les sorties lèvent leur plafond là où elles ont de la
+  place (`gingaCapRoom`). Trois croisements d'os de #157, entre deux échantillons du test, sont corrigés ; le test
+  échantillonne maintenant le réglage par défaut au seizième de temps dans les sorties et le quart de tour.
   Calibré à l'amplitude 1, celle du mode jeu. Une figure modifiée à une jonction garde son passé, ginga compris
   (`gingaJunctions`) ([spec](docs/spec-ginga-couple.md)). **Ne fait pas encore le « 8 »** demandé par le propriétaire
   (chemin du bassin lié au relais des genoux, « le 8 se lit dans les deux plans ») : chantier #159, où la taille se

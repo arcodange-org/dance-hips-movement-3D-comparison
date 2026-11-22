@@ -10,8 +10,8 @@ Demande du propriétaire (21 novembre 2026), en regardant la vitrine :
 > pour montrer que les danseurs se balancent au rythme de la musique
 
 Le balancement et le rebond sont maintenant dans toutes les figures du mode jeu et de la vitrine, calés
-sur les transferts d'appui. Leur **force** est un choix d'œil : quatre réglages. `marque` est celui de l'app
-aujourd'hui.
+sur les transferts d'appui. Leur **force** est un choix d'œil : quatre réglages. `ample` est celui de l'app
+depuis #163 : le propriétaire a jugé `marque` « trop discret » (22 novembre).
 
 **Ces images ne font pas encore le « 8 ».** Le propriétaire a précisé le même jour : « on dit souvent que
 l'"on fait un 8" », en lien avec les genoux qui se relaient, et « le 8 se lit dans les deux plans ». Ici le
@@ -33,10 +33,10 @@ mêmes 14 temps dans les quatre images : avancer, reculer, sortie garçon, quart
 | ![sans](../gifs/election-ginga-sans.gif) | ![discret](../gifs/election-ginga-discret.gif) |
 | Dans ces figures les hanches ne se balancent pas. Rebond du style seul (5 mm en kizomba). | Balancement de 2,0 cm (lui) et 2,8 cm (elle). Rebond de 5 mm. |
 
-| `marque` — aujourd'hui | `ample` |
+| `marque` — le réglage de #157 | `ample` — aujourd'hui |
 |---|---|
 | ![marque](../gifs/election-ginga-marque.gif) | ![ample](../gifs/election-ginga-ample.gif) |
-| Balancement de 2,9 cm (lui) et 4,2 cm (elle). Rebond de 9 mm. | Balancement de 4,4 cm (lui) et 6,3 cm (elle), rebond de 14 mm ; dans les sorties, comme `marque`. |
+| Balancement de 2,9 cm (lui) et 4,2 cm (elle). Rebond de 9 mm. | Balancement de 4,4 cm (lui) et 6,3 cm (elle), rebond de 14 mm ; dans les sorties aussi, sauf au début et à la fin. |
 
 Où regarder :
 
@@ -52,7 +52,8 @@ Où regarder :
 - Le ginga s'efface là où une figure ne lui laisse pas de place : pendant le croisement des jambes du
   quart de tour (pas de rebond), au début de la sortie fille, pendant un aller-retour. Le détail et les
   mesures sont dans la [spec](../spec-ginga-couple.md).
-- Dans les sorties, `ample` est ramené à `marque` : au-delà, les fémurs des deux danseurs se touchent.
+- Dans les sorties, `ample` est ramené à `marque` au début et à la fin : au-delà, les fémurs des deux danseurs
+  se touchent. Entre les deux il garde sa taille (#163).
 - Ces contrôles ne valident pas la chorégraphie.
 
 Pour voir une variante dans l'app : `?vitrine=1&ginga=ample` (vitrine) ou
