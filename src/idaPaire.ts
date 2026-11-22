@@ -55,6 +55,10 @@ export const IDA_PAIR_SYNC = { start: .3, backFlight: .5 };
 export const IDA_GINGA = { sway: 0.25, leader: 0.7, follower: 1, mode: "leaderPhase" as "leaderPhase" | "own" };
 
 const smooth = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * (3 - 2 * t); };
+/** #163 (docs/spec-ginga-couple.md): the ida e volta holds the couple's bounce to `cap` (m) over `window`
+ * (cycle beats: down, held, up). Measured on the GLB every sixteenth of a beat: with 14 mm the leg bones
+ * cross at 4.81 and 5.19 (semba); with 9 mm they do not. */
+export const IDA_GINGA_BOUNCE = { cap: 0.009, window: [4.45, 4.7, 5.3, 5.55] };
 const other = (s: FigureFoot): FigureFoot => (s === "L" ? "R" : "L");
 
 export interface IdaStep {
@@ -210,6 +214,7 @@ export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<Fig
   // The support transfer under way (explicit for the ginga #42), with its progress.
   const p = ((b % IDA_BEATS) + IDA_BEATS) % IDA_BEATS;
   const current = idaTransfers(follower).find(t => p >= t.start && p < t.end);
+  const W = IDA_GINGA_BOUNCE.window;
   const transfer = current ? { ...current, progress: smooth((p - current.start) / (current.end - current.start)) } : null;
   return { beat: Number.isFinite(beat) ? beat : 0, action: now.index, moving, feet, root, rootYaw: lower, chestYaw: upper - lower, kneeYaw: IDA_PAIR.kneeFoot * pivot, styleOffset,
     // #128: with the virgula the G knee points out between the pelvis and the foot, the D knee as before.
@@ -221,7 +226,10 @@ export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<Fig
     gingaSway: (follower && IDA_GINGA.mode !== "own" ? -1 : 1) * IDA_GINGA.sway,
     loadR, loadL: 1 - loadR, support: (loadR >= 0.5 ? "R" : "L") as FigureFoot, transfer, cyclic: true as const,
     coupling: IDA_GINGA.mode === "own" ? 0 : IDA_PAIR.coupling * Math.min(1, Math.hypot(o.x, o.z) / 0.05),
-    kneeCap: IDA_PAIR.kneeCap, rotationCap: IDA_PAIR.rotationCap, dip: IDA_PAIR.dip, sway: IDA_PAIR.sway };
+    kneeCap: IDA_PAIR.kneeCap, rotationCap: IDA_PAIR.rotationCap, dip: IDA_PAIR.dip, sway: IDA_PAIR.sway,
+    // #163: the ida e volta takes the bounce of the largest setting, except around its cycle beat 5.
+    gingaCap: { sway: 1, bounce: IDA_GINGA_BOUNCE.cap },
+    gingaCapRoom: { sway: 1, bounce: 1 - smooth((p - W[0]) / (W[1] - W[0])) * (1 - smooth((p - W[2]) / (W[3] - W[2]))) } };
 }
 
 /** #42: phase of the style's hip pattern driven by the support transfers. The style puts full weight on

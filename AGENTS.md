@@ -48,7 +48,7 @@ ne réécrit jamais son passé. Hasard tenu (#152) : le tirage se souvient des f
 (`GUIDE_VARIETY`, `hasard=libre|tenu|strict`), toujours fonction pure de la graine et de l'historique.
 Ginga du couple (#157, [spec](docs/spec-ginga-couple.md)) : option `ginga` de `applyPose`, activée par le mode jeu
 (`GUIDE_GINGA`, `ginga=sans|discret|marque|ample`) ; phase lue sur les appuis du leader (`gingaPhase`), les figures
-déclarent où il s'efface (`gingaRoom`, `gingaCap`) et leurs jonctions (`gingaJunctions` : une figure modifiée à une
+déclarent où il s'efface (`gingaRoom`, `gingaCap`, et la place au-dessus du plafond `gingaCapRoom`, #163) et leurs jonctions (`gingaJunctions` : une figure modifiée à une
 jonction garde son passé) ; `scripts/test_ginga_couple.mjs`. Calibré à l'amplitude 1. [Aperçu des réglages](docs/elections/ginga-couple.md) ;
 le « 8 » du bassin (dessus et face) reste à faire : #159.
 Mode guidage (PoC #69) : [spec](docs/spec-mode-guidage-poc.md) (`src/guidage.ts` pur, `src/guidagePose.ts`,
