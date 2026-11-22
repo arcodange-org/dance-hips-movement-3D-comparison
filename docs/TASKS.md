@@ -351,7 +351,8 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Étape 3, marche (avancer, reculer, double) : le bassin voyage pendant tout le pas (7,5 → 2,7 cm en un huitième de temps).
 - [x] Étape 3, ida e volta et allers-retours insérés : le bassin sort sur tout le pas et revient en une demi-temps (8 → 3,5 à 4,2 cm).
 - [ ] Étape 3, suite : quart de tour, sorties.
-- [ ] Étape 4 : passage latéral du ginga calibré aussi progressif qu'un balancier, poursuivi d'une figure à la suivante.
+- [x] Étape 4 : passage latéral du ginga calibré aussi progressif qu'un balancier (2,05 → 0,98), poursuivi d'une figure à la
+      suivante (`gingaFrom`), sauf après le pas de base et l'ida e volta.
 
 ## Ginga du couple plus visible (#163)
 

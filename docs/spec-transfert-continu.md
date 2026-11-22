@@ -108,8 +108,9 @@ arrive sur le temps).
 | 3 | Double et marka | 9,0 / 9,0 cm | **5,6 / 5,7 cm** | marche fluide |
 | 3 | Ida e volta (quatre variantes), à l'horizontale | 8,0 / 8,5 cm | **3,5 / 4,2 cm** | ida e volta fluide |
 | 3 | Ida e volta, en hauteur | 2,3 / 2,6 cm | **1,0 / 1,2 cm** | ida e volta fluide |
+| 4 | Passage d'un côté à l'autre dans la marche, rapporté à un balancier | 2,05 | **0,98** | passage progressif |
 
-(Plus grand déplacement du bassin en un huitième de temps.)
+(Étape 3 : plus grand déplacement du bassin en un huitième de temps.)
 
 **La marche.** Le poids passe d'un pied à l'autre dans le dernier cinquième du temps, pour arriver sur le
 temps (R21). Le bassin suivait le poids : il faisait la moitié de son trajet à ce moment-là. Il voyage
@@ -121,6 +122,16 @@ suivait, comme un coup en avant puis en arrière. Il sort maintenant pendant tou
 une demi-temps. Un retour plus long encore croise des os en semba et en suave (le bassin est encore sorti
 quand le pied revient) : mesuré sur le GLB, le retour fini à 1,5 temps garde une marge. Les allers-retours
 insérés dans les autres figures reprennent ce bassin.
+
+**Le passage d'un côté à l'autre.** La phase du déhanché est moyennée sur une demi-temps de chaque côté (un
+quart de temps avant) et regarde les appuis de la figure dansée juste avant : le bassin passe d'un côté à
+l'autre sur tout l'intervalle entre deux appuis, comme un balancier, et son balancement se poursuit d'une
+figure à la suivante au lieu de repartir posé sur l'appui. Après le pas de base et après un ida e volta (qui
+donne sa propre phase), la figure démarre posée comme avant. Contrôlé sur le GLB : aucun croisement d'os
+figure par figure (3 168 poses), et la même liste que `main` aux frontières de sept danses automatiques par
+style (les croisements déjà présents : #171). Deux effets de bord mesurés : dans le quart de tour, l'à-coup
+horizontal du leader passe de 13,0 à 13,4 cm ; en suave, le croisement connu du quart de tour (#165) touche
+un os de plus aux mêmes instants.
 
 Les seuils à atteindre ne sont pas fixés ici : ils le seront après la première correction, à l'œil. Le cliquet de l'étape 1 garantit seulement que rien n'empire.
 
