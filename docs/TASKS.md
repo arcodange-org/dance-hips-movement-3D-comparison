@@ -346,7 +346,7 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 
 - [x] Issue #167 avec les paroles du propriétaire (22 et 21 novembre) et les mesures ; [spec](spec-transfert-continu.md)
       poussée en premier ; règle R34.
-- [ ] Étape 1 : `scripts/test_saccades.mjs` dans `npm test`, état d'aujourd'hui enregistré (`scripts/fixtures/saccades.json`).
+- [x] Étape 1 : `scripts/test_saccades.mjs` dans `npm test`, état d'aujourd'hui enregistré (`scripts/fixtures/saccades.json`).
 - [ ] Étape 2 : hauteur du bassin étalée dans le temps (sorties : 12,9 et 10,5 cm en un huitième de temps).
 - [ ] Étape 3 : trajet du bassin continu d'un appui à l'autre (marche, quart de tour, sorties, ida e volta).
 - [ ] Étape 4 : passage latéral du ginga calibré aussi progressif qu'un balancier, poursuivi d'une figure à la suivante.
