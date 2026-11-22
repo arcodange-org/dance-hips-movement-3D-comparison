@@ -34,7 +34,7 @@ const plan = solo ? null : api.planGuide([0, 0.1, 0.2, 0.3, 0.4].map(beat => ({ 
 const repeats = solo ? [] : plan.segments.filter(s => s.kind === kind);
 if (!solo && repeats.length < 4) throw new Error(`${kind}: the game does not dance it several times in a row (${plan.segments.map(s => s.kind).join(' ')})`);
 const start = solo ? 0 : repeats[2].start;
-const points = { L: [], R: [], C: [] }, loads = [], knees = { L: [], R: [] };
+const points = { L: [], R: [], C: [], B: [] }, loads = [], knees = { L: [], R: [] };
 for (let i = 0; i < beats * STEPS; i++) {
   const beat = i / STEPS;
   if (solo) api.applyPose(f.r, f.model, beat, { styleKey, amp: 1 });
@@ -48,7 +48,7 @@ for (let i = 0; i < beats * STEPS; i++) {
   const root = solo ? { x: 0, z: 0 } : f.r.root.position, inverse = f.r.root.parent.matrixWorld.clone().invert();
   // Dancer's own frame: x to the dancer's right, y up, z forward; the figure's travel (root) is removed.
   const local = name => { const p = f.r[name].getWorldPosition(new THREE.Vector3()).applyMatrix4(inverse); return [-(p.x - root.x) * 100, p.y * 100, (p.z - root.z) * 100]; };
-  points.L.push(local('hipL')); points.R.push(local('hipR')); points.C.push(local('pelvis'));
+  points.L.push(local('hipL')); points.R.push(local('hipR')); points.C.push(local('pelvis')); points.B.push(local('chest'));
   loads.push(solo ? (api.STYLES[styleKey].support(beat - 0.5) + 1) / 2 : api.sampleKind(kind, beat, follower, { rest, stance, placement: 'quinconce', amp: 1 }).loadR);
   // Knee flexion (degrees) after the leg solver: 0 = straight.
   for (const side of ['L', 'R']) knees[side].push(Math.abs(f.r['knee' + side].rotation.x) * 180 / Math.PI);
@@ -113,7 +113,9 @@ const dt = 60 / 90 / STEPS, pelvisM = points.C.map(p => p.map(v => v / 100));
 const speed = pelvisM.map((p, i) => { const q = pelvisM[(i + 1) % total]; return [0, 1, 2].map(k => (q[k] - p[k]) / dt); });
 const accel = speed.map((v, i) => { const w = speed[(i + 1) % total]; return Math.hypot(...[0, 1, 2].map(k => (w[k] - v[k]) / dt)); }).sort((a, b) => a - b);
 const fluidite = { acceleration99: round(accel[Math.floor(0.99 * (total - 1))]), arretPart: round(speed.filter(v => Math.hypot(...v) < 0.02).length / total) };
-console.log(JSON.stringify({ ginga, role, kind, styleKey, genoux, transfert, fluidite, mesures: Object.fromEntries(Object.entries(measures).map(([k, m]) => [k, Object.fromEntries(Object.entries(m).map(([n, v]) => [n, round(v)]))])) }));
+// The chest (rule: everything happens below the belt): how far it travels sideways and forward-and-back (cm).
+const buste = { largeur: round(range(points.B, 0)), profondeur: round(range(points.B, 2)), hauteur: round(range(points.B, 1)) };
+console.log(JSON.stringify({ ginga, role, kind, styleKey, genoux, buste, transfert, fluidite, mesures: Object.fromEntries(Object.entries(measures).map(([k, m]) => [k, Object.fromEntries(Object.entries(m).map(([n, v]) => [n, round(v)]))])) }));
 if (process.env.MESURES === '1' || !out) process.exit(0);
 
 // Drawing: three panels at the same scale (true distances), centred on the mean position of the pelvis.
@@ -129,7 +131,7 @@ const panels = [
 const at = (panel, p) => [panel.cx + (p[panel.a] - centre[panel.a]) * SCALE, panel.cy - (p[panel.b] - centre[panel.b]) * SCALE];
 const path = (panel, pts) => pts.map((p, i) => `${i ? 'L' : 'M'}${at(panel, p).map(v => v.toFixed(1)).join(' ')}`).join(' ') + ' Z';
 const COLORS = { L: '#fb923c', R: '#22d3ee', C: '#94a3b8' };
-const label = solo ? ({ huit: '« 8 »', huitGrand: '« 8 » plus grand', huitInverse: '« 8 », autre sens', genoux: 'genoux alternés', genouxRond: 'genoux alternés, une demi-temps après', hanches: 'hanches qui mènent', hanchesFortes: 'hanches qui mènent, plus fort' }[ginga] ?? 'aujourd’hui') : { marque: 'aller-retour (aujourd’hui)', huit: '« 8 » anguleux', huitRond: '« 8 » arrondi', huitInverse: '« 8 » arrondi, autre sens', huitAmple: '« 8 » arrondi, ample', huitGrand: '« 8 » arrondi, très ample', genoux: 'genoux qui mènent, en même temps (G1)', genouxQuart: 'genoux qui mènent, un quart de temps après (G2)', genouxRond: 'genoux qui mènent, une demi-temps après (G3)' }[ginga] ?? ginga;
+const label = solo ? ({ huit: '« 8 »', huitGrand: '« 8 » plus grand', huitInverse: '« 8 », autre sens', genoux: 'genoux alternés', genouxRond: 'genoux alternés, une demi-temps après', hanches: 'hanches qui mènent', hanchesFortes: 'hanches qui mènent, plus fort', profil: '« 8 » de profil, fessiers en arrière', profilFort: '« 8 » de profil, plus fort' }[ginga] ?? 'aujourd’hui') : { marque: 'aller-retour (aujourd’hui)', huit: '« 8 » anguleux', huitRond: '« 8 » arrondi', huitInverse: '« 8 » arrondi, autre sens', huitAmple: '« 8 » arrondi, ample', huitGrand: '« 8 » arrondi, très ample', genoux: 'genoux qui mènent, en même temps (G1)', genouxQuart: 'genoux qui mènent, un quart de temps après (G2)', genouxRond: 'genoux qui mènent, une demi-temps après (G3)' }[ginga] ?? ginga;
 const fixed = panels.map(panel => `
   <text x="16" y="${panel.cy - 70}" class="t">${panel.title}</text><text x="16" y="${panel.cy - 52}" class="h">${panel.hint}</text>
   ${['C', 'L', 'R'].map(k => `<path d="${path(panel, points[k])}" fill="none" stroke="${COLORS[k]}" stroke-width="${k === 'C' ? 1 : 2}" stroke-opacity="${k === 'C' ? 0.5 : 0.85}"/>`).join('')}`).join('');

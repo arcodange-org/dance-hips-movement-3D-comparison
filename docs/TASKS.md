@@ -391,6 +391,9 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Vote du second tour (22 novembre) : sens D, taille F ; forme et kompa à reprendre par les genoux.
 - [x] Troisième tour : les genoux mènent le « 8 » (`GingaEight.knees`, kompa `genoux*`), mesures de fluidité au tracé.
 - [x] Vote du troisième tour : G1 élu pour le couple ; kompa KG2, à reprendre (le « 8 » de face doit dominer, encore du ski).
+- [x] Quatrième tour (kompa, le « 8 » de face d'abord) : KG3 élu (`kompa=hanches`).
+- [ ] Cinquième tour (kompa, le « 8 » de profil, moins de genoux, fessiers en arrière, poitrine isolée) : KG5 `profil`,
+  KG6 `profilFort` à élire ([élection](elections/ginga-huit.md)) ; `KompaEight.depthLag`, `back`, `iso`, `lift`, `r.isoLean`.
 - [ ] Kompa : « 8 » de face plus marqué que de dessus, sans glisser d'un bloc.
 - [ ] Variante élue : contrôles sur le GLB dans toutes les figures (marges), ida e volta, pas de base.
 

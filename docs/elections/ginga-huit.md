@@ -231,3 +231,35 @@ portent le « 8 ».
 | KG4 — plus fort | `hanchesFortes` | **77 cm²** | 24 cm² | 10,6 cm, 15,2 cm | 6,4 m/s² | 63° à 96° |
 
 Jamais à l'arrêt dans les trois. Les genoux de KG4 plient jusqu'à 96° : à juger à l'œil.
+
+Images : `election-kompa-hanches*.gif`, `trace-kompa-hanches*.gif`.
+
+### Résultat du quatrième tour (22 novembre, page de vote)
+
+| Question | Choix | Commentaire, reformulé |
+|---|---|---|
+| Q10, le kompa | **KG3**, les hanches mènent | Au tour du « 8 » vu de profil. Il y a trop de genoux. Les fessiers doivent aussi aller un peu en arrière, et le bas du corps doit être davantage isolé du haut. |
+
+## Cinquième tour : le kompa, le « 8 » de profil (22 novembre)
+
+À partir de KG3 (mêmes hanches vues de face) :
+- le va-et-vient d'avant en arrière suit la montée et la descente des hanches (`depthLag`) : chaque hanche dessine
+  un « 8 » vu de profil (dans KG3 les deux mouvements s'annulaient en un arc) ;
+- le bassin s'assoit en arrière et bascule vers l'avant quand il recule (`back`) : les fessiers partent en arrière ;
+- le bassin est plus haut (`lift`), les genoux plient moins ;
+- la colonne absorbe le trajet du bassin (`iso`) : la poitrine reste au-dessus des pieds, à plat.
+
+| | `kompa=` | De profil, chaque hanche entoure | De face | D'avant en arrière | Genoux | La poitrine se déplace de côté |
+|---|---|---|---|---|---|---|
+| KG3 (élu au quatrième tour) | `hanches` | 3 cm² | 61 cm² | 3,8 cm | 61° à 85° | 17,3 cm |
+| KG5 — fessiers en arrière | `profil` | **42 cm²** | 52 cm² | 6,5 cm | 45° à 69° | 0,9 cm |
+| KG6 — plus fort | `profilFort` | **62 cm²** | 51 cm² | 9,6 cm | 45° à 69° | 0,9 cm |
+
+Jamais à l'arrêt, accélération du bassin 4,0 m/s² dans les trois. Dans KG5 et KG6 le bassin recule de 3 et 4,5 cm et
+bascule jusqu'à 6° et 9°.
+
+Limites : la boucle du haut du « 8 » de profil est plus petite que celle du bas (la hanche reste longtemps en haut et
+descend vite) ; la poitrine monte et descend encore de 6,6 cm avec le bassin ; prototypes non contrôlés sur le GLB
+au-delà des tests de pose.
+
+Images : `election-kompa-profil*.gif` (trois quarts), `election-kompa-*-profil.gif` (de côté), `trace-kompa-profil*.gif`.

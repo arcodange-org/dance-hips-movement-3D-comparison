@@ -1,4 +1,5 @@
 import { TAU, S1, S2, S4, pos, HIP_WIDTH, type RigHandle } from "./anatomy";
+import { TORSO_JOINTS } from "./rigJoints";
 
 export interface StyleDef {
   label: string;
@@ -43,8 +44,16 @@ export const KOMPA = { transition: 0.4 };
  * flexion), `lag` (share of the 4-beat cycle) after the lateral swing; the pelvis tilts with them, the hip
  * of the bent knee lower (`tilt` rad per rad of difference), instead of tilting with the swing.
  * `glide` (third round, vote: still « skiing », the « 8 » seen from the front must be larger than seen from
- * above): share of today's lateral glide of the whole body kept (1 = today); the hips then carry the 8. */
-export interface KompaEight { depth: number; round: number; sense: number; knees?: { swing: number; lag: number; tilt: number }; glide?: number }
+ * above): share of today's lateral glide of the whole body kept (1 = today); the hips then carry the 8.
+ * Fifth round (vote for KG3: now the « 8 » seen from the side; too much knee; the buttocks also go a little
+ * back; the lower body more isolated from the upper body). `depthLag` (share of the cycle): the
+ * forward-and-back follows the hips' rise and fall, so that each hip draws an « 8 » seen from the side
+ * (without it the two cancel into an arc). `back`: the pelvis sits back by `reach` (m) and tips forward by
+ * up to `pitch` (rad), most when it is at the back. `iso` (0 to 1): share of the pelvis's travel (sideways
+ * and forward-and-back) the spine takes up, leaning one way while the chest leans back, so the chest stays
+ * above the feet and level. `lift` (m): the pelvis rides higher, the knees bend less. */
+export interface KompaEight { depth: number; round: number; sense: number; knees?: { swing: number; lag: number; tilt: number }; glide?: number;
+  depthLag?: number; back?: { reach: number; pitch: number }; iso?: number; lift?: number }
 export const KOMPA_EIGHTS: Record<string, KompaEight> = {
   huit: { depth: 0.03, round: 1, sense: 1 },
   huitGrand: { depth: 0.05, round: 1, sense: 1 },
@@ -53,6 +62,8 @@ export const KOMPA_EIGHTS: Record<string, KompaEight> = {
   genouxRond: { depth: 0.05, round: 1, sense: 1, knees: { swing: 0.3, lag: 0.125, tilt: 0.5 } },
   hanches: { depth: 0.02, round: 1, sense: 1, knees: { swing: 0.45, lag: 0.125, tilt: 0.9 }, glide: 0.5 },
   hanchesFortes: { depth: 0.02, round: 1, sense: 1, knees: { swing: 0.55, lag: 0.125, tilt: 1.2 }, glide: 0.35 },
+  profil: { depth: 0.03, round: 1, sense: 1, knees: { swing: 0.3, lag: 0.125, tilt: 1.3 }, glide: 0.5, depthLag: 0.125, back: { reach: 0.03, pitch: 0.1 }, iso: 1, lift: 0.04 },
+  profilFort: { depth: 0.045, round: 1, sense: 1, knees: { swing: 0.3, lag: 0.125, tilt: 1.3 }, glide: 0.5, depthLag: 0.125, back: { reach: 0.045, pitch: 0.16 }, iso: 1, lift: 0.04 },
 };
 /** The prototype in use (null: the model of today). Set once from the address, read by the kompa style. */
 export const KOMPA_PROTO: { eight: KompaEight | null } = { eight: null };
@@ -134,10 +145,11 @@ export const STYLES: Record<string, StyleDef> = {
       // 0.3 and 2.3), and the pelvis goes forward as it leaves for the support, back as it returns.
       const eight = KOMPA_PROTO.eight, turn = 2 * Math.PI * (b - (0.5 - KOMPA.transition / 2)) / 4;
       const held = -kompaSupport(b), w = eight ? held + (Math.sin(turn) - held) * eight.round : held;
-      if (eight) r.root.position.z = eight.depth * eight.sense * Math.sin(2 * turn) * a;
+      const deep = eight ? eight.sense * Math.sin(2 * (turn - 2 * Math.PI * (eight.depthLag ?? 0))) : 0;
+      if (eight) r.root.position.z = eight.depth * deep * a;
       const sw = 0.9 * w;
       r.root.position.x = 0.09 * sw * a * (eight?.glide ?? 1);
-      r.root.position.y = -0.06 * a;
+      r.root.position.y = (-0.06 + (eight?.lift ?? 0)) * a;
       r.pelvis.position.x = 0.02 * sw * a;
       r.pelvis.rotation.z = 0.1 * sw * a;
       r.pelvis.rotation.y = 0.02 * S2(b) * a;
@@ -154,6 +166,17 @@ export const STYLES: Record<string, StyleDef> = {
         r.pelvis.rotation.z = k.tilt * (r.kneeL.rotation.x - r.kneeR.rotation.x);
       }
       r.chest.rotation.z = -0.035 * sw * a;
+      if (eight?.back) {
+        r.root.position.z -= eight.back.reach * a;
+        r.pelvis.rotation.x = eight.back.pitch * (1 - deep) / 2 * a;
+      }
+      if (eight?.iso) {
+        // The chest stays where it was: the spine leans against the pelvis's travel and the chest leans back
+        // by as much (no net rotation), over the height between them; the roll of the pelvis also carries the foot
+        // of the spine sideways. Applied by the pose after the trunk lock.
+        const lean = (d: number) => Math.asin(Math.max(-0.9, Math.min(0.9, eight.iso! * d / TORSO_JOINTS.chest[1])));
+        r.isoLean = { side: lean(r.root.position.x + r.pelvis.position.x - TORSO_JOINTS.spine[1] * Math.sin(r.pelvis.rotation.z)), fore: lean(r.root.position.z) };
+      }
       // Hip check on the touch (2 and 4).
       if (((b + 0.5) % 2 + 2) % 2 >= 1.5) r.pelvis.position.x += 0.008 * S1(b) * a;
     },

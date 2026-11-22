@@ -710,6 +710,11 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     r.root.position.x += path.x; r.root.position.z += path.z; r.root.rotation.y = path.ry;
   }
   lockUpperTrunk({ spine: r.spine.rotation, chest: r.chest.rotation, head: r.head.rotation }, r.pelvis.rotation, o.iso);
+  // #161 (prototype): a style may ask the spine to take up the pelvis's travel (`isoLean`, see KompaEight.iso).
+  if (r.isoLean) {
+    r.spine.rotation.z += r.isoLean.side; r.chest.rotation.z -= r.isoLean.side;
+    r.spine.rotation.x -= r.isoLean.fore; r.chest.rotation.x += r.isoLean.fore;
+  }
   const se = figure ? 0 : sortieEnv(beat, o);
   if (se > 0) r.chest.rotation.y -= 0.22 * se * o.amp;
   // #51: with plexus contact the chest turns towards the partner (contraposition share) instead of
