@@ -99,6 +99,21 @@ arrive sur le temps).
 4. **Le passage latéral du ginga calibré.** Aussi progressif qu'un balancier, et poursuivi d'une figure à la
    suivante.
 
+## Avancement
+
+| Étape | Figure | Avant | Après | PR |
+|---|---|---|---|---|
+| 3 | Avancer : bassin à l'horizontale, leader / suiveuse | 7,4 / 7,6 cm | **2,7 / 2,7 cm** | marche fluide |
+| 3 | Reculer | 7,5 / 7,7 cm | **3,0 / 3,1 cm** | marche fluide |
+| 3 | Double et marka | 9,0 / 9,0 cm | **5,6 / 5,7 cm** | marche fluide |
+
+(Plus grand déplacement du bassin en un huitième de temps.)
+
+**La marche.** Le poids passe d'un pied à l'autre dans le dernier cinquième du temps, pour arriver sur le
+temps (R21). Le bassin suivait le poids : il faisait la moitié de son trajet à ce moment-là. Il voyage
+maintenant pendant tout le pas, du départ du pied du leader jusqu'au temps, sur la même horloge pour les deux
+danseurs. Sa place sur chaque temps ne change pas, ni les pieds, ni l'instant où le poids arrive.
+
 Les seuils à atteindre ne sont pas fixés ici : ils le seront après la première correction, à l'œil. Le cliquet de l'étape 1 garantit seulement que rien n'empire.
 
 ## Ce que cette spec ne fait pas
