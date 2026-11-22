@@ -1,5 +1,7 @@
 // #148 (élections de variantes) — mesure d'un candidat de l'ida e volta en paire sur le vrai GLB.
 // Ce n'est pas un test : il chiffre ce que montre le GIF (kizomba, quinconce, plexus, amplitude 1).
+// Depuis le vote du 21 novembre 2026 (pied opposé élu), `ESSAI=idaMemePied` n'a plus d'effet : la mesure du candidat
+// « même pied » se refait au commit 06d1a33.
 // Usage : node scripts/mesure_essai_ida.mjs                      (figure actuelle)
 //         ESSAI=idaMemePied node scripts/mesure_essai_ida.mjs    (candidat « même pied », #86)
 // Même montage du couple et mêmes enveloppes de semelles que scripts/test_ida_paire.mjs.
