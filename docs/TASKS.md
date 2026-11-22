@@ -387,7 +387,19 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
       d'os recomptés au seizième de temps (13, 11, 8, 27, 37 de B à F ; aucun dans la marche ni la sortie garçon).
 - [x] Paroles du 22 novembre (suite) consignées (R33 à R35) : posture → #166 ; ni saccade ni relais soudain → mesure
       `soudain` de chaque variante (2,0 aujourd'hui en couple, 1,0 pour les « 8 » arrondis) et #167 ; semba → #162.
-- [ ] Vote du propriétaire : forme, sens, taille, kompa.
+- [x] Vote du second tour (22 novembre) : sens D, taille F ; forme et kompa à reprendre par les genoux.
+- [x] Troisième tour : les genoux mènent le « 8 » (`GingaEight.knees`, kompa `genoux*`), mesures de fluidité au tracé.
+- [ ] Vote du troisième tour (Q8 couple, Q9 kompa).
 - [ ] Variante élue : contrôles sur le GLB dans toutes les figures (marges), ida e volta, pas de base.
-- [ ] Faire mener le « 8 » par les genoux chevauchés (règle B de l'atlas #132, élue : « pour la danse on veut B ») :
-      aujourd'hui les genoux suivent le bassin, et les prototypes s'éloignent de cette règle (mesures dans la spec).
+
+## Élections de variantes en GIF (#148)
+
+- [x] Issue #148 et spécification poussée en premier ([spec](spec-elections-variantes.md)).
+- [x] Prototypes derrière `?essai=` (`src/essais.ts`) : ida même pied (#86), ligne dans l'axe des bustes (#72), marche déroulée (#73) ; `temoin` pour filmer l'actuel hors du mode paire.
+- [x] Mesures des candidats sur le vrai GLB (`scripts/mesure_essai_ida.mjs`, `scripts/mesure_essai_marche.mjs`).
+- [x] GIFs des candidats, avec les muscles ([premier tour](elections/2026-11-21/README.md)).
+- [x] Page d'élection publiée (source : `docs/elections/2026-11-21/election.html`), lien donné au propriétaire.
+- [x] Votes du propriétaire (21 novembre) : Q1 A, pied opposé (#86/#144) ; Q2 B, ligne dans l'axe des bustes (#72) ; Q3 B, marche déroulée (#73).
+- [x] Votes consignés dans les issues (choix, commentaire reformulé sans citation) et dans la spec.
+- [ ] Variantes élues implémentées dans une PR empilée sur #149, interrupteurs retirés.
+- [ ] Second tour : #56 (croisé de la sortie garçon, géométrie du couple à régler pour chaque piste) et #67 (distance bassin-bassin, même figure à filmer à plusieurs distances).
