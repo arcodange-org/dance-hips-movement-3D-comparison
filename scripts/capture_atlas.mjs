@@ -29,10 +29,24 @@ import {
   electionFile, frameFile, gifFile, gifSequence, loadAtlasApi, measureMovement, readManifest, serializeMeta, ELECTIONS_DIR,
 } from "./atlas_meta.mjs";
 
-/** Image d'élection (D14) : frames, vues, échelle de capture, zone gardée de chaque image (px de la
- * vue, bassin et jambes), largeur d'une colonne et couleurs du GIF. */
-const ELECTION = {
-  frames: 17, vues: ["face", "troisQuarts"], echelle: 2, zone: { x: 95, y: 170, w: 210, h: 300 }, colonnePx: 320, couleurs: 96,
+/** Image d'élection (D14) : frames, échelle de capture, largeur d'une colonne et couleurs du GIF. */
+const ELECTION = { frames: 17, echelle: 2, colonnePx: 320, couleurs: 96 };
+const fr = (value, digits = 1) => value.toFixed(digits).replace(".", ",").replace("-", "−");
+
+/** Présentation propre à chaque élection (D14, D16) : vues, zone gardée de chaque image (px de la vue),
+ * mesures sous chaque colonne, ligne repère de hauteur ou non, légende. */
+const PRESENTATIONS = {
+  "obliquite-genoux": {
+    vues: ["face", "troisQuarts"], zone: { x: 95, y: 170, w: 210, h: 300 }, ligne: true,
+    mesures: (m, ctx) => [["genou droit", `${fr(m.genouDeg.R, 0)}°`], ["genou gauche", `${fr(m.genouDeg.L, 0)}°`], ["bassin", `+${fr(m.bassinMm - ctx.basse, 0)} mm`]],
+    legende: "<span>- - -</span> hauteur des hanches la plus basse de l'amplitude · « bassin » : hauteur au-dessus de cette ligne.",
+  },
+  "rotation-buste": {
+    vues: ["face", "troisQuarts"], zone: { x: 95, y: 52, w: 210, h: 400 }, ligne: false,
+    mesures: (m, ctx) => [["bassin tourné", `${fr(Math.abs(ctx.angle), 0)}°`], ["thorax tourné", `${fr(Math.abs(m.thoraxLacetDeg), 0)}°`],
+      ["torsion du dos", `${fr(Math.abs(ctx.angle - m.thoraxLacetDeg), 0)}°`]],
+    legende: "« thorax tourné » : par rapport à la pose de départ · « torsion du dos » : rotation du bassin moins celle du thorax.",
+  },
 };
 
 
@@ -207,19 +221,18 @@ function rangeeImage(api, mouvement, vue, point) {
 
 /** Une image du GIF comparatif : les règles côte à côte, une rangée par vue, mesures de l'image en cours. */
 function electionHtml(api, mouvement, election, regles, vues, index, reperes, dataUri) {
-  const { zone, colonnePx } = ELECTION, k = colonnePx / zone.w;
-  const fr = (value, digits = 1) => value.toFixed(digits).replace(".", ",").replace("-", "−");
+  const presentation = PRESENTATIONS[election.id], { zone } = presentation, { colonnePx } = ELECTION, k = colonnePx / zone.w;
   const basse = Math.min(...regles.flatMap(r => r.samples.map(s => s.mesure.bassinMm)));
   const angle = regles[0].samples[index].angleDeg;
   const colonne = (r) => {
-    const m = r.samples[index].mesure;
+    const m = r.samples[index].mesure, mesures = presentation.mesures(m, { basse, angle });
     return `<section>
       <h2><b class="${r.retenue ? "retenue" : ""}">${r.lettre}</b> ${escapeHtml(r.label)} <span>${r.retenue ? "règle de la planche" : "variante"}</span></h2>
       <p class="regle">${escapeHtml(r.regle)}</p>
       ${vues.map(vue => `<div class="cell"><img src="${dataUri(r, vue, index)}" alt="">
-        <i style="top:${((reperes[vue] - zone.y) * k).toFixed(1)}px"></i><small>${escapeHtml(api.atlasVueLabel(vue, mouvement.cote))}</small></div>`).join("")}
-      <table><tr><td>genou droit</td><td>genou gauche</td><td>bassin</td></tr>
-        <tr><th>${fr(m.genouDeg.R, 0)}°</th><th>${fr(m.genouDeg.L, 0)}°</th><th>+${fr(m.bassinMm - basse, 0)} mm</th></tr></table>
+        ${reperes ? `<i style="top:${((reperes[vue] - zone.y) * k).toFixed(1)}px"></i>` : ""}<small>${escapeHtml(api.atlasVueLabel(vue, mouvement.cote))}</small></div>`).join("")}
+      <table><tr>${mesures.map(([label]) => `<td>${escapeHtml(label)}</td>`).join("")}</tr>
+        <tr>${mesures.map(([, valeur]) => `<th>${valeur}</th>`).join("")}</tr></table>
     </section>`;
   };
   return `<!doctype html><meta charset="utf-8"><style>
@@ -249,7 +262,7 @@ function electionHtml(api, mouvement, election, regles, vues, index, reperes, da
     <h1>${escapeHtml(election.question)}</h1>
     <p class="sub">${escapeHtml(mouvement.label)} · bassin à <b>${escapeHtml(api.atlasAngleLabel(angle))}</b> · même caméra et même angle de bassin des deux côtés</p>
     <div class="cols">${regles.map(colonne).join("")}</div>
-    <footer><span>- - -</span> hauteur des hanches la plus basse de l'amplitude · « bassin » : hauteur au-dessus de cette ligne.<br>
+    <footer>${presentation.legende}<br>
       ${escapeHtml(api.ATLAS_ATTRIBUTION)}. Généré paramétriquement : pas une mesure sur une personne.</footer>
   </div>`;
 }
@@ -264,7 +277,9 @@ async function election(api, manifest, options) {
   const choix = api.atlasRegle(mouvement, options.variante);
   if (!choix.ok) throw new Error(choix.raison);
   if (!choix.variante) throw new Error(`« ${options.variante} » est la règle de la planche ${mouvement.id} : rien à comparer`);
-  const election = api.ATLAS_ELECTIONS[mouvement.id], frames = options.frames ?? ELECTION.frames, vues = options.vues ?? ELECTION.vues;
+  const election = api.ATLAS_ELECTIONS[mouvement.id], presentation = PRESENTATIONS[election.id];
+  if (!presentation) throw new Error(`élection ${election.id} : pas de présentation dans capture_atlas.mjs (PRESENTATIONS)`);
+  const frames = options.frames ?? ELECTION.frames, vues = options.vues ?? presentation.vues;
   if (!Number.isInteger(frames) || frames < 2 || frames > api.ATLAS_FRAMES_MAX) throw new Error(`--frames entre 2 et ${api.ATLAS_FRAMES_MAX}`);
   const inconnues = vues.filter(v => !manifest.views.includes(v));
   if (inconnues.length) throw new Error(`vues inconnues : ${inconnues.join(", ")}`);
@@ -275,7 +290,7 @@ async function election(api, manifest, options) {
   api.applyAtlasPose(regles[0].fixture.r, regles[0].fixture.model, mouvement, bas.angleDeg);
   regles[0].fixture.r.root.updateWorldMatrix(true, true);
   const centre = regles[0].fixture.r.pelvis.getWorldPosition(new THREE.Vector3());
-  const reperes = Object.fromEntries(vues.map(vue => [vue, rangeeImage(api, mouvement, vue, centre)]));
+  const reperes = presentation.ligne ? Object.fromEntries(vues.map(vue => [vue, rangeeImage(api, mouvement, vue, centre)])) : null;
 
   const server = process.env.CAPTURE_BASE ? { base: process.env.CAPTURE_BASE, stop: () => {} } : await servePreview();
   const browser = await chromium.launch({

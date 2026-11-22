@@ -34,6 +34,14 @@ Mesures prises sur le GLB réel posé par le moteur de l'application, hors navig
 
 Hanche : avancée du centre articulaire gauche par rapport au droit (positif : gauche devant). Genou : flexion, 0° = jambe tendue. Thorax : inclinaison par rapport à la verticale.
 
+## Règle de pose et variante
+
+- Règle de la planche : **thorax de face** (A). La colonne contre-tourne : thorax, tête et bras restent face au partenaire.
+- Variante : buste solidaire (B). Pas de contre-rotation : tout le haut du corps tourne avec le bassin. Dans l'application : `?atlas=bassin-rotation&vue=face&frame=4&frames=9&muscles=1&variante=solidaire`.
+- Choix du propriétaire : [élection](../../../../docs/elections/rotation-buste.md).
+
+![Rotation du bassin : le buste tourne-t-il avec lui ?](../../../../docs/gifs/election-rotation-buste.gif)
+
 ## Vues animées
 
 | Face | Trois-quarts avant gauche | Profil gauche | Trois-quarts arrière gauche | Dos |
@@ -48,7 +56,7 @@ Vue en direct dans l'application : `?atlas=bassin-rotation&vue=face&frame=4&fram
 - Illustratif : aucune validation médicale ni chorégraphique.
 - Pose neutre du moteur : pieds à l'écartement et à l'ouverture natifs du squelette, genoux fléchis d'au moins 0,12 rad par l'IK (jambe jamais verrouillée).
 - Bassin en chaîne fermée, pieds plantés : les pieds ne pivotent pas, les hanches absorbent la rotation.
-- Le thorax reste de face parce que la colonne contre-tourne du même angle. C'est une règle propre à l'atlas : l'isolation du comparateur compense le roulis et le tangage du bassin, pas le lacet.
+- Le thorax reste de face parce que la colonne contre-tourne du même angle. C'est une règle propre à l'atlas : l'isolation du comparateur compense le roulis et le tangage du bassin, pas le lacet. La variante « buste solidaire », où tout le haut du corps tourne avec le bassin, est montrée dans la section « Règle de pose et variante » ; le choix revient au propriétaire.
 - Buste et bras : volumes stylisés, pas un maillage anatomique. Le haut du tronc compense le bassin (iso=1), bras en cadre de danse.
 
 ## Licences

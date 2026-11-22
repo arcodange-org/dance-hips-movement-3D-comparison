@@ -453,6 +453,15 @@ n'est pas versionnée. Le choix revient au propriétaire. »
   B élu : B devient la règle de `bassin-rotation`, la planche est régénérée et ses limites le disent.
 - **Limite.** Aucune des deux règles n'est mesurée sur une personne ; le modèle ne dit pas comment
   une colonne réelle répartit une torsion entre ses vertèbres.
+- **Résultat (2026-11-22).** Mesuré sur le GLB, 17 images : en A le thorax reste dans son
+  orientation neutre ; en B son lacet suit l'angle du bassin à moins de 0,01° près (15,0° aux
+  bornes) et il ne tourne qu'autour de la verticale. Hanches (43,9 mm devant à 43,2 mm derrière),
+  genoux (6,9° à 7,2°) et pieds identiques dans les deux règles. GIF : 36 images, 678 × 1438 px,
+  2,8 Mo, corps entier, vues de face et de trois-quarts. La planche `bassin-rotation` gagne le champ
+  `regle` dans `meta.json`, une section « Règle de pose et variante » dans sa page et une ligne dans
+  le pied de `planche.png` ; ses 45 images et 5 GIF sont identiques à l'octet. La limite « thorax de
+  face » de la planche est devenue celle de la règle (`LIMITES_REGLE`), texte inchangé, avec un
+  renvoi à la variante.
 
 ### Lien avec le ginga : le « 8 » du bassin (#157, #159)
 

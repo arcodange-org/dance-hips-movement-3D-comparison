@@ -22,9 +22,30 @@
     "Illustratif : aucune validation médicale ni chorégraphique.",
     "Pose neutre du moteur : pieds à l'écartement et à l'ouverture natifs du squelette, genoux fléchis d'au moins 0,12 rad par l'IK (jambe jamais verrouillée).",
     "Bassin en chaîne fermée, pieds plantés : les pieds ne pivotent pas, les hanches absorbent la rotation.",
-    "Le thorax reste de face parce que la colonne contre-tourne du même angle. C'est une règle propre à l'atlas : l'isolation du comparateur compense le roulis et le tangage du bassin, pas le lacet.",
+    "Le thorax reste de face parce que la colonne contre-tourne du même angle. C'est une règle propre à l'atlas : l'isolation du comparateur compense le roulis et le tangage du bassin, pas le lacet. La variante « buste solidaire », où tout le haut du corps tourne avec le bassin, est montrée dans la section « Règle de pose et variante » ; le choix revient au propriétaire.",
     "Buste et bras : volumes stylisés, pas un maillage anatomique. Le haut du tronc compense le bassin (iso=1), bras en cadre de danse."
   ],
+  "regle": {
+    "id": "thorax-face",
+    "lettre": "A",
+    "label": "thorax de face",
+    "description": "la colonne contre-tourne : thorax, tête et bras restent face au partenaire",
+    "election": {
+      "id": "rotation-buste",
+      "question": "Rotation du bassin : le buste tourne-t-il avec lui ?",
+      "page": "docs/elections/rotation-buste.md",
+      "gif": "docs/gifs/election-rotation-buste.gif"
+    },
+    "variantes": [
+      {
+        "id": "solidaire",
+        "lettre": "B",
+        "label": "buste solidaire",
+        "description": "pas de contre-rotation : tout le haut du corps tourne avec le bassin",
+        "url": "?atlas=bassin-rotation&vue=face&frame=4&frames=9&muscles=1&variante=solidaire"
+      }
+    ]
+  },
   "articulation": {
     "rig": "glb",
     "noeud": "Pelvis",

@@ -2,7 +2,7 @@
 // Le rig réel (public/anatomy.glb) est posé par le moteur de l'application (src/atlas.ts → src/pose.ts) ;
 // on contrôle la ROM sur le quaternion monde du nœud, une preuve indépendante par les positions des
 // hanches, les conventions verrouillées, puis la fraîcheur et l'intégrité des fichiers versionnés.
-// Spécification : docs/spec-atlas-anatomique.md, D12 à D15.
+// Spécification : docs/spec-atlas-anatomique.md, D12 à D16.
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -266,7 +266,7 @@ for (const id of planches) {
 {
   const id = "bassin-obliquite", frames = 17, minimalKnee = 0.12 * 180 / Math.PI;
   const mouvement = manifest.mouvements.find(m => m.id === id), election = api.ATLAS_ELECTIONS[id];
-  assert.deepEqual(Object.keys(api.ATLAS_ELECTIONS), [id], "une seule élection de règle de pose");
+  assert.deepEqual(Object.keys(api.ATLAS_ELECTIONS), [id, "bassin-rotation"], "élections de règle de pose : obliquité (D14, D15), rotation (D16)");
   assert.deepEqual(election.regles.map(r => `${r.lettre} ${r.id}`), ["A relais", "B chevauchement"], "lettres du vote");
   assert.equal(election.retenue, "chevauchement", "règle retenue : le vote du propriétaire (B)");
   const retenue = api.atlasRegle(mouvement, null), variante = api.atlasRegle(mouvement, "relais");
@@ -274,12 +274,12 @@ for (const id of planches) {
   assert.ok(variante.ok && variante.regle.id === "relais" && variante.variante, "« relais » est la variante");
   assert.ok(api.atlasRegle(mouvement, "chevauchement").ok && !api.atlasRegle(mouvement, "chevauchement").variante, "la règle retenue peut être nommée");
   // Refus explicites : règle inconnue, variante demandée pour un mouvement sans élection.
-  const rotation = manifest.mouvements.find(m => m.id === "bassin-rotation");
-  assert.deepEqual(api.atlasRegle(rotation, null), { ok: true, regle: null, variante: false }, "mouvement sans élection : pas de règle nommée");
+  const anteversion = manifest.mouvements.find(m => m.id === "bassin-anteversion");
+  assert.deepEqual(api.atlasRegle(anteversion, null), { ok: true, regle: null, variante: false }, "mouvement sans élection : pas de règle nommée");
   assert.equal(api.atlasRegle(mouvement, "inconnue").ok, false);
   const refusal = fixture(api);
   assert.throws(() => api.applyAtlasPose(refusal.r, refusal.model, mouvement, 0, "inconnue"), /variante « inconnue » inconnue pour bassin-obliquite \(règles : relais, chevauchement\)/);
-  assert.throws(() => api.applyAtlasPose(refusal.r, refusal.model, rotation, 0, "relais"), /ce mouvement n'a pas de variante/);
+  assert.throws(() => api.applyAtlasPose(refusal.r, refusal.model, anteversion, 0, "relais"), /ce mouvement n'a pas de variante/);
 
   const relais = measureMovement(api, mouvement, frames, "relais"), chevauche = measureMovement(api, mouvement, frames, "chevauchement");
   // Sans variante, la planche est posée par la règle retenue.
@@ -342,4 +342,60 @@ for (const id of planches) {
   assert.ok(page.includes("c'est bien de montrer les 2, mais pour la danse on veut B"), "le vote du propriétaire est recopié mot pour mot");
   assert.match(page, /BodyParts3D v4\.0, © DBCLS, CC BY-SA 2\.1 Japan/, "attribution sur la page d'élection");
   console.log(`PASS atlas élection ${election.id} : règle retenue ${election.retenue} (bassin constant à ${basse.toFixed(1)} mm, genoux ${centre.genouDeg.R.toFixed(1)}°/${centre.genouDeg.L.toFixed(1)}° au centre), variante relais (rebond de ${rebond.toFixed(1)} mm, genoux ${centreRelais.genouDeg.R.toFixed(1)}°/${centreRelais.genouDeg.L.toFixed(1)}° au centre) ; même angle de bassin, sol, pieds plantés, thorax immobile dans les deux ; règles inconnues refusées ; GIF, page d'élection et vote présents`);
+}
+
+// 6. Élection de la règle de pose de la rotation (D16) : « thorax de face » (A, règle de la planche) ou
+// « buste solidaire » (B, variante). Vote attendu.
+{
+  const id = "bassin-rotation", frames = 17;
+  const mouvement = manifest.mouvements.find(m => m.id === id), election = api.ATLAS_ELECTIONS[id];
+  assert.equal(election.id, "rotation-buste");
+  assert.deepEqual(election.regles.map(r => `${r.lettre} ${r.id}`), ["A thorax-face", "B solidaire"], "lettres de l'élection");
+  assert.equal(election.retenue, "thorax-face", "avant le vote : la règle de la planche depuis D13");
+  const retenue = api.atlasRegle(mouvement, null), variante = api.atlasRegle(mouvement, "solidaire");
+  assert.ok(retenue.ok && retenue.regle.id === "thorax-face" && !retenue.variante, "sans variante : la règle retenue");
+  assert.ok(variante.ok && variante.regle.id === "solidaire" && variante.variante, "« solidaire » est la variante");
+  const refusal = fixture(api);
+  assert.throws(() => api.applyAtlasPose(refusal.r, refusal.model, mouvement, 0, "chevauchement"),
+    /variante « chevauchement » inconnue pour bassin-rotation \(règles : thorax-face, solidaire\)/, "une règle d'une autre élection est refusée");
+
+  const face = measureMovement(api, mouvement, frames, "thorax-face"), solidaire = measureMovement(api, mouvement, frames, "solidaire");
+  for (const [index, s] of measureMovement(api, mouvement, frames).samples.entries())
+    assert.ok(s.mesure.thoraxRotationDeg === face.samples[index].mesure.thoraxRotationDeg && s.mesure.hanches.every((v, k) => v === face.samples[index].mesure.hanches[k]),
+      `${id} image ${index} : sans variante, la pose est celle de la règle retenue`);
+  const { r, model } = solidaire.fixture, planted = {};
+  let footDrift = 0, torsionMax = 0;
+  for (const [index, a] of face.samples.entries()) {
+    const b = solidaire.samples[index], label = `${id} image ${index}`;
+    for (const [nom, s] of [["thorax-face", a], ["solidaire", b]]) {
+      near(s.mesure.angleDeg, s.angleDeg, 0.01, `${label} ${nom} : angle de bassin mesuré`);
+      near(s.mesure.horsAxeDeg, 0, 0.01, `${label} ${nom} : rotation hors de l'axe`);
+      assert.ok(s.solMm >= -0.1, `${label} ${nom} : sommets osseux au-dessus du sol (${s.solMm} mm)`);
+    }
+    assert.ok(new THREE.Vector3(...a.mesure.hanches).distanceTo(new THREE.Vector3(...b.mesure.hanches)) <= 1e-6, `${label} : même repère de bassin (hanches) dans les deux règles`);
+    near(a.mesure.thoraxRotationDeg, 0, 0.01, `${label} thorax-face : thorax dans son orientation neutre`);
+    near(b.mesure.thoraxLacetDeg, b.angleDeg, 0.5, `${label} solidaire : le thorax tourne du même angle que le bassin`);
+    near(b.mesure.thoraxRotationDeg, Math.abs(b.angleDeg), 0.5, `${label} solidaire : le thorax ne tourne qu'autour de la verticale`);
+    torsionMax = Math.max(torsionMax, Math.abs(b.angleDeg - b.mesure.thoraxLacetDeg));
+    for (const regle of ["thorax-face", "solidaire"]) {
+      api.applyAtlasPose(r, model, mouvement, a.angleDeg, regle);
+      r.root.updateWorldMatrix(true, true);
+      for (const side of ["L", "R"]) {
+        const foot = r["foot" + side].getWorldPosition(new THREE.Vector3());
+        planted[side] ??= foot.clone();
+        footDrift = Math.max(footDrift, foot.distanceTo(planted[side]));
+      }
+    }
+  }
+  assert.ok(footDrift <= 0.001, `${id} : pieds plantés dans les deux règles (${footDrift} m)`);
+  // Contre-épreuve : la variante n'est pas la règle retenue (le thorax tourne vraiment).
+  const bout = solidaire.samples.at(-1).mesure;
+  assert.ok(Math.abs(bout.thoraxLacetDeg) >= 14, `${id} solidaire : thorax tourné de ${bout.thoraxLacetDeg.toFixed(2)}° à la borne`);
+  assert.equal(electionGif(election), "docs/gifs/election-rotation-buste.gif");
+  const gif = readFileSync(join(ELECTIONS_DIR, electionFile(election)));
+  assert.equal(gif.toString("latin1", 0, 6), "GIF89a", "signature du GIF comparatif");
+  const page = readFileSync(join(ROOT, electionPage(election)), "utf8");
+  assert.ok(page.includes(electionFile(election)), "la page d'élection montre le GIF");
+  assert.match(page, /BodyParts3D v4\.0, © DBCLS, CC BY-SA 2\.1 Japan/, "attribution sur la page d'élection");
+  console.log(`PASS atlas élection ${election.id} : règle retenue thorax-face (thorax immobile), variante solidaire (thorax tourné de ${bout.thoraxLacetDeg.toFixed(1)}° à ${solidaire.samples.at(-1).angleDeg}°, torsion du dos ${torsionMax.toFixed(2)}° au plus) ; même bassin, sol, pieds plantés dans les deux ; règle d'une autre élection refusée ; GIF et page présents`);
 }

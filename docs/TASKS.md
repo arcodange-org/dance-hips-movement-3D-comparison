@@ -309,7 +309,7 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
   - [x] Mesures ajoutées à `meta.json` (avancée des hanches, sacrum, rotation du thorax tous axes), repère de position et limites par axe ; `bassin-obliquite` recalculée par `--meta-seul`.
   - [x] Test : deux vecteurs liés au bassin en rotation rigide, repère et signe par planche, axe erroné détecté, thorax immobile sur les trois axes.
 - [ ] Élection par le propriétaire, rotation du bassin : thorax de face (versionné, proposition) ou buste solidaire du bassin (GIF des deux variantes montrés le 21 novembre 2026 ; la variante non retenue n'est pas versionnée).
-  - [ ] Élection en format A/B (D16, accord du 22 novembre 2026 : « Oui ») : variante `solidaire` dans le moteur, GIF `docs/gifs/election-rotation-buste.gif`, page `docs/elections/rotation-buste.md`, test sur le GLB.
+  - [x] Élection en format A/B (D16, accord du 22 novembre 2026 : « Oui ») : variante `solidaire` dans le moteur, GIF `docs/gifs/election-rotation-buste.gif`, page `docs/elections/rotation-buste.md`, test sur le GLB.
 - [x] Variante « genoux chevauchés » de l'obliquité produite à la demande du propriétaire (« Oui, produis-la », 21 novembre 2026) : [spec D14](spec-atlas-anatomique.md), [page d'élection](elections/obliquite-genoux.md).
   - [x] Branche remise à jour sur `main` (troisième et quatrième fusions, sans réécriture d'historique).
   - [x] `applyAtlasPose(…, variante)` dans `src/atlas.ts` ; vue `?atlas=bassin-obliquite&variante=<règle>`. Sans variante, URL et clé de rendu inchangées.

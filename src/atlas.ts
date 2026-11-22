@@ -53,6 +53,16 @@ export const ATLAS_ELECTIONS: Record<string, AtlasElection> = {
     // Vote du propriétaire, 21 novembre 2026 : « pour la danse on veut B ».
     retenue: "chevauchement",
   },
+  "bassin-rotation": {
+    id: "rotation-buste",
+    question: "Rotation du bassin : le buste tourne-t-il avec lui ?",
+    regles: [
+      { id: "thorax-face", lettre: "A", label: "thorax de face", regle: "la colonne contre-tourne : thorax, tête et bras restent face au partenaire" },
+      { id: "solidaire", lettre: "B", label: "buste solidaire", regle: "pas de contre-rotation : tout le haut du corps tourne avec le bassin" },
+    ],
+    // Règle de la planche depuis D13 ; élection D16 ouverte le 22 novembre 2026, vote attendu.
+    retenue: "thorax-face",
+  },
 };
 /** La règle de pose demandée : la règle retenue sans variante, la règle nommée sinon ; ou la raison du refus.
  * `regle` vaut `null` pour un mouvement sans élection ; `variante` dit si elle diffère de la règle retenue. */
@@ -90,7 +100,7 @@ export function applyAtlasPose(r: RigHandle, model: PoseModel, m: AtlasMouvement
     return applyPose(r, model, 0, {
       neutral: true, amp: 0, travel: 0, plant: true, iso: true, cadre: true,
       pelvisOffset: { position: [0, 0, 0], rotation },
-      trunkOffset: m.axeLocal === "y" ? [0, -radians, 0, 0, 0, 0, 0, 0, 0] : null,
+      trunkOffset: m.axeLocal === "y" && choix.regle?.id !== "solidaire" ? [0, -radians, 0, 0, 0, 0, 0, 0, 0] : null,
       rootOffset: abaissement ? { x: 0, z: 0, y: abaissement } : null,
     });
   };
@@ -139,6 +149,8 @@ export interface AtlasMesure {
   thoraxDeg: number;
   /** Rotation (°) du thorax par rapport à la pose neutre, tous axes confondus. */
   thoraxRotationDeg: number;
+  /** Lacet signé (°) du thorax autour de la verticale monde, par rapport à la pose neutre (D16). */
+  thoraxLacetDeg: number;
   /** Hauteur monde du centre du bassin (mm). */
   bassinMm: number;
 }
@@ -146,6 +158,7 @@ export interface AtlasMesure {
 /** Mesures sur le rig tel que posé par `applyAtlasPose` (matrices monde finales). */
 export function measureAtlasPose(r: RigHandle, m: AtlasMouvement, reference: AtlasReference, stats: PoseStats): AtlasMesure {
   r.root.updateWorldMatrix(true, true);
+  const thorax = r.chest.getWorldQuaternion(new THREE.Quaternion());
   const relative = atlasNode(r, m).getWorldQuaternion(new THREE.Quaternion()).multiply(reference.quaternion.clone().invert());
   if (relative.w < 0) relative.set(-relative.x, -relative.y, -relative.z, -relative.w);
   const v = new THREE.Vector3(relative.x, relative.y, relative.z);
@@ -163,7 +176,11 @@ export function measureAtlasPose(r: RigHandle, m: AtlasMouvement, reference: Atl
     sacrum: [sacrum.x, sacrum.y, sacrum.z],
     genouDeg: { R: stats.kneeR, L: stats.kneeL },
     thoraxDeg: stats.trunkTilt,
-    thoraxRotationDeg: r.chest.getWorldQuaternion(new THREE.Quaternion()).angleTo(reference.thorax) * 180 / Math.PI,
+    thoraxRotationDeg: thorax.angleTo(reference.thorax) * 180 / Math.PI,
+    thoraxLacetDeg: (() => {
+      const q = thorax.clone().multiply(reference.thorax.clone().invert());
+      return 2 * Math.atan2(q.y, q.w) * 180 / Math.PI;
+    })(),
     bassinMm: (r.pelvis as THREE.Object3D).getWorldPosition(new THREE.Vector3()).y * 1000,
   };
 }

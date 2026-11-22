@@ -95,7 +95,6 @@ const LIMITES_BASSIN = {
   ],
   y: [
     "Bassin en chaîne fermée, pieds plantés : les pieds ne pivotent pas, les hanches absorbent la rotation.",
-    "Le thorax reste de face parce que la colonne contre-tourne du même angle. C'est une règle propre à l'atlas : l'isolation du comparateur compense le roulis et le tangage du bassin, pas le lacet.",
   ],
   x: [
     "Bassin en chaîne fermée, pieds plantés : la bascule se fait autour de l'axe des centres de hanche, les jambes ne bougent pas.",
@@ -106,6 +105,8 @@ const LIMITES_BASSIN = {
 /** D15 — ce que la règle de pose retenue montre et ne montre pas (mouvements qui ont une élection). */
 const LIMITES_REGLE = {
   chevauchement: "Hauteur du bassin : tenue constante, à sa hauteur la plus basse de l'amplitude (colonne « Hauteur du bassin »). Les deux genoux fléchissent ensemble au passage par le centre : aucune jambe n'y est presque tendue. C'est un choix de modèle, élu par le propriétaire pour la danse ; la variante « genoux en relais », où le bassin remonte au centre, est montrée dans la section « Règle de pose et variante ».",
+  "thorax-face": "Le thorax reste de face parce que la colonne contre-tourne du même angle. C'est une règle propre à l'atlas : l'isolation du comparateur compense le roulis et le tangage du bassin, pas le lacet. La variante « buste solidaire », où tout le haut du corps tourne avec le bassin, est montrée dans la section « Règle de pose et variante » ; le choix revient au propriétaire.",
+  solidaire: "Le buste tourne avec le bassin : pas de contre-rotation de la colonne, le thorax, la tête et les bras suivent l'angle du bassin. Les hanches absorbent seules la rotation sur des pieds plantés.",
   relais: "Hauteur du bassin : la plus haute que les jambes permettent. Les genoux fléchissent à tour de rôle et le bassin remonte au passage par le centre (colonne « Hauteur du bassin »).",
 };
 

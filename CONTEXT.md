@@ -63,10 +63,14 @@ jambes ne bougent pas).
   8 », lisible dans les trois plans, alors que chaque planche fait un aller-retour sur un axe. Le
   « 8 » est le chantier #159 (PR #160, sa propre élection) : l'atlas n'en produit pas de planche.
   Le vote B lui a été transmis ; dans l'atlas, « relais » nomme la règle non retenue.
-- Une élection attend encore le propriétaire. Rotation : thorax de face (versionné) ou buste
-  solidaire (GIF montrés, non versionnés).
-- `main` a été fusionné cinq fois dans la branche (conflits : `package.json`, `README.md`,
-  `docs/TASKS.md`, `CONTEXT.md`, `src/main.tsx`, `src/pose.ts` ; garder les deux côtés). Dans
+- **Rotation : élection ouverte, vote attendu** (D16, accord du 22 novembre 2026 : « Oui »). A thorax
+  de face (règle de la planche, ma proposition) ou B buste solidaire, variante
+  `?atlas=bassin-rotation&variante=solidaire`, GIF `docs/gifs/election-rotation-buste.gif`, page
+  [`docs/elections/rotation-buste.md`](docs/elections/rotation-buste.md). Mesure `thoraxLacetDeg`
+  ajoutée au module (non sérialisée). Présentation du GIF propre à chaque élection
+  (`PRESENTATIONS` dans `scripts/capture_atlas.mjs`).
+- `main` a été fusionné six fois dans la branche (conflits : `package.json`, `README.md`,
+  `docs/TASKS.md`, `CONTEXT.md`, `src/main.tsx`, `src/pose.ts`, `docs/regles-proprietaire.md` ; garder les deux côtés). Dans
   `src/pose.ts`, l'option `neutral` de l'atlas et le ginga de #157 s'ajoutent au même endroit.
 
 Suite : règles de pose des 13 autres mouvements (le script les refuse pour l'instant), décision sur
