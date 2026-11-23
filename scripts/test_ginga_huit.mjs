@@ -193,6 +193,7 @@ const api = await import(bundle.href); unlinkSync(bundle);
     p.pattern.forEach((kind, k) => { if (kind !== 'D') return; const inside = x.slice(k * S, (k + 1) * S), side = Math.sign(inside[S / 4]);
       assert.ok(Math.min(...inside.map(v => v * side)) > -0.1 && Math.max(...inside.map(v => v * side)) > 0.99, `${name}: inside the double bounce the pelvis reaches its side and comes back to about the centre`); });
   }
+  const trace = (...args) => JSON.parse(execFileSync('node', [fileURLToPath(new URL('./tracer_hanches.mjs', import.meta.url)), '', ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }));
   const today_ = trace('aujourdhui', 'seul', 'base', 'semba');
   assert.ok(today_.fluidite.acceleration99 > 50 && today_.posture.busteDevantGenoux[1] < -12, `semba today: two sharp bounces per beat (${today_.fluidite.acceleration99} m/s²), the bust behind the knees (${today_.posture.busteDevantGenoux[1]} cm)`);
   const report = [];
