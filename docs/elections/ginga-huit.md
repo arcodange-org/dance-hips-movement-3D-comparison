@@ -346,3 +346,47 @@ Limites : le « 8 » de profil, les fessiers en arrière et la poitrine isolée 
 repris ; prototypes non contrôlés sur le GLB au-delà des tests de pose.
 
 Images : `election-kompa-hanche*.gif`, `trace-kompa-hanche*.gif`.
+
+### Résultat du septième tour (23 novembre, page de vote)
+
+| Question | Choix | Commentaire, reformulé |
+|---|---|---|
+| Q13, le kompa | **KG13**, la hanche finit après | Lever encore moins le talon. La hanche s'assoit vers l'arrière, en commençant par l'arrière et l'extérieur : léger pivot du bassin, le haut du corps restant de face, isolé. Le geste accélère légèrement, marqué par le transfert du poids sur le temps, puis ralentit en remontant : il arme le geste symétrique de l'autre côté, et le fessier remonte en tournant. |
+
+Précisé le même jour : la hanche des tours précédents devait trop à la bachata. Le mouvement cherché est presque
+KG12 (la hanche s'assoit), avec la fluidité de KG13 ; c'est le retour après s'être assis, dans KG12, qui n'était pas bon.
+
+## Huitième tour : le kompa, la hanche s'assoit sur le temps (23 novembre)
+
+Ce qui change par rapport à KG13 : la hanche d'appui ne monte plus sur une jambe qui se tend (la hanche de la
+bachata). Elle s'assoit au moment où le poids arrive, sur le temps, puis remonte pendant tout l'appui.
+
+- **S'asseoir** (`sit`, `lag` 0,3) : le genou de la jambe qui reçoit le poids est le plus fléchi sur le temps ; il
+  plie vite et se tend lentement (`skew`). La hanche d'appui descend (roulis), le bassin recule (`back`) et pivote,
+  cette hanche en arrière (`pivot`) ; elle est le plus en arrière un peu après le temps, alors que le bassin part encore
+  vers l'extérieur (`around`).
+- **Remonter** : pendant l'appui la jambe se tend, la hanche remonte et revient vers l'avant ; à la fin de l'appui
+  elle est haute et l'autre jambe, fléchie, est prête à s'asseoir à son tour.
+- **Le buste** reste de face et au-dessus des pieds (`iso`, colonne tournée à l'inverse du bassin) : la taille plie
+  pour absorber le bassin, jusqu'à 19°.
+- **Le talon** du pied libre ne se lève plus que de 6° (11° dans KG13), et seulement tant que son côté ne porte pas.
+
+| | `kompa=` | Genoux | La jambe d'appui est la plus fléchie | Pivot du bassin | Trajet de la hanche d'avant en arrière | De face, de dessus, de profil | La poitrine se déplace de côté |
+|---|---|---|---|---|---|---|---|
+| KG13 (élu au septième tour) | `hancheApres` | 17° à 55° | jamais | ± 1° | 2,8 cm | 9 cm², 22 cm², 7 cm² | 8,9 cm |
+| KG14 — la hanche s'assoit sur le temps | `assis` | 23° à 45° | 66 % du cycle | ± 7° | 3,9 cm | 32 cm², 16 cm², 7 cm² | 1,1 cm |
+| KG15 — plus marqué | `assisMarque` | 24° à 45° | 69 % du cycle | ± 12° | 5,9 cm | 26 cm², 22 cm², 9 cm² | 1,6 cm |
+
+Dans KG14 et KG15 : jamais à l'arrêt, accélération du bassin 3,3 m/s² ; roulis du bassin ± 18° ; le buste tourne de
+2° au plus (KG14), 3° au plus (KG15).
+
+Pourquoi les genoux vont de 23° à 45° et non plus de 17° à 55° : la jambe fléchie est maintenant celle qui porte, pied
+à plat ; le talon levé ne l'aide plus. Les deux pieds à plat, un écart de 36° entre les genoux demanderait 30° de roulis
+du bassin.
+
+Limites : s'asseoir en arrière sur le temps n'est pas l'ordre du manuel cité dans la spec (la hanche y va de l'avant
+vers l'arrière au fil de l'appui) : c'est la description du propriétaire qui est suivie ici. La taille plie jusqu'à
+19°. Prototypes non contrôlés sur le GLB au-delà des tests de pose.
+
+Images : `election-kompa-assis*.gif` (trois quarts et `-profil` de côté), `election-kompa-hancheApres-profil.gif`,
+`trace-kompa-assis*.gif`.

@@ -76,7 +76,7 @@ const api = await import(bundle.href); unlinkSync(bundle);
   // « 8 » of the styles, and never stop. The model of today is untouched unless a prototype is chosen.
   const kompa = name => { const t = trace(name, 'seul', 'base', 'kompa'); sudden['kompa ' + name] = t.transfert.soudain; return t.mesures; };
   assert.equal(api.KOMPA_PROTO.eight, null, 'no kompa prototype by default');
-  assert.deepEqual(Object.keys(api.KOMPA_EIGHTS), ['huit', 'huitGrand', 'huitInverse', 'genoux', 'genouxRond', 'hanches', 'hanchesFortes', 'profil', 'profilFort', 'alterne', 'alterneTalon', 'alterneDirect', 'hancheFinit', 'hancheTenue', 'hancheAssise', 'hancheApres']);
+  assert.deepEqual(Object.keys(api.KOMPA_EIGHTS), ['huit', 'huitGrand', 'huitInverse', 'genoux', 'genouxRond', 'hanches', 'hanchesFortes', 'profil', 'profilFort', 'alterne', 'alterneTalon', 'alterneDirect', 'hancheFinit', 'hancheTenue', 'hancheAssise', 'hancheApres', 'assis', 'assisMarque']);
   const k0 = kompa('aujourdhui'), k1 = kompa('huit'), k2 = kompa('huitGrand'), k3 = kompa('huitInverse');
   assert.ok(k0.C.profondeur < 0.5 && k0.L.dessus < 2 && k0.C.arret > 0.4, `kompa today: a line (${k0.C.profondeur} cm deep, ${k0.L.dessus} cm², stop ${k0.C.arret})`);
   for (const [name, m] of [['huit', k1], ['huitGrand', k2], ['huitInverse', k3]]) assert.ok(m.L.dessus > 50 && m.R.dessus > 50 && m.C.arret < 0.05 && Math.abs(m.C.largeur - k0.C.largeur) < 1, `kompa ${name}: ${m.L.dessus} cm², stop ${m.C.arret}, ${m.C.largeur} cm wide`);
@@ -145,6 +145,17 @@ const api = await import(bundle.href); unlinkSync(bundle);
     // close to the line of `alterneDirect`.
     if (name === 'hancheFinit') assert.ok(k.mesures.L.face > k.mesures.L.dessus && k.mesures.R.face > k.mesures.R.dessus, `kompa ${name}: the « 8 » seen from the front larger than from above (${k.mesures.L.face} against ${k.mesures.L.dessus} cm²)`);
     else assert.ok(k.mesures.L.face > 2 && k.mesures.L.face < 15, `kompa ${name}: a narrow loop seen from the front (${k.mesures.L.face} cm²)`);
+  }
+  // Eighth round (vote: `hancheApres` for its flow; the hip must sit as the weight lands on the beat, back and
+  // outwards with a slight pivot of the pelvis under a chest that keeps facing front, then rise slowly and round;
+  // the free heel lower still). The supporting leg is then the bent one as it receives the weight.
+  for (const name of ['assis', 'assisMarque']) {
+    const k = trace(name, 'seul', 'base', 'kompa'), g = k.genoux;
+    assert.ok(g.gauche[0] < 30 && g.gauche[1] > 40 && g.ecart > 15, `kompa ${name}: the legs still alternate (${JSON.stringify(g)})`);
+    assert.ok(g.appuiPlusPlie > 0.5, `kompa ${name}: the supporting leg sits (${g.appuiPlusPlie})`);
+    assert.ok(k.fluidite.arretPart === 0 && k.fluidite.acceleration99 < kh.fluidite.acceleration99, `kompa ${name}: never still (${JSON.stringify(k.fluidite)})`);
+    assert.ok(k.buste.largeur < 2 && k.buste.profondeur < 3, `kompa ${name}: the chest stays above the feet (${JSON.stringify(k.buste)})`);
+    assert.ok(k.mesures.L.face > k.mesures.L.dessus && k.mesures.L.profil > 5, `kompa ${name}: round seen from the front and from the side (${k.mesures.L.face}, ${k.mesures.L.profil} cm²)`);
   }
   console.log(`PASS genoux qui mènent (vote du 22 novembre) : jamais à l'arrêt, accélération du bassin ${led('genouxQuart').fluidite.acceleration99} m/s² (${fToday.acceleration99} aujourd'hui, ${fF.acceleration99} pour F) ; de face ${g0.mesures.L.face} à ${g2.mesures.L.face} cm² ; kompa ${kg.mesures.L.face} cm²`);
   console.log(`PASS kompa seul : aujourd'hui une ligne (${k0.C.profondeur} cm d'avant en arrière, arrêt de ${k0.C.arret} temps) ; prototypes : ${k1.L.dessus} et ${k2.L.dessus} cm² entourés vu de dessus, aucun arrêt`);

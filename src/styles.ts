@@ -75,9 +75,19 @@ export const KOMPA = { transition: 0.4 };
  * `knees.after` (rad, `hancheApres`, added once the owner said he leans towards `alterneDirect`): in step
  * with the weight as it passes the centre (knees cross with it, as in `alterneDirect`), behind it by that
  * much at the side: the hip is still finishing after the pelvis has arrived (the late finish of `hanches`),
- * and is back in step for the next passage. */
+ * and is back in step for the next passage.
+ * Eighth round (vote: `hancheApres` for its flow, but the hip of the earlier rounds owed too much to
+ * bachata, where it rises over a straightened leg; the kompa's hip sits). `sit`, with `lag` 0.3 so that each
+ * knee is most bent on the beat its leg receives the weight: `skew` (< 0: the knee bends quickly into the
+ * sit and straightens slowly, the same for the pelvis going back); `pivot` (rad): the pelvis turns, the
+ * sitting hip back, under a spine that turns back by as much (the chest keeps facing front); `back` (m):
+ * the pelvis goes back with each sit; `around` (rad of the cycle): the hip is furthest back that long after
+ * the sit, already rising, so that it goes round seen from the side. The free heel rises only while its
+ * side carries no weight. With both feet flat a knee difference of 36° would need a 30° roll of the pelvis:
+ * `swing` 0.5 keeps the roll near 18° (knees from 23° to 45°). */
 export interface KompaEight { depth: number; round: number; sense: number; knees?: { swing: number; lag: number; tilt: number; base?: number; heel?: number; settle?: number; late?: number; after?: number }; glide?: number;
-  depthLag?: number; back?: { reach: number; pitch: number }; iso?: number; lift?: number }
+  depthLag?: number; back?: { reach: number; pitch: number }; iso?: number; lift?: number;
+  sit?: { skew: number; pivot: number; back: number; around: number } }
 export const KOMPA_EIGHTS: Record<string, KompaEight> = {
   huit: { depth: 0.03, round: 1, sense: 1 },
   huitGrand: { depth: 0.05, round: 1, sense: 1 },
@@ -95,6 +105,8 @@ export const KOMPA_EIGHTS: Record<string, KompaEight> = {
   hancheTenue: { depth: 0.015, round: 1, sense: 1, knees: { base: 0.08, swing: 0.65, lag: 0, tilt: -0.52, heel: 0.2, settle: -0.4 }, glide: 0.5, lift: 0.06 },
   hancheAssise: { depth: 0.015, round: 1, sense: 1, knees: { base: 0.08, swing: 0.65, lag: 0, tilt: -0.52, heel: 0.2, settle: 0.4 }, glide: 0.5, lift: 0.06 },
   hancheApres: { depth: 0.015, round: 1, sense: 1, knees: { base: 0.08, swing: 0.65, lag: 0, tilt: -0.52, heel: 0.2, after: 0.785 }, glide: 0.5, lift: 0.06 },
+  assis: { depth: 0, round: 1, sense: 1, knees: { base: 0.08, swing: 0.5, lag: 0.3, tilt: -0.69, heel: 0.1 }, glide: 0.5, lift: 0.06, iso: 1, sit: { skew: -0.5, pivot: 0.12, back: 0.025, around: 0.6 } },
+  assisMarque: { depth: 0, round: 1, sense: 1, knees: { base: 0.08, swing: 0.5, lag: 0.3, tilt: -0.69, heel: 0.1 }, glide: 0.5, lift: 0.06, iso: 1, sit: { skew: -0.6, pivot: 0.2, back: 0.035, around: 0.6 } },
 };
 /** The prototype in use (null: the model of today). Set once from the address, read by the kompa style. */
 export const KOMPA_PROTO: { eight: KompaEight | null } = { eight: null };
@@ -200,11 +212,27 @@ export const STYLES: Record<string, StyleDef> = {
         // `after`: the reverse; in step with the weight as it passes the centre, behind it by that much at the
         // side: the hip is still finishing when the pelvis has arrived, and is back in step for the next passage.
         const c = Math.sin(phase + (k.settle && half > Math.PI / 2 ? k.settle * Math.sin(2 * half) ** 2 : 0) - (k.late ?? 0) * Math.cos(phase) ** 2 - (k.after ?? 0) * Math.sin(phase) ** 2);
-        const base = k.base ?? 0.28, freeL = (1 - c) / 2, freeR = (1 + c) / 2;
-        r.kneeL.rotation.x = (base + k.swing * freeL) * a;
-        r.kneeR.rotation.x = (base + k.swing * freeR) * a;
+        const base = k.base ?? 0.28, sit = eight.sit;
+        let bendL = (1 - c) / 2, bendR = (1 + c) / 2;
+        // `sit`: each leg sits as it receives the weight (with `lag` 0.3 its knee is most bent on the beat the
+        // weight lands), bending quickly and straightening slowly (`skew` < 0); `u` is 0 when the left leg sits.
+        const u = phase + Math.PI / 2, bump = (v: number) => (1 + Math.cos(v + (sit?.skew ?? 0) * (1 - Math.cos(v)))) / 2;
+        if (sit) { bendL = bump(u); bendR = bump(u - Math.PI); }
+        r.kneeL.rotation.x = (base + k.swing * bendL) * a;
+        r.kneeR.rotation.x = (base + k.swing * bendR) * a;
         r.pelvis.rotation.z = k.tilt * (r.kneeL.rotation.x - r.kneeR.rotation.x);
-        if (k.heel) { r.extraL = k.heel * freeL * freeL * a; r.extraR = k.heel * freeR * freeR * a; }
+        // The free foot's heel: with `sit` it rises only while its side carries no weight (the pelvis on the
+        // other side) and is down again when the weight passes.
+        if (k.heel && sit) { r.extraL = k.heel * pos(-Math.sin(turn)) ** 2 * a; r.extraR = k.heel * pos(Math.sin(turn)) ** 2 * a; }
+        else if (k.heel) { r.extraL = k.heel * bendL * bendL * a; r.extraR = k.heel * bendR * bendR * a; }
+        if (sit) {
+          // The sitting hip goes back and outwards: the pelvis pivots (that hip back, most `around` rad after
+          // the sit) while the spine turns back by as much (the chest stays facing front), and the whole
+          // pelvis goes back with each sit, quickly, then comes forward slowly as the hip rises.
+          const yaw = sit.pivot * Math.cos(u - sit.around) * a;
+          r.pelvis.rotation.y = yaw; r.spine.rotation.y = -yaw;
+          r.root.position.z -= sit.back * bump(2 * (u - sit.around)) * a;
+        }
       }
       r.chest.rotation.z = -0.035 * sw * a;
       if (eight?.back) {

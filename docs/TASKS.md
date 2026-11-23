@@ -399,9 +399,12 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
   bassin du mauvais côté) ; KG7 `alterne`, KG8 `alterneTalon`, KG9 `alterneDirect` ; `knees.base`, `knees.heel`,
   `tilt` négatif ; courbe des genoux au tracé. Vote : aucune ; talon libre levé, mais moins ; l'attaque de KG9 et le
   retour de KG3 (la hanche finit le transfert, ne le commence pas).
-- [ ] Septième tour (kompa, la hanche finit le transfert) : KG10 `hancheFinit`, KG11 `hancheTenue`, KG12 `hancheAssise`,
-  KG13 `hancheApres` (ajouté : entre KG9 et KG3, le propriétaire penche pour KG9) à élire
-  ([élection](elections/ginga-huit.md)) ; `knees.late`, `knees.settle`, `knees.after`, talon à 11°.
+- [x] Septième tour (kompa, la hanche finit le transfert) : KG10 `hancheFinit`, KG11 `hancheTenue`, KG12 `hancheAssise`,
+  KG13 `hancheApres` (ajouté : entre KG9 et KG3, le propriétaire penche pour KG9) ; `knees.late`, `knees.settle`,
+  `knees.after`, talon à 11°. Vote : KG13 pour sa fluidité ; la hanche doit s'asseoir (trop de bachata jusque-là).
+- [ ] Huitième tour (kompa, la hanche s'assoit sur le temps, vers l'arrière et l'extérieur, pivot du bassin, buste de
+  face, remontée lente et ronde, talon à 6°) : KG14 `assis`, KG15 `assisMarque` à élire
+  ([élection](elections/ginga-huit.md)) ; `KompaEight.sit`.
 - [ ] Kompa : « 8 » de face plus marqué que de dessus, sans glisser d'un bloc.
 - [ ] Variante élue : contrôles sur le GLB dans toutes les figures (marges), ida e volta, pas de base.
 
