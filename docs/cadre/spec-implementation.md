@@ -375,9 +375,17 @@ cachées entre les cages thoraciques et que les doigts entrent dans les côtes d
 
 Le propriétaire a précisé qu'il existe plusieurs attitudes (hauteur du coude, mains ouvertes vers l'extérieur ou
 gardées près de l'épaule) et il a décrit la prise : phalanges serrées, pouce ouvert, main de la suiveuse posée en
-travers de celle du guideur, ses phalanges refermées autour de l'index du guideur, pouces croisés. Deux autres
-attitudes sont filmables (`?essai=mainsCote`, `?essai=mainsBasses`, inertes sans le paramètre) ; l'application ne
-change pas tant qu'il n'a pas tranché : [dossier](../elections/2026-11-22-mains/README.md).
+travers de celle du guideur, ses phalanges refermées autour de l'index du guideur, pouces croisés. Il a choisi le
+23 novembre 2026 l'attitude sur le côté (`CADRE.handsSide`), devenue le comportement : les mains jointes ne sont plus
+entre les deux poitrines. Une attitude plus basse reste filmable (`?essai=mainsBasses`, inerte sans le paramètre) :
+[dossier](../elections/2026-11-22-mains/README.md).
+
+Précision du 23 novembre 2026 pour l'attitude sur le côté (`CADRE.handsSide`) : les mains se lèvent
+légèrement au-dessus de l'épaule, leur milieu à hauteur d'épaule. Le point des mains jointes est donc 1 cm sous la
+moyenne des deux épaules (le centre de la paume ; le milieu de la main est plus haut), 20 cm vers l'extérieur du
+couple. L'orientation des mains (pouce du guideur vers le ciel, paume à mi-chemin entre sa droite et la suiveuse) et
+leur emboîtement relèvent du haut du corps
+anatomique : [spec](../spec-haut-du-corps.md).
 
 ## La main gauche de la suiveuse sur l'épaule droite du guideur (#180, 22 novembre 2026)
 
