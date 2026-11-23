@@ -7,11 +7,11 @@ import { GUIDE_FIGURES, type GuideFigure } from "../../guidage";
 import { GUIDE_BPM } from "../../vitrine";
 import { padColumns, padFigure, padOf, padSize, styleSearch, type Marges } from "../../jeuHud";
 import { useHudLayout } from "../../hooks/useHudLayout";
+import { CREDIT, RESERVE } from "../credit";
 import { useMarges } from "./useMarges";
 import { IconeFermer, IconeLecture, IconePause, IconePlus, IconeRetour, IconeSon, IconeSonCoupe } from "./icones";
 
-export const CREDIT = "Anatomie : BodyParts3D © DBCLS, licence CC BY-SA 2.1 Japan.";
-export const RESERVE = "Animation paramétrique illustrative, sans validation chorégraphique.";
+export { CREDIT, RESERVE };
 
 const FOCUS = "focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400";
 /** Téléphone couché : largeur des deux colonnes, plus étroites sur un petit écran pour laisser le milieu au couple. */

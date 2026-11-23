@@ -1,5 +1,5 @@
-/** Icônes des commandes du jeu et de la vitrine (#186) : tracées au trait, décoratives (le bouton
- * porte le nom). */
+/** Icônes des commandes du jeu, de la vitrine (#186) et de la page principale (#192) : tracées au trait,
+ * décoratives (le bouton porte le nom). */
 import type { ReactNode } from "react";
 
 const Trait = ({ children, width = 2 }: { children: ReactNode; width?: number }) => (
@@ -21,3 +21,6 @@ export const IconePlus = () => (
     <circle cx="5" cy="12" r="1.8" /><circle cx="12" cy="12" r="1.8" /><circle cx="19" cy="12" r="1.8" />
   </svg>
 );
+export const IconeRejouer = () => <Trait><path d="M4 12a8 8 0 1 0 2.6-5.9M4 4v5h5" /></Trait>;
+export const IconeSuivant = () => <Trait><path d="M9 6l6 6-6 6" /></Trait>;
+export const IconeInfo = () => <Trait><circle cx="12" cy="12" r="9" /><path d="M12 11v6M12 7.5v.5" /></Trait>;

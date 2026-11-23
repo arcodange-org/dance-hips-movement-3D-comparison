@@ -46,7 +46,7 @@ La disposition suit la taille de la fenêtre, par la même règle que le jeu (`h
 | --- | --- | --- |
 | `large` | tablette, ordinateur | Un bandeau (titre, onglets, « Partager », « À propos »). Dessous, la scène à gauche avec sa barre de lecture, le panneau à droite (360 px). La page tient dans la fenêtre ; seul le panneau défile. |
 | `couche` | téléphone couché | Pas de bandeau. La scène à gauche sur toute la hauteur, sa barre de lecture réduite à une rangée ; le panneau à droite, qui défile et commence par les onglets et le tempo. |
-| `droit` | téléphone tenu droit | Le bandeau, les onglets, puis la scène (300 px au plus, 45 % de la hauteur visible), la barre de lecture et les réglages. La page défile ; la scène reste collée en haut de l'écran. |
+| `droit` | téléphone tenu droit | Le bandeau, les onglets, puis la scène (45 % de la hauteur visible, entre 240 et 420 px), la barre de lecture et les réglages. La page défile ; la scène reste collée en haut de l'écran. |
 
 - La scène est un seul et même élément dans les trois dispositions : tourner le téléphone ne recharge pas
   les corps et garde la caméra.
@@ -71,18 +71,20 @@ La disposition suit la taille de la fenêtre, par la même règle que le jeu (`h
 - Lecture ou pause, et « Rejouer » (revient au début et lance la lecture), pour toute figure.
 - Pour une figure en cinq actions (sortie garçon, sortie fille, en couple) : « Départ » et les pas 1 à 5.
   Un pas choisi arrête la lecture sur sa pose, comme la liste « Pose de la sortie » d'avant. Au
-  téléphone : pas précédent, « Pas 4 sur 5 », pas suivant.
+  téléphone, et sous 1 024 px de large : pas précédent, « Pas 4 sur 5 », pas suivant.
 - Ce qui se danse : le numéro et le nom du pas pour une figure en cinq actions ; sinon le compte de 1 à 8 et
   le nom de la figure. En disposition `large`, la barre dit aussi ce que fait le guideur et ce que fait la
-  suiveuse (les textes de `src/transitions.ts`) ; le détail (contacts, sources) est dans le tiroir
-  « Ce pas en détail ».
-- Tempo (24 à 140 bpm), et à côté « Tempo de la piste » ou « Tempo conseillé » quand il diffère.
+  suiveuse (les textes de `src/transitions.ts`), une ligne chacun, coupée si elle est trop longue : la barre
+  garde la même hauteur d'un pas à l'autre, et la scène ne change pas de taille. Le texte entier, les contacts
+  et les sources sont dans le tiroir « Ce pas en détail ».
+- Tempo (24 à 140 bpm), et à côté « Tempo de la piste » ou « Tempo conseillé » quand il diffère. Sous
+  1 280 px de large, le tempo a sa propre rangée.
 - Son : un bouton. Ses réglages sont dans le tiroir « Son ».
 
 ### Panneau
 
-1. **Style** : les six styles. Dans « Comparer », deux rangées : « À gauche » et « À droite ». La seconde
-   rangée n'existe pas ailleurs.
+1. **Style** : les six styles (« Zouk » pour « Zouk brésilien », dont le nom entier reste sur la scène). Dans
+   « Comparer », deux rangées : « Style de gauche » et « Style de droite ». La seconde n'existe pas ailleurs.
 2. **Figure** : Sur place, Corridinho, Quarts de tour, 3 temps, Ida e volta ; en couple s'ajoutent Sortie
    garçon et Sortie fille. Une figure qu'un style n'offre pas reste visible, grisée, avec la raison.
 3. **Réglages de la figure choisie**, juste sous elle : la fin de la sortie garçon, le deuxième pas du
@@ -126,7 +128,7 @@ partagés avec le jeu et couverts par leurs tests, gardent leurs mots : voir « 
 | Avant | Maintenant |
 | --- | --- |
 | Solo, Observation hanche, Comparaison côte à côte, Face à face | Seul, Comparer, En couple ; « Hanches au ralenti » |
-| Style A (gauche), Style B (droite), Style B (inactif) | Style ; « À gauche », « À droite » en comparaison |
+| Style A (gauche), Style B (droite), Style B (inactif) | Style ; « Style de gauche », « Style de droite » en comparaison |
 | Déplacement (options exclusives) | Figure |
 | Déplacement (le curseur) | Largeur du pas |
 | Marche arrière (dir=-1) | Reculer |

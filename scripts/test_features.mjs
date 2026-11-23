@@ -122,6 +122,143 @@ function ampMax(travel) {
 
 // ---------- registre de steps ----------
 const steps = [
+  // Page principale : scène et panneau (#192, docs/spec-page-scene-panneau.md) : src/page.ts, chargé à part (pageMod()).
+  [/^le mode "(\w+)" s'affiche dans l'onglet "(\w+)"$/, (c, m) => {
+    const got = pageMod().ongletOf(m[1]);
+    if (got !== m[2]) throw new Error(`ongletOf(${m[1]}) = ${got}`);
+  }],
+  [/^l'onglet "(\w+)" ouvre le mode "(\w+)"$/, (c, m) => {
+    const got = pageMod().modeOf(m[1]);
+    if (got !== m[2]) throw new Error(`modeOf(${m[1]}) = ${got}`);
+  }],
+  [/^l'onglet « Jeu » mène à "(\?[^"]*)" quand le style affiché est "(\w+)"$/, (c, m) => {
+    const got = pageMod().jeuHref(m[2]);
+    if (got !== m[1]) throw new Error(got);
+  }],
+  [/^l'onglet "(\w+)" propose les figures "([^"]*)"$/, (c, m) => {
+    const got = pageMod().figuresOf(m[1]).map(f => f.label).join(", ");
+    if (got !== m[2]) throw new Error(got);
+  }],
+  [/^avec les styles "([^"]+)" la figure "(\w+)" est (?:refusée par "([^"]+)"|offerte)$/, (c, m) => {
+    const got = pageMod().stylesSansFigure(m[1].split(", "), m[2]).join(", ");
+    if (got !== (m[3] ?? "")) throw new Error(`refusée par "${got}"`);
+  }],
+  [/^l'onglet "(\w+)", la figure "(\w+)" et les styles "([^"]+)"$/, (c, m) => {
+    c.vue = { onglet: m[1], movement: m[2], styles: m[3].split(", "), piste: true, synthese: false, tempoDiffere: true };
+  }],
+  [/^les commandes "([^"]+)" (sont affichées|ne le sont pas)$/, (c, m) => {
+    const voulu = m[2] === "sont affichées";
+    const faux = m[1].split(",").map(s => s.trim()).filter(id => pageMod().commandeVisible(id, c.vue) !== voulu);
+    if (faux.length) throw new Error(`${voulu ? "absentes" : "affichées"} : ${faux.join(", ")}`);
+    // La liste des commandes attendues dit la même chose.
+    const attendues = pageMod().commandesAttendues(c.vue);
+    for (const id of m[1].split(",").map(s => s.trim())) if (attendues.includes(id) !== voulu) throw new Error(`commandesAttendues en désaccord sur ${id}`);
+  }],
+  [/^avec une piste enregistrée jouée, "(\w+)" est affichée et "(\w+)" ne l'est pas$/, (c, m) => {
+    const v = { ...c.vue, piste: true, synthese: false };
+    if (!pageMod().commandeVisible(m[1], v) || pageMod().commandeVisible(m[2], v)) throw new Error("commandes du son, piste enregistrée");
+  }],
+  [/^avec une musique de synthèse sans piste, "(\w+)" est affichée et "(\w+)" ne l'est pas$/, (c, m) => {
+    const v = { ...c.vue, piste: false, synthese: true };
+    if (!pageMod().commandeVisible(m[1], v) || pageMod().commandeVisible(m[2], v)) throw new Error("commandes du son, synthèse");
+  }],
+  [/^"(\w+)" n'est affichée que si le tempo diffère du tempo conseillé$/, (c, m) => {
+    if (!pageMod().commandeVisible(m[1], { ...c.vue, tempoDiffere: true }) || pageMod().commandeVisible(m[1], { ...c.vue, tempoDiffere: false })) throw new Error(m[1]);
+  }],
+  [/^l'inventaire compte (\d+) commandes, aux noms tous différents$/, (c, m) => {
+    const ids = pageMod().COMMANDES.map(k => k.id);
+    if (ids.length !== Number(m[1])) throw new Error(`${ids.length} commandes`);
+    if (new Set(ids).size !== ids.length) throw new Error("noms en double");
+    if (pageMod().COMMANDES.some(k => !k.nom.trim())) throw new Error("commande sans nom");
+  }],
+  [/^chaque commande est rangée dans une place connue$/, () => {
+    const { COMMANDES, PLACES } = pageMod();
+    const sans = COMMANDES.filter(k => !PLACES[k.place]).map(k => k.id);
+    if (sans.length) throw new Error(sans.join(", "));
+  }],
+  [/^le tiroir "(\w+)" n'apparaît que pendant une figure en cinq actions$/, (c, m) => {
+    const { tiroirVisible, cinqActions } = pageMod();
+    for (const onglet of ["seul", "comparer", "couple"]) for (const movement of ["none", "ida", "quarts", "sortieG", "sortieF", "sortieGF"]) {
+      const v = { onglet, movement, styles: ["kizomba"], piste: true, synthese: false, tempoDiffere: false };
+      if (tiroirVisible(m[1], v) !== cinqActions(v)) throw new Error(`${onglet}, ${movement}`);
+    }
+  }],
+  [/^les tiroirs "([^"]+)" apparaissent dans toutes les vues$/, (c, m) => {
+    const { tiroirVisible, TIROIRS } = pageMod();
+    for (const place of m[1].split(", ")) {
+      if (!TIROIRS.includes(place)) throw new Error(`${place} n'est pas un tiroir`);
+      for (const onglet of ["seul", "comparer", "couple"]) for (const movement of ["none", "ida", "sortieG", "sortieGF"])
+        if (!tiroirVisible(place, { onglet, movement, styles: ["kompa"], piste: false, synthese: true, tempoDiffere: false })) throw new Error(`${place} absent : ${onglet}, ${movement}`);
+    }
+  }],
+  [/^les paramètres que « Partager » écrit ont chacun une commande, sauf "([^"]+)"$/, (c, m) => {
+    // Les paramètres sont lus dans l'appel de `buildShareUrl` d'App : un nouveau paramètre partagé sans commande se voit ici.
+    const app = readFileSync(join(root, "src", "App.tsx"), "utf8");
+    const bloc = /buildShareUrl\(window\.location\.pathname, \{([\s\S]*?)\}, camPos, camTgt, view\)/.exec(app);
+    if (!bloc) throw new Error("appel de buildShareUrl introuvable dans src/App.tsx");
+    const ecrits = [...bloc[1].split(",").map(s => s.split(":")[0].trim()).filter(s => /^\w+$/.test(s)), "campos", "camtgt", "angle", "zoom"];
+    if (ecrits.length < 40) throw new Error(`seulement ${ecrits.length} paramètres lus`);
+    const { commandeDuParam, PAR_ADRESSE } = pageMod();
+    const sauf = m[1].split(", ");
+    const sans = ecrits.filter(k => commandeDuParam(k) === null);
+    if (sans.slice().sort().join() !== sauf.slice().sort().join()) throw new Error(`sans commande : ${sans.join(", ")}`);
+    const inconnus = sans.filter(k => !PAR_ADRESSE.includes(k));
+    if (inconnus.length) throw new Error(`ni commande ni adresse : ${inconnus.join(", ")}`);
+  }],
+  [/^les paramètres "([^"]+)" ont chacun une commande$/, (c, m) => {
+    const sans = m[1].split(", ").filter(k => pageMod().commandeDuParam(k) === null);
+    if (sans.length) throw new Error(sans.join(", "));
+  }],
+  [/^aucun paramètre n'est réglé par deux commandes$/, () => {
+    const vus = new Map();
+    for (const k of pageMod().COMMANDES) for (const param of k.params) {
+      if (vus.has(param)) throw new Error(`${param} : ${vus.get(param)} et ${k.id}`);
+      vus.set(param, k.id);
+    }
+  }],
+  [/^au battement ([\d.]+) le pas affiché est (\d)$/, (c, m) => {
+    const got = pageMod().pasAffiche(Number(m[1]));
+    if (got !== Number(m[2])) throw new Error(`pasAffiche(${m[1]}) = ${got}`);
+  }],
+  [/^depuis le battement ([\d.]+) le pas suivant est (\d) et le précédent (\d)$/, (c, m) => {
+    const got = [pageMod().pasVoisin(Number(m[1]), 1), pageMod().pasVoisin(Number(m[1]), -1)];
+    if (got.join() !== [m[2], m[3]].join()) throw new Error(`suivant ${got[0]}, précédent ${got[1]}`);
+  }],
+  [/^au battement ([\d.]+) le compte est (\d)$/, (c, m) => {
+    const got = pageMod().compteDe(Number(m[1]));
+    if (got !== Number(m[2])) throw new Error(`compteDe(${m[1]}) = ${got}`);
+  }],
+  [/^le pas "([^"]+)" se nomme "([^"]+)"$/, (c, m) => {
+    const got = pageMod().nomDuPas(m[1]);
+    if (got !== m[2]) throw new Error(got);
+  }],
+  [/^un repère (affiché|masqué) (avec|sans) sa boussole se lit "(\w+)"$/, (c, m) => {
+    const got = pageMod().repereOf(m[1] === "affiché", m[2] === "avec");
+    if (got !== m[3]) throw new Error(got);
+  }],
+  [/^choisir "(\w+)" donne repere=([01]) et (?:boussole=([01])|garde la boussole)$/, (c, m) => {
+    for (const avant of [true, false]) {
+      const got = pageMod().repereFlags(m[1], avant);
+      const boussole = m[3] === undefined ? avant : m[3] === "1";
+      if (got.repere !== (m[2] === "1") || got.boussole !== boussole) throw new Error(JSON.stringify(got));
+    }
+  }],
+  [/^le ralenti met le tempo à (\d+), masque le buste, met la largeur du pas à (\d+) et affiche le poids$/, (c, m) => {
+    const r = pageMod().RALENTI;
+    if (r.bpm !== Number(m[1]) || r.torso !== false || r.travel !== Number(m[2]) || r.appui !== true) throw new Error(JSON.stringify(r));
+  }],
+  [/^le tempo (\d+), le buste (affiché|masqué), la largeur du pas ([\d.]+) et le poids (affiché|masqué)$/, (c, m) => {
+    c.reglage = { bpm: Number(m[1]), torso: m[2] === "affiché", travel: Number(m[3]), appui: m[4] === "affiché" };
+  }],
+  [/^on active « Hanches au ralenti » puis on le quitte$/, (c) => {
+    // Activer garde les réglages d'avant et applique le préréglage ; quitter les remet.
+    c.reglage = pageMod().quitterRalenti(c.reglage, pageMod().RALENTI);
+  }],
+  [/^on quitte « Hanches au ralenti » sans réglages d'avant$/, (c) => { c.reglage = pageMod().quitterRalenti(null, c.reglage); }],
+  [/^le tempo est (\d+), le buste est (affiché|masqué), la largeur du pas est ([\d.]+) et le poids est (affiché|masqué)$/, (c, m) => {
+    const voulu = { bpm: Number(m[1]), torso: m[2] === "affiché", travel: Number(m[3]), appui: m[4] === "affiché" };
+    if (JSON.stringify(c.reglage) !== JSON.stringify(voulu)) throw new Error(JSON.stringify(c.reglage));
+  }],
   // Son synthétisé (#44, docs/spec-son-synthese.md)
   [/^la musique "(\w+)"$/, (c, m) => {
     if (!mod.MUSIC_STYLES[m[1]]) throw new Error("musique inconnue " + m[1]);
@@ -1003,6 +1140,18 @@ function jeuHud() {
   jeuHudCache = require(out);
   rmSync(out, { force: true });
   return jeuHudCache;
+}
+
+/** #192: the main page module (src/page.ts), bundled on first use, apart from the main bundle. */
+let pageModCache = null;
+function pageMod() {
+  if (pageModCache) return pageModCache;
+  const out = join(root, "scripts", ".test-page-bundle.cjs");
+  esbuild.buildSync({ entryPoints: [join(root, "src", "page.ts")], bundle: true, format: "cjs", platform: "node", outfile: out,
+    logLevel: "silent", define: { "import.meta.env.BASE_URL": '"/"' } });
+  pageModCache = require(out);
+  rmSync(out, { force: true });
+  return pageModCache;
 }
 
 // ---------- exécution ----------
