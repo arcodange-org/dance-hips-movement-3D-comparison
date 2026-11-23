@@ -103,6 +103,9 @@ filmé à ce tempo, et le montage cale le premier temps de la musique sur le tem
   final), chaque phrase cite ses faits et ces faits existent dans la fiche, les crédits portent les
   attributions obligatoires, le calendrier est cohérent (aucune phrase ne déborde de son chapitre, durée totale
   entre 4 et 6 minutes 30 pour des durées de voix données), `film.ts` calcule les bons instants et cadrages.
+- Dans le même test, les mesures du modèle (`scripts/video/mesurer_pas.mjs`, sur le GLB) : ce que la narration
+  affirme des appuis, du « 8 », du pivot du bassin et du buste penché y est confronté ; si le moteur change, le
+  test dit quelles phrases ne sont plus vraies.
 - Contrôle du film rendu : durée, présence du son, niveau par chapitre, une image relue par phrase
   (`essais/video/planches/`), voix transcrites et comparées au texte.
 
@@ -172,14 +175,20 @@ filmé à ce tempo, et le montage cale le premier temps de la musique sur le tem
   les déplacements de plus de 5 cm en un huitième de temps passent de 204 à 108 images sur 2 200, et la
   variation du pas d'une image à la suivante de 7,4 à 4,1 cm au plus. Les plus grands sauts restent
   (14 cm en un huitième de temps) : quarts de tour et sorties ne sont pas encore corrigés.
+- **Refilmé après le haut du corps anatomique et le cadre des bras** (#177) : seul le final change (le cadre des
+  bras du couple) ; les chapitres par style et la comparaison sont identiques image pour image.
+- **Refilmé après les pas élus du kompa et du semba** (#160, 23 novembre) : le pas de base des deux styles,
+  danseur seul, est celui que le propriétaire a élu sur films. Les deux chapitres et la comparaison sont
+  réécrits : le film ne dit plus que l'image est fausse, il dit ce que le modèle fait (la hanche s'assoit quand
+  le poids arrive, le bassin dessine un « 8 » vu de dessus et ne s'arrête jamais, le buste suit, penché d'une
+  quinzaine de degrés ; au semba, deux arrivées de suite sur chaque pied) et où il s'écarte des sources (le
+  motif d'appuis du semba, l'ordre du demi-« 8 » du kompa). Faits F338 à F355 ; le film dure 6 min 25 environ.
 
 ## Ce qui reste
 
-- **Refaire le kompa et le semba dans le modèle.** Le film dit où l'image est fausse ; il ne la corrige pas.
-  Le bassin du kompa trace toujours une ligne droite. C'est le chantier du « 8 » (#159, prototypes à élire) :
-  pour le propriétaire, le bassin « fait un 8 », par des genoux qui se relaient, et c'est ce qui rendra les
-  déplacements organiques. La vidéo sera refilmée quand il sera fusionné
-  (`node scripts/video/generer_video.mjs`).
+- **Le couple et le déplacement** gardent l'ancien déhanché du kompa et du semba, et le ginga du couple n'a pas
+  encore son « 8 » : c'est le chantier #187. Le final du film le dit. La vidéo sera refilmée quand il sera
+  fusionné (`node scripts/video/generer_video.mjs`).
 - **L'écoute des musiques** par le propriétaire ; une musique refusée se régénère avec
   `scripts/video/musique.mjs --generer <style>` (avec son accord : crédits).
 - **Tête et bras** restent des volumes stylisés : le modèle n'a ni leurs os ni leurs muscles.

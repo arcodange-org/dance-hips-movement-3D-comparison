@@ -66,23 +66,20 @@
         },
         {
           "voix": "geste",
-          "texte": "Dans le modèle, le poids change de pied à chaque temps de la musique et le corps rebondit deux fois par temps. Une source anonyme décrit un seul rebond, et une pause après trois pas, absente ici.",
-          "repere": "Deux rebonds par temps",
+          "texte": "Dans le modèle, la hanche s'assoit à chaque temps : c'est le rebond du semba. Vu de dessus, le bassin dessine un « 8 ».",
+          "dit": "Dans le modèle, la hanche s'assoit à chaque temps : c'est le rebond du semba. Vu de dessus, le bassin dessine un huit.",
+          "repere": "Un rebond par temps",
           "faits": [
-            "F076",
-            "F081",
-            "F083",
-            "F092",
-            "F093",
-            "F243"
+            "F338",
+            "F340",
+            "F341"
           ]
         },
         {
           "voix": "geste",
-          "texte": "Le double rebond est un transfert doublé du même côté : on amorce le passage vers l'autre pied, puis on revient. Le modèle ne le fait pas encore.",
+          "texte": "Le double rebond : le poids arrive deux fois de suite sur le même pied. Entre les deux, il part vers l'autre pied, et il revient.",
           "faits": [
-            "F321",
-            "F336"
+            "F339"
           ],
           "repere": "Double rebond : comme un cha-cha"
         },
@@ -97,15 +94,12 @@
         },
         {
           "voix": "geste",
-          "texte": "Les pieds basculent sans quitter le sol, plus vite que le poids ne change. Le buste reste dressé.",
-          "repere": "Buste dressé",
+          "texte": "Le buste suit le bassin, penché d'environ quinze degrés. Les sources décrivent trois pas, puis une pause : ce motif-ci est un choix du projet.",
+          "repere": "Buste penché vers l'avant",
           "faits": [
-            "F087",
-            "F088",
-            "F089",
-            "F090",
-            "F094",
-            "F240"
+            "F076",
+            "F342",
+            "F343"
           ]
         }
       ]
@@ -142,35 +136,43 @@
         },
         {
           "voix": "geste",
-          "texte": "À l'image, le bassin va d'un côté à l'autre, en ligne droite. C'est faux : dansé lentement et collé, le kompa fait dessiner un « 8 » au bassin.",
-          "dit": "À l'image, le bassin va d'un côté à l'autre, en ligne droite. C'est faux : dansé lentement et collé, le kompa fait dessiner un huit au bassin.",
+          "texte": "Dans le modèle, la hanche s'assoit quand le poids arrive, puis remonte en tournant. Le bassin ne s'arrête jamais : vu de dessus, il dessine un « 8 ».",
+          "dit": "Dans le modèle, la hanche s'assoit quand le poids arrive, puis remonte en tournant. Le bassin ne s'arrête jamais : vu de dessus, il dessine un huit.",
           "faits": [
-            "F323",
-            "F326",
-            "F327"
+            "F344",
+            "F346",
+            "F347"
           ],
-          "repere": "À refaire : il manque le « 8 »"
+          "repere": "La hanche s'assoit : un « 8 »"
         },
         {
           "voix": "geste",
-          "texte": "Ses professeurs décrivent une marche en rythme : un appui par temps, le bassin relâché juste avant. Le modèle, lui, tient deux temps par pied : c'est le rythme ralenti.",
+          "texte": "Ses professeurs décrivent une marche : un appui par temps. Le modèle tient deux temps par pied : c'est le rythme ralenti.",
           "faits": [
             "F120",
             "F324",
-            "F325",
-            "F331"
+            "F331",
+            "F345"
           ],
           "repere": "Une marche en rythme"
         },
         {
           "voix": "geste",
-          "texte": "Au ralenti, selon un manuel de professeurs, le bassin trace un demi-« 8 » sur chaque appui. Et, selon une école, ce sont les genoux qui balancent les hanches, pieds au sol.",
-          "dit": "Au ralenti, selon un manuel de professeurs, le bassin trace un demi-huit sur chaque appui. Et, selon une école, ce sont les genoux qui balancent les hanches, pieds au sol.",
+          "texte": "Selon un manuel de professeurs, le bassin trace au ralenti un demi-« 8 » sur chaque appui. Le modèle s'en écarte : sa hanche s'assoit vers l'arrière, sur le temps.",
+          "dit": "Selon un manuel de professeurs, le bassin trace au ralenti un demi-huit sur chaque appui. Le modèle s'en écarte : sa hanche s'assoit vers l'arrière, sur le temps.",
           "faits": [
             "F326",
-            "F328"
+            "F349"
           ],
           "repere": "Au ralenti : un demi-« 8 » par appui"
+        },
+        {
+          "voix": "geste",
+          "texte": "Les genoux fléchissent l'un après l'autre. Le buste suit le bassin, penché d'environ seize degrés.",
+          "faits": [
+            "F348"
+          ],
+          "repere": "Genoux en alternance, buste penché"
         }
       ]
     },
@@ -409,59 +411,70 @@
         },
         {
           "voix": "geste",
-          "texte": "Semba et kizomba changent de pied à chaque temps. Le kompa, tous les deux temps. Seul le semba rebondit franchement.",
+          "texte": "La kizomba change de pied à chaque temps. Le kompa et le semba, tous les deux temps : le kompa y reste, le semba y arrive deux fois.",
           "accent": [
-            "semba",
             "kizomba",
-            "kompa"
+            "kompa",
+            "semba"
           ],
           "faits": [
             "F044",
-            "F081",
-            "F248",
-            "F251"
+            "F339",
+            "F345",
+            "F350"
           ]
         },
         {
           "voix": "geste",
-          "texte": "Le haut du corps : le suave ondule, le zouk se cambre. Chez les quatre autres, il n'a pas de mouvement propre.",
+          "texte": "Le haut du corps : le suave ondule, le zouk se cambre. Le kompa et le semba penchent le buste vers l'avant, d'une quinzaine de degrés.",
           "accent": [
             "suave",
-            "zouk"
+            "zouk",
+            "kompa",
+            "semba"
           ],
-          "pause": 0.4,
           "faits": [
-            "F051",
-            "F253"
+            "F253",
+            "F355"
           ]
         },
         {
           "voix": "guide",
-          "texte": "De près : tarraxinha et zouk font tourner le bassin.",
+          "texte": "De près : tarraxinha, kompa et zouk font tourner le bassin, de dix à douze degrés de chaque côté.",
           "accent": [
             "tarraxinha",
+            "kompa",
             "zouk"
           ],
           "faits": [
-            "F249"
+            "F352"
           ],
           "plan": "grille"
         },
         {
           "voix": "guide",
-          "texte": "La kizomba, à peine. Le semba et le suave, pas du tout. Le kompa presque pas, à tort : son bassin devrait dessiner un « 8 ».",
+          "texte": "Le semba, de huit degrés. La kizomba, à peine. Le suave, pas du tout.",
           "accent": [
-            "kizomba",
-            "kompa",
             "semba",
+            "kizomba",
             "suave"
           ],
           "faits": [
-            "F249",
-            "F322",
-            "F323"
+            "F352"
+          ]
+        },
+        {
+          "voix": "geste",
+          "texte": "Vu de dessus, quatre bassins entourent une surface : suave, kompa, semba, tarraxinha. Kizomba et zouk vont et viennent sur une ligne.",
+          "accent": [
+            "suave",
+            "kompa",
+            "semba",
+            "tarraxinha"
           ],
-          "dit": "La kizomba, à peine. Le semba et le suave, pas du tout. Le kompa presque pas, à tort : son bassin devrait dessiner un huit."
+          "faits": [
+            "F354"
+          ]
         },
         {
           "voix": "geste",
@@ -469,8 +482,8 @@
           "faits": [
             "F161",
             "F191",
-            "F250",
-            "F251"
+            "F350",
+            "F353"
           ],
           "accent": [
             "tarraxinha",

@@ -18,6 +18,9 @@ Conventions de lecture :
 - `a` est l'amplitude réglable, 1 par défaut (`src/pose.ts:78`). Les valeurs d'un style sont
   multipliées par `a`, sauf mention « fixe ».
 - Le texte du dépôt et les mots du propriétaire sont cités mot pour mot, entre guillemets.
+- Les compléments du 23 novembre 2026 (F338 à F355) décrivent les pas élus du kompa et du semba. Leurs
+  mesures, en centimètres et en degrés, viennent de `scripts/video/mesurer_pas.mjs` et de
+  `scripts/tracer_hanches.mjs` ; les règles du propriétaire y sont dites sans citation.
 - Les citations de tiers que le dépôt reproduit (sites, articles, manuels) sont résumées en français.
   La fiche donne leur langue d'origine et la ligne où le dépôt les donne mot pour mot. Une seule est
   recopiée (section 2.1). Pour citer un tiers à l'écran, reprendre le texte à la ligne indiquée.
@@ -363,6 +366,34 @@ Lecture des paramètres du moteur, valable pour les six styles :
   vers le meme coté en initiant un transfert vers le coté opposé et en re-transferant vers le coté initial a
   la place » (`docs/recherche-danse/README.md`, « Le même jour, après la quatrième version »).
 
+#### Complément du 23 novembre 2026 : le pas de base élu
+
+Mesures : `node scripts/video/mesurer_pas.mjs` (danseur seul, sur place, sur le GLB) et
+`MESURES=1 node scripts/tracer_hanches.mjs /dev/null aujourdhui seul base semba`.
+
+- **F338** Depuis le 23 novembre 2026, le pas de base du semba, danseur seul sur place, est celui que le
+  propriétaire a élu sur films (variante `parCote`). En couple et en déplacement, le modèle d'avant reste
+  (chantier #187). Les faits F081 à F089, F092 à F094 et F321 décrivent le modèle d'avant, visible par
+  `?semba=ancien` (`docs/spec-ginga-huit.md`, « Les pas élus deviennent les pas de base » ;
+  `docs/elections/ginga-huit.md`, dixième tour).
+- **F339** Appuis : le poids arrive deux fois de suite sur chaque pied (gauche, gauche, droite, droite), cycle
+  de quatre temps. Avant la deuxième arrivée, un quart du poids repart vers l'autre pied, n'y arrive pas et
+  revient : c'est le double rebond, un temps sur deux. Le poids change donc de pied tous les deux temps
+  (`src/styles.ts`, `sembaSupport` ; mesure).
+- **F340** Rebond : la hanche s'assoit à chaque arrivée du poids, une fois par temps. Le bassin monte et descend
+  de 2,4 cm ; chaque hanche de 5,7 cm. Dans le modèle d'avant : 10,3 cm, deux fois par temps
+  (`docs/elections/ginga-huit.md`, dixième tour ; mesure).
+- **F341** Bassin : 9 cm d'un côté à l'autre, 3 cm d'avant en arrière ; il pivote de 8° de chaque côté ; il
+  n'est jamais à l'arrêt. Vu de dessus, son trajet entoure 15 cm² (0,2 cm² dans le modèle d'avant, une ligne)
+  (mesure ; `docs/elections/ginga-huit.md`, dixième tour).
+- **F342** Buste et jambes : le buste suit le bassin (6,8 cm de côté) et le tronc penche de 15° vers l'avant ;
+  genoux de 30° à 49° ; le talon du pied libre se lève de 6°, la pointe reste au sol
+  (`docs/elections/ginga-huit.md`, dixième tour ; mesure).
+- **F343** Écart aux sources : ce motif d'appuis est le choix du propriétaire. Les sources écrites décrivent
+  « un, deux, trois, pause » (F076), visible par `?semba=pause`. Le rebond, un par temps, rejoint la source
+  (la réserve F092 ne vaut plus pour le pas élu). Le tronc penché n'est pas la posture dressée de F090
+  (`docs/styles-de-danse.md`, semba ; `docs/spec-ginga-huit.md`).
+
 ### 2.3 Kompa
 
 #### Origine, filiation, influences
@@ -531,6 +562,33 @@ Lecture des paramètres du moteur, valable pour les six styles :
   2025, décision 20.COM 7.B.22. La page décrit une marche rythmée, avec des mouvements du bassin, des pas
   alternés et un contact entre les danseurs. Ce fait lève la réserve de F105
   (`docs/recherche-danse/kompa.md`, source K10).
+
+#### Complément du 23 novembre 2026 : le pas de base élu
+
+Mesures : `node scripts/video/mesurer_pas.mjs` et
+`MESURES=1 node scripts/tracer_hanches.mjs /dev/null aujourdhui seul base kompa`.
+
+- **F344** Depuis le 23 novembre 2026, le pas de base du kompa, danseur seul sur place, est celui que le
+  propriétaire a élu en neuf tours de films (variante `assisBuste`). En couple et en déplacement, le modèle
+  d'avant reste (chantier #187). Les faits F119, F121 à F127 et F323 décrivent le modèle d'avant, visible par
+  `?kompa=ancien` (`docs/spec-ginga-huit.md`, « Les pas élus deviennent les pas de base » ;
+  `docs/elections/ginga-huit.md`, neuvième tour).
+- **F345** Appuis, inchangés : le poids reste deux temps sur chaque pied et passe en 0,4 temps (F120). C'est
+  toujours le rythme du ralenti (F331) (`src/styles.ts`, `kompaSupport` ; mesure).
+- **F346** Bassin : la hanche s'assoit quand le poids arrive, puis remonte en tournant. Le bassin fait 12,2 cm
+  d'un côté à l'autre, 3,5 cm d'avant en arrière, 1,6 cm de haut ; il pivote de 11,5° de chaque côté ; il n'est
+  jamais à l'arrêt (0,56 temps d'arrêt de chaque côté dans le modèle d'avant). Chaque hanche fait 12 cm de
+  côté, 5,9 cm d'avant en arrière et 5,8 cm de haut (mesure ; `docs/elections/ginga-huit.md`, neuvième tour).
+- **F347** Le « 8 » : vu de dessus, le trajet du bassin se croise en son milieu et entoure 16,6 cm² ; chaque
+  hanche entoure 21 à 22 cm² (1,0 cm² dans le modèle d'avant, une ligne droite de 20,6 cm) (mesure ;
+  `docs/spec-ginga-huit.md`, tableau du kompa ; `docs/gifs/trace-kompa-assisBuste.gif`).
+- **F348** Jambes et buste : les genoux plient en alternance, de 24° à 45° (53° à 60°, les deux, avant) ; le
+  talon du pied libre se lève de 6° ; le buste suit le bassin (9,5 cm de côté, 3° de pivot) et le tronc penche
+  de 16° vers l'avant (`docs/elections/ginga-huit.md`, neuvième tour ; mesure).
+- **F349** Écart aux sources : ce pas est le choix du propriétaire, pas celui d'une source. La hanche s'assoit
+  vers l'arrière sur le temps ; dans le manuel cité par *Le Nouvelliste* (F326), elle va de l'avant vers
+  l'arrière au fil de l'appui (`docs/elections/ginga-huit.md`, « Limites » du huitième tour ;
+  `docs/styles-de-danse.md`, kompa).
 
 ### 2.4 Tarraxinha
 
@@ -955,6 +1013,30 @@ l'ordre des styles.
   `src/styles.ts:134-146`).
 - **F254** Le tempo conseillé. De 72 bpm (suave) à 120 bpm (semba, kompa) (`src/music/patterns.ts:281`,
   `src/music/patterns.ts:177`, `src/music/patterns.ts:211`).
+
+### Complément du 23 novembre 2026 : après les pas élus du kompa et du semba
+
+Mesures des six pas de base, danseur seul sur place : `node scripts/video/mesurer_pas.mjs` ; surfaces des
+hanches : `MESURES=1 node scripts/tracer_hanches.mjs /dev/null aujourdhui seul base <style>`. Ces faits
+remplacent F248 à F251 et F253 pour le kompa et le semba.
+
+- **F350** Le rythme des appuis. La kizomba et le zouk changent de pied à chaque temps. Le kompa et le semba,
+  tous les deux temps : le kompa reste sur son pied (F345), le semba y arrive deux fois (F339). Tarraxinha et
+  suave ne transfèrent qu'une partie du poids : 75 % et 60 % au plus sur un pied.
+- **F351** La hauteur du bassin. Zouk 8,2 cm, lentement, sur quatre temps ; kizomba 2,7 cm ; semba 2,4 cm ;
+  suave 1,7 cm ; kompa 1,6 cm ; tarraxinha 1,3 cm. Le semba ne monte plus plus haut que les autres : son rebond
+  se lit dans la hanche qui s'assoit (5,7 cm ; kompa 5,8 cm ; kizomba 3,2 cm).
+- **F352** Le pivot du bassin autour de la verticale, de chaque côté : tarraxinha 12,5°, kompa 11,5°,
+  zouk 10,3°, semba 8°, kizomba 1,7°, suave 0,1°.
+- **F353** D'un côté à l'autre, le bassin fait : kizomba 14 cm, kompa 12,2 cm, zouk 10 cm, semba 9 cm,
+  tarraxinha et suave 6 cm, soit 3 cm de chaque côté.
+- **F354** Vu de dessus, le trajet du bassin entoure une surface dans quatre styles : suave 17,6 cm², kompa
+  16,6 cm², semba 15,4 cm², tarraxinha 11,3 cm². Dans la kizomba et le zouk, il va et vient par le même chemin
+  (0 cm²). Hanche par hanche, le kompa entoure le plus : 22 cm², contre 17,5 pour le suave, 17 pour le semba,
+  6 pour la tarraxinha.
+- **F355** Le tronc. Kompa et semba le penchent vers l'avant, de 16° et 15°, sans variation. La kizomba de 6°,
+  la tarraxinha de 8°. Le suave ondule : son inclinaison varie de 19° sur quatre temps. Le zouk est cambré, de
+  10° vers l'arrière, et varie de 8°.
 
 ## 5. Chronologie pour une frise
 

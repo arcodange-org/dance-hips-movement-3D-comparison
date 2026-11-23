@@ -96,7 +96,11 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
 - **Recherche sur la danse kompa** (#161) : [`docs/recherche-danse/`](docs/recherche-danse/README.md). Le pas
   de base est une marche en rythme ; le « 8 » est attesté au rythme ralenti et dans la danse collée ; le
   modèle a le rythme du ralenti sans son « 8 ». Aucune source ne dit ce « 8 » le plus prononcé des styles.
-- **Reste** : refilmer quand le « 8 » du ginga (#159) sera élu et fusionné ; l'écoute des cinq musiques ; la
+- **Refilmé après les pas élus du kompa et du semba** (#160, 23 novembre) : les deux chapitres et la
+  comparaison disent ce que le modèle fait désormais (hanche qui s'assoit, « 8 » vu de dessus, buste penché,
+  double rebond du semba) et où il s'écarte des sources ; faits F338 à F355 ; `scripts/video/mesurer_pas.mjs`
+  mesure les six pas de base et `test_video.mjs` y confronte la narration.
+- **Reste** : refilmer quand le « 8 » du couple et du déplacement (#187) sera fusionné ; l'écoute des cinq musiques ; la
   décision du propriétaire sur la piste kizomba déjà en ligne (#146, conditions d'Eleven Music).
 
 ## Vitrine : danse automatique en musique, lien direct (#150, 21 novembre 2026)

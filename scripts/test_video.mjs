@@ -319,3 +319,33 @@ const durees = existsSync(FICHE_DUREES) ? JSON.parse(readFileSync(FICHE_DUREES, 
   assert.match(readFileSync(new URL("../.gitignore", import.meta.url), "utf8"), /^scripts\/video\/pistes\/\*\.mp3$/m, "extraits hors du dépôt");
   console.log("PASS musiques : provenance des extraits, tempo, partie pleine, fichiers son hors du dépôt");
 }
+
+// ---------------------------------------------------------------- mesures du modèle
+// Ce que la narration affirme du pas de base de chaque style est mesuré sur le GLB (danseur seul, sur place) :
+// si le moteur change, ce bloc dit quelles phrases du film ne sont plus vraies.
+{
+  const { mesurer } = await import("./video/mesurer_pas.mjs");
+  const m = Object.fromEntries(Object.keys(STYLES).map((s) => [s, mesurer(s)]));
+  // Appuis (semba, kompa, comparaison) : la kizomba change de pied à chaque temps ; le kompa reste deux temps sur
+  // son pied ; le semba y arrive deux fois ; tarraxinha et suave ne transfèrent qu'en partie.
+  assert.equal(m.kizomba.poids.arrivees, "GDGDGDGD", "kizomba : un pied par temps");
+  assert.equal(m.kompa.poids.arrivees, "GDGD", "kompa : une arrivée tous les deux temps");
+  assert.equal(m.semba.poids.arrivees, "GGDDGGDD", "semba : deux arrivées de suite sur chaque pied");
+  assert.deepEqual([m.tarraxinha.poids.arrivees, m.suave.poids.arrivees], ["", ""], "tarraxinha, suave : le poids ne passe qu'en partie");
+  // Le « 8 » : vu de dessus, le bassin du kompa et du semba entoure une surface et ne s'arrête jamais.
+  for (const s of ["kompa", "semba"]) {
+    assert.ok(m[s].bassin.entoureVuDeDessus > 10 && m[s].bassin.arret === 0, `${s} : le bassin entoure ${m[s].bassin.entoureVuDeDessus} cm², arrêt ${m[s].bassin.arret}`);
+    assert.ok(m[s].tronc.inclinaison > 13 && m[s].tronc.inclinaison < 18 && m[s].tronc.variation < 1, `${s} : tronc penché d'une quinzaine de degrés (${m[s].tronc.inclinaison})`);
+  }
+  // Comparaison : quatre bassins entourent une surface, deux vont et viennent sur une ligne.
+  for (const s of ["suave", "kompa", "semba", "tarraxinha"]) assert.ok(m[s].bassin.entoureVuDeDessus > 10, `${s} : une surface vue de dessus`);
+  for (const s of ["kizomba", "zouk"]) assert.ok(m[s].bassin.entoureVuDeDessus < 1, `${s} : une ligne vue de dessus`);
+  // Pivot du bassin : tarraxinha, kompa et zouk de dix à douze degrés ; le semba de huit ; la kizomba à peine ; le suave pas.
+  for (const s of ["tarraxinha", "kompa", "zouk"]) assert.ok(m[s].pivotDuBassin >= 10 && m[s].pivotDuBassin <= 12.6, `${s} : pivot ${m[s].pivotDuBassin}°`);
+  assert.ok(Math.abs(m.semba.pivotDuBassin - 8) < 0.6 && m.kizomba.pivotDuBassin < 3 && m.suave.pivotDuBassin < 0.5, "semba 8°, kizomba à peine, suave pas");
+  // Tarraxinha et suave se déplacent le moins : trois centimètres de chaque côté.
+  const cotes = Object.values(m).map((x) => x.bassin.cote).sort((a, b) => a - b);
+  assert.deepEqual([m.tarraxinha.bassin.cote, m.suave.bassin.cote].sort(), cotes.slice(0, 2), "les deux plus petits déplacements");
+  assert.ok(Math.abs(m.tarraxinha.bassin.cote - 6) < 0.3 && Math.abs(m.suave.bassin.cote - 6) < 0.3, "3 cm de chaque côté");
+  console.log("PASS mesures : appuis, « 8 », pivot du bassin et buste du modèle tels que la narration les dit");
+}

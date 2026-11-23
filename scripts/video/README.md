@@ -29,6 +29,7 @@ l'ollama local (`ollama pull` du modèle `phonon:40m-fr` ; voix : `ollama show p
 | `habillage.mjs` | Rend titres, cartouches, sous-titres et générique en images. |
 | `monter.mjs` | Assemble image, voix et musique ; niveau final −16 LUFS. |
 | `durees.json` | Durées mesurées des phrases, écrites par la génération (le test s'en sert). |
+| `mesurer_pas.mjs` | Mesure sur le GLB le pas de base de chaque style (bassin, pivot, tronc, genoux, arrivées du poids) : la source des faits « mesure » de la fiche ; `npm test` y confronte la narration. |
 
 Tout ce qui est lourd va dans `essais/video/` (ignoré par git) : voix, plans, images, vidéo.
 

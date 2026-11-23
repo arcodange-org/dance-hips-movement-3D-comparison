@@ -41,7 +41,8 @@ Vitrine (#150) : [spec](docs/spec-vitrine-danse-auto.md) (`src/vitrine.ts` pur, 
 automatique, en musique, au tempo de la piste ; `scripts/test_vitrine.mjs`).
 Vidéo éducative (#155) : [spec](docs/spec-video-pas-de-base.md) ; la chaîne `scripts/video/` (scénario, voix Phonon locales, musiques,
 capture image par image avec `film=1` — `src/film.ts`, `src/components/FilmDriver.tsx` —, habillage, montage) régénère la vidéo ; la
-narration ne dit que ce que porte la fiche de faits `docs/video/faits-pas-de-base.md` ; la vidéo elle-même n'est pas versionnée.
+narration ne dit que ce que porte la fiche de faits `docs/video/faits-pas-de-base.md` (mesures du modèle : `scripts/video/mesurer_pas.mjs`,
+confrontées à la narration par `scripts/test_video.mjs`) ; la vidéo elle-même n'est pas versionnée.
 Haut du corps anatomique (#176) : [spec](docs/spec-haut-du-corps.md) ; option `haut=1` : os et muscles du buste, des bras et des mains
 (`public/anatomy_upper.glb`, `scripts/build_upper_body.mjs`, `src/upperBody.ts` pur, `src/components/UpperBodyLayer.tsx`,
 `scripts/test_upper_body.mjs`) ; la main anatomique vient où le rig pose la sienne ; le rig publie la couche dans `rig.upperBody`.
