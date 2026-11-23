@@ -76,7 +76,7 @@ const api = await import(bundle.href); unlinkSync(bundle);
   // « 8 » of the styles, and never stop. The model of today is untouched unless a prototype is chosen.
   const kompa = name => { const t = trace(name, 'seul', 'base', 'kompa'); sudden['kompa ' + name] = t.transfert.soudain; return t.mesures; };
   assert.equal(api.KOMPA_PROTO.eight, null, 'no kompa prototype by default');
-  assert.deepEqual(Object.keys(api.KOMPA_EIGHTS), ['huit', 'huitGrand', 'huitInverse', 'genoux', 'genouxRond', 'hanches', 'hanchesFortes', 'profil', 'profilFort', 'alterne', 'alterneTalon', 'alterneDirect', 'hancheFinit', 'hancheTenue', 'hancheAssise', 'hancheApres', 'assis', 'assisMarque']);
+  assert.deepEqual(Object.keys(api.KOMPA_EIGHTS), ['huit', 'huitGrand', 'huitInverse', 'genoux', 'genouxRond', 'hanches', 'hanchesFortes', 'profil', 'profilFort', 'alterne', 'alterneTalon', 'alterneDirect', 'hancheFinit', 'hancheTenue', 'hancheAssise', 'hancheApres', 'assis', 'assisMarque', 'assisBuste', 'assisBusteAvant']);
   const k0 = kompa('aujourdhui'), k1 = kompa('huit'), k2 = kompa('huitGrand'), k3 = kompa('huitInverse');
   assert.ok(k0.C.profondeur < 0.5 && k0.L.dessus < 2 && k0.C.arret > 0.4, `kompa today: a line (${k0.C.profondeur} cm deep, ${k0.L.dessus} cm², stop ${k0.C.arret})`);
   for (const [name, m] of [['huit', k1], ['huitGrand', k2], ['huitInverse', k3]]) assert.ok(m.L.dessus > 50 && m.R.dessus > 50 && m.C.arret < 0.05 && Math.abs(m.C.largeur - k0.C.largeur) < 1, `kompa ${name}: ${m.L.dessus} cm², stop ${m.C.arret}, ${m.C.largeur} cm wide`);
@@ -156,6 +156,17 @@ const api = await import(bundle.href); unlinkSync(bundle);
     assert.ok(k.fluidite.arretPart === 0 && k.fluidite.acceleration99 < kh.fluidite.acceleration99, `kompa ${name}: never still (${JSON.stringify(k.fluidite)})`);
     assert.ok(k.buste.largeur < 2 && k.buste.profondeur < 3, `kompa ${name}: the chest stays above the feet (${JSON.stringify(k.buste)})`);
     assert.ok(k.mesures.L.face > k.mesures.L.dessus && k.mesures.L.profil > 5, `kompa ${name}: round seen from the front and from the side (${k.mesures.L.face}, ${k.mesures.L.profil} cm²)`);
+  }
+  // Ninth round (vote: `assisMarque`; the bust may follow the pelvis, sideways and by a few degrees of pivot,
+  // upright; and it leans slightly forward: seen from the side the knees do not pass the bust, rule R33).
+  const km = trace('assisMarque', 'seul', 'base', 'kompa');
+  assert.ok(km.posture.busteDevantGenoux[1] < -10 && kompa('aujourdhui') && trace('aujourdhui', 'seul', 'base', 'kompa').posture.busteDevantGenoux[1] < -18, `kompa: the bust stands behind the knees today and in assisMarque (${km.posture.busteDevantGenoux})`);
+  for (const [name, behind] of [['assisBuste', -7], ['assisBusteAvant', -2]]) {
+    const k = trace(name, 'seul', 'base', 'kompa');
+    assert.ok(k.posture.busteDevantGenoux[0] > behind && k.posture.busteDevantGenoux[2] < 3, `kompa ${name}: the bust above the knees (${k.posture.busteDevantGenoux} cm)`);
+    assert.ok(k.posture.inclinaison[1] > 12 && k.posture.inclinaison[1] < 25 && k.posture.inclinaison[2] - k.posture.inclinaison[0] < 1, `kompa ${name}: a steady forward lean (${k.posture.inclinaison}°)`);
+    assert.ok(k.buste.largeur > 5 && k.buste.largeur < 12, `kompa ${name}: the bust follows the pelvis sideways (${k.buste.largeur} cm)`);
+    assert.ok(k.fluidite.arretPart === 0 && k.genoux.gauche[0] < 30 && k.genoux.gauche[1] > 40 && Math.abs(k.mesures.L.face - km.mesures.L.face) < 2, `kompa ${name}: the hips of assisMarque (${k.mesures.L.face} cm²)`);
   }
   console.log(`PASS genoux qui mènent (vote du 22 novembre) : jamais à l'arrêt, accélération du bassin ${led('genouxQuart').fluidite.acceleration99} m/s² (${fToday.acceleration99} aujourd'hui, ${fF.acceleration99} pour F) ; de face ${g0.mesures.L.face} à ${g2.mesures.L.face} cm² ; kompa ${kg.mesures.L.face} cm²`);
   console.log(`PASS kompa seul : aujourd'hui une ligne (${k0.C.profondeur} cm d'avant en arrière, arrêt de ${k0.C.arret} temps) ; prototypes : ${k1.L.dessus} et ${k2.L.dessus} cm² entourés vu de dessus, aucun arrêt`);

@@ -390,3 +390,41 @@ vers l'arrière au fil de l'appui) : c'est la description du propriétaire qui e
 
 Images : `election-kompa-assis*.gif` (trois quarts et `-profil` de côté), `election-kompa-hancheApres-profil.gif`,
 `trace-kompa-assis*.gif`.
+
+### Résultat du huitième tour (23 novembre, page de vote)
+
+| Question | Choix | Commentaire, reformulé |
+|---|---|---|
+| Q14, le kompa | **KG15**, plus marqué | Laisser le buste suivre le bassin : on le garde droit, mais il peut se déplacer de côté et pivoter légèrement pour suivre le fessier qui le porte. |
+
+Précisé le même jour : on garde le haut du corps de face, quelques degrés de pivot sont acceptés ; mettre le buste
+légèrement en avant, les genoux ne doivent pas dépasser le buste (règle R33, #166).
+
+## Neuvième tour : le kompa, le buste suit et se penche (23 novembre)
+
+Les hanches et les jambes sont celles de KG15 (mêmes genoux, mêmes tracés). Ce qui change, au-dessus du bassin :
+
+- **Le buste suit le bassin** (`iso` 0,5, `sit.follow` 0,35) : il se déplace de 9,5 cm de côté (1,6 cm dans KG15) et
+  pivote de 3° vers la hanche qui porte (le bassin pivote de 12°) ; il reste droit (moins de 2° d'inclinaison de côté).
+  La taille plie moins.
+- **Le buste se penche en avant** (`lean`), depuis la taille, et le bassin se tient un peu plus en avant sur les pieds
+  (`ahead`). La tête ne suit qu'à moitié : le regard reste presque à l'horizontale.
+
+Mesure de la posture (celle de l'issue #166, ajoutée au traceur, `posture`) : vu de profil, le buste (milieu entre la
+base de la poitrine et la ligne des épaules) par rapport au milieu des deux genoux ; négatif : le buste est derrière.
+
+| | `kompa=` | Inclinaison du tronc | Buste par rapport aux genoux | Bassin avancé de | Ce que l'on voit de profil |
+|---|---|---|---|---|---|
+| Kompa d'aujourd'hui | (rien) | 5° | −19 cm | — | les genoux dépassent nettement |
+| KG15 (élu au huitième tour) | `assisMarque` | 1° à 5° | −12,5 cm | — | les genoux dépassent |
+| KG16 — le buste suit, penché | `assisBuste` | 16° | −5 cm | 3 cm | le devant de la poitrine est à l'aplomb du devant des genoux |
+| KG17 — le buste au-dessus des genoux | `assisBusteAvant` | 22° | −0,6 cm | 6 cm | le buste est au-dessus des genoux |
+
+Dans KG16 et KG17 : genoux de 23° à 45°, jamais à l'arrêt, accélération du bassin 3,3 m/s².
+
+Limites : la mesure prend le milieu du buste et le milieu des genoux, pas leurs surfaces ; « à l'aplomb du devant des
+genoux » est lu sur les films de profil. La règle R33 écrite (le buste au-dessus des genoux, légèrement devant) n'est
+tenue au sens strict que par KG17, au prix de 22° d'inclinaison. Le modèle n'a pas d'équilibre : rien ne vérifie
+qu'un corps tiendrait ces postures. Prototypes non contrôlés sur le GLB au-delà des tests de pose.
+
+Images : `election-kompa-assisBuste*.gif` (trois quarts et `-profil`), `trace-kompa-assisBuste*.gif`.

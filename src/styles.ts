@@ -84,10 +84,18 @@ export const KOMPA = { transition: 0.4 };
  * the pelvis goes back with each sit; `around` (rad of the cycle): the hip is furthest back that long after
  * the sit, already rising, so that it goes round seen from the side. The free heel rises only while its
  * side carries no weight. With both feet flat a knee difference of 36° would need a 30° roll of the pelvis:
- * `swing` 0.5 keeps the roll near 18° (knees from 23° to 45°). */
+ * `swing` 0.5 keeps the roll near 18° (knees from 23° to 45°).
+ * Ninth round (vote: `assisMarque`; the bust may follow the pelvis, upright: it moves sideways with it and
+ * pivots by a few degrees towards the hip that carries it; and it leans slightly forward, the knees must
+ * not pass the bust seen from the side, rule R33). `sit.follow` (0 to 1): share of the pelvis's pivot the
+ * trunk follows; `iso` 0.5: the chest travels half-way with the pelvis; `lean` (rad): forward lean of the
+ * trunk from the waist; `ahead` (m): the pelvis stands forward over the feet. Measured (`posture` of
+ * `scripts/tracer_hanches.mjs`, the measure of issue #166): the bust is 19 cm behind the knees today, 12.5
+ * in `assisMarque`, 5 in `assisBuste` (the front of the chest level with the front of the knees), 0.6 in
+ * `assisBusteAvant` (the bust above the knees). */
 export interface KompaEight { depth: number; round: number; sense: number; knees?: { swing: number; lag: number; tilt: number; base?: number; heel?: number; settle?: number; late?: number; after?: number }; glide?: number;
   depthLag?: number; back?: { reach: number; pitch: number }; iso?: number; lift?: number;
-  sit?: { skew: number; pivot: number; back: number; around: number } }
+  sit?: { skew: number; pivot: number; back: number; around: number; follow?: number }; lean?: number; ahead?: number }
 export const KOMPA_EIGHTS: Record<string, KompaEight> = {
   huit: { depth: 0.03, round: 1, sense: 1 },
   huitGrand: { depth: 0.05, round: 1, sense: 1 },
@@ -107,6 +115,8 @@ export const KOMPA_EIGHTS: Record<string, KompaEight> = {
   hancheApres: { depth: 0.015, round: 1, sense: 1, knees: { base: 0.08, swing: 0.65, lag: 0, tilt: -0.52, heel: 0.2, after: 0.785 }, glide: 0.5, lift: 0.06 },
   assis: { depth: 0, round: 1, sense: 1, knees: { base: 0.08, swing: 0.5, lag: 0.3, tilt: -0.69, heel: 0.1 }, glide: 0.5, lift: 0.06, iso: 1, sit: { skew: -0.5, pivot: 0.12, back: 0.025, around: 0.6 } },
   assisMarque: { depth: 0, round: 1, sense: 1, knees: { base: 0.08, swing: 0.5, lag: 0.3, tilt: -0.69, heel: 0.1 }, glide: 0.5, lift: 0.06, iso: 1, sit: { skew: -0.6, pivot: 0.2, back: 0.035, around: 0.6 } },
+  assisBuste: { depth: 0, round: 1, sense: 1, knees: { base: 0.08, swing: 0.5, lag: 0.3, tilt: -0.69, heel: 0.1 }, glide: 0.5, lift: 0.06, iso: 0.5, sit: { skew: -0.6, pivot: 0.2, back: 0.035, around: 0.6, follow: 0.35 }, lean: 0.2, ahead: 0.03 },
+  assisBusteAvant: { depth: 0, round: 1, sense: 1, knees: { base: 0.08, swing: 0.5, lag: 0.3, tilt: -0.69, heel: 0.1 }, glide: 0.5, lift: 0.06, iso: 0.5, sit: { skew: -0.6, pivot: 0.2, back: 0.035, around: 0.6, follow: 0.35 }, lean: 0.3, ahead: 0.06 },
 };
 /** The prototype in use (null: the model of today). Set once from the address, read by the kompa style. */
 export const KOMPA_PROTO: { eight: KompaEight | null } = { eight: null };
@@ -230,8 +240,18 @@ export const STYLES: Record<string, StyleDef> = {
           // the sit) while the spine turns back by as much (the chest stays facing front), and the whole
           // pelvis goes back with each sit, quickly, then comes forward slowly as the hip rises.
           const yaw = sit.pivot * Math.cos(u - sit.around) * a;
-          r.pelvis.rotation.y = yaw; r.spine.rotation.y = -yaw;
+          r.pelvis.rotation.y = yaw;
           r.root.position.z -= sit.back * bump(2 * (u - sit.around)) * a;
+          if (sit.follow === undefined && !eight.lean) r.spine.rotation.y = -yaw; // `assis`, `assisMarque`, as filmed
+          else {
+            // The trunk above the pelvis: upright, facing front but for the share of the pivot it follows
+            // (`follow`), leaning forward by `lean`. The spine takes exactly what the pelvis's roll and pivot
+            // would otherwise give it (three rotations do not undo each other angle by angle); the trunk lock
+            // of the pose then takes the pelvis's pitch and roll off again, hence their addition here.
+            const facing = r.spine.rotation.clone().set((eight.lean ?? 0) * a, (sit.follow ?? 0) * yaw, 0, "YXZ");
+            r.spine.quaternion.copy(r.pelvis.quaternion.clone().invert().multiply(r.spine.quaternion.clone().setFromEuler(facing)));
+            r.spine.rotation.x += r.pelvis.rotation.x; r.spine.rotation.z += r.pelvis.rotation.z;
+          }
         }
       }
       r.chest.rotation.z = -0.035 * sw * a;
@@ -246,6 +266,10 @@ export const STYLES: Record<string, StyleDef> = {
         const lean = (d: number) => Math.asin(Math.max(-0.9, Math.min(0.9, eight.iso! * d / TORSO_JOINTS.chest[1])));
         r.isoLean = { side: lean(r.root.position.x + r.pelvis.position.x - TORSO_JOINTS.spine[1] * Math.sin(r.pelvis.rotation.z)), fore: lean(r.root.position.z) };
       }
+      // `lean` (rad): the trunk leans forward from the waist (the head half-way back, the eyes stay level);
+      // `ahead` (m): the pelvis stands that far forward over the feet (after `iso`, which follows its sway only).
+      if (eight?.lean) { if (!eight.sit) r.spine.rotation.x += eight.lean * a; r.head.rotation.x -= 0.5 * eight.lean * a; }
+      if (eight?.ahead) r.root.position.z += eight.ahead * a;
       // Hip check on the touch (2 and 4).
       if (((b + 0.5) % 2 + 2) % 2 >= 1.5) r.pelvis.position.x += 0.008 * S1(b) * a;
     },

@@ -402,9 +402,13 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Septième tour (kompa, la hanche finit le transfert) : KG10 `hancheFinit`, KG11 `hancheTenue`, KG12 `hancheAssise`,
   KG13 `hancheApres` (ajouté : entre KG9 et KG3, le propriétaire penche pour KG9) ; `knees.late`, `knees.settle`,
   `knees.after`, talon à 11°. Vote : KG13 pour sa fluidité ; la hanche doit s'asseoir (trop de bachata jusque-là).
-- [ ] Huitième tour (kompa, la hanche s'assoit sur le temps, vers l'arrière et l'extérieur, pivot du bassin, buste de
-  face, remontée lente et ronde, talon à 6°) : KG14 `assis`, KG15 `assisMarque` à élire
-  ([élection](elections/ginga-huit.md)) ; `KompaEight.sit`.
+- [x] Huitième tour (kompa, la hanche s'assoit sur le temps, vers l'arrière et l'extérieur, pivot du bassin, buste de
+  face, remontée lente et ronde, talon à 6°) : KG14 `assis`, KG15 `assisMarque` ; `KompaEight.sit`. Vote : KG15 ; le
+  buste peut suivre le bassin (de côté, quelques degrés de pivot) et se penche légèrement en avant (R33).
+- [ ] Neuvième tour (kompa, le buste suit et se penche) : KG16 `assisBuste`, KG17 `assisBusteAvant` à élire
+  ([élection](elections/ginga-huit.md)) ; `sit.follow`, `lean`, `ahead` ; mesure `posture` au traceur (celle de #166).
+- [ ] Kompa élu : en faire le pas de base du style (aujourd'hui les prototypes sont éteints par défaut), tests et
+  textes de l'app à reprendre.
 - [ ] Kompa : « 8 » de face plus marqué que de dessus, sans glisser d'un bloc.
 - [ ] Variante élue : contrôles sur le GLB dans toutes les figures (marges), ida e volta, pas de base.
 
