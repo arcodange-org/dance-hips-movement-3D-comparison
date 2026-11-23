@@ -20,35 +20,49 @@ Position fermée : bustes face à face, pieds proches. Dossier ouvert le 22 nove
 
 ## Précisions du propriétaire pour l'attitude sur le côté (23 novembre 2026)
 
-Après la première planche (B était alors 6 cm sous les épaules, la main de la suiveuse en travers de celle du guideur) :
+Après la première planche (B était alors 6 cm sous les épaules) :
 
-- les mains se lèvent légèrement au-dessus de l'épaule : leur milieu est à hauteur d'épaule ;
-- les deux mains pointent vers le ciel, à quelques degrés près ;
-- la paume du guideur regarde vers sa droite — puis, sur gros plans, à mi-chemin entre sa droite et la suiveuse :
-  contre une paume tournée vers la seule droite du guideur, la suiveuse ne peut pas dresser sa main (ses doigts
-  restent à 18° de la verticale, son poignet au bout de sa course).
+- **Place** : les mains se lèvent légèrement au-dessus de l'épaule, leur milieu à hauteur d'épaule ; la paume du
+  guideur regarde à mi-chemin entre sa droite et la suiveuse, sa main pointe vers le ciel. Place validée sur gros plans.
+- **Emboîtement** : les doigts de chaque main, de l'index à l'auriculaire, font un seul bloc, comme dans une moufle :
+  rien ne passe entre eux. Les quatre doigts de la suiveuse passent entre le pouce et l'index du guideur, paume contre
+  paume ; son pouce reste sous celui du guideur. Ni os ni muscles ne se traversent.
 
-Fait dans le candidat B (`?essai=mainsCote`). Mesures sur place (`ESSAI=mainsCote node scripts/mesure_essai_mains.mjs`) :
+Fait dans le candidat B (`?essai=mainsCote`) : la main de la suiveuse est en travers de celle du guideur, ses quatre
+doigts refermés autour de la palmure de son pouce. Les constantes viennent d'une recherche sur les os des deux mains
+(`scripts/search_prise_mains.mjs`). Mesures (`ESSAI=mainsCote node scripts/mesure_essai_mains.mjs`) :
 
-| | Mesure |
+| | Sur place | Dans les figures |
+|---|---|---|
+| Milieu des mains, par rapport à la moyenne des deux épaules | 0,6 cm dessous ; haut des doigts du guideur 9 cm au-dessus | 0,6 à 0,8 cm dessous |
+| Paume du guideur, par rapport à sa droite | 45° | 43° à 46° |
+| Doigts du guideur, par rapport à la verticale | 0° | jusqu'à 10° (sorties) |
+| Main de la suiveuse, par rapport aux doigts du guideur | en travers, à 79° vers son pouce | 69° à 79° |
+| Paumes | face à face à 7° près, centres à 3 cm | à 2° à 15° près |
+| Os des deux mains et des avant-bras (rayons d'os ôtés) | au contact, sans se traverser (jeu 0 cm) | de même, sauf dans la sortie fille : 0,3 cm de recouvrement par instants |
+| Poignets | guideur 46° à 48° ; suiveuse 61° à 63° | suiveuse jusqu'à 72°, la limite de cette prise |
+
+Pour comparaison, dans les attitudes A et C (prise du 22 novembre, inchangée) les os des deux mains se recouvrent de
+1,1 à 1,6 cm.
+
+L'emboîtement de près, vu de derrière la main du guideur (os, puis muscles) :
+
+| ![os](mains-B-emboitement-os.png) | ![muscles](mains-B-emboitement-muscles.png) |
 |---|---|
-| Milieu des mains, par rapport à la moyenne des deux épaules | 0 cm ; haut des doigts 9 cm au-dessus |
-| Paume du guideur, par rapport à sa droite | 45° (à mi-chemin vers la suiveuse) |
-| Doigts du guideur, par rapport à la verticale | 0° (jusqu'à 10° dans les sorties) |
-| Doigts de la suiveuse, par rapport à la verticale | 7° à 8° (0° à 24° dans les figures) ; son poignet est au bout de sa course (57°) |
-| Paumes | face à face à 13° près ; centres à 3 cm, la sienne vers le pouce du guideur |
+
+Mêmes images : adresse de B avec `beat=2`, `campos=0.637,1.32,-0.187&camtgt=0.34,1.27,0.11`, `muscles=0` ou `1`.
 
 ## Trois attitudes filmables
 
 Kizomba, sur place, 90 bpm, haut du corps anatomique (`haut=1`), muscles affichés. Les interrupteurs `?essai=` sont
 inertes sans le paramètre : l'application ne change pas. Images refaites le 23 novembre 2026, avec la prise posée
-(doigts et poignet articulés) ; celles de B, après les précisions ci-dessus.
+(doigts et poignet articulés) ; celles de B, après les précisions ci-dessus (emboîtement compris).
 
 | A — aujourd'hui | B — `?essai=mainsCote` | C — `?essai=mainsBasses` |
 |---|---|---|
 | ![A](mains-A-entre-les-poitrines.gif) | ![B](mains-B-sur-le-cote.gif) | ![C](mains-C-sur-le-cote-plus-bas.gif) |
 | ![A](mains-A-entre-les-poitrines.png) | ![B](mains-B-sur-le-cote.png) | ![C](mains-C-sur-le-cote-plus-bas.png) |
-| Entre les deux épaules, 6 cm sous elles : mains cachées entre les cages thoraciques, coudes repliés jusqu'à 27°. | 20 cm vers l'extérieur du couple, le milieu des mains à hauteur d'épaule : mains dressées, paume du guideur à mi-chemin entre sa droite et la suiveuse, coudes vers le bas. | 14 cm vers l'extérieur, 14 cm plus bas : mains à hauteur de taille, avant-bras presque horizontaux, coudes détendus. |
+| Entre les deux épaules, 6 cm sous elles : mains cachées entre les cages thoraciques, coudes repliés jusqu'à 27°. | 20 cm vers l'extérieur du couple, le milieu des mains à hauteur d'épaule : main du guideur dressée, paume à mi-chemin entre sa droite et la suiveuse ; main de la suiveuse emboîtée en travers, ses quatre doigts entre son pouce et son index. | 14 cm vers l'extérieur, 14 cm plus bas : mains à hauteur de taille, avant-bras presque horizontaux, coudes détendus. |
 
 La caméra est du côté des mains jointes : le guideur est à droite de l'image, la suiveuse à gauche. Les étiquettes de
 rôle du bas de l'image, fixes, diraient l'inverse : elles sont rognées.
@@ -77,13 +91,13 @@ Les trois manques relevés à l'ouverture du dossier sont comblés dans le haut 
 3. **Relation entre les deux mains** : la main de la suiveuse se place sur celle du guideur, en travers, le bas de sa
    paume au bord de sa main, ses doigts vers son index, son pouce vers le sien.
 
-Limites, mesurées dans la même spec : le poignet de la suiveuse va souvent au bout de son amplitude (paumes face à
-face à 20° à 35° près, surtout dans l'attitude A) ; les doigts ne se serrent pas latéralement et rien ne les empêche
-d'entrer dans la main de l'autre.
+Limites, mesurées dans la même spec : dans les attitudes A et C, le poignet de la suiveuse va au bout de son
+amplitude (paumes face à face à 20° à 35° près) et les os des deux mains se recouvrent ; seule l'attitude B a
+l'emboîtement décrit plus haut. Les doigts ne se serrent pas latéralement.
 
 ## À trancher par le propriétaire
 
 - Quelles attitudes garder (A, B, C, d'autres), et laquelle par défaut en kizomba. Question posée le 23 novembre 2026
   avec ces images ; proposition de l'agent : B par défaut, C gardée comme attitude, A retirée. Le propriétaire a
-  corrigé B (ci-dessus) ; le choix de l'attitude par défaut reste à confirmer.
+  corrigé B (ci-dessus : place, puis emboîtement) ; le choix de l'attitude par défaut reste à confirmer.
 - La prise, une fois posée : à juger sur des gros plans.

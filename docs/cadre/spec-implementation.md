@@ -382,8 +382,8 @@ change pas tant qu'il n'a pas tranché : [dossier](../elections/2026-11-22-mains
 Précision du 23 novembre 2026 pour l'attitude sur le côté (`mainsCote`, `CADRE.handsSide`) : les mains se lèvent
 légèrement au-dessus de l'épaule, leur milieu à hauteur d'épaule. Le point des mains jointes est donc 1 cm sous la
 moyenne des deux épaules (le centre de la paume ; le milieu de la main est plus haut), 20 cm vers l'extérieur du
-couple. L'orientation des mains (mains vers le ciel, paume du guideur à mi-chemin entre sa droite et la suiveuse)
-relève du haut du corps
+couple. L'orientation des mains (main du guideur vers le ciel, paume à mi-chemin entre sa droite et la suiveuse) et
+leur emboîtement relèvent du haut du corps
 anatomique : [spec](../spec-haut-du-corps.md).
 
 ## La main gauche de la suiveuse sur l'épaule droite du guideur (#180, 22 novembre 2026)

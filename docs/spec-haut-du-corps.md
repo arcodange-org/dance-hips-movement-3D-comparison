@@ -68,23 +68,29 @@ Ces amplitudes sont des paramètres de ce modèle, pas des normes cliniques ni d
   le bas de sa paume au bord de la main du guideur, ses doigts vers son index, son pouce vers le sien. Son poignet
   s'articule pour cela (jusqu'à 57° hors de l'axe de l'avant-bras), et sa main peut tourner de 40° sur la paume du
   guideur vers la ligne de son propre avant-bras.
-- **Attitude sur le côté, mains dressées** (candidat `?essai=mainsCote`, `GRIP.upright` ; précisions du propriétaire,
+- **Attitude sur le côté, mains emboîtées** (candidat `?essai=mainsCote`, `GRIP.upright` ; précisions du propriétaire,
   23 novembre 2026) : la paume du guideur est au point du rig, ses doigts vers le ciel, tournée à mi-chemin entre sa
-  droite et la suiveuse (`GRIP.upright.palm`) ; son poignet s'articule lui aussi. La main de la suiveuse se pose contre
-  la sienne, aussi dressée que la sienne, 3 cm vers le côté de son pouce, pour que ses doigts se referment autour de
-  son index. Les deux coudes tendent vers le bas, un peu vers l'extérieur.
+  droite et la suiveuse (`palm`) ; son poignet s'articule lui aussi, son pouce s'ouvre à angle droit (`his`). La main
+  de la suiveuse se place dans le repère de la sienne : en travers (`across`, 79° de ses doigts vers son pouce), paume
+  contre paume (`at`, `roll`, `pitch`), ses quatre doigts d'un seul bloc entre son pouce et son index, refermés autour
+  de la palmure, son pouce sous le sien (`hers`). Aucun os ne traverse l'autre main : les constantes viennent d'une
+  recherche sur les os des deux mains (`scripts/search_prise_mains.mjs`, graine fixe). Son coude tend derrière sa
+  main, un peu plus bas (`drop`) ; son poignet peut plier jusqu'à 72° dans cette prise (`wrist`), parce que les mains
+  sont près des deux corps et que son avant-bras arrive presque de face.
 
   | `ESSAI=mainsCote node scripts/mesure_essai_mains.mjs` | Sur place | Dans les figures |
   |---|---|---|
-  | Milieu des mains / moyenne des épaules | 0 cm ; haut des doigts 9 cm au-dessus | −0,3 à 0,4 cm |
+  | Milieu des mains / moyenne des épaules | 0,6 cm dessous ; haut des doigts du guideur 9 cm au-dessus | 0,6 à 0,8 cm dessous |
   | Paume du guideur / sa droite | 45° | 43° à 46° |
   | Doigts du guideur / verticale | 0° | jusqu'à 10° (sorties) |
-  | Doigts de la suiveuse / verticale | 7° à 8° | 0° à 24° |
-  | Paumes face à face | à 13° près | à 3° à 21° près |
-  | Poignets | guideur 46° à 48°, suiveuse 57° (sa limite) | guideur jusqu'à 57° |
+  | Main de la suiveuse / doigts du guideur | 79° | 69° à 79° |
+  | Paumes face à face | à 7° près | à 2° à 15° près |
+  | Jeu entre les os des deux mains et des avant-bras | 0 cm (contact) | 0 cm ; −0,3 cm par instants dans la sortie fille |
+  | Poignets | guideur 46° à 48°, suiveuse 61° à 63° | suiveuse jusqu'à 72° (limite de la prise) |
 
-  Paume du guideur tournée vers sa seule droite (premier essai du même jour), la suiveuse ne peut pas dresser sa main :
-  ses doigts restent à 18° de la verticale, son poignet au bout de sa course.
+  Avec la prise du 22 novembre (attitudes A et C), ces os se recouvrent de 1,1 à 1,6 cm. Essais écartés le même jour :
+  paume du guideur vers sa seule droite, puis les deux mains dressées l'une contre l'autre (les doigts de la suiveuse
+  traversaient ceux du guideur).
 - La caméra s'approche jusqu'à 35 cm quand l'option est active (1,8 m sinon), pour voir les mains.
 
 ## Mesures (`scripts/test_upper_body.mjs`, GLB réel, seizième de temps, kizomba)
