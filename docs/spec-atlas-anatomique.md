@@ -485,6 +485,23 @@ Vote du 22 novembre 2026 : A pour la planche, parce qu'elle met le mieux la rota
   vers le partenaire pendant que le bassin suit les pieds, ce qui se rapproche de A. Pour C, le
   thorax devrait partir à l'opposé du bassin. À présenter au propriétaire avant tout changement du moteur.
 
+### D18 — Après la fusion de `main` du 23 novembre : planches sans les volumes gris du tronc
+
+`main` a reçu #173 (PR #174) : quand les muscles sont affichés, les volumes gris du tronc (colonne,
+poitrine, épaules) ne sont plus dessinés (`trunkBlocksVisible`, `src/muscles.ts`). La vue `?atlas=`
+affiche les muscles par défaut : après la fusion, l'application ne rend plus les images versionnées
+(vérifié sur deux images, différentes à l'octet). Les mesures, elles, ne changent pas : le test de
+fraîcheur de `meta.json` reste vert, il ne compare pas les images.
+
+- **Régénération.** Les trois planches du bassin (135 images, 15 GIF, 3 planches) et les deux GIF
+  d'élection sont recapturés avec le moteur fusionné. Aucune règle de pose ne change.
+- **Limite de `meta.json` mise à jour.** Avec les muscles : « tête et bras stylisés ; tronc montré
+  par ses muscles, sans les volumes gris ». Sans les muscles (`muscles=0`) : le texte d'avant.
+- **Ce que le test ne voit pas.** `scripts/test_atlas_planches.mjs` contrôle les mesures, pas les
+  pixels : un changement d'apparence du rig périme les images sans faire échouer le test. Après une
+  fusion de `main` qui touche `Rig.tsx`, `muscles.ts` ou les matériaux, comparer une image rendue à
+  l'image versionnée, et régénérer si elles diffèrent.
+
 ### Lien avec le ginga : le « 8 » du bassin (#157, #159)
 
 Le propriétaire relie ces planches au ginga de la danse. Ses mots du 21 novembre 2026, tels que
