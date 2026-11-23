@@ -56,6 +56,9 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   Sans l'option, rien ne change ([spec](docs/spec-haut-du-corps.md), `src/upperBody.ts`, `scripts/test_upper_body.mjs`).
 - La paume vient où le rig pose la main, avec un bras aux longueurs anatomiques (28,0 cm et 29,3 cm jusqu'à la paume,
   contre 26 et 24 pour le rig) ; le radius tourne autour de l'ulna ; port de tête joue contre joue en danse serrée.
+- Une prise par danseur (#183) : `UpperBody.grip` remplace `GRIP.upright` pour un danseur ; la sonde
+  `scripts/search_prise_mains.mjs` cale la prise de deux mains décrites en fichier, chair comprise (un personnage plus
+  charnu que le squelette). Sans cela, rien ne change.
 - Seul (#182) : le cadre du rig replie l'avant-bras levé à 180° sur le bras ; la couche anatomique ne plie pas un
   coude au-delà de 145° (`ELBOW_MAX`) et dresse cet avant-bras depuis le coude du rig (`RAISED`).
 - Demande du propriétaire : ces contributions au buste et aux bras vivent dans ce dépôt ; l'habillage des mascottes

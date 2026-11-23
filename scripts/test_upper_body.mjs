@@ -134,6 +134,27 @@ const options = { boneMaterial: new THREE.MeshBasicMaterial(), muscleMaterial: (
   console.log("PASS haut du corps en paire : paume sur la main du rig, longueurs constantes, pronation et port de tête dans leur amplitude");
 }
 
+// #183: a dancer's own hold. With `grip` on the follower's layer her palm stands further from his; without it,
+// the engine's hold comes back exactly.
+{
+  const pair = [fixture(api, { offset: [0, 0, -api.PLACE_PAIR_DZ] }), fixture(api, { rotation: Math.PI, offset: [0, 0, api.PLACE_PAIR_DZ] })];
+  const uppers = pair.map(f => new api.UpperBody(f.r, model, options));
+  const pose = () => {
+    pair.forEach((f, i) => api.applyPose(f.r, f.model, 2, { movement: "none", placePaire: true, embrace: true, placement: "quinconce", follower: !!i, styleKey: "kizomba", amp: 1, plexus: true }));
+    pair.forEach((f, i) => api.solveFrame(f.r, pair[1 - i].r, !!i));
+    for (let k = 0; k < 2; k++) uppers.forEach((u, i) => u.update(pair[1 - i].r, !!i));
+    return uppers[1].hand("R").palm.distanceTo(uppers[0].hand("L").palm);
+  };
+  const engine = pose(), at = api.GRIP.upright.at;
+  uppers[1].grip = { at: [at[0], at[1], at[2] + 0.02] };
+  const wider = pose();
+  assert(wider > engine + 0.012, `a dancer's own hold: the palms are ${(wider * 100).toFixed(1)} cm apart, ${(engine * 100).toFixed(1)} cm without it (#183)`);
+  delete uppers[1].grip;
+  assert(Math.abs(pose() - engine) < 1e-9, "without a dancer's own hold, the engine's hold comes back (#183)");
+  uppers.forEach(u => u.dispose());
+  console.log(`PASS prise par danseur : paumes à ${(engine * 100).toFixed(1)} cm avec la prise du moteur, ${(wider * 100).toFixed(1)} cm avec une prise élargie de 2 cm`);
+}
+
 // Alone: every style with the rig's arm frame; then the rig is given back intact.
 {
   const f = fixture(api), u = new api.UpperBody(f.r, model, options);
