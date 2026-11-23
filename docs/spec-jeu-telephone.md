@@ -199,7 +199,8 @@ colonnes ([capture dans Safari](captures/jeu-telephone/safari-jeu-couche-plus.jp
   (0 px mesuré). À traiter avec sa refonte.
 - Les onglets communs entre les vues (seul, comparer, en couple, jeu) : ils viendront avec la page
   principale ; d'ici là, le jeu garde une flèche de retour.
-- Un vrai téléphone : le simulateur montre la barre du navigateur, l'encoche et le déblocage du son, pas la
-  fluidité sur l'appareil ni un téléphone Android. À essayer sur l'appareil du propriétaire.
+- Un téléphone Android réel : seulement émulé. Le propriétaire a essayé le jeu sur son téléphone le 23 novembre
+  (version construite, servie sur le réseau local) : il s'y joue ; le modèle, la vitrine et la tenue couchée ne
+  sont pas précisés.
 - Le vocabulaire de la fiche de transition (« Leader », « Suiveur ») : composant partagé avec la page
   principale, à aligner avec elle sur « guideur » et « suiveuse ».

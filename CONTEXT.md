@@ -18,8 +18,10 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   profils de téléphone de Playwright) : place du couple 56 → 412 px sur iPhone 14, 12 → 301 px sur iPhone SE.
 - Vu aussi dans Safari du simulateur d'iPhone (iOS 26), tenu droit et couché, barre d'onglets comprise (page de 280 px
   de haut) : rien sous la barre de Safari, les figures se commandent au doigt, la musique part au toucher.
-- Reste : essai par le propriétaire sur son téléphone (fluidité, Android) ; la page principale, dont l'audit et trois
-  organisations sont proposés au propriétaire (choix en attente), et où la scène retient le doigt au téléphone.
+- Essayé par le propriétaire sur son téléphone le 23 novembre (version construite, servie sur le réseau local) : le
+  jeu s'y joue.
+- Reste : la page principale, dont l'audit et trois organisations sont proposés au propriétaire (choix en attente),
+  et où la scène retient le doigt au téléphone.
 
 ## Kompa et semba : pas de base élus (#161, #162, 23 novembre 2026)
 
