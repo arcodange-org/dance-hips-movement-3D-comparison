@@ -5,6 +5,21 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Kompa et semba : pas de base élus (#161, #162, 23 novembre 2026)
+
+- **Dix tours de vote** sur films (page de vote du propriétaire ; résultats et mesures :
+  [`docs/elections/ginga-huit.md`](docs/elections/ginga-huit.md)). Élus : kompa `assisBuste`, semba `parCote`.
+- **Ce qu'ils sont** : la hanche s'assoit quand le poids arrive (vers l'arrière et l'extérieur, pivot du bassin), la
+  jambe se tend ensuite lentement, le buste suit le bassin et se penche (16°, 15°), le talon libre se lève de 6°. Le
+  semba : un rebond par temps et un double rebond un temps sur deux (deux arrivées de suite sur chaque pied).
+- **Où** : pas de base du style, danseur seul, sur place, pieds plantés (drapeau `base` calculé par `src/pose.ts`,
+  `KOMPA_ELECTED`, `SEMBA_ELECTED` dans `src/styles.ts`). En couple, en déplacement et sans solveur des jambes :
+  l'ancien modèle. `?kompa=`, `?semba=` : autres variantes ; `ancien` : avant les votes.
+- **Mesures** (`scripts/tracer_hanches.mjs` : hanches, genoux, posture, accélération) et tests :
+  `scripts/test_ginga_huit.mjs`, `scripts/test_temps_transferts.mjs` (appuis du semba seul).
+- **Reste** : retirer les variantes non retenues ; porter ces pas dans le couple (avec le « 8 » G1 élu, #159) ;
+  la posture des autres styles (#166).
+
 ## Cadre des bras : bras droit du guideur, mains jointes (#178, #179, 22 novembre 2026)
 
 - **Règle R35 (#178)** : le bras droit du guideur ne se baisse pas. Hors du dos de la suiveuse (sortie fille), sa
@@ -142,8 +157,8 @@ et les specs. Résumé de la journée du 21 :
   trace une ligne vue de dessus (0,0 cm² entourés), le bassin s'arrête 0,22 temps (0,13 avec `ample`, le réglage par
   défaut). Cinq prototypes (`GUIDE_EIGHT`, `ginga=huit|huitRond|huitInverse|huitAmple|huitGrand`) décalent le roulis et le
   lacet dans le cycle, font avancer et reculer le bassin, retardent le rebond, et poursuivent la phase d'une figure à la
-  suivante (`gingaFrom`) ; trois prototypes du kompa seul (`KOMPA_EIGHTS`, #161, `?style=kompa&kompa=huit`) font avancer
-  et reculer son bassin deux fois par cycle. Paroles du 22 novembre (R33, R34 et R39) : le passage d'un côté à l'autre se mesure
+  suivante (`gingaFrom`) ; le kompa et le semba seuls ont depuis leur pas de base élu (#161, #162, voir plus
+  haut). Paroles du 22 novembre (R33, R34 et R39) : le passage d'un côté à l'autre se mesure
   contre un balancier (`soudain` de `tracer_hanches.mjs` : 2,0 aujourd'hui en couple, 1,0 pour les « 8 » arrondis) ; les
   à-coups des figures (#167) et la posture (#166) sont des chantiers à part. **Prototypes non contrôlés sur le GLB**, à
   élire ([élection](docs/elections/ginga-huit.md), [spec](docs/spec-ginga-huit.md)). Le propriétaire a

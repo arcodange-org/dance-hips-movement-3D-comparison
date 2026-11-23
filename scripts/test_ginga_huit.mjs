@@ -75,9 +75,13 @@ const api = await import(bundle.href); unlinkSync(bundle);
   // The kompa alone (#161): today a line with a long stop on each side; the prototypes go round, the largest
   // « 8 » of the styles, and never stop. The model of today is untouched unless a prototype is chosen.
   const kompa = name => { const t = trace(name, 'seul', 'base', 'kompa'); sudden['kompa ' + name] = t.transfert.soudain; return t.mesures; };
-  assert.equal(api.KOMPA_PROTO.eight, null, 'no kompa prototype by default');
+  // The elected step is the basic step when the address asks for nothing; `ancien` is the model of before.
+  assert.equal(api.KOMPA_PROTO.eight, undefined, 'no kompa variant asked for by default');
+  assert.equal(api.KOMPA_ELECTED, 'assisBuste');
+  { const elected = trace('assisBuste', 'seul', 'base', 'kompa'), plain = trace('aujourdhui', 'seul', 'base', 'kompa');
+    assert.deepEqual(plain.mesures, elected.mesures, 'kompa: the basic step is the elected one'); }
   assert.deepEqual(Object.keys(api.KOMPA_EIGHTS), ['huit', 'huitGrand', 'huitInverse', 'genoux', 'genouxRond', 'hanches', 'hanchesFortes', 'profil', 'profilFort', 'alterne', 'alterneTalon', 'alterneDirect', 'hancheFinit', 'hancheTenue', 'hancheAssise', 'hancheApres', 'assis', 'assisMarque', 'assisBuste', 'assisBusteAvant']);
-  const k0 = kompa('aujourdhui'), k1 = kompa('huit'), k2 = kompa('huitGrand'), k3 = kompa('huitInverse');
+  const k0 = kompa('ancien'), k1 = kompa('huit'), k2 = kompa('huitGrand'), k3 = kompa('huitInverse');
   assert.ok(k0.C.profondeur < 0.5 && k0.L.dessus < 2 && k0.C.arret > 0.4, `kompa today: a line (${k0.C.profondeur} cm deep, ${k0.L.dessus} cm², stop ${k0.C.arret})`);
   for (const [name, m] of [['huit', k1], ['huitGrand', k2], ['huitInverse', k3]]) assert.ok(m.L.dessus > 50 && m.R.dessus > 50 && m.C.arret < 0.05 && Math.abs(m.C.largeur - k0.C.largeur) < 1, `kompa ${name}: ${m.L.dessus} cm², stop ${m.C.arret}, ${m.C.largeur} cm wide`);
   assert.ok(k2.L.dessus > 1.5 * k1.L.dessus && Math.abs(k3.L.dessus - k1.L.dessus) < 0.1 * k1.L.dessus, 'kompa: sizes and senses');
@@ -88,8 +92,8 @@ const api = await import(bundle.href); unlinkSync(bundle);
   const today_ = api.GUIDE_GINGA_DEFAULT;
   for (const name of [today_, 'marque', 'huit', 'huitRond', 'huitInverse', 'huitAmple', 'huitGrand', 'kompa huit', 'kompa huitGrand', 'kompa huitInverse'])
     assert.ok(sudden[name] < 1.2, `${name}: a passage as gradual as a pendulum (${sudden[name]})`);
-  assert.ok(sudden['kompa aujourdhui'] > 3, `kompa today crosses suddenly (${sudden['kompa aujourdhui']})`);
-  console.log(`PASS passage d'un côté à l'autre, rapporté à un balancier (1) : ${sudden[today_]} aujourd'hui en couple, ${sudden.huitRond} avec les « 8 » ; kompa seul ${sudden['kompa aujourdhui']} aujourd'hui, ${sudden['kompa huit']} avec ses prototypes`);
+  assert.ok(sudden['kompa ancien'] > 3, `kompa today crosses suddenly (${sudden['kompa ancien']})`);
+  console.log(`PASS passage d'un côté à l'autre, rapporté à un balancier (1) : ${sudden[today_]} aujourd'hui en couple, ${sudden.huitRond} avec les « 8 » ; kompa seul ${sudden['kompa ancien']} aujourd'hui, ${sudden['kompa huit']} avec ses prototypes`);
   // Vote of 22 Nov. (sense D, size F, the knees lead): the knees bend in turn, the pelvis never stops and its
   // acceleration is lower than with today's walk and with the pelvis-led F; seen from the front each hip goes
   // round more the later the knees bend; `genoux` keeps both knees bent alike as the pelvis passes the centre.
@@ -160,7 +164,7 @@ const api = await import(bundle.href); unlinkSync(bundle);
   // Ninth round (vote: `assisMarque`; the bust may follow the pelvis, sideways and by a few degrees of pivot,
   // upright; and it leans slightly forward: seen from the side the knees do not pass the bust, rule R33).
   const km = trace('assisMarque', 'seul', 'base', 'kompa');
-  assert.ok(km.posture.busteDevantGenoux[1] < -10 && kompa('aujourdhui') && trace('aujourdhui', 'seul', 'base', 'kompa').posture.busteDevantGenoux[1] < -18, `kompa: the bust stands behind the knees today and in assisMarque (${km.posture.busteDevantGenoux})`);
+  assert.ok(km.posture.busteDevantGenoux[1] < -10 && trace('ancien', 'seul', 'base', 'kompa').posture.busteDevantGenoux[1] < -18, `kompa: the bust stands behind the knees today and in assisMarque (${km.posture.busteDevantGenoux})`);
   for (const [name, behind] of [['assisBuste', -7], ['assisBusteAvant', -2]]) {
     const k = trace(name, 'seul', 'base', 'kompa');
     assert.ok(k.posture.busteDevantGenoux[0] > behind && k.posture.busteDevantGenoux[2] < 3, `kompa ${name}: the bust above the knees (${k.posture.busteDevantGenoux} cm)`);
@@ -176,7 +180,8 @@ const api = await import(bundle.href); unlinkSync(bundle);
 // 4. #162: the semba, built on the hip elected for the kompa, with its double bounce (two landings in a row on
 // the same foot). Prototypes, off by default; the pattern of the landings and the joins of the double bounce.
 {
-  assert.equal(api.SEMBA_PROTO.sit, null, 'no semba prototype by default');
+  assert.equal(api.SEMBA_PROTO.sit, undefined, 'no semba variant asked for by default');
+  assert.equal(api.SEMBA_ELECTED, 'parCote');
   assert.deepEqual(Object.keys(api.SEMBA_SITS), ['pause', 'parCote', 'simple']);
   // Which foot receives the weight on each beat: the pelvis is on that side a third of a beat after the landing.
   const feet = name => Array.from({ length: api.SEMBA_SITS[name].pattern.length }, (_, n) => api.sembaSwing(api.SEMBA_SITS[name], 0.5 + n + 0.3) > 0 ? 'G' : 'D').join('');
@@ -194,9 +199,10 @@ const api = await import(bundle.href); unlinkSync(bundle);
       assert.ok(Math.min(...inside.map(v => v * side)) > -0.1 && Math.max(...inside.map(v => v * side)) > 0.99, `${name}: inside the double bounce the pelvis reaches its side and comes back to about the centre`); });
   }
   const trace = (...args) => JSON.parse(execFileSync('node', [fileURLToPath(new URL('./tracer_hanches.mjs', import.meta.url)), '', ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }));
-  const today_ = trace('aujourdhui', 'seul', 'base', 'semba');
-  assert.ok(today_.fluidite.acceleration99 > 50 && today_.posture.busteDevantGenoux[1] < -12, `semba today: two sharp bounces per beat (${today_.fluidite.acceleration99} m/s²), the bust behind the knees (${today_.posture.busteDevantGenoux[1]} cm)`);
+  const today_ = trace('ancien', 'seul', 'base', 'semba');
+  assert.ok(today_.fluidite.acceleration99 > 50 && today_.posture.busteDevantGenoux[1] < -12, `semba before the votes: two sharp bounces per beat (${today_.fluidite.acceleration99} m/s²), the bust behind the knees (${today_.posture.busteDevantGenoux[1]} cm)`);
   const report = [];
+  assert.deepEqual(trace('aujourdhui', 'seul', 'base', 'semba').mesures, trace('parCote', 'seul', 'base', 'semba').mesures, 'semba: the basic step is the elected one');
   for (const name of ['simple', 'pause', 'parCote']) {
     const k = trace(name, 'seul', 'base', 'semba'), g = k.genoux;
     assert.ok(k.fluidite.arretPart === 0 && k.fluidite.acceleration99 < 12, `semba ${name}: never still, no jolt (${JSON.stringify(k.fluidite)})`);

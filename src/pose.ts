@@ -593,9 +593,12 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   const ginga = gingaOf(o.styleKey);
   // The slow 4-beat waves stay on the clock (styleTime): the guide mode restarts a figure's local beat
   // every cycle.
+  // #161, #162: the style's basic step, alone (no partner) on the spot with planted feet; there the kompa
+  // and the semba dance their elected step (see `StyleDef.apply`).
+  const base = !figure && !o.embrace && !o.follower && o.plant && o.movement === "none" && !(o.travel > 0) && !o.sortie;
   const applyStyle = (key: typeof o.styleKey) => {
     const g = gingaOf(key);
-    STYLES[key].apply(r, g?.gingaBeat ?? styleTime, o.amp * (g?.gingaAmp ?? 1), styleTime);
+    STYLES[key].apply(r, g?.gingaBeat ?? styleTime, o.amp * (g?.gingaAmp ?? 1), styleTime, base);
     // #157: where the figure leaves no room for the ginga (a tight spot, a touch), the style goes back to
     // the figure's own time and full amplitude: there the pose is the one the figure was calibrated with.
     if (g?.gingaBeat !== undefined && (figure as { gingaOwn?: boolean }).gingaOwn === false && gingaRoom.sway < 1) {
@@ -881,7 +884,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
       lowest = Math.min(lowest, v.copy(p).applyMatrix4(foot.matrixWorld).y);
     grounded[s] = lowest <= 0.0001;
   }
-  const prescribedR = (figure as { loadR?: number } | null)?.loadR ?? (supportOf(o.styleKey, r, beat) + 1) / 2;
+  const prescribedR = (figure as { loadR?: number } | null)?.loadR ?? (supportOf(o.styleKey, r, beat, base) + 1) / 2;
   const loadR = grounded.R ? (grounded.L ? prescribedR : 1) : 0;
   const loadL = grounded.L ? (grounded.R ? 1 - prescribedR : 1) : 0;
   const chestQ = r.chest.getWorldQuaternion(new THREE.Quaternion());

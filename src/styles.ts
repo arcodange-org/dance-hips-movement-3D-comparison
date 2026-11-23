@@ -10,18 +10,22 @@ export interface StyleDef {
   // de base des genoux (rad). Kizomba/tarraxinha : buste légèrement en avant + genoux bien
   // fléchis (« lean slightly forward », « slightly bent knees », SOS Dance) ; zouk = cambré.
   posture: { lean: number; knee: number };
-  /** `w` (#42): beat of the slow 4-beat waves (suave, zouk), kept on the clock when the ginga drives `b`. */
-  apply: (r: RigHandle, b: number, a: number, w?: number) => void;
+  /** `w` (#42): beat of the slow 4-beat waves (suave, zouk), kept on the clock when the ginga drives `b`.
+   * `base` (#161, #162): the dancer dances the style's basic step alone, on the spot, feet planted; there
+   * the kompa and the semba dance the step elected on 23 Nov. 2026, elsewhere (figures in pair, travel, the
+   * rendering without the leg solver) the model of before the votes. */
+  apply: (r: RigHandle, b: number, a: number, w?: number, base?: boolean) => void;
   // Charge sur le pied DROIT dans [-1, 1] (+1 = plein appui droit, -1 = plein appui gauche).
   // Sert à la visualisation des appuis (pastilles de charge, chaîne pied→genou→hanche).
   // Côté droit du rig à x < 0 : un déplacement root.x > 0 = appui qui passe à gauche.
-  support?: (b: number) => number;
+  support?: (b: number, base?: boolean) => number;
 }
 
 // Courbes f(temps) issues des sources documentées dans docs/styles-de-danse.md :
 // kizomba = « 2 temps » latéral sur place avec marqua (pieds joints), pas ≤ largeur
-// du bassin ; kompa = balancier latéral sur place, un transfert de poids par temps,
-// hip check sur le temps 4 ; semba = rebond (quick-quick-slow) ; tarraxinha = sur
+// du bassin ; kompa = sur place, un transfert de poids tous les deux temps, la hanche
+// qui s'assoit (pas élu, #161) ; semba = un rebond par temps et son double rebond (pas
+// élu, #162) ; en couple et en déplacement, leurs modèles d'avant ; tarraxinha = sur
 // place, isolations du bassin ; suave = « 8 » au sol + talon levé + vague L5→tête ;
 // zouk = basic sur place (slow-quick-quick) + cambré + ouverture de hanche.
 // En mode Face à face, les « sorties garçon / fille » (5 temps, aller-retour latéral)
@@ -118,9 +122,13 @@ export const KOMPA_EIGHTS: Record<string, KompaEight> = {
   assisBuste: { depth: 0, round: 1, sense: 1, knees: { base: 0.08, swing: 0.5, lag: 0.3, tilt: -0.69, heel: 0.1 }, glide: 0.5, lift: 0.06, iso: 0.5, sit: { skew: -0.6, pivot: 0.2, back: 0.035, around: 0.6, follow: 0.35 }, lean: 0.2, ahead: 0.03 },
   assisBusteAvant: { depth: 0, round: 1, sense: 1, knees: { base: 0.08, swing: 0.5, lag: 0.3, tilt: -0.69, heel: 0.1 }, glide: 0.5, lift: 0.06, iso: 0.5, sit: { skew: -0.6, pivot: 0.2, back: 0.035, around: 0.6, follow: 0.35 }, lean: 0.3, ahead: 0.06 },
 };
-/** The prototype in use (null: the model of today). Set once from the address, read by the kompa style. */
-export const KOMPA_PROTO: { eight: KompaEight | null } = { eight: null };
-export const setKompaProto = (name: string | null | undefined) => { KOMPA_PROTO.eight = (name && KOMPA_EIGHTS[name]) || null; };
+/** The step elected for the kompa's basic step (nine rounds of votes, 22 and 23 Nov. 2026). */
+export const KOMPA_ELECTED = "assisBuste";
+/** The variant asked for by the address (`?kompa=`): undefined, none, the basic step is the elected one;
+ * null (`ancien`), the model of before the votes; else one of `KOMPA_EIGHTS`. Read by the kompa style. */
+export const KOMPA_PROTO: { eight: KompaEight | null | undefined } = { eight: undefined };
+export const setKompaProto = (name: string | null | undefined) => { KOMPA_PROTO.eight = name === "ancien" ? null : (name && KOMPA_EIGHTS[name]) || undefined; };
+const kompaStep = (base: boolean | undefined): KompaEight | null => base ? (KOMPA_PROTO.eight === undefined ? KOMPA_EIGHTS[KOMPA_ELECTED] : KOMPA_PROTO.eight) : null;
 export function kompaSupport(b: number): number {
   const c = ((((b + 0.5) % 4) + 4) % 4), d = KOMPA.transition;
   const s = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * (3 - 2 * t); };
@@ -155,9 +163,12 @@ export const SEMBA_SITS: Record<string, SembaSit> = {
   // No double bounce: one transfer per beat, as today, with the hip that sits.
   simple: { ...SEMBA_SIT, pattern: ["T", "T"] },
 };
-/** The prototype in use (null: the semba of today). Set once from the address, read by the semba style. */
-export const SEMBA_PROTO: { sit: SembaSit | null } = { sit: null };
-export const setSembaProto = (name: string | null | undefined) => { SEMBA_PROTO.sit = (name && SEMBA_SITS[name]) || null; };
+/** The step elected for the semba's basic step (vote of 23 Nov. 2026). */
+export const SEMBA_ELECTED = "parCote";
+/** The variant asked for by the address (`?semba=`), as `KOMPA_PROTO`. Read by the semba style. */
+export const SEMBA_PROTO: { sit: SembaSit | null | undefined } = { sit: undefined };
+export const setSembaProto = (name: string | null | undefined) => { SEMBA_PROTO.sit = name === "ancien" ? null : (name && SEMBA_SITS[name]) || undefined; };
+const sembaStep = (base: boolean | undefined): SembaSit | null => base ? (SEMBA_PROTO.sit === undefined ? SEMBA_SITS[SEMBA_ELECTED] : SEMBA_PROTO.sit) : null;
 /** The sit comes this long (rad of the swing) after the weight has passed the centre: as elected for the kompa. */
 const SIT_AFTER = 2 * Math.PI * 0.3 - Math.PI / 2;
 /** Where the semba prototype is at motion beat `b` (the sits land on the beats of the music, motion beats
@@ -178,6 +189,18 @@ const smallRound = (s0: number, d0: number, v: number) => {
   const phi = 2 * Math.atan2(2 * Math.PI * (1 - s0), d0), e = d0 / (2 * Math.PI * Math.sin(phi));
   return 1 - e + e * Math.cos(2 * Math.PI * v - phi);
 };
+/** Load of the semba prototype (+1 = full right, as `StyleDef.support`): the weight is whole on the foot of each
+ * sit, on the beat (rule R21, the beats of the music are the weight's arrivals); a transfer takes the 0.2
+ * beat before its beat (the pelvis passes the centre in its middle, as in the kompa); inside a double bounce
+ * the weight stays on its foot, three quarters of it at the least, half-way: the transfer that does not happen. */
+export function sembaSupport(p: SembaSit, b: number): number {
+  const n = p.pattern.length, t = (((b - 0.5) % n) + n) % n, i = Math.floor(t), v = t - i, into = 0.2;
+  let side = 1;
+  for (let k = 0; k < i; k++) if (p.pattern[k] === "T") side = -side;
+  if (p.pattern[i] === "D") return -side * (1 - 0.5 * Math.sin(Math.PI * v) ** 2);
+  const x = Math.max(0, Math.min(1, (v - (1 - into)) / into)), moved = x * x * (3 - 2 * x);
+  return -side * (1 - 2 * moved);
+}
 /** Lateral position of the pelvis of the semba prototype, −1 (right) to +1 (left). */
 export function sembaSwing(p: SembaSit, b: number): number {
   const { theta, bounce } = sembaPhase(p, b);
@@ -214,14 +237,14 @@ export const STYLES: Record<string, StyleDef> = {
     color: "#fb923c",
     posture: { lean: 0.06, knee: 0.24 },
     bullets: [
-      "Rebond marqué (knee pulse), rythme quick-quick-slow « 1-2-3, pause »",
-      "Réception sur l'avant-pied, pieds ressort",
+      "Un rebond par temps : la hanche s'assoit à chaque arrivée du poids",
+      "Double rebond : deux arrivées de suite sur chaque pied, le poids repart vers l'autre sans y arriver",
       "Déplacements en rond (koreidinha), changements de direction nets",
       "Plus rapide et ludique que la kizomba (≈130 bpm vs ≈90)",
     ],
-    support: (b) => SEMBA_PROTO.sit ? -sembaSwing(SEMBA_PROTO.sit, b) : -S2(b),
-    apply: (r, b, a) => {
-      const sit = SEMBA_PROTO.sit;
+    support: (b, base) => { const sit = sembaStep(base); return sit ? sembaSupport(sit, b) : -S2(b); },
+    apply: (r, b, a, _w, base) => {
+      const sit = sembaStep(base);
       if (sit) {
         const { theta, bounce } = sembaPhase(sit, b), u = theta - SIT_AFTER;
         const bump = (v: number) => (1 + Math.cos(v + sit.skew * (1 - Math.cos(v)))) / 2;
@@ -282,18 +305,18 @@ export const STYLES: Record<string, StyleDef> = {
     color: "#f87171",
     posture: { lean: 0.08, knee: 0.2 },
     bullets: [
-      "Balancier latéral sur place : pas sur 1 et 3, touche sans poids sur 2 et 4 (un transfert tous les deux temps)",
-      "Hip check / pause marquée sur le temps 4",
-      "Genoux fléchis en continu, niveau bas, pieds glissés plein appui",
-      "Tout le mouvement sous la ceinture, épaules immobiles",
+      "Sur place : pas sur 1 et 3, touche sans poids sur 2 et 4 (un transfert tous les deux temps)",
+      "La hanche s'assoit quand le poids arrive, vers l'arrière et l'extérieur, puis remonte en tournant",
+      "Jambes en alternance : celle qui reçoit le poids plie, puis se tend ; talon du pied libre à peine levé",
+      "Buste légèrement penché en avant, qui suit le bassin",
     ],
     // #62 (R21; docs/musique/kompa.md, Haitian Music Zone: step 1, touch 2, step 3, touch 4): one
     // transfer every two beats, the weight landing on 1 and 3 (motion beats 0,5 and 2,5, see ON_BEAT_SHIFT).
     support: (b) => kompaSupport(b),
-    apply: (r, b, a) => {
-      // Prototype of the « 8 »: the lateral swing never waits (its zeros are the support's, at motion beats
-      // 0.3 and 2.3), and the pelvis goes forward as it leaves for the support, back as it returns.
-      const eight = KOMPA_PROTO.eight, turn = 2 * Math.PI * (b - (0.5 - KOMPA.transition / 2)) / 4;
+    apply: (r, b, a, _w, base) => {
+      // The « 8 »: the lateral swing never waits (its zeros are the support's, at motion beats 0.3 and 2.3),
+      // and the pelvis goes forward as it leaves for the support, back as it returns.
+      const eight = kompaStep(base), turn = 2 * Math.PI * (b - (0.5 - KOMPA.transition / 2)) / 4;
       const held = -kompaSupport(b), w = eight ? held + (Math.sin(turn) - held) * eight.round : held;
       const deep = eight ? eight.sense * Math.sin(2 * (turn - 2 * Math.PI * (eight.depthLag ?? 0))) : 0;
       if (eight) r.root.position.z = eight.depth * deep * a;
@@ -468,9 +491,9 @@ export type ModeKey = (typeof MODES)[number]["key"];
 // utilisée en mode Face à face (sortie garçon côté guideur, sortie fille côté
 // suiveur — le retard du suiveur décale la seconde). Sources : voir docs/styles-de-danse.md.
 // Charge pied droit (bornée [-1,1]) : courbe du style si définie, sinon déduite de root.x.
-export function supportOf(styleKey: string, r: RigHandle, b: number): number {
+export function supportOf(styleKey: string, r: RigHandle, b: number, base = true): number {
   const st = STYLES[styleKey];
-  const v = st && st.support ? st.support(b) : -r.root.position.x / 0.09;
+  const v = st && st.support ? st.support(b, base) : -r.root.position.x / 0.09;
   return Math.max(-1, Math.min(1, v));
 }
 

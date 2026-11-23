@@ -52,6 +52,27 @@ Le tempo reste celui du curseur (un bouton propose le tempo conseillé du style)
 affiche son niveau de preuve (documenté, faible, proposition) et peut être coupée. URL :
 `son=1&musique=A|B`. [Spécification et choix provisoires](docs/spec-son-synthese.md).
 
+## Kompa et semba : les pas de base élus (#161, #162)
+
+Le pas de base du kompa et celui du semba, danseur seul, sont ceux que le propriétaire a élus sur films, tour
+après tour (22 et 23 novembre 2026). La hanche s'assoit quand le poids arrive, vers l'arrière et l'extérieur, puis
+remonte en tournant ; les jambes alternent ; le buste suit le bassin et se penche légèrement, les genoux ne le
+dépassent plus.
+
+| Kompa : un transfert tous les deux temps | Semba : un rebond par temps, deux arrivées sur chaque pied |
+|---|---|
+| ![Kompa, pas de base élu](docs/gifs/election-kompa-assisBuste.gif) | ![Semba, pas de base élu](docs/gifs/election-semba-parCote.gif) |
+
+<details><summary>Détails & source</summary>
+
+Films de l'élection (`scripts/capture_session_gif.mjs`, couche des muscles, 90 et 130 bpm). Les dix tours, leurs
+candidats, les votes et les mesures (genoux, posture, accélération du bassin) sont dans
+[`docs/elections/ginga-huit.md`](docs/elections/ginga-huit.md) ; le chemin des hanches se trace avec
+`scripts/tracer_hanches.mjs`. Les autres variantes restent visibles par `?style=kompa&kompa=…` et
+`?style=semba&semba=…` (`ancien` : le modèle d'avant les votes). En couple et en déplacement, les deux styles
+gardent pour l'instant leur ancien déhanché ([spec](docs/spec-ginga-huit.md#les-pas-élus-deviennent-les-pas-de-base)).
+</details>
+
 ## Sortie garçon — cinq actions validées
 
 En mode paire, « Sortie garçon » joue G–D–G croisé–D–marka G pour le leader ; la partenaire

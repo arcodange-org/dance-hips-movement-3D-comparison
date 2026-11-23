@@ -410,9 +410,12 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
   doit s'en inspirer.
 - [x] Dixième tour (semba, #162, d'après le kompa élu) : S1 `pause`, S2 `parCote`, S3 `simple` ; `SEMBA_SITS`,
   `sembaPhase`, `smallRound` ; règle du double rebond renumérotée R39. Vote : S2, le semba élu est `parCote`.
-- [ ] Kompa et semba élus : en faire le pas de base de leur style, danseur seul sur place
-  ([spec](spec-ginga-huit.md#les-pas-élus-deviennent-les-pas-de-base)) ; tests, textes de l'app et GIF à reprendre ;
-  en couple et en déplacement, le modèle d'avant reste.
+- [x] Kompa et semba élus : pas de base de leur style, danseur seul sur place
+  ([spec](spec-ginga-huit.md#les-pas-élus-deviennent-les-pas-de-base)) : drapeau `base`, `KOMPA_ELECTED`,
+  `SEMBA_ELECTED`, appui du semba sur chaque temps (`sembaSupport`), textes de l'app, README ; en couple et en
+  déplacement, le modèle d'avant reste.
+- [ ] Retirer les variantes non retenues de `KOMPA_EIGHTS` et `SEMBA_SITS` (nettoyage).
+- [ ] Porter les pas élus dans le couple (figures, mode jeu), avec le « 8 » G1 élu (#159).
 - [ ] Kompa : « 8 » de face plus marqué que de dessus, sans glisser d'un bloc.
 - [ ] Variante élue : contrôles sur le GLB dans toutes les figures (marges), ida e volta, pas de base.
 
