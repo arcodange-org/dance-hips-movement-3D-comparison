@@ -174,7 +174,9 @@ export function buildAtlasMeta(api, manifest, id, { frames = api.ATLAS_FRAMES, v
       "Pose neutre du moteur : pieds à l'écartement et à l'ouverture natifs du squelette, genoux fléchis d'au moins 0,12 rad par l'IK (jambe jamais verrouillée).",
       ...LIMITES_BASSIN[mouvement.axeLocal],
       ...(regle ? [LIMITES_REGLE[regle.id]] : []),
-      "Buste et bras : volumes stylisés, pas un maillage anatomique. Le haut du tronc compense le bassin (iso=1), bras en cadre de danse.",
+      muscles
+        ? "Tête et bras : volumes stylisés, pas un maillage anatomique ; bras en cadre de danse. Tronc : montré par ses muscles (BodyParts3D), sans les volumes gris du rig. Le haut du tronc compense le bassin (iso=1)."
+        : "Buste et bras : volumes stylisés, pas un maillage anatomique. Le haut du tronc compense le bassin (iso=1), bras en cadre de danse.",
     ],
     ...(regle ? { regle } : {}),
     articulation: {

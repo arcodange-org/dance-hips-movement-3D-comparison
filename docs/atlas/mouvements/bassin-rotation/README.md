@@ -59,7 +59,7 @@ Vue en direct dans l'application : `?atlas=bassin-rotation&vue=face&frame=4&fram
 - Pose neutre du moteur : pieds à l'écartement et à l'ouverture natifs du squelette, genoux fléchis d'au moins 0,12 rad par l'IK (jambe jamais verrouillée).
 - Bassin en chaîne fermée, pieds plantés : les pieds ne pivotent pas, les hanches absorbent la rotation.
 - Le thorax reste de face parce que la colonne contre-tourne du même angle. C'est une règle propre à l'atlas : l'isolation du comparateur compense le roulis et le tangage du bassin, pas le lacet. Le propriétaire retient cette règle pour la planche, parce qu'elle met le mieux la rotation du bassin en évidence ; pour la danse, il retient « thorax à l'opposé » (contraposition). Cette variante et « buste solidaire » sont montrées dans la section « Règle de pose et variante ».
-- Buste et bras : volumes stylisés, pas un maillage anatomique. Le haut du tronc compense le bassin (iso=1), bras en cadre de danse.
+- Tête et bras : volumes stylisés, pas un maillage anatomique ; bras en cadre de danse. Tronc : montré par ses muscles (BodyParts3D), sans les volumes gris du rig. Le haut du tronc compense le bassin (iso=1).
 
 ## Licences
 

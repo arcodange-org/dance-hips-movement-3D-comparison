@@ -490,8 +490,8 @@ Vote du 22 novembre 2026 : A pour la planche, parce qu'elle met le mieux la rota
 `main` a reçu #173 (PR #174) : quand les muscles sont affichés, les volumes gris du tronc (colonne,
 poitrine, épaules) ne sont plus dessinés (`trunkBlocksVisible`, `src/muscles.ts`). La vue `?atlas=`
 affiche les muscles par défaut : après la fusion, l'application ne rend plus les images versionnées
-(vérifié sur deux images, différentes à l'octet). Les mesures, elles, ne changent pas : le test de
-fraîcheur de `meta.json` reste vert, il ne compare pas les images.
+(vu à l'œil sur une image rendue : le bloc gris du buste a disparu). Les mesures, elles, ne changent
+pas : le test de fraîcheur de `meta.json` reste vert, il ne compare pas les images.
 
 - **Régénération.** Les trois planches du bassin (135 images, 15 GIF, 3 planches) et les deux GIF
   d'élection sont recapturés avec le moteur fusionné. Aucune règle de pose ne change.
@@ -499,8 +499,16 @@ fraîcheur de `meta.json` reste vert, il ne compare pas les images.
   par ses muscles, sans les volumes gris ». Sans les muscles (`muscles=0`) : le texte d'avant.
 - **Ce que le test ne voit pas.** `scripts/test_atlas_planches.mjs` contrôle les mesures, pas les
   pixels : un changement d'apparence du rig périme les images sans faire échouer le test. Après une
-  fusion de `main` qui touche `Rig.tsx`, `muscles.ts` ou les matériaux, comparer une image rendue à
-  l'image versionnée, et régénérer si elles diffèrent.
+  fusion de `main` qui touche `Rig.tsx`, `muscles.ts` ou les matériaux, relancer la capture d'une
+  planche : la capture est déterministe sur une même machine, donc si `git status` montre des images
+  modifiées, l'apparence a changé et les autres planches sont à régénérer aussi. Une capture d'écran
+  brute ne se compare pas à l'octet aux images versionnées, qui sont en couleurs indexées.
+- **Résultat (2026-11-23).** 168 fichiers régénérés : 135 images, 15 GIF, 3 planches, `meta.json` et
+  page de chaque planche (copies servies comprises), plus les deux GIF d'élection. Poids : 6,9 Mo dans
+  `docs/atlas/mouvements/` (2,3, 2,5 et 2,1 Mo), 0,7 Mo dans `public/` ; GIF d'élection 2,3 Mo
+  (obliquité) et 4,5 Mo (rotation). La veille, la même capture de `bassin-rotation` laissait ses 45
+  images identiques à l'octet : la différence vient bien du moteur fusionné. Dans le GIF de la
+  rotation, la rotation du thorax se lit maintenant sur ses muscles, sans le bloc gris.
 
 ### Lien avec le ginga : le « 8 » du bassin (#157, #159)
 

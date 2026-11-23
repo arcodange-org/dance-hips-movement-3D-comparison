@@ -58,7 +58,7 @@ Vue en direct dans l'application : `?atlas=bassin-obliquite&vue=face&frame=4&fra
 - Pose neutre du moteur : pieds à l'écartement et à l'ouverture natifs du squelette, genoux fléchis d'au moins 0,12 rad par l'IK (jambe jamais verrouillée).
 - Bassin en chaîne fermée, pieds plantés : la hanche qui descend fait fléchir son genou. D'autres stratégies (demi-pointe, translation du bassin) ne sont pas montrées.
 - Hauteur du bassin : tenue constante, à sa hauteur la plus basse de l'amplitude (colonne « Hauteur du bassin »). Les deux genoux fléchissent ensemble au passage par le centre : aucune jambe n'y est presque tendue. C'est un choix de modèle, élu par le propriétaire pour la danse ; la variante « genoux en relais », où le bassin remonte au centre, est montrée dans la section « Règle de pose et variante ».
-- Buste et bras : volumes stylisés, pas un maillage anatomique. Le haut du tronc compense le bassin (iso=1), bras en cadre de danse.
+- Tête et bras : volumes stylisés, pas un maillage anatomique ; bras en cadre de danse. Tronc : montré par ses muscles (BodyParts3D), sans les volumes gris du rig. Le haut du tronc compense le bassin (iso=1).
 
 ## Licences
 

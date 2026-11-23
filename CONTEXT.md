@@ -74,7 +74,11 @@ jambes ne bougent pas).
 - `main` a été fusionné sept fois dans la branche (conflits : `package.json`, `README.md`,
   `docs/TASKS.md`, `CONTEXT.md`, `src/main.tsx`, `src/pose.ts`, `docs/regles-proprietaire.md`,
   `src/components/Rig.tsx` ; garder les deux côtés). Les numéros de règle se croisent entre branches :
-  vérifier `docs/regles-proprietaire.md` après chaque fusion (R36 de l'atlas est devenue R38). Dans
+  vérifier `docs/regles-proprietaire.md` après chaque fusion (R36 de l'atlas est devenue R38).
+- **Images régénérées le 23 novembre (spec D18).** Depuis #173, les volumes gris du tronc ne sont plus
+  dessinés quand les muscles sont affichés : les trois planches et les deux GIF d'élection ont été
+  recapturés. Le test ne compare pas les pixels : après une fusion qui change l'apparence du rig,
+  relancer la capture d'une planche et regarder `git status`. Dans
   `src/pose.ts`, l'option `neutral` de l'atlas et le ginga de #157 s'ajoutent au même endroit.
 
 Suite : règles de pose des 13 autres mouvements (le script les refuse pour l'instant), décision sur
