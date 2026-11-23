@@ -40,9 +40,9 @@ barres du navigateur, toucher activé (`scripts/mesure_jeu_telephone.mjs`).
 
 | Disposition | Condition | Où vont les commandes |
 | --- | --- | --- |
-| `couche` | plus large que haute, et moins de 500 px de haut | une colonne à gauche (retour, pause, son, plus, état, qui danse, style), les figures en colonne à droite, le couple au milieu |
-| `droit` | moins de 640 px de large | deux rangées en haut, les figures dans une bande en bas, le couple entre les deux |
-| `large` | le reste (tablette, ordinateur) | état et style en haut à gauche, qui danse et les icônes en haut à droite, les figures en rangée en bas |
+| `couche` | plus large que haute, et moins de 500 px de haut | une colonne à gauche (retour, pause, son, plus, état, qui danse, style), les figures en colonne à droite, le couple au milieu ; les colonnes se resserrent sur un petit téléphone |
+| `droit` | moins de 640 px de large | deux rangées en haut (retour, état, plus ; qui danse, pause, son), les figures dans une bande en bas, le couple entre les deux ; le style se choisit dans « Plus », faute de place |
+| `large` | le reste (tablette, ordinateur) | état et style en haut à gauche, qui danse et les icônes en haut à droite, en bas une rangée de figures puis une rangée de bascules |
 
 Les commandes ne se chevauchent dans aucune des trois : chaque bande a sa place, rien n'est posé sur une
 autre bande ni sur le couple.
@@ -122,12 +122,49 @@ et de l'encoche (`env(safe-area-inset-*)`).
   les profils iPhone 14 droit et couché, iPhone SE et Pixel 7, puis mesure et refuse si :
   - une commande fait moins de 44 px de haut ou de large ;
   - une commande en recouvre une autre, ou n'est pas atteignable à son centre ;
-  - le couple n'a pas, dans le jeu, une bande libre d'au moins la moitié de la hauteur (téléphone tenu
-    droit) ou de toute la hauteur sur au moins 280 px de large (téléphone couché) ;
+  - le couple n'a pas une bande libre de toute la largeur, haute d'au moins la moitié de l'écran
+    (téléphone tenu droit, écran large), ou de toute la hauteur, large d'au moins 55 % de la hauteur
+    de l'écran (téléphone couché) ;
+  - une figure touchée n'est ni mise en file ni dansée, ou Pause, « Danse seule » et le panneau
+    « Plus » ne répondent pas ;
   - un raccourci clavier est affiché sur un écran tactile ;
   - l'attribution n'est pas à l'écran.
 - À l'ordinateur (1280 × 800) : le jeu se commande au clavier comme avant ; la rangée de figures ne
   passe plus sur les pieds.
+
+## Résultat mesuré
+
+`scripts/mesure_jeu_telephone.mjs`, le 23 novembre 2026 : tous les critères sont tenus sur les treize
+couples vue et profil (jeu, vitrine ; iPhone 14 et iPhone SE tenus droits et couchés, Pixel 7, ordinateur
+1280 × 800 ; plus le jeu en kompa).
+
+Place libre pour le couple, avant et après :
+
+| Vue | Profil | Avant | Après |
+| --- | --- | --- | --- |
+| Jeu | iPhone 14, 390 × 664 | 56 px de haut | 412 px de haut |
+| Jeu | iPhone SE, 320 × 568 | 12 px de haut | 301 px de haut |
+| Jeu | Pixel 7, 412 × 839 | 264 px de haut | 587 px de haut |
+| Jeu | iPhone 14 couché, 750 × 340 | 12 px de haut, panneaux empilés | toute la hauteur, sur 336 px de large |
+| Jeu | iPhone SE couché, 568 × 320 | non mesuré | toute la hauteur, sur 178 px de large |
+| Vitrine | iPhone 14, 390 × 664 | 364 px de haut | 425 px de haut |
+| Vitrine | iPhone 14 couché, 750 × 340 | 134 px de haut, bouton sur les jambes | toute la hauteur, sur 336 px de large |
+
+Dans le jeu : plus petite commande 44 px (24 px avant), aucune commande sous une autre, aucun raccourci
+clavier sur écran tactile (9 avant), dix boutons au pavé de la kizomba (8 avant : deux bascules de plus pour
+les variantes de l'ida e volta).
+
+| Avant | Après |
+| --- | --- |
+| <img src="captures/jeu-telephone/avant-jeu-iphone14-droit.jpg" width="260" alt="Avant : le jeu sur un téléphone tenu droit, le couple caché par les panneaux"> | <img src="captures/jeu-telephone/jeu-iphone14-droit.jpg" width="260" alt="Après : le couple visible de la tête aux pieds entre deux bandes de commandes"> |
+| <img src="captures/jeu-telephone/avant-jeu-iphone14-couche.jpg" width="380" alt="Avant : le jeu sur un téléphone couché, les panneaux empilés"> | <img src="captures/jeu-telephone/jeu-iphone14-couche.jpg" width="380" alt="Après : commandes à gauche, figures à droite, le couple au milieu"> |
+| <img src="captures/jeu-telephone/avant-vitrine-iphone14-couche.jpg" width="380" alt="Avant : la vitrine sur un téléphone couché, le bouton de musique sur les jambes"> | <img src="captures/jeu-telephone/vitrine-iphone14-couche.jpg" width="380" alt="Après : la vitrine sur un téléphone couché, rien sur le couple"> |
+
+Autres captures : [petit téléphone tenu droit](captures/jeu-telephone/jeu-iphoneSE-droit.jpg),
+[petit téléphone couché](captures/jeu-telephone/jeu-iphoneSE-couche.jpg),
+[panneau « Plus »](captures/jeu-telephone/jeu-iphone14-droit-plus.jpg),
+[vitrine tenue droite](captures/jeu-telephone/vitrine-iphone14-droit.jpg),
+[jeu à l'ordinateur](captures/jeu-telephone/jeu-ordinateur.jpg).
 
 ## Hors périmètre
 
@@ -137,3 +174,5 @@ et de l'encoche (`env(safe-area-inset-*)`).
   principale ; d'ici là, le jeu garde une flèche de retour.
 - Un vrai téléphone : l'émulation ne montre ni la barre du navigateur sur une vue en `100vh`, ni la
   fluidité, ni le déblocage du son. À essayer sur l'appareil du propriétaire.
+- Le vocabulaire de la fiche de transition (« Leader », « Suiveur ») : composant partagé avec la page
+  principale, à aligner avec elle sur « guideur » et « suiveuse ».

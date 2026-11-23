@@ -226,6 +226,15 @@ un petit rebond sur chaque temps de la musique (`&ginga=sans`, `discret`, `marqu
 figures sont effacés en un temps (inertialisation). Testé sur le GLB : continuité aux enchaînements,
 aucun croisement d'os. [Spec de la file et de la danse automatique](docs/spec-jeu-file-auto.md).
 
+**Au téléphone (#186)** : les commandes du jeu et de la vitrine se rangent selon l'écran. Téléphone tenu
+droit : l'état, « Plus », qui danse, pause et son en haut, les figures dans une bande en bas ; téléphone
+couché : les commandes à gauche, les figures à droite. Le couple reste visible de la tête aux pieds, chaque
+bouton fait au moins 44 px, et trois bascules (« Virgula », « Jambe droite », « En arrière ») donnent au
+toucher les variantes de l'ida e volta du clavier. Le jeu propose le choix du style ; « Plus » réunit
+recommencer, la caméra, le tempo, le partage et l'aide. [Spécification](docs/spec-jeu-telephone.md).
+
+<img src="docs/captures/jeu-telephone/jeu-iphone14-droit.jpg" width="240" alt="Mode jeu sur un téléphone tenu droit"> <img src="docs/captures/jeu-telephone/jeu-iphone14-couche.jpg" width="420" alt="Mode jeu sur un téléphone couché">
+
 ![Mode guidage : ida e volta, sortie garçon, quart de tour, sortie fille](docs/gifs/mode-guidage-demo.gif)
 <details><summary>Détails & source</summary>
 

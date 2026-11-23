@@ -5,6 +5,20 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Jeu et vitrine utilisables sur téléphone (#186, 23 novembre 2026)
+
+- Premier lot de la simplification de la page. Sur téléphone, les panneaux du jeu couvraient 78 % de l'écran
+  visible (il restait 56 px pour le couple), se chevauchaient téléphone couché (cinq commandes hors d'atteinte), et
+  trois variantes de l'ida e volta n'existaient qu'au clavier ([spec](docs/spec-jeu-telephone.md)).
+- Fait : commandes en trois dispositions (`hudLayout` : téléphone tenu droit, couché, écran large ; `src/jeuHud.ts`,
+  `src/components/jeu/`) ; la vue de la caméra est gardée dans la place libre (`freeView`, `CadreLibre`) ; boutons de
+  44 px au moins ; bascules « Virgula », « Jambe droite », « En arrière » ; choix du style ; panneau « Plus » ;
+  hauteur visible (`100dvh`). Le mouvement, le clavier, les paramètres d'URL et la vue `bare=1` ne changent pas.
+- Vérifié : `docs/features/jeu-telephone.feature` (dans `npm test`) et `scripts/mesure_jeu_telephone.mjs` (navigateur,
+  profils de téléphone de Playwright) : place du couple 56 → 412 px sur iPhone 14, 12 → 301 px sur iPhone SE.
+- Reste : essai sur un vrai téléphone (barres du navigateur, fluidité, son) ; la page principale, dont l'audit et trois
+  organisations sont proposés au propriétaire (choix en attente), et où la scène retient le doigt au téléphone.
+
 ## Cadre des bras : bras droit du guideur, mains jointes (#178, #179, 22 novembre 2026)
 
 - **Règle R35 (#178)** : le bras droit du guideur ne se baisse pas. Hors du dos de la suiveuse (sortie fille), sa

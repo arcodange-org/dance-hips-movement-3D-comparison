@@ -387,3 +387,14 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [ ] Essai par le propriétaire de la ligne en paire et de la marche déroulée ; fusion de #149 puis de la PR empilée avec son accord.
 - [ ] Hors de ce tour : dérouler le pied dans l'ida e volta et les quarts de tour en solo demanderait d'amender l'oracle ; saut de cheville au décollage du pied dans les figures (5,7 mm, sortie garçon), à voir avec #167.
 - [ ] Second tour : #56 (croisé de la sortie garçon, géométrie du couple à régler pour chaque piste) et #67 (distance bassin-bassin, même figure à filmer à plusieurs distances).
+
+## Jeu et vitrine sur téléphone (#186)
+
+- [x] Issue #186 et spec poussée en premier ([spec](spec-jeu-telephone.md)).
+- [x] Trois dispositions des commandes (`src/jeuHud.ts`, `src/components/jeu/`) ; la vue tient dans la place libre (`CadreLibre`).
+- [x] Variantes de l'ida e volta au toucher (bascules), choix du style, panneau « Plus », hauteur visible de l'écran.
+- [x] `jeu-telephone.feature` dans `npm test` ; `scripts/mesure_jeu_telephone.mjs` : critères tenus sur iPhone 14 et iPhone SE (tenus droits et couchés), Pixel 7 et ordinateur.
+- [x] Captures avant et après (`docs/captures/jeu-telephone/`).
+- [ ] Essai par le propriétaire sur son téléphone : barres du navigateur, fluidité, son.
+- [ ] Page principale : choix entre les trois organisations proposées ; au téléphone, la scène retient le doigt et empêche de faire défiler la page.
+- [ ] Fiche de transition : aligner « Leader » et « Suiveur » sur « guideur » et « suiveuse », avec la page principale.
