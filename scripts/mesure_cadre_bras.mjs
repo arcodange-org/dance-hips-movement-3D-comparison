@@ -2,8 +2,7 @@
 // dos de la suiveuse (par rapport à son omoplate gauche), et lequel des deux bras passe au-dessus de l'autre là où ils
 // se croisent (bras gauche de la suiveuse, bras droit du guideur). Ce n'est pas un test : il chiffre ce que montrent
 // les images (kizomba, quinconce, plexus, amplitude 1).
-// Usage : node scripts/mesure_cadre_bras.mjs                     (comportement)
-//         ESSAI=coudeBas node scripts/mesure_cadre_bras.mjs      (candidat : le coude de la suiveuse où #180 l'avait mis)
+// Usage : node scripts/mesure_cadre_bras.mjs
 import { buildSync } from "esbuild";
 import { readFileSync, unlinkSync } from "node:fs";
 import * as THREE from "three";

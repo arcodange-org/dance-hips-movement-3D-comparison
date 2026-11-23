@@ -438,8 +438,8 @@ la suiveuse passe par-dessus le bras droit du guideur.
   guideur et les deux bras à plus de 9 cm (4 cm pendant les sorties).
 - **Ce que cela change à la règle R37** : le coude de la suiveuse n'est plus contre le bras du guideur. Sur le rig
   stylisé il est à 17 à 21 cm de l'axe de ce bras en moyenne (10 à 11 cm avant) : bras replié comme il l'est, le coude
-  ne peut monter qu'en s'écartant. Candidat filmable pour comparer : `?essai=coudeBas` garde le coude où #180 l'avait
-  mis (la paume du guideur reste sur l'omoplate).
+  ne peut monter qu'en s'écartant. **Choix du propriétaire, 23 novembre 2026 : le coude levé.** Le candidat
+  `?essai=coudeBas`, qui gardait le coude où #180 l'avait mis, est retiré (#190).
 - Images (os et muscles, sur place, temps 2) : ![avant, puis après](main-omoplate-avant-apres.png)
 - Limites : danseurs stylisés (sans `haut=1`), la main reste un point au bord du dos ; pendant les sorties la main
   glisse hors de l'omoplate (#93) ; muscles et peau ne sont vérifiés qu'à l'œil.
