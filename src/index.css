@@ -21,3 +21,11 @@
 body {
   font-family: "DejaVu Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
+
+/* #186 : sur un téléphone, 100vh dépasse l'écran visible quand les barres du navigateur sont affichées ;
+   100dvh est la hauteur réellement visible (vues plein écran : jeu, vitrine, captures). */
+@supports (height: 100dvh) {
+  .h-screen {
+    height: 100dvh;
+  }
+}

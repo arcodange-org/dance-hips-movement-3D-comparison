@@ -966,7 +966,74 @@ const steps = [
   [/^swingLift reste superieur ou egal \u00e0 0$/, (c) => {
     for (const v of c.sw) if (v < -1e-12) throw new Error("swingLift n\u00e9gatif: " + v);
   }],
+  // Jeu et vitrine sur téléphone (#186, docs/spec-jeu-telephone.md) : src/jeuHud.ts, chargé à part (jeuHud()).
+  [/^une fenêtre de (\d+) × (\d+) donne la disposition "(couche|droit|large)"$/, (c, m) => {
+    const got = jeuHud().hudLayout(Number(m[1]), Number(m[2]));
+    if (got !== m[3]) throw new Error(`hudLayout(${m[1]}, ${m[2]}) = ${got}`);
+  }],
+  [/^une scène de (\d+) × (\d+) avec des bandes de (\d+) px en haut, (\d+) à droite, (\d+) en bas et (\d+) à gauche$/, (c, m) => {
+    const [w, h, top, right, bottom, left] = m.slice(1).map(Number);
+    c.scene = { w, h, marges: { top, right, bottom, left } };
+    c.libre = jeuHud().freeView(w, h, c.scene.marges);
+  }],
+  [/^la vue d'origine est à (\d+) % de sa taille, centrée en \((\d+), (\d+)\)$/, (c, m) => {
+    if (!c.libre) throw new Error("vue non modifiée");
+    const got = [Math.round(c.libre.scale * 100), Math.round(c.libre.fullWidth / 2 - c.libre.offsetX), Math.round(c.libre.fullHeight / 2 - c.libre.offsetY)];
+    if (got.join() !== m.slice(1).map(Number).join()) throw new Error(`${got[0]} %, centre (${got[1]}, ${got[2]})`);
+    // Même réduction en largeur et en hauteur : l'image n'est pas déformée.
+    if (Math.abs(c.libre.fullWidth / c.scene.w - c.libre.fullHeight / c.scene.h) > 1e-9) throw new Error("vue déformée");
+  }],
+  [/^le couple tient dans la place libre$/, (c) => {
+    const { SUJET } = jeuHud(), { w, h, marges: g } = c.scene, v = c.libre;
+    const cx = v.fullWidth / 2 - v.offsetX, cy = v.fullHeight / 2 - v.offsetY;
+    const demiH = SUJET.hauteur * h * v.scale / 2, demiL = SUJET.largeur * h * v.scale / 2;
+    const dehors = [g.top - (cy - demiH), cy + demiH - (h - g.bottom), g.left - (cx - demiL), cx + demiL - (w - g.right)].filter(d => d > 0.5);
+    if (dehors.length) throw new Error(`le couple dépasse de ${dehors.map(d => d.toFixed(1)).join(", ")} px`);
+  }],
+  [/^la vue d'origine n'est pas modifiée$/, (c) => { if (c.libre !== null) throw new Error(JSON.stringify(c.libre)); }],
+  [/^le style "([^"]+)" propose au pavé les figures "([^"]*)" et les bascules "([^"]*)"$/, (c, m) => {
+    const pad = jeuHud().padOf(mod.guidage.guideFiguresFor(m[1]));
+    const bascules = [pad.virgula && "virgula", pad.jambeDroite && "jambe droite", pad.enArriere && "en arrière"].filter(Boolean).join(", ");
+    if (pad.figures.join(", ") !== m[2] || bascules !== m[3]) throw new Error(`figures "${pad.figures.join(", ")}", bascules "${bascules}"`);
+    c.pad = pad;
+  }],
+  [/^un pavé de (\d+) boutons tient en (\d+) colonnes sur un téléphone tenu droit$/, (c, m) => {
+    const { padSize, padColumns } = jeuHud();
+    if (padSize(c.pad) !== Number(m[1])) throw new Error(`${padSize(c.pad)} boutons`);
+    if (padColumns(Number(m[1])) !== Number(m[2])) throw new Error(`${padColumns(Number(m[1]))} colonnes`);
+  }],
+  [/^« Ida e volta » touché avec les bascules "([^"]*)" commande "(\w+)", comme les flèches "([^"]*)" maintenues$/, (c, m) => {
+    const mods = { jambeDroite: m[1].includes("jambe droite"), enArriere: m[1].includes("en arrière") };
+    const got = jeuHud().padFigure("ida", mods);
+    const clavier = mod.guidage.figureOfCode(mod.guidage.GUIDE_FIGURES.ida.code, { right: m[3].includes("→"), down: m[3].includes("↓") });
+    if (got !== m[2] || clavier !== m[2]) throw new Error(`toucher ${got}, clavier ${clavier}`);
+  }],
+  [/^les bascules ne changent pas les autres figures du pavé$/, () => {
+    for (const f of mod.guidage.GUIDE_FIGURE_KEYS.filter(k => k !== "ida")) {
+      const got = jeuHud().padFigure(f, { jambeDroite: true, enArriere: true });
+      if (got !== f) throw new Error(`${f} devient ${got}`);
+    }
+  }],
+  [/^changer de style depuis "(\?[^"]*)" pour "([^"]+)" mène à "(\?[^"]*)"$/, (c, m) => {
+    const got = jeuHud().styleSearch(m[1], m[2]);
+    if (got !== m[3]) throw new Error(got);
+  }],
+  [/^une commande fait au moins (\d+) px de côté$/, (c, m) => {
+    if (jeuHud().TOUCH_MIN !== Number(m[1])) throw new Error(`TOUCH_MIN = ${jeuHud().TOUCH_MIN}`);
+  }],
 ];
+
+/** #186: the game controls module (src/jeuHud.ts), bundled on first use, apart from the main bundle. */
+let jeuHudCache = null;
+function jeuHud() {
+  if (jeuHudCache) return jeuHudCache;
+  const out = join(root, "scripts", ".test-jeu-hud-bundle.cjs");
+  esbuild.buildSync({ entryPoints: [join(root, "src", "jeuHud.ts")], bundle: true, format: "cjs", platform: "node", outfile: out,
+    logLevel: "silent", define: { "import.meta.env.BASE_URL": '"/"' } });
+  jeuHudCache = require(out);
+  rmSync(out, { force: true });
+  return jeuHudCache;
+}
 
 // ---------- exécution ----------
 const featuresDir = join(root, "docs", "features");

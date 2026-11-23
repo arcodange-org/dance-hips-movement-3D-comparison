@@ -31,10 +31,9 @@ export const CADRE_SITES = {
   /** #180, #185: where the follower's left elbow tends: beside the leader's right arm, on its outer side, at the
    * height of his chest. Her arm passes over his: her elbow comes above his elbow (kept at his ribs), her upper arm
    * outside his forearm, which goes under her armpit to her shoulder blade. (Under his shoulder, as first set by
-   * #180, her elbow hung lower than his and the two arms ran side by side, closer than their thickness.) */
+   * #180, her elbow hung lower than his and the two arms ran side by side, closer than their thickness. The owner
+   * chose the raised elbow on 23 November 2026, #190.) */
   armR: [-0.36, 0, 0.06] as Vec3,
-  /** #180's place of her elbow, under his shoulder: a candidate to film, inert without `?essai=coudeBas`. */
-  armRLow: [-0.27, -0.2, 0.04] as Vec3,
   /** Leader's right elbow kept towards his right ribs (owner gesture: elbow to the ribs). */
   ribsR: [-0.15, -0.10, 0] as Vec3,
 };
@@ -114,7 +113,7 @@ export function solveFrame(own: ArmRig, partner: ArmRig, follower: boolean) {
     // seeks his right arm, on which she leans when he lifts her. Right hand in the leader's left hand, elbow down.
     // (The pole is beside his right arm, on the outer side, at the height of his chest: her arm passes over his
     // (#185), outside his torso. It does not follow his forearm, so her elbow never swings with it.)
-    L: { target: site(partner, CADRE_SITES.shoulderR), pole: site(partner, essai("coudeBas") ? CADRE_SITES.armRLow : CADRE_SITES.armR) },
+    L: { target: site(partner, CADRE_SITES.shoulderR), pole: site(partner, CADRE_SITES.armR) },
     R: { target: joined, pole: down(own, "R", 0.25, -0.35) },
   } : {
     // Leader: right hand on the follower's left shoulder blade, elbow towards his right ribs; left hand

@@ -5,6 +5,24 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Jeu et vitrine utilisables sur téléphone (#186, 23 novembre 2026)
+
+- Premier lot de la simplification de la page. Sur téléphone, les panneaux du jeu couvraient 78 % de l'écran
+  visible (il restait 56 px pour le couple), se chevauchaient téléphone couché (cinq commandes hors d'atteinte), et
+  trois variantes de l'ida e volta n'existaient qu'au clavier ([spec](docs/spec-jeu-telephone.md)).
+- Fait : commandes en trois dispositions (`hudLayout` : téléphone tenu droit, couché, écran large ; `src/jeuHud.ts`,
+  `src/components/jeu/`) ; la vue de la caméra est gardée dans la place libre (`freeView`, `CadreLibre`) ; boutons de
+  44 px au moins ; bascules « Virgula », « Jambe droite », « En arrière » ; choix du style ; panneau « Plus » ;
+  hauteur visible (`100dvh`). Le mouvement, le clavier, les paramètres d'URL et la vue `bare=1` ne changent pas.
+- Vérifié : `docs/features/jeu-telephone.feature` (dans `npm test`) et `scripts/mesure_jeu_telephone.mjs` (navigateur,
+  profils de téléphone de Playwright) : place du couple 56 → 412 px sur iPhone 14, 12 → 301 px sur iPhone SE.
+- Vu aussi dans Safari du simulateur d'iPhone (iOS 26), tenu droit et couché, barre d'onglets comprise (page de 280 px
+  de haut) : rien sous la barre de Safari, les figures se commandent au doigt, la musique part au toucher.
+- Essayé par le propriétaire sur son téléphone le 23 novembre (version construite, servie sur le réseau local) : le
+  jeu s'y joue.
+- Reste : la page principale, dont l'audit et trois organisations sont proposés au propriétaire (choix en attente),
+  et où la scène retient le doigt au téléphone.
+
 ## Kompa et semba : pas de base élus (#161, #162, 23 novembre 2026)
 
 - **Dix tours de vote** sur films (page de vote du propriétaire ; résultats et mesures :
@@ -51,8 +69,8 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
 - **Règle R38 (#185, 23 novembre)** : avec le haut du corps anatomique, la paume droite du guideur est sur le corps de
   l'omoplate gauche de la suiveuse (poignet au bord du dos, `BACK`) ; le coude gauche de la suiveuse passe au-dessus
   de celui du guideur (3,6 à 6,2 cm en position fermée), les deux bras à 10 cm d'axe à axe. Son coude s'écarte donc
-  du bras du guideur (17 à 21 cm sur le rig stylisé, 10 à 11 avant) : `?essai=coudeBas` filme l'ancienne place, au
-  choix du propriétaire.
+  du bras du guideur (17 à 21 cm sur le rig stylisé, 10 à 11 avant) : le propriétaire a choisi ce coude levé le
+  23 novembre, le candidat `coudeBas` est retiré (#190).
 
 ## Haut du corps anatomique : buste, bras et mains (#176, 22 novembre 2026)
 
