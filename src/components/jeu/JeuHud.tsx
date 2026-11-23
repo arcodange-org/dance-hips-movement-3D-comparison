@@ -160,7 +160,10 @@ export default function JeuHud(p: JeuHudProps) {
     </button>
   );
 
-  const position = large ? "right-3 top-[4.25rem] w-80" : layout === "couche" ? "left-2 top-2 w-[340px]" : "inset-x-2 top-2";
+  const position = large ? "right-3 top-[4.25rem] w-80" : "inset-x-2 top-2";
+  // Téléphone couché : l'écran est court (280 px avec la barre d'onglets de Safari), les commandes du panneau
+  // se rangent sur deux colonnes pour tenir sans défilement.
+  const rangees = layout === "couche" ? "grid grid-cols-1 items-center gap-x-4 gap-y-2 sm:grid-cols-2" : "contents";
   const keyIda = p.keys.ida ?? "Z";
 
   return (
@@ -215,6 +218,7 @@ export default function JeuHud(p: JeuHudProps) {
 
       {plus && (
         <Panneau titre="Plus" position={position} onFermer={() => setPlus(false)}>
+          <div className={rangees}>
           {layout === "droit" && <div className="flex items-center justify-between gap-3"><span>Style</span>{style("max-w-[60%]")}</div>}
           <button type="button" className={LIGNE} onClick={() => { p.onRestart(); setPlus(false); }}>Recommencer</button>
           <div className="flex items-center justify-between gap-3">
@@ -241,6 +245,7 @@ export default function JeuHud(p: JeuHudProps) {
           </button>}
           {p.shared && <input readOnly value={p.shared} aria-label="Lien direct de la vitrine" onFocus={e => e.currentTarget.select()}
             className="h-11 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 text-xs text-slate-200" />}
+          </div>
           <div className="space-y-1">
             <h3 className="font-semibold text-slate-100">Comment jouer</h3>
             <p className="text-slate-300">{p.aide}</p>

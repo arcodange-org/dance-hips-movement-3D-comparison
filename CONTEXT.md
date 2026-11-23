@@ -16,7 +16,9 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   hauteur visible (`100dvh`). Le mouvement, le clavier, les paramètres d'URL et la vue `bare=1` ne changent pas.
 - Vérifié : `docs/features/jeu-telephone.feature` (dans `npm test`) et `scripts/mesure_jeu_telephone.mjs` (navigateur,
   profils de téléphone de Playwright) : place du couple 56 → 412 px sur iPhone 14, 12 → 301 px sur iPhone SE.
-- Reste : essai sur un vrai téléphone (barres du navigateur, fluidité, son) ; la page principale, dont l'audit et trois
+- Vu aussi dans Safari du simulateur d'iPhone (iOS 26), tenu droit et couché, barre d'onglets comprise (page de 280 px
+  de haut) : rien sous la barre de Safari, les figures se commandent au doigt, la musique part au toucher.
+- Reste : essai par le propriétaire sur son téléphone (fluidité, Android) ; la page principale, dont l'audit et trois
   organisations sont proposés au propriétaire (choix en attente), et où la scène retient le doigt au téléphone.
 
 ## Cadre des bras : bras droit du guideur, mains jointes (#178, #179, 22 novembre 2026)

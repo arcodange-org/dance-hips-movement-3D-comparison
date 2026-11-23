@@ -395,6 +395,7 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Variantes de l'ida e volta au toucher (bascules), choix du style, panneau « Plus », hauteur visible de l'écran.
 - [x] `jeu-telephone.feature` dans `npm test` ; `scripts/mesure_jeu_telephone.mjs` : critères tenus sur iPhone 14 et iPhone SE (tenus droits et couchés), Pixel 7 et ordinateur.
 - [x] Captures avant et après (`docs/captures/jeu-telephone/`).
-- [ ] Essai par le propriétaire sur son téléphone : barres du navigateur, fluidité, son.
+- [x] Essai dans Safari du simulateur d'iPhone (iOS 26), tenu droit et couché : barre de Safari, encoche, barre d'onglets (page de 280 px de haut), toucher, musique ; deux profils couchés de 280 px ajoutés à la mesure.
+- [ ] Essai par le propriétaire sur son téléphone : fluidité, téléphone Android.
 - [ ] Page principale : choix entre les trois organisations proposées ; au téléphone, la scène retient le doigt et empêche de faire défiler la page.
 - [ ] Fiche de transition : aligner « Leader » et « Suiveur » sur « guideur » et « suiveuse », avec la page principale.

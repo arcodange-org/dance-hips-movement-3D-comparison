@@ -14,6 +14,8 @@ Feature: Jeu et vitrine utilisables sur téléphone (#186)
       | iPhone 14 couché      | 750     | 340     | couche      |
       | iPhone SE couché      | 568     | 320     | couche      |
       | Pixel 7 couché        | 863     | 360     | couche      |
+      | iPhone couché, Safari avec sa barre d'onglets | 750 | 280 | couche |
+      | petit iPhone couché, barre d'onglets          | 667 | 280 | couche |
       | tablette tenue droite | 768     | 1024    | large       |
       | tablette couchée      | 1024    | 768     | large       |
       | ordinateur            | 1280    | 800     | large       |

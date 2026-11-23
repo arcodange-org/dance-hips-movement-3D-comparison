@@ -23,6 +23,9 @@ const PROFILS = {
   "iphoneSE-droit": devices["iPhone SE"],
   "iphoneSE-couche": devices["iPhone SE landscape"],
   "pixel7-droit": devices["Pixel 7"],
+  // Safari couché avec sa barre d'onglets : la page ne fait plus que 280 px de haut (vu dans le simulateur iPhone, iOS 26).
+  "iphone-couche-onglets": { ...devices["iPhone 14 landscape"], viewport: { width: 750, height: 280 } },
+  "petit-iphone-couche-onglets": { ...devices["iPhone SE landscape"], viewport: { width: 667, height: 280 } },
   ordinateur: { viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1, isMobile: false, hasTouch: false },
 };
 const VUES = { jeu: "?mode=pair&guidage=1", vitrine: "?vitrine=1", "jeu-kompa": "?mode=pair&guidage=1&style=kompa" };

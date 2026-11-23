@@ -30,7 +30,7 @@ barres du navigateur, toucher activé (`scripts/mesure_jeu_telephone.mjs`).
 - À l'ordinateur aussi, la rangée de figures passe sur les pieds du couple.
 - Pas de choix du style dans le jeu ; « Quitter » est la seule sortie.
 - Les deux vues prennent `100vh` : sur un navigateur de téléphone, le bas peut passer sous la barre.
-  Non reproduit en émulation, à vérifier sur un vrai téléphone.
+  Non reproduit en émulation ; vu depuis dans Safari du simulateur d'iPhone (« Résultat mesuré »).
 
 ## Décisions
 
@@ -62,7 +62,7 @@ suivi du couple ne changent pas. La vue `bare=1` des captures n'a pas de bandes 
 | Paragraphe d'explication, affiché en permanence | Dans le panneau « Plus », sous « Comment jouer » |
 | « Écoute » / « Danse seule » (un bouton qui dit l'état) | Deux positions côte à côte, « Je guide » et « Danse seule » ; Espace bascule toujours |
 | Pause / Reprendre, Son actif / coupé | Icônes, avec leur nom pour les lecteurs d'écran |
-| Recommencer, Vue : guideur / libre, bpm, Partager | Panneau « Plus » : Recommencer, Caméra, Tempo, Partager cette danse |
+| Recommencer, Vue : guideur / libre, bpm, Partager | Panneau « Plus » : Recommencer, Caméra, Tempo, Partager cette danse ; téléphone couché, le panneau prend la largeur et range ces commandes sur deux colonnes, pour tenir dans un écran de 280 px de haut |
 | Quitter | Flèche de retour vers la vue en couple, même adresse qu'avant |
 | (absent) | Choix du style : recharge la vue avec `style=`, les autres paramètres conservés |
 | « File : … » | « Ensuite : … » |
@@ -119,14 +119,15 @@ et de l'encoche (`env(safe-area-inset-*)`).
   rectangle libre, composition du pavé par style, bascules de l'ida e volta, adresse du changement de
   style.
 - `scripts/mesure_jeu_telephone.mjs` (navigateur, hors `npm test`) : ouvre le jeu et la vitrine sur
-  les profils iPhone 14 droit et couché, iPhone SE et Pixel 7, puis mesure et refuse si :
+  les profils iPhone 14 et iPhone SE tenus droits et couchés, Pixel 7, deux téléphones couchés de 280 px de
+  haut (Safari avec sa barre d'onglets) et un ordinateur, puis mesure et refuse si :
   - une commande fait moins de 44 px de haut ou de large ;
   - une commande en recouvre une autre, ou n'est pas atteignable à son centre ;
   - le couple n'a pas une bande libre de toute la largeur, haute d'au moins la moitié de l'écran
     (téléphone tenu droit, écran large), ou de toute la hauteur, large d'au moins 55 % de la hauteur
     de l'écran (téléphone couché) ;
   - une figure touchée n'est ni mise en file ni dansée, ou Pause, « Danse seule » et le panneau
-    « Plus » ne répondent pas ;
+    « Plus » ne répondent pas, ou une commande du panneau sort de l'écran ;
   - un raccourci clavier est affiché sur un écran tactile ;
   - l'attribution n'est pas à l'écran.
 - À l'ordinateur (1280 × 800) : le jeu se commande au clavier comme avant ; la rangée de figures ne
@@ -134,9 +135,9 @@ et de l'encoche (`env(safe-area-inset-*)`).
 
 ## Résultat mesuré
 
-`scripts/mesure_jeu_telephone.mjs`, le 23 novembre 2026 : tous les critères sont tenus sur les treize
-couples vue et profil (jeu, vitrine ; iPhone 14 et iPhone SE tenus droits et couchés, Pixel 7, ordinateur
-1280 × 800 ; plus le jeu en kompa).
+`scripts/mesure_jeu_telephone.mjs`, le 23 novembre 2026 : tous les critères sont tenus sur les dix-sept
+couples vue et profil (jeu, vitrine ; iPhone 14 et iPhone SE tenus droits et couchés, Pixel 7, deux
+téléphones couchés de 280 px de haut, ordinateur 1280 × 800 ; plus le jeu en kompa).
 
 Place libre pour le couple, avant et après :
 
@@ -166,13 +167,39 @@ Autres captures : [petit téléphone tenu droit](captures/jeu-telephone/jeu-ipho
 [vitrine tenue droite](captures/jeu-telephone/vitrine-iphone14-droit.jpg),
 [jeu à l'ordinateur](captures/jeu-telephone/jeu-ordinateur.jpg).
 
+### Dans Safari, sur le simulateur d'iPhone
+
+Le même jour, la branche a été ouverte dans Safari du simulateur d'iPhone (iPhone 16e, iOS 26), pour voir
+ce que l'émulation ne montre pas : la barre flottante de Safari, l'encoche, la barre d'onglets, le son.
+
+- Tenu droit : la barre de Safari reste sous le pavé, sans le recouvrir ; le couple est entier entre les
+  deux bandes ; « Sortie fille », touchée, se met en file.
+- Couché : Safari réserve l'encoche de chaque côté, la page fait 750 px de large. Elle fait 326 px de haut
+  avec un seul onglet et 280 px quand Safari affiche sa barre d'onglets. Les deux colonnes tiennent dans
+  les deux cas, le couple est entier au milieu, une figure touchée se met en file.
+- Vitrine : « Lancer la musique », touché, démarre la piste (Safari affiche le haut-parleur de l'onglet) ;
+  le bouton laisse la place à « Couper le son », qui la coupe.
+
+Le script de mesure reprend le cas le plus court : deux profils couchés de 280 px de haut, de 750 et de
+667 px de large. Il y a trouvé un défaut, corrigé : le panneau « Plus » dépassait l'écran et « Partager cette
+danse » passait sous le bord ; couché, le panneau prend maintenant la largeur et range ses commandes sur deux
+colonnes ([capture dans Safari](captures/jeu-telephone/safari-jeu-couche-plus.jpg)).
+
+| Jeu, tenu droit | Jeu, couché, barre d'onglets |
+| --- | --- |
+| <img src="captures/jeu-telephone/safari-jeu-droit.jpg" width="240" alt="Safari du simulateur d'iPhone, jeu tenu droit : le couple entre les deux bandes, la barre de Safari sous le pavé"> | <img src="captures/jeu-telephone/safari-jeu-couche-onglets.jpg" width="460" alt="Safari du simulateur d'iPhone, jeu couché avec la barre d'onglets : deux colonnes, le couple au milieu"> |
+
+| Vitrine, tenue droite, musique lancée | Vitrine, couchée, barre d'onglets |
+| --- | --- |
+| <img src="captures/jeu-telephone/safari-vitrine-droit-musique.jpg" width="240" alt="Safari du simulateur d'iPhone, vitrine tenue droite, musique lancée : le bouton de son en haut à droite"> | <img src="captures/jeu-telephone/safari-vitrine-couche-onglets.jpg" width="460" alt="Safari du simulateur d'iPhone, vitrine couchée avec la barre d'onglets : l'état à gauche, les boutons à droite"> |
+
 ## Hors périmètre
 
 - La page principale : sur téléphone, la scène retient le doigt et empêche de faire défiler la page
   (0 px mesuré). À traiter avec sa refonte.
 - Les onglets communs entre les vues (seul, comparer, en couple, jeu) : ils viendront avec la page
   principale ; d'ici là, le jeu garde une flèche de retour.
-- Un vrai téléphone : l'émulation ne montre ni la barre du navigateur sur une vue en `100vh`, ni la
-  fluidité, ni le déblocage du son. À essayer sur l'appareil du propriétaire.
+- Un vrai téléphone : le simulateur montre la barre du navigateur, l'encoche et le déblocage du son, pas la
+  fluidité sur l'appareil ni un téléphone Android. À essayer sur l'appareil du propriétaire.
 - Le vocabulaire de la fiche de transition (« Leader », « Suiveur ») : composant partagé avec la page
   principale, à aligner avec elle sur « guideur » et « suiveuse ».
