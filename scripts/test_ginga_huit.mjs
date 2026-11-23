@@ -76,7 +76,7 @@ const api = await import(bundle.href); unlinkSync(bundle);
   // « 8 » of the styles, and never stop. The model of today is untouched unless a prototype is chosen.
   const kompa = name => { const t = trace(name, 'seul', 'base', 'kompa'); sudden['kompa ' + name] = t.transfert.soudain; return t.mesures; };
   assert.equal(api.KOMPA_PROTO.eight, null, 'no kompa prototype by default');
-  assert.deepEqual(Object.keys(api.KOMPA_EIGHTS), ['huit', 'huitGrand', 'huitInverse', 'genoux', 'genouxRond', 'hanches', 'hanchesFortes', 'profil', 'profilFort', 'alterne', 'alterneTalon', 'alterneDirect', 'hancheFinit', 'hancheTenue', 'hancheAssise']);
+  assert.deepEqual(Object.keys(api.KOMPA_EIGHTS), ['huit', 'huitGrand', 'huitInverse', 'genoux', 'genouxRond', 'hanches', 'hanchesFortes', 'profil', 'profilFort', 'alterne', 'alterneTalon', 'alterneDirect', 'hancheFinit', 'hancheTenue', 'hancheAssise', 'hancheApres']);
   const k0 = kompa('aujourdhui'), k1 = kompa('huit'), k2 = kompa('huitGrand'), k3 = kompa('huitInverse');
   assert.ok(k0.C.profondeur < 0.5 && k0.L.dessus < 2 && k0.C.arret > 0.4, `kompa today: a line (${k0.C.profondeur} cm deep, ${k0.L.dessus} cm², stop ${k0.C.arret})`);
   for (const [name, m] of [['huit', k1], ['huitGrand', k2], ['huitInverse', k3]]) assert.ok(m.L.dessus > 50 && m.R.dessus > 50 && m.C.arret < 0.05 && Math.abs(m.C.largeur - k0.C.largeur) < 1, `kompa ${name}: ${m.L.dessus} cm², stop ${m.C.arret}, ${m.C.largeur} cm wide`);
@@ -136,7 +136,7 @@ const api = await import(bundle.href); unlinkSync(bundle);
   }
   // Seventh round (vote: none; the free heel lifted, but less; the attack of `alterneDirect`, the return of
   // `hanches`: the hip finishes the transfer and does not start it). The three keep the alternation.
-  for (const name of ['hancheFinit', 'hancheTenue', 'hancheAssise']) {
+  for (const name of ['hancheFinit', 'hancheTenue', 'hancheAssise', 'hancheApres']) {
     const k = trace(name, 'seul', 'base', 'kompa'), g = k.genoux;
     assert.ok(g.gauche[0] < 25 && g.gauche[0] > 12 && g.gauche[1] > 45 && g.ecart > 25, `kompa ${name}: one leg nearly straight, the other bent (${JSON.stringify(g)})`);
     assert.ok(g.appuiPlusPlie <= (name === 'hancheFinit' ? 0.2 : 0.01), `kompa ${name}: the supporting leg is the straighter one (${g.appuiPlusPlie})`);

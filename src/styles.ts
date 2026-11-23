@@ -71,8 +71,12 @@ export const KOMPA = { transition: 0.4 };
  * swings through and arrives with it; seen from the front each hip goes round again.
  * `knees.settle` (rad): in step from the centre to the side (the attack of `alterneDirect`), then, on the
  * way back to the centre, behind (< 0, `hancheTenue`: the hip stays up and catches up before the weight
- * passes) or ahead (> 0, `hancheAssise`: the hip sits at once and comes back low). */
-export interface KompaEight { depth: number; round: number; sense: number; knees?: { swing: number; lag: number; tilt: number; base?: number; heel?: number; settle?: number; late?: number }; glide?: number;
+ * passes) or ahead (> 0, `hancheAssise`: the hip sits at once and comes back low).
+ * `knees.after` (rad, `hancheApres`, added once the owner said he leans towards `alterneDirect`): in step
+ * with the weight as it passes the centre (knees cross with it, as in `alterneDirect`), behind it by that
+ * much at the side: the hip is still finishing after the pelvis has arrived (the late finish of `hanches`),
+ * and is back in step for the next passage. */
+export interface KompaEight { depth: number; round: number; sense: number; knees?: { swing: number; lag: number; tilt: number; base?: number; heel?: number; settle?: number; late?: number; after?: number }; glide?: number;
   depthLag?: number; back?: { reach: number; pitch: number }; iso?: number; lift?: number }
 export const KOMPA_EIGHTS: Record<string, KompaEight> = {
   huit: { depth: 0.03, round: 1, sense: 1 },
@@ -90,6 +94,7 @@ export const KOMPA_EIGHTS: Record<string, KompaEight> = {
   hancheFinit: { depth: 0.015, round: 1, sense: 1, knees: { base: 0.08, swing: 0.65, lag: 0, tilt: -0.52, heel: 0.2, late: 0.785 }, glide: 0.5, lift: 0.06 },
   hancheTenue: { depth: 0.015, round: 1, sense: 1, knees: { base: 0.08, swing: 0.65, lag: 0, tilt: -0.52, heel: 0.2, settle: -0.4 }, glide: 0.5, lift: 0.06 },
   hancheAssise: { depth: 0.015, round: 1, sense: 1, knees: { base: 0.08, swing: 0.65, lag: 0, tilt: -0.52, heel: 0.2, settle: 0.4 }, glide: 0.5, lift: 0.06 },
+  hancheApres: { depth: 0.015, round: 1, sense: 1, knees: { base: 0.08, swing: 0.65, lag: 0, tilt: -0.52, heel: 0.2, after: 0.785 }, glide: 0.5, lift: 0.06 },
 };
 /** The prototype in use (null: the model of today). Set once from the address, read by the kompa style. */
 export const KOMPA_PROTO: { eight: KompaEight | null } = { eight: null };
@@ -192,7 +197,9 @@ export const STYLES: Record<string, StyleDef> = {
         const k = eight.knees, phase = turn - 2 * Math.PI * k.lag, half = ((phase % Math.PI) + Math.PI) % Math.PI;
         // `late`: knees and hips are behind the weight by that much as it passes the centre, and in step with
         // it as it reaches the side: the hip waits while the pelvis leaves, then arrives with it.
-        const c = Math.sin(phase + (k.settle && half > Math.PI / 2 ? k.settle * Math.sin(2 * half) ** 2 : 0) - (k.late ?? 0) * Math.cos(phase) ** 2);
+        // `after`: the reverse; in step with the weight as it passes the centre, behind it by that much at the
+        // side: the hip is still finishing when the pelvis has arrived, and is back in step for the next passage.
+        const c = Math.sin(phase + (k.settle && half > Math.PI / 2 ? k.settle * Math.sin(2 * half) ** 2 : 0) - (k.late ?? 0) * Math.cos(phase) ** 2 - (k.after ?? 0) * Math.sin(phase) ** 2);
         const base = k.base ?? 0.28, freeL = (1 - c) / 2, freeR = (1 + c) / 2;
         r.kneeL.rotation.x = (base + k.swing * freeL) * a;
         r.kneeR.rotation.x = (base + k.swing * freeR) * a;
