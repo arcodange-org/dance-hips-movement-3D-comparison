@@ -21,33 +21,48 @@ Position fermée : bustes face à face, pieds proches. Dossier ouvert le 22 nove
 ## Trois attitudes filmables
 
 Kizomba, sur place, 90 bpm, haut du corps anatomique (`haut=1`), muscles affichés. Les interrupteurs `?essai=` sont
-inertes sans le paramètre : l'application ne change pas.
+inertes sans le paramètre : l'application ne change pas. Images refaites le 23 novembre 2026, avec la prise posée
+(doigts et poignet articulés).
 
 | A — aujourd'hui | B — `?essai=mainsCote` | C — `?essai=mainsBasses` |
 |---|---|---|
 | ![A](mains-A-entre-les-poitrines.gif) | ![B](mains-B-sur-le-cote.gif) | ![C](mains-C-sur-le-cote-plus-bas.gif) |
 | ![A](mains-A-entre-les-poitrines.png) | ![B](mains-B-sur-le-cote.png) | ![C](mains-C-sur-le-cote-plus-bas.png) |
-| Entre les deux épaules, 6 cm sous elles : mains cachées entre les cages thoraciques, coudes repliés jusqu'à 27°, doigts dans les côtes du partenaire. | 20 cm vers l'extérieur du couple, à la même hauteur : mains visibles devant les épaules. | 14 cm vers l'extérieur, 14 cm plus bas : mains à hauteur de taille, avant-bras presque horizontaux, coudes détendus. |
+| Entre les deux épaules, 6 cm sous elles : mains cachées entre les cages thoraciques, coudes repliés jusqu'à 27°. | 20 cm vers l'extérieur du couple, à la même hauteur : mains visibles devant les épaules. | 14 cm vers l'extérieur, 14 cm plus bas : mains à hauteur de taille, avant-bras presque horizontaux, coudes détendus. |
 
-Refaire les films (serveur de l'application lancé, navigateur sans fenêtre) :
+La caméra est du côté des mains jointes : le guideur est à droite de l'image, la suiveuse à gauche. Les étiquettes de
+rôle du bas de l'image, fixes, diraient l'inverse : elles sont rognées.
+
+Refaire les films (serveur de l'application lancé, navigateur sans fenêtre), puis rogner les étiquettes :
 
 ```bash
-GPU=1 BPM=90 node scripts/capture_figure_gif.mjs docs/elections/2026-11-22-mains/mains-B-sur-le-cote.gif \
+GPU=1 BPM=90 node scripts/capture_figure_gif.mjs /tmp/B.gif \
   "http://localhost:5173/?mode=pair&bare=1&haut=1&muscles=1&campos=1.9,1.45,1.2&camtgt=0.15,1.2,0&essai=mainsCote" 4 12
+node_modules/ffmpeg-static/ffmpeg -y -i /tmp/B.gif -filter_complex \
+  "crop=440:434:0:0,split[a][b];[a]palettegen=max_colors=96[p];[b][p]paletteuse=dither=bayer:bayer_scale=4" \
+  -loop 0 docs/elections/2026-11-22-mains/mains-B-sur-le-cote.gif
 ```
 
-(`essai=temoin` pour A, `essai=mainsBasses` pour C.)
+(`essai=temoin` pour A, `essai=mainsBasses` pour C.) Images fixes : même adresse avec `beat=2`,
+`campos=2.2,1.35,1.3&camtgt=0.15,1.15,0`.
 
-## Ce qui manque pour la prise décrite
+## La prise, posée (#177)
 
-1. **Poignet** : la main est aujourd'hui dans l'axe de l'avant-bras. Pour poser la main de la suiveuse en travers de
-   celle du guideur, le poignet doit s'articuler (flexion, inclinaison), dans son amplitude.
-2. **Doigts** : la main anatomique est une seule pièce. Il faut articuler les phalanges (serrées, refermées autour de
-   l'index du guideur) et le pouce (ouvert, croisé).
-3. **Relation entre les deux mains** : la main de la suiveuse se place par rapport à celle du guideur (bas de la paume
-   au bord de sa main, doigts vers son index), au lieu de viser le même point que lui.
+Les trois manques relevés à l'ouverture du dossier sont comblés dans le haut du corps anatomique
+([spec](../../spec-haut-du-corps.md), « Les doigts, le poignet et la prise des mains ») :
+
+1. **Poignet** : il s'articule, jusqu'à 57° hors de l'axe de l'avant-bras pour la suiveuse.
+2. **Doigts** : trois articulations par doigt ; la main du guideur s'offre (phalanges ensemble, pouce ouvert), celle
+   de la suiveuse se referme.
+3. **Relation entre les deux mains** : la main de la suiveuse se place sur celle du guideur, en travers, le bas de sa
+   paume au bord de sa main, ses doigts vers son index, son pouce vers le sien.
+
+Limites, mesurées dans la même spec : le poignet de la suiveuse va souvent au bout de son amplitude (paumes face à
+face à 20° à 35° près, surtout dans l'attitude A) ; les doigts ne se serrent pas latéralement et rien ne les empêche
+d'entrer dans la main de l'autre.
 
 ## À trancher par le propriétaire
 
-- Quelles attitudes garder (A, B, C, d'autres), et laquelle par défaut en kizomba.
+- Quelles attitudes garder (A, B, C, d'autres), et laquelle par défaut en kizomba. Question posée le 23 novembre 2026
+  avec ces images ; proposition de l'agent : B par défaut, C gardée comme attitude, A retirée.
 - La prise, une fois posée : à juger sur des gros plans.
