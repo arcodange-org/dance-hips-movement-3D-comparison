@@ -68,6 +68,15 @@ Ces amplitudes sont des paramètres de ce modèle, pas des normes cliniques ni d
   le bas de sa paume au bord de la main du guideur, ses doigts vers son index, son pouce vers le sien. Son poignet
   s'articule pour cela (jusqu'à 57° hors de l'axe de l'avant-bras), et sa main peut tourner de 40° sur la paume du
   guideur vers la ligne de son propre avant-bras.
+- **Attitude sur le côté, mains dressées** (candidat `?essai=mainsCote`, `GRIP.upright` ; précisions du propriétaire,
+  23 novembre 2026) : la paume du guideur est au point du rig, tournée vers sa droite, ses doigts vers le ciel ; son
+  poignet s'articule lui aussi. La main de la suiveuse se pose contre la sienne, aussi dressée que la sienne, 3 cm
+  vers le côté de son pouce, pour que ses doigts se referment autour de son index. Les deux coudes tendent vers le
+  bas, un peu vers l'extérieur. Mesures (`ESSAI=mainsCote node scripts/mesure_essai_mains.mjs`, sur place) : milieu
+  des mains 0,2 cm sous la moyenne des épaules, haut des doigts 9 cm au-dessus ; paume du guideur à 9° de sa droite,
+  ses doigts à la verticale, poignet plié de 35° à 38° ; doigts de la suiveuse à 18° de la verticale, son poignet au
+  bout de sa course (57°), paumes face à face à 12° près. Dans les figures : doigts du guideur à 1° au plus, ceux de
+  la suiveuse de 11° à 31°.
 - La caméra s'approche jusqu'à 35 cm quand l'option est active (1,8 m sinon), pour voir les mains.
 
 ## Mesures (`scripts/test_upper_body.mjs`, GLB réel, seizième de temps, kizomba)

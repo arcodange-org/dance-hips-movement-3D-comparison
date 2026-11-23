@@ -10,6 +10,7 @@ import * as THREE from "three";
 import type { RigHandle } from "./anatomy";
 import { ARM_JOINTS, TORSO_JOINTS } from "./rigJoints";
 import { CADRE_SITES, solveArm } from "./cadre";
+import { essai } from "./essais";
 
 export const UPPER_BODY_URL = `${import.meta.env.BASE_URL}anatomy_upper.glb`;
 
@@ -94,7 +95,12 @@ interface Arm {
  * `shift`: her palm from his, towards his index (m); `gap`: between the two palms (m); `wrist`: how far her wrist
  * may bend away from the forearm's axis (rad); `swivel`: how far her hand may turn on his palm, away from the
  * line to his index, towards where her forearm comes from (rad). */
-export const GRIP = { shift: 0.012, gap: 0.004, wrist: 1.0, swivel: 0.7 };
+export const GRIP = { shift: 0.012, gap: 0.004, wrist: 1.0, swivel: 0.7,
+  /** Hands held up at the couple's side (#179, candidate `?essai=mainsCote`; owner, 23 November 2026): the
+   * leader's palm faces his right, both hands point to the sky. `shift`: her palm from his towards his thumb's
+   * side, so that her fingers close around his index (m); `rise`: her palm above his (m); `elbow`: where each
+   * elbow tends, from its shoulder, in the dancer's chest frame (x away from the body's midline): down. */
+  upright: { shift: 0.03, rise: 0, elbow: [0.25, -1, 0.1] as V3 } };
 
 export interface ArmState {
   target: THREE.Vector3; palm: THREE.Vector3; elbow: THREE.Vector3; pronation: number; error: number;
@@ -207,8 +213,16 @@ export class UpperBody {
       const shape = hold === "hands" ? (follower ? HAND_SHAPES.closes : HAND_SHAPES.offers) : hold === "back" ? HAND_SHAPES.flat : HAND_SHAPES.relaxed;
       // #179: the follower's hand takes the leader's, as his is posed (his layer of this image or of the last).
       const his = hold === "hands" && follower ? (partner?.upperBody as UpperBody | undefined)?.hand("L") : undefined;
+      // #179, candidate: the joined hands held up, both upright, the elbows down (a little outwards).
+      const upright = hold === "hands" && essai("mainsCote");
+      const low = () => this.arms[s].arm.getWorldPosition(new THREE.Vector3())
+        .add(new THREE.Vector3((s === "L" ? 1 : -1) * GRIP.upright.elbow[0], GRIP.upright.elbow[1], GRIP.upright.elbow[2]).transformDirection(r.chest.matrixWorld));
       let posed: Omit<ArmState, "hold" | "shape">;
-      if (his) {
+      if (his && upright) {
+        // Her hand against his, as upright as his; her palm towards his thumb's side, her fingers around his index.
+        const at = his.palm.clone().addScaledVector(his.radial, GRIP.upright.shift).addScaledVector(his.fingers, GRIP.upright.rise).addScaledVector(his.normal, GRIP.gap);
+        posed = this.take(this.arms[s], at, his.normal.clone().negate(), his.fingers, low());
+      } else if (his) {
         // Her fingers go towards his index; her hand may turn on his palm towards the line of her own forearm.
         const facing = his.normal.clone().negate(), forearm = target.clone().sub(rigElbow);
         const natural = forearm.addScaledVector(facing, -forearm.dot(facing));
@@ -216,6 +230,10 @@ export class UpperBody {
           ? Math.max(-GRIP.swivel, Math.min(GRIP.swivel, Math.atan2(new THREE.Vector3().crossVectors(his.radial, natural).dot(facing), his.radial.dot(natural)))) : 0;
         const along = his.radial.clone().applyAxisAngle(facing, swivel);
         posed = this.take(this.arms[s], his.palm.clone().addScaledVector(his.radial, GRIP.shift).addScaledVector(his.normal, GRIP.gap), facing, along, rigElbow);
+      } else if (upright && !follower) {
+        // The leader's hand: the palm on the rig's point, facing his right, the fingers to the sky.
+        const right = new THREE.Vector3(-1, 0, 0).transformDirection(r.chest.matrixWorld).setY(0).normalize();
+        posed = this.take(this.arms[s], target, right, new THREE.Vector3(0, 1, 0), low());
       } else posed = this.pose(this.arms[s], target, rigElbow, normal);
       this.state[s] = { ...posed, target, hold, shape };
       this.shape(s, shape);

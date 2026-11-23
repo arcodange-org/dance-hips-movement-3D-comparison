@@ -41,8 +41,10 @@ export const CADRE = {
    * Below that depth the hand is on its way: no jump between the back and the open frame. */
   leave: 0.05,
   /** #179 (election, `?essai=`): the joined hands carried to the couple's side instead of between the two
-   * chests. `out`: metres outwards from the shoulders' midpoint; `drop`: metres lower than `handsDrop`. */
-  handsSide: { out: 0.2, drop: 0 }, handsLow: { out: 0.14, drop: 0.14 },
+   * chests. `out`: metres outwards from the shoulders' midpoint; `drop`: metres lower than `handsDrop` (negative:
+   * higher). `handsSide` (owner, 23 November 2026): the middle of the hands at shoulder height, so the palm's
+   * centre a little under the shoulders and the fingers above them. */
+  handsSide: { out: 0.2, drop: -0.05 }, handsLow: { out: 0.14, drop: 0.14 },
 };
 
 const Y_DOWN = new THREE.Vector3(0, -1, 0);

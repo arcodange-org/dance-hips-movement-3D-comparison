@@ -13,8 +13,9 @@
 export const ESSAIS = {
   /** Témoin : ne change rien. Sert à filmer le comportement actuel image par image hors du mode paire. */
   temoin: "témoin : comportement actuel",
-  /** #179 : les mains jointes tenues sur le côté du couple, à hauteur d'épaule. */
-  mainsCote: "mains jointes sur le côté du couple, à hauteur d'épaule",
+  /** #179 : les mains jointes tenues sur le côté du couple, leur milieu à hauteur d'épaule, dressées : paume du
+   * guideur vers sa droite, les deux mains vers le ciel (précisions du 23 novembre 2026). */
+  mainsCote: "mains jointes sur le côté du couple, leur milieu à hauteur d'épaule, dressées",
   /** #179 : les mains jointes sur le côté du couple, plus bas et plus près, coudes détendus. */
   mainsBasses: "mains jointes sur le côté du couple, plus bas",
 } as const;

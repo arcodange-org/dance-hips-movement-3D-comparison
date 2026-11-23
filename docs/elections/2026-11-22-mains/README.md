@@ -18,17 +18,35 @@ Position fermée : bustes face à face, pieds proches. Dossier ouvert le 22 nove
   - modèle des doigts : ceux de la suiveuse dans le tour de salsa du projet Blender de ReCoDanse, où ils se
     referment autour du majeur du guideur ; ici, autour de son index.
 
+## Précisions du propriétaire pour l'attitude sur le côté (23 novembre 2026)
+
+Après la première planche (B était alors 6 cm sous les épaules, la main de la suiveuse en travers de celle du guideur) :
+
+- les mains se lèvent légèrement au-dessus de l'épaule : leur milieu est à hauteur d'épaule ;
+- la paume du guideur regarde vers sa droite ;
+- les deux mains pointent vers le ciel, à quelques degrés près.
+
+Fait dans le candidat B (`?essai=mainsCote`). Mesures sur place (`ESSAI=mainsCote node scripts/mesure_essai_mains.mjs`) :
+
+| | Mesure |
+|---|---|
+| Milieu des mains, par rapport à la moyenne des deux épaules | 0,2 cm dessous ; haut des doigts 9 cm au-dessus |
+| Paume du guideur, par rapport à sa droite | à 9° |
+| Doigts du guideur, par rapport à la verticale | 0° (au plus 1° dans les figures) |
+| Doigts de la suiveuse, par rapport à la verticale | 18° (11° à 31° dans les figures) : son poignet est au bout de sa course (57°) |
+| Paumes | face à face à 12° près ; centres à 3 cm, la sienne vers le pouce du guideur |
+
 ## Trois attitudes filmables
 
 Kizomba, sur place, 90 bpm, haut du corps anatomique (`haut=1`), muscles affichés. Les interrupteurs `?essai=` sont
 inertes sans le paramètre : l'application ne change pas. Images refaites le 23 novembre 2026, avec la prise posée
-(doigts et poignet articulés).
+(doigts et poignet articulés) ; celles de B, après les précisions ci-dessus.
 
 | A — aujourd'hui | B — `?essai=mainsCote` | C — `?essai=mainsBasses` |
 |---|---|---|
 | ![A](mains-A-entre-les-poitrines.gif) | ![B](mains-B-sur-le-cote.gif) | ![C](mains-C-sur-le-cote-plus-bas.gif) |
 | ![A](mains-A-entre-les-poitrines.png) | ![B](mains-B-sur-le-cote.png) | ![C](mains-C-sur-le-cote-plus-bas.png) |
-| Entre les deux épaules, 6 cm sous elles : mains cachées entre les cages thoraciques, coudes repliés jusqu'à 27°. | 20 cm vers l'extérieur du couple, à la même hauteur : mains visibles devant les épaules. | 14 cm vers l'extérieur, 14 cm plus bas : mains à hauteur de taille, avant-bras presque horizontaux, coudes détendus. |
+| Entre les deux épaules, 6 cm sous elles : mains cachées entre les cages thoraciques, coudes repliés jusqu'à 27°. | 20 cm vers l'extérieur du couple, le milieu des mains à hauteur d'épaule : mains dressées, paume du guideur vers sa droite, coudes vers le bas. | 14 cm vers l'extérieur, 14 cm plus bas : mains à hauteur de taille, avant-bras presque horizontaux, coudes détendus. |
 
 La caméra est du côté des mains jointes : le guideur est à droite de l'image, la suiveuse à gauche. Les étiquettes de
 rôle du bas de l'image, fixes, diraient l'inverse : elles sont rognées.
@@ -64,5 +82,6 @@ d'entrer dans la main de l'autre.
 ## À trancher par le propriétaire
 
 - Quelles attitudes garder (A, B, C, d'autres), et laquelle par défaut en kizomba. Question posée le 23 novembre 2026
-  avec ces images ; proposition de l'agent : B par défaut, C gardée comme attitude, A retirée.
+  avec ces images ; proposition de l'agent : B par défaut, C gardée comme attitude, A retirée. Le propriétaire a
+  corrigé B (ci-dessus) ; le choix de l'attitude par défaut reste à confirmer.
 - La prise, une fois posée : à juger sur des gros plans.
