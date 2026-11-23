@@ -20,10 +20,12 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   amplitude, les doigts ne se serrent pas, et le rig stylisé (sans `haut=1`) n'a pas de doigts.
   **23 novembre** : question posée au propriétaire avec planches et films (A entre les poitrines, B sur le côté, C plus
   bas). Il a précisé l'attitude sur le côté : mains levées légèrement au-dessus de l'épaule (leur milieu à hauteur
-  d'épaule), paume du guideur vers sa droite, les deux mains vers le ciel à quelques degrés près. C'est fait dans le
-  candidat `?essai=mainsCote` (`CADRE.handsSide`, `GRIP.upright`, coudes vers le bas ; mesures :
-  `scripts/mesure_essai_mains.mjs`). Reste : la main de la suiveuse penche de 18°, son poignet au bout de sa course ;
-  le choix de l'attitude par défaut n'est pas fait (PR #181 en brouillon).
+  d'épaule), les deux mains vers le ciel à quelques degrés près, paume du guideur vers sa droite ; puis, la main de
+  la suiveuse ne pouvant se dresser contre une paume tournée ainsi (18° d'écart, poignet au bout de sa course), il a
+  choisi la paume du guideur à mi-chemin entre sa droite et la suiveuse (7° à 8°). C'est fait dans le candidat
+  `?essai=mainsCote` (`CADRE.handsSide`, `GRIP.upright`, coudes vers le bas ; mesures :
+  `scripts/mesure_essai_mains.mjs`). Reste : le poignet de la suiveuse est toujours au bout de sa course ; le choix
+  de l'attitude par défaut n'est pas fait (PR #181 en brouillon).
 - **Règle R37 (#180)** : la main gauche de la suiveuse sur l'épaule droite du guideur (devant et côté), son coude vers
   le bras droit du guideur (`CADRE_SITES.shoulderR`, `armR`) : coude à 10 à 11 cm de l'axe de son bras en moyenne.
 

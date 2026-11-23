@@ -34,7 +34,7 @@ for (const [label, dz, beats, opt] of cases) {
   const pair = [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];
   const uppers = pair.map(f => new api.UpperBody(f.r, model, options));
   const range = () => [Infinity, -Infinity], add = (r, x) => { r[0] = Math.min(r[0], x); r[1] = Math.max(r[1], x); };
-  const seen = { height: range(), top: range(), right: range(), tilt: [range(), range()], grip: range(), wrist: [range(), range()], facing: range(), joined: 0, n: 0 };
+  const seen = { height: range(), top: range(), right: range(), towards: range(), tilt: [range(), range()], grip: range(), wrist: [range(), range()], facing: range(), joined: 0, n: 0 };
   for (let b = 0; b <= beats; b += 1 / 16) {
     pair.forEach((f, i) => api.applyPose(f.r, f.model, b, { ...opt, embrace: true, placement: "quinconce", follower: !!i, styleKey: "kizomba", amp: 1, plexus: true }));
     pair.forEach((f, i) => api.solveFrame(f.r, pair[1 - i].r, !!i));
@@ -49,6 +49,7 @@ for (const [label, dz, beats, opt] of cases) {
     add(seen.height, (middle("L").y + middle("R").y) / 2 - shoulders);
     add(seen.top, Math.max(uppers[0].joints.get("middle3L").getWorldPosition(new THREE.Vector3()).y, uppers[1].joints.get("middle3R").getWorldPosition(new THREE.Vector3()).y) - shoulders);
     add(seen.right, his.normal.angleTo(new THREE.Vector3(-1, 0, 0).transformDirection(pair[0].r.chest.matrixWorld)));
+    add(seen.towards, his.normal.angleTo(new THREE.Vector3(0, 0, 1).transformDirection(pair[0].r.chest.matrixWorld)));
     add(seen.tilt[0], his.fingers.angleTo(UP)); add(seen.tilt[1], hers.fingers.angleTo(UP));
     add(seen.grip, hers.palm.distanceTo(his.palm)); add(seen.facing, Math.PI - hers.normal.angleTo(his.normal));
     add(seen.wrist[0], uppers[0].state.L.wrist); add(seen.wrist[1], uppers[1].state.R.wrist);
@@ -57,7 +58,7 @@ for (const [label, dz, beats, opt] of cases) {
   }
   const span = (r, f) => seen.joined ? `${f(r[0])} à ${f(r[1])}` : "—";
   table.push({ figure: label, "mains jointes (échantillons)": `${seen.joined} / ${seen.n}`, "milieu des mains / épaules (cm)": span(seen.height, cm),
-    "haut des doigts / épaules (cm)": span(seen.top, cm), "paume du guideur / sa droite (°)": span(seen.right, deg),
+    "haut des doigts / épaules (cm)": span(seen.top, cm), "paume du guideur / sa droite (°)": span(seen.right, deg), "/ la suiveuse (°)": span(seen.towards, deg),
     "doigts / verticale, guideur (°)": span(seen.tilt[0], deg), "suiveuse (°)": span(seen.tilt[1], deg),
     "paumes (cm)": span(seen.grip, cm), "face à face, à (°)": span(seen.facing, deg),
     "poignet guideur (°)": span(seen.wrist[0], deg), "poignet suiveuse (°)": span(seen.wrist[1], deg) });

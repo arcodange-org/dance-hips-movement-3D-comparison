@@ -96,11 +96,13 @@ interface Arm {
  * may bend away from the forearm's axis (rad); `swivel`: how far her hand may turn on his palm, away from the
  * line to his index, towards where her forearm comes from (rad). */
 export const GRIP = { shift: 0.012, gap: 0.004, wrist: 1.0, swivel: 0.7,
-  /** Hands held up at the couple's side (#179, candidate `?essai=mainsCote`; owner, 23 November 2026): the
-   * leader's palm faces his right, both hands point to the sky. `shift`: her palm from his towards his thumb's
-   * side, so that her fingers close around his index (m); `rise`: her palm above his (m); `elbow`: where each
-   * elbow tends, from its shoulder, in the dancer's chest frame (x away from the body's midline): down. */
-  upright: { shift: 0.03, rise: 0, elbow: [0.25, -1, 0.1] as V3 } };
+  /** Hands held up at the couple's side (#179, candidate `?essai=mainsCote`; owner, 23 November 2026): both
+   * hands point to the sky. `palm`: where the leader's palm faces, in his chest frame: halfway between his right
+   * and the follower (facing his right only, her wrist cannot stand her hand up: 18° off, against 7° here).
+   * `shift`: her palm from his towards his thumb's side, so that her fingers close around his index (m); `rise`:
+   * her palm above his (m); `elbow`: where each elbow tends, from its shoulder, in the dancer's chest frame
+   * (x away from the body's midline): down. */
+  upright: { palm: [-1, 0, 1] as V3, shift: 0.03, rise: 0, elbow: [0.25, -1, 0.1] as V3 } };
 
 export interface ArmState {
   target: THREE.Vector3; palm: THREE.Vector3; elbow: THREE.Vector3; pronation: number; error: number;
@@ -231,9 +233,9 @@ export class UpperBody {
         const along = his.radial.clone().applyAxisAngle(facing, swivel);
         posed = this.take(this.arms[s], his.palm.clone().addScaledVector(his.radial, GRIP.shift).addScaledVector(his.normal, GRIP.gap), facing, along, rigElbow);
       } else if (upright && !follower) {
-        // The leader's hand: the palm on the rig's point, facing his right, the fingers to the sky.
-        const right = new THREE.Vector3(-1, 0, 0).transformDirection(r.chest.matrixWorld).setY(0).normalize();
-        posed = this.take(this.arms[s], target, right, new THREE.Vector3(0, 1, 0), low());
+        // The leader's hand: the palm on the rig's point, facing between his right and her, the fingers to the sky.
+        const facing = new THREE.Vector3(...GRIP.upright.palm).transformDirection(r.chest.matrixWorld).setY(0).normalize();
+        posed = this.take(this.arms[s], target, facing, new THREE.Vector3(0, 1, 0), low());
       } else posed = this.pose(this.arms[s], target, rigElbow, normal);
       this.state[s] = { ...posed, target, hold, shape };
       this.shape(s, shape);
