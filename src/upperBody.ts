@@ -219,10 +219,17 @@ export class UpperBody {
     for (const g of hidden) for (const m of this.byGroup.get(g) ?? []) m.visible = false;
   }
 
+  /** #183: this dancer's own hold of the joined hands, in place of `GRIP.upright` (any of its fields). The engine's
+   * hold is fitted on the bones of a human hand; whoever dresses the dancer with fleshier hands gives here the hold
+   * fitted on their volumes (scripts/search_prise_mains.mjs searches it from two hands' descriptions). The leader's
+   * layer reads his palm, lift, elbow and shape from his own; the follower's reads her place on his hand, her
+   * shape, her elbow and her wrist's range from hers. */
+  grip?: Partial<typeof GRIP.upright>;
+
   /** Poses the head carriage and both arms from the rig's current pose. `partner`: their rig, if any;
    * `follower`: this dancer is the follower; `carriage`: turn the head in a close embrace. */
   update(partner: RigHandle | null, follower: boolean, carriage = true) {
-    const r = this.r;
+    const r = this.r, G = this.grip ? { ...GRIP.upright, ...this.grip } : GRIP.upright;
     r.chest.updateWorldMatrix(true, false);
     this.headCarrier.rotation.y = carriage && partner?.head
       ? headCarriage(r.head.getWorldPosition(new THREE.Vector3()).distanceTo(partner.head.getWorldPosition(new THREE.Vector3()))) : 0;
@@ -238,17 +245,17 @@ export class UpperBody {
       // #179: the joined hands held up, the follower's hand fitted into the leader's (the lower candidate
       // `?essai=mainsBasses` keeps the hold of 22 November).
       const upright = hold === "hands" && !essai("mainsBasses");
-      const shape = hold === "hands" ? (upright ? (follower ? GRIP.upright.hers : GRIP.upright.his) : follower ? HAND_SHAPES.closes : HAND_SHAPES.offers)
+      const shape = hold === "hands" ? (upright ? (follower ? G.hers : G.his) : follower ? HAND_SHAPES.closes : HAND_SHAPES.offers)
         : hold === "back" ? HAND_SHAPES.flat : HAND_SHAPES.relaxed;
       // #179: the follower's hand takes the leader's, as his is posed (his layer of this image or of the last).
       const his = hold === "hands" && follower ? (partner?.upperBody as UpperBody | undefined)?.hand("L") : undefined;
       const low = () => this.arms[s].arm.getWorldPosition(new THREE.Vector3())
-        .add(new THREE.Vector3((s === "L" ? 1 : -1) * GRIP.upright.elbow[0], GRIP.upright.elbow[1], GRIP.upright.elbow[2]).transformDirection(r.chest.matrixWorld));
+        .add(new THREE.Vector3((s === "L" ? 1 : -1) * G.elbow[0], G.elbow[1], G.elbow[2]).transformDirection(r.chest.matrixWorld));
       let posed: Omit<ArmState, "hold" | "shape">;
       if (his && upright) {
         // Her hand across his palm, in the frame of his hand: her fingers through the gap between his thumb and
         // his index, her palm against his. Her elbow tends behind her hand, a little lower: the wrist stays in range.
-        const G = GRIP.upright, U = his.fingers, R = his.radial, N = new THREE.Vector3().crossVectors(U, R).normalize();
+        const U = his.fingers, R = his.radial, N = new THREE.Vector3().crossVectors(U, R).normalize();
         const d = U.clone().multiplyScalar(Math.cos(G.across)).addScaledVector(R, Math.sin(G.across));
         const side = new THREE.Vector3().crossVectors(d, N).normalize();
         const n = N.clone().negate().applyAxisAngle(d, G.roll).applyAxisAngle(side, G.pitch);
@@ -266,8 +273,8 @@ export class UpperBody {
       } else if (upright && !follower) {
         // The leader's hand: the palm on the rig's point, facing between his right and her; his thumb to the sky, his
         // fingers forwards (a left hand: fingers = thumb's side × palm's normal), raised by `lift`.
-        const facing = new THREE.Vector3(...GRIP.upright.palm).transformDirection(r.chest.matrixWorld).setY(0).normalize();
-        const sky = new THREE.Vector3(0, 1, 0), lift = GRIP.upright.lift;
+        const facing = new THREE.Vector3(...G.palm).transformDirection(r.chest.matrixWorld).setY(0).normalize();
+        const sky = new THREE.Vector3(0, 1, 0), lift = G.lift;
         const along = new THREE.Vector3().crossVectors(sky, facing).normalize().multiplyScalar(Math.cos(lift)).addScaledVector(sky, Math.sin(lift));
         posed = this.take(this.arms[s], target, facing, along, low());
       } else if (hold === "free" && folded) {
