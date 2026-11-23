@@ -414,9 +414,10 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
   ([spec](spec-ginga-huit.md#les-pas-élus-deviennent-les-pas-de-base)) : drapeau `base`, `KOMPA_ELECTED`,
   `SEMBA_ELECTED`, appui du semba sur chaque temps (`sembaSupport`), textes de l'app, README ; en couple et en
   déplacement, le modèle d'avant reste.
-- [ ] Retirer les variantes non retenues de `KOMPA_EIGHTS` et `SEMBA_SITS` (nettoyage).
-- [ ] Porter les pas élus dans le couple (figures, mode jeu), avec le « 8 » G1 élu (#159).
-- [ ] Kompa : « 8 » de face plus marqué que de dessus, sans glisser d'un bloc.
+- [ ] #187 : porter les pas élus dans le couple (figures, mode jeu), avec le « 8 » G1 élu (#159), et dans le
+  déplacement ; accorder le motif d'appuis du semba en couple.
+- [ ] #187 : retirer ensuite les variantes non retenues de `KOMPA_EIGHTS` et `SEMBA_SITS` (nettoyage).
+- [x] Kompa : « 8 » de face plus marqué que de dessus, sans glisser d'un bloc (tours 4 à 9 ; le kompa élu).
 - [ ] Variante élue : contrôles sur le GLB dans toutes les figures (marges), ida e volta, pas de base.
 
 ## Élections de variantes en GIF (#148)

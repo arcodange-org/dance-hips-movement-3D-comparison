@@ -17,8 +17,8 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   l'ancien modèle. `?kompa=`, `?semba=` : autres variantes ; `ancien` : avant les votes.
 - **Mesures** (`scripts/tracer_hanches.mjs` : hanches, genoux, posture, accélération) et tests :
   `scripts/test_ginga_huit.mjs`, `scripts/test_temps_transferts.mjs` (appuis du semba seul).
-- **Reste** : retirer les variantes non retenues ; porter ces pas dans le couple (avec le « 8 » G1 élu, #159) ;
-  la posture des autres styles (#166).
+- **Reste** (#187) : porter ces pas dans le couple et le déplacement (avec le « 8 » G1 élu pour le couple, #159),
+  puis retirer les variantes non retenues ; la posture des autres styles (#166).
 
 ## Cadre des bras : bras droit du guideur, mains jointes (#178, #179, 22 novembre 2026)
 

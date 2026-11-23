@@ -286,6 +286,8 @@ déplacement, pas de figure). C'est là qu'ils ont été réglés, filmés et vo
   sous les hanches ;
 - pieds non plantés (`plant=0`), l'ancien rendu sans solveur des jambes.
 
+Porter ces pas dans le couple et le déplacement est un chantier à part : #187.
+
 **Comment.** `StyleDef.apply` et `StyleDef.support` reçoivent un drapeau `base` ; la pose le calcule. Sans paramètre
 d'adresse, `base` allume le pas élu ; `?kompa=` et `?semba=` choisissent une autre variante (`ancien` : le modèle
 d'avant les votes), toujours pour le pas de base seulement.

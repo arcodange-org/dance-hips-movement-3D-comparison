@@ -439,8 +439,8 @@ Le kompa élu est donc `assisBuste` : la hanche s'assoit sur le temps (pivot du 
 d'avant en arrière), genoux de 24° à 45°, talon libre levé de 6°, buste qui suit le bassin (9,5 cm de côté, 3° de
 pivot), tronc incliné de 16°. Précisé le même jour : le semba doit s'en inspirer (#162).
 
-Reste à faire pour le kompa : en faire le pas de base du style dans l'app (aujourd'hui il ne s'affiche qu'avec
-`?kompa=assisBuste`), reprendre ses tests et ses textes, retirer les variantes non retenues.
+Fait le même jour : il est le pas de base du style, tests et textes repris (voir « Après les votes », plus bas).
+Restent le couple, le déplacement et le retrait des variantes non retenues (#187).
 
 ## Dixième tour : le semba, d'après le kompa élu (#162, 23 novembre)
 
@@ -486,4 +486,6 @@ Le semba élu est `parCote` : gauche, gauche, droite, droite, un double rebond u
 
 Kompa (`assisBuste`) et semba (`parCote`) sont élus. Ils deviennent le pas de base de leur style, danseur seul, sur
 place, pieds plantés ; voir [la spec](../spec-ginga-huit.md#les-pas-élus-deviennent-les-pas-de-base). Les autres
-variantes restent visibles par `?kompa=` et `?semba=` (`ancien` : le modèle d'avant les votes).
+variantes restent visibles par `?kompa=` et `?semba=` (`ancien` : le modèle d'avant les votes). En couple et en
+déplacement, les deux styles gardent leur ancien déhanché : les y porter, avec le « 8 » G1 élu pour le couple, est
+le chantier #187.
