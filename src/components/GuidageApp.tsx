@@ -8,6 +8,10 @@ import { OrbitControls } from "@react-three/drei";
 import Rig from "./Rig";
 import DanceTransport from "./DanceTransport";
 import GridFloor from "./GridFloor";
+import JeuHud from "./jeu/JeuHud";
+import VitrineHud from "./jeu/VitrineHud";
+import CadreLibre from "./jeu/CadreLibre";
+import { SANS_MARGES, type Marges } from "../jeuHud";
 import { createDanceClock, seekClock, type DanceClock } from "../clock";
 import { STYLES } from "../styles";
 import { useMusic } from "../music/useMusic";
@@ -144,6 +148,8 @@ export default function GuidageApp() {
   const [hud, setHud] = useState<{ beat: number; now: Now; queue: GuideFigure[]; queueTouches: number[] }>({ beat: 0, now: START, queue: [], queueTouches: [] });
   // #144: the virgula, asked with Shift held (or this toggle on a touch screen) when a touch is commanded.
   const [virgula, setVirgula] = useState(false);
+  // #186: the room the control bands take on each edge; the view is kept in what is left (CadreLibre).
+  const [marges, setMarges] = useState<Marges>(SANS_MARGES);
 
   // Beat of a press: the last frame's beat plus the time elapsed since (the clock advances per frame).
   const beatAt = (time: number) => {
@@ -231,6 +237,7 @@ export default function GuidageApp() {
         <directionalLight position={[3, 5, 4]} intensity={1.3} />
         <directionalLight position={[-3, 2, -3]} intensity={0.4} color="#93c5fd" />
         <GridFloor />
+        <CadreLibre marges={marges} />
         <React.Suspense fallback={null}>
           <CoupleFrame session={session} clock={clock}>
             {(["leader", "follower"] as const).map(side => (
@@ -256,126 +263,28 @@ export default function GuidageApp() {
           <span className="block text-[10px] text-slate-500">Mode jeu · BodyParts3D © DBCLS, CC BY-SA 2.1 Japan</span>
         </div>
       )}
-      {!bare && settings.vitrine && <>
-      {/* #150: the showcase — the count, the figure, the music, the share link; no figure buttons. */}
-      <div className="absolute top-3 left-3 right-3 flex flex-wrap items-start justify-between gap-3 pointer-events-none">
-        <div className="rounded-2xl bg-slate-900/70 border border-slate-800 px-4 py-2.5 pointer-events-auto">
-          <h1 className="text-sm font-semibold text-slate-100">{STYLES[styleKey].label ?? styleKey} <span className="text-slate-400 font-normal">· {auto ? "danse seule" : "écoute"} · {bpm} bpm</span></h1>
-          <div className="mt-1 flex items-center gap-3 text-xs">
-            <span className="text-2xl font-semibold tabular-nums text-slate-100" aria-label="compte">{count}</span>
-            <span className="text-slate-100">{KIND_LABEL(now.kind)}</span>
-            {now.touch && <span className="text-amber-300">{touchLabel(now)}</span>}
-          </div>
-        </div>
-        <div className="rounded-2xl bg-slate-900/70 border border-slate-800 px-3 py-2 text-xs flex flex-wrap gap-2 pointer-events-auto">
-          <button className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" aria-pressed={music.status === "on"} onClick={() => void music.toggle()}>
-            {music.status === "on" ? "Couper le son" : "Lancer la musique"}
-          </button>
-          <button className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" onClick={share}
-            title="Copie le lien direct de cette vitrine : il rouvre la même danse">
-            {shared ? "Lien copié" : "Partager"}
-          </button>
-          <a className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" href={`?mode=pair&guidage=1&style=${styleKey}`}
-            title="Ouvre le mode jeu : vous guidez la suiveuse figure par figure">Prendre la main</a>
-        </div>
-      </div>
-      {music.status !== "on" && playing && (
-        <div className="absolute inset-x-0 bottom-16 flex justify-center pointer-events-none">
-          <button className="pointer-events-auto rounded-full bg-violet-500 px-7 py-3.5 text-base font-semibold text-slate-950 shadow-lg shadow-violet-900/40 hover:bg-violet-400"
-            onClick={() => void music.toggle()}>
-            ▶ Lancer la musique
-          </button>
-        </div>
+      {/* #186 (docs/spec-jeu-telephone.md): the controls live in components laid out for a phone held
+          upright, a phone on its side and a large screen; nothing sits on the couple. */}
+      {!bare && settings.vitrine && (
+        <VitrineHud styleLabel={STYLES[styleKey].label ?? styleKey} auto={auto} bpm={bpm} count={count} figure={KIND_LABEL(now.kind)}
+          touch={now.touch ? touchLabel(now) : null} soundOn={music.status === "on"} proposeMusique={music.status !== "on" && playing}
+          onSound={() => void music.toggle()} shared={shared} onShare={share} jeuHref={`?mode=pair&guidage=1&style=${styleKey}`}
+          credit={`Anatomie : BodyParts3D © DBCLS, licence CC BY-SA 2.1 Japan.${music.recording ? ` ${RECORDING_CREDIT}.` : ""} Animation paramétrique illustrative, sans validation chorégraphique.`}
+          onMarges={setMarges} />
       )}
-      <div className="absolute bottom-2 inset-x-3 flex flex-col items-center gap-1.5">
-        {shared && <input readOnly value={shared} aria-label="Lien direct de la vitrine" onFocus={e => e.currentTarget.select()}
-          className="w-full max-w-xl rounded-lg bg-slate-900/85 border border-slate-700 px-3 py-1.5 text-xs text-slate-200" />}
-        <p className="self-stretch text-[10px] text-slate-500">
-          Anatomie : BodyParts3D, © The Database Center for Life Science, licence CC BY-SA 2.1 Japan.
-          {music.recording ? ` ${RECORDING_CREDIT}.` : ""} Animation paramétrique illustrative, sans validation chorégraphique.
-        </p>
-      </div>
-      </>}
-      {!bare && !settings.vitrine && <>
-      <div className="absolute top-3 left-3 right-3 flex flex-wrap items-start justify-between gap-3 pointer-events-none">
-        <div className="rounded-2xl bg-slate-900/80 border border-slate-800 px-4 py-3 max-w-md pointer-events-auto">
-          <h1 className="text-sm font-semibold text-slate-100">Mode jeu <span className="text-slate-400 font-normal">· {auto ? "danse seule" : "écoute"}</span></h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Vous êtes le leader : chaque commande s'ajoute à la file, et la suiveuse danse les figures dans
-            l'ordre, depuis la quinconce. Espace laisse le couple danser seul. Pas de base en {STYLES[guideStyleOf("base", styleKey)].label}, figures en {STYLES[styleKey].label ?? styleKey}, {bpm} bpm.
-          </p>
-          <div className="mt-2 flex items-center gap-3 text-xs">
-            <span className="text-2xl font-semibold tabular-nums text-slate-100" aria-label="compte">{count}</span>
-            <span className="text-slate-100">{KIND_LABEL(now.kind)}</span>
-            {now.touch && <span className="text-amber-300">{touchLabel(now)}</span>}
-          </div>
-          <div className="mt-1 text-xs min-h-[1.25rem]" aria-live="polite" aria-label="file de commandes">
-            {hud.queue.length > 0
-              ? <><span className="text-slate-400">File : </span><span className="text-sky-300">{queueText}</span></>
-              : <span className="text-slate-400">{auto ? "Danse seule : le simulateur choisit la suite." : "File vide : pas de base."}</span>}
-          </div>
-          {now.kind !== "base" && <div className="mt-2 border-t border-slate-800 pt-2">
-            <TransitionCard transition={now.touch ? transitionAt(touchKey(now), now.touchBeat) : transitionAt(now.kind, now.figureBeat)} compact />
-          </div>}
-        </div>
-        <div className="rounded-2xl bg-slate-900/80 border border-slate-800 px-3 py-2 text-xs flex flex-wrap gap-2 pointer-events-auto">
-          <button className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" onClick={() => setPlaying(p => !p)}>
-            {playing ? "Pause" : "Reprendre"}
-          </button>
-          <button className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" aria-pressed={auto} onClick={e => toggleAuto(e.timeStamp)}
-            title="Écoute : vos commandes s'ajoutent à la file. Danse seule : le simulateur choisit les figures.">
-            {auto ? "Danse seule" : "Écoute"} <kbd className="text-slate-500">Espace</kbd>
-          </button>
-          <button className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" onClick={restart}>Recommencer</button>
-          {auto && <button className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" onClick={share}
-            title="Copie le lien direct de la vitrine (#150) : la même danse, en musique, sans les commandes">
-            {shared ? "Lien copié" : "Partager"}
-          </button>}
-          <button className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" aria-pressed={leaderView} onClick={() => setLeaderView(v => !v)}
-            title="Point de vue du guideur (derrière son épaule) ou vue libre">
-            Vue : {leaderView ? "guideur" : "libre"}
-          </button>
-          <button className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" aria-pressed={music.status === "on"} onClick={() => void music.toggle()}>
-            Son {music.status === "on" ? "actif" : "coupé"}
-          </button>
-          <label className="flex items-center gap-1 text-slate-400">bpm
-            <input type="number" min={40} max={130} value={bpm} onChange={e => setBpm(Math.max(40, Math.min(130, Number(e.target.value) || 60)))}
-              className="w-14 rounded bg-slate-800 px-1 py-1 text-slate-100" />
-          </label>
-          <a className="rounded-lg bg-slate-800 px-3 py-1.5 hover:bg-slate-700" href={`?mode=pair&style=${styleKey}`}>Quitter</a>
-        </div>
-      </div>
-
-      {/* Bottom panel, full width: figure buttons (wrapping rows), the arrows hint, the attribution. */}
-      <div className="absolute bottom-2 inset-x-3 flex flex-col items-center gap-1.5">
-        <div className="flex flex-wrap justify-center gap-1.5">
-          {offered.includes("ida") && <button onClick={() => setVirgula(v => !v)} aria-pressed={virgula} disabled={auto}
-            title="Le prochain aller-retour commandé se fait en virgula (pied gauche posé perpendiculaire), quand le pas le permet"
-            className={`rounded-lg border px-2.5 py-1.5 text-xs disabled:opacity-50 sm:px-4 sm:py-2.5 sm:text-sm ${virgula ? "bg-amber-500/20 border-amber-400 text-amber-200" : "bg-slate-900/85 border-slate-700 text-slate-100 hover:bg-slate-800"}`}>
-            Virgula <kbd className="ml-1 text-slate-400">Maj</kbd>
-          </button>}
-          {/* #89: the ida variants are led by an arrow held with its key (hint below), not by buttons. */}
-          {offered.filter(f => !GUIDE_FIGURES[f].ida && !GUIDE_FIGURES[f].chain).map(f => (
-            <button key={f} onPointerDown={e => lead(f, e.timeStamp)} disabled={auto}
-              className="rounded-lg bg-slate-900/85 border border-slate-700 px-2.5 py-1.5 text-xs text-slate-100 hover:bg-slate-800 disabled:opacity-50 sm:px-4 sm:py-2.5 sm:text-sm">
-              {GUIDE_FIGURES[f].label} <kbd className="ml-1 text-slate-400">{keyLabel(f, layout)}</kbd>
-            </button>
-          ))}
-        </div>
-        {offered.includes("idaD") && <p className="text-center text-[11px] text-slate-400">
-          → ou ↓ maintenue + {keyLabel("ida", layout)} : ida e volta jambe droite, en arrière d'abord · ↑ ↑ : double et marka
-          {offered.includes("sortieFG") && <> · ↑ pendant la sortie fille : fin de la sortie garçon</>}
-        </p>}
-        {/* #144: every step that goes forward or backward can become a touch (the foot goes and returns). */}
-        {offered.includes("ida") && <p className="text-center text-[11px] text-slate-400">
-          {keyLabel("ida", layout)} pendant une figure, ou quand une figure attend : son prochain pas devient un aller-retour (le pied part et revient) · Maj + {keyLabel("ida", layout)} : en virgula
-        </p>}
-        <p className="self-stretch text-[10px] text-slate-500">
-          Anatomie : BodyParts3D, © The Database Center for Life Science, licence CC BY-SA 2.1 Japan. Animation
-          paramétrique illustrative, sans validation chorégraphique.
-        </p>
-      </div>
-      </>}
+      {!bare && !settings.vitrine && (
+        <JeuHud styleKey={styleKey} auto={auto} onAuto={toggleAuto} playing={playing} onPlaying={() => setPlaying(p => !p)}
+          soundOn={music.status === "on"} onSound={() => void music.toggle()}
+          count={count} figure={KIND_LABEL(now.kind)} touch={now.touch ? touchLabel(now) : null}
+          queue={hud.queue.length > 0 ? `Ensuite : ${queueText}` : auto ? "Le simulateur choisit la suite" : "À vous de guider"}
+          fiche={now.kind !== "base" ? <TransitionCard transition={now.touch ? transitionAt(touchKey(now), now.touchBeat) : transitionAt(now.kind, now.figureBeat)} compact /> : null}
+          offered={offered} keys={Object.fromEntries(offered.map(f => [f, keyLabel(f, layout)]))} onLead={lead}
+          virgula={virgula} onVirgula={() => setVirgula(v => !v)}
+          leaderView={leaderView} onLeaderView={setLeaderView} bpm={bpm} onBpm={setBpm}
+          onRestart={restart} shared={shared} onShare={share} quitHref={`?mode=pair&style=${styleKey}`}
+          aide={`Vous guidez : chaque figure choisie s'ajoute à la suite, et la suiveuse les danse dans l'ordre. « Danse seule » laisse le couple choisir ses figures. Pendant une figure, « Ida e volta » change son prochain pas en aller-retour : le pied part et revient. Pas de base en ${STYLES[guideStyleOf("base", styleKey)].label}, figures en ${STYLES[styleKey].label ?? styleKey}.`}
+          onMarges={setMarges} />
+      )}
     </div>
   );
 }

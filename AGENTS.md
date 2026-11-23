@@ -39,6 +39,9 @@ registre généré `src/music/recordings.data.ts`, pistes `public/musique/`, `sc
 `scripts/test_musique_enregistree.mjs`) ; la clé ElevenLabs ne s'écrit nulle part, une prise coûte des crédits : accord du propriétaire.
 Vitrine (#150) : [spec](docs/spec-vitrine-danse-auto.md) (`src/vitrine.ts` pur, `?vitrine=1` ouvre la vue du mode jeu en danse
 automatique, en musique, au tempo de la piste ; `scripts/test_vitrine.mjs`).
+Jeu et vitrine sur téléphone (#186) : [spec](docs/spec-jeu-telephone.md) ; commandes en trois dispositions (téléphone tenu droit, couché, écran large :
+`src/jeuHud.ts` pur, `src/components/jeu/`), rien n'est posé sur le couple (`CadreLibre`), boutons de 44 px au moins ; `docs/features/jeu-telephone.feature` ;
+l'interface réelle se mesure dans un navigateur avec les profils de téléphone de Playwright : `scripts/mesure_jeu_telephone.mjs` (hors `npm test`).
 Haut du corps anatomique (#176) : [spec](docs/spec-haut-du-corps.md) ; option `haut=1` : os et muscles du buste, des bras et des mains
 (`public/anatomy_upper.glb`, `scripts/build_upper_body.mjs`, `src/upperBody.ts` pur, `src/components/UpperBodyLayer.tsx`,
 `scripts/test_upper_body.mjs`) ; la main anatomique vient où le rig pose la sienne ; le rig publie la couche dans `rig.upperBody`.
