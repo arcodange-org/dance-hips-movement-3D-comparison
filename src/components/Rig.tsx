@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { Suspense, lazy, useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
@@ -23,6 +23,9 @@ import {
   makeMuscleMaterial,
   trunkBlocksVisible,
 } from "../muscles";
+
+// #176: the anatomical upper body is its own chunk, loaded with its GLB only when asked for.
+const UpperBodyLayer = lazy(() => import("./UpperBodyLayer"));
 
 /** #128: the default ida e volta with the leader's virgula. */
 const IDA_VIRGULA_VARIANT: IdaVariant = { ...IDA_DEFAULT, virgula: true };
@@ -67,6 +70,9 @@ export interface RigProps {
   ida?: boolean;
   /** #69 guide mode: the session picks the pair figure and its local beat (docs/spec-mode-guidage-poc.md). */
   guide?: GuideSession | null;
+  /** #176: anatomical bones and muscles of the trunk, arms and hands in place of the stylised volumes
+   * (docs/spec-haut-du-corps.md) ; `{ carriage: false }` keeps the heads face to face. */
+  upperBody?: boolean | { carriage?: boolean };
 }
 
 export default function Rig({
@@ -107,6 +113,7 @@ export default function Rig({
   temps3 = false,
   ida = false,
   guide = null,
+  upperBody = false,
 }: RigProps) {
   const torsoOp = torsoOpacity ?? TORSO_OPACITY;
   // With the muscle layer, the stylised trunk blocks are hidden (owner's rule, see src/muscles.ts).
@@ -497,6 +504,12 @@ export default function Rig({
       </group>
       {/* #69: the guide mode moves the couple frame; a world-space trail would be transformed twice. */}
       {!guide && showTrail && <primitive object={trail} />}
+      {upperBody && (
+        <Suspense fallback={null}>
+          <UpperBodyLayer rig={r} pair={pair} side={side} showBones={showTorso} showMuscles={showMuscles} ghost={ghost}
+            carriage={upperBody === true || upperBody.carriage !== false} />
+        </Suspense>
+      )}
     </>
   );
 }

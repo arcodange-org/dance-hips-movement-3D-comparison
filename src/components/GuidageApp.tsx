@@ -87,6 +87,8 @@ export default function GuidageApp() {
   const bare = params.get("bare") === "1";
   // #155: `film=1` hands the frames to a script (scripts/video/capturer.mjs); the script frames the couple.
   const film = filmEnabled(params);
+  // #176: `haut=1` shows the anatomical bones and muscles of the trunk, arms and hands.
+  const upperBody = params.get("haut") === "1";
   // #150: the showcase settings read from the URL (`vitrine=1`, `auto=1`, `muscles=1`, `vue=`, `bpm=`).
   const settings = useMemo(() => vitrineSettings(params), [params]);
   // #87: the leader's point of view by default (`vue=libre` for the free orbit view); the showcase opens
@@ -241,7 +243,7 @@ export default function GuidageApp() {
             {(["leader", "follower"] as const).map(side => (
               <Rig key={side} styleKey={styleKey} bpm={bpm} clock={clock} amp={1} playing={playing}
                 offset={[0, 0, side === "leader" ? -GUIDE_PAIR_DZ : GUIDE_PAIR_DZ]} rotationY={side === "leader" ? 0 : Math.PI}
-                embrace pair={pair} side={side} placement="quinconce" movement="none" guide={session} showMuscles={look.muscles}
+                embrace pair={pair} side={side} placement="quinconce" movement="none" guide={session} showMuscles={look.muscles} upperBody={upperBody}
                 torsoOpacity={look.solidTorso ? SOLID_TORSO_OPACITY : undefined} />
             ))}
           </CoupleFrame>

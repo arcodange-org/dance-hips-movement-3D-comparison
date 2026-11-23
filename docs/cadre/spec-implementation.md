@@ -338,3 +338,59 @@ sortie fille) ».
 - Tests : `test_plexus.mjs` (tronc ≤ 8°, buste ≤ 18° dans toutes les figures en paire),
   `test_cadre.mjs`.
 - GIF de profil (kizomba, quinconce) : [sortie fille, danseurs droits](../gifs/sortie-fille-droits.gif).
+
+
+## Le bras droit du guideur ne se baisse pas (#178, 22 novembre 2026)
+
+Règle du propriétaire : le bras droit du guideur ne se baisse pas.
+
+Depuis #93, quand la main droite du guideur ne pouvait plus rester sur le dos de la suiveuse (elle passe à
+côté de lui, dans la sortie fille), elle lâchait et le bras revenait le long du corps, main à hauteur de
+hanche : le bras tombait puis remontait, d'un seul coup.
+
+- **Cadre ouvert** (`CADRE.openFrame`, `src/cadre.ts`) : hors du dos, la main droite du guideur attend devant
+  son flanc droit, avant-bras levé, coude vers ses côtes ; si ce bras traversait la suiveuse, plus à
+  l'extérieur. Le bras ne revient plus le long du corps.
+- **Sans saut** (`CADRE.leave`) : la main quitte le dos peu à peu, à mesure que le bras qui vise le dos
+  entrerait dans le torse de la suiveuse (de 0 à 5 cm). La pose reste une fonction de la pose : rien ne dépend
+  du temps.
+- Le bras gauche de la suiveuse n'est pas concerné : hors du dos du guideur il revient le long de son corps,
+  comme avant (cela n'arrive dans aucune des cinq figures mesurées).
+- Mesures (kizomba, quinconce, plexus) :
+
+  | | Avant | Après |
+  |---|---|---|
+  | Main droite du guideur, au plus bas (repère de sa poitrine, épaule à +10 cm) | −42 cm (hanche) | −3 cm (sortie fille) ; +3 à +6 cm ailleurs |
+  | Saut du coude entre deux seizièmes de temps, sortie fille (`test_upper_body.mjs`) | 31 cm (34 pour le bras du rig) | 9,4 cm (9,9) |
+  | Avant-bras dans le torse de la suiveuse, sortie fille | au plus 3 cm (tolérance) | 1,9 cm |
+
+- Test : `scripts/test_cadre.mjs` (dans chaque figure en paire, la main droite du guideur ne descend jamais sous
+  −15 cm dans le repère de sa poitrine).
+
+## Les mains jointes : attitudes et prise (#179, ouvert le 22 novembre 2026)
+
+Les mains jointes visent aujourd'hui le milieu des deux épaules, 6 cm plus bas : entre les deux poitrines. Avec
+le haut du corps anatomique (#176) on voit que les avant-bras s'y replient (coude à 27°), que les mains sont
+cachées entre les cages thoraciques et que les doigts entrent dans les côtes du partenaire.
+
+Le propriétaire a précisé qu'il existe plusieurs attitudes (hauteur du coude, mains ouvertes vers l'extérieur ou
+gardées près de l'épaule) et il a décrit la prise : phalanges serrées, pouce ouvert, main de la suiveuse posée en
+travers de celle du guideur, ses phalanges refermées autour de l'index du guideur, pouces croisés. Deux autres
+attitudes sont filmables (`?essai=mainsCote`, `?essai=mainsBasses`, inertes sans le paramètre) ; l'application ne
+change pas tant qu'il n'a pas tranché : [dossier](../elections/2026-11-22-mains/README.md).
+
+## La main gauche de la suiveuse sur l'épaule droite du guideur (#180, 22 novembre 2026)
+
+Règle du propriétaire : l'avant-bras ou la main gauche de la suiveuse est posé sur l'épaule droite du guideur, contre
+le devant ou le côté de l'épaule ; son coude gauche cherche le contact avec le bras droit du guideur, sur lequel elle
+s'appuie quand il l'élève par l'épaule ou l'aisselle.
+
+- **Avant** : sa main visait l'omoplate droite du guideur, dans son dos, coude relevé vers l'extérieur.
+- **Site** (`CADRE_SITES.shoulderR`) : devant et côté de l'épaule droite du guideur. **Coude** (`CADRE_SITES.armR`) :
+  sous cette épaule, du côté extérieur, là où pend le bras du guideur ; l'avant-bras de la suiveuse repose sur ce
+  bras, hors du torse du guideur. Le coude ne suit pas l'avant-bras du guideur : il ne se balance pas avec lui.
+- Mesures (`scripts/test_cadre.mjs`) : main sur son site quand elle est à portée ; coude de la suiveuse à 10,6 à
+  11,4 cm de l'axe du bras droit du guideur en moyenne (les deux bras ont 4 à 5 cm de rayon) ; aucune main lâchée
+  hors des sorties. Haut du corps anatomique : la paume se tourne vers l'épaule.
+- Reste à faire : l'appui lui-même, quand le guideur élève la suiveuse.
+
