@@ -128,6 +128,62 @@ export function kompaSupport(b: number): number {
   return 1 - 2 * toLeft + 2 * toRight;
 }
 
+/** #162 (the semba's double bounce; rule on the semba of 22 Nov.: a weight transfer doubled towards the same
+ * side, begun towards the other side and taken back; the second bounce « like a cha-cha », a quick small
+ * round of the « 8 » before the larger one resumes), built on the hip elected for the kompa on 23 Nov. (#161,
+ * `assisBuste`): PROTOTYPES to elect, off by default (`?style=semba&semba=pause|parCote`).
+ * The hip sits as the weight lands, on every beat (the semba's bounce: lowest on the beat), back and outwards
+ * with a pivot of the pelvis; the leg then straightens slowly and the hip rises round; the bust follows the
+ * pelvis and leans forward (same parameters and meaning as `KompaEight`: `swing`, `base`, `tilt`, `heel`,
+ * `skew`, `pivot`, `back`, `around`, `follow`, `iso`, `lean`, `ahead`).
+ * `pattern`: one entry per beat, from one sit to the next: "T" a transfer to the other foot, "D" the double
+ * bounce: the weight leaves towards the other foot, does not get there and lands again on the same one, a
+ * small round within the beat (see `smallRound`): the pelvis goes on to its side, comes back to about the
+ * centre and turns; the other knee bends by the share `short` half-way; the leg of the bounce straightens by
+ * the share `rise` only between its two landings.
+ * `sway` (m): lateral travel of the pelvis each way; `dip` (rad): both knees bend that much more on each sit. */
+export interface SembaSit { pattern: ("T" | "D")[]; short: number; rise: number; sway: number; dip: number; swing: number; base: number; tilt: number; heel: number;
+  skew: number; pivot: number; back: number; around: number; follow: number; iso: number; lean: number; ahead: number }
+const SEMBA_SIT = { short: 0.35, rise: 0.6, sway: 0.045, dip: 0.12, swing: 0.4, base: 0.08, tilt: -0.75, heel: 0.1, skew: -0.4, pivot: 0.14, back: 0.02, around: 0.6,
+  follow: 0.35, iso: 0.5, lean: 0.2, ahead: 0.03 };
+export const SEMBA_SITS: Record<string, SembaSit> = {
+  // « one, two, three, pause » (Angola Travel Guide, docs/musique/semba.md): three transfers, then the double
+  // bounce on the foot of the third step; eight beats to come back to the same foot.
+  pause: { ...SEMBA_SIT, pattern: ["T", "T", "D", "T", "T", "T", "D", "T"] },
+  // Two landings on each foot: every second beat is a double bounce; four beats.
+  parCote: { ...SEMBA_SIT, pattern: ["D", "T", "D", "T"] },
+  // No double bounce: one transfer per beat, as today, with the hip that sits.
+  simple: { ...SEMBA_SIT, pattern: ["T", "T"] },
+};
+/** The prototype in use (null: the semba of today). Set once from the address, read by the semba style. */
+export const SEMBA_PROTO: { sit: SembaSit | null } = { sit: null };
+export const setSembaProto = (name: string | null | undefined) => { SEMBA_PROTO.sit = (name && SEMBA_SITS[name]) || null; };
+/** The sit comes this long (rad of the swing) after the weight has passed the centre: as elected for the kompa. */
+const SIT_AFTER = 2 * Math.PI * 0.3 - Math.PI / 2;
+/** Where the semba prototype is at motion beat `b` (the sits land on the beats of the music, motion beats
+ * 0,5 ; 1,5 ; …). Outside a double bounce, `theta`: the phase of the swing, half a turn per beat (the left
+ * foot's sits at `SIT_AFTER` + whole turns, the pelvis furthest left at a quarter turn). Inside one, `bounce`:
+ * how far through the beat (`v`, 0 to 1) and on which foot (`side`, +1 left). */
+export function sembaPhase(p: SembaSit, b: number): { theta: number; bounce: { v: number; side: number } | null } {
+  const n = p.pattern.length, t = (((b - 0.5) % n) + n) % n, i = Math.floor(t), v = t - i;
+  let side = 1;
+  for (let k = 0; k < i; k++) if (p.pattern[k] === "T") side = -side;
+  return p.pattern[i] === "D" ? { theta: 0, bounce: { v, side } } : { theta: SIT_AFTER + (side > 0 ? 0 : Math.PI) + Math.PI * v, bounce: null };
+}
+/** The small round of a double bounce, for a signal that swings to +1 on the side of the bounce: it leaves the
+ * sit with the value `s0` and the speed `d0` (per beat) it has there in the plain swing, reaches +1 once, comes
+ * back part of the way and is at the sit again one beat later with the same value and speed: one sine of one
+ * beat, so that nothing jolts where the bounce joins the swing. */
+const smallRound = (s0: number, d0: number, v: number) => {
+  const phi = 2 * Math.atan2(2 * Math.PI * (1 - s0), d0), e = d0 / (2 * Math.PI * Math.sin(phi));
+  return 1 - e + e * Math.cos(2 * Math.PI * v - phi);
+};
+/** Lateral position of the pelvis of the semba prototype, −1 (right) to +1 (left). */
+export function sembaSwing(p: SembaSit, b: number): number {
+  const { theta, bounce } = sembaPhase(p, b);
+  return bounce ? bounce.side * smallRound(Math.sin(SIT_AFTER), Math.PI * Math.cos(SIT_AFTER), bounce.v) : Math.sin(theta);
+}
+
 export const STYLES: Record<string, StyleDef> = {
   kizomba: {
     label: "Kizomba",
@@ -163,8 +219,49 @@ export const STYLES: Record<string, StyleDef> = {
       "Déplacements en rond (koreidinha), changements de direction nets",
       "Plus rapide et ludique que la kizomba (≈130 bpm vs ≈90)",
     ],
-    support: (b) => -S2(b),
+    support: (b) => SEMBA_PROTO.sit ? -sembaSwing(SEMBA_PROTO.sit, b) : -S2(b),
     apply: (r, b, a) => {
+      const sit = SEMBA_PROTO.sit;
+      if (sit) {
+        const { theta, bounce } = sembaPhase(sit, b), u = theta - SIT_AFTER;
+        const bump = (v: number) => (1 + Math.cos(v + sit.skew * (1 - Math.cos(v)))) / 2;
+        // The plain swing: each knee bends quickly as its leg receives the weight and straightens slowly, both
+        // bend a little more on every sit (the bounce); the pelvis pivots, the sitting hip back, and goes back
+        // with each sit.
+        let swing = Math.sin(theta), bendL = bump(u), bendR = bump(u - Math.PI), dip = bump(2 * u);
+        let turn = Math.cos(u - sit.around), sat = bump(2 * (u - sit.around));
+        if (bounce) {
+          // The double bounce: the same foot lands again one beat later. The pelvis goes on to its side, comes
+          // back to about the centre and turns (`smallRound`); the leg of the bounce straightens by the share
+          // `rise` only and bends again; the other knee bends by the share `short` half-way, the transfer that
+          // does not happen; one bounce, one recoil of the pelvis per landing.
+          const { v, side } = bounce, half = (1 - Math.cos(2 * Math.PI * v)) / 2, own = 1 - sit.rise * half, step = 1e-4;
+          // The other knee leaves and comes back with the bend and the speed it has at a sit in the plain swing.
+          const far0 = bump(-Math.PI), farSpeed = (bump(Math.PI * step - Math.PI) - bump(-Math.PI * step - Math.PI)) / (2 * step);
+          const far = far0 + farSpeed * Math.sin(2 * Math.PI * v) / (2 * Math.PI) + (sit.short - far0) * half;
+          swing = side * smallRound(Math.sin(SIT_AFTER), Math.PI * Math.cos(SIT_AFTER), v);
+          turn = side * smallRound(Math.cos(sit.around), Math.PI * Math.sin(sit.around), v);
+          sat = smallRound(bump(-2 * sit.around), (bump(2 * (Math.PI * step - sit.around)) - bump(2 * (-Math.PI * step - sit.around))) / (2 * step), v);
+          bendL = side > 0 ? own : far; bendR = side > 0 ? far : own; dip = own;
+        }
+        r.root.position.x = sit.sway * swing * a;
+        r.kneeL.rotation.x = (sit.base + sit.swing * bendL + sit.dip * dip) * a;
+        r.kneeR.rotation.x = (sit.base + sit.swing * bendR + sit.dip * dip) * a;
+        r.pelvis.rotation.z = sit.tilt * (r.kneeL.rotation.x - r.kneeR.rotation.x);
+        r.extraL = sit.heel * pos(-swing) ** 2 * a; r.extraR = sit.heel * pos(swing) ** 2 * a;
+        const yaw = sit.pivot * turn * a;
+        r.pelvis.rotation.y = yaw;
+        r.root.position.z = -sit.back * sat * a;
+        // The trunk: upright, following a share of the pivot, leaning forward (as elected for the kompa).
+        const facing = r.spine.rotation.clone().set(sit.lean * a, sit.follow * yaw, 0, "YXZ");
+        r.spine.quaternion.copy(r.pelvis.quaternion.clone().invert().multiply(r.spine.quaternion.clone().setFromEuler(facing)));
+        r.spine.rotation.x += r.pelvis.rotation.x; r.spine.rotation.z += r.pelvis.rotation.z;
+        r.head.rotation.x = -0.5 * sit.lean * a;
+        const lean = (d: number) => Math.asin(Math.max(-0.9, Math.min(0.9, sit.iso * d / TORSO_JOINTS.chest[1])));
+        r.isoLean = { side: lean(r.root.position.x - TORSO_JOINTS.spine[1] * Math.sin(r.pelvis.rotation.z)), fore: lean(r.root.position.z) };
+        r.root.position.z += sit.ahead * a;
+        return;
+      }
       const s = S2(b);
       r.root.position.x = 0.05 * s * a;
       r.root.position.y = (0.055 * Math.abs(S1(b)) - 0.055) * a;

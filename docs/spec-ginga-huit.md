@@ -51,7 +51,7 @@ Ce que ces paroles changent ici :
 ### Règles du 22 novembre 2026 (suite), après la quatrième version de la vidéo
 
 La vidéo montrait chaque style de profil ; les prototypes de cette spec étaient à l'élection. Trois règles
-(R33 à R35) : le buste est au-dessus des genoux, légèrement devant ; le plus important est de n'avoir ni
+(R33, R34 et R39) : le buste est au-dessus des genoux, légèrement devant ; le plus important est de n'avoir ni
 saccade, ni téléportation, ni relais soudain entre la gauche et la droite, la transition (le transfert de
 poids) étant la source du déhanché et de la trajectoire « en 8 » ; le double rebond du semba est un transfert
 doublé vers le même côté, commencé vers le côté opposé puis repris vers le côté de départ.
@@ -60,7 +60,7 @@ doublé vers le même côté, commencé vers le côté opposé puis repris vers 
 |---|---|---|
 | Le buste au-dessus des genoux | Mesuré : le buste est 10 à 19 cm derrière les genoux dans tous les styles. Chantier à part. | #166, R33 |
 | Ni saccade, ni téléportation, ni relais soudain | Le « 8 » est la trace d'un transfert de poids continu : un prototype se juge d'abord au passage d'un côté à l'autre (mesure `soudain`, plus bas). Les à-coups des figures, eux, ne viennent pas du ginga : chantier à part. | ici, #167, R34 |
-| Semba : deux transferts de suite vers le même côté | Précise le « petit rond rapide » du matin : le poids part vers l'autre côté, n'y arrive pas, revient. À prototyper sur le « 8 » élu. | #162, R35 |
+| Semba : deux transferts de suite vers le même côté | Précise le « petit rond rapide » du matin : le poids part vers l'autre côté, n'y arrive pas, revient. Prototypes à élire, d'après le kompa élu ([élection](elections/ginga-huit.md)). | #162, R39 |
 
 ## Constat mesuré, après #157
 
@@ -254,6 +254,25 @@ Pour comparer : le « 8 » du suave entoure 17,6 cm².
   jambe fléchie doit descendre (`tilt` négatif), ou son talon se lever (`knees.heel`). Les variantes `genoux` à
   `profilFort` inclinaient le bassin de l'autre côté : la jambe d'appui y est la plus fléchie et les deux genoux
   dépassent 45°. Les variantes `alterne*` corrigent cela ([élection](elections/ginga-huit.md)).
+
+## Le semba : d'après le kompa élu, avec son double rebond (#162)
+
+Le kompa élu le 23 novembre (`assisBuste`) donne la mécanique : la hanche s'assoit quand le poids arrive, le buste
+suit le bassin et se penche. Le semba la reprend à son rythme, un transfert par temps, et y ajoute son double rebond
+(règles R32 et R39) : `SEMBA_SITS`, éteint par défaut (`?style=semba&semba=pause|parCote|simple`).
+
+- **Un rebond par temps** : chaque arrivée du poids est une assise, le bassin au plus bas sur le temps (2,4 cm). Le
+  semba d'aujourd'hui fait deux rebonds par temps en « V » (10,3 cm, 140 m/s² à 130 bpm).
+- **Le double rebond** (`pattern`, « D ») : le même pied reçoit le poids deux fois de suite. Entre les deux, sur un
+  temps, le bassin va au bout de son côté, revient jusqu'au centre et repart (`smallRound`) ; l'autre
+  genou plie un peu, c'est le transfert qui n'a pas lieu (`short`) ; la jambe du rebond ne se tend qu'en partie
+  (`rise`). Chaque signal quitte et retrouve le balancement simple avec la même valeur et la même vitesse : pas
+  d'à-coup à la jonction.
+- **Où il tombe** : `pause` suit les sources (« un, deux, trois, pause », huit temps) ; `parCote` le met un temps sur
+  deux. C'est la question posée au propriétaire.
+- Pour un motif de huit temps, le décalage qui garde positif le temps du mouvement sur place passe de 12 à 24 temps
+  (`src/pose.ts`) ; les poses des autres styles ne changent pas.
+- En couple, le semba ne reçoit pas ces prototypes.
 
 ## Les genoux : le propriétaire a élu « genoux chevauchés »
 

@@ -172,3 +172,37 @@ const api = await import(bundle.href); unlinkSync(bundle);
   console.log(`PASS kompa seul : aujourd'hui une ligne (${k0.C.profondeur} cm d'avant en arrière, arrêt de ${k0.C.arret} temps) ; prototypes : ${k1.L.dessus} et ${k2.L.dessus} cm² entourés vu de dessus, aucun arrêt`);
   console.log(`PASS mesure du « 8 » (suiveuse, marche) : vu de dessus chaque hanche entoure ${today.L.dessus} cm² aujourd'hui (réglage ${api.GUIDE_GINGA_DEFAULT} ; ${film.L.dessus} avec marque, la taille du film), ${angular.L.dessus} (anguleux), ${round.L.dessus} (arrondi), ${large.L.dessus} (ample), ${larger.L.dessus} (très ample) ; arrêt le plus long du bassin ${film.C.arret} (marque), ${today.C.arret} (${api.GUIDE_GINGA_DEFAULT}) → ${round.C.arret} temps`);
 }
+
+// 4. #162: the semba, built on the hip elected for the kompa, with its double bounce (two landings in a row on
+// the same foot). Prototypes, off by default; the pattern of the landings and the joins of the double bounce.
+{
+  assert.equal(api.SEMBA_PROTO.sit, null, 'no semba prototype by default');
+  assert.deepEqual(Object.keys(api.SEMBA_SITS), ['pause', 'parCote', 'simple']);
+  // Which foot receives the weight on each beat: the pelvis is on that side a third of a beat after the landing.
+  const feet = name => Array.from({ length: api.SEMBA_SITS[name].pattern.length }, (_, n) => api.sembaSwing(api.SEMBA_SITS[name], 0.5 + n + 0.3) > 0 ? 'G' : 'D').join('');
+  assert.equal(feet('pause'), 'GDGGDGDD', 'pause: one, two, three, then the same foot again (the double bounce on the fourth beat)');
+  assert.equal(feet('parCote'), 'GGDD', 'parCote: two landings on each foot');
+  assert.equal(feet('simple'), 'GD', 'simple: one transfer per beat');
+  // The double bounce joins the plain swing without a jump: position and speed of the lateral swing are
+  // continuous over the whole cycle, and inside the bounce the pelvis stays on the side of the bounce.
+  for (const name of ['pause', 'parCote']) {
+    const p = api.SEMBA_SITS[name], n = p.pattern.length, S = 400, x = Array.from({ length: n * S }, (_, i) => api.sembaSwing(p, 0.5 + i / S));
+    const speed = x.map((v, i) => (x[(i + 1) % x.length] - v) * S);
+    const jump = Math.max(...speed.map((v, i) => Math.abs(speed[(i + 1) % speed.length] - v)));
+    assert.ok(jump < 0.15, `${name}: the speed of the swing never jumps (${jump.toFixed(3)} per beat between two samples)`);
+    p.pattern.forEach((kind, k) => { if (kind !== 'D') return; const inside = x.slice(k * S, (k + 1) * S), side = Math.sign(inside[S / 4]);
+      assert.ok(Math.min(...inside.map(v => v * side)) > -0.1 && Math.max(...inside.map(v => v * side)) > 0.99, `${name}: inside the double bounce the pelvis reaches its side and comes back to about the centre`); });
+  }
+  const today_ = trace('aujourdhui', 'seul', 'base', 'semba');
+  assert.ok(today_.fluidite.acceleration99 > 50 && today_.posture.busteDevantGenoux[1] < -12, `semba today: two sharp bounces per beat (${today_.fluidite.acceleration99} m/s²), the bust behind the knees (${today_.posture.busteDevantGenoux[1]} cm)`);
+  const report = [];
+  for (const name of ['simple', 'pause', 'parCote']) {
+    const k = trace(name, 'seul', 'base', 'semba'), g = k.genoux;
+    assert.ok(k.fluidite.arretPart === 0 && k.fluidite.acceleration99 < 12, `semba ${name}: never still, no jolt (${JSON.stringify(k.fluidite)})`);
+    assert.ok(g.gauche[0] < 32 && g.gauche[1] > 44 && g.ecart > 14, `semba ${name}: the legs alternate (${JSON.stringify(g)})`);
+    assert.ok(k.posture.busteDevantGenoux[0] > -8.5 && k.posture.inclinaison[1] > 12 && k.buste.largeur > 4 && k.buste.largeur < 10, `semba ${name}: the bust of the elected kompa (${JSON.stringify(k.posture)}, ${k.buste.largeur} cm sideways)`);
+    assert.ok(k.mesures.C.hauteur > 1.5 && k.mesures.C.hauteur < 4, `semba ${name}: one bounce per landing (${k.mesures.C.hauteur} cm)`);
+    report.push(`${name} ${k.fluidite.acceleration99} m/s², genoux ${g.gauche[0]}° à ${g.gauche[1]}°`);
+  }
+  console.log(`PASS semba seul (#162) : aujourd'hui ${today_.fluidite.acceleration99} m/s² ; prototypes ${report.join(' ; ')} ; appuis pause ${feet('pause')}, parCote ${feet('parCote')}`);
+}

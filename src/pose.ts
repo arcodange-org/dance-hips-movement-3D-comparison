@@ -490,10 +490,10 @@ export function gingaPhase(key: string, leader: (beat: number) => { loadR?: numb
 
 export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, options: Partial<PoseOptions>): PoseStats {
   const o = { ...DEFAULT_POSE, ...options };
-  // + 12 beats (a multiple of every on-the-spot period: styles 4, temps3 12) keeps the motion beat positive
-  // for the styles' `b % n` without changing the pose.
+  // + 24 beats (a multiple of every on-the-spot period: styles 4, temps3 12, the semba prototypes 8, #162)
+  // keeps the motion beat positive for the styles' `b % n` without changing the pose.
   const shift = onBeatShift(o);
-  let beat = shift ? clockBeat - shift + 12 : clockBeat;
+  let beat = shift ? clockBeat - shift + 24 : clockBeat;
   const rest = { L: model.legs.L.rest, R: model.legs.R.rest };
   // Owner request (19 Nov.): in the five-action figures the feet point forward along the knees'
   // axis (the GLB foot is natively turned out by ≈25°), and the initial/neutral stance has the

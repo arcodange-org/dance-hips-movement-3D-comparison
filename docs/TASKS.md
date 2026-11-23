@@ -386,7 +386,7 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
       question 4 de l'élection ; la recherche de sources est sur la branche de la vidéo.
 - [x] Branche à jour de `main` après #163 (défaut `ample`, sorties moins plafonnées) : GIF de danse repris, croisements
       d'os recomptés au seizième de temps (13, 11, 8, 27, 37 de B à F ; aucun dans la marche ni la sortie garçon).
-- [x] Paroles du 22 novembre (suite) consignées (R33 à R35) : posture → #166 ; ni saccade ni relais soudain → mesure
+- [x] Paroles du 22 novembre (suite) consignées (R33, R34 et R39, d'abord numérotée R35) : posture → #166 ; ni saccade ni relais soudain → mesure
       `soudain` de chaque variante (2,0 aujourd'hui en couple, 1,0 pour les « 8 » arrondis) et #167 ; semba → #162.
 - [x] Vote du second tour (22 novembre) : sens D, taille F ; forme et kompa à reprendre par les genoux.
 - [x] Troisième tour : les genoux mènent le « 8 » (`GingaEight.knees`, kompa `genoux*`), mesures de fluidité au tracé.
@@ -405,8 +405,12 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Huitième tour (kompa, la hanche s'assoit sur le temps, vers l'arrière et l'extérieur, pivot du bassin, buste de
   face, remontée lente et ronde, talon à 6°) : KG14 `assis`, KG15 `assisMarque` ; `KompaEight.sit`. Vote : KG15 ; le
   buste peut suivre le bassin (de côté, quelques degrés de pivot) et se penche légèrement en avant (R33).
-- [ ] Neuvième tour (kompa, le buste suit et se penche) : KG16 `assisBuste`, KG17 `assisBusteAvant` à élire
-  ([élection](elections/ginga-huit.md)) ; `sit.follow`, `lean`, `ahead` ; mesure `posture` au traceur (celle de #166).
+- [x] Neuvième tour (kompa, le buste suit et se penche) : KG16 `assisBuste`, KG17 `assisBusteAvant` ; `sit.follow`,
+  `lean`, `ahead` ; mesure `posture` au traceur (celle de #166). Vote : KG16. Le kompa élu est `assisBuste` ; le semba
+  doit s'en inspirer.
+- [ ] Dixième tour (semba, #162, d'après le kompa élu) : S1 `pause`, S2 `parCote`, S3 `simple` à élire
+  ([élection](elections/ginga-huit.md)) ; `SEMBA_SITS`, `sembaPhase`, `smallRound` ; règle du double rebond
+  renumérotée R39.
 - [ ] Kompa élu : en faire le pas de base du style (aujourd'hui les prototypes sont éteints par défaut), tests et
   textes de l'app à reprendre.
 - [ ] Kompa : « 8 » de face plus marqué que de dessus, sans glisser d'un bloc.

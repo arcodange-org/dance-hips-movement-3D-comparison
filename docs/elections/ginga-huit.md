@@ -428,3 +428,48 @@ tenue au sens strict que par KG17, au prix de 22° d'inclinaison. Le modèle n'a
 qu'un corps tiendrait ces postures. Prototypes non contrôlés sur le GLB au-delà des tests de pose.
 
 Images : `election-kompa-assisBuste*.gif` (trois quarts et `-profil`), `trace-kompa-assisBuste*.gif`.
+
+### Résultat du neuvième tour (23 novembre, page de vote)
+
+| Question | Choix | Commentaire |
+|---|---|---|
+| Q15, le kompa, l'inclinaison du buste | **KG16**, le buste suit, penché | — |
+
+Le kompa élu est donc `assisBuste` : la hanche s'assoit sur le temps (pivot du bassin de 12°, la hanche fait 6 cm
+d'avant en arrière), genoux de 24° à 45°, talon libre levé de 6°, buste qui suit le bassin (9,5 cm de côté, 3° de
+pivot), tronc incliné de 16°. Précisé le même jour : le semba doit s'en inspirer (#162).
+
+Reste à faire pour le kompa : en faire le pas de base du style dans l'app (aujourd'hui il ne s'affiche qu'avec
+`?kompa=assisBuste`), reprendre ses tests et ses textes, retirer les variantes non retenues.
+
+## Dixième tour : le semba, d'après le kompa élu (#162, 23 novembre)
+
+Ce que le semba reprend du kompa élu : la hanche s'assoit quand le poids arrive (pivot du bassin de 8°, recul du
+bassin), la jambe se tend ensuite lentement et la hanche remonte en tournant ; le buste suit le bassin (6,8 cm de côté)
+et se penche (tronc à 15°) ; le talon libre se lève de 6°.
+
+Ce qui est propre au semba : un transfert par temps (130 bpm), donc une assise par temps, c'est son rebond ; et le
+double rebond (R32, R39) : le même pied reçoit le poids deux fois de suite, le poids repartant vers l'autre pied sans
+y arriver. Entre les deux arrivées, le bassin va au bout de son côté, revient vers le centre et repart : un petit
+rond, visible dans le tracé.
+
+| | `?style=semba&semba=` | Pied qui reçoit le poids, temps après temps | Accélération du bassin | Le bassin monte et descend de | Genoux | Buste par rapport aux genoux | De face, de dessus, de profil |
+|---|---|---|---|---|---|---|---|
+| S0 — le semba d'aujourd'hui | (rien) | G D G D G D G D | 140 m/s² | 10,3 cm, deux fois par temps | 23° à 63° | −15,8 cm | 20, 0,2, 0,1 cm² |
+| S1 — un, deux, trois, pause | `pause` | G D G **G** D G D **D** | 5,1 m/s² | 2,4 cm, une fois par temps | 30° à 49° | −5,4 cm | 24, 17, 13 cm² |
+| S2 — deux arrivées sur chaque pied | `parCote` | G **G** D **D** G **G** D **D** | 5,1 m/s² | 2,4 cm | 30° à 49° | −5,3 cm | 24, 17, 13 cm² |
+| S3 — sans double rebond | `simple` | G D G D G D G D | 5,1 m/s² | 2,1 cm | 30° à 49° | −5,5 cm | 24, 12, 8 cm² |
+
+En gras : la deuxième arrivée sur le même pied (le double rebond). Jamais à l'arrêt dans S1 à S3.
+
+- S1 suit les sources (Angola Travel Guide, [`docs/musique/semba.md`](../musique/semba.md)) : trois pas, puis la
+  « pause », poids sur le pied du troisième pas, avec un rebond sans transfert. Huit temps pour revenir au même pied.
+- S2 : chaque pied reçoit le poids deux fois de suite, quatre temps.
+- S3 : la hanche du kompa élu au rythme du semba, sans double rebond, pour juger de ce que le double rebond apporte.
+
+Limites : l'endroit où tombe le double rebond est une lecture, c'est la question du tour. Le rebond est petit
+(2,4 cm) à côté de celui d'aujourd'hui (10,3 cm) : à juger à l'œil. Les genoux alternent peu (30° à 49°, 17° d'écart
+au plus). Sur les tracés, les temps sont numérotés depuis le début du film, pas depuis le « un » de la danse.
+Prototypes non contrôlés sur le GLB au-delà des tests de pose ; en couple le semba ne change pas.
+
+Images : `election-semba-*.gif`, `trace-semba-*.gif`.

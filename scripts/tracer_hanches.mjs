@@ -25,8 +25,11 @@ const api = await import(bundle.href); unlinkSync(bundle);
 
 const STEPS = 32; // samples per beat
 const solo = role === "seul";
-const follower = !solo && role !== "leader", dz = api.GUIDE_PAIR_DZ, beats = solo ? 4 : api.GUIDE_FIGURES[kind].beats, movement = solo ? "none" : api.GUIDE_FIGURES[kind].movement;
-if (solo) api.setKompaProto(ginga);
+// Alone: four beats, eight for the semba (its « one, two, three, pause » comes back to the same foot in eight).
+const follower = !solo && role !== "leader", dz = api.GUIDE_PAIR_DZ, beats = solo ? (styleKey === 'semba' ? 8 : 4) : api.GUIDE_FIGURES[kind].beats, movement = solo ? "none" : api.GUIDE_FIGURES[kind].movement;
+if (solo) { api.setKompaProto(styleKey === 'kompa' ? ginga : null); api.setSembaProto(styleKey === 'semba' ? ginga : null); }
+// Tempo of the measures and of the GIF: the semba at 130 bpm, the others at 90.
+const BPM = styleKey === 'semba' ? 130 : 90;
 const f = { ...fixture(api), cache: new Map() };
 const rest = { L: f.model.legs.L.rest, R: f.model.legs.R.rest }, stance = (f.model.legs.L.hipX - rest.L.x + rest.R.x - f.model.legs.R.hipX) / 2;
 // The game's own session: the figure commanded five times in a row, the third one measured.
@@ -118,10 +121,10 @@ const inMiddle = lateral.map(x => (x - lowest) / width > 0.25 && (x - lowest) / 
 let passage = 0, run = 0;
 for (let i = 0; i < 2 * total; i++) { run = inMiddle[i % total] ? run + 1 : 0; passage = Math.max(passage, Math.min(run, total)); }
 const transfert = width < 0.1 ? null : { soudain: round(peak / (Math.PI * width / periode)), passage: round(passage / STEPS), periode: round(periode), largeur: round(width) };
-// The pelvis's acceleration (m/s², at 90 bpm, 99th percentile over the cycle, the figure's travel removed) and
+// The pelvis's acceleration (m/s², at the style's tempo: 90 bpm, the semba 130; 99th percentile over the cycle, the figure's travel removed) and
 // the share of time it is still (under 2 cm/s): the same measures as the film's (session of #155), so that the
 // ginga can be judged by whether the pelvis never stops and its speed changes without jolts.
-const dt = 60 / 90 / STEPS, pelvisM = points.C.map(p => p.map(v => v / 100));
+const dt = 60 / BPM / STEPS, pelvisM = points.C.map(p => p.map(v => v / 100));
 const speed = pelvisM.map((p, i) => { const q = pelvisM[(i + 1) % total]; return [0, 1, 2].map(k => (q[k] - p[k]) / dt); });
 const accel = speed.map((v, i) => { const w = speed[(i + 1) % total]; return Math.hypot(...[0, 1, 2].map(k => (w[k] - v[k]) / dt)); }).sort((a, b) => a - b);
 const fluidite = { acceleration99: round(accel[Math.floor(0.99 * (total - 1))]), arretPart: round(speed.filter(v => Math.hypot(...v) < 0.02).length / total) };
@@ -147,7 +150,7 @@ const panels = [
 const at = (panel, p) => [panel.cx + (p[panel.a] - centre[panel.a]) * SCALE, panel.cy - (p[panel.b] - centre[panel.b]) * SCALE];
 const path = (panel, pts) => pts.map((p, i) => `${i ? 'L' : 'M'}${at(panel, p).map(v => v.toFixed(1)).join(' ')}`).join(' ') + ' Z';
 const COLORS = { L: '#fb923c', R: '#22d3ee', C: '#94a3b8' };
-const label = solo ? ({ huit: '« 8 »', huitGrand: '« 8 » plus grand', huitInverse: '« 8 », autre sens', genoux: 'genoux alternés', genouxRond: 'genoux alternés, une demi-temps après', hanches: 'hanches qui mènent', hanchesFortes: 'hanches qui mènent, plus fort', profil: '« 8 » de profil, fessiers en arrière', profilFort: '« 8 » de profil, plus fort', alterne: 'jambe d’appui tendue, jambe libre fléchie', alterneTalon: 'jambes alternées, talon libre levé', alterneDirect: 'jambes alternées, genoux avec le poids', hancheFinit: 'la hanche attend, puis arrive avec le poids', hancheTenue: 'la hanche reste haute, puis rattrape', hancheAssise: 'la hanche s’assoit dès l’arrivée', hancheApres: 'la hanche finit après l’arrivée du bassin', assis: 'la hanche s’assoit sur le temps, puis remonte', assisMarque: 'la hanche s’assoit sur le temps, plus marqué', assisBuste: 'la hanche s’assoit, le buste suit, penché en avant', assisBusteAvant: 'la hanche s’assoit, le buste au-dessus des genoux' }[ginga] ?? 'aujourd’hui') : { marque: 'aller-retour (aujourd’hui)', huit: '« 8 » anguleux', huitRond: '« 8 » arrondi', huitInverse: '« 8 » arrondi, autre sens', huitAmple: '« 8 » arrondi, ample', huitGrand: '« 8 » arrondi, très ample', genoux: 'genoux qui mènent, en même temps (G1)', genouxQuart: 'genoux qui mènent, un quart de temps après (G2)', genouxRond: 'genoux qui mènent, une demi-temps après (G3)' }[ginga] ?? ginga;
+const label = solo ? ({ huit: '« 8 »', huitGrand: '« 8 » plus grand', huitInverse: '« 8 », autre sens', genoux: 'genoux alternés', genouxRond: 'genoux alternés, une demi-temps après', hanches: 'hanches qui mènent', hanchesFortes: 'hanches qui mènent, plus fort', profil: '« 8 » de profil, fessiers en arrière', profilFort: '« 8 » de profil, plus fort', alterne: 'jambe d’appui tendue, jambe libre fléchie', alterneTalon: 'jambes alternées, talon libre levé', alterneDirect: 'jambes alternées, genoux avec le poids', hancheFinit: 'la hanche attend, puis arrive avec le poids', hancheTenue: 'la hanche reste haute, puis rattrape', pause: 'trois transferts, puis le même pied deux fois', parCote: 'deux arrivées sur chaque pied', simple: 'un transfert par temps, la hanche s’assoit', hancheAssise: 'la hanche s’assoit dès l’arrivée', hancheApres: 'la hanche finit après l’arrivée du bassin', assis: 'la hanche s’assoit sur le temps, puis remonte', assisMarque: 'la hanche s’assoit sur le temps, plus marqué', assisBuste: 'la hanche s’assoit, le buste suit, penché en avant', assisBusteAvant: 'la hanche s’assoit, le buste au-dessus des genoux' }[ginga] ?? 'aujourd’hui') : { marque: 'aller-retour (aujourd’hui)', huit: '« 8 » anguleux', huitRond: '« 8 » arrondi', huitInverse: '« 8 » arrondi, autre sens', huitAmple: '« 8 » arrondi, ample', huitGrand: '« 8 » arrondi, très ample', genoux: 'genoux qui mènent, en même temps (G1)', genouxQuart: 'genoux qui mènent, un quart de temps après (G2)', genouxRond: 'genoux qui mènent, une demi-temps après (G3)' }[ginga] ?? ginga;
 const fixed = panels.map(panel => `
   <text x="16" y="${panel.cy - 70}" class="t">${panel.title}</text><text x="16" y="${panel.cy - 52}" class="h">${panel.hint}</text>
   ${['C', 'L', 'R'].map(k => `<path d="${path(panel, points[k])}" fill="none" stroke="${COLORS[k]}" stroke-width="${k === 'C' ? 1 : 2}" stroke-opacity="${k === 'C' ? 0.5 : 0.85}"/>`).join('')}`).join('');
@@ -198,7 +201,7 @@ for (let n = 0; n < frames.length; n++) {
   writeFileSync(`${dir}/f${String(n).padStart(3, '0')}.png`, await page.locator('#s').screenshot());
 }
 await browser.close();
-// 16 images par temps : à 90 bpm, 24 images par seconde (le GIF tourne en boucle sur le cycle).
-execFileSync(ffmpegPath, ["-y", "-framerate", "24", "-i", `${dir}/f%03d.png`, "-vf", "split[s0][s1];[s0]palettegen=max_colors=32[p];[s1][p]paletteuse=dither=none", "-loop", "0", out], { stdio: "ignore" });
+// 16 images par temps : 24 images par seconde à 90 bpm, 35 à 130 (le GIF tourne en boucle sur le cycle).
+execFileSync(ffmpegPath, ["-y", "-framerate", String(Math.round(16 * BPM / 60)), "-i", `${dir}/f%03d.png`, "-vf", "split[s0][s1];[s0]palettegen=max_colors=32[p];[s1][p]paletteuse=dither=none", "-loop", "0", out], { stdio: "ignore" });
 rmSync(dir, { recursive: true, force: true });
 console.error('ok', out, frames.length, 'images');
