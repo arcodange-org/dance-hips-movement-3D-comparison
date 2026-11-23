@@ -408,11 +408,11 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Neuvième tour (kompa, le buste suit et se penche) : KG16 `assisBuste`, KG17 `assisBusteAvant` ; `sit.follow`,
   `lean`, `ahead` ; mesure `posture` au traceur (celle de #166). Vote : KG16. Le kompa élu est `assisBuste` ; le semba
   doit s'en inspirer.
-- [ ] Dixième tour (semba, #162, d'après le kompa élu) : S1 `pause`, S2 `parCote`, S3 `simple` à élire
-  ([élection](elections/ginga-huit.md)) ; `SEMBA_SITS`, `sembaPhase`, `smallRound` ; règle du double rebond
-  renumérotée R39.
-- [ ] Kompa élu : en faire le pas de base du style (aujourd'hui les prototypes sont éteints par défaut), tests et
-  textes de l'app à reprendre.
+- [x] Dixième tour (semba, #162, d'après le kompa élu) : S1 `pause`, S2 `parCote`, S3 `simple` ; `SEMBA_SITS`,
+  `sembaPhase`, `smallRound` ; règle du double rebond renumérotée R39. Vote : S2, le semba élu est `parCote`.
+- [ ] Kompa et semba élus : en faire le pas de base de leur style, danseur seul sur place
+  ([spec](spec-ginga-huit.md#les-pas-élus-deviennent-les-pas-de-base)) ; tests, textes de l'app et GIF à reprendre ;
+  en couple et en déplacement, le modèle d'avant reste.
 - [ ] Kompa : « 8 » de face plus marqué que de dessus, sans glisser d'un bloc.
 - [ ] Variante élue : contrôles sur le GLB dans toutes les figures (marges), ida e volta, pas de base.
 

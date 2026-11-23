@@ -473,3 +473,17 @@ au plus). Sur les tracés, les temps sont numérotés depuis le début du film, 
 Prototypes non contrôlés sur le GLB au-delà des tests de pose ; en couple le semba ne change pas.
 
 Images : `election-semba-*.gif`, `trace-semba-*.gif`.
+
+### Résultat du dixième tour (23 novembre, page de vote)
+
+| Question | Choix | Commentaire |
+|---|---|---|
+| Q16, le semba, où tombe le double rebond | **S2**, deux arrivées sur chaque pied | — |
+
+Le semba élu est `parCote` : gauche, gauche, droite, droite, un double rebond un temps sur deux, quatre temps.
+
+## Après les votes : les pas élus deviennent les pas de base (23 novembre)
+
+Kompa (`assisBuste`) et semba (`parCote`) sont élus. Ils deviennent le pas de base de leur style, danseur seul, sur
+place, pieds plantés ; voir [la spec](../spec-ginga-huit.md#les-pas-élus-deviennent-les-pas-de-base). Les autres
+variantes restent visibles par `?kompa=` et `?semba=` (`ancien` : le modèle d'avant les votes).

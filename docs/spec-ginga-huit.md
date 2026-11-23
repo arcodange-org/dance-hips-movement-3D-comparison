@@ -274,6 +274,37 @@ suit le bassin et se penche. Le semba la reprend à son rythme, un transfert par
   (`src/pose.ts`) ; les poses des autres styles ne changent pas.
 - En couple, le semba ne reçoit pas ces prototypes.
 
+## Les pas élus deviennent les pas de base
+
+Votes du 23 novembre : kompa `assisBuste` (#161), semba `parCote` (#162).
+
+**Où ils s'appliquent.** Au pas de base du style, danseur seul, sur place, pieds plantés (`movement` « none », pas de
+déplacement, pas de figure). C'est là qu'ils ont été réglés, filmés et votés. Ailleurs le modèle d'avant reste :
+
+- en couple (figures, mode jeu), où le style ne donne que son déhanché à une figure qui a ses propres appuis ;
+- en déplacement, dans l'ida e volta, les quarts de tour et le corridinho en solo, où les pieds ne sont pas plantés
+  sous les hanches ;
+- pieds non plantés (`plant=0`), l'ancien rendu sans solveur des jambes.
+
+**Comment.** `StyleDef.apply` et `StyleDef.support` reçoivent un drapeau `base` ; la pose le calcule. Sans paramètre
+d'adresse, `base` allume le pas élu ; `?kompa=` et `?semba=` choisissent une autre variante (`ancien` : le modèle
+d'avant les votes), toujours pour le pas de base seulement.
+
+**Ce qui change pour qui regarde l'app.**
+
+| | Avant | Pas élu |
+|---|---|---|
+| Kompa, bassin | une ligne droite, à l'arrêt 0,56 temps de chaque côté | la hanche s'assoit sur le temps, jamais à l'arrêt |
+| Kompa, genoux | 53° à 60°, les deux | 24° à 45°, en alternance |
+| Kompa, buste | droit, 19 cm derrière les genoux | suit le bassin, penché de 16°, 5 cm derrière |
+| Semba, appuis | un transfert par temps | deux arrivées sur chaque pied (double rebond un temps sur deux) |
+| Semba, rebond | 10,3 cm, deux fois par temps (140 m/s²) | 2,4 cm, une fois par temps (5 m/s²) |
+| Semba, buste | droit, 16 cm derrière les genoux | suit le bassin, penché de 15°, 5 cm derrière |
+
+**À reprendre avec le code** : les tests qui décrivent l'ancien pas (appuis du semba, hauteur et genoux, stabilité du
+buste), les textes des deux styles dans l'app, leurs GIF de présentation. Les variantes non retenues restent dans le
+code tant que la PR est ouverte ; leur retrait est un nettoyage à part.
+
 ## Les genoux : le propriétaire a élu « genoux chevauchés »
 
 Vote de l'atlas (#132, PR #139), le 21 novembre 2026, mot pour mot : « B, genoux chevauchés » ; « c'est bien
