@@ -23,34 +23,40 @@ Position fermée : bustes face à face, pieds proches. Dossier ouvert le 22 nove
 Après la première planche (B était alors 6 cm sous les épaules) :
 
 - **Place** : les mains se lèvent légèrement au-dessus de l'épaule, leur milieu à hauteur d'épaule ; la paume du
-  guideur regarde à mi-chemin entre sa droite et la suiveuse, sa main pointe vers le ciel. Place validée sur gros plans.
+  guideur regarde à mi-chemin entre sa droite et la suiveuse. Place validée sur gros plans.
 - **Emboîtement** : les doigts de chaque main, de l'index à l'auriculaire, font un seul bloc, comme dans une moufle :
   rien ne passe entre eux. Les quatre doigts de la suiveuse passent entre le pouce et l'index du guideur, paume contre
   paume ; son pouce reste sous celui du guideur. Ni os ni muscles ne se traversent.
+- **Référence** : une [photo d'une tenue de salon, Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Ballroom_dance_exhibition.jpg), vue de derrière la main de la danseuse. Sa main est dressée, ses doigts passés
+  entre le pouce et l'index du danseur ; la main du danseur est en travers, pouce vers le haut, ses quatre doigts
+  refermés sur le tranchant de la main de la danseuse, jusque sur le dos de sa main.
 
-Fait dans le candidat B (`?essai=mainsCote`) : la main de la suiveuse est en travers de celle du guideur, ses quatre
-doigts refermés autour de la palmure de son pouce. Les constantes viennent d'une recherche sur les os des deux mains
+Fait dans le candidat B (`?essai=mainsCote`) : le pouce du guideur pointe vers le ciel, ses doigts vont vers l'avant,
+à 29° au-dessus de l'horizontale, et se referment d'un seul bloc sur le tranchant de la main de la suiveuse ; la main
+de la suiveuse est dressée contre sa paume, ses quatre doigts refermés autour de la palmure de son pouce. Les deux
+mains gardent l'emboîtement trouvé le matin (la main de la suiveuse à 79° des doigts du guideur) ; l'ensemble a tourné
+d'un quart de tour dans le plan des paumes. Les constantes viennent d'une recherche sur les os des deux mains
 (`scripts/search_prise_mains.mjs`). Mesures (`ESSAI=mainsCote node scripts/mesure_essai_mains.mjs`) :
 
 | | Sur place | Dans les figures |
 |---|---|---|
-| Milieu des mains, par rapport à la moyenne des deux épaules | 0,6 cm dessous ; haut des doigts du guideur 9 cm au-dessus | 0,6 à 0,8 cm dessous |
-| Paume du guideur, par rapport à sa droite | 45° | 43° à 46° |
-| Doigts du guideur, par rapport à la verticale | 0° | jusqu'à 10° (sorties) |
-| Main de la suiveuse, par rapport aux doigts du guideur | en travers, à 79° vers son pouce | 69° à 79° |
-| Paumes | face à face à 7° près, centres à 3 cm | à 2° à 15° près |
-| Os des deux mains et des avant-bras (rayons d'os ôtés) | au contact, sans se traverser (jeu 0 cm) | de même, sauf dans la sortie fille : 0,3 cm de recouvrement par instants |
-| Poignets | guideur 46° à 48° ; suiveuse 61° à 63° | suiveuse jusqu'à 72°, la limite de cette prise |
+| Milieu des mains, par rapport à la moyenne des deux épaules | 1,6 cm dessous ; haut des doigts 2,8 cm au-dessus | 1,6 à 2 cm dessous |
+| Paume du guideur, par rapport à sa droite | 45° | 39° à 46° |
+| Doigts du guideur, par rapport à la verticale | 61° (29° au-dessus de l'horizontale), pouce vers le ciel | 57° à 61° |
+| Main de la suiveuse, par rapport à la verticale | 19° | 19° à 24° |
+| Paumes | face à face à 7° près, centres à 3 cm | à 3° à 7° près |
+| Os des deux mains et des avant-bras (rayons d'os ôtés) | au contact, sans se traverser (jeu 0 cm) | de même dans les cinq figures |
+| Poignets | guideur 29° ; suiveuse 53° | guideur 13° à 57° ; suiveuse 35° à 72°, la limite de cette prise |
 
 Pour comparaison, dans les attitudes A et C (prise du 22 novembre, inchangée) les os des deux mains se recouvrent de
 1,1 à 1,6 cm.
 
-L'emboîtement de près, vu de derrière la main du guideur (os, puis muscles) :
+L'emboîtement de près, vu de derrière la main de la suiveuse, comme sur la photo de référence (os, puis muscles) :
 
 | ![os](mains-B-emboitement-os.png) | ![muscles](mains-B-emboitement-muscles.png) |
 |---|---|
 
-Mêmes images : adresse de B avec `beat=2`, `campos=0.637,1.32,-0.187&camtgt=0.34,1.27,0.11`, `muscles=0` ou `1`.
+Mêmes images : adresse de B avec `beat=2`, `campos=0.1,1.5,1.05&camtgt=0.33,1.27,0.11`, `muscles=0` ou `1`.
 
 ## Trois attitudes filmables
 
@@ -62,7 +68,7 @@ inertes sans le paramètre : l'application ne change pas. Images refaites le 23 
 |---|---|---|
 | ![A](mains-A-entre-les-poitrines.gif) | ![B](mains-B-sur-le-cote.gif) | ![C](mains-C-sur-le-cote-plus-bas.gif) |
 | ![A](mains-A-entre-les-poitrines.png) | ![B](mains-B-sur-le-cote.png) | ![C](mains-C-sur-le-cote-plus-bas.png) |
-| Entre les deux épaules, 6 cm sous elles : mains cachées entre les cages thoraciques, coudes repliés jusqu'à 27°. | 20 cm vers l'extérieur du couple, le milieu des mains à hauteur d'épaule : main du guideur dressée, paume à mi-chemin entre sa droite et la suiveuse ; main de la suiveuse emboîtée en travers, ses quatre doigts entre son pouce et son index. | 14 cm vers l'extérieur, 14 cm plus bas : mains à hauteur de taille, avant-bras presque horizontaux, coudes détendus. |
+| Entre les deux épaules, 6 cm sous elles : mains cachées entre les cages thoraciques, coudes repliés jusqu'à 27°. | 20 cm vers l'extérieur du couple, le milieu des mains à hauteur d'épaule : pouce du guideur vers le ciel, paume à mi-chemin entre sa droite et la suiveuse, ses doigts refermés sur le tranchant de la main de la suiveuse ; main de la suiveuse dressée, ses quatre doigts entre son pouce et son index. | 14 cm vers l'extérieur, 14 cm plus bas : mains à hauteur de taille, avant-bras presque horizontaux, coudes détendus. |
 
 La caméra est du côté des mains jointes : le guideur est à droite de l'image, la suiveuse à gauche. Les étiquettes de
 rôle du bas de l'image, fixes, diraient l'inverse : elles sont rognées.
@@ -99,5 +105,5 @@ l'emboîtement décrit plus haut. Les doigts ne se serrent pas latéralement.
 
 - Quelles attitudes garder (A, B, C, d'autres), et laquelle par défaut en kizomba. Question posée le 23 novembre 2026
   avec ces images ; proposition de l'agent : B par défaut, C gardée comme attitude, A retirée. Le propriétaire a
-  corrigé B (ci-dessus : place, puis emboîtement) ; le choix de l'attitude par défaut reste à confirmer.
+  corrigé B (ci-dessus : place, emboîtement, puis photo de référence) ; le choix de l'attitude par défaut reste à confirmer.
 - La prise, une fois posée : à juger sur des gros plans.

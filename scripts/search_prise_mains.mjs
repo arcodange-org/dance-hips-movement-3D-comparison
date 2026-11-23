@@ -5,6 +5,7 @@
 // traversent. La sonde tire des poses au hasard (graine fixe), les note, affine la meilleure et l'affiche dans le
 // repère de la main du guideur (R vers son pouce, U vers ses doigts, N hors de sa paume). Les constantes retenues
 // sont dans GRIP.upright (src/upperBody.ts) ; scripts/mesure_essai_mains.mjs mesure la prise dans le couple.
+// Second temps (photo de référence d'une tenue de salon) : les doigts du guideur se referment sur le tranchant de sa main.
 // Usage : node scripts/search_prise_mains.mjs
 //   TMIN, TMAX : bornes de l'angle de sa main en travers de la sienne (rad, défaut 1.2 à 1.42) ; N : tirages
 //   (défaut 200000) ; POUCE : ouverture du pouce du guideur (rad, défaut 1.55).
@@ -122,3 +123,34 @@ console.log(`total ${d.total.toFixed(2)} ; pénétration ${d.pen.toFixed(2)} ; c
 console.log("suiveuse (R,U,N cm) : paume", toFrame(d.h.palm).join(","), "; poignet", toFrame(d.h.P("hand")).join(","));
 for (const f of FINGERS) console.log("  ", f, ["1", "2", "3", "T"].map(n => toFrame(d.h.P(f + n)).join(",")).join(" | "));
 console.log(`GRIP.upright : across ${best.theta.toFixed(3)}, at [${[best.a, best.b, best.g].map(x => x.toFixed(3)).join(", ")}], roll ${best.roll.toFixed(3)}, pitch ${best.pitch.toFixed(3)}, hers { fingers: [${[best.f0, best.f1, best.f2].map(x => x.toFixed(3)).join(", ")}], thumb: [${[best.t0, best.t1, best.t2].map(x => x.toFixed(3)).join(", ")}] }`);
+
+// Deuxième temps (photo de référence d'une tenue de salon, 23 novembre 2026) : sa main posée, les quatre doigts du
+// guideur, d'un seul bloc, se referment sur le tranchant de la main de la suiveuse et viennent sur le dos de sa main,
+// sans traverser ses os. Sa pose à elle ne bouge plus ; on cherche la flexion des doigts du guideur.
+const elle = d.h, dos = toFrame(elle.palm)[2];
+function enveloppe(f) {
+  const lui = hand("L", { fingers: f, thumb: hisShape.thumb });
+  let pen = 0, worst = Infinity, pair = "", wrap = 0;
+  for (const A of elle.segs) for (const B of lui.segs) {
+    const dist = segDist(A.a, A.b, B.a, B.b), lack = A.r + B.r + 0.001 - dist;
+    if (dist - A.r - B.r < worst) { worst = dist - A.r - B.r; pair = `${A.f}${A.k} / ${B.f}${B.k}`; }
+    if (lack > 0) pen += (lack * 100) ** 2;
+  }
+  for (const g of ["index", "middle", "ring", "little"]) {
+    // Le bout du doigt passé sur le dos de sa main (au-delà de sa paume vers N), revenu vers son poignet à lui (U),
+    // et sa dernière phalange près de ses os à elle (moins de 4 mm de jeu).
+    const tip = toFrame(lui.P(g + "T")), base = toFrame(lui.P(g + "1"));
+    const last = lui.segs.find(x => x.f === g && x.k === 3);
+    let near = Infinity; for (const A of elle.segs) near = Math.min(near, segDist(A.a, A.b, last.a, last.b) - A.r - last.r);
+    wrap += Math.max(0, dos + 1.6 - tip[2]) ** 2 + Math.max(0, tip[1] - (base[1] - 1.5)) ** 2 + Math.max(0, near * 100 - 0.4) ** 2;
+  }
+  return { total: pen * 4 + wrap, pen, wrap, worst: +(worst * 100).toFixed(2), pair };
+}
+let bf = [0.14, 0.16, 0.1], bs = enveloppe(bf).total;
+for (let i = 0; i < 20000; i++) { const f = [rnd() * 1.6, rnd() * 1.8, rnd() * 1.2], t = enveloppe(f).total; if (t < bs) { bs = t; bf = f; } }
+for (let pass = 0, step = 0.3; pass < 300; pass++) {
+  const f = bf.map(x => Math.max(0, x + (rnd() - 0.5) * step)), t = enveloppe(f).total; if (t < bs) { bs = t; bf = f; } else if (pass % 50 === 49) step *= 0.6;
+}
+const e = enveloppe(bf);
+console.log(`enveloppe : total ${e.total.toFixed(2)} ; pénétration ${e.pen.toFixed(2)} ; tour ${e.wrap.toFixed(2)} ; jeu minimal ${e.worst} cm (${e.pair})`);
+console.log(`GRIP.upright.his : fingers [${bf.map(x => x.toFixed(3)).join(", ")}]`);

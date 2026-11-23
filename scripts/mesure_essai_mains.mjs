@@ -1,7 +1,7 @@
 // #179 (élections de variantes) — mesure d'une attitude des mains jointes sur le vrai GLB, haut du corps anatomique.
 // Ce n'est pas un test : il chiffre ce que montrent les images (kizomba, quinconce, plexus, amplitude 1).
 // Usage : node scripts/mesure_essai_mains.mjs                        (attitude actuelle : entre les poitrines)
-//         ESSAI=mainsCote node scripts/mesure_essai_mains.mjs        (sur le côté, milieu des mains à l'épaule, mains dressées)
+//         ESSAI=mainsCote node scripts/mesure_essai_mains.mjs        (sur le côté, milieu des mains à l'épaule, emboîtées)
 //         ESSAI=mainsBasses node scripts/mesure_essai_mains.mjs      (sur le côté, plus bas)
 // Même montage du couple que scripts/test_upper_body.mjs.
 import { buildSync } from "esbuild";

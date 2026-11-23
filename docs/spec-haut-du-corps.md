@@ -77,28 +77,31 @@ Ces amplitudes sont des paramètres de ce modèle, pas des normes cliniques ni d
   s'articule pour cela (jusqu'à 57° hors de l'axe de l'avant-bras), et sa main peut tourner de 40° sur la paume du
   guideur vers la ligne de son propre avant-bras.
 - **Attitude sur le côté, mains emboîtées** (candidat `?essai=mainsCote`, `GRIP.upright` ; précisions du propriétaire,
-  23 novembre 2026) : la paume du guideur est au point du rig, ses doigts vers le ciel, tournée à mi-chemin entre sa
-  droite et la suiveuse (`palm`) ; son poignet s'articule lui aussi, son pouce s'ouvre à angle droit (`his`). La main
-  de la suiveuse se place dans le repère de la sienne : en travers (`across`, 79° de ses doigts vers son pouce), paume
+  23 novembre 2026, avec une [photo d'une tenue de salon, Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Ballroom_dance_exhibition.jpg) en référence) : la paume du guideur est au point du rig, tournée à
+  mi-chemin entre sa droite et la suiveuse (`palm`) ; son pouce pointe vers le ciel, ses doigts vont vers l'avant, à 29°
+  au-dessus de l'horizontale (`lift`), et se referment d'un seul bloc sur le tranchant de la main de la suiveuse,
+  jusque sur le dos de sa main ; son poignet s'articule lui aussi, son pouce s'ouvre à angle droit (`his`). La main de
+  la suiveuse se place dans le repère de la sienne : dressée, à 79° de ses doigts vers son pouce (`across`), paume
   contre paume (`at`, `roll`, `pitch`), ses quatre doigts d'un seul bloc entre son pouce et son index, refermés autour
   de la palmure, son pouce sous le sien (`hers`). Aucun os ne traverse l'autre main : les constantes viennent d'une
-  recherche sur les os des deux mains (`scripts/search_prise_mains.mjs`, graine fixe). Son coude tend derrière sa
-  main, un peu plus bas (`drop`) ; son poignet peut plier jusqu'à 72° dans cette prise (`wrist`), parce que les mains
-  sont près des deux corps et que son avant-bras arrive presque de face.
+  recherche sur les os des deux mains (`scripts/search_prise_mains.mjs`, graine fixe ; second temps : les doigts du
+  guideur). Son coude tend sous sa main (`drop`) ; son poignet peut plier jusqu'à 72° dans cette prise (`wrist`) : les
+  mains sont près des deux corps, son avant-bras arrive par le dos de sa main, qui pousse comme contre un mur.
 
   | `ESSAI=mainsCote node scripts/mesure_essai_mains.mjs` | Sur place | Dans les figures |
   |---|---|---|
-  | Milieu des mains / moyenne des épaules | 0,6 cm dessous ; haut des doigts du guideur 9 cm au-dessus | 0,6 à 0,8 cm dessous |
-  | Paume du guideur / sa droite | 45° | 43° à 46° |
-  | Doigts du guideur / verticale | 0° | jusqu'à 10° (sorties) |
-  | Main de la suiveuse / doigts du guideur | 79° | 69° à 79° |
-  | Paumes face à face | à 7° près | à 2° à 15° près |
-  | Jeu entre les os des deux mains et des avant-bras | 0 cm (contact) | 0 cm ; −0,3 cm par instants dans la sortie fille |
-  | Poignets | guideur 46° à 48°, suiveuse 61° à 63° | suiveuse jusqu'à 72° (limite de la prise) |
+  | Milieu des mains / moyenne des épaules | 1,6 cm dessous ; haut des doigts 2,8 cm au-dessus | 1,6 à 2 cm dessous |
+  | Paume du guideur / sa droite | 45° | 39° à 46° |
+  | Doigts du guideur / verticale | 61°, pouce vers le ciel | 57° à 61° |
+  | Main de la suiveuse / verticale | 19° | 19° à 24° |
+  | Paumes face à face | à 7° près | à 3° à 7° près |
+  | Jeu entre les os des deux mains et des avant-bras | 0 cm (contact) | 0 cm dans les cinq figures |
+  | Poignets | guideur 29°, suiveuse 53° | guideur 13° à 57°, suiveuse 35° à 72° (limite de la prise) |
 
   Avec la prise du 22 novembre (attitudes A et C), ces os se recouvrent de 1,1 à 1,6 cm. Essais écartés le même jour :
-  paume du guideur vers sa seule droite, puis les deux mains dressées l'une contre l'autre (les doigts de la suiveuse
-  traversaient ceux du guideur).
+  paume du guideur vers sa seule droite ; les deux mains dressées l'une contre l'autre (les doigts de la suiveuse
+  traversaient ceux du guideur) ; la main du guideur vers le ciel et celle de la suiveuse en travers (même emboîtement,
+  un quart de tour plus tôt : son poignet pliait de 61° à 63° et la prise ne ressemblait pas à la photo).
 - La caméra s'approche jusqu'à 35 cm quand l'option est active (1,8 m sinon), pour voir les mains.
 
 ## Mesures (`scripts/test_upper_body.mjs`, GLB réel, seizième de temps, kizomba)

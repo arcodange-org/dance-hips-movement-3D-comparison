@@ -24,8 +24,10 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   seul bloc, entre le pouce et l'index du guideur, paume contre paume, son pouce sous le sien, sans qu'os ni muscles
   se traversent. C'est fait dans le candidat `?essai=mainsCote` (`CADRE.handsSide`, `GRIP.upright` ; sonde
   `scripts/search_prise_mains.mjs`, mesures `scripts/mesure_essai_mains.mjs`) : os des deux mains au contact sans se
-  traverser sur place. Reste : 0,3 cm de recouvrement par instants dans la sortie fille (poignet de la suiveuse à sa
-  limite, 72° dans cette prise) ; les muscles ne sont vérifiés qu'à l'œil ; les attitudes A et C gardent la prise du
+  traverser. Puis il a donné une photo de tenue de salon en référence : la prise a tourné d'un quart de tour dans le plan
+  des paumes — pouce du guideur vers le ciel, ses doigts refermés sur le tranchant de la main de la suiveuse, dont la
+  main est dressée (`GRIP.upright.lift`) ; os au contact sans se traverser dans les cinq figures. Reste : le poignet de
+  la suiveuse plie de 53° sur place et jusqu'à 72° (limite de cette prise) ; les muscles ne sont vérifiés qu'à l'œil ; les attitudes A et C gardent la prise du
   22 novembre, où les os se recouvrent ; le choix de l'attitude par défaut n'est pas fait (PR #181 en brouillon).
 - **Règle R37 (#180)** : la main gauche de la suiveuse sur l'épaule droite du guideur (devant et côté), son coude vers
   le bras droit du guideur (`CADRE_SITES.shoulderR`, `armR`) : coude à 10 à 11 cm de l'axe de son bras en moyenne.
