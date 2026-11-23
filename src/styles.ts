@@ -41,8 +41,12 @@ export const KOMPA = { transition: 0.4 };
  * path leaves the hold-then-cross of today for a continuous swing; `sense` (−1: back first).
  * `knees` (vote of 22 Nov.: K2 « looks like skiing », the knees bend in turn and overlap as in the other
  * dances): the free leg's knee bends while the supporting one straightens (`swing` rad on top of today's
- * flexion), `lag` (share of the 4-beat cycle) after the lateral swing; the pelvis tilts with them, the hip
- * of the bent knee lower (`tilt` rad per rad of difference), instead of tilting with the swing.
+ * flexion), `lag` (share of the 4-beat cycle) after the lateral swing; the pelvis tilts with them (`tilt`
+ * rad of roll per rad of difference between the knees), instead of tilting with the swing. Measured on the
+ * model (23 Nov.): a POSITIVE `tilt` lifts the hip of the leg asked to bend, so the leg solver straightens
+ * that leg and bends the supporting one instead (`genoux` to `profilFort`, as filmed and voted: both knees
+ * past 45°, the supporting leg the more bent); a NEGATIVE `tilt` drops the hip of the bent knee, which is
+ * what the legs need to alternate.
  * `glide` (third round, vote: still « skiing », the « 8 » seen from the front must be larger than seen from
  * above): share of today's lateral glide of the whole body kept (1 = today); the hips then carry the 8.
  * Fifth round (vote for KG3: now the « 8 » seen from the side; too much knee; the buttocks also go a little
@@ -51,8 +55,15 @@ export const KOMPA = { transition: 0.4 };
  * (without it the two cancel into an arc). `back`: the pelvis sits back by `reach` (m) and tips forward by
  * up to `pitch` (rad), most when it is at the back. `iso` (0 to 1): share of the pelvis's travel (sideways
  * and forward-and-back) the spine takes up, leaning one way while the chest leans back, so the chest stays
- * above the feet and level. `lift` (m): the pelvis rides higher, the knees bend less. */
-export interface KompaEight { depth: number; round: number; sense: number; knees?: { swing: number; lag: number; tilt: number }; glide?: number;
+ * above the feet and level. `lift` (m): the pelvis rides higher, the knees bend less.
+ * Sixth round (vote for KG3 again: the legs must visibly alternate, one bent, the other straighter, both
+ * still a little bent). `knees.base` (rad, in place of today's 0.28): flexion of the straighter leg on top
+ * of the posture's; with a negative `tilt` and the pelvis at its full height (`lift` 0.06) the supporting
+ * leg straightens to about 20° while the free one bends to 50° or more. `knees.heel` (rad): the free
+ * foot's heel rises as its knee bends (it rests on the ball of the foot), so the pelvis rolls less.
+ * `lag` 0 (`alterneDirect`): the knees cross as the weight does, the supporting leg is always the
+ * straighter one, and each hip then goes up and down the same line seen from the front. */
+export interface KompaEight { depth: number; round: number; sense: number; knees?: { swing: number; lag: number; tilt: number; base?: number; heel?: number }; glide?: number;
   depthLag?: number; back?: { reach: number; pitch: number }; iso?: number; lift?: number }
 export const KOMPA_EIGHTS: Record<string, KompaEight> = {
   huit: { depth: 0.03, round: 1, sense: 1 },
@@ -63,6 +74,9 @@ export const KOMPA_EIGHTS: Record<string, KompaEight> = {
   hanches: { depth: 0.02, round: 1, sense: 1, knees: { swing: 0.45, lag: 0.125, tilt: 0.9 }, glide: 0.5 },
   hanchesFortes: { depth: 0.02, round: 1, sense: 1, knees: { swing: 0.55, lag: 0.125, tilt: 1.2 }, glide: 0.35 },
   profil: { depth: 0.03, round: 1, sense: 1, knees: { swing: 0.3, lag: 0.125, tilt: 1.3 }, glide: 0.5, depthLag: 0.125, back: { reach: 0.03, pitch: 0.1 }, iso: 1, lift: 0.04 },
+  alterne: { depth: 0.015, round: 1, sense: 1, knees: { base: 0.08, swing: 0.6, lag: 0.125, tilt: -0.65 }, glide: 0.5, lift: 0.06 },
+  alterneTalon: { depth: 0.015, round: 1, sense: 1, knees: { base: 0.08, swing: 0.7, lag: 0.125, tilt: -0.4, heel: 0.4 }, glide: 0.5, lift: 0.06 },
+  alterneDirect: { depth: 0.015, round: 1, sense: 1, knees: { base: 0.08, swing: 0.6, lag: 0, tilt: -0.65 }, glide: 0.5, lift: 0.06 },
   profilFort: { depth: 0.045, round: 1, sense: 1, knees: { swing: 0.3, lag: 0.125, tilt: 1.3 }, glide: 0.5, depthLag: 0.125, back: { reach: 0.045, pitch: 0.16 }, iso: 1, lift: 0.04 },
 };
 /** The prototype in use (null: the model of today). Set once from the address, read by the kompa style. */
@@ -158,12 +172,14 @@ export const STYLES: Record<string, StyleDef> = {
       r.kneeL.rotation.x = (0.28 + 0.08 * pos(w)) * a;
       r.kneeR.rotation.x = (0.28 + 0.08 * pos(-w)) * a;
       if (eight?.knees) {
-        // The knees lead: the free knee bends as the weight leaves it, overlapping the other; the hip of the
-        // more bent knee drops.
+        // The knees lead: the free knee is asked to bend as the weight leaves it, overlapping the other; the
+        // pelvis rolls with their difference (see `tilt` for which hip rises).
         const k = eight.knees, c = Math.sin(turn - 2 * Math.PI * k.lag);
-        r.kneeL.rotation.x = (0.28 + k.swing * (1 - c) / 2) * a;
-        r.kneeR.rotation.x = (0.28 + k.swing * (1 + c) / 2) * a;
+        const base = k.base ?? 0.28, freeL = (1 - c) / 2, freeR = (1 + c) / 2;
+        r.kneeL.rotation.x = (base + k.swing * freeL) * a;
+        r.kneeR.rotation.x = (base + k.swing * freeR) * a;
         r.pelvis.rotation.z = k.tilt * (r.kneeL.rotation.x - r.kneeR.rotation.x);
+        if (k.heel) { r.extraL = k.heel * freeL * freeL * a; r.extraR = k.heel * freeR * freeR * a; }
       }
       r.chest.rotation.z = -0.035 * sw * a;
       if (eight?.back) {

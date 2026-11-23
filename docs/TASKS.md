@@ -392,8 +392,12 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Troisième tour : les genoux mènent le « 8 » (`GingaEight.knees`, kompa `genoux*`), mesures de fluidité au tracé.
 - [x] Vote du troisième tour : G1 élu pour le couple ; kompa KG2, à reprendre (le « 8 » de face doit dominer, encore du ski).
 - [x] Quatrième tour (kompa, le « 8 » de face d'abord) : KG3 élu (`kompa=hanches`).
-- [ ] Cinquième tour (kompa, le « 8 » de profil, moins de genoux, fessiers en arrière, poitrine isolée) : KG5 `profil`,
-  KG6 `profilFort` à élire ([élection](elections/ginga-huit.md)) ; `KompaEight.depthLag`, `back`, `iso`, `lift`, `r.isoLean`.
+- [x] Cinquième tour (kompa, le « 8 » de profil, moins de genoux, fessiers en arrière, poitrine isolée) : KG5 `profil`,
+  KG6 `profilFort` ; `KompaEight.depthLag`, `back`, `iso`, `lift`, `r.isoLean`. Vote : KG3 gardé, l'alternance des
+  jambes doit se voir (une fléchie, une plus tendue).
+- [ ] Sixième tour (kompa, alternance des jambes) : mesuré, dans KG3 la jambe d'appui était la plus fléchie (roulis du
+  bassin du mauvais côté) ; KG7 `alterne`, KG8 `alterneTalon`, KG9 `alterneDirect` à élire
+  ([élection](elections/ginga-huit.md)) ; `knees.base`, `knees.heel`, `tilt` négatif ; courbe des genoux au tracé.
 - [ ] Kompa : « 8 » de face plus marqué que de dessus, sans glisser d'un bloc.
 - [ ] Variante élue : contrôles sur le GLB dans toutes les figures (marges), ida e volta, pas de base.
 

@@ -92,7 +92,14 @@ for (let i = 0; i < total; i++) {
 const round = v => Math.round(v * 100) / 100;
 const middle = (Math.max(...points.C.map(p => p[0])) + Math.min(...points.C.map(p => p[0]))) / 2;
 const crossings = points.C.map((p, i) => i).filter(i => (points.C[i][0] - middle) * (points.C[(i + 1) % total][0] - middle) <= 0);
+// `ecart`: the largest difference between the two knees (degrees). `appui`: the flexion of the supporting leg
+// (the one carrying more than 60 % of the weight), lowest and highest, and `libre`: of the other leg meanwhile.
+const carried = knees.L.map((_, i) => loads[i] > 0.6 ? ['R', 'L'] : loads[i] < 0.4 ? ['L', 'R'] : null).map((pair, i) => pair && [knees[pair[0]][i], knees[pair[1]][i]]).filter(Boolean);
+const span = values => values.length ? [round(Math.min(...values)), round(Math.max(...values))] : null;
 const genoux = { gauche: kneeRange('L').map(round), droit: kneeRange('R').map(round), sensInverse: round(opposite / total),
+  ecart: round(Math.max(...knees.L.map((v, i) => Math.abs(v - knees.R[i])))), appui: span(carried.map(c => c[0])), libre: span(carried.map(c => c[1])),
+  // `appuiPlusPlie`: share of the cycle during which the supporting leg is the more bent of the two (by over 2°).
+  appuiPlusPlie: round(carried.filter(c => c[0] > c[1] + 2).length / total),
   auCentre: crossings.map(i => [round(knees.L[i]), round(knees.R[i])]) };
 // The passage from one side to the other (rule R34, 22 Nov.: no sudden relay between left and right).
 // `soudain`: peak lateral speed of the pelvis over that of a pendulum (a sine) of the same
@@ -122,7 +129,7 @@ if (process.env.MESURES === '1' || !out) process.exit(0);
 const mean = a => points.C.reduce((s, p) => s + p[a], 0) / points.C.length, centre = [mean(0), mean(1), mean(2)];
 // True distances, the same scale in the three panels: 21 px per cm, less when the path is wider than the panel.
 const extent = a => Math.max(...['L', 'R', 'C'].flatMap(k => points[k].map(p => p[a]))) - Math.min(...['L', 'R', 'C'].flatMap(k => points[k].map(p => p[a])));
-const W = 560, H = 600, SCALE = Math.min(21, 500 / extent(0), 120 / Math.max(extent(1), extent(2)));
+const W = 560, H = 750, SCALE = Math.min(21, 500 / extent(0), 120 / Math.max(extent(1), extent(2)));
 const panels = [
   { title: "Vu de dessus", hint: "avant ↑", a: 0, b: 2, cx: W / 2, cy: 150 },
   { title: "Vu de face", hint: "haut ↑", a: 0, b: 1, cx: W / 2, cy: 334 },
@@ -131,22 +138,32 @@ const panels = [
 const at = (panel, p) => [panel.cx + (p[panel.a] - centre[panel.a]) * SCALE, panel.cy - (p[panel.b] - centre[panel.b]) * SCALE];
 const path = (panel, pts) => pts.map((p, i) => `${i ? 'L' : 'M'}${at(panel, p).map(v => v.toFixed(1)).join(' ')}`).join(' ') + ' Z';
 const COLORS = { L: '#fb923c', R: '#22d3ee', C: '#94a3b8' };
-const label = solo ? ({ huit: '« 8 »', huitGrand: '« 8 » plus grand', huitInverse: '« 8 », autre sens', genoux: 'genoux alternés', genouxRond: 'genoux alternés, une demi-temps après', hanches: 'hanches qui mènent', hanchesFortes: 'hanches qui mènent, plus fort', profil: '« 8 » de profil, fessiers en arrière', profilFort: '« 8 » de profil, plus fort' }[ginga] ?? 'aujourd’hui') : { marque: 'aller-retour (aujourd’hui)', huit: '« 8 » anguleux', huitRond: '« 8 » arrondi', huitInverse: '« 8 » arrondi, autre sens', huitAmple: '« 8 » arrondi, ample', huitGrand: '« 8 » arrondi, très ample', genoux: 'genoux qui mènent, en même temps (G1)', genouxQuart: 'genoux qui mènent, un quart de temps après (G2)', genouxRond: 'genoux qui mènent, une demi-temps après (G3)' }[ginga] ?? ginga;
+const label = solo ? ({ huit: '« 8 »', huitGrand: '« 8 » plus grand', huitInverse: '« 8 », autre sens', genoux: 'genoux alternés', genouxRond: 'genoux alternés, une demi-temps après', hanches: 'hanches qui mènent', hanchesFortes: 'hanches qui mènent, plus fort', profil: '« 8 » de profil, fessiers en arrière', profilFort: '« 8 » de profil, plus fort', alterne: 'jambe d’appui tendue, jambe libre fléchie', alterneTalon: 'jambes alternées, talon libre levé' }[ginga] ?? 'aujourd’hui') : { marque: 'aller-retour (aujourd’hui)', huit: '« 8 » anguleux', huitRond: '« 8 » arrondi', huitInverse: '« 8 » arrondi, autre sens', huitAmple: '« 8 » arrondi, ample', huitGrand: '« 8 » arrondi, très ample', genoux: 'genoux qui mènent, en même temps (G1)', genouxQuart: 'genoux qui mènent, un quart de temps après (G2)', genouxRond: 'genoux qui mènent, une demi-temps après (G3)' }[ginga] ?? ginga;
 const fixed = panels.map(panel => `
   <text x="16" y="${panel.cy - 70}" class="t">${panel.title}</text><text x="16" y="${panel.cy - 52}" class="h">${panel.hint}</text>
   ${['C', 'L', 'R'].map(k => `<path d="${path(panel, points[k])}" fill="none" stroke="${COLORS[k]}" stroke-width="${k === 'C' ? 1 : 2}" stroke-opacity="${k === 'C' ? 0.5 : 0.85}"/>`).join('')}`).join('');
+// The knees' flexion over the cycle (after the leg solver, 0° = straight leg): which leg is bent, which is straighter.
+const KNEE = { x0: 64, x1: W - 16, bottom: 716, top: 644, max: 90 };
+const kx = i => KNEE.x0 + (KNEE.x1 - KNEE.x0) * i / total, ky = v => KNEE.bottom - (KNEE.bottom - KNEE.top) * Math.min(v, KNEE.max) / KNEE.max;
+const kneeChart = `
+  <text x="16" y="620" class="t">Genoux</text><text x="84" y="620" class="h">flexion au fil des temps · 0° = jambe tendue</text>
+  ${[0, 30, 60, 90].map(v => `<line x1="${KNEE.x0}" y1="${ky(v)}" x2="${KNEE.x1}" y2="${ky(v)}" stroke="#334155" stroke-width="1"/><text x="${KNEE.x0 - 8}" y="${ky(v) + 4}" class="h" text-anchor="end">${v}°</text>`).join('')}
+  ${Array.from({ length: beats }, (_, k) => `<text x="${kx(k * STEPS)}" y="${KNEE.bottom + 16}" class="h" text-anchor="middle">${k + 1}</text>`).join('')}
+  ${['L', 'R'].map(k => `<path d="${knees[k].map((v, i) => `${i ? 'L' : 'M'}${kx(i).toFixed(1)} ${ky(v).toFixed(1)}`).join(' ')}" fill="none" stroke="${COLORS[k]}" stroke-width="2" stroke-opacity="0.85"/>`).join('')}
+  <circle cx="${W - 200}" cy="616" r="4" fill="${COLORS.L}"/><text x="${W - 190}" y="620" class="n">gauche</text><circle cx="${W - 120}" cy="616" r="4" fill="${COLORS.R}"/><text x="${W - 110}" y="620" class="n">droit</text>`;
 const html = `<!doctype html><html><body style="margin:0;background:#0b1220"><svg id="s" xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="font-family:system-ui,sans-serif">
   <style>.t{fill:#e2e8f0;font-size:15px;font-weight:600}.h{fill:#64748b;font-size:11px}.n{fill:#cbd5e1;font-size:12px}</style>
   <rect width="${W}" height="${H}" fill="#0b1220"/>
   <text x="16" y="26" class="t">Chemin des hanches — ${label}</text>
   <text x="16" y="44" class="h">${solo ? `danseur seul, pas de base du ${styleKey} sur place` : `${follower ? 'suiveuse' : 'leader'}, marche en ${styleKey}, déplacement de la figure retiré`} · mesuré sur le modèle</text>
   ${fixed}
+  ${kneeChart}
   <g id="dots"></g>
-  <line x1="${W - 16 - SCALE}" y1="${H - 22}" x2="${W - 16}" y2="${H - 22}" stroke="#e2e8f0" stroke-width="2"/><text x="${W - 16 - SCALE / 2}" y="${H - 28}" class="n" text-anchor="middle">1 cm</text>
-  <circle cx="330" cy="${H - 130}" r="5" fill="${COLORS.L}"/><text x="342" y="${H - 126}" class="n">hanche gauche</text>
-  <circle cx="330" cy="${H - 108}" r="5" fill="${COLORS.R}"/><text x="342" y="${H - 104}" class="n">hanche droite</text>
-  <line x1="322" y1="${H - 86}" x2="338" y2="${H - 86}" stroke="${COLORS.C}" stroke-width="1"/><text x="342" y="${H - 82}" class="n">centre du bassin</text>
-  <text id="appui" x="330" y="${H - 56}" class="n"></text>
+  <line x1="${W - 16 - SCALE}" y1="578" x2="${W - 16}" y2="578" stroke="#e2e8f0" stroke-width="2"/><text x="${W - 16 - SCALE / 2}" y="572" class="n" text-anchor="middle">1 cm</text>
+  <circle cx="330" cy="470" r="5" fill="${COLORS.L}"/><text x="342" y="474" class="n">hanche gauche</text>
+  <circle cx="330" cy="492" r="5" fill="${COLORS.R}"/><text x="342" y="496" class="n">hanche droite</text>
+  <line x1="322" y1="514" x2="338" y2="514" stroke="${COLORS.C}" stroke-width="1"/><text x="342" y="518" class="n">centre du bassin</text>
+  <text id="appui" x="330" y="544" class="n"></text>
 </svg></body></html>`;
 const frames = panels.length && Array.from({ length: beats * STEPS / 2 }, (_, n) => {
   const i = n * 2;
@@ -154,7 +171,8 @@ const frames = panels.length && Array.from({ length: beats * STEPS / 2 }, (_, n)
     const [l, r, c] = ['L', 'R', 'C'].map(k => at(panel, points[k][i]));
     return `<line x1="${l[0]}" y1="${l[1]}" x2="${r[0]}" y2="${r[1]}" stroke="#e2e8f0" stroke-width="1.5" stroke-opacity="0.7"/>
       <circle cx="${c[0]}" cy="${c[1]}" r="3" fill="${COLORS.C}"/><circle cx="${l[0]}" cy="${l[1]}" r="6" fill="${COLORS.L}"/><circle cx="${r[0]}" cy="${r[1]}" r="6" fill="${COLORS.R}"/>`;
-  }).join('');
+  }).join('') + `<line x1="${kx(i)}" y1="${KNEE.top}" x2="${kx(i)}" y2="${KNEE.bottom}" stroke="#e2e8f0" stroke-width="1" stroke-opacity="0.5"/>
+      <circle cx="${kx(i)}" cy="${ky(knees.L[i])}" r="5" fill="${COLORS.L}"/><circle cx="${kx(i)}" cy="${ky(knees.R[i])}" r="5" fill="${COLORS.R}"/>`;
   const support = loads[i] > 0.6 ? 'pied droit' : loads[i] < 0.4 ? 'pied gauche' : 'entre les deux';
   return { dots, appui: `temps ${(i / STEPS + 1).toFixed(2).replace('.', ',')} · poids : ${support}` };
 });

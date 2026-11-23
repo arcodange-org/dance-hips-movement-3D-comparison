@@ -249,6 +249,11 @@ Pour comparer : le « 8 » du suave entoure 17,6 cm².
   à 60°, sans mouvement en sens inverse : ils ne sont pas le moteur) ; le relâché du bassin sur le
   demi-temps avant chaque appui n'est pas montré ; le rythme reste celui du kompa lent.
 - En couple, le pas de base du kompa et ses marches ne reçoivent pas encore ce prototype.
+- **Les genoux et le roulis du bassin** (mesuré le 23 novembre, sixième tour) : pieds à plat, la flexion d'un genou
+  est fixée par la hauteur de sa hanche. Pour qu'une jambe fléchisse pendant que l'autre se tend, la hanche de la
+  jambe fléchie doit descendre (`tilt` négatif), ou son talon se lever (`knees.heel`). Les variantes `genoux` à
+  `profilFort` inclinaient le bassin de l'autre côté : la jambe d'appui y est la plus fléchie et les deux genoux
+  dépassent 45°. Les variantes `alterne*` corrigent cela ([élection](elections/ginga-huit.md)).
 
 ## Les genoux : le propriétaire a élu « genoux chevauchés »
 

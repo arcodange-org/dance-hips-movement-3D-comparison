@@ -263,3 +263,48 @@ descend vite) ; la poitrine monte et descend encore de 6,6 cm avec le bassin ; p
 au-delà des tests de pose.
 
 Images : `election-kompa-profil*.gif` (trois quarts), `election-kompa-*-profil.gif` (de côté), `trace-kompa-profil*.gif`.
+
+### Résultat du cinquième tour (23 novembre, page de vote)
+
+| Question | Choix | Commentaire, reformulé |
+|---|---|---|
+| Q11, le kompa | **KG3** (ni KG5 ni KG6) | Ce qui gêne en réalité : les jambes restent un peu fléchies, mais leur alternance doit se voir clairement, une jambe fléchie et l'autre plus tendue. Dans ces films les deux jambes restent assez fléchies tout le temps. |
+
+## Sixième tour : le kompa, l'alternance des jambes (23 novembre)
+
+Ce que la mesure sur le modèle montre de KG3 (et de KG2 à KG6) : les deux genoux restent entre 61° et 85°, et la
+jambe d'appui est la plus fléchie des deux pendant 69 % du cycle. La cause : le bassin s'inclinait du mauvais côté
+(la hanche de la jambe qui devait fléchir montait), si bien que le solveur des jambes tendait la jambe libre et pliait
+la jambe d'appui ; le bassin, abaissé de 6 cm en plus, pliait les deux. La description des tours précédents (« la
+hanche du genou fléchi descend ») était fausse sur ce point.
+
+Les trois candidats corrigent cela : la hanche de la jambe libre descend, le bassin reste à sa hauteur, la jambe d'appui
+se tend (elle garde une vingtaine de degrés), la jambe libre fléchit.
+
+| | `kompa=` | Jambe la plus tendue, la plus fléchie | Écart entre les genoux | La jambe d'appui est la plus fléchie | De face, de dessus | Roulis du bassin |
+|---|---|---|---|---|---|---|
+| KG3 (élu) | `hanches` | 61°, 85° | 15° | 69 % du cycle | 61 cm², 30 cm² | ± 23° |
+| KG7 — jambes alternées | `alterne` | 22°, 51° | 29° | 20 % | 41 cm², 22 cm² | ± 22° |
+| KG8 — talon libre levé | `alterneTalon` | 17°, 60° | 44° | 22 % | 30 cm², 22 cm² | ± 16° |
+| KG9 — genoux avec le poids | `alterneDirect` | 22°, 51° | 30° | jamais | 0,2 cm², 22 cm² | ± 22° |
+
+- KG7 : pieds à plat. Le genou d'appui finit de se tendre une demi-temps après l'arrivée du poids (comme dans KG3) :
+  pendant ce court instant la jambe qui vient de recevoir le poids est encore la plus fléchie.
+- KG8 : le talon du pied libre se lève (jusqu'à 23°, le pied repose sur l'avant-pied), ce qui fléchit davantage la
+  jambe libre avec moins de roulis du bassin.
+- KG9 : les genoux se croisent au moment où le poids passe ; la jambe d'appui est toujours la plus tendue. En
+  contrepartie chaque hanche monte et descend sur une même ligne vue de face : le « 8 » de face disparaît.
+
+Dans les trois : jamais à l'arrêt, accélération du bassin 3,3 à 3,4 m/s² (4,0 pour KG3) ; le centre du bassin ne monte
+et ne descend plus que de 1 cm (7 cm dans KG3) ; la poitrine se déplace de 6 à 10 cm de côté (17 cm dans KG3) et de
+1 à 2 cm en hauteur (7,6 cm).
+
+Le tracé des hanches reçoit une courbe de la flexion des deux genoux au fil des temps (`scripts/tracer_hanches.mjs` ;
+mesures `ecart`, `appui`, `libre`, `appuiPlusPlie`).
+
+Limites : le roulis du bassin atteint 22° dans KG7 et KG9, ce qui est beaucoup pour un corps ; le « 8 » de profil, les
+fessiers en arrière et la poitrine isolée du cinquième tour ne sont pas repris ici (ils se recombinent une fois les
+jambes choisies) ; prototypes non contrôlés sur le GLB au-delà des tests de pose.
+
+Images : `election-kompa-alterne*.gif`, `election-kompa-hanches-genoux.gif` (KG3 filmé du même point de vue),
+`trace-kompa-alterne*.gif`, `trace-kompa-hanches.gif`.
