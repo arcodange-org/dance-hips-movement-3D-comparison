@@ -103,6 +103,14 @@ Ces amplitudes sont des paramètres de ce modèle, pas des normes cliniques ni d
   paume du guideur vers sa seule droite ; les deux mains dressées l'une contre l'autre (les doigts de la suiveuse
   traversaient ceux du guideur) ; la main du guideur vers le ciel et celle de la suiveuse en travers (même emboîtement,
   un quart de tour plus tôt : son poignet pliait de 61° à 63° et la prise ne ressemblait pas à la photo).
+- **Une prise par danseur (#183).** La prise ci-dessus est calée sur les os d'une main humaine : os au contact. Qui
+  pose sur ces os un personnage plus charnu voit ses mains se traverser. `UpperBody.grip` reçoit donc, pour un danseur,
+  tout ou partie des constantes de `GRIP.upright` : le guideur y lit sa paume, sa levée, son coude et la forme de sa
+  main ; la suiveuse, sa place sur la main du guideur, la forme de sa main, son coude et l'amplitude de son poignet.
+  Sans `grip`, rien ne change. La sonde `scripts/search_prise_mains.mjs` cherche ces constantes pour deux mains décrites
+  en fichier (`MAIN_LUI`, `MAIN_ELLE` : articulations au repos, rotations de chaque articulation, rayon de chair autour
+  des os) ; ses seuils s'écartent d'autant que la chair dépasse l'os. Sans argument, elle cherche pour les deux mains du
+  squelette humain et redonne les constantes de `GRIP.upright`.
 - La caméra s'approche jusqu'à 35 cm quand l'option est active (1,8 m sinon), pour voir les mains.
 
 ## Mesures (`scripts/test_upper_body.mjs`, GLB réel, seizième de temps, kizomba)

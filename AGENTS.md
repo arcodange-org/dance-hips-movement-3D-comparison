@@ -45,7 +45,7 @@ Haut du corps anatomique (#176) : [spec](docs/spec-haut-du-corps.md) ; option `h
 Cadre des bras (#40, [spec](docs/cadre/spec-implementation.md), `src/cadre.ts`, `scripts/test_cadre.mjs`) : le bras droit du guideur ne se baisse pas (#178, R35) ;
 main gauche de la suiveuse sur l'épaule droite du guideur, coude vers son bras (#180, R37) ; prise des mains (#179, R36) : attitude choisie le 23 novembre (mains sur le côté, emboîtées), candidat restant `?essai=mainsBasses`
 ([dossier](docs/elections/2026-11-22-mains/README.md)), doigts et poignet articulés dans le haut du corps (`HAND_SHAPES`, `GRIP`, `src/upperBody.ts`) ;
-emboîtement des mains : sonde de calibrage `scripts/search_prise_mains.mjs`, mesure `scripts/mesure_essai_mains.mjs` (jeu entre les os des deux mains).
+emboîtement des mains : sonde de calibrage `scripts/search_prise_mains.mjs` (deux mains humaines, ou deux mains décrites en fichier avec leur chair, #183 : `UpperBody.grip`), mesure `scripts/mesure_essai_mains.mjs` (jeu entre les os des deux mains).
 Mode jeu (#140, [spec](docs/spec-jeu-file-auto.md)) : les commandes s'empilent dans une file (plus de note ni
 de refus), Espace bascule entre l'écoute et la danse automatique (tirage reproductible par graine) ; un plan
 ne réécrit jamais son passé. Hasard tenu (#152) : le tirage se souvient des figures et des paires récentes
