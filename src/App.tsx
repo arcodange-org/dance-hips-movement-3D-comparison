@@ -81,6 +81,8 @@ export default function App() {
   const [chosenTravel, setTravel] = usePersistentState("travel", 0);
   const [showTorso, setShowTorso] = usePersistentState("showTorso", true);
   const [showMuscles, setShowMuscles] = usePersistentState("showMuscles", false);
+  // #176: `haut=1` shows the anatomical bones and muscles of the trunk, arms and hands (docs/spec-haut-du-corps.md).
+  const upperBody = params.get("haut") === "1";
   const [showRepere, setShowRepere] = usePersistentState("repere", true);
   const [showAppui, setShowAppui] = usePersistentState("appui", false);
   const statsRef = useRef<any>({ loadR: 0.5, loadL: 0.5, kneeR: 0, kneeL: 0, roll: 0 });
@@ -401,6 +403,7 @@ export default function App() {
           travel={travel}
           showTorso={showTorso}
           showMuscles={showMuscles}
+          upperBody={upperBody}
           movement={movement}
           sortieFilleVariant={sortieFilleVariant}
           placement={hasPlacement ? placement : undefined}
@@ -438,6 +441,7 @@ export default function App() {
             travel={travel}
             showTorso={showTorso}
             showMuscles={showMuscles}
+          upperBody={upperBody}
             movement={movement}
             sortieFilleVariant={sortieFilleVariant}
             placement={hasPlacement ? placement : undefined}
@@ -467,7 +471,8 @@ export default function App() {
         target={camTgtParam ?? cam.target}
         enableDamping
         dampingFactor={0.08}
-        minDistance={1.8}
+        // Avec le haut du corps anatomique on vient voir les mains de près (#179).
+        minDistance={upperBody ? 0.35 : 1.8}
         maxDistance={7}
         {...(bare ? { enablePan: false } : {})}
       />

@@ -37,7 +37,7 @@
 - **Animation paramétrique f(temps) uniquement** — pas de mocap.
 - **Réglages persistés** dans `localStorage` (préfixe `danse-comparateur:`) ; les paramètres d'URL
   priment (utilisés par les captures).
-- **Attribution obligatoire** : maillages `public/anatomy.glb` + `public/anatomy_muscles.glb` =
+- **Attribution obligatoire** : maillages `public/anatomy.glb` + `public/anatomy_muscles.glb` + `public/anatomy_upper.glb` =
   **BodyParts3D v4.0, © DBCLS, CC BY-SA 2.1 Japan** — visible dans l'app (pied de page) et le
   README. Police embarquée : sous-ensemble DejaVu (Bitstream Vera).
 
