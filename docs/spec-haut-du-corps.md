@@ -44,6 +44,14 @@ longueurs anatomiques, depuis l'articulation réelle de l'épaule.
 | Coude → main | 24 cm | poignet 23,6 cm, paume 29,3 cm |
 
 - **Coude** : deux segments résolus par `solveArm` (`src/cadre.ts`), le coude pliant du côté du coude du rig.
+- **Amplitude du coude (#182)** : un coude ne plie pas au-delà de 145° (`ELBOW_MAX`). Hors paire, le cadre du rig
+  replie l'avant-bras levé à 180° sur le bras, la main sur l'épaule : avec des cylindres le défaut ne se voit pas,
+  avec des os le bras se repliait à 167°, l'humérus en travers de la poitrine. Pour une main libre que le rig place
+  au-delà de l'amplitude, l'avant-bras monte depuis le coude du rig, vers le haut, un peu en avant et en dehors, paume
+  vers l'intérieur (`RAISED`, réglage à valider à l'œil) : c'est ce que la convention du cadre énonce. Le coude plie
+  alors de 106° au plus. Le rig stylisé et ses conventions ne changent pas ; en paire, rien ne change.
+
+  ![Seul, le bras levé : avant (en haut), après (en bas)](haut-du-corps/seul-bras-leve-avant-apres.png)
 - **Avant-bras** : le radius tourne autour de l'ulna (pronation), de −10° à 170° depuis la position anatomique
   (`PRONATION`). La paume se tourne vers le dos du partenaire (main posée sur l'omoplate), vers la paume de l'autre
   (mains jointes), sinon vers le corps. Les muscles de l'avant-bras suivent la torsion en cinq paliers.
@@ -68,6 +76,44 @@ Ces amplitudes sont des paramètres de ce modèle, pas des normes cliniques ni d
   le bas de sa paume au bord de la main du guideur, ses doigts vers son index, son pouce vers le sien. Son poignet
   s'articule pour cela (jusqu'à 57° hors de l'axe de l'avant-bras), et sa main peut tourner de 40° sur la paume du
   guideur vers la ligne de son propre avant-bras.
+- **Attitude sur le côté, mains emboîtées** (choisie par le propriétaire le 23 novembre 2026, comportement de
+  l'application ; `GRIP.upright` ; ses précisions,
+  23 novembre 2026, avec une [photo d'une tenue de salon, Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Ballroom_dance_exhibition.jpg) en référence) : la paume du guideur est au point du rig, tournée à
+  mi-chemin entre sa droite et la suiveuse (`palm`) ; son pouce pointe vers le ciel, ses doigts vont vers l'avant, à 29°
+  au-dessus de l'horizontale (`lift`), et se referment d'un seul bloc sur le tranchant de la main de la suiveuse,
+  jusque sur le dos de sa main ; son poignet s'articule lui aussi, son pouce s'ouvre à angle droit, légèrement replié (`his`). La main de
+  la suiveuse se place dans le repère de la sienne : dressée, à 79° de ses doigts vers son pouce (`across`), paume
+  contre paume (`at`, `roll`, `pitch`), ses quatre doigts d'un seul bloc entre son pouce et son index, refermés autour
+  de la palmure, son pouce sous le sien (`hers`). Aucun os ne traverse l'autre main : les constantes viennent d'une
+  recherche sur les os des deux mains (`scripts/search_prise_mains.mjs`, graine fixe ; second temps : les doigts du
+  guideur). Son coude tend sous sa main (`drop`) ; son poignet peut plier jusqu'à 72° dans cette prise (`wrist`) : les
+  mains sont près des deux corps, son avant-bras arrive par le dos de sa main, qui pousse comme contre un mur.
+
+  | `node scripts/mesure_essai_mains.mjs` | Sur place | Dans les figures |
+  |---|---|---|
+  | Milieu des mains / moyenne des épaules | 1,6 cm dessous ; haut des doigts 2,8 cm au-dessus | 1,6 à 2 cm dessous |
+  | Paume du guideur / sa droite | 45° | 39° à 46° |
+  | Doigts du guideur / verticale | 61°, pouce vers le ciel | 57° à 61° |
+  | Main de la suiveuse / verticale | 19° | 19° à 24° |
+  | Paumes face à face | à 7° près | à 3° à 7° près |
+  | Jeu entre les os des deux mains et des avant-bras | 0 cm (contact) | 0 cm dans les cinq figures |
+  | Poignets | guideur 29°, suiveuse 53° | guideur 13° à 57°, suiveuse 35° à 72° (limite de la prise) |
+
+  Avec la prise du 22 novembre (attitudes A et C), ces os se recouvrent de 1,1 à 1,6 cm. Essais écartés le même jour :
+  paume du guideur vers sa seule droite ; les deux mains dressées l'une contre l'autre (les doigts de la suiveuse
+  traversaient ceux du guideur) ; la main du guideur vers le ciel et celle de la suiveuse en travers (même emboîtement,
+  un quart de tour plus tôt : son poignet pliait de 61° à 63° et la prise ne ressemblait pas à la photo).
+- **La main au dos, sur l'omoplate (#185).** Le point du cadre, au bord du dos, est la place du poignet ; la paume
+  se pose plus près de la colonne, sur le corps de l'omoplate, à plat, les doigts vers la colonne (`BACK`). Mesures et
+  gardes : [cadre](cadre/spec-implementation.md#la-main-droite-du-guideur-sur-lomoplate-le-bras-de-la-suiveuse-par-dessus-185-23-novembre-2026).
+- **Une prise par danseur (#183).** La prise ci-dessus est calée sur les os d'une main humaine : os au contact. Qui
+  pose sur ces os un personnage plus charnu voit ses mains se traverser. `UpperBody.grip` reçoit donc, pour un danseur,
+  tout ou partie des constantes de `GRIP.upright` : le guideur y lit sa paume, sa levée, son coude et la forme de sa
+  main ; la suiveuse, sa place sur la main du guideur, la forme de sa main, son coude et l'amplitude de son poignet.
+  Sans `grip`, rien ne change. La sonde `scripts/search_prise_mains.mjs` cherche ces constantes pour deux mains décrites
+  en fichier (`MAIN_LUI`, `MAIN_ELLE` : articulations au repos, rotations de chaque articulation, rayon de chair autour
+  des os) ; ses seuils s'écartent d'autant que la chair dépasse l'os. Sans argument, elle cherche pour les deux mains du
+  squelette humain et redonne les constantes de `GRIP.upright`.
 - La caméra s'approche jusqu'à 35 cm quand l'option est active (1,8 m sinon), pour voir les mains.
 
 ## Mesures (`scripts/test_upper_body.mjs`, GLB réel, seizième de temps, kizomba)
@@ -92,6 +138,8 @@ guideur. Seul, dans les six styles : écart de paume 0 mm, tête de face. `dispo
 - Omoplates et clavicules fixes sur le thorax.
 - Coude jusqu'à 27° : les bras anatomiques sont plus longs que ceux du rig, ils plient davantage.
 - La pronation bute sur son amplitude dans certaines poses : la paume ne regarde alors pas exactement où il faudrait.
+- Hors paire, le cadre du rig lève le bras droit et croise le gauche (héritage du renommage des bras, #40), alors
+  qu'un guideur lève le gauche. La couche anatomique suit le rig ; l'inverser est une décision du propriétaire.
 - BodyParts3D 4.0 ne liste pas le grand dorsal.
 - La surbrillance des appuis ne touche pas ces pièces ; le lien « Partager » ne porte pas `haut=1`.
 - Ces mesures ne constituent pas une validation chorégraphique.

@@ -8,15 +8,19 @@
  *
  * Premier tour (votes du 21 novembre 2026) : `idaMemePied` (#86), `ligneBustes` (#72) et `marcheDeroulee`
  * (#73) ont été retirés ; le témoin reste, pour les prochains tours.
- * Tour des mains (#179, 22 novembre 2026) : `mainsCote`, `mainsBasses`.
+ * Tour des mains (#179) : `mainsCote` choisie le 23 novembre 2026, devenue le comportement et retirée ;
+ * `mainsBasses` reste filmable.
+ * Bras du cadre (#185) : `coudeBas` garde le coude gauche de la suiveuse où #180 l'avait mis.
  */
 export const ESSAIS = {
   /** Témoin : ne change rien. Sert à filmer le comportement actuel image par image hors du mode paire. */
   temoin: "témoin : comportement actuel",
-  /** #179 : les mains jointes tenues sur le côté du couple, à hauteur d'épaule. */
-  mainsCote: "mains jointes sur le côté du couple, à hauteur d'épaule",
-  /** #179 : les mains jointes sur le côté du couple, plus bas et plus près, coudes détendus. */
+  /** #179 : les mains jointes sur le côté du couple, plus bas et plus près, coudes détendus, avec la prise du
+   * 22 novembre (l'attitude choisie les tient au niveau des épaules, emboîtées). */
   mainsBasses: "mains jointes sur le côté du couple, plus bas",
+  /** #185 : le coude gauche de la suiveuse sous l'épaule du guideur, contre son bras (place de #180) ; le comportement
+   * le lève au-dessus du coude du guideur, son bras passant par-dessus. */
+  coudeBas: "coude gauche de la suiveuse bas, contre le bras du guideur",
 } as const;
 export type Essai = keyof typeof ESSAIS;
 

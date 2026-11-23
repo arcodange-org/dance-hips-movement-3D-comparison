@@ -393,6 +393,52 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [ ] Le chemin en « 8 » du bassin, lié au relais des genoux, lisible vu de dessus et vu de face (précisions du
       propriétaire) : #159. La taille (`ginga=sans|discret|marque|ample`) s'y choisira avec la forme.
 
+## Le ginga « fait un 8 » (#159)
+
+- [x] Issue #159 avec les mots du propriétaire ; [spec](spec-ginga-huit.md) poussée en premier.
+- [x] Mesure du chemin des hanches dans les trois vues (`scripts/tracer_hanches.mjs`) : aujourd'hui une ligne vue de dessus.
+- [x] Prototypes `huit`, `huitRond`, `huitInverse`, `huitAmple` (`GUIDE_EIGHT`), phase poursuivie d'une figure à la suivante.
+- [x] [Élection](elections/ginga-huit.md) : danse et tracé de chaque variante ; `scripts/test_ginga_huit.mjs`.
+- [x] Paroles du 22 novembre consignées (R30 à R32) : « Trop discret. » → variante F à l'élection et #163 ; kompa → #161 ;
+      semba → #162.
+- [x] Kompa (#161, « c'est le 8 le plus prononcé ») : prototypes `KOMPA_EIGHTS` du danseur seul (`?style=kompa&kompa=huit`),
+      question 4 de l'élection ; la recherche de sources est sur la branche de la vidéo.
+- [x] Branche à jour de `main` après #163 (défaut `ample`, sorties moins plafonnées) : GIF de danse repris, croisements
+      d'os recomptés au seizième de temps (13, 11, 8, 27, 37 de B à F ; aucun dans la marche ni la sortie garçon).
+- [x] Paroles du 22 novembre (suite) consignées (R33, R34 et R39, d'abord numérotée R35) : posture → #166 ; ni saccade ni relais soudain → mesure
+      `soudain` de chaque variante (2,0 aujourd'hui en couple, 1,0 pour les « 8 » arrondis) et #167 ; semba → #162.
+- [x] Vote du second tour (22 novembre) : sens D, taille F ; forme et kompa à reprendre par les genoux.
+- [x] Troisième tour : les genoux mènent le « 8 » (`GingaEight.knees`, kompa `genoux*`), mesures de fluidité au tracé.
+- [x] Vote du troisième tour : G1 élu pour le couple ; kompa KG2, à reprendre (le « 8 » de face doit dominer, encore du ski).
+- [x] Quatrième tour (kompa, le « 8 » de face d'abord) : KG3 élu (`kompa=hanches`).
+- [x] Cinquième tour (kompa, le « 8 » de profil, moins de genoux, fessiers en arrière, poitrine isolée) : KG5 `profil`,
+  KG6 `profilFort` ; `KompaEight.depthLag`, `back`, `iso`, `lift`, `r.isoLean`. Vote : KG3 gardé, l'alternance des
+  jambes doit se voir (une fléchie, une plus tendue).
+- [x] Sixième tour (kompa, alternance des jambes) : mesuré, dans KG3 la jambe d'appui était la plus fléchie (roulis du
+  bassin du mauvais côté) ; KG7 `alterne`, KG8 `alterneTalon`, KG9 `alterneDirect` ; `knees.base`, `knees.heel`,
+  `tilt` négatif ; courbe des genoux au tracé. Vote : aucune ; talon libre levé, mais moins ; l'attaque de KG9 et le
+  retour de KG3 (la hanche finit le transfert, ne le commence pas).
+- [x] Septième tour (kompa, la hanche finit le transfert) : KG10 `hancheFinit`, KG11 `hancheTenue`, KG12 `hancheAssise`,
+  KG13 `hancheApres` (ajouté : entre KG9 et KG3, le propriétaire penche pour KG9) ; `knees.late`, `knees.settle`,
+  `knees.after`, talon à 11°. Vote : KG13 pour sa fluidité ; la hanche doit s'asseoir (trop de bachata jusque-là).
+- [x] Huitième tour (kompa, la hanche s'assoit sur le temps, vers l'arrière et l'extérieur, pivot du bassin, buste de
+  face, remontée lente et ronde, talon à 6°) : KG14 `assis`, KG15 `assisMarque` ; `KompaEight.sit`. Vote : KG15 ; le
+  buste peut suivre le bassin (de côté, quelques degrés de pivot) et se penche légèrement en avant (R33).
+- [x] Neuvième tour (kompa, le buste suit et se penche) : KG16 `assisBuste`, KG17 `assisBusteAvant` ; `sit.follow`,
+  `lean`, `ahead` ; mesure `posture` au traceur (celle de #166). Vote : KG16. Le kompa élu est `assisBuste` ; le semba
+  doit s'en inspirer.
+- [x] Dixième tour (semba, #162, d'après le kompa élu) : S1 `pause`, S2 `parCote`, S3 `simple` ; `SEMBA_SITS`,
+  `sembaPhase`, `smallRound` ; règle du double rebond renumérotée R39. Vote : S2, le semba élu est `parCote`.
+- [x] Kompa et semba élus : pas de base de leur style, danseur seul sur place
+  ([spec](spec-ginga-huit.md#les-pas-élus-deviennent-les-pas-de-base)) : drapeau `base`, `KOMPA_ELECTED`,
+  `SEMBA_ELECTED`, appui du semba sur chaque temps (`sembaSupport`), textes de l'app, README ; en couple et en
+  déplacement, le modèle d'avant reste.
+- [ ] #187 : porter les pas élus dans le couple (figures, mode jeu), avec le « 8 » G1 élu (#159), et dans le
+  déplacement ; accorder le motif d'appuis du semba en couple.
+- [ ] #187 : retirer ensuite les variantes non retenues de `KOMPA_EIGHTS` et `SEMBA_SITS` (nettoyage).
+- [x] Kompa : « 8 » de face plus marqué que de dessus, sans glisser d'un bloc (tours 4 à 9 ; le kompa élu).
+- [ ] Variante élue : contrôles sur le GLB dans toutes les figures (marges), ida e volta, pas de base.
+
 ## Élections de variantes en GIF (#148)
 
 - [x] Issue #148 et spécification poussée en premier ([spec](spec-elections-variantes.md)).

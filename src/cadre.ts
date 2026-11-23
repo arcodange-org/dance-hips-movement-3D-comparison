@@ -20,14 +20,21 @@ export const hasArms = (r: MaybeArmRig | null | undefined): r is ArmRig =>
 export const CADRE_SITES = {
   /** Leader's right hand on the follower's left shoulder blade, at the edge of her back: reached from
    * the side, the forearm lies along her flank instead of going through her torso (measured: at most
-   * 1.4 cm into the torso box, against 5.7 cm on the middle of the shoulder blade). */
+   * 1.4 cm into the torso box, against 5.7 cm on the middle of the shoulder blade). With the anatomical
+   * upper body this point is where his wrist comes; his palm lies further in, on the shoulder blade (#185,
+   * `BACK` in upperBody.ts). */
   scapulaL: [0.15, 0.03, -0.1] as Vec3,
   /** Follower's left hand on the leader's right shoulder blade (same reasoning). */
   scapulaR: [-0.15, 0.03, -0.1] as Vec3,
   /** #180: follower's left hand on the leader's right shoulder, against its front and its side. */
   shoulderR: [-0.215, 0.125, 0.04] as Vec3,
-  /** #180: where the follower's left elbow seeks the leader's right arm: under his shoulder, on its outer side. */
-  armR: [-0.27, -0.2, 0.04] as Vec3,
+  /** #180, #185: where the follower's left elbow tends: beside the leader's right arm, on its outer side, at the
+   * height of his chest. Her arm passes over his: her elbow comes above his elbow (kept at his ribs), her upper arm
+   * outside his forearm, which goes under her armpit to her shoulder blade. (Under his shoulder, as first set by
+   * #180, her elbow hung lower than his and the two arms ran side by side, closer than their thickness.) */
+  armR: [-0.36, 0, 0.06] as Vec3,
+  /** #180's place of her elbow, under his shoulder: a candidate to film, inert without `?essai=coudeBas`. */
+  armRLow: [-0.27, -0.2, 0.04] as Vec3,
   /** Leader's right elbow kept towards his right ribs (owner gesture: elbow to the ribs). */
   ribsR: [-0.15, -0.10, 0] as Vec3,
 };
@@ -40,9 +47,11 @@ export const CADRE = {
   /** #178: how deep (m) his arm would enter her torso, aimed at her back, for the hand to have fully left it.
    * Below that depth the hand is on its way: no jump between the back and the open frame. */
   leave: 0.05,
-  /** #179 (election, `?essai=`): the joined hands carried to the couple's side instead of between the two
-   * chests. `out`: metres outwards from the shoulders' midpoint; `drop`: metres lower than `handsDrop`. */
-  handsSide: { out: 0.2, drop: 0 }, handsLow: { out: 0.14, drop: 0.14 },
+  /** #179: the joined hands are carried to the couple's side, not between the two chests. `out`: metres outwards
+   * from the shoulders' midpoint; `drop`: metres lower than `handsDrop` (negative: higher). `handsSide` (owner's
+   * choice, 23 November 2026): the middle of the hands at shoulder height, so the palm's centre a little under the
+   * shoulders. `handsLow`: a lower candidate, filmed with `?essai=mainsBasses`. */
+  handsSide: { out: 0.2, drop: -0.05 }, handsLow: { out: 0.14, drop: 0.14 },
 };
 
 const Y_DOWN = new THREE.Vector3(0, -1, 0);
@@ -92,21 +101,20 @@ export function solveFrame(own: ArmRig, partner: ArmRig, follower: boolean) {
   const leaderRig = follower ? partner : own, followerRig = follower ? own : partner;
   const joined = shoulder(leaderRig, "L").add(shoulder(followerRig, "R")).multiplyScalar(0.5);
   joined.y -= CADRE.handsDrop;
-  // #179: candidates of the election, inert without `?essai=`.
-  const carried = essai("mainsCote") ? CADRE.handsSide : essai("mainsBasses") ? CADRE.handsLow : null;
-  if (carried) {
-    const centre = leaderRig.chest.getWorldPosition(new THREE.Vector3()).add(followerRig.chest.getWorldPosition(new THREE.Vector3())).multiplyScalar(0.5);
-    joined.addScaledVector(joined.clone().sub(centre).setY(0).normalize(), carried.out);
-    joined.y -= carried.drop;
-  }
+  // #179 (owner's choice, 23 November 2026): the hands are carried to the couple's side, their middle at shoulder
+  // height. `handsLow` stays a candidate to film, inert without `?essai=mainsBasses`.
+  const carried = essai("mainsBasses") ? CADRE.handsLow : CADRE.handsSide;
+  const centre = leaderRig.chest.getWorldPosition(new THREE.Vector3()).add(followerRig.chest.getWorldPosition(new THREE.Vector3())).multiplyScalar(0.5);
+  joined.addScaledVector(joined.clone().sub(centre).setY(0).normalize(), carried.out);
+  joined.y -= carried.drop;
   const down = (rig: ArmRig, s: "L" | "R", out: number, drop: number) =>
     site(rig, [(s === "L" ? 1 : -1) * out, drop, 0]);
   const arms = follower ? {
     // Follower (#180): left hand on the leader's right shoulder, against its front and side; her left elbow
     // seeks his right arm, on which she leans when he lifts her. Right hand in the leader's left hand, elbow down.
-    // (The pole is under his right shoulder, on the outer side, where his upper arm hangs: her forearm lies on
-    // his arm, outside his torso. It does not follow his forearm, so her elbow never swings with it.)
-    L: { target: site(partner, CADRE_SITES.shoulderR), pole: site(partner, CADRE_SITES.armR) },
+    // (The pole is beside his right arm, on the outer side, at the height of his chest: her arm passes over his
+    // (#185), outside his torso. It does not follow his forearm, so her elbow never swings with it.)
+    L: { target: site(partner, CADRE_SITES.shoulderR), pole: site(partner, essai("coudeBas") ? CADRE_SITES.armRLow : CADRE_SITES.armR) },
     R: { target: joined, pole: down(own, "R", 0.25, -0.35) },
   } : {
     // Leader: right hand on the follower's left shoulder blade, elbow towards his right ribs; left hand

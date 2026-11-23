@@ -10,6 +10,7 @@ import * as THREE from "three";
 import type { RigHandle } from "./anatomy";
 import { ARM_JOINTS, TORSO_JOINTS } from "./rigJoints";
 import { CADRE_SITES, solveArm } from "./cadre";
+import { essai } from "./essais";
 
 export const UPPER_BODY_URL = `${import.meta.env.BASE_URL}anatomy_upper.glb`;
 
@@ -65,6 +66,12 @@ export function readUpperBody(scene: THREE.Object3D): UpperBodyModel {
 /** Pronation range kept (rad, from the anatomical position, palm forward): an animation parameter of this
  * model, not a clinical limit. */
 export const PRONATION = { min: -0.17, max: 2.97 };
+/** Flexion the elbow allows (rad; 0: the arm straight). Past it, a rig's hand asks for a fold no elbow gives (#182). */
+export const ELBOW_MAX = 2.53;
+/** A free hand the rig folds past that range (its frame alone, #182), in the chest's frame: where the forearm
+ * rises from the rig's elbow (outwards, up, forwards) and where the palm faces (inwards, up, forwards). Clear of
+ * the face, a wide mascot's head included. Animation parameters, to validate by eye. */
+export const RAISED = { forearm: [0.35, 0.8, 0.45] as V3, palm: [1, 0, 0.5] as V3 };
 /** Head carriage in a close embrace (animation parameters, to validate by eye): when the two heads are close,
  * each dancer turns theirs to their left, cheek to cheek; beyond `far`, they face each other. Face to face at
  * 24 cm, two skulls already touch. */
@@ -94,7 +101,36 @@ interface Arm {
  * `shift`: her palm from his, towards his index (m); `gap`: between the two palms (m); `wrist`: how far her wrist
  * may bend away from the forearm's axis (rad); `swivel`: how far her hand may turn on his palm, away from the
  * line to his index, towards where her forearm comes from (rad). */
-export const GRIP = { shift: 0.012, gap: 0.004, wrist: 1.0, swivel: 0.7 };
+export const GRIP = { shift: 0.012, gap: 0.004, wrist: 1.0, swivel: 0.7,
+  /** Hands held up at the couple's side (#179; the owner's choice, 23 November 2026).
+   * As in a ballroom hold (reference photograph, see the election's README): the leader's thumb points to the sky,
+   * his fingers go forwards, raised by `lift` (rad), and close in one block round the edge of the follower's hand,
+   * onto its back; `palm`: where his palm is asked to face, in his chest frame (the palm's normal leans 9° towards
+   * the fingers: measured, it faces halfway between his right and the follower). The follower's hand stands up
+   * against his palm, her four fingers between his thumb and his index, closed around the web of his thumb, palm
+   * against palm, her thumb under his: no bone goes through another (found by search on the two hands' bones,
+   * scripts/search_prise_mains.mjs; scripts/mesure_essai_mains.mjs measures it).
+   * In the frame of his hand (R towards his thumb, U along his fingers, N out of his palm): `across`: her
+   * fingers from U towards R (rad); `at`: her palm's centre from his, along R, U, N (m); `roll`, `pitch`: her
+   * hand around her own fingers, then her fingers into his palm (rad). `his`, `hers`: the two hands' shapes.
+   * `elbow`: where the leader's elbow tends, from his shoulder, in his chest frame (x away from the midline);
+   * `drop`: how far under the line of her hand the follower's elbow tends (m); `wrist`: how far her wrist may bend
+   * in this hold (rad): the hands are close to both bodies, her forearm comes steeply to her hand. */
+  upright: {
+    palm: [-1, 0, 0.73] as V3, across: 1.373, at: [0.013, -0.01, 0.025] as V3, roll: 0.12, pitch: -0.116,
+    lift: 0.5,
+    his: { fingers: [1.35, 0.437, 0.913], thumb: [1.55, 0.35, 0.35] } as HandShape,
+    hers: { fingers: [1, 1.011, 0.306], thumb: [0.459, 0, 0.573] } as HandShape,
+    elbow: [0.25, -1, 0.1] as V3, drop: 0.1, wrist: 1.25,
+  } };
+/** Hand on the partner's back (#185): the rig's hand point is at the edge of the back, where the forearm arrives
+ * from the side; that is where the wrist comes. The palm lies further in, on the shoulder blade itself, the fingers
+ * towards the spine. In the partner's chest frame, for a hand on her left side (mirrored on the right):
+ * `in`, `up`: the palm's centre from the rig's point, towards the spine and upwards (m); `palm`: where the palm
+ * faces (the back is round: its surface there turns 20° outwards); `fingers`: their direction; `wrist`: how far
+ * the wrist may bend (rad). Measured on the anatomical model: the shoulder blade's body spans 6 to 13 cm from the
+ * spine, 2 to 10 cm above the chest's origin, its muscles 7 to 9 cm behind it. */
+export const BACK = { in: 0.075, up: 0.025, palm: [-0.34, 0, 0.94] as V3, fingers: [-0.9, 0.3, -0.33] as V3, wrist: 1.0 };
 
 export interface ArmState {
   target: THREE.Vector3; palm: THREE.Vector3; elbow: THREE.Vector3; pronation: number; error: number;
@@ -191,10 +227,17 @@ export class UpperBody {
     for (const g of hidden) for (const m of this.byGroup.get(g) ?? []) m.visible = false;
   }
 
+  /** #183: this dancer's own hold of the joined hands, in place of `GRIP.upright` (any of its fields). The engine's
+   * hold is fitted on the bones of a human hand; whoever dresses the dancer with fleshier hands gives here the hold
+   * fitted on their volumes (scripts/search_prise_mains.mjs searches it from two hands' descriptions). The leader's
+   * layer reads his palm, lift, elbow and shape from his own; the follower's reads her place on his hand, her
+   * shape, her elbow and her wrist's range from hers. */
+  grip?: Partial<typeof GRIP.upright>;
+
   /** Poses the head carriage and both arms from the rig's current pose. `partner`: their rig, if any;
    * `follower`: this dancer is the follower; `carriage`: turn the head in a close embrace. */
   update(partner: RigHandle | null, follower: boolean, carriage = true) {
-    const r = this.r;
+    const r = this.r, G = this.grip ? { ...GRIP.upright, ...this.grip } : GRIP.upright;
     r.chest.updateWorldMatrix(true, false);
     this.headCarrier.rotation.y = carriage && partner?.head
       ? headCarriage(r.head.getWorldPosition(new THREE.Vector3()).distanceTo(partner.head.getWorldPosition(new THREE.Vector3()))) : 0;
@@ -203,12 +246,31 @@ export class UpperBody {
       if (!armF) continue;
       armF.updateWorldMatrix(true, false);
       const target = armF.localToWorld(HAND.clone()), rigElbow = armF.getWorldPosition(new THREE.Vector3());
-      const { hold, normal } = this.palmFacing(s, target, partner, follower);
-      const shape = hold === "hands" ? (follower ? HAND_SHAPES.closes : HAND_SHAPES.offers) : hold === "back" ? HAND_SHAPES.flat : HAND_SHAPES.relaxed;
+      const { hold, normal, blade } = this.palmFacing(s, target, partner, follower) as { hold: ArmState["hold"]; normal: THREE.Vector3; blade?: boolean };
+      // Flexion the rig asks of the elbow: the angle from the line of its arm to its forearm.
+      const armU = r["armU" + s] as THREE.Object3D | undefined;
+      const folded = !!armU && rigElbow.clone().sub(armU.getWorldPosition(new THREE.Vector3())).angleTo(target.clone().sub(rigElbow)) > ELBOW_MAX;
+      // #179: the joined hands held up, the follower's hand fitted into the leader's (the lower candidate
+      // `?essai=mainsBasses` keeps the hold of 22 November).
+      const upright = hold === "hands" && !essai("mainsBasses");
+      const shape = hold === "hands" ? (upright ? (follower ? G.hers : G.his) : follower ? HAND_SHAPES.closes : HAND_SHAPES.offers)
+        : hold === "back" ? HAND_SHAPES.flat : HAND_SHAPES.relaxed;
       // #179: the follower's hand takes the leader's, as his is posed (his layer of this image or of the last).
       const his = hold === "hands" && follower ? (partner?.upperBody as UpperBody | undefined)?.hand("L") : undefined;
+      const low = () => this.arms[s].arm.getWorldPosition(new THREE.Vector3())
+        .add(new THREE.Vector3((s === "L" ? 1 : -1) * G.elbow[0], G.elbow[1], G.elbow[2]).transformDirection(r.chest.matrixWorld));
       let posed: Omit<ArmState, "hold" | "shape">;
-      if (his) {
+      if (his && upright) {
+        // Her hand across his palm, in the frame of his hand: her fingers through the gap between his thumb and
+        // his index, her palm against his. Her elbow tends behind her hand, a little lower: the wrist stays in range.
+        const U = his.fingers, R = his.radial, N = new THREE.Vector3().crossVectors(U, R).normalize();
+        const d = U.clone().multiplyScalar(Math.cos(G.across)).addScaledVector(R, Math.sin(G.across));
+        const side = new THREE.Vector3().crossVectors(d, N).normalize();
+        const n = N.clone().negate().applyAxisAngle(d, G.roll).applyAxisAngle(side, G.pitch);
+        d.applyAxisAngle(side, G.pitch);
+        const at = his.palm.clone().addScaledVector(R, G.at[0]).addScaledVector(U, G.at[1]).addScaledVector(N, G.at[2]);
+        posed = this.take(this.arms[s], at, n, d, at.clone().addScaledVector(d, -0.3).add(new THREE.Vector3(0, -G.drop, 0)), G.wrist);
+      } else if (his) {
         // Her fingers go towards his index; her hand may turn on his palm towards the line of her own forearm.
         const facing = his.normal.clone().negate(), forearm = target.clone().sub(rigElbow);
         const natural = forearm.addScaledVector(facing, -forearm.dot(facing));
@@ -216,6 +278,24 @@ export class UpperBody {
           ? Math.max(-GRIP.swivel, Math.min(GRIP.swivel, Math.atan2(new THREE.Vector3().crossVectors(his.radial, natural).dot(facing), his.radial.dot(natural)))) : 0;
         const along = his.radial.clone().applyAxisAngle(facing, swivel);
         posed = this.take(this.arms[s], his.palm.clone().addScaledVector(his.radial, GRIP.shift).addScaledVector(his.normal, GRIP.gap), facing, along, rigElbow);
+      } else if (upright && !follower) {
+        // The leader's hand: the palm on the rig's point, facing between his right and her; his thumb to the sky, his
+        // fingers forwards (a left hand: fingers = thumb's side × palm's normal), raised by `lift`.
+        const facing = new THREE.Vector3(...G.palm).transformDirection(r.chest.matrixWorld).setY(0).normalize();
+        const sky = new THREE.Vector3(0, 1, 0), lift = G.lift;
+        const along = new THREE.Vector3().crossVectors(sky, facing).normalize().multiplyScalar(Math.cos(lift)).addScaledVector(sky, Math.sin(lift));
+        posed = this.take(this.arms[s], target, facing, along, low());
+      } else if (hold === "free" && folded) {
+        // #182: the rig's frame, alone, folds its raised forearm flat on the arm, the hand on the shoulder. No elbow
+        // does that: the forearm rises from the rig's elbow, as the frame means it, the palm inwards.
+        const out = s === "L" ? 1 : -1, chest = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z).transformDirection(r.chest.matrixWorld);
+        const rise = chest(out * RAISED.forearm[0], RAISED.forearm[1], RAISED.forearm[2]);
+        posed = this.pose(this.arms[s], rigElbow.clone().addScaledVector(rise, HAND.length()), rigElbow, chest(-out * RAISED.palm[0], RAISED.palm[1], RAISED.palm[2]));
+      } else if (blade && partner?.chest) {
+        // #185: the palm on the shoulder blade, the wrist where the rig's hand is, at the edge of the back.
+        const out = s === "R" ? 1 : -1, at = partner.chest.worldToLocal(target.clone());
+        const dir = (a: V3) => new THREE.Vector3(out * a[0], a[1], a[2]).transformDirection(partner.chest.matrixWorld);
+        posed = this.take(this.arms[s], partner.chest.localToWorld(at.set(at.x - out * BACK.in, at.y + BACK.up, at.z)), dir(BACK.palm), dir(BACK.fingers), rigElbow, BACK.wrist);
       } else posed = this.pose(this.arms[s], target, rigElbow, normal);
       this.state[s] = { ...posed, target, hold, shape };
       this.shape(s, shape);
@@ -252,7 +332,7 @@ export class UpperBody {
       const site = partner.chest.localToWorld(v((s === "R" ? CADRE_SITES.scapulaL : CADRE_SITES.scapulaR) as V3));
       const slid = partner.chest.worldToLocal(target.clone());
       if (s === (follower ? "L" : "R") && (site.distanceTo(target) < 0.03 || (Math.abs(slid.z + 0.1) < 0.02 && Math.abs(slid.y - 0.03) < 0.02)))
-        return { hold: "back" as const, normal: axis(partner.chest, 0, 0, 1) };
+        return { hold: "back" as const, normal: axis(partner.chest, 0, 0, 1), blade: true };
       // #180: the follower's left hand on the leader's right shoulder: the palm faces the shoulder.
       if (follower && s === "L" && partner.chest.localToWorld(v(CADRE_SITES.shoulderR as V3)).distanceTo(target) < 0.03)
         return { hold: "back" as const, normal: partner.chest.localToWorld(v(ARM_JOINTS.shoulderR as V3)).sub(target).normalize() };
@@ -318,8 +398,8 @@ export class UpperBody {
 
   /** The hand takes a given place (#179): the palm's centre on `P`, the palm facing `n`, the fingers along `d`.
    * The wrist comes where that hand needs it, the elbow bends on the side of `pole`, the radius turns as far as
-   * it can and the wrist bends for the rest, within `GRIP.wrist`. */
-  private take(b: Arm, P: THREE.Vector3, n: THREE.Vector3, d: THREE.Vector3, pole: THREE.Vector3): Omit<ArmState, "hold" | "shape"> {
+   * it can and the wrist bends for the rest, within `limit` (`GRIP.wrist` unless the hold says otherwise). */
+  private take(b: Arm, P: THREE.Vector3, n: THREE.Vector3, d: THREE.Vector3, pole: THREE.Vector3, limit = GRIP.wrist): Omit<ArmState, "hold" | "shape"> {
     const S = b.arm.getWorldPosition(new THREE.Vector3());
     const parent = b.arm.parent!.getWorldQuaternion(new THREE.Quaternion());
     const basis = (x: THREE.Vector3, y: THREE.Vector3) => new THREE.Matrix4().makeBasis(x, y, new THREE.Vector3().crossVectors(x, y));
@@ -357,13 +437,13 @@ export class UpperBody {
       for (let i = 1; i <= 4; i++) b.fore[i].quaternion.setFromAxisAngle(b.axis, (phi * i) / 4);
       const wrist = turn.setFromAxisAngle(b.axis, phi).clone().invert().multiply(rest);
       bend = 2 * Math.acos(Math.min(1, Math.abs(wrist.w)));
-      if (bend > GRIP.wrist) wrist.copy(new THREE.Quaternion().slerp(wrist, GRIP.wrist / bend));
+      if (bend > limit) wrist.copy(new THREE.Quaternion().slerp(wrist, limit / bend));
       b.hand.quaternion.copy(wrist);
       reached.copy(fore).multiply(turn.setFromAxisAngle(b.axis, phi)).multiply(wrist);
     }
     b.arm.updateWorldMatrix(false, true);
     const palm = b.hand.localToWorld(b.palmFromWrist.clone());
-    return { target: P, palm, elbow, pronation: phi * b.sign, error: palm.distanceTo(P), wrist: Math.min(bend, GRIP.wrist) };
+    return { target: P, palm, elbow, pronation: phi * b.sign, error: palm.distanceTo(P), wrist: Math.min(bend, limit) };
   }
 
   dispose() {

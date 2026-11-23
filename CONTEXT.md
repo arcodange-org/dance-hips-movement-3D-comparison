@@ -5,6 +5,21 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Kompa et semba : pas de base élus (#161, #162, 23 novembre 2026)
+
+- **Dix tours de vote** sur films (page de vote du propriétaire ; résultats et mesures :
+  [`docs/elections/ginga-huit.md`](docs/elections/ginga-huit.md)). Élus : kompa `assisBuste`, semba `parCote`.
+- **Ce qu'ils sont** : la hanche s'assoit quand le poids arrive (vers l'arrière et l'extérieur, pivot du bassin), la
+  jambe se tend ensuite lentement, le buste suit le bassin et se penche (16°, 15°), le talon libre se lève de 6°. Le
+  semba : un rebond par temps et un double rebond un temps sur deux (deux arrivées de suite sur chaque pied).
+- **Où** : pas de base du style, danseur seul, sur place, pieds plantés (drapeau `base` calculé par `src/pose.ts`,
+  `KOMPA_ELECTED`, `SEMBA_ELECTED` dans `src/styles.ts`). En couple, en déplacement et sans solveur des jambes :
+  l'ancien modèle. `?kompa=`, `?semba=` : autres variantes ; `ancien` : avant les votes.
+- **Mesures** (`scripts/tracer_hanches.mjs` : hanches, genoux, posture, accélération) et tests :
+  `scripts/test_ginga_huit.mjs`, `scripts/test_temps_transferts.mjs` (appuis du semba seul).
+- **Reste** (#187) : porter ces pas dans le couple et le déplacement (avec le « 8 » G1 élu pour le couple, #159),
+  puis retirer les variantes non retenues ; la posture des autres styles (#166).
+
 ## Cadre des bras : bras droit du guideur, mains jointes (#178, #179, 22 novembre 2026)
 
 - **Règle R35 (#178)** : le bras droit du guideur ne se baisse pas. Hors du dos de la suiveuse (sortie fille), sa
@@ -13,13 +28,31 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
 - **Prise des mains (#179, R36)** : la main droite de la suiveuse dans la main gauche du guideur. Aujourd'hui les
   mains jointes sont entre les deux poitrines (cachées, coudes repliés). Le propriétaire a précisé qu'il existe
   plusieurs attitudes et a décrit la prise (phalanges serrées, pouce ouvert, main de la suiveuse en travers de celle
-  du guideur, refermée autour de son index, pouces croisés). Attitudes filmables : `?essai=mainsCote`,
-  `?essai=mainsBasses`, inertes sans le paramètre ([dossier](docs/elections/2026-11-22-mains/README.md)).
+  du guideur, refermée autour de son index, pouces croisés). Dossier :
+  [élection des mains](docs/elections/2026-11-22-mains/README.md) ; **choix du 23 novembre : l'attitude B**, devenue le
+  comportement (mains sur le côté du couple, leur milieu à hauteur d'épaule, emboîtées) ; C reste filmable
+  (`?essai=mainsBasses`).
   Fait dans le haut du corps anatomique : doigts articulés, formes de main, poignet de la suiveuse articulé, sa main
   posée en travers de celle du guideur ([spec](docs/spec-haut-du-corps.md)). Reste : son poignet va au bout de son
   amplitude, les doigts ne se serrent pas, et le rig stylisé (sans `haut=1`) n'a pas de doigts.
+  **23 novembre** : question posée au propriétaire avec planches et films (A entre les poitrines, B sur le côté, C plus
+  bas). Il a corrigé B en trois temps : mains levées (leur milieu à hauteur d'épaule) ; paume du guideur à mi-chemin
+  entre sa droite et la suiveuse, sa main vers le ciel ; puis l'emboîtement — les quatre doigts de la suiveuse, d'un
+  seul bloc, entre le pouce et l'index du guideur, paume contre paume, son pouce sous le sien, sans qu'os ni muscles
+  se traversent. C'est fait dans l'attitude B (`CADRE.handsSide`, `GRIP.upright` ; sonde
+  `scripts/search_prise_mains.mjs`, mesures `scripts/mesure_essai_mains.mjs`) : os des deux mains au contact sans se
+  traverser. Puis il a donné une photo de tenue de salon en référence : la prise a tourné d'un quart de tour dans le plan
+  des paumes — pouce du guideur vers le ciel, ses doigts refermés sur le tranchant de la main de la suiveuse, dont la
+  main est dressée (`GRIP.upright.lift`) ; os au contact sans se traverser dans les cinq figures. Reste : le poignet de
+  la suiveuse plie de 53° sur place et jusqu'à 72° (limite de cette prise) ; les muscles ne sont vérifiés qu'à l'œil ; les attitudes A et C gardent la prise du
+  22 novembre, où les os se recouvrent ; le choix de l'attitude par défaut n'est pas fait (PR #181 en brouillon).
 - **Règle R37 (#180)** : la main gauche de la suiveuse sur l'épaule droite du guideur (devant et côté), son coude vers
   le bras droit du guideur (`CADRE_SITES.shoulderR`, `armR`) : coude à 10 à 11 cm de l'axe de son bras en moyenne.
+- **Règle R38 (#185, 23 novembre)** : avec le haut du corps anatomique, la paume droite du guideur est sur le corps de
+  l'omoplate gauche de la suiveuse (poignet au bord du dos, `BACK`) ; le coude gauche de la suiveuse passe au-dessus
+  de celui du guideur (3,6 à 6,2 cm en position fermée), les deux bras à 10 cm d'axe à axe. Son coude s'écarte donc
+  du bras du guideur (17 à 21 cm sur le rig stylisé, 10 à 11 avant) : `?essai=coudeBas` filme l'ancienne place, au
+  choix du propriétaire.
 
 ## Haut du corps anatomique : buste, bras et mains (#176, 22 novembre 2026)
 
@@ -28,6 +61,11 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   Sans l'option, rien ne change ([spec](docs/spec-haut-du-corps.md), `src/upperBody.ts`, `scripts/test_upper_body.mjs`).
 - La paume vient où le rig pose la main, avec un bras aux longueurs anatomiques (28,0 cm et 29,3 cm jusqu'à la paume,
   contre 26 et 24 pour le rig) ; le radius tourne autour de l'ulna ; port de tête joue contre joue en danse serrée.
+- Une prise par danseur (#183) : `UpperBody.grip` remplace `GRIP.upright` pour un danseur ; la sonde
+  `scripts/search_prise_mains.mjs` cale la prise de deux mains décrites en fichier, chair comprise (un personnage plus
+  charnu que le squelette). Sans cela, rien ne change.
+- Seul (#182) : le cadre du rig replie l'avant-bras levé à 180° sur le bras ; la couche anatomique ne plie pas un
+  coude au-delà de 145° (`ELBOW_MAX`) et dresse cet avant-bras depuis le coude du rig (`RAISED`).
 - Demande du propriétaire : ces contributions au buste et aux bras vivent dans ce dépôt ; l'habillage des mascottes
   Rémi et Corinne vit du côté de ReCoDanse, qui exploite ce dépôt et lit `rig.upperBody`.
 - Restent : doigts raides, omoplates fixes, option pas encore par défaut ; l'écart de longueur des bras du rig est
@@ -151,6 +189,17 @@ et les specs. Résumé de la journée du 21 :
   (`gingaJunctions`) ([spec](docs/spec-ginga-couple.md)). **Ne fait pas encore le « 8 »** demandé par le propriétaire
   (chemin du bassin lié au relais des genoux, « le 8 se lit dans les deux plans ») : chantier #159, où la taille se
   choisira avec la forme.
+- **#159 (PR #160 en brouillon, à jour de `main` après #163)** : le « 8 » des hanches. Mesure : après #157 chaque hanche
+  trace une ligne vue de dessus (0,0 cm² entourés), le bassin s'arrête 0,22 temps (0,13 avec `ample`, le réglage par
+  défaut). Cinq prototypes (`GUIDE_EIGHT`, `ginga=huit|huitRond|huitInverse|huitAmple|huitGrand`) décalent le roulis et le
+  lacet dans le cycle, font avancer et reculer le bassin, retardent le rebond, et poursuivent la phase d'une figure à la
+  suivante (`gingaFrom`) ; le kompa et le semba seuls ont depuis leur pas de base élu (#161, #162, voir plus
+  haut). Paroles du 22 novembre (R33, R34 et R39) : le passage d'un côté à l'autre se mesure
+  contre un balancier (`soudain` de `tracer_hanches.mjs` : 2,0 aujourd'hui en couple, 1,0 pour les « 8 » arrondis) ; les
+  à-coups des figures (#167) et la posture (#166) sont des chantiers à part. **Prototypes non contrôlés sur le GLB**, à
+  élire ([élection](docs/elections/ginga-huit.md), [spec](docs/spec-ginga-huit.md)). Le propriétaire a
+  élu « genoux chevauchés » pour la danse (atlas #132) : les prototypes s'en éloignent (mesures dans la spec) ; faire
+  mener le « 8 » par cette règle est l'étape suivante.
 - **#167, transfert de poids continu** (R34, la règle mise en premier le 22 nov. : ni saccade, ni téléportation, ni relais
   soudain entre la gauche et la droite) : [spec](docs/spec-transfert-continu.md).
   Mesuré dans des séances du jeu : les à-coups du bassin viennent des figures, avec ou sans ginga (suiveuse, sortie

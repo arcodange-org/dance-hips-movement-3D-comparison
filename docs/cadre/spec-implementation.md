@@ -375,9 +375,17 @@ cachées entre les cages thoraciques et que les doigts entrent dans les côtes d
 
 Le propriétaire a précisé qu'il existe plusieurs attitudes (hauteur du coude, mains ouvertes vers l'extérieur ou
 gardées près de l'épaule) et il a décrit la prise : phalanges serrées, pouce ouvert, main de la suiveuse posée en
-travers de celle du guideur, ses phalanges refermées autour de l'index du guideur, pouces croisés. Deux autres
-attitudes sont filmables (`?essai=mainsCote`, `?essai=mainsBasses`, inertes sans le paramètre) ; l'application ne
-change pas tant qu'il n'a pas tranché : [dossier](../elections/2026-11-22-mains/README.md).
+travers de celle du guideur, ses phalanges refermées autour de l'index du guideur, pouces croisés. Il a choisi le
+23 novembre 2026 l'attitude sur le côté (`CADRE.handsSide`), devenue le comportement : les mains jointes ne sont plus
+entre les deux poitrines. Une attitude plus basse reste filmable (`?essai=mainsBasses`, inerte sans le paramètre) :
+[dossier](../elections/2026-11-22-mains/README.md).
+
+Précision du 23 novembre 2026 pour l'attitude sur le côté (`CADRE.handsSide`) : les mains se lèvent
+légèrement au-dessus de l'épaule, leur milieu à hauteur d'épaule. Le point des mains jointes est donc 1 cm sous la
+moyenne des deux épaules (le centre de la paume ; le milieu de la main est plus haut), 20 cm vers l'extérieur du
+couple. L'orientation des mains (pouce du guideur vers le ciel, paume à mi-chemin entre sa droite et la suiveuse) et
+leur emboîtement relèvent du haut du corps
+anatomique : [spec](../spec-haut-du-corps.md).
 
 ## La main gauche de la suiveuse sur l'épaule droite du guideur (#180, 22 novembre 2026)
 
@@ -393,4 +401,46 @@ s'appuie quand il l'élève par l'épaule ou l'aisselle.
   11,4 cm de l'axe du bras droit du guideur en moyenne (les deux bras ont 4 à 5 cm de rayon) ; aucune main lâchée
   hors des sorties. Haut du corps anatomique : la paume se tourne vers l'épaule.
 - Reste à faire : l'appui lui-même, quand le guideur élève la suiveuse.
+
+## La main droite du guideur sur l'omoplate, le bras de la suiveuse par-dessus (#185, 23 novembre 2026)
+
+Règle du propriétaire : la main droite du guideur est posée sur l'omoplate gauche de la suiveuse ; le bras gauche de
+la suiveuse passe par-dessus le bras droit du guideur.
+
+- **Avant** (haut du corps anatomique) : la paume du guideur était au bord du dos de la suiveuse, à 17 cm de sa
+  colonne (son épaule est à 16,5 cm) et 5 cm derrière la surface du dos : vue de dos, la main paraissait posée
+  derrière le bras de la suiveuse. Les deux coudes pendaient côte à côte : celui de la suiveuse 26 cm sous son épaule,
+  2 à 4 cm plus bas que celui du guideur ; les axes des deux bras à 4,5 à 7,5 cm l'un de l'autre, moins que
+  l'épaisseur de deux bras.
+- **La paume sur l'omoplate** (`BACK`, `src/upperBody.ts`). Mesuré sur le modèle anatomique, le corps de l'omoplate
+  gauche va de 6 à 13 cm de la colonne et de 2 à 10 cm au-dessus de l'origine de la poitrine ; ses muscles sont à 7
+  à 9 cm derrière elle. Le point du cadre (`CADRE_SITES.scapulaL`, au bord du dos : l'avant-bras y arrive par le
+  flanc sans traverser le torse) devient la place du **poignet** ; la paume se pose 7,5 cm plus près de la colonne
+  et 2,5 cm plus haut, tournée de 20° vers l'extérieur comme la surface du dos, les doigts vers la colonne. Le
+  poignet plie de 46° à 50°. Quand la main glisse le long du dos (#93), la paume glisse avec elle.
+- **Le bras de la suiveuse par-dessus** (`CADRE_SITES.armR`). Son coude gauche tend à côté du bras droit du guideur,
+  à hauteur de sa poitrine, et non plus sous son épaule : il passe au-dessus du coude du guideur, qui reste à ses
+  côtes ; son bras est en dehors de l'avant-bras du guideur, qui passe sous son aisselle.
+- Mesures (`node scripts/mesure_cadre_bras.mjs`, kizomba, quinconce, plexus) :
+
+| | Avant | Après (position fermée : sur place, quarts de tour, ida e volta) | Après, pendant les sorties |
+|---|---|---|---|
+| Paume du guideur, depuis la colonne de la suiveuse | 15 à 20 cm | 7,5 à 12,5 cm | jusqu'à 26 cm quand la main glisse (33 avant) |
+| Paume, au-dessus de l'origine de sa poitrine | 3 cm | 5,5 cm | 5,5 à 7 cm |
+| Coude de la suiveuse sous son épaule | 24 à 27 cm | 16 à 19 cm | 9 à 19 cm |
+| Son coude par rapport à celui du guideur | 2 à 4 cm plus bas | 3,6 à 6,2 cm plus haut | de 3 cm plus bas à 5 cm plus haut |
+| Écart entre les axes des deux bras, au plus près | 4,5 à 7,6 cm | 9,6 à 10,5 cm | 4,3 cm au moins (0,3 avant) |
+| Là où ils sont au plus près, son bras est | 1 à 2,5 cm plus haut | 1,2 à 2,5 cm plus haut, 9 cm en dehors | 1 cm plus haut au moins |
+
+- Gardes (`scripts/test_upper_body.mjs`) : tant que la main du guideur est à sa place sur le dos, sa paume reste dans
+  le corps de l'omoplate et son poignet dans son amplitude ; le bras de la suiveuse est plus haut que celui du
+  guideur là où ils sont au plus près ; en position fermée, son coude est au moins 3 cm au-dessus de celui du
+  guideur et les deux bras à plus de 9 cm (4 cm pendant les sorties).
+- **Ce que cela change à la règle R37** : le coude de la suiveuse n'est plus contre le bras du guideur. Sur le rig
+  stylisé il est à 17 à 21 cm de l'axe de ce bras en moyenne (10 à 11 cm avant) : bras replié comme il l'est, le coude
+  ne peut monter qu'en s'écartant. Candidat filmable pour comparer : `?essai=coudeBas` garde le coude où #180 l'avait
+  mis (la paume du guideur reste sur l'omoplate).
+- Images (os et muscles, sur place, temps 2) : ![avant, puis après](main-omoplate-avant-apres.png)
+- Limites : danseurs stylisés (sans `haut=1`), la main reste un point au bord du dos ; pendant les sorties la main
+  glisse hors de l'omoplate (#93) ; muscles et peau ne sont vérifiés qu'à l'œil.
 

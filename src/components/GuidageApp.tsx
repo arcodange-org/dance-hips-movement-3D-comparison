@@ -19,8 +19,8 @@ import { filmEnabled } from "../film";
 import TransitionCard from "./TransitionCard";
 import { transitionAt } from "../transitions";
 import {
-  GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, guideFiguresFor, guideStyleOf, GUIDE_PAIR_DZ, GUIDE_DEMO, GUIDE_DEMO_ARROWS, GUIDE_DEMO_CHAIN, GUIDE_DEMO_INSERT, GUIDE_DEMO_TOUCH, GUIDE_DEMO_GINGA, applyTransform, figureOfCode, keyLabel, type HeldArrows,
-  type GuideFigure, type GuideKind, type GuideSample,
+  GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, guideFiguresFor, guideStyleOf, GUIDE_PAIR_DZ, GUIDE_DEMO, GUIDE_DEMO_ARROWS, GUIDE_DEMO_CHAIN, GUIDE_DEMO_INSERT, GUIDE_DEMO_TOUCH, GUIDE_DEMO_GINGA, GUIDE_GINGA, GUIDE_EIGHT, applyTransform, figureOfCode, keyLabel, type HeldArrows,
+  type GuideFigure, type GuideGinga, type GuideKind, type GuideSample,
 } from "../guidage";
 
 const KIND_LABEL = (k: GuideKind) => (k === "base" ? "Pas de base" : GUIDE_FIGURES[k].label);
@@ -123,7 +123,8 @@ export default function GuidageApp() {
     if (hasard === "libre" || hasard === "tenu" || hasard === "strict") session.variety = hasard;
     // #157: `ginga=sans|discret|marque|ample`, the hip sway and the bounce of the couple.
     const ginga = params.get("ginga");
-    if (ginga === "sans" || ginga === "discret" || ginga === "marque" || ginga === "ample") session.ginga = ginga;
+    // #159: also the prototypes of the « 8 » (`huit`, `huitInverse`, `huitAmple`).
+    if (ginga && (ginga in GUIDE_GINGA || ginga in GUIDE_EIGHT)) session.ginga = ginga as GuideGinga;
     session.reset(settings.auto);
     // `demo=…`: the demonstration sessions (commands already pressed).
     if (params.get("demo") === "1") session.intentions = GUIDE_DEMO.map(i => ({ ...i }));
