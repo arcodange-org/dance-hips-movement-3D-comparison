@@ -51,8 +51,8 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
 - **Règle R38 (#185, 23 novembre)** : avec le haut du corps anatomique, la paume droite du guideur est sur le corps de
   l'omoplate gauche de la suiveuse (poignet au bord du dos, `BACK`) ; le coude gauche de la suiveuse passe au-dessus
   de celui du guideur (3,6 à 6,2 cm en position fermée), les deux bras à 10 cm d'axe à axe. Son coude s'écarte donc
-  du bras du guideur (17 à 21 cm sur le rig stylisé, 10 à 11 avant) : `?essai=coudeBas` filme l'ancienne place, au
-  choix du propriétaire.
+  du bras du guideur (17 à 21 cm sur le rig stylisé, 10 à 11 avant) : le propriétaire a choisi ce coude levé le
+  23 novembre, le candidat `coudeBas` est retiré (#190).
 
 ## Haut du corps anatomique : buste, bras et mains (#176, 22 novembre 2026)
 
