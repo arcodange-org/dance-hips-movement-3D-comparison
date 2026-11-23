@@ -39,6 +39,12 @@ registre généré `src/music/recordings.data.ts`, pistes `public/musique/`, `sc
 `scripts/test_musique_enregistree.mjs`) ; la clé ElevenLabs ne s'écrit nulle part, une prise coûte des crédits : accord du propriétaire.
 Vitrine (#150) : [spec](docs/spec-vitrine-danse-auto.md) (`src/vitrine.ts` pur, `?vitrine=1` ouvre la vue du mode jeu en danse
 automatique, en musique, au tempo de la piste ; `scripts/test_vitrine.mjs`).
+Haut du corps anatomique (#176) : [spec](docs/spec-haut-du-corps.md) ; option `haut=1` : os et muscles du buste, des bras et des mains
+(`public/anatomy_upper.glb`, `scripts/build_upper_body.mjs`, `src/upperBody.ts` pur, `src/components/UpperBodyLayer.tsx`,
+`scripts/test_upper_body.mjs`) ; la main anatomique vient où le rig pose la sienne ; le rig publie la couche dans `rig.upperBody`.
+Cadre des bras (#40, [spec](docs/cadre/spec-implementation.md), `src/cadre.ts`, `scripts/test_cadre.mjs`) : le bras droit du guideur ne se baisse pas (#178, R35) ;
+main gauche de la suiveuse sur l'épaule droite du guideur, coude vers son bras (#180, R37) ; prise des mains (#179, R36) : attitudes `?essai=mainsCote|mainsBasses`
+([dossier](docs/elections/2026-11-22-mains/README.md)), doigts et poignet articulés dans le haut du corps (`HAND_SHAPES`, `GRIP`, `src/upperBody.ts`).
 Mode jeu (#140, [spec](docs/spec-jeu-file-auto.md)) : les commandes s'empilent dans une file (plus de note ni
 de refus), Espace bascule entre l'écoute et la danse automatique (tirage reproductible par graine) ; un plan
 ne réécrit jamais son passé. Hasard tenu (#152) : le tirage se souvient des figures et des paires récentes
@@ -61,10 +67,17 @@ Atlas anatomique ouvert (#132) : [spec](docs/spec-atlas-anatomique.md), [dossier
 (`src/atlas.ts` pur, `src/atlasManifest.ts`, vue `?atlas=` `src/components/AtlasApp.tsx`, `scripts/capture_atlas.mjs`,
 `scripts/atlas_meta.mjs`, `scripts/test_atlas_manifest.mjs`, `scripts/test_atlas_planches.mjs`) ;
 `docs/atlas/mouvements/<id>/` est généré (ne pas modifier à la main) et doit rester à jour avec le moteur.
-Règle de pose soumise au vote du propriétaire : `ATLAS_ELECTIONS` (règles candidates, règle retenue), `?atlas=<id>&variante=<règle>`,
+Règle de pose soumise au vote du propriétaire : `ATLAS_ELECTIONS` (règles candidates, règle retenue pour la planche, règle de la danse), `?atlas=<id>&variante=<règle>`,
 `capture_atlas.mjs --variante <règle>` (un GIF comparatif dans `docs/gifs/`), page `docs/elections/` ; la planche suit la règle retenue.
 
 Règles de mouvement du propriétaire, consolidées et vérifiables : [`docs/regles-proprietaire.md`](docs/regles-proprietaire.md).
+
+Décision de mouvement en attente du propriétaire (#148) : filmer les candidats et les lui faire élire
+([spec](docs/spec-elections-variantes.md), [procédure](.vibe/CONTRIBUTING.md), `src/essais.ts` : `?essai=` inerte sans
+le paramètre, `scripts/mesure_essai_*.mjs`, `docs/elections/`). Rien n'est implémenté avant son vote.
+Premier tour voté (21 novembre) : en paire la ligne de danse passe par les deux danseurs (R6 réécrite) ; hors
+figure, le cercle du corridinho se marche pied déroulé (`plannedFeet`, `scripts/test_marche_deroulee.mjs`,
+[spec](docs/spec-marche-naturelle.md)) ; l'ida e volta en paire garde le pied opposé du suiveur.
 
 **Lire ce fichier en premier dans toute session.** Le harness complet pour travailler sur ce projet
 en autonomie (méthode anti-amnésie, conventions, contribution agentique) est dans **[`.vibe/`](.vibe/)**

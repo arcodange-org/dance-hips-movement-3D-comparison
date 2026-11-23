@@ -94,7 +94,7 @@ Ce que cela entraîne ([spec, D17](../spec-atlas-anatomique.md)) :
   bassin. Rien n'est régénéré, sauf le texte de la planche, qui nomme la règle de la danse.
 - **Pour la danse, C**, thorax à l'opposé : la contraposition. B et C restent montrées en variantes,
   avec ce GIF.
-- La règle est consignée dans les [règles du propriétaire](../regles-proprietaire.md) (R36).
+- La règle est consignée dans les [règles du propriétaire](../regles-proprietaire.md) (R38).
 - Le comparateur et le mode jeu ne sont pas modifiés. Dans le moteur du couple, la
   « contraposition » (#51) tourne aujourd'hui la poitrine vers le partenaire pendant que le
   bassin suit les pieds : c'est plus proche de A que de C. Le rapprochement est à décider avec le

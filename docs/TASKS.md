@@ -309,7 +309,7 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
   - [x] Mesures ajoutées à `meta.json` (avancée des hanches, sacrum, rotation du thorax tous axes), repère de position et limites par axe ; `bassin-obliquite` recalculée par `--meta-seul`.
   - [x] Test : deux vecteurs liés au bassin en rotation rigide, repère et signe par planche, axe erroné détecté, thorax immobile sur les trois axes.
 - [x] Élection par le propriétaire, rotation du bassin : thorax de face (versionné, proposition) ou buste solidaire du bassin (GIF des deux variantes montrés le 21 novembre 2026 ; la variante non retenue n'est pas versionnée).
-  - [x] Vote du 22 novembre 2026 : A pour la planche, parce qu'elle met le mieux la rotation du bassin en évidence ; C pour la danse, au nom de la contraposition. Planche en A, `danse: "oppose"` (D17, R36).
+  - [x] Vote du 22 novembre 2026 : A pour la planche, parce qu'elle met le mieux la rotation du bassin en évidence ; C pour la danse, au nom de la contraposition. Planche en A, `danse: "oppose"` (D17, R38 ; d'abord numérotée R36, renumérotée à la fusion de `main` du 23 novembre, où R36 est la prise des mains).
   - [ ] À présenter au propriétaire : la `contraposition` du moteur du couple (#51) est plus proche de A que de C.
   - [x] Élection en format A/B/C (D16, accord du propriétaire le 22 novembre 2026 ; C ajoutée à sa demande le même jour) : variantes `solidaire` et `oppose` dans le moteur, GIF `docs/gifs/election-rotation-buste.gif`, page `docs/elections/rotation-buste.md`, test sur le GLB.
 - [x] Variante « genoux chevauchés » de l'obliquité produite à la demande du propriétaire (« Oui, produis-la », 21 novembre 2026) : [spec D14](spec-atlas-anatomique.md), [page d'élection](elections/obliquite-genoux.md).
@@ -373,6 +373,7 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] `src/vitrine.ts`, lien `vitrine=1`, tempo de la piste en danse automatique, muscles et buste.
 - [x] Bouton de partage, interface réduite, fragment `iframe`.
 - [x] `scripts/test_vitrine.mjs` et `vitrine.feature` dans `npm test` ; contrôle navigateur.
+- [x] Buste sans bloc gris (#173) : muscles affichés dans tout le mode jeu, volumes gris du tronc masqués avec eux.
 - [ ] Essai par le propriétaire ; intégration sur le site d'Arcodange ; mascottes Rémi et Corinne (hors périmètre de #150).
 
 ## Danse automatique : un hasard mieux tenu (#152)
@@ -412,3 +413,17 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] GIFs des réglages, [page d'élection](elections/ginga-couple.md) ; démonstration `demo=ginga`.
 - [ ] Le chemin en « 8 » du bassin, lié au relais des genoux, lisible vu de dessus et vu de face (précisions du
       propriétaire) : #159. La taille (`ginga=sans|discret|marque|ample`) s'y choisira avec la forme.
+
+## Élections de variantes en GIF (#148)
+
+- [x] Issue #148 et spécification poussée en premier ([spec](spec-elections-variantes.md)).
+- [x] Prototypes derrière `?essai=` (`src/essais.ts`) : ida même pied (#86), ligne dans l'axe des bustes (#72), marche déroulée (#73) ; `temoin` pour filmer l'actuel hors du mode paire.
+- [x] Mesures des candidats sur le vrai GLB (`scripts/mesure_essai_ida.mjs`, `scripts/mesure_essai_marche.mjs`).
+- [x] GIFs des candidats, avec les muscles ([premier tour](elections/2026-11-21/README.md)).
+- [x] Page d'élection publiée (source : `docs/elections/2026-11-21/election.html`), lien donné au propriétaire.
+- [x] Votes du propriétaire (21 novembre) : Q1 A, pied opposé (#86/#144) ; Q2 B, ligne dans l'axe des bustes (#72) ; Q3 B, marche déroulée (#73).
+- [x] Votes consignés dans les issues (choix, commentaire reformulé sans citation) et dans la spec.
+- [x] Variantes élues implémentées dans une PR empilée sur #149, interrupteurs retirés : ligne de danse dans l'axe des bustes en paire (R6 réécrite) ; cercle du corridinho pied déroulé (`scripts/test_marche_deroulee.mjs` dans `npm test`) ; pied opposé du suiveur inchangé.
+- [ ] Essai par le propriétaire de la ligne en paire et de la marche déroulée ; fusion de #149 puis de la PR empilée avec son accord.
+- [ ] Hors de ce tour : dérouler le pied dans l'ida e volta et les quarts de tour en solo demanderait d'amender l'oracle ; saut de cheville au décollage du pied dans les figures (5,7 mm, sortie garçon), à voir avec #167.
+- [ ] Second tour : #56 (croisé de la sortie garçon, géométrie du couple à régler pour chaque piste) et #67 (distance bassin-bassin, même figure à filmer à plusieurs distances).

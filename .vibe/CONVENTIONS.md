@@ -26,13 +26,18 @@
   buste) ; suiveuse en paire : `DANCE_FRAME_FOLLOWER`.
 - **Déplacement** : 0 = sur place, 1 = ±17 cm le long de la ligne de danse (axe x) ; `dir=-1` =
   marche arrière. IK de pas quand `travel > 0` (ou `ida=1`).
-- **Repères** : repère fixe à l'origine (`repere=`, anneau+croix), ligne de danse = axe x
-  (`ligne=`, rubans roses), boussole 8 directions (`boussole=`, E=+x=ligne, N=-z, S=+z).
+- **Repères** : repère fixe à l'origine (`repere=`, anneau+croix), ligne de danse (`ligne=`, rubans
+  roses) : axe x en solo et en comparaison ; **en paire, axe z : elle passe par les deux danseurs**
+  (amendement du 22 novembre 2026, élection #72). Boussole 8 directions (`boussole=`, E=+x, N=-z, S=+z).
+- **Marche hors figure déroulée** (amendement du 22 novembre 2026, élection #73) : dans le cercle du
+  corridinho le pied qui marche se déroule (`gaitStep`) au lieu de voyager à plat ; le déroulé y remplace
+  la bascule du pied propre au style. L'ida e volta et les quarts de tour en solo, les sorties
+  historiques, le « Déplacement » et le sur place ne changent pas.
 - **Modes** : Solo / Observation hanche (~32 bpm, buste masqué) / Comparaison / Face à face.
 - **Animation paramétrique f(temps) uniquement** — pas de mocap.
 - **Réglages persistés** dans `localStorage` (préfixe `danse-comparateur:`) ; les paramètres d'URL
   priment (utilisés par les captures).
-- **Attribution obligatoire** : maillages `public/anatomy.glb` + `public/anatomy_muscles.glb` =
+- **Attribution obligatoire** : maillages `public/anatomy.glb` + `public/anatomy_muscles.glb` + `public/anatomy_upper.glb` =
   **BodyParts3D v4.0, © DBCLS, CC BY-SA 2.1 Japan** — visible dans l'app (pied de page) et le
   README. Police embarquée : sous-ensemble DejaVu (Bitstream Vera).
 

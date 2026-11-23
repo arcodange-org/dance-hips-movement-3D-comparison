@@ -15,7 +15,8 @@ export interface VitrineSettings {
   vitrine: boolean;
   /** La vue s'ouvre en danse automatique (`vitrine=1` ou `auto=1`). */
   auto: boolean;
-  /** `muscles=1` : couche des muscles demandée même en écoute. */
+  /** Couche des muscles : affichée par défaut dans le mode jeu, en écoute comme en danse automatique (#173) ;
+   * `muscles=0` la masque. */
   muscles: boolean;
   /** Point de vue du guideur (défaut du mode jeu) ou vue libre (défaut de la vitrine). */
   leaderView: boolean;
@@ -29,7 +30,7 @@ export function vitrineSettings(p: URLSearchParams): VitrineSettings {
   return {
     vitrine,
     auto: vitrine || p.get("auto") === "1",
-    muscles: p.get("muscles") === "1",
+    muscles: p.get("muscles") !== "0",
     leaderView: vitrine ? p.get("vue") === "guideur" : p.get("vue") !== "libre",
     bpm: p.has("bpm") && Number.isFinite(raw) && raw >= GUIDE_BPM.min && raw <= GUIDE_BPM.max ? raw : null,
   };
@@ -55,8 +56,10 @@ export function danceBpm(s: VitrineSettings, styleKey: string): number | null {
 export const openingBpm = (s: VitrineSettings, styleKey: string): number =>
   (s.auto ? danceBpm(s, styleKey) : null) ?? listenBpm(s);
 
-/** En danse automatique, les muscles sont affichés et le buste se lit comme un corps. */
-export const showcaseLook = (s: VitrineSettings, auto: boolean) => ({ muscles: s.muscles || auto, solidTorso: auto });
+/** Le mode jeu montre les muscles, et avec eux plus aucun bloc gris sur le tronc (#173, `trunkBlocksVisible`
+ * dans src/muscles.ts). Sans les muscles (`muscles=0`), le buste stylisé revient : translucide en écoute,
+ * lisible comme un corps en danse automatique. */
+export const showcaseLook = (s: VitrineSettings, auto: boolean) => ({ muscles: s.muscles, solidTorso: auto && !s.muscles });
 
 /** Lien direct de la vitrine : le style et la graine, pour rouvrir la même danse. */
 export function vitrineUrl(base: string, o: { style: string; graine: number }): string {

@@ -479,7 +479,7 @@ Vote du 22 novembre 2026 : A pour la planche, parce qu'elle met le mieux la rota
   quand elle diffère de celle de la planche : `oppose` pour la rotation ; `chevauchement` pour
   l'obliquité, où les deux coïncident (D15). `meta.json` la porte (`regle.danse`), la page de la
   planche l'écrit dans « Règle de pose et variante », et la limite de la règle A dit les deux choix.
-- **Règle du propriétaire.** R36 dans [`regles-proprietaire.md`](regles-proprietaire.md).
+- **Règle du propriétaire.** R38 (d'abord R36 ; renumérotée le 23 novembre, `main` ayant pris R36 pour la prise des mains) dans [`regles-proprietaire.md`](regles-proprietaire.md).
 - **Portée.** L'atlas seulement. Le comparateur et le mode jeu ne sont pas modifiés. Écart relevé,
   non tranché : dans le moteur du couple, `contraposition` (#51, `src/pose.ts`) tourne la poitrine
   vers le partenaire pendant que le bassin suit les pieds, ce qui se rapproche de A. Pour C, le

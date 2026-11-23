@@ -63,7 +63,7 @@ jambes ne bougent pas).
   8 », lisible dans les trois plans, alors que chaque planche fait un aller-retour sur un axe. Le
   « 8 » est le chantier #159 (PR #160, sa propre élection) : l'atlas n'en produit pas de planche.
   Le vote B lui a été transmis ; dans l'atlas, « relais » nomme la règle non retenue.
-- **Rotation : vote rendu, A pour la planche, C pour la danse** (D17, R36, 22 novembre 2026 :
+- **Rotation : vote rendu, A pour la planche, C pour la danse** (D17, R38, 22 novembre 2026 :
   A pour la planche, parce qu'elle met le mieux la rotation du bassin en évidence ; C pour la danse, au nom de la contraposition). Écart non tranché : la `contraposition` du moteur du couple (#51) est plus proche
   de A. Élection préparée en D16 (avec l'accord du propriétaire, 22 novembre 2026). A thorax
   de face (règle de la planche, ma proposition), B buste solidaire ou C thorax à l'opposé (ajoutée à
@@ -71,20 +71,53 @@ jambes ne bougent pas).
   [`docs/elections/rotation-buste.md`](docs/elections/rotation-buste.md). Mesure `thoraxLacetDeg`
   ajoutée au module (non sérialisée). Présentation du GIF propre à chaque élection
   (`PRESENTATIONS` dans `scripts/capture_atlas.mjs`).
-- `main` a été fusionné six fois dans la branche (conflits : `package.json`, `README.md`,
-  `docs/TASKS.md`, `CONTEXT.md`, `src/main.tsx`, `src/pose.ts`, `docs/regles-proprietaire.md` ; garder les deux côtés). Dans
+- `main` a été fusionné sept fois dans la branche (conflits : `package.json`, `README.md`,
+  `docs/TASKS.md`, `CONTEXT.md`, `src/main.tsx`, `src/pose.ts`, `docs/regles-proprietaire.md`,
+  `src/components/Rig.tsx` ; garder les deux côtés). Les numéros de règle se croisent entre branches :
+  vérifier `docs/regles-proprietaire.md` après chaque fusion (R36 de l'atlas est devenue R38). Dans
   `src/pose.ts`, l'option `neutral` de l'atlas et le ginga de #157 s'ajoutent au même endroit.
 
 Suite : règles de pose des 13 autres mouvements (le script les refuse pour l'instant), décision sur
 le poids versionné (≈ 2,5 Mo par mouvement, 7,4 Mo pour les trois planches du bassin), fiches muscles (prototype Blender hors dépôt :
 `~/Work/Danse/anatomie-3d/`), sourcing des ROM, viewer `?atlas=` complet + branchement oracle.
 
+## Cadre des bras : bras droit du guideur, mains jointes (#178, #179, 22 novembre 2026)
+
+- **Règle R35 (#178)** : le bras droit du guideur ne se baisse pas. Hors du dos de la suiveuse (sortie fille), sa
+  main attend devant son flanc, avant-bras levé (`CADRE.openFrame`), et elle quitte le dos peu à peu (`CADRE.leave`) :
+  saut du coude 31 → 9 cm par seizième de temps ([spec](docs/cadre/spec-implementation.md), `scripts/test_cadre.mjs`).
+- **Prise des mains (#179, R36)** : la main droite de la suiveuse dans la main gauche du guideur. Aujourd'hui les
+  mains jointes sont entre les deux poitrines (cachées, coudes repliés). Le propriétaire a précisé qu'il existe
+  plusieurs attitudes et a décrit la prise (phalanges serrées, pouce ouvert, main de la suiveuse en travers de celle
+  du guideur, refermée autour de son index, pouces croisés). Attitudes filmables : `?essai=mainsCote`,
+  `?essai=mainsBasses`, inertes sans le paramètre ([dossier](docs/elections/2026-11-22-mains/README.md)).
+  Fait dans le haut du corps anatomique : doigts articulés, formes de main, poignet de la suiveuse articulé, sa main
+  posée en travers de celle du guideur ([spec](docs/spec-haut-du-corps.md)). Reste : son poignet va au bout de son
+  amplitude, les doigts ne se serrent pas, et le rig stylisé (sans `haut=1`) n'a pas de doigts.
+- **Règle R37 (#180)** : la main gauche de la suiveuse sur l'épaule droite du guideur (devant et côté), son coude vers
+  le bras droit du guideur (`CADRE_SITES.shoulderR`, `armR`) : coude à 10 à 11 cm de l'axe de son bras en moyenne.
+
+## Haut du corps anatomique : buste, bras et mains (#176, 22 novembre 2026)
+
+- Option `haut=1` (toutes les vues) : les volumes gris du buste, des bras et de la tête laissent la place aux os et
+  aux muscles de BodyParts3D (`public/anatomy_upper.glb` : 16 pièces osseuses, 108 muscles, 48 articulations dont trois par doigt).
+  Sans l'option, rien ne change ([spec](docs/spec-haut-du-corps.md), `src/upperBody.ts`, `scripts/test_upper_body.mjs`).
+- La paume vient où le rig pose la main, avec un bras aux longueurs anatomiques (28,0 cm et 29,3 cm jusqu'à la paume,
+  contre 26 et 24 pour le rig) ; le radius tourne autour de l'ulna ; port de tête joue contre joue en danse serrée.
+- Demande du propriétaire : ces contributions au buste et aux bras vivent dans ce dépôt ; l'habillage des mascottes
+  Rémi et Corinne vit du côté de ReCoDanse, qui exploite ce dépôt et lit `rig.upperBody`.
+- Restent : doigts raides, omoplates fixes, option pas encore par défaut ; l'écart de longueur des bras du rig est
+  mesuré dans la spec, pas corrigé.
+
 ## Vitrine : danse automatique en musique, lien direct (#150, 21 novembre 2026)
 
-- `?vitrine=1` ouvre le mode jeu en danse automatique, au tempo de la piste enregistrée, muscles et
-  buste lisibles, vue libre qui tourne, interface réduite ; bouton « Partager » (style et graine)
+- `?vitrine=1` ouvre le mode jeu en danse automatique, au tempo de la piste enregistrée, muscles
+  affichés, vue libre qui tourne, interface réduite ; bouton « Partager » (style et graine)
   ([spec](docs/spec-vitrine-danse-auto.md), `src/vitrine.ts`). Dans le mode jeu, la danse automatique
-  prend aussi le tempo de la piste et affiche les muscles.
+  prend aussi le tempo de la piste.
+- **Buste sans bloc gris (#173)** : tout le mode jeu affiche les muscles, en écoute comme en danse
+  automatique, et avec eux les volumes gris du tronc ne sont plus dessinés (`trunkBlocksVisible`,
+  `src/muscles.ts`). `muscles=0` rend le buste stylisé. Tête et bras restent stylisés.
 - Destiné à être intégré sur un autre site par Arcodange (fragment `iframe` dans la spec).
   **Hors périmètre, prévu plus tard** : les mascottes Rémi et Corinne à la place des corps.
 - La branche part de la musique (#143) : la PR s'annonce « Stacks on #143 » tant que celle-ci est ouverte.
@@ -178,6 +211,22 @@ et les specs. Résumé de la journée du 21 :
   moyennée sur une demi-temps de chaque côté et se poursuit d'une figure à la suivante (`gingaFrom` ; 2,05 → 0,98 fois un
   balancier). Restent : la hauteur du bassin, son trajet dans le quart de tour et les sorties. Croisements d'os déjà présents
   aux frontières : #171. Posture (R33) : #166.
+- **#148 (PR #149, brouillon : dossier de décision)** : élections de variantes en GIF. Le propriétaire tranche
+  les questions de mouvement en élisant un candidat filmé, avec un commentaire optionnel. Premier tour :
+  ida e volta, pied opposé ou même pied (#86, #144) ; ligne de danse perpendiculaire aux bustes ou dans
+  leur axe (#72) ; marche hors figure à plat ou déroulée (#73). Reportées : #56, #67. Candidats derrière
+  `?essai=` (`src/essais.ts`, inertes sans le paramètre), mesures `scripts/mesure_essai_*.mjs`, films et
+  page dans [`docs/elections/2026-11-21/`](docs/elections/2026-11-21/README.md)
+  ([spec](docs/spec-elections-variantes.md)). **Votes du 21 novembre** : Q1, A (pied opposé, rien ne
+  change) ; Q2, B (en paire, la ligne passe par les deux danseurs ; R6 réécrite) ; Q3, B (marche déroulée
+  hors figure ; convention « pieds plats » et oracle à amender). Les variantes élues sont implémentées dans
+  une PR empilée ; le choix est consigné dans chaque issue, sans citation. **Implémenté** (PR empilée sur
+  #149) : `LineOfDance` suit l'axe z en paire ; `plannedFeet` déroule le pied dans le cercle du corridinho
+  (`gaitStep`, réglages `ROLLED_WALK` ; cheville continue au décollage et à la pose, genou qui plie au lieu
+  de soulever le bassin : le bassin n'est pas plus brusque qu'avec la marche à plat, [spec](docs/spec-marche-naturelle.md),
+  `scripts/test_marche_deroulee.mjs`) ; l'ida e volta et les quarts de tour en solo, les sorties historiques
+  et le « Déplacement » restent à plat (oracle intact, aucun test existant modifié). Les interrupteurs
+  `idaMemePied`, `ligneBustes` et `marcheDeroulee` sont retirés ; `src/essais.ts` ne garde que `temoin`.
 - PR brouillon en relecture du propriétaire : #117 (ontologie), #76 (audit).
 - Pièges : `npm test` complet dure 25 min ou plus en local. Lancer ses scripts en parallèle, un journal
   par script, le ramène à une dizaine de minutes ; `test_placements` et `test_plexus` rejouent d'autres

@@ -37,8 +37,8 @@ paramétriquement, sans capture de mouvement ni photo de modèle.
 
 **Lien direct : https://arcodange-org.github.io/dance-hips-movement-3D-comparison/?vitrine=1**
 
-Le couple danse seul sur la piste enregistrée du style, à son tempo, avec les muscles et un buste
-lisible ; la vue tourne lentement. Un bouton lance la musique (un navigateur ne démarre pas le son
+Le couple danse seul sur la piste enregistrée du style, à son tempo, avec les muscles et sans bloc
+gris sur le buste ; la vue tourne lentement. Un bouton lance la musique (un navigateur ne démarre pas le son
 sans clic), un autre copie le lien, qui garde le style et la graine : la même danse se rejoue.
 Pour l'intégrer dans une autre page :
 
@@ -320,7 +320,8 @@ Les cellules historiques G/F décrivent les anciennes trajectoires. Les figures 
 
 ## Attribution obligatoire (licence des maillages)
 
-Les maillages de `public/anatomy.glb` **et** de `public/anatomy_muscles.glb` (couche
+Les maillages de `public/anatomy.glb`, de `public/anatomy_upper.glb` (haut du corps, option `haut=1`,
+[spec](docs/spec-haut-du-corps.md)) **et** de `public/anatomy_muscles.glb` (couche
 musculaire optionnelle) proviennent de **BodyParts3D v4.0**, © The Database Center for Life
 Science (DBCLS), licence **CC BY-SA 2.1 Japan** — cette attribution reste visible dans
 l'application (pied de page) et dans ce README.
