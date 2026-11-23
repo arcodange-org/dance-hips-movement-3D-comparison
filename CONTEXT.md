@@ -33,6 +33,11 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   22 novembre, où les os se recouvrent ; le choix de l'attitude par défaut n'est pas fait (PR #181 en brouillon).
 - **Règle R37 (#180)** : la main gauche de la suiveuse sur l'épaule droite du guideur (devant et côté), son coude vers
   le bras droit du guideur (`CADRE_SITES.shoulderR`, `armR`) : coude à 10 à 11 cm de l'axe de son bras en moyenne.
+- **Règle R38 (#185, 23 novembre)** : avec le haut du corps anatomique, la paume droite du guideur est sur le corps de
+  l'omoplate gauche de la suiveuse (poignet au bord du dos, `BACK`) ; le coude gauche de la suiveuse passe au-dessus
+  de celui du guideur (3,6 à 6,2 cm en position fermée), les deux bras à 10 cm d'axe à axe. Son coude s'écarte donc
+  du bras du guideur (17 à 21 cm sur le rig stylisé, 10 à 11 avant) : `?essai=coudeBas` filme l'ancienne place, au
+  choix du propriétaire.
 
 ## Haut du corps anatomique : buste, bras et mains (#176, 22 novembre 2026)
 
