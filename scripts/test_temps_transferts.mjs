@@ -12,9 +12,11 @@ buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'rigJoints', 'place
 const api = await import(bundle.href); unlinkSync(bundle);
 
 // On the spot, solo and in pair: full weight on a foot on each beat, alternating feet (one transfer per
-// beat), and the transfer half-way between beats. Kompa has its own rhythm (below).
+// beat), and the transfer half-way between beats. Kompa has its own rhythm (below), and so has the semba
+// danced alone (its elected step, #162, below); in pair the semba keeps one transfer per beat.
 const styles = Object.keys(api.STYLES).filter(k => k !== 'kompa');
 for (const styleKey of styles) for (const pair of [false, true]) {
+  if (styleKey === 'semba' && !pair) continue;
   const f = fixture(api, {});
   const load = beat => api.applyPose(f.r, f.model, beat, { styleKey, amp: 1, ...(pair ? { embrace: true, placePaire: true, placement: 'quinconce' } : {}) }).loadR;
   for (let k = 0; k < 4; k++) {
@@ -24,7 +26,7 @@ for (const styleKey of styles) for (const pair of [false, true]) {
     assert(Math.abs(half - 0.5) < 1e-6, `${styleKey}: the transfer crosses half-way between beats (${half.toFixed(3)} at ${k + 0.5})`);
   }
 }
-console.log(`PASS temps et transferts : sur place (solo et paire), poids sur chaque temps pour ${styles.join(', ')}`);
+console.log(`PASS temps et transferts : sur place (solo et paire ; le semba en paire seulement), poids sur chaque temps pour ${styles.join(', ')}`);
 
 // Kompa (docs/musique/kompa.md: step 1, touch 2, step 3, touch 4): one transfer every two beats, the
 // weight landing on 1 and 3 and held through the touches on 2 and 4.
@@ -38,6 +40,23 @@ for (const pair of [false, true]) {
   assert.equal(transfers, 4, `kompa: one transfer every two beats (${transfers} in 8 beats)`);
 }
 console.log('PASS temps et transferts : kompa, pas sur 1 et 3, touche sur 2 et 4');
+
+// Semba alone (#162, the step elected on 23 Nov. 2026: two landings in a row on each foot, the double
+// bounce): the weight is whole on a foot on every beat, the same foot twice, then the other; one transfer
+// every two beats; between its two landings the weight does not leave the foot of the bounce.
+{
+  const f = fixture(api, {});
+  const load = beat => api.applyPose(f.r, f.model, beat, { styleKey: 'semba', amp: 1 }).loadR;
+  for (const k of [1, 2, 5, 6]) assert(load(k) < 1e-6, `semba alone: left foot full on beat ${k} (${load(k)})`);
+  for (const k of [3, 4, 7, 8]) assert(load(k) > 1 - 1e-6, `semba alone: right foot full on beat ${k} (${load(k)})`);
+  let transfers = 0, prev = load(0);
+  for (let b = 0.05; b <= 8; b += 0.05) { const l = load(b); if ((l - 0.5) * (prev - 0.5) < 0) transfers++; prev = l; }
+  assert.equal(transfers, 4, `semba alone: one transfer every two beats (${transfers} in 8 beats)`);
+  for (let b = 1; b <= 2; b += 0.05) assert(load(b) < 0.3, `semba alone: inside the double bounce the weight stays on the left foot (${load(b).toFixed(2)} at ${b.toFixed(2)})`);
+  const pairLoad = beat => api.applyPose(f.r, f.model, beat, { styleKey: 'semba', amp: 1, embrace: true, placePaire: true, placement: 'quinconce' }).loadR;
+  assert(Math.sign(pairLoad(1) - 0.5) === -Math.sign(pairLoad(2) - 0.5), 'semba in pair: one transfer per beat, as before');
+}
+console.log('PASS temps et transferts : semba seul, deux arrivées sur chaque pied (double rebond), poids sur chaque temps');
 
 // Owner (20 Nov.): « on peut laisser le style konpa faire uniquement le sur place et le avant / arrière
 // (pas de marka en konpa) » : kompa offers on the spot and ida e volta only; the other styles everything.

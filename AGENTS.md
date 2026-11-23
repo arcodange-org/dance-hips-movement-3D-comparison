@@ -54,7 +54,12 @@ Ginga du couple (#157, [spec](docs/spec-ginga-couple.md)) : option `ginga` de `a
 (`GUIDE_GINGA`, `ginga=sans|discret|marque|ample`) ; phase lue sur les appuis du leader (`gingaPhase`), poursuivie d'une figure à la suivante (`gingaFrom`, #167), les figures
 déclarent où il s'efface (`gingaRoom`, `gingaCap`, et la place au-dessus du plafond `gingaCapRoom`, #163) et leurs jonctions (`gingaJunctions` : une figure modifiée à une
 jonction garde son passé) ; `scripts/test_ginga_couple.mjs`. Calibré à l'amplitude 1. [Aperçu des réglages](docs/elections/ginga-couple.md) ;
-le « 8 » du bassin (dessus et face) reste à faire : #159.
+le « 8 » des hanches (#159, [spec](docs/spec-ginga-huit.md)) : prototypes `GUIDE_EIGHT` à élire
+([élection](docs/elections/ginga-huit.md)), non contrôlés sur le GLB, `scripts/test_ginga_huit.mjs` ; tracé des
+hanches dans les trois vues : `scripts/tracer_hanches.mjs` ; GIF du mode jeu en un seul chargement de page :
+`scripts/capture_session_gif.mjs`. Kompa (#161) et semba (#162) : leur pas de base, danseur seul sur place, est le pas élu
+(`KOMPA_ELECTED`, `SEMBA_ELECTED` ; drapeau `base` de `StyleDef.apply`) ; variantes par `?kompa=`, `?semba=` (`ancien` : avant les
+votes) ; en couple et en déplacement, l'ancien modèle ; le traceur mesure aussi les genoux et la posture.
 Transfert de poids continu (#167, R34 : ni saccade, ni téléportation, ni relais soudain) : [spec](docs/spec-transfert-continu.md) ;
 `scripts/test_saccades.mjs` mesure, dans des séances du mode jeu, les à-coups du bassin de chaque figure et le passage d'un côté
 à l'autre ; l'état est enregistré (`scripts/fixtures/saccades.json`, cliquet ; `WRITE=1` après un changement voulu).

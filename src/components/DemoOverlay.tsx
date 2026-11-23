@@ -21,13 +21,13 @@ export const DEMOS: Record<string, DemoDef> = {
   semba: {
     chip: "Semba",
     color: "#fb923c",
-    captions: ["rebond quick-quick-slow « 1-2-3, pause »", "réception sur l'avant-pied"],
+    captions: ["un rebond par temps, la hanche s'assoit", "double rebond : deux arrivées sur chaque pied"],
     beat: 60 / 130,
   },
   kompa: {
     chip: "Kompa",
     color: "#f87171",
-    captions: ["balancier latéral sur place", "un transfert de poids par temps · hip check t4"],
+    captions: ["la hanche s'assoit quand le poids arrive", "un transfert tous les deux temps · buste penché"],
     beat: 60 / 120,
   },
   tarraxinha: {
