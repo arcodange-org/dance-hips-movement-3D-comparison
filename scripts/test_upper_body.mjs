@@ -114,17 +114,23 @@ const options = { boneMaterial: new THREE.MeshBasicMaterial(), muscleMaterial: (
 // Alone: every style with the rig's arm frame; then the rig is given back intact.
 {
   const f = fixture(api), u = new api.UpperBody(f.r, model, options);
-  let worst = 0;
+  let worst = 0, fold = 0;
   for (const styleKey of Object.keys(api.STYLES)) for (let b = 0; b <= 8; b += 0.125) {
     api.applyPose(f.r, f.model, b, { styleKey, amp: 1, cadre: true });
     u.update(null, false);
     assert.equal(u.headCarrier.rotation.y, 0, "alone: the head faces forward");
-    for (const s of ["L", "R"]) { assert(Number.isFinite(u.state[s].error), `${styleKey} ${b} ${s}`); worst = Math.max(worst, u.state[s].error); }
+    for (const s of ["L", "R"]) {
+      assert(Number.isFinite(u.state[s].error), `${styleKey} ${b} ${s}`); worst = Math.max(worst, u.state[s].error);
+      // #182: the rig's frame folds its raised forearm flat on the arm; the bones keep within the elbow's range.
+      const at = n => u.joints.get(n + s).getWorldPosition(new THREE.Vector3());
+      fold = Math.max(fold, at("fore0").sub(at("arm")).angleTo(at("hand").sub(at("fore0"))));
+    }
   }
-  assert(worst < 0.001, `alone: the palm misses the rig's hand by ${(worst * 1000).toFixed(1)} mm`);
+  assert(worst < 0.001, `alone: the palm misses its place by ${(worst * 1000).toFixed(1)} mm`);
+  assert(fold <= api.ELBOW_MAX + 0.05, `alone: an elbow folds by ${Math.round(fold * 180 / Math.PI)}°, past the joint's ${Math.round(api.ELBOW_MAX * 180 / Math.PI)}° (#182)`);
   u.dispose();
   const left = [];
   f.r.root.traverse(o => { if (o.name.startsWith("upper_")) left.push(o.name); });
   assert.deepEqual(left, [], "dispose() removes everything the layer added");
-  console.log(`PASS haut du corps seul : ${Object.keys(api.STYLES).length} styles, écart de paume maximal ${(worst * 1000).toFixed(2)} mm ; le rig est rendu intact`);
+  console.log(`PASS haut du corps seul : ${Object.keys(api.STYLES).length} styles, écart de paume maximal ${(worst * 1000).toFixed(2)} mm, coude plié de ${Math.round(fold * 180 / Math.PI)}° au plus ; le rig est rendu intact`);
 }

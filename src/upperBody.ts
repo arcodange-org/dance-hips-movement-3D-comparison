@@ -66,6 +66,12 @@ export function readUpperBody(scene: THREE.Object3D): UpperBodyModel {
 /** Pronation range kept (rad, from the anatomical position, palm forward): an animation parameter of this
  * model, not a clinical limit. */
 export const PRONATION = { min: -0.17, max: 2.97 };
+/** Flexion the elbow allows (rad; 0: the arm straight). Past it, a rig's hand asks for a fold no elbow gives (#182). */
+export const ELBOW_MAX = 2.53;
+/** A free hand the rig folds past that range (its frame alone, #182), in the chest's frame: where the forearm
+ * rises from the rig's elbow (outwards, up, forwards) and where the palm faces (inwards, up, forwards). Clear of
+ * the face, a wide mascot's head included. Animation parameters, to validate by eye. */
+export const RAISED = { forearm: [0.35, 0.8, 0.45] as V3, palm: [1, 0, 0.5] as V3 };
 /** Head carriage in a close embrace (animation parameters, to validate by eye): when the two heads are close,
  * each dancer turns theirs to their left, cheek to cheek; beyond `far`, they face each other. Face to face at
  * 24 cm, two skulls already touch. */
@@ -222,6 +228,9 @@ export class UpperBody {
       armF.updateWorldMatrix(true, false);
       const target = armF.localToWorld(HAND.clone()), rigElbow = armF.getWorldPosition(new THREE.Vector3());
       const { hold, normal } = this.palmFacing(s, target, partner, follower);
+      // Flexion the rig asks of the elbow: the angle from the line of its arm to its forearm.
+      const armU = r["armU" + s] as THREE.Object3D | undefined;
+      const folded = !!armU && rigElbow.clone().sub(armU.getWorldPosition(new THREE.Vector3())).angleTo(target.clone().sub(rigElbow)) > ELBOW_MAX;
       // #179, candidate: the joined hands held up, the follower's hand fitted into the leader's.
       const upright = hold === "hands" && essai("mainsCote");
       const shape = hold === "hands" ? (upright ? (follower ? GRIP.upright.hers : GRIP.upright.his) : follower ? HAND_SHAPES.closes : HAND_SHAPES.offers)
@@ -253,6 +262,12 @@ export class UpperBody {
         // The leader's hand: the palm on the rig's point, facing between his right and her, the fingers to the sky.
         const facing = new THREE.Vector3(...GRIP.upright.palm).transformDirection(r.chest.matrixWorld).setY(0).normalize();
         posed = this.take(this.arms[s], target, facing, new THREE.Vector3(0, 1, 0), low());
+      } else if (hold === "free" && folded) {
+        // #182: the rig's frame, alone, folds its raised forearm flat on the arm, the hand on the shoulder. No elbow
+        // does that: the forearm rises from the rig's elbow, as the frame means it, the palm inwards.
+        const out = s === "L" ? 1 : -1, chest = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z).transformDirection(r.chest.matrixWorld);
+        const rise = chest(out * RAISED.forearm[0], RAISED.forearm[1], RAISED.forearm[2]);
+        posed = this.pose(this.arms[s], rigElbow.clone().addScaledVector(rise, HAND.length()), rigElbow, chest(-out * RAISED.palm[0], RAISED.palm[1], RAISED.palm[2]));
       } else posed = this.pose(this.arms[s], target, rigElbow, normal);
       this.state[s] = { ...posed, target, hold, shape };
       this.shape(s, shape);

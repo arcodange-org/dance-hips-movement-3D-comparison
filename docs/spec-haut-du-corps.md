@@ -44,6 +44,14 @@ longueurs anatomiques, depuis l'articulation réelle de l'épaule.
 | Coude → main | 24 cm | poignet 23,6 cm, paume 29,3 cm |
 
 - **Coude** : deux segments résolus par `solveArm` (`src/cadre.ts`), le coude pliant du côté du coude du rig.
+- **Amplitude du coude (#182)** : un coude ne plie pas au-delà de 145° (`ELBOW_MAX`). Hors paire, le cadre du rig
+  replie l'avant-bras levé à 180° sur le bras, la main sur l'épaule : avec des cylindres le défaut ne se voit pas,
+  avec des os le bras se repliait à 167°, l'humérus en travers de la poitrine. Pour une main libre que le rig place
+  au-delà de l'amplitude, l'avant-bras monte depuis le coude du rig, vers le haut, un peu en avant et en dehors, paume
+  vers l'intérieur (`RAISED`, réglage à valider à l'œil) : c'est ce que la convention du cadre énonce. Le coude plie
+  alors de 106° au plus. Le rig stylisé et ses conventions ne changent pas ; en paire, rien ne change.
+
+  ![Seul, le bras levé : avant (en haut), après (en bas)](haut-du-corps/seul-bras-leve-avant-apres.png)
 - **Avant-bras** : le radius tourne autour de l'ulna (pronation), de −10° à 170° depuis la position anatomique
   (`PRONATION`). La paume se tourne vers le dos du partenaire (main posée sur l'omoplate), vers la paume de l'autre
   (mains jointes), sinon vers le corps. Les muscles de l'avant-bras suivent la torsion en cinq paliers.
@@ -115,6 +123,8 @@ guideur. Seul, dans les six styles : écart de paume 0 mm, tête de face. `dispo
 - Omoplates et clavicules fixes sur le thorax.
 - Coude jusqu'à 27° : les bras anatomiques sont plus longs que ceux du rig, ils plient davantage.
 - La pronation bute sur son amplitude dans certaines poses : la paume ne regarde alors pas exactement où il faudrait.
+- Hors paire, le cadre du rig lève le bras droit et croise le gauche (héritage du renommage des bras, #40), alors
+  qu'un guideur lève le gauche. La couche anatomique suit le rig ; l'inverser est une décision du propriétaire.
 - BodyParts3D 4.0 ne liste pas le grand dorsal.
 - La surbrillance des appuis ne touche pas ces pièces ; le lien « Partager » ne porte pas `haut=1`.
 - Ces mesures ne constituent pas une validation chorégraphique.
