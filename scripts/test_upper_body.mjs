@@ -71,11 +71,22 @@ const options = { boneMaterial: new THREE.MeshBasicMaterial(), muscleMaterial: (
     if (t < 0) { t = 0; s = Math.min(1, Math.max(0, -c / a)); } else if (t > 1) { t = 1; s = Math.min(1, Math.max(0, (b - c) / a)); }
     return A.a.clone().addScaledVector(d1, s).distanceTo(B.a.clone().addScaledVector(d2, t)) - A.r - B.r;
   };
+  // #185: the body of the left shoulder blade in the chest frame (m), measured on the anatomical model: 6 to 13 cm
+  // from the spine, 2 to 10 cm above the chest's origin. And the least the follower's left arm keeps over the
+  // leader's right arm: her elbow above his, the axes of the two arms apart (two arms' half-thicknesses).
+  const BLADE = { x: [0.06, 0.13], y: [0.02, 0.10] }, ARMS = { elbows: 0.03, gap: 0.09, open: 0.04 };
+  const nearest = (a0, a1, b0, b1) => {
+    const d1 = a1.clone().sub(a0), d2 = b1.clone().sub(b0), r = a0.clone().sub(b0), a = d1.dot(d1), e = d2.dot(d2), f = d2.dot(r), c = d1.dot(r), b = d1.dot(d2), den = a * e - b * b;
+    let s = den > 1e-12 ? Math.min(1, Math.max(0, (b * f - c * e) / den)) : 0, t = (b * s + f) / e;
+    if (t < 0) { t = 0; s = Math.min(1, Math.max(0, -c / a)); } else if (t > 1) { t = 1; s = Math.min(1, Math.max(0, (b - c) / a)); }
+    return [a0.clone().addScaledVector(d1, s), b0.clone().addScaledVector(d2, t)];
+  };
   for (const [label, dz, beats, opt] of cases) {
     const pair = [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];
     const uppers = pair.map(f => new api.UpperBody(f.r, model, options));
     const seen = { error: 0, holds: { back: 0, hands: 0, free: 0 }, elbow: [Infinity, 0], pronation: [Infinity, -Infinity], jump: 0, rigJump: 0, yaw: [Infinity, 0],
-      grip: 0, wrist: 0, facing: 0, crossed: [Infinity, 0], play: Infinity, thumbUp: Infinity, upright: Infinity };
+      grip: 0, wrist: 0, facing: 0, crossed: [Infinity, 0], play: Infinity, thumbUp: Infinity, upright: Infinity,
+      blade: { n: 0, off: 0, elbows: Infinity, gap: Infinity, over: Infinity, wrist: 0 } };
     const before = [{}, {}];
     for (let b = 0; b <= beats; b += 1 / 16) {
       pair.forEach((f, i) => api.applyPose(f.r, f.model, b, { ...opt, embrace: true, placement: "quinconce", follower: !!i, styleKey: "kizomba", amp: 1, plexus: true }));
@@ -114,6 +125,32 @@ const options = { boneMaterial: new THREE.MeshBasicMaterial(), muscleMaterial: (
           before[i][s] = [own, rigs];
         }
       });
+      // #185: while the leader's right hand is on its place on the follower's back (not slid along it, #93), his
+      // palm lies on her left shoulder blade and her left arm passes over his right arm.
+      const hisR = uppers[0].state.R, herChest = pair[1].r.chest;
+      if (hisR.hold === "back" && herChest.worldToLocal(hisR.target.clone()).distanceTo(new THREE.Vector3(...api.CADRE_SITES.scapulaL)) < 0.03) {
+        const p = herChest.worldToLocal(uppers[0].hand("R").palm.clone()), B = seen.blade;
+        const arm = (u, s) => ["arm", "fore0", "hand"].map(n => world(u.joints.get(n + s))), his = arm(uppers[0], "R"), hers = arm(uppers[1], "L");
+        B.n++; B.off = Math.max(B.off, BLADE.x[0] - p.x, p.x - BLADE.x[1], BLADE.y[0] - p.y, p.y - BLADE.y[1]);
+        B.elbows = Math.min(B.elbows, hers[1].y - his[1].y); B.wrist = Math.max(B.wrist, hisR.wrist);
+        // Where the two arms are closest: how far apart, and how much higher hers is there.
+        let near = null;
+        for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) {
+          const [q, r] = nearest(hers[i], hers[i + 1], his[j], his[j + 1]), d = q.distanceTo(r);
+          if (!near || d < near.d) near = { d, over: q.y - r.y };
+        }
+        B.gap = Math.min(B.gap, near.d); B.over = Math.min(B.over, near.over);
+      }
+    }
+    if (seen.blade.n) {
+      const B = seen.blade;
+      assert(B.off < 0.001, `${label}: the leader's right palm leaves the body of the follower's shoulder blade by ${(B.off * 100).toFixed(1)} cm (#185)`);
+      assert(B.wrist <= api.BACK.wrist + 1e-9, `${label}: the leader's right wrist bends beyond its range on her back (#185)`);
+      // Closed position: her elbow above his, the two arms further apart than their thickness. While the couple
+      // opens (the sorties) his arm stretches and his elbow rises: her arm stays above his where they are closest.
+      const closed = !label.startsWith("sortie");
+      assert(B.over > 0 && B.gap > (closed ? ARMS.gap : ARMS.open) && (!closed || B.elbows > ARMS.elbows),
+        `${label}: the follower's left arm does not pass over the leader's right arm (where they are closest hers is ${(B.over * 100).toFixed(1)} cm higher, ${(B.gap * 100).toFixed(1)} cm away; her elbow ${(B.elbows * 100).toFixed(1)} cm above his) (#185)`);
     }
     assert(seen.error < 0.001, `${label}: the palm misses the rig's hand by ${(seen.error * 1000).toFixed(1)} mm`);
     assert(seen.grip < 0.06, `${label}: the follower's palm is ${(seen.grip * 100).toFixed(1)} cm from the leader's (#179)`);
@@ -127,11 +164,12 @@ const options = { boneMaterial: new THREE.MeshBasicMaterial(), muscleMaterial: (
       "celui du rig (cm)": +(seen.rigJump * 100).toFixed(1), "port de tête (°)": seen.yaw.map(x => Math.round(x * 180 / Math.PI)).join(" à "),
       "mains : dos / jointes / libres": `${seen.holds.back} / ${seen.holds.hands} / ${seen.holds.free}`,
       "prise : paumes (cm)": +(seen.grip * 100).toFixed(1), "poignet (°)": Math.round(seen.wrist * 180 / Math.PI),
-      "paumes face à face (°)": Math.round(seen.facing * 180 / Math.PI), "doigts / index du guideur (°)": seen.crossed.map(x => Math.round(x * 180 / Math.PI)).join(" à "), "jeu entre os (mm)": +(seen.play * 1000).toFixed(1) });
+      "paumes face à face (°)": Math.round(seen.facing * 180 / Math.PI), "doigts / index du guideur (°)": seen.crossed.map(x => Math.round(x * 180 / Math.PI)).join(" à "), "jeu entre os (mm)": +(seen.play * 1000).toFixed(1),
+      "main au dos : poses": seen.blade.n, "coude d'elle au-dessus du sien (cm)": seen.blade.n ? +(seen.blade.elbows * 100).toFixed(1) : "—", "écart des deux bras (cm)": seen.blade.n ? +(seen.blade.gap * 100).toFixed(1) : "—", "elle plus haut, au plus près (cm)": seen.blade.n ? +(seen.blade.over * 100).toFixed(1) : "—", "son poignet (°)": Math.round(seen.blade.wrist * 180 / Math.PI) });
     uppers.forEach(u => u.dispose());
   }
   console.table(table);
-  console.log("PASS haut du corps en paire : paume sur la main du rig, longueurs constantes, pronation et port de tête dans leur amplitude");
+  console.log("PASS haut du corps en paire : paume sur la main du rig (au dos : sur l'omoplate, le bras de la suiveuse par-dessus, #185), longueurs constantes, pronation et port de tête dans leur amplitude");
 }
 
 // #183: a dancer's own hold. With `grip` on the follower's layer her palm stands further from his; without it,
