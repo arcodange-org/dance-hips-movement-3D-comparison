@@ -20,14 +20,21 @@ export const hasArms = (r: MaybeArmRig | null | undefined): r is ArmRig =>
 export const CADRE_SITES = {
   /** Leader's right hand on the follower's left shoulder blade, at the edge of her back: reached from
    * the side, the forearm lies along her flank instead of going through her torso (measured: at most
-   * 1.4 cm into the torso box, against 5.7 cm on the middle of the shoulder blade). */
+   * 1.4 cm into the torso box, against 5.7 cm on the middle of the shoulder blade). With the anatomical
+   * upper body this point is where his wrist comes; his palm lies further in, on the shoulder blade (#185,
+   * `BACK` in upperBody.ts). */
   scapulaL: [0.15, 0.03, -0.1] as Vec3,
   /** Follower's left hand on the leader's right shoulder blade (same reasoning). */
   scapulaR: [-0.15, 0.03, -0.1] as Vec3,
   /** #180: follower's left hand on the leader's right shoulder, against its front and its side. */
   shoulderR: [-0.215, 0.125, 0.04] as Vec3,
-  /** #180: where the follower's left elbow seeks the leader's right arm: under his shoulder, on its outer side. */
-  armR: [-0.27, -0.2, 0.04] as Vec3,
+  /** #180, #185: where the follower's left elbow tends: beside the leader's right arm, on its outer side, at the
+   * height of his chest. Her arm passes over his: her elbow comes above his elbow (kept at his ribs), her upper arm
+   * outside his forearm, which goes under her armpit to her shoulder blade. (Under his shoulder, as first set by
+   * #180, her elbow hung lower than his and the two arms ran side by side, closer than their thickness.) */
+  armR: [-0.36, 0, 0.06] as Vec3,
+  /** #180's place of her elbow, under his shoulder: a candidate to film, inert without `?essai=coudeBas`. */
+  armRLow: [-0.27, -0.2, 0.04] as Vec3,
   /** Leader's right elbow kept towards his right ribs (owner gesture: elbow to the ribs). */
   ribsR: [-0.15, -0.10, 0] as Vec3,
 };
@@ -105,9 +112,9 @@ export function solveFrame(own: ArmRig, partner: ArmRig, follower: boolean) {
   const arms = follower ? {
     // Follower (#180): left hand on the leader's right shoulder, against its front and side; her left elbow
     // seeks his right arm, on which she leans when he lifts her. Right hand in the leader's left hand, elbow down.
-    // (The pole is under his right shoulder, on the outer side, where his upper arm hangs: her forearm lies on
-    // his arm, outside his torso. It does not follow his forearm, so her elbow never swings with it.)
-    L: { target: site(partner, CADRE_SITES.shoulderR), pole: site(partner, CADRE_SITES.armR) },
+    // (The pole is beside his right arm, on the outer side, at the height of his chest: her arm passes over his
+    // (#185), outside his torso. It does not follow his forearm, so her elbow never swings with it.)
+    L: { target: site(partner, CADRE_SITES.shoulderR), pole: site(partner, essai("coudeBas") ? CADRE_SITES.armRLow : CADRE_SITES.armR) },
     R: { target: joined, pole: down(own, "R", 0.25, -0.35) },
   } : {
     // Leader: right hand on the follower's left shoulder blade, elbow towards his right ribs; left hand
