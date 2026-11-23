@@ -40,10 +40,10 @@ export const CADRE = {
   /** #178: how deep (m) his arm would enter her torso, aimed at her back, for the hand to have fully left it.
    * Below that depth the hand is on its way: no jump between the back and the open frame. */
   leave: 0.05,
-  /** #179 (election, `?essai=`): the joined hands carried to the couple's side instead of between the two
-   * chests. `out`: metres outwards from the shoulders' midpoint; `drop`: metres lower than `handsDrop` (negative:
-   * higher). `handsSide` (owner, 23 November 2026): the middle of the hands at shoulder height, so the palm's
-   * centre a little under the shoulders and the fingers above them. */
+  /** #179: the joined hands are carried to the couple's side, not between the two chests. `out`: metres outwards
+   * from the shoulders' midpoint; `drop`: metres lower than `handsDrop` (negative: higher). `handsSide` (owner's
+   * choice, 23 November 2026): the middle of the hands at shoulder height, so the palm's centre a little under the
+   * shoulders. `handsLow`: a lower candidate, filmed with `?essai=mainsBasses`. */
   handsSide: { out: 0.2, drop: -0.05 }, handsLow: { out: 0.14, drop: 0.14 },
 };
 
@@ -94,13 +94,12 @@ export function solveFrame(own: ArmRig, partner: ArmRig, follower: boolean) {
   const leaderRig = follower ? partner : own, followerRig = follower ? own : partner;
   const joined = shoulder(leaderRig, "L").add(shoulder(followerRig, "R")).multiplyScalar(0.5);
   joined.y -= CADRE.handsDrop;
-  // #179: candidates of the election, inert without `?essai=`.
-  const carried = essai("mainsCote") ? CADRE.handsSide : essai("mainsBasses") ? CADRE.handsLow : null;
-  if (carried) {
-    const centre = leaderRig.chest.getWorldPosition(new THREE.Vector3()).add(followerRig.chest.getWorldPosition(new THREE.Vector3())).multiplyScalar(0.5);
-    joined.addScaledVector(joined.clone().sub(centre).setY(0).normalize(), carried.out);
-    joined.y -= carried.drop;
-  }
+  // #179 (owner's choice, 23 November 2026): the hands are carried to the couple's side, their middle at shoulder
+  // height. `handsLow` stays a candidate to film, inert without `?essai=mainsBasses`.
+  const carried = essai("mainsBasses") ? CADRE.handsLow : CADRE.handsSide;
+  const centre = leaderRig.chest.getWorldPosition(new THREE.Vector3()).add(followerRig.chest.getWorldPosition(new THREE.Vector3())).multiplyScalar(0.5);
+  joined.addScaledVector(joined.clone().sub(centre).setY(0).normalize(), carried.out);
+  joined.y -= carried.drop;
   const down = (rig: ArmRig, s: "L" | "R", out: number, drop: number) =>
     site(rig, [(s === "L" ? 1 : -1) * out, drop, 0]);
   const arms = follower ? {

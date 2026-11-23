@@ -13,8 +13,10 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
 - **Prise des mains (#179, R36)** : la main droite de la suiveuse dans la main gauche du guideur. Aujourd'hui les
   mains jointes sont entre les deux poitrines (cachées, coudes repliés). Le propriétaire a précisé qu'il existe
   plusieurs attitudes et a décrit la prise (phalanges serrées, pouce ouvert, main de la suiveuse en travers de celle
-  du guideur, refermée autour de son index, pouces croisés). Attitudes filmables : `?essai=mainsCote`,
-  `?essai=mainsBasses`, inertes sans le paramètre ([dossier](docs/elections/2026-11-22-mains/README.md)).
+  du guideur, refermée autour de son index, pouces croisés). Dossier :
+  [élection des mains](docs/elections/2026-11-22-mains/README.md) ; **choix du 23 novembre : l'attitude B**, devenue le
+  comportement (mains sur le côté du couple, leur milieu à hauteur d'épaule, emboîtées) ; C reste filmable
+  (`?essai=mainsBasses`).
   Fait dans le haut du corps anatomique : doigts articulés, formes de main, poignet de la suiveuse articulé, sa main
   posée en travers de celle du guideur ([spec](docs/spec-haut-du-corps.md)). Reste : son poignet va au bout de son
   amplitude, les doigts ne se serrent pas, et le rig stylisé (sans `haut=1`) n'a pas de doigts.
@@ -22,7 +24,7 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   bas). Il a corrigé B en trois temps : mains levées (leur milieu à hauteur d'épaule) ; paume du guideur à mi-chemin
   entre sa droite et la suiveuse, sa main vers le ciel ; puis l'emboîtement — les quatre doigts de la suiveuse, d'un
   seul bloc, entre le pouce et l'index du guideur, paume contre paume, son pouce sous le sien, sans qu'os ni muscles
-  se traversent. C'est fait dans le candidat `?essai=mainsCote` (`CADRE.handsSide`, `GRIP.upright` ; sonde
+  se traversent. C'est fait dans l'attitude B (`CADRE.handsSide`, `GRIP.upright` ; sonde
   `scripts/search_prise_mains.mjs`, mesures `scripts/mesure_essai_mains.mjs`) : os des deux mains au contact sans se
   traverser. Puis il a donné une photo de tenue de salon en référence : la prise a tourné d'un quart de tour dans le plan
   des paumes — pouce du guideur vers le ciel, ses doigts refermés sur le tranchant de la main de la suiveuse, dont la

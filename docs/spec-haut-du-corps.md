@@ -76,11 +76,12 @@ Ces amplitudes sont des paramètres de ce modèle, pas des normes cliniques ni d
   le bas de sa paume au bord de la main du guideur, ses doigts vers son index, son pouce vers le sien. Son poignet
   s'articule pour cela (jusqu'à 57° hors de l'axe de l'avant-bras), et sa main peut tourner de 40° sur la paume du
   guideur vers la ligne de son propre avant-bras.
-- **Attitude sur le côté, mains emboîtées** (candidat `?essai=mainsCote`, `GRIP.upright` ; précisions du propriétaire,
+- **Attitude sur le côté, mains emboîtées** (choisie par le propriétaire le 23 novembre 2026, comportement de
+  l'application ; `GRIP.upright` ; ses précisions,
   23 novembre 2026, avec une [photo d'une tenue de salon, Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Ballroom_dance_exhibition.jpg) en référence) : la paume du guideur est au point du rig, tournée à
   mi-chemin entre sa droite et la suiveuse (`palm`) ; son pouce pointe vers le ciel, ses doigts vont vers l'avant, à 29°
   au-dessus de l'horizontale (`lift`), et se referment d'un seul bloc sur le tranchant de la main de la suiveuse,
-  jusque sur le dos de sa main ; son poignet s'articule lui aussi, son pouce s'ouvre à angle droit (`his`). La main de
+  jusque sur le dos de sa main ; son poignet s'articule lui aussi, son pouce s'ouvre à angle droit, légèrement replié (`his`). La main de
   la suiveuse se place dans le repère de la sienne : dressée, à 79° de ses doigts vers son pouce (`across`), paume
   contre paume (`at`, `roll`, `pitch`), ses quatre doigts d'un seul bloc entre son pouce et son index, refermés autour
   de la palmure, son pouce sous le sien (`hers`). Aucun os ne traverse l'autre main : les constantes viennent d'une
@@ -88,7 +89,7 @@ Ces amplitudes sont des paramètres de ce modèle, pas des normes cliniques ni d
   guideur). Son coude tend sous sa main (`drop`) ; son poignet peut plier jusqu'à 72° dans cette prise (`wrist`) : les
   mains sont près des deux corps, son avant-bras arrive par le dos de sa main, qui pousse comme contre un mur.
 
-  | `ESSAI=mainsCote node scripts/mesure_essai_mains.mjs` | Sur place | Dans les figures |
+  | `node scripts/mesure_essai_mains.mjs` | Sur place | Dans les figures |
   |---|---|---|
   | Milieu des mains / moyenne des épaules | 1,6 cm dessous ; haut des doigts 2,8 cm au-dessus | 1,6 à 2 cm dessous |
   | Paume du guideur / sa droite | 45° | 39° à 46° |

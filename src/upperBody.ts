@@ -102,7 +102,7 @@ interface Arm {
  * may bend away from the forearm's axis (rad); `swivel`: how far her hand may turn on his palm, away from the
  * line to his index, towards where her forearm comes from (rad). */
 export const GRIP = { shift: 0.012, gap: 0.004, wrist: 1.0, swivel: 0.7,
-  /** Hands held up at the couple's side (#179, candidate `?essai=mainsCote`; owner, 23 November 2026).
+  /** Hands held up at the couple's side (#179; the owner's choice, 23 November 2026).
    * As in a ballroom hold (reference photograph, see the election's README): the leader's thumb points to the sky,
    * his fingers go forwards, raised by `lift` (rad), and close in one block round the edge of the follower's hand,
    * onto its back; `palm`: where his palm is asked to face, in his chest frame (the palm's normal leans 9° towards
@@ -119,7 +119,7 @@ export const GRIP = { shift: 0.012, gap: 0.004, wrist: 1.0, swivel: 0.7,
   upright: {
     palm: [-1, 0, 0.73] as V3, across: 1.373, at: [0.013, -0.01, 0.025] as V3, roll: 0.12, pitch: -0.116,
     lift: 0.5,
-    his: { fingers: [1.35, 0.437, 0.913], thumb: [1.55, 0.05, 0.1] } as HandShape,
+    his: { fingers: [1.35, 0.437, 0.913], thumb: [1.55, 0.35, 0.35] } as HandShape,
     hers: { fingers: [1, 1.011, 0.306], thumb: [0.459, 0, 0.573] } as HandShape,
     elbow: [0.25, -1, 0.1] as V3, drop: 0.1, wrist: 1.25,
   } };
@@ -235,8 +235,9 @@ export class UpperBody {
       // Flexion the rig asks of the elbow: the angle from the line of its arm to its forearm.
       const armU = r["armU" + s] as THREE.Object3D | undefined;
       const folded = !!armU && rigElbow.clone().sub(armU.getWorldPosition(new THREE.Vector3())).angleTo(target.clone().sub(rigElbow)) > ELBOW_MAX;
-      // #179, candidate: the joined hands held up, the follower's hand fitted into the leader's.
-      const upright = hold === "hands" && essai("mainsCote");
+      // #179: the joined hands held up, the follower's hand fitted into the leader's (the lower candidate
+      // `?essai=mainsBasses` keeps the hold of 22 November).
+      const upright = hold === "hands" && !essai("mainsBasses");
       const shape = hold === "hands" ? (upright ? (follower ? GRIP.upright.hers : GRIP.upright.his) : follower ? HAND_SHAPES.closes : HAND_SHAPES.offers)
         : hold === "back" ? HAND_SHAPES.flat : HAND_SHAPES.relaxed;
       // #179: the follower's hand takes the leader's, as his is posed (his layer of this image or of the last).
