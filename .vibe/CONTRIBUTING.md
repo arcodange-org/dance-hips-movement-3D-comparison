@@ -38,6 +38,9 @@ standard d'une contribution (phase) :
 - GIFs motion design : `npm run build && npm run capture` → `docs/gifs/` ; chaque capture a une
   entrée `DEMOS` dans `src/components/DemoOverlay.tsx`. Relecture visuelle des frames extraites
   (2+ frames à des temps calculés depuis le bpm).
+- Planches de l'atlas anatomique (#132) : `npm run build && node scripts/capture_atlas.mjs --mouvement <id>`
+  → `docs/atlas/mouvements/<id>/` (généré, jamais retouché à la main) ; `--meta-seul` si seules les
+  mesures changent. `scripts/test_atlas_planches.mjs` signale une planche périmée par le moteur.
 - README : galerie avec `<details>` « Détails & source » sous chaque GIF (brief + source +
   crosslink docs) ; documenter tout nouveau paramètre d'URL et toute option d'interface.
 - Sources externes : citations **verbatim** avec URL dans `docs/styles-de-danse.md` ou

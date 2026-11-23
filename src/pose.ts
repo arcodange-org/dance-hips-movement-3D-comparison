@@ -83,6 +83,9 @@ export interface PoseOptions {
   trunkOffset: number[] | null;
   /** #69: the partner's `rootOffset` (its own frame), for the plexus lean towards the partner. */
   partnerRootOffset: { x: number; z: number } | null;
+  /** #132 atlas: anatomical neutral stance. No style motion and no dance posture (lean 0, knee 0); the
+   * rest of the pipeline (pelvis offsets, upper-trunk isolation, leg IK, flat feet) is unchanged. */
+  neutral?: boolean;
 }
 export const DEFAULT_POSE: PoseOptions = {
   styleKey: "kizomba", amp: 1, travel: 0, dir: 1, plant: true, iso: true, cadre: true,
@@ -400,6 +403,8 @@ export const onBeatShift = (o: { movement: MovementKey; sortie?: boolean; embrac
   // (`onBeat: false`) keeps the clock's phase: its basic step must join the figures, which keep theirs.
   o.onBeat !== false && (o.movement === "none" || o.movement === "temps3" || !o.embrace && o.movement.startsWith("sortie")) && !o.sortie ? ON_BEAT_SHIFT : 0;
 
+const NEUTRAL_POSTURE = { lean: 0, knee: 0 };
+
 /** #157: phase of the style's hip pattern along a figure, read on the leader's own loads (R13: « le ginga
  * déclenché à chaque alternance droite/gauche »). The style puts the full weight on the left foot at
  * phase 0.5 and on the right at 1.5: on a support, the phase is that support's plus the share of the
@@ -586,10 +591,10 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
       mixStyleState(r, swung, styleState(r), 1 - gingaRoom.sway);
     }
   };
-  applyStyle(o.styleKey);
+  if (!o.neutral) applyStyle(o.styleKey);
   // #85: blend towards another style's pose (the guide mode changes style at a boundary: the basic step
   // in suave, the figures in the chosen style); `weight` 1 = the other style entirely.
-  const blend = o.styleBlend && o.styleBlend.weight > 0 && STYLES[o.styleBlend.key] && o.styleBlend.key !== o.styleKey ? o.styleBlend : null;
+  const blend = !o.neutral && o.styleBlend && o.styleBlend.weight > 0 && STYLES[o.styleBlend.key] && o.styleBlend.key !== o.styleKey ? o.styleBlend : null;
   if (blend) {
     const mine = styleState(r);
     resetRig(r);
@@ -632,7 +637,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   // two opposing knees through one another. Leg reach still determines pelvis height.
   const styleY = figure ? Math.max((figure as { dip?: number }).dip ?? -0.008, r.root.position.y * 0.25) : r.root.position.y;
   const desiredKnee = { L: r.kneeL.rotation.x, R: r.kneeR.rotation.x };
-  const ownPosture = STYLES[o.styleKey].posture, otherPosture = blend ? STYLES[blend.key].posture : ownPosture, bw = blend?.weight ?? 0;
+  const ownPosture = o.neutral ? NEUTRAL_POSTURE : STYLES[o.styleKey].posture, otherPosture = blend ? STYLES[blend.key].posture : ownPosture, bw = blend?.weight ?? 0;
   const posture = { lean: ownPosture.lean + (otherPosture.lean - ownPosture.lean) * bw, knee: ownPosture.knee + (otherPosture.knee - ownPosture.knee) * bw };
   const feet = figure?.feet ?? plannedFeet(beat, o, model);
   if (figure) {

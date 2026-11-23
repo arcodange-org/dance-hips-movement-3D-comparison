@@ -14,6 +14,7 @@ import type { SortieFilleVariant } from "../sortieFille";
 import type { CouplePlacement } from "../placement";
 import { DEFAULT_SORTIE_CONTRA, type SortieVariant } from "../sortieGarcon";
 import { IDA_DEFAULT, type IdaVariant } from "../idaPaire";
+import { applyAtlasPose, type AtlasMouvement } from "../atlas";
 import {
   MUSCLES_URL,
   DRACO_DECODER_PATH,
@@ -68,6 +69,8 @@ export interface RigProps {
   ida?: boolean;
   /** #69 guide mode: the session picks the pair figure and its local beat (docs/spec-mode-guidage-poc.md). */
   guide?: GuideSession | null;
+  /** #132 atlas: the rig holds one joint movement of the manifest at `angleDeg` (docs/spec-atlas-anatomique.md). */
+  atlas?: { mouvement: AtlasMouvement; angleDeg: number; variante?: string | null } | null;
   /** #176: anatomical bones and muscles of the trunk, arms and hands in place of the stylised volumes
    * (docs/spec-haut-du-corps.md) ; `{ carriage: false }` keeps the heads face to face. */
   upperBody?: boolean | { carriage?: boolean };
@@ -110,6 +113,7 @@ export default function Rig({
   temps3 = false,
   ida = false,
   guide = null,
+  atlas = null,
   upperBody = false,
 }: RigProps) {
   const torsoOp = torsoOpacity ?? TORSO_OPACITY;
@@ -217,7 +221,7 @@ export default function Rig({
       }
     }
     const guided = guide && side && placement !== undefined ? guide.sample(clock.beat) : null;
-    const result = guided
+    const result = atlas ? applyAtlasPose(r, model, atlas.mouvement, atlas.angleDeg, atlas.variante ?? null) : guided
       ? applyGuidePose(r, model, guided, { styleKey, amp, iso, cadre, placement, contraposition: contraposition ?? 1 },
         side === "follower", guideHeights.current)
       : applyPose(r, model, clock.beat + phaseOffset, {

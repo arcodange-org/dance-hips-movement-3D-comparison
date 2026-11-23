@@ -6,8 +6,11 @@ import "./index.css";
 // #150: `vitrine=1` opens the same view as a showcase (docs/spec-vitrine-danse-auto.md).
 const query = new URLSearchParams(window.location.search);
 const guidage = query.get("guidage") === "1" || query.get("vitrine") === "1";
+// #132: anatomical atlas plates (docs/spec-atlas-anatomique.md), a separate view: `?atlas=<id>`.
+const atlas = query.has("atlas");
 // #31: each view is its own chunk; only the one opened is downloaded.
-const View = guidage ? lazy(() => import("./components/GuidageApp")) : lazy(() => import("./App"));
+const View = guidage ? lazy(() => import("./components/GuidageApp"))
+  : atlas ? lazy(() => import("./components/AtlasApp")) : lazy(() => import("./App"));
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

@@ -91,3 +91,20 @@ export function resolveView(
   const dist = hasZ ? Math.min(20, Math.max(0.5, zoom as number)) : va.dist;
   return { position: posFromView(preset.target, az, va.el, dist), target: preset.target };
 }
+
+// #132 — atlas anatomique : cinq vues autour du sujet, par leur azimut en degrés (0 = caméra devant
+// le sujet, côté +Z ; 90 = côté +X, la gauche du sujet). Élévation et distance du preset `hip`
+// (bassin et jambes). Voir docs/spec-atlas-anatomique.md, D9.
+export const ATLAS_VIEWS = { face: 0, troisQuarts: 45, profil: 90, troisQuartsDos: 135, dos: 180 } as const;
+export type AtlasVue = keyof typeof ATLAS_VIEWS;
+export const ATLAS_CAM = "hip";
+export const ATLAS_FOV = 42;
+
+/** Azimut effectif : pour un mouvement du seul côté droit (x < 0), la caméra passe de ce côté. */
+export function atlasAzimut(vue: AtlasVue, cote: "R" | "L" | "les deux" = "les deux"): number {
+  return ATLAS_VIEWS[vue] * (cote === "R" ? -1 : 1);
+}
+
+export function atlasView(vue: AtlasVue, cote: "R" | "L" | "les deux" = "les deux"): CamPreset {
+  return resolveView(CAM_PRESETS[ATLAS_CAM], atlasAzimut(vue, cote), null);
+}

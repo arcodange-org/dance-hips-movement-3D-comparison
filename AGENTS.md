@@ -63,6 +63,13 @@ vue `src/components/GuidageApp.tsx`, `scripts/test_guidage.mjs`) ; recherche : [
 Explications des transitions (leader engagé, suiveur reçu, contacts) : [spec](docs/spec-transitions.md)
 (`src/transitions.ts` pur, `src/components/TransitionCard.tsx`, `scripts/test_transitions.mjs`).
 
+Atlas anatomique ouvert (#132) : [spec](docs/spec-atlas-anatomique.md), [dossier](docs/atlas/README.md)
+(`src/atlas.ts` pur, `src/atlasManifest.ts`, vue `?atlas=` `src/components/AtlasApp.tsx`, `scripts/capture_atlas.mjs`,
+`scripts/atlas_meta.mjs`, `scripts/test_atlas_manifest.mjs`, `scripts/test_atlas_planches.mjs`) ;
+`docs/atlas/mouvements/<id>/` est généré (ne pas modifier à la main) et doit rester à jour avec le moteur.
+Règle de pose soumise au vote du propriétaire : `ATLAS_ELECTIONS` (règles candidates, règle retenue pour la planche, règle de la danse), `?atlas=<id>&variante=<règle>`,
+`capture_atlas.mjs --variante <règle>` (un GIF comparatif dans `docs/gifs/`), page `docs/elections/` ; la planche suit la règle retenue.
+
 Règles de mouvement du propriétaire, consolidées et vérifiables : [`docs/regles-proprietaire.md`](docs/regles-proprietaire.md).
 
 Décision de mouvement en attente du propriétaire (#148) : filmer les candidats et les lui faire élire

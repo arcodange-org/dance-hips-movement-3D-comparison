@@ -1,0 +1,422 @@
+{
+  "atlas": "atlas-anatomique",
+  "version": 1,
+  "issue": 132,
+  "mouvement": {
+    "id": "bassin-anteversion",
+    "label": "Antéversion / rétroversion du bassin (pitch)",
+    "labelEn": "Pelvic tilt (pitch)",
+    "cote": "les deux",
+    "priorite": 2
+  },
+  "generation": "Généré paramétriquement sur squelette réel : ni capture de mouvement, ni photo de modèle, ni relecture par un professeur d'anatomie.",
+  "niveauDePreuve": "proposition",
+  "licence": {
+    "assetsGeneres": "CC BY-SA 4.0",
+    "maillages": "BodyParts3D v4.0, (c) DBCLS, CC BY-SA 2.1 Japan",
+    "textesAnatomiques": "Gray's Anatomy 1918 (domaine public) ; Wikidata (CC0)",
+    "note": "Format inspiré d'anatobase.com (planches multi-angles + fiches muscle par muscle) sans copier ni marque ni contenu.",
+    "attribution": "Squelette et muscles : BodyParts3D v4.0, © DBCLS, CC BY-SA 2.1 Japan"
+  },
+  "limites": [
+    "Illustratif : aucune validation médicale ni chorégraphique.",
+    "Pose neutre du moteur : pieds à l'écartement et à l'ouverture natifs du squelette, genoux fléchis d'au moins 0,12 rad par l'IK (jambe jamais verrouillée).",
+    "Bassin en chaîne fermée, pieds plantés : la bascule se fait autour de l'axe des centres de hanche, les jambes ne bougent pas.",
+    "Le buste reste vertical et se décale d'avant en arrière avec le haut du bassin. La courbure lombaire qui accompagne la bascule chez une personne n'est pas montrée.",
+    "Tête et bras : volumes stylisés, pas un maillage anatomique ; bras en cadre de danse. Tronc : montré par ses muscles (BodyParts3D), sans les volumes gris du rig. Le haut du tronc compense le bassin (iso=1)."
+  ],
+  "articulation": {
+    "rig": "glb",
+    "noeud": "Pelvis",
+    "axeLocal": "x",
+    "axeMonde": [
+      1,
+      0,
+      0
+    ],
+    "signe": "angle positif : le haut du bassin bascule vers l'avant (antéversion)"
+  },
+  "romDeg": {
+    "manifeste": [
+      -15,
+      15
+    ],
+    "mesuree": [
+      -15,
+      15
+    ],
+    "ecartMaxDeg": 0,
+    "methode": "angle signé du quaternion monde du nœud Pelvis, relatif à la pose neutre (angle 0), autour de l'axe monde"
+  },
+  "frames": [
+    {
+      "index": 0,
+      "angleDeg": -15,
+      "mesure": {
+        "angleDeg": -15,
+        "horsAxeDeg": 0,
+        "ecartHanchesMm": 0.95,
+        "avanceHanchesMm": 0.14,
+        "sacrumHauteurMm": 30.08,
+        "sacrumAvanceMm": -50.17,
+        "genouDeg": {
+          "R": 6.9,
+          "L": 6.88
+        },
+        "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
+        "bassinMm": 881.97,
+        "solMm": 0
+      }
+    },
+    {
+      "index": 1,
+      "angleDeg": -11.25,
+      "mesure": {
+        "angleDeg": -11.25,
+        "horsAxeDeg": 0,
+        "ecartHanchesMm": 0.94,
+        "avanceHanchesMm": 0.2,
+        "sacrumHauteurMm": 33.3,
+        "sacrumAvanceMm": -48.1,
+        "genouDeg": {
+          "R": 6.88,
+          "L": 6.88
+        },
+        "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
+        "bassinMm": 881.98,
+        "solMm": 0
+      }
+    },
+    {
+      "index": 2,
+      "angleDeg": -7.5,
+      "mesure": {
+        "angleDeg": -7.5,
+        "horsAxeDeg": 0,
+        "ecartHanchesMm": 0.92,
+        "avanceHanchesMm": 0.26,
+        "sacrumHauteurMm": 36.37,
+        "sacrumAvanceMm": -45.82,
+        "genouDeg": {
+          "R": 6.88,
+          "L": 6.91
+        },
+        "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
+        "bassinMm": 881.97,
+        "solMm": 0
+      }
+    },
+    {
+      "index": 3,
+      "angleDeg": -3.75,
+      "mesure": {
+        "angleDeg": -3.75,
+        "horsAxeDeg": 0,
+        "ecartHanchesMm": 0.9,
+        "avanceHanchesMm": 0.32,
+        "sacrumHauteurMm": 39.29,
+        "sacrumAvanceMm": -43.34,
+        "genouDeg": {
+          "R": 6.88,
+          "L": 6.96
+        },
+        "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
+        "bassinMm": 881.96,
+        "solMm": 0
+      }
+    },
+    {
+      "index": 4,
+      "angleDeg": 0,
+      "mesure": {
+        "angleDeg": 0,
+        "horsAxeDeg": 0,
+        "ecartHanchesMm": 0.88,
+        "avanceHanchesMm": 0.38,
+        "sacrumHauteurMm": 42.04,
+        "sacrumAvanceMm": -40.68,
+        "genouDeg": {
+          "R": 6.88,
+          "L": 7.01
+        },
+        "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
+        "bassinMm": 881.95,
+        "solMm": 0
+      }
+    },
+    {
+      "index": 5,
+      "angleDeg": 3.75,
+      "mesure": {
+        "angleDeg": 3.75,
+        "horsAxeDeg": 0,
+        "ecartHanchesMm": 0.85,
+        "avanceHanchesMm": 0.44,
+        "sacrumHauteurMm": 44.61,
+        "sacrumAvanceMm": -37.84,
+        "genouDeg": {
+          "R": 6.88,
+          "L": 7.07
+        },
+        "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
+        "bassinMm": 881.93,
+        "solMm": 0
+      }
+    },
+    {
+      "index": 6,
+      "angleDeg": 7.5,
+      "mesure": {
+        "angleDeg": 7.5,
+        "horsAxeDeg": 0,
+        "ecartHanchesMm": 0.82,
+        "avanceHanchesMm": 0.49,
+        "sacrumHauteurMm": 46.99,
+        "sacrumAvanceMm": -34.84,
+        "genouDeg": {
+          "R": 6.88,
+          "L": 7.14
+        },
+        "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
+        "bassinMm": 881.92,
+        "solMm": 0
+      }
+    },
+    {
+      "index": 7,
+      "angleDeg": 11.25,
+      "mesure": {
+        "angleDeg": 11.25,
+        "horsAxeDeg": 0,
+        "ecartHanchesMm": 0.79,
+        "avanceHanchesMm": 0.54,
+        "sacrumHauteurMm": 49.17,
+        "sacrumAvanceMm": -31.7,
+        "genouDeg": {
+          "R": 6.88,
+          "L": 7.21
+        },
+        "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
+        "bassinMm": 881.9,
+        "solMm": 0
+      }
+    },
+    {
+      "index": 8,
+      "angleDeg": 15,
+      "mesure": {
+        "angleDeg": 15,
+        "horsAxeDeg": 0,
+        "ecartHanchesMm": 0.75,
+        "avanceHanchesMm": 0.59,
+        "sacrumHauteurMm": 51.14,
+        "sacrumAvanceMm": -28.41,
+        "genouDeg": {
+          "R": 6.88,
+          "L": 7.3
+        },
+        "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
+        "bassinMm": 881.88,
+        "solMm": 0
+      }
+    }
+  ],
+  "unites": {
+    "angleDeg": "degrés",
+    "horsAxeDeg": "écart entre l'axe de rotation mesuré et l'axe monde attendu, degrés",
+    "ecartHanchesMm": "hauteur du centre de hanche gauche moins celle du droit, mm",
+    "avanceHanchesMm": "avancée du centre de hanche gauche par rapport au droit, mm (positif : gauche devant)",
+    "sacrumHauteurMm": "hauteur du centre du sacrum au-dessus du milieu des centres de hanche, mm",
+    "sacrumAvanceMm": "avancée du centre du sacrum par rapport au milieu des centres de hanche, mm (négatif : derrière)",
+    "genouDeg": "flexion du genou, degrés (0 = jambe tendue)",
+    "thoraxDeg": "inclinaison du thorax par rapport à la verticale, degrés",
+    "thoraxRotationDeg": "rotation du thorax par rapport à la pose neutre, tous axes confondus, degrés",
+    "bassinMm": "hauteur du centre du bassin au-dessus du sol, mm",
+    "solMm": "hauteur du sommet osseux le plus bas, mm (0 = au sol)"
+  },
+  "vues": [
+    {
+      "id": "face",
+      "label": "face",
+      "azimutDeg": 0,
+      "camera": {
+        "position": [
+          0,
+          0.98,
+          2.35
+        ],
+        "cible": [
+          0,
+          0.8,
+          0
+        ],
+        "fovDeg": 42
+      },
+      "url": "?atlas=bassin-anteversion&vue=face&frame=4&frames=9&muscles=1"
+    },
+    {
+      "id": "troisQuarts",
+      "label": "trois-quarts avant gauche",
+      "azimutDeg": 45,
+      "camera": {
+        "position": [
+          1.6617,
+          0.98,
+          1.6617
+        ],
+        "cible": [
+          0,
+          0.8,
+          0
+        ],
+        "fovDeg": 42
+      },
+      "url": "?atlas=bassin-anteversion&vue=troisQuarts&frame=4&frames=9&muscles=1"
+    },
+    {
+      "id": "profil",
+      "label": "profil gauche",
+      "azimutDeg": 90,
+      "camera": {
+        "position": [
+          2.35,
+          0.98,
+          0
+        ],
+        "cible": [
+          0,
+          0.8,
+          0
+        ],
+        "fovDeg": 42
+      },
+      "url": "?atlas=bassin-anteversion&vue=profil&frame=4&frames=9&muscles=1"
+    },
+    {
+      "id": "troisQuartsDos",
+      "label": "trois-quarts arrière gauche",
+      "azimutDeg": 135,
+      "camera": {
+        "position": [
+          1.6617,
+          0.98,
+          -1.6617
+        ],
+        "cible": [
+          0,
+          0.8,
+          0
+        ],
+        "fovDeg": 42
+      },
+      "url": "?atlas=bassin-anteversion&vue=troisQuartsDos&frame=4&frames=9&muscles=1"
+    },
+    {
+      "id": "dos",
+      "label": "dos",
+      "azimutDeg": 180,
+      "camera": {
+        "position": [
+          0,
+          0.98,
+          -2.35
+        ],
+        "cible": [
+          0,
+          0.8,
+          0
+        ],
+        "fovDeg": 42
+      },
+      "url": "?atlas=bassin-anteversion&vue=dos&frame=4&frames=9&muscles=1"
+    }
+  ],
+  "capture": {
+    "largeurPx": 400,
+    "hauteurPx": 500,
+    "gifImagesParSeconde": 8,
+    "frames": 9,
+    "muscles": true,
+    "commande": "npm run build && node scripts/capture_atlas.mjs --mouvement bassin-anteversion"
+  },
+  "fichiers": {
+    "images": {
+      "face": [
+        "face-00.png",
+        "face-01.png",
+        "face-02.png",
+        "face-03.png",
+        "face-04.png",
+        "face-05.png",
+        "face-06.png",
+        "face-07.png",
+        "face-08.png"
+      ],
+      "troisQuarts": [
+        "troisQuarts-00.png",
+        "troisQuarts-01.png",
+        "troisQuarts-02.png",
+        "troisQuarts-03.png",
+        "troisQuarts-04.png",
+        "troisQuarts-05.png",
+        "troisQuarts-06.png",
+        "troisQuarts-07.png",
+        "troisQuarts-08.png"
+      ],
+      "profil": [
+        "profil-00.png",
+        "profil-01.png",
+        "profil-02.png",
+        "profil-03.png",
+        "profil-04.png",
+        "profil-05.png",
+        "profil-06.png",
+        "profil-07.png",
+        "profil-08.png"
+      ],
+      "troisQuartsDos": [
+        "troisQuartsDos-00.png",
+        "troisQuartsDos-01.png",
+        "troisQuartsDos-02.png",
+        "troisQuartsDos-03.png",
+        "troisQuartsDos-04.png",
+        "troisQuartsDos-05.png",
+        "troisQuartsDos-06.png",
+        "troisQuartsDos-07.png",
+        "troisQuartsDos-08.png"
+      ],
+      "dos": [
+        "dos-00.png",
+        "dos-01.png",
+        "dos-02.png",
+        "dos-03.png",
+        "dos-04.png",
+        "dos-05.png",
+        "dos-06.png",
+        "dos-07.png",
+        "dos-08.png"
+      ]
+    },
+    "gifs": {
+      "face": "face.gif",
+      "troisQuarts": "troisQuarts.gif",
+      "profil": "profil.gif",
+      "troisQuartsDos": "troisQuartsDos.gif",
+      "dos": "dos.gif"
+    },
+    "planche": "planche.png",
+    "servis": [
+      "meta.json",
+      "planche.png"
+    ]
+  }
+}

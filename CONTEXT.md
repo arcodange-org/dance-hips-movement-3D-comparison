@@ -5,6 +5,86 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Atlas anatomique ouvert #132 (21 novembre 2026)
+
+Branche `arcodange/atlas-anatomique`, worktree `.claude/worktrees/atlas-anatomique`, PR #139 (Draft,
+à jour avec `main` par fusion). Demande du fondateur : produire nous-mêmes un équivalent
+d'anatobase.com à partir de données ouvertes (format inspiré, jamais de contenu copié : la licence
+AnatoBase est « reference-only » et ce dépôt est public).
+
+Livré : PRD [docs/spec-atlas-anatomique.md](docs/spec-atlas-anatomique.md),
+[ADR 005](docs/adr/005-atlas-donnees-ouvertes.md) (BodyParts3D CC BY-SA 2.1 Japan © DBCLS,
+Z-Anatomy CC BY-SA 4.0, Gray 1918 domaine public, Wikidata CC0), [manifeste v1](docs/atlas/manifest.json)
+(16 mouvements) + `scripts/test_atlas_manifest.mjs`.
+
+Chaîne de génération des planches « mouvements », prouvée sur `bassin-obliquite`
+([planche et mesures](docs/atlas/mouvements/bassin-obliquite/README.md)) :
+
+- `applyPose` a une option `neutral` (pose neutre anatomique, défaut inchangé). `src/atlas.ts` (pur)
+  pose un mouvement du manifeste et le mesure ; le bassin est en chaîne fermée, pieds plantés.
+- Vue `?atlas=<id>&vue=&frame=&frames=&muscles=` (`src/components/AtlasApp.tsx`, morceau séparé),
+  cinq vues `ATLAS_VIEWS` dans `src/cameras.ts`, signal de rendu `data-atlas-rendu`.
+- `npm run build && node scripts/capture_atlas.mjs --mouvement <id>` : images, GIF, planche,
+  `meta.json` (calculé hors navigateur sur le GLB, déterministe), `README.md`. Le script sert `dist/`
+  lui-même sur un port libre. Sur ce Mac : `CHROME_PATH` vers le Chromium 1228 de Playwright.
+  Régénérée deux fois sur cette machine, la planche est identique à l'octet près.
+- `scripts/test_atlas_planches.mjs` dans `npm test` : ROM sur le quaternion monde du nœud, preuve par
+  les positions des hanches, conventions verrouillées, fraîcheur de `meta.json` (une planche périmée
+  par le moteur échoue, avec la commande à relancer), intégrité des fichiers.
+- Le manifeste v1 inversait les axes du bassin (obliquité = z, antéversion = x) : corrigé.
+
+Mesuré de −10° à +10° : hanches de −28,4 à +30,1 mm, genou du côté bas jusqu'à 31°, thorax vertical.
+
+Les trois planches du bassin sont générées ([spec D13](docs/spec-atlas-anatomique.md)) :
+[obliquité](docs/atlas/mouvements/bassin-obliquite/README.md),
+[rotation](docs/atlas/mouvements/bassin-rotation/README.md) (−15° à +15° : une hanche avance de
+43,9 mm, l'autre recule) et [antéversion](docs/atlas/mouvements/bassin-anteversion/README.md)
+(−15° à +15° : le centre du sacrum passe de 30,1 à 51,1 mm au-dessus de l'axe des hanches, les
+jambes ne bougent pas).
+
+- Dans les trois, le thorax garde son orientation neutre. **`lockUpperTrunk` (`iso=1`) ne compense
+  pas le lacet**, seulement le roulis et le tangage : pour la rotation, la règle de pose de l'atlas
+  contre-tourne la colonne (`trunkOffset`). Sans cela le buste tournait avec le bassin (trouvé à la
+  relecture des images ; `thoraxDeg`, une inclinaison, ne le voyait pas). Le comparateur n'est pas
+  modifié : le thorax y suit le lacet du bassin (tarraxinha 12,7°, zouk 10,3°), question posée au
+  propriétaire dans `docs/TASKS.md`.
+- `meta.json` porte en plus l'avancée des hanches, la position du sacrum et la rotation du thorax
+  tous axes. Chaque planche affiche le repère de position de son axe. Le test prouve chaque planche
+  par les positions (deux vecteurs liés au bassin en rotation rigide, axe erroné détecté).
+- **Obliquité : le propriétaire a élu B, genoux chevauchés** (21 novembre 2026 : « c'est bien de
+  montrer les 2, mais pour la danse on veut B » ; R28, spec D14 et D15, page
+  [`docs/elections/obliquite-genoux.md`](docs/elections/obliquite-genoux.md)). La planche
+  `bassin-obliquite` est régénérée avec cette règle : bassin tenu à sa hauteur la plus basse
+  (867,3 mm, constante), deux genoux à 22,7° au centre. Les genoux en relais restent montrés :
+  `?atlas=bassin-obliquite&variante=relais`, et un GIF comparatif sur la page de la planche
+  (`scripts/capture_atlas.mjs --mouvement bassin-obliquite --variante relais`).
+  `ATLAS_ELECTIONS` (`src/atlas.ts`) porte les règles candidates et la règle retenue.
+- **Lien avec le ginga (#157, #159).** Le propriétaire relie ces planches au ginga : « on fait un
+  8 », lisible dans les trois plans, alors que chaque planche fait un aller-retour sur un axe. Le
+  « 8 » est le chantier #159 (PR #160, sa propre élection) : l'atlas n'en produit pas de planche.
+  Le vote B lui a été transmis ; dans l'atlas, « relais » nomme la règle non retenue.
+- **Rotation : vote rendu, A pour la planche, C pour la danse** (D17, R38, 22 novembre 2026 :
+  A pour la planche, parce qu'elle met le mieux la rotation du bassin en évidence ; C pour la danse, au nom de la contraposition). Écart non tranché : la `contraposition` du moteur du couple (#51) est plus proche
+  de A. Élection préparée en D16 (avec l'accord du propriétaire, 22 novembre 2026). A thorax
+  de face (règle de la planche, ma proposition), B buste solidaire ou C thorax à l'opposé (ajoutée à
+  sa demande), variantes `?atlas=bassin-rotation&variante=solidaire|oppose`, GIF `docs/gifs/election-rotation-buste.gif`, page
+  [`docs/elections/rotation-buste.md`](docs/elections/rotation-buste.md). Mesure `thoraxLacetDeg`
+  ajoutée au module (non sérialisée). Présentation du GIF propre à chaque élection
+  (`PRESENTATIONS` dans `scripts/capture_atlas.mjs`).
+- `main` a été fusionné sept fois dans la branche (conflits : `package.json`, `README.md`,
+  `docs/TASKS.md`, `CONTEXT.md`, `src/main.tsx`, `src/pose.ts`, `docs/regles-proprietaire.md`,
+  `src/components/Rig.tsx` ; garder les deux côtés). Les numéros de règle se croisent entre branches :
+  vérifier `docs/regles-proprietaire.md` après chaque fusion (R36 de l'atlas est devenue R38).
+- **Images régénérées le 23 novembre (spec D18).** Depuis #173, les volumes gris du tronc ne sont plus
+  dessinés quand les muscles sont affichés : les trois planches et les deux GIF d'élection ont été
+  recapturés. Le test ne compare pas les pixels : après une fusion qui change l'apparence du rig,
+  relancer la capture d'une planche et regarder `git status`. Dans
+  `src/pose.ts`, l'option `neutral` de l'atlas et le ginga de #157 s'ajoutent au même endroit.
+
+Suite : règles de pose des 13 autres mouvements (le script les refuse pour l'instant), décision sur
+le poids versionné (≈ 2,5 Mo par mouvement, 7,4 Mo pour les trois planches du bassin), fiches muscles (prototype Blender hors dépôt :
+`~/Work/Danse/anatomie-3d/`), sourcing des ROM, viewer `?atlas=` complet + branchement oracle.
+
 ## Cadre des bras : bras droit du guideur, mains jointes (#178, #179, 22 novembre 2026)
 
 - **Règle R35 (#178)** : le bras droit du guideur ne se baisse pas. Hors du dos de la suiveuse (sortie fille), sa

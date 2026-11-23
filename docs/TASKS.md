@@ -290,6 +290,47 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] `scripts/test_music.mjs` et `son-synthese.feature` dans `npm test` ; contrôle navigateur.
 - [ ] Écoute de validation par le propriétaire (grilles, équilibre, tempos) et décisions ouvertes.
 
+## Atlas anatomique ouvert (#132)
+
+- [x] Issue #132 publiée avant le code (périmètre réservé : atlas open maison, format inspiré d'anatobase.com sans rien copier).
+- [x] Branche `arcodange/atlas-anatomique`, worktree `.claude/worktrees/atlas-anatomique`, PR draft ouverte tôt.
+- [x] PRD poussé en premier : [spec](spec-atlas-anatomique.md) + [ADR 005](adr/005-atlas-donnees-ouvertes.md) (BodyParts3D CC BY-SA 2.1 Japan, Z-Anatomy CC BY-SA 4.0, Gray 1918 PD, Wikidata CC0) + [docs/atlas/README.md](atlas/README.md).
+- [x] Manifeste v1 : [docs/atlas/manifest.json](atlas/manifest.json) — 16 mouvements articulaires, bassin/hanche/genou en priorité 1.
+- [x] `scripts/test_atlas_manifest.mjs` dans `npm test` : articulations résolues contre les nœuds réels du GLB, ROM bornées, priorités 1 sur Pelvis/HipPivot_R.
+- [x] `scripts/capture_atlas.mjs` : chaîne de génération des planches mouvements (5 vues × frames) via `src/pose.ts` + `src/cameras.ts`, `meta.json` avec ROM mesurée sur le GLB, prouvée sur `bassin-obliquite`. Spec : [chaîne de génération](spec-atlas-anatomique.md#chaîne-de-génération-des-planches--mouvements--preuve-sur-bassin-obliquite).
+  - [x] Branche remise à jour sur `main` (fusion, sans réécriture d'historique).
+  - [x] Spec de la chaîne (D7 à D12) poussée avant le code.
+  - [x] Pose neutre du moteur (`neutral`), `src/atlas.ts`, vues `ATLAS_VIEWS`, vue de capture `?atlas=` (`src/components/AtlasApp.tsx`).
+  - [x] Preuve de chaîne sur `bassin-obliquite` : 45 images, 5 GIF, planche, `meta.json`, `README.md` ([planche](atlas/mouvements/bassin-obliquite/README.md)) ; `meta.json` et `planche.png` copiés dans `public/atlas/`.
+  - [x] `scripts/test_atlas_planches.mjs` dans `npm test` ; axes du bassin corrigés dans le manifeste (obliquité = z, antéversion = x).
+- [x] Planches `bassin-rotation` et `bassin-anteversion` générées, relues à l'œil, prouvées par les positions dans le test ([spec D13](spec-atlas-anatomique.md), [rotation](atlas/mouvements/bassin-rotation/README.md), [antéversion](atlas/mouvements/bassin-anteversion/README.md)).
+  - [x] Branche remise à jour sur `main` une seconde fois (fusion, sans réécriture d'historique).
+  - [x] Écart trouvé à la relecture : dans la rotation, le buste tournait avec le bassin (`lockUpperTrunk` compense le roulis et le tangage, pas le lacet). Règle de l'atlas : la colonne contre-tourne, le thorax reste de face ; note du manifeste corrigée.
+  - [x] Mesures ajoutées à `meta.json` (avancée des hanches, sacrum, rotation du thorax tous axes), repère de position et limites par axe ; `bassin-obliquite` recalculée par `--meta-seul`.
+  - [x] Test : deux vecteurs liés au bassin en rotation rigide, repère et signe par planche, axe erroné détecté, thorax immobile sur les trois axes.
+- [x] Élection par le propriétaire, rotation du bassin : thorax de face (versionné, proposition) ou buste solidaire du bassin (GIF des deux variantes montrés le 21 novembre 2026 ; la variante non retenue n'est pas versionnée).
+  - [x] Vote du 22 novembre 2026 : A pour la planche, parce qu'elle met le mieux la rotation du bassin en évidence ; C pour la danse, au nom de la contraposition. Planche en A, `danse: "oppose"` (D17, R38 ; d'abord numérotée R36, renumérotée à la fusion de `main` du 23 novembre, où R36 est la prise des mains).
+  - [ ] À présenter au propriétaire : la `contraposition` du moteur du couple (#51) est plus proche de A que de C.
+- [x] Après la fusion de `main` du 23 novembre (#173, buste sans bloc gris) : régénérer les trois planches du bassin et les deux GIF d'élection, dont les images ne sont plus celles que l'application rend (spec D18).
+  - [x] Élection en format A/B/C (D16, accord du propriétaire le 22 novembre 2026 ; C ajoutée à sa demande le même jour) : variantes `solidaire` et `oppose` dans le moteur, GIF `docs/gifs/election-rotation-buste.gif`, page `docs/elections/rotation-buste.md`, test sur le GLB.
+- [x] Variante « genoux chevauchés » de l'obliquité produite à la demande du propriétaire (« Oui, produis-la », 21 novembre 2026) : [spec D14](spec-atlas-anatomique.md), [page d'élection](elections/obliquite-genoux.md).
+  - [x] Branche remise à jour sur `main` (troisième et quatrième fusions, sans réécriture d'historique).
+  - [x] `applyAtlasPose(…, variante)` dans `src/atlas.ts` ; vue `?atlas=bassin-obliquite&variante=<règle>`. Sans variante, URL et clé de rendu inchangées.
+  - [x] `scripts/capture_atlas.mjs --variante <règle>` : un seul GIF synchronisé, A (relais) et B (chevauchés) côte à côte, mesures de l'image en cours ([GIF](gifs/election-obliquite-genoux.gif)).
+  - [x] Test : bassin à hauteur constante, même angle de bassin, deux genoux du même angle au centre, sol, pieds plantés, thorax immobile, variantes inconnues refusées.
+- [x] Vote du propriétaire, obliquité (21 novembre 2026) : « B, genoux chevauchés », « c'est bien de montrer les 2, mais pour la danse on veut B ». Recopié dans la [page d'élection](elections/obliquite-genoux.md), la [spec D15](spec-atlas-anatomique.md), les [règles du propriétaire](regles-proprietaire.md) (R28) et l'issue #132.
+- [x] Vote appliqué (spec D15) : B est la règle de `bassin-obliquite`, planche régénérée, limites à jour ; « genoux en relais » reste visible comme variante (`&variante=relais`), GIF comparatif régénéré et montré sur la [page de la planche](atlas/mouvements/bassin-obliquite/README.md).
+  - [x] `ATLAS_ELECTIONS` (règles candidates avec leur lettre, règle retenue) remplace la liste de variantes ; `meta.json` porte la règle retenue et ses variantes.
+  - [x] Test : la planche suit la règle retenue ; les deux règles mesurées face à face ; le vote est recopié mot pour mot dans la page d'élection.
+- [x] Lien avec le ginga consigné ([spec](spec-atlas-anatomique.md), section « Lien avec le ginga ») : pour le propriétaire, le ginga tient aux genoux qui se relaient ou se chevauchent, et le bassin y « fait un 8 » dans les trois plans, alors que les planches font un aller-retour sur un axe. Le « 8 » est le chantier #159 (PR #160) ; le vote sur l'obliquité (B) a été transmis à sa session.
+- [ ] Après l'élection du « 8 » (#160) : proposer au propriétaire une planche de référence du chemin élu (trois axes combinés, tracé des hanches). Ne pas la produire sans son accord ; le manifeste v1 est à étendre aux mouvements composés.
+- [ ] Hors périmètre de l'atlas, rien n'est modifié : R28 dans le comparateur. Mesuré une fois (sur place, amplitude 1) : au passage du bassin par le centre les deux genoux sont déjà fléchis du même angle (34° à 52° selon le style) et aucun ne se tend. La hauteur du bassin varie avec le style (13 à 103 mm) : c'est le rebond du style, qui relève de R12 (#59 en cours). À couvrir par un test si le propriétaire veut que R28 soit garanti dans le comparateur.
+- [ ] Question au propriétaire, hors périmètre de l'atlas : dans le comparateur, le thorax suit entièrement le lacet du bassin même avec `iso=1` (mesuré : tarraxinha 12,7°, zouk 10,3°, kizomba 1,7°). Voulu, ou isolation à étendre au lacet ? Rien n'est modifié.
+- [ ] Règles de pose des autres articulations (hanche, genou, cheville en chaîne ouverte ; buste), puis leurs 13 planches. Le script refuse ces mouvements tant que la règle n'existe pas. Décider avant cela du poids versionné (≈ 2,5 Mo par mouvement, mesuré sur les trois planches du bassin ; ≈ 39 Mo pour 16 : moins de frames, ou images hors dépôt).
+- [ ] Fiches muscles industrialisées depuis le prototype `~/Work/Danse/anatomie-3d/` (Blender, Z-Anatomy CC BY-SA 4.0) → `docs/atlas/muscles/`.
+- [ ] Sourcer les ROM du manifeste dans `docs/recherche-biomecanique/` (passage « proposition » → « documenté »).
+- [ ] Viewer `?atlas=<id>&vue=<…>&frame=<n>` + branchement oracle (`src/oracle.ts`) et specs de styles.
+
 ## Mode jeu : file de commandes, écoute par défaut, danse automatique (#140)
 
 - [x] Spécification poussée en premier ([spec](spec-jeu-file-auto.md)), issue #140, PR #141.

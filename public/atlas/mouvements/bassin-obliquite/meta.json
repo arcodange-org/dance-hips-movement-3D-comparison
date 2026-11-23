@@ -1,0 +1,444 @@
+{
+  "atlas": "atlas-anatomique",
+  "version": 1,
+  "issue": 132,
+  "mouvement": {
+    "id": "bassin-obliquite",
+    "label": "Obliquité du bassin (roulis)",
+    "labelEn": "Pelvic obliquity (roll)",
+    "cote": "les deux",
+    "priorite": 1
+  },
+  "generation": "Généré paramétriquement sur squelette réel : ni capture de mouvement, ni photo de modèle, ni relecture par un professeur d'anatomie.",
+  "niveauDePreuve": "documenté pour la marche : 6 à 9° crête à crête, soit ±3 à ±4,5° (docs/recherche-biomecanique/bassin-et-dissociation.md, tableau 1) ; proposition au-delà, jusqu'à ±10°",
+  "licence": {
+    "assetsGeneres": "CC BY-SA 4.0",
+    "maillages": "BodyParts3D v4.0, (c) DBCLS, CC BY-SA 2.1 Japan",
+    "textesAnatomiques": "Gray's Anatomy 1918 (domaine public) ; Wikidata (CC0)",
+    "note": "Format inspiré d'anatobase.com (planches multi-angles + fiches muscle par muscle) sans copier ni marque ni contenu.",
+    "attribution": "Squelette et muscles : BodyParts3D v4.0, © DBCLS, CC BY-SA 2.1 Japan"
+  },
+  "limites": [
+    "Illustratif : aucune validation médicale ni chorégraphique.",
+    "Pose neutre du moteur : pieds à l'écartement et à l'ouverture natifs du squelette, genoux fléchis d'au moins 0,12 rad par l'IK (jambe jamais verrouillée).",
+    "Bassin en chaîne fermée, pieds plantés : la hanche qui descend fait fléchir son genou. D'autres stratégies (demi-pointe, translation du bassin) ne sont pas montrées.",
+    "Hauteur du bassin : tenue constante, à sa hauteur la plus basse de l'amplitude (colonne « Hauteur du bassin »). Les deux genoux fléchissent ensemble au passage par le centre : aucune jambe n'y est presque tendue. C'est un choix de modèle, élu par le propriétaire pour la danse ; la variante « genoux en relais », où le bassin remonte au centre, est montrée dans la section « Règle de pose et variante ».",
+    "Tête et bras : volumes stylisés, pas un maillage anatomique ; bras en cadre de danse. Tronc : montré par ses muscles (BodyParts3D), sans les volumes gris du rig. Le haut du tronc compense le bassin (iso=1)."
+  ],
+  "regle": {
+    "id": "chevauchement",
+    "lettre": "B",
+    "label": "genoux chevauchés",
+    "description": "bassin tenu à sa hauteur la plus basse : les deux genoux fléchissent ensemble au centre",
+    "danse": "chevauchement",
+    "election": {
+      "id": "obliquite-genoux",
+      "question": "Obliquité du bassin : le genou opposé attend-il son tour ?",
+      "page": "docs/elections/obliquite-genoux.md",
+      "gif": "docs/gifs/election-obliquite-genoux.gif"
+    },
+    "variantes": [
+      {
+        "id": "relais",
+        "lettre": "A",
+        "label": "genoux en relais",
+        "description": "bassin le plus haut que les jambes permettent : un genou fléchit après l'autre",
+        "url": "?atlas=bassin-obliquite&vue=face&frame=4&frames=9&muscles=1&variante=relais"
+      }
+    ]
+  },
+  "articulation": {
+    "rig": "glb",
+    "noeud": "Pelvis",
+    "axeLocal": "z",
+    "axeMonde": [
+      0,
+      0,
+      1
+    ],
+    "signe": "angle positif : la hanche gauche monte, l'autre descend (rotation directe autour de l'axe monde)"
+  },
+  "romDeg": {
+    "manifeste": [
+      -10,
+      10
+    ],
+    "mesuree": [
+      -10,
+      10
+    ],
+    "ecartMaxDeg": 0,
+    "methode": "angle signé du quaternion monde du nœud Pelvis, relatif à la pose neutre (angle 0), autour de l'axe monde"
+  },
+  "frames": [
+    {
+      "index": 0,
+      "angleDeg": -10,
+      "mesure": {
+        "angleDeg": -10,
+        "horsAxeDeg": 0,
+        "ecartHanchesMm": -28.36,
+        "avanceHanchesMm": 0.38,
+        "sacrumHauteurMm": 41.49,
+        "sacrumAvanceMm": -40.68,
+        "genouDeg": {
+          "R": 6.88,
+          "L": 31.36
+        },
+        "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
+        "bassinMm": 867.32,
+        "solMm": 0
+      }
+    },
+    {
+      "index": 1,
+      "angleDeg": -7.5,
+      "mesure": {
+        "angleDeg": -7.5,
+        "horsAxeDeg": 0,
+        "ecartHanchesMm": -21.09,
+        "avanceHanchesMm": 0.38,
+        "sacrumHauteurMm": 41.75,
+        "sacrumAvanceMm": -40.68,
+        "genouDeg": {
+          "R": 12.76,
+          "L": 29.44
+        },
+        "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
+        "bassinMm": 867.32,
+        "solMm": 0
+      }
+    },
+    {
+      "index": 2,
+      "angleDeg": -5,
+      "mesure": {
+        "angleDeg": -5,
+        "horsAxeDeg": 0,
+        "ecartHanchesMm": -13.79,
+        "avanceHanchesMm": 0.38,
+        "sacrumHauteurMm": 41.93,
+        "sacrumAvanceMm": -40.68,
+        "genouDeg": {
+          "R": 16.71,
+          "L": 27.38
+        },
+        "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
+        "bassinMm": 867.32,
+        "solMm": 0
+      }
+    },
+    {
+      "index": 3,
+      "angleDeg": -2.5,
+      "mesure": {
+        "angleDeg": -2.5,
+        "horsAxeDeg": 0,
+        "ecartHanchesMm": -6.46,
+        "avanceHanchesMm": 0.38,
+        "sacrumHauteurMm": 42.02,
+        "sacrumAvanceMm": -40.68,
+        "genouDeg": {
+          "R": 19.91,
+          "L": 25.15
+        },
+        "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
+        "bassinMm": 867.32,
+        "solMm": 0
+      }
+    },
+    {
+      "index": 4,
+      "angleDeg": 0,
+      "mesure": {
+        "angleDeg": 0,
+        "horsAxeDeg": 0,
+        "ecartHanchesMm": 0.88,
+        "avanceHanchesMm": 0.38,
+        "sacrumHauteurMm": 42.04,
+        "sacrumAvanceMm": -40.68,
+        "genouDeg": {
+          "R": 22.67,
+          "L": 22.7
+        },
+        "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
+        "bassinMm": 867.32,
+        "solMm": 0
+      }
+    },
+    {
+      "index": 5,
+      "angleDeg": 2.5,
+      "mesure": {
+        "angleDeg": 2.5,
+        "horsAxeDeg": 0,
+        "ecartHanchesMm": 8.22,
+        "avanceHanchesMm": 0.38,
+        "sacrumHauteurMm": 41.98,
+        "sacrumAvanceMm": -40.68,
+        "genouDeg": {
+          "R": 25.13,
+          "L": 19.96
+        },
+        "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
+        "bassinMm": 867.32,
+        "solMm": 0
+      }
+    },
+    {
+      "index": 6,
+      "angleDeg": 5,
+      "mesure": {
+        "angleDeg": 5,
+        "horsAxeDeg": 0,
+        "ecartHanchesMm": 15.54,
+        "avanceHanchesMm": 0.38,
+        "sacrumHauteurMm": 41.83,
+        "sacrumAvanceMm": -40.68,
+        "genouDeg": {
+          "R": 27.37,
+          "L": 16.79
+        },
+        "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
+        "bassinMm": 867.32,
+        "solMm": 0
+      }
+    },
+    {
+      "index": 7,
+      "angleDeg": 7.5,
+      "mesure": {
+        "angleDeg": 7.5,
+        "horsAxeDeg": 0,
+        "ecartHanchesMm": 22.84,
+        "avanceHanchesMm": 0.38,
+        "sacrumHauteurMm": 41.61,
+        "sacrumAvanceMm": -40.68,
+        "genouDeg": {
+          "R": 29.44,
+          "L": 12.89
+        },
+        "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
+        "bassinMm": 867.32,
+        "solMm": 0
+      }
+    },
+    {
+      "index": 8,
+      "angleDeg": 10,
+      "mesure": {
+        "angleDeg": 10,
+        "horsAxeDeg": 0,
+        "ecartHanchesMm": 30.09,
+        "avanceHanchesMm": 0.38,
+        "sacrumHauteurMm": 41.31,
+        "sacrumAvanceMm": -40.68,
+        "genouDeg": {
+          "R": 31.37,
+          "L": 7.16
+        },
+        "thoraxDeg": 0,
+        "thoraxRotationDeg": 0,
+        "bassinMm": 867.32,
+        "solMm": 0
+      }
+    }
+  ],
+  "unites": {
+    "angleDeg": "degrés",
+    "horsAxeDeg": "écart entre l'axe de rotation mesuré et l'axe monde attendu, degrés",
+    "ecartHanchesMm": "hauteur du centre de hanche gauche moins celle du droit, mm",
+    "avanceHanchesMm": "avancée du centre de hanche gauche par rapport au droit, mm (positif : gauche devant)",
+    "sacrumHauteurMm": "hauteur du centre du sacrum au-dessus du milieu des centres de hanche, mm",
+    "sacrumAvanceMm": "avancée du centre du sacrum par rapport au milieu des centres de hanche, mm (négatif : derrière)",
+    "genouDeg": "flexion du genou, degrés (0 = jambe tendue)",
+    "thoraxDeg": "inclinaison du thorax par rapport à la verticale, degrés",
+    "thoraxRotationDeg": "rotation du thorax par rapport à la pose neutre, tous axes confondus, degrés",
+    "bassinMm": "hauteur du centre du bassin au-dessus du sol, mm",
+    "solMm": "hauteur du sommet osseux le plus bas, mm (0 = au sol)"
+  },
+  "vues": [
+    {
+      "id": "face",
+      "label": "face",
+      "azimutDeg": 0,
+      "camera": {
+        "position": [
+          0,
+          0.98,
+          2.35
+        ],
+        "cible": [
+          0,
+          0.8,
+          0
+        ],
+        "fovDeg": 42
+      },
+      "url": "?atlas=bassin-obliquite&vue=face&frame=4&frames=9&muscles=1"
+    },
+    {
+      "id": "troisQuarts",
+      "label": "trois-quarts avant gauche",
+      "azimutDeg": 45,
+      "camera": {
+        "position": [
+          1.6617,
+          0.98,
+          1.6617
+        ],
+        "cible": [
+          0,
+          0.8,
+          0
+        ],
+        "fovDeg": 42
+      },
+      "url": "?atlas=bassin-obliquite&vue=troisQuarts&frame=4&frames=9&muscles=1"
+    },
+    {
+      "id": "profil",
+      "label": "profil gauche",
+      "azimutDeg": 90,
+      "camera": {
+        "position": [
+          2.35,
+          0.98,
+          0
+        ],
+        "cible": [
+          0,
+          0.8,
+          0
+        ],
+        "fovDeg": 42
+      },
+      "url": "?atlas=bassin-obliquite&vue=profil&frame=4&frames=9&muscles=1"
+    },
+    {
+      "id": "troisQuartsDos",
+      "label": "trois-quarts arrière gauche",
+      "azimutDeg": 135,
+      "camera": {
+        "position": [
+          1.6617,
+          0.98,
+          -1.6617
+        ],
+        "cible": [
+          0,
+          0.8,
+          0
+        ],
+        "fovDeg": 42
+      },
+      "url": "?atlas=bassin-obliquite&vue=troisQuartsDos&frame=4&frames=9&muscles=1"
+    },
+    {
+      "id": "dos",
+      "label": "dos",
+      "azimutDeg": 180,
+      "camera": {
+        "position": [
+          0,
+          0.98,
+          -2.35
+        ],
+        "cible": [
+          0,
+          0.8,
+          0
+        ],
+        "fovDeg": 42
+      },
+      "url": "?atlas=bassin-obliquite&vue=dos&frame=4&frames=9&muscles=1"
+    }
+  ],
+  "capture": {
+    "largeurPx": 400,
+    "hauteurPx": 500,
+    "gifImagesParSeconde": 8,
+    "frames": 9,
+    "muscles": true,
+    "commande": "npm run build && node scripts/capture_atlas.mjs --mouvement bassin-obliquite"
+  },
+  "fichiers": {
+    "images": {
+      "face": [
+        "face-00.png",
+        "face-01.png",
+        "face-02.png",
+        "face-03.png",
+        "face-04.png",
+        "face-05.png",
+        "face-06.png",
+        "face-07.png",
+        "face-08.png"
+      ],
+      "troisQuarts": [
+        "troisQuarts-00.png",
+        "troisQuarts-01.png",
+        "troisQuarts-02.png",
+        "troisQuarts-03.png",
+        "troisQuarts-04.png",
+        "troisQuarts-05.png",
+        "troisQuarts-06.png",
+        "troisQuarts-07.png",
+        "troisQuarts-08.png"
+      ],
+      "profil": [
+        "profil-00.png",
+        "profil-01.png",
+        "profil-02.png",
+        "profil-03.png",
+        "profil-04.png",
+        "profil-05.png",
+        "profil-06.png",
+        "profil-07.png",
+        "profil-08.png"
+      ],
+      "troisQuartsDos": [
+        "troisQuartsDos-00.png",
+        "troisQuartsDos-01.png",
+        "troisQuartsDos-02.png",
+        "troisQuartsDos-03.png",
+        "troisQuartsDos-04.png",
+        "troisQuartsDos-05.png",
+        "troisQuartsDos-06.png",
+        "troisQuartsDos-07.png",
+        "troisQuartsDos-08.png"
+      ],
+      "dos": [
+        "dos-00.png",
+        "dos-01.png",
+        "dos-02.png",
+        "dos-03.png",
+        "dos-04.png",
+        "dos-05.png",
+        "dos-06.png",
+        "dos-07.png",
+        "dos-08.png"
+      ]
+    },
+    "gifs": {
+      "face": "face.gif",
+      "troisQuarts": "troisQuarts.gif",
+      "profil": "profil.gif",
+      "troisQuartsDos": "troisQuartsDos.gif",
+      "dos": "dos.gif"
+    },
+    "planche": "planche.png",
+    "servis": [
+      "meta.json",
+      "planche.png"
+    ]
+  }
+}
