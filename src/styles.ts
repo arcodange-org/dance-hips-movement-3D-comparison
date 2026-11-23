@@ -62,8 +62,17 @@ export const KOMPA = { transition: 0.4 };
  * leg straightens to about 20° while the free one bends to 50° or more. `knees.heel` (rad): the free
  * foot's heel rises as its knee bends (it rests on the ball of the foot), so the pelvis rolls less.
  * `lag` 0 (`alterneDirect`): the knees cross as the weight does, the supporting leg is always the
- * straighter one, and each hip then goes up and down the same line seen from the front. */
-export interface KompaEight { depth: number; round: number; sense: number; knees?: { swing: number; lag: number; tilt: number; base?: number; heel?: number }; glide?: number;
+ * straighter one, and each hip then goes up and down the same line seen from the front.
+ * Seventh round (vote: none of them; the lifted free heel is right but must rise less; the attack of
+ * `alterneDirect` with the return of `hanches`: the hip finishes the transfer and does not start it). Three
+ * readings, all with `heel` 0.2 and `lag` 0, the phase of knees and hips bent along the cycle:
+ * `knees.late` (rad, `hancheFinit`): they are behind the weight by that much as it passes the centre and in
+ * step with it as it reaches the side, so the hip waits while the pelvis leaves and the weight passes, then
+ * swings through and arrives with it; seen from the front each hip goes round again.
+ * `knees.settle` (rad): in step from the centre to the side (the attack of `alterneDirect`), then, on the
+ * way back to the centre, behind (< 0, `hancheTenue`: the hip stays up and catches up before the weight
+ * passes) or ahead (> 0, `hancheAssise`: the hip sits at once and comes back low). */
+export interface KompaEight { depth: number; round: number; sense: number; knees?: { swing: number; lag: number; tilt: number; base?: number; heel?: number; settle?: number; late?: number }; glide?: number;
   depthLag?: number; back?: { reach: number; pitch: number }; iso?: number; lift?: number }
 export const KOMPA_EIGHTS: Record<string, KompaEight> = {
   huit: { depth: 0.03, round: 1, sense: 1 },
@@ -74,10 +83,13 @@ export const KOMPA_EIGHTS: Record<string, KompaEight> = {
   hanches: { depth: 0.02, round: 1, sense: 1, knees: { swing: 0.45, lag: 0.125, tilt: 0.9 }, glide: 0.5 },
   hanchesFortes: { depth: 0.02, round: 1, sense: 1, knees: { swing: 0.55, lag: 0.125, tilt: 1.2 }, glide: 0.35 },
   profil: { depth: 0.03, round: 1, sense: 1, knees: { swing: 0.3, lag: 0.125, tilt: 1.3 }, glide: 0.5, depthLag: 0.125, back: { reach: 0.03, pitch: 0.1 }, iso: 1, lift: 0.04 },
+  profilFort: { depth: 0.045, round: 1, sense: 1, knees: { swing: 0.3, lag: 0.125, tilt: 1.3 }, glide: 0.5, depthLag: 0.125, back: { reach: 0.045, pitch: 0.16 }, iso: 1, lift: 0.04 },
   alterne: { depth: 0.015, round: 1, sense: 1, knees: { base: 0.08, swing: 0.6, lag: 0.125, tilt: -0.65 }, glide: 0.5, lift: 0.06 },
   alterneTalon: { depth: 0.015, round: 1, sense: 1, knees: { base: 0.08, swing: 0.7, lag: 0.125, tilt: -0.4, heel: 0.4 }, glide: 0.5, lift: 0.06 },
   alterneDirect: { depth: 0.015, round: 1, sense: 1, knees: { base: 0.08, swing: 0.6, lag: 0, tilt: -0.65 }, glide: 0.5, lift: 0.06 },
-  profilFort: { depth: 0.045, round: 1, sense: 1, knees: { swing: 0.3, lag: 0.125, tilt: 1.3 }, glide: 0.5, depthLag: 0.125, back: { reach: 0.045, pitch: 0.16 }, iso: 1, lift: 0.04 },
+  hancheFinit: { depth: 0.015, round: 1, sense: 1, knees: { base: 0.08, swing: 0.65, lag: 0, tilt: -0.52, heel: 0.2, late: 0.785 }, glide: 0.5, lift: 0.06 },
+  hancheTenue: { depth: 0.015, round: 1, sense: 1, knees: { base: 0.08, swing: 0.65, lag: 0, tilt: -0.52, heel: 0.2, settle: -0.4 }, glide: 0.5, lift: 0.06 },
+  hancheAssise: { depth: 0.015, round: 1, sense: 1, knees: { base: 0.08, swing: 0.65, lag: 0, tilt: -0.52, heel: 0.2, settle: 0.4 }, glide: 0.5, lift: 0.06 },
 };
 /** The prototype in use (null: the model of today). Set once from the address, read by the kompa style. */
 export const KOMPA_PROTO: { eight: KompaEight | null } = { eight: null };
@@ -174,7 +186,13 @@ export const STYLES: Record<string, StyleDef> = {
       if (eight?.knees) {
         // The knees lead: the free knee is asked to bend as the weight leaves it, overlapping the other; the
         // pelvis rolls with their difference (see `tilt` for which hip rises).
-        const k = eight.knees, c = Math.sin(turn - 2 * Math.PI * k.lag);
+        // `settle`: from the centre to the side (the attack) knees and hips keep the weight's own phase; from
+        // the side back to the centre their phase runs ahead (> 0: the hip sits at once) or behind (< 0: it
+        // stays up and comes down late), and is back in step when the weight passes.
+        const k = eight.knees, phase = turn - 2 * Math.PI * k.lag, half = ((phase % Math.PI) + Math.PI) % Math.PI;
+        // `late`: knees and hips are behind the weight by that much as it passes the centre, and in step with
+        // it as it reaches the side: the hip waits while the pelvis leaves, then arrives with it.
+        const c = Math.sin(phase + (k.settle && half > Math.PI / 2 ? k.settle * Math.sin(2 * half) ** 2 : 0) - (k.late ?? 0) * Math.cos(phase) ** 2);
         const base = k.base ?? 0.28, freeL = (1 - c) / 2, freeR = (1 + c) / 2;
         r.kneeL.rotation.x = (base + k.swing * freeL) * a;
         r.kneeR.rotation.x = (base + k.swing * freeR) * a;

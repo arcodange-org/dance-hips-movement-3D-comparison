@@ -308,3 +308,37 @@ jambes choisies) ; prototypes non contrôlés sur le GLB au-delà des tests de p
 
 Images : `election-kompa-alterne*.gif`, `election-kompa-hanches-genoux.gif` (KG3 filmé du même point de vue),
 `trace-kompa-alterne*.gif`, `trace-kompa-hanches.gif`.
+
+### Résultat du sixième tour (23 novembre, page de vote)
+
+| Question | Choix | Commentaire, reformulé |
+|---|---|---|
+| Q12, le kompa | **Aucune** | Le talon libre levé est une bonne variante, mais il doit se lever moins. Il faut l'attaque de KG9 et le retour de KG3 : la hanche finit le mouvement de transfert, elle ne le commence pas. |
+
+## Septième tour : le kompa, la hanche finit le transfert (23 novembre)
+
+Acquis des tours précédents, communs aux trois candidats : la jambe d'appui se tend (17°), la jambe libre fléchit
+(55°), la hanche de la jambe libre descend ; le talon du pied libre se lève, deux fois moins que dans KG8 (11° au
+lieu de 23°).
+
+La demande se lit de plusieurs façons ; chacune est filmée. Dans les trois, la phase des genoux et du bassin n'est
+plus la même tout au long du cycle (`knees.late`, `knees.settle`) :
+
+| | `kompa=` | L'attaque (du centre vers le côté) | Le retour (du côté vers le centre) | La jambe d'appui est la plus fléchie | De face, de dessus | Roulis |
+|---|---|---|---|---|---|---|
+| KG10 — la hanche attend, puis arrive avec le poids | `hancheFinit` | La hanche est en retard d'une demi-temps quand le poids passe, puis rattrape : elle arrive sur le côté en même temps que lui. | Elle reste presque en place pendant que le bassin repart. | 16 % du cycle | 28 cm², 22 cm² | ± 19° |
+| KG11 — la hanche reste haute, puis rattrape | `hancheTenue` | Celle de KG9 : genoux et hanche avec le poids. | Elle reste haute, puis rattrape avant que le poids passe. | jamais | 4 cm², 22 cm² | ± 19° |
+| KG12 — la hanche s'assoit dès l'arrivée | `hancheAssise` | Celle de KG9. | Elle redescend tout de suite et revient basse, comme le tracé de KG3. | jamais | 6 cm², 22 cm² | ± 17° |
+
+Dans les trois : genoux de 17° à 55°, écart de 39° ; jamais à l'arrêt, accélération du bassin 3,3 m/s².
+
+- KG10 est la lecture au pied de la lettre : la hanche ne commence pas le transfert (elle attend que le poids soit
+  passé) et le finit (elle arrive avec lui). Les genoux tiennent leur position plus longtemps et se croisent vite ;
+  chaque hanche refait une boucle vue de face.
+- KG11 et KG12 gardent l'attaque de KG9 telle quelle ; comme genoux et hanche sont alors en phase avec le poids au
+  centre et sur le côté, le retour ne peut s'en écarter que peu : la boucle vue de face reste étroite.
+
+Limites : le « 8 » de profil, les fessiers en arrière et la poitrine isolée du cinquième tour ne sont toujours pas
+repris ; prototypes non contrôlés sur le GLB au-delà des tests de pose.
+
+Images : `election-kompa-hanche*.gif`, `trace-kompa-hanche*.gif`.

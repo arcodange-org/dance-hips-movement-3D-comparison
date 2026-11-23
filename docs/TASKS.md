@@ -395,9 +395,12 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Cinquième tour (kompa, le « 8 » de profil, moins de genoux, fessiers en arrière, poitrine isolée) : KG5 `profil`,
   KG6 `profilFort` ; `KompaEight.depthLag`, `back`, `iso`, `lift`, `r.isoLean`. Vote : KG3 gardé, l'alternance des
   jambes doit se voir (une fléchie, une plus tendue).
-- [ ] Sixième tour (kompa, alternance des jambes) : mesuré, dans KG3 la jambe d'appui était la plus fléchie (roulis du
-  bassin du mauvais côté) ; KG7 `alterne`, KG8 `alterneTalon`, KG9 `alterneDirect` à élire
-  ([élection](elections/ginga-huit.md)) ; `knees.base`, `knees.heel`, `tilt` négatif ; courbe des genoux au tracé.
+- [x] Sixième tour (kompa, alternance des jambes) : mesuré, dans KG3 la jambe d'appui était la plus fléchie (roulis du
+  bassin du mauvais côté) ; KG7 `alterne`, KG8 `alterneTalon`, KG9 `alterneDirect` ; `knees.base`, `knees.heel`,
+  `tilt` négatif ; courbe des genoux au tracé. Vote : aucune ; talon libre levé, mais moins ; l'attaque de KG9 et le
+  retour de KG3 (la hanche finit le transfert, ne le commence pas).
+- [ ] Septième tour (kompa, la hanche finit le transfert) : KG10 `hancheFinit`, KG11 `hancheTenue`, KG12 `hancheAssise`
+  à élire ([élection](elections/ginga-huit.md)) ; `knees.late`, `knees.settle`, talon à 11°.
 - [ ] Kompa : « 8 » de face plus marqué que de dessus, sans glisser d'un bloc.
 - [ ] Variante élue : contrôles sur le GLB dans toutes les figures (marges), ida e volta, pas de base.
 
