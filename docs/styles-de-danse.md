@@ -106,9 +106,19 @@ Le pas de base y est cité **verbatim** (§ « Semba dance steps: the basics »)
 Déplacements en rond (koreidinha). Dans l'app : rebond vertical marqué ; la « réception sur
 l'avant-pied » vient de la **spec biomécanique du handoff**, pas d'une source externe.
 
+Depuis le 23 novembre 2026, le pas de base du danseur seul est celui que le propriétaire a élu (#162,
+[élection](elections/ginga-huit.md)) : un rebond par temps (la hanche s'assoit à chaque arrivée du poids) et un double
+rebond un temps sur deux, deux arrivées de suite sur chaque pied. Ce motif d'appuis est son choix ; les sources écrites
+décrivent « un, deux, trois, pause », qui reste visible par `?semba=pause`.
+
 ### Kompa (Haïti)
 Balancier latéral **sur place**, un transfert de poids par temps
 ([Haitian Music Zone](https://haitianmusiczone.com)), hip check / pause marquée sur le temps 4.
+
+Dans l'app, depuis le 23 novembre 2026 : le pas de base, danseur seul, est celui que le propriétaire a élu en neuf
+tours de films (#161, [élection](elections/ginga-huit.md)) : la hanche s'assoit quand le poids arrive, les jambes
+alternent, le buste suit le bassin et se penche. Ce choix est le sien, pas celui d'une source ; il s'écarte du manuel
+cité par *Le Nouvelliste* sur l'ordre avant-arrière de la hanche (voir [la spec](spec-ginga-huit.md)).
 
 ### Tarraxinha
 **Sur place**, isolations pelviennes (contact bassin à bassin)

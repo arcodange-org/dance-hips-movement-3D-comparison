@@ -56,7 +56,7 @@ export interface PoseOptions {
   /** #157 (docs/spec-ginga-couple.md): the ginga seen in the couple dance. `sway`: share of the style's
    * lateral hip shift added to the pelvis in every pair figure, with the style's phase driven by the
    * figure's support transfers; `bounce` (m): a small vertical pulse, lowest on each beat of the music. */
-  ginga: { sway: number; bounce: number; free?: boolean } | null;
+  ginga: { sway: number; bounce: number; free?: boolean; eight?: GingaEight } | null;
   /** #167: the pair figure danced just before (its pose options, its length in beats): the phase of the
    * ginga continues from its last transfers instead of starting settled on the support. */
   gingaFrom: (Partial<PoseOptions> & { beats: number }) | null;
@@ -426,6 +426,22 @@ const smoothstep = (x: number) => { const k = Math.max(0, Math.min(1, x)); retur
 export const GINGA_SWING = 0.5;
 /** Beats of look-ahead regained per beat after a junction. */
 export const GINGA_REJOIN = 0.5;
+/** #159 (prototype, docs/spec-ginga-huit.md): the « 8 » of the hips. In #157 the pelvis turns (roll, yaw)
+ * in time with its lateral shift, so each hip goes and returns on a line. Here the roll and the yaw are
+ * read later in the cycle (`rollLag`, `yawLag`, beats), on a phase that keeps moving between two transfers
+ * (`GINGA_WIDE`), and scaled by `turn`: each hip goes round. `depth` (m) moves the pelvis forward and back
+ * once per transfer (`depthLag`, beats), `bounceLag` (beats) delays the bounce after the beat. `round`
+ * (0 to 1) lets the lateral shift follow that moving phase too: the hips then never wait on the support. */
+export interface GingaEight { turn: number; rollLag: number; yawLag: number; depth: number; depthLag: number; bounceLag: number; round?: number;
+  /** #159 (prototype, vote of 22 Nov.: the « 8 » led by the knees' overlapping alternation, atlas rule B
+   * « genoux chevauchés »). The knees are the input: the free leg's knee bends while the supporting one
+   * straightens, `base` + `swing` (rad) at most, the two curves overlapping (both bent by `base` +
+   * `swing`/2 at the centre), `lag` beats after the wide phase. Each hip then sits where its own leg puts
+   * it: the pelvis height is their mean and its roll their difference, instead of the pelvis rising as
+   * high as the straighter leg allows. */
+  knees?: { base: number; swing: number; lag: number } }
+/** Beats on each side over which the phase of the « 8 » is averaged: it then moves all along the beat. */
+export const GINGA_WIDE = 0.5;
 /** #167: beats of the figure danced before that the phase table looks back on, so that the hips' swing
  * continues from one figure to the next instead of starting settled on the support. */
 const GINGA_BEFORE = 1;
@@ -474,10 +490,10 @@ export function gingaPhase(key: string, leader: (beat: number) => { loadR?: numb
 
 export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, options: Partial<PoseOptions>): PoseStats {
   const o = { ...DEFAULT_POSE, ...options };
-  // + 12 beats (a multiple of every on-the-spot period: styles 4, temps3 12) keeps the motion beat positive
-  // for the styles' `b % n` without changing the pose.
+  // + 24 beats (a multiple of every on-the-spot period: styles 4, temps3 12, the semba prototypes 8, #162)
+  // keeps the motion beat positive for the styles' `b % n` without changing the pose.
   const shift = onBeatShift(o);
-  let beat = shift ? clockBeat - shift + 12 : clockBeat;
+  let beat = shift ? clockBeat - shift + 24 : clockBeat;
   const rest = { L: model.legs.L.rest, R: model.legs.R.rest };
   // Owner request (19 Nov.): in the five-action figures the feet point forward along the knees'
   // axis (the GLB foot is natively turned out by ≈25°), and the initial/neutral stance has the
@@ -554,8 +570,12 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     const loads = (b: number) => hostFigure(b, false) as { loadR?: number; gingaJunctions?: readonly number[] } | null;
     const before = previous ? (b: number) => previous(from!.beats + b, false) as { loadR?: number } | null : null;
     const key = (from ? [from.movement, from.sortieChain, from.marche, from.idaVariant ? JSON.stringify(from.idaVariant) : "", from.beats].join("|") + ">" : "") + own;
-    const phase = gingaPhase(key, loads, beat, GINGA_SWING, before);
+    const narrow = gingaPhase(key, loads, beat, GINGA_SWING, before);
+    // #159 (prototype): the « 8 » reads its roll, yaw and depth on a phase that moves all along the beat.
+    const wide = o.ginga.eight ? gingaPhase(key, loads, beat, GINGA_WIDE, before) : null;
+    const phase = narrow !== null && wide !== null ? narrow + (wide - narrow) * (o.ginga.eight?.round ?? 0) : narrow;
     if (phase !== null) Object.assign(figure, { gingaBeat: phase, gingaAmp: o.follower ? IDA_GINGA.follower : IDA_GINGA.leader, gingaOwn: false,
+      gingaWide: wide ?? undefined,
       // The style's hip shift grows with the amplitude: beyond 1 the share shrinks, the sway stays.
       gingaSway: (o.follower ? -1 : 1) * gingaSet!.sway * gingaRoom.sway / Math.max(1, o.amp) });
   }
@@ -573,9 +593,12 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   const ginga = gingaOf(o.styleKey);
   // The slow 4-beat waves stay on the clock (styleTime): the guide mode restarts a figure's local beat
   // every cycle.
+  // #161, #162: the style's basic step, alone (no partner) on the spot with planted feet; there the kompa
+  // and the semba dance their elected step (see `StyleDef.apply`).
+  const base = !figure && !o.embrace && !o.follower && o.plant && o.movement === "none" && !(o.travel > 0) && !o.sortie;
   const applyStyle = (key: typeof o.styleKey) => {
     const g = gingaOf(key);
-    STYLES[key].apply(r, g?.gingaBeat ?? styleTime, o.amp * (g?.gingaAmp ?? 1), styleTime);
+    STYLES[key].apply(r, g?.gingaBeat ?? styleTime, o.amp * (g?.gingaAmp ?? 1), styleTime, base);
     // #157: where the figure leaves no room for the ginga (a tight spot, a touch), the style goes back to
     // the figure's own time and full amplitude: there the pose is the one the figure was calibrated with.
     if (g?.gingaBeat !== undefined && (figure as { gingaOwn?: boolean }).gingaOwn === false && gingaRoom.sway < 1) {
@@ -596,6 +619,34 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     for (const s of SIDES) r["foot" + s].rotation.set(0, 0, 0);
     applyStyle(blend.key);
     mixStyleState(r, mine, styleState(r), blend.weight);
+  }
+  // #159 (prototype): the « 8 ». The roll and the yaw of the pelvis are those of the style later in the
+  // cycle, on the phase that keeps moving between two transfers; they fade where the figure leaves no room.
+  const eight = o.ginga?.eight, wide = (figure as { gingaWide?: number } | null)?.gingaWide;
+  let kneeLed: { share: number; L: number; R: number } | null = null;
+  if (eight && wide !== undefined && ginga) {
+    const main = styleState(r);
+    const turned = (phase: number) => {
+      resetRig(r);
+      for (const s of SIDES) r["foot" + s].rotation.set(0, 0, 0);
+      STYLES[o.styleKey].apply(r, phase, o.amp * (ginga.gingaAmp ?? 1), styleTime);
+      return r.pelvis.rotation.clone();
+    };
+    const roll = turned(wide - eight.rollLag).z * eight.turn, yaw = turned(wide - eight.yawLag).y * eight.turn;
+    mixStyleState(r, main, main, 0);
+    const share = gingaRoom.sway * (1 - (blend?.weight ?? 0));
+    r.pelvis.rotation.z += (roll - r.pelvis.rotation.z) * share;
+    r.pelvis.rotation.y += (yaw - r.pelvis.rotation.y) * share;
+    if (eight.knees) {
+      // Weight on the left at phase 0.5, on the right at 1.5: the free knee is the most bent there.
+      const c = Math.cos(Math.PI * (wide - 0.5 - eight.knees.lag));
+      // Where the figure tightens the knees (`kneeCap` down to 0.12) the led knees give way, as the ginga does
+      // where it has no room.
+      // The quarter turn keeps its own knees altogether: its legs interleave all along (measured on the GLB: led
+      // knees there bring the femurs together, about ninety poses).
+      const tight = o.movement === "quarts" ? 0 : Math.max(0, Math.min(1, (((figure as { kneeCap?: number } | null)?.kneeCap ?? 0.45) - 0.12) / 0.1));
+      kneeLed = { share: share * tight, L: eight.knees.base + eight.knees.swing * (1 - c) / 2, R: eight.knees.base + eight.knees.swing * (1 + c) / 2 };
+    }
   }
   // #61: a figure may keep a share of the style's lateral hip shift on top of its own pelvis path;
   // #42: the ginga's shift towards the support joins it.
@@ -643,6 +694,8 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     const kept = ((figure as { styleSway?: number }).styleSway ?? 0) * coupledSway + (ginga?.gingaSway ?? 0);
     r.root.position.x = figure.root.x;
     r.pelvis.position.x += styleRootX * kept;
+    // #159 (prototype): forward as the weight arrives, back before it leaves; the couple moves together.
+    if (eight && wide !== undefined) r.pelvis.position.z += (o.follower ? -1 : 1) * eight.depth * gingaRoom.sway * Math.sin(2 * Math.PI * (wide - eight.depthLag));
     r.root.position.z = figure.root.z;
     if (o.rootOffset) { r.root.position.x += o.rootOffset.x; r.root.position.z += o.rootOffset.z; }
     const rootYaw = (figure as { rootYaw?: number }).rootYaw;
@@ -660,6 +713,11 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     r.root.position.x += path.x; r.root.position.z += path.z; r.root.rotation.y = path.ry;
   }
   lockUpperTrunk({ spine: r.spine.rotation, chest: r.chest.rotation, head: r.head.rotation }, r.pelvis.rotation, o.iso);
+  // #161 (prototype): a style may ask the spine to take up the pelvis's travel (`isoLean`, see KompaEight.iso).
+  if (r.isoLean) {
+    r.spine.rotation.z += r.isoLean.side; r.chest.rotation.z -= r.isoLean.side;
+    r.spine.rotation.x -= r.isoLean.fore; r.chest.rotation.x += r.isoLean.fore;
+  }
   const se = figure ? 0 : sortieEnv(beat, o);
   if (se > 0) r.chest.rotation.y -= 0.22 * se * o.amp;
   // #51: with plexus contact the chest turns towards the partner (contraposition share) instead of
@@ -730,7 +788,10 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     const bounds = SIDES.map(s => {
       const leg = model.legs[s];
       const hip = r.root.parent!.worldToLocal(r["hip" + s].getWorldPosition(new THREE.Vector3()));
-      const flex = Math.max(0.12, Math.min(figure ? (figure as { kneeCap?: number }).kneeCap ?? 0.45 : 1.2, posture.knee + desiredKnee[s]));
+      const cap = figure ? (figure as { kneeCap?: number }).kneeCap ?? 0.45 : 1.2;
+      const own = Math.max(0.12, Math.min(cap, posture.knee + desiredKnee[s]));
+      // #159 (prototype): the knees lead; where the figure leaves no room, its own flexion comes back.
+      const flex = kneeLed ? own + (kneeLed[s] - own) * kneeLed.share : own;
       const reach2 = leg.length1 ** 2 + leg.length2 ** 2 + 2 * leg.length1 * leg.length2 * Math.cos(flex);
       return { s, hipOffset: hip.sub(r.root.position), reach2 };
     });
@@ -762,7 +823,28 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     // gets none there: lowering it bends the knees into the partner's.
     const room = Math.max(0, Math.min(1, ((figure as { dip?: number } | null)?.dip ?? GINGA_ROOM) / GINGA_ROOM));
     // #163: calibrated at amplitude 1 (the game's); beyond, the bounce shrinks as the sway's share does.
-    const bounce = gingaSet ? -gingaSet.bounce / Math.max(1, o.amp) * room * gingaRoom.bounce * (0.5 + 0.5 * Math.cos(2 * Math.PI * clockBeat)) : 0;
+    const bounce = gingaSet ? -gingaSet.bounce / Math.max(1, o.amp) * room * gingaRoom.bounce * (0.5 + 0.5 * Math.cos(2 * Math.PI * (clockBeat - (o.ginga?.eight?.bounceLag ?? 0)))) : 0;
+    if (kneeLed) {
+      // Each foot on the floor puts its hip where its leg reaches at its own flexion: the pelvis takes the
+      // height and the tilt that satisfy both (the left hip is on +x: a positive roll lifts it). A foot that
+      // leaves gives up its say; its hip then follows the knees' difference in leg length.
+      const each = {} as Record<Side, number>, free = {} as Record<Side, number>, length = {} as Record<Side, number>;
+      for (const { hipOffset, reach2, s } of bounds) {
+        const hip = hipOffset.clone().add(r.root.position), target = model.targets[s];
+        each[s] = target.y + Math.sqrt(Math.max(0, reach2 - (target.x - hip.x) ** 2 - (target.z - hip.z) ** 2)) - hip.y;
+        // A foot that leaves (its heel rising, no weight on it) gives up its say before it lifts.
+        const load = s === "R" ? (figure as { loadR?: number } | null)?.loadR ?? 0.5 : 1 - ((figure as { loadR?: number } | null)?.loadR ?? 0.5);
+        free[s] = Math.max(smoothstep(feet[s].lift / 0.03), (1 - load) * smoothstep(Math.abs(feet[s].pitch ?? 0) / 0.05));
+        length[s] = Math.sqrt(reach2);
+      }
+      const halfHip = (model.legs.L.hipX - model.legs.R.hipX) / 2, clamp = (v: number) => Math.max(-0.5, Math.min(0.5, v));
+      const solved = clamp((each.L - each.R) / (2 * halfHip)), fromKnees = clamp((length.L - length.R) / (2 * halfHip));
+      const lifted = Math.max(free.L, free.R), sin = solved + (fromKnees - solved) * lifted;
+      const wL = 1 - free.L + 1e-6, wR = 1 - free.R + 1e-6;
+      const led = (wL * (each.L - halfHip * sin) + wR * (each.R + halfHip * sin)) / (wL + wR);
+      height += (led - height) * kneeLed.share;
+      r.pelvis.rotation.z += Math.asin(sin) * kneeLed.share;
+    }
     r.root.position.y = height + Math.min(0, styleY) + bounce + (o.rootOffset?.y ?? 0);
     r.root.updateWorldMatrix(true, true);
     const skeleton = r["Skeleton"] as THREE.Object3D;
@@ -802,7 +884,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
       lowest = Math.min(lowest, v.copy(p).applyMatrix4(foot.matrixWorld).y);
     grounded[s] = lowest <= 0.0001;
   }
-  const prescribedR = (figure as { loadR?: number } | null)?.loadR ?? (supportOf(o.styleKey, r, beat) + 1) / 2;
+  const prescribedR = (figure as { loadR?: number } | null)?.loadR ?? (supportOf(o.styleKey, r, beat, base) + 1) / 2;
   const loadR = grounded.R ? (grounded.L ? prescribedR : 1) : 0;
   const loadL = grounded.L ? (grounded.R ? 1 - prescribedR : 1) : 0;
   const chestQ = r.chest.getWorldQuaternion(new THREE.Quaternion());

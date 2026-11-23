@@ -103,6 +103,9 @@ Ces amplitudes sont des paramètres de ce modèle, pas des normes cliniques ni d
   paume du guideur vers sa seule droite ; les deux mains dressées l'une contre l'autre (les doigts de la suiveuse
   traversaient ceux du guideur) ; la main du guideur vers le ciel et celle de la suiveuse en travers (même emboîtement,
   un quart de tour plus tôt : son poignet pliait de 61° à 63° et la prise ne ressemblait pas à la photo).
+- **La main au dos, sur l'omoplate (#185).** Le point du cadre, au bord du dos, est la place du poignet ; la paume
+  se pose plus près de la colonne, sur le corps de l'omoplate, à plat, les doigts vers la colonne (`BACK`). Mesures et
+  gardes : [cadre](cadre/spec-implementation.md#la-main-droite-du-guideur-sur-lomoplate-le-bras-de-la-suiveuse-par-dessus-185-23-novembre-2026).
 - **Une prise par danseur (#183).** La prise ci-dessus est calée sur les os d'une main humaine : os au contact. Qui
   pose sur ces os un personnage plus charnu voit ses mains se traverser. `UpperBody.grip` reçoit donc, pour un danseur,
   tout ou partie des constantes de `GRIP.upright` : le guideur y lit sa paume, sa levée, son coude et la forme de sa

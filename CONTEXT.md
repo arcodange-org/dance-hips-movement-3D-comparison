@@ -21,6 +21,21 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
 - Reste : essai par le propriétaire sur son téléphone (fluidité, Android) ; la page principale, dont l'audit et trois
   organisations sont proposés au propriétaire (choix en attente), et où la scène retient le doigt au téléphone.
 
+## Kompa et semba : pas de base élus (#161, #162, 23 novembre 2026)
+
+- **Dix tours de vote** sur films (page de vote du propriétaire ; résultats et mesures :
+  [`docs/elections/ginga-huit.md`](docs/elections/ginga-huit.md)). Élus : kompa `assisBuste`, semba `parCote`.
+- **Ce qu'ils sont** : la hanche s'assoit quand le poids arrive (vers l'arrière et l'extérieur, pivot du bassin), la
+  jambe se tend ensuite lentement, le buste suit le bassin et se penche (16°, 15°), le talon libre se lève de 6°. Le
+  semba : un rebond par temps et un double rebond un temps sur deux (deux arrivées de suite sur chaque pied).
+- **Où** : pas de base du style, danseur seul, sur place, pieds plantés (drapeau `base` calculé par `src/pose.ts`,
+  `KOMPA_ELECTED`, `SEMBA_ELECTED` dans `src/styles.ts`). En couple, en déplacement et sans solveur des jambes :
+  l'ancien modèle. `?kompa=`, `?semba=` : autres variantes ; `ancien` : avant les votes.
+- **Mesures** (`scripts/tracer_hanches.mjs` : hanches, genoux, posture, accélération) et tests :
+  `scripts/test_ginga_huit.mjs`, `scripts/test_temps_transferts.mjs` (appuis du semba seul).
+- **Reste** (#187) : porter ces pas dans le couple et le déplacement (avec le « 8 » G1 élu pour le couple, #159),
+  puis retirer les variantes non retenues ; la posture des autres styles (#166).
+
 ## Cadre des bras : bras droit du guideur, mains jointes (#178, #179, 22 novembre 2026)
 
 - **Règle R35 (#178)** : le bras droit du guideur ne se baisse pas. Hors du dos de la suiveuse (sortie fille), sa
@@ -49,6 +64,11 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   22 novembre, où les os se recouvrent ; le choix de l'attitude par défaut n'est pas fait (PR #181 en brouillon).
 - **Règle R37 (#180)** : la main gauche de la suiveuse sur l'épaule droite du guideur (devant et côté), son coude vers
   le bras droit du guideur (`CADRE_SITES.shoulderR`, `armR`) : coude à 10 à 11 cm de l'axe de son bras en moyenne.
+- **Règle R38 (#185, 23 novembre)** : avec le haut du corps anatomique, la paume droite du guideur est sur le corps de
+  l'omoplate gauche de la suiveuse (poignet au bord du dos, `BACK`) ; le coude gauche de la suiveuse passe au-dessus
+  de celui du guideur (3,6 à 6,2 cm en position fermée), les deux bras à 10 cm d'axe à axe. Son coude s'écarte donc
+  du bras du guideur (17 à 21 cm sur le rig stylisé, 10 à 11 avant) : `?essai=coudeBas` filme l'ancienne place, au
+  choix du propriétaire.
 
 ## Haut du corps anatomique : buste, bras et mains (#176, 22 novembre 2026)
 
@@ -157,6 +177,17 @@ et les specs. Résumé de la journée du 21 :
   (`gingaJunctions`) ([spec](docs/spec-ginga-couple.md)). **Ne fait pas encore le « 8 »** demandé par le propriétaire
   (chemin du bassin lié au relais des genoux, « le 8 se lit dans les deux plans ») : chantier #159, où la taille se
   choisira avec la forme.
+- **#159 (PR #160 en brouillon, à jour de `main` après #163)** : le « 8 » des hanches. Mesure : après #157 chaque hanche
+  trace une ligne vue de dessus (0,0 cm² entourés), le bassin s'arrête 0,22 temps (0,13 avec `ample`, le réglage par
+  défaut). Cinq prototypes (`GUIDE_EIGHT`, `ginga=huit|huitRond|huitInverse|huitAmple|huitGrand`) décalent le roulis et le
+  lacet dans le cycle, font avancer et reculer le bassin, retardent le rebond, et poursuivent la phase d'une figure à la
+  suivante (`gingaFrom`) ; le kompa et le semba seuls ont depuis leur pas de base élu (#161, #162, voir plus
+  haut). Paroles du 22 novembre (R33, R34 et R39) : le passage d'un côté à l'autre se mesure
+  contre un balancier (`soudain` de `tracer_hanches.mjs` : 2,0 aujourd'hui en couple, 1,0 pour les « 8 » arrondis) ; les
+  à-coups des figures (#167) et la posture (#166) sont des chantiers à part. **Prototypes non contrôlés sur le GLB**, à
+  élire ([élection](docs/elections/ginga-huit.md), [spec](docs/spec-ginga-huit.md)). Le propriétaire a
+  élu « genoux chevauchés » pour la danse (atlas #132) : les prototypes s'en éloignent (mesures dans la spec) ; faire
+  mener le « 8 » par cette règle est l'étape suivante.
 - **#167, transfert de poids continu** (R34, la règle mise en premier le 22 nov. : ni saccade, ni téléportation, ni relais
   soudain entre la gauche et la droite) : [spec](docs/spec-transfert-continu.md).
   Mesuré dans des séances du jeu : les à-coups du bassin viennent des figures, avec ou sans ginga (suiveuse, sortie

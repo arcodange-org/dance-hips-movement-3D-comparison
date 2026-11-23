@@ -12,6 +12,7 @@ import { sampleSortieFille, SORTIE_FILLE_PAIR_DZ } from "./sortieFille";
 import { sampleSortieFG, CHAIN_BEATS, CHAIN_FROM } from "./enchainement";
 import { sampleTouched, touchedBeat, touchVirgula, TOUCH_BEATS, TOUCH_POSITIONS, type Touch } from "./insertion";
 import { placementOffset, placementScale, type CouplePlacement } from "./placement";
+import type { GingaEight } from "./pose";
 
 export type GuideFigure = "ida" | "idaD" | "idaArr" | "idaArrD" | "quart" | "sortieG" | "sortieF" | "sortieFG" | "avance" | "recule" | "double";
 export type GuideKind = "base" | GuideFigure;
@@ -124,14 +125,39 @@ export const GUIDE_AUTO = {
  * support transfers; `bounce` (m): vertical pulse, lowest on each beat. Calibrated on the GLB; the
  * setting is the owner's to elect (`?ginga=sans|discret|marque|ample`). #163 (owner, on `marque` seen in
  * the couple: « Trop discret. »): the default is the largest calibrated setting. */
-export type GuideGinga = "sans" | "discret" | "marque" | "ample";
-export const GUIDE_GINGA: Record<GuideGinga, { sway: number; bounce: number } | null> = {
+export type GuideGinga = "sans" | "discret" | "marque" | "ample" | GuideEight;
+export const GUIDE_GINGA: Record<Exclude<GuideGinga, GuideEight>, { sway: number; bounce: number } | null> = {
   sans: null,
   discret: { sway: 0.2, bounce: 0.005 },
   marque: { sway: 0.3, bounce: 0.009 },
   ample: { sway: 0.45, bounce: 0.014 },
 };
 export const GUIDE_GINGA_DEFAULT: GuideGinga = "ample";
+/** #159 (owner: « on dit souvent que l'"on fait un 8" », « le 8 se lit dans les deux plans », « j'ai envie
+ * de dire les 3 plans même », docs/spec-ginga-huit.md): PROTOTYPES of the « 8 » of the hips, to elect
+ * (`?ginga=huit|huitRond|huitInverse|huitAmple|huitGrand`). Not checked on the GLB: they are not offered by default.
+ * - `huit`: the size of `marque`; the pelvis waits on the support, then crosses (an angular « 8 »);
+ * - `huitRond`: the same, the lateral shift on the moving phase too: the pelvis never stops;
+ * - `huitInverse`: `huitRond` the other way round (back as the weight arrives, forward on the support);
+ * - `huitAmple`: `huitRond`, larger;
+ * - `huitGrand`: larger still (owner, 22 Nov., on the `marque` size in the couple: « Trop discret. »). */
+export type GuideEight = "huit" | "huitRond" | "huitInverse" | "huitAmple" | "huitGrand" | "genoux" | "genouxQuart" | "genouxRond";
+export const GUIDE_EIGHT: Record<GuideEight, { sway: number; bounce: number; eight: GingaEight }> = {
+  huit: { sway: 0.3, bounce: 0.009, eight: { turn: 1, rollLag: 0.25, yawLag: 0.5, depth: 0.01, depthLag: 0, bounceLag: 0.25, round: 0 } },
+  huitRond: { sway: 0.3, bounce: 0.009, eight: { turn: 1, rollLag: 0.25, yawLag: 0.5, depth: 0.01, depthLag: 0, bounceLag: 0.25, round: 1 } },
+  huitInverse: { sway: 0.3, bounce: 0.009, eight: { turn: 1, rollLag: -0.25, yawLag: -0.5, depth: 0.01, depthLag: 0.5, bounceLag: 0.25, round: 1 } },
+  huitAmple: { sway: 0.45, bounce: 0.014, eight: { turn: 1.5, rollLag: 0.25, yawLag: 0.5, depth: 0.02, depthLag: 0, bounceLag: 0.25, round: 1 } },
+  // The bounce stays the one of `ample`: 20 mm crossed the knees in the basic step and the ida e volta (measured).
+  huitGrand: { sway: 0.6, bounce: 0.014, eight: { turn: 2, rollLag: 0.25, yawLag: 0.5, depth: 0.03, depthLag: 0, bounceLag: 0.25, round: 1 } },
+  // Vote of 22 Nov.: sense D, size F, the knees lead (they bend in turn and overlap; the hips sit where the
+  // legs put them, `turn` 0: no style roll on top). `genouxRond`: the knees half a beat after the shift, each
+  // hip goes round seen from the front.
+  genoux: { sway: 0.6, bounce: 0.014, eight: { turn: 0, rollLag: 0, yawLag: -0.5, depth: 0.03, depthLag: 0.5, bounceLag: 0.25, round: 1, knees: { base: 0.22, swing: 0.25, lag: 0 } } },
+  genouxQuart: { sway: 0.6, bounce: 0.014, eight: { turn: 0, rollLag: 0, yawLag: -0.5, depth: 0.03, depthLag: 0.5, bounceLag: 0.25, round: 1, knees: { base: 0.22, swing: 0.25, lag: 0.25 } } },
+  genouxRond: { sway: 0.6, bounce: 0.014, eight: { turn: 0, rollLag: 0, yawLag: -0.5, depth: 0.03, depthLag: 0.5, bounceLag: 0.25, round: 1, knees: { base: 0.22, swing: 0.25, lag: 0.5 } } },
+};
+/** The pose setting of a ginga name (a calibrated setting or a prototype of the « 8 »). */
+export const guideGingaOf = (name: GuideGinga) => (name in GUIDE_EIGHT ? GUIDE_EIGHT[name as GuideEight] : GUIDE_GINGA[name as Exclude<GuideGinga, GuideEight>]);
 
 /** A command: the figure asked for, dated on the beat clock. #144: `virgula` (a key held with the ida's)
  * asks for the touch as a virgula, where the step offers it. */
@@ -524,7 +550,7 @@ export function guidePoseOptions(s: Pick<GuideSample, "movement" | "rootOffset">
   return {
     gingaFrom: before && { movement: before.movement, ...figureOptions(s.previous!), quartsPaire: before.movement === "quarts", idaPaire: before.movement === "ida", placePaire: false, beats: before.beats },
     movement: s.movement, embrace: true, follower, ...figureOptions(s.kind ?? "base"), touches: s.touches ?? [],
-    ginga: GUIDE_GINGA[s.ginga ?? GUIDE_GINGA_DEFAULT],
+    ginga: guideGingaOf(s.ginga ?? GUIDE_GINGA_DEFAULT),
     quartsPaire: s.movement === "quarts", idaPaire: s.movement === "ida", placePaire: s.movement === "none", plexus: true,
     // #62: the basic step keeps the clock's phase so that it joins the figures continuously.
     onBeat: false,

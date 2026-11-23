@@ -123,6 +123,14 @@ export const GRIP = { shift: 0.012, gap: 0.004, wrist: 1.0, swivel: 0.7,
     hers: { fingers: [1, 1.011, 0.306], thumb: [0.459, 0, 0.573] } as HandShape,
     elbow: [0.25, -1, 0.1] as V3, drop: 0.1, wrist: 1.25,
   } };
+/** Hand on the partner's back (#185): the rig's hand point is at the edge of the back, where the forearm arrives
+ * from the side; that is where the wrist comes. The palm lies further in, on the shoulder blade itself, the fingers
+ * towards the spine. In the partner's chest frame, for a hand on her left side (mirrored on the right):
+ * `in`, `up`: the palm's centre from the rig's point, towards the spine and upwards (m); `palm`: where the palm
+ * faces (the back is round: its surface there turns 20° outwards); `fingers`: their direction; `wrist`: how far
+ * the wrist may bend (rad). Measured on the anatomical model: the shoulder blade's body spans 6 to 13 cm from the
+ * spine, 2 to 10 cm above the chest's origin, its muscles 7 to 9 cm behind it. */
+export const BACK = { in: 0.075, up: 0.025, palm: [-0.34, 0, 0.94] as V3, fingers: [-0.9, 0.3, -0.33] as V3, wrist: 1.0 };
 
 export interface ArmState {
   target: THREE.Vector3; palm: THREE.Vector3; elbow: THREE.Vector3; pronation: number; error: number;
@@ -238,7 +246,7 @@ export class UpperBody {
       if (!armF) continue;
       armF.updateWorldMatrix(true, false);
       const target = armF.localToWorld(HAND.clone()), rigElbow = armF.getWorldPosition(new THREE.Vector3());
-      const { hold, normal } = this.palmFacing(s, target, partner, follower);
+      const { hold, normal, blade } = this.palmFacing(s, target, partner, follower) as { hold: ArmState["hold"]; normal: THREE.Vector3; blade?: boolean };
       // Flexion the rig asks of the elbow: the angle from the line of its arm to its forearm.
       const armU = r["armU" + s] as THREE.Object3D | undefined;
       const folded = !!armU && rigElbow.clone().sub(armU.getWorldPosition(new THREE.Vector3())).angleTo(target.clone().sub(rigElbow)) > ELBOW_MAX;
@@ -283,6 +291,11 @@ export class UpperBody {
         const out = s === "L" ? 1 : -1, chest = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z).transformDirection(r.chest.matrixWorld);
         const rise = chest(out * RAISED.forearm[0], RAISED.forearm[1], RAISED.forearm[2]);
         posed = this.pose(this.arms[s], rigElbow.clone().addScaledVector(rise, HAND.length()), rigElbow, chest(-out * RAISED.palm[0], RAISED.palm[1], RAISED.palm[2]));
+      } else if (blade && partner?.chest) {
+        // #185: the palm on the shoulder blade, the wrist where the rig's hand is, at the edge of the back.
+        const out = s === "R" ? 1 : -1, at = partner.chest.worldToLocal(target.clone());
+        const dir = (a: V3) => new THREE.Vector3(out * a[0], a[1], a[2]).transformDirection(partner.chest.matrixWorld);
+        posed = this.take(this.arms[s], partner.chest.localToWorld(at.set(at.x - out * BACK.in, at.y + BACK.up, at.z)), dir(BACK.palm), dir(BACK.fingers), rigElbow, BACK.wrist);
       } else posed = this.pose(this.arms[s], target, rigElbow, normal);
       this.state[s] = { ...posed, target, hold, shape };
       this.shape(s, shape);
@@ -319,7 +332,7 @@ export class UpperBody {
       const site = partner.chest.localToWorld(v((s === "R" ? CADRE_SITES.scapulaL : CADRE_SITES.scapulaR) as V3));
       const slid = partner.chest.worldToLocal(target.clone());
       if (s === (follower ? "L" : "R") && (site.distanceTo(target) < 0.03 || (Math.abs(slid.z + 0.1) < 0.02 && Math.abs(slid.y - 0.03) < 0.02)))
-        return { hold: "back" as const, normal: axis(partner.chest, 0, 0, 1) };
+        return { hold: "back" as const, normal: axis(partner.chest, 0, 0, 1), blade: true };
       // #180: the follower's left hand on the leader's right shoulder: the palm faces the shoulder.
       if (follower && s === "L" && partner.chest.localToWorld(v(CADRE_SITES.shoulderR as V3)).distanceTo(target) < 0.03)
         return { hold: "back" as const, normal: partner.chest.localToWorld(v(ARM_JOINTS.shoulderR as V3)).sub(target).normalize() };
