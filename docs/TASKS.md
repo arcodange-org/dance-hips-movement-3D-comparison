@@ -457,3 +457,14 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Vu dans Safari du simulateur d'iPhone (iOS 26), tenu droit et couché.
 - [x] Captures avant et après (`docs/captures/page-scene-panneau/`).
 - [ ] Textes des transitions (`src/transitions.ts`) : « leader » et « suiveur » à aligner sur « guideur » et « suiveuse » (lot à part, partagé avec le jeu).
+
+## Kompa : un appui par temps (#195)
+
+- [x] Issue #195 ; spec poussée en premier ([spec](spec-ginga-huit.md#le-kompa--un-appui-par-temps-195)) ; règle R40.
+- [ ] `KOMPA_BEATS`, `kompaBeat` (`src/styles.ts`) : le pas élu lu deux fois plus vite, danseur seul sur place ;
+  `?kompa=deuxTemps` : le pas tel que voté.
+- [ ] Tests : appuis (`scripts/test_temps_transferts.mjs`), poses identiques au pas voté et mesures
+  (`scripts/test_ginga_huit.mjs`), traceur des hanches à un temps par appui.
+- [ ] Textes de l'app, README, `docs/styles-de-danse.md`, `docs/musique/kompa.md`.
+- [ ] Film du kompa à un temps par appui, à côté du pas voté.
+- [ ] En couple et en déplacement : avec #187. Style suave : question posée au propriétaire.

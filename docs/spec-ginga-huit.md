@@ -307,6 +307,51 @@ d'avant les votes), toujours pour le pas de base seulement.
 buste), les textes des deux styles dans l'app, leurs GIF de présentation. Les variantes non retenues restent dans le
 code tant que la PR est ouverte ; leur retrait est un nettoyage à part.
 
+## Le kompa : un appui par temps (#195)
+
+Règle du 24 novembre 2026 (R40) : le kompa se danse sur **un temps par appui**, pas sur deux. Le pas élu garde sa
+forme ; il est parcouru deux fois plus vite. Ce qui se danse « suave » prend deux temps par appui ; le kompa n'en
+fait pas partie.
+
+**Ce que le modèle faisait.** Le pas élu le 23 novembre tenait deux temps par pied : le poids arrivait à gauche sur
+le temps 1, restait pendant la touche du temps 2, arrivait à droite sur le temps 3, restait pendant la touche du
+temps 4 (#62, d'après une source pédagogique : `docs/musique/kompa.md`). Sur huit temps : G D G D.
+
+**Ce qu'il fait désormais.** Une arrivée du poids par temps : à gauche sur les temps impairs, à droite sur les temps
+pairs. Sur huit temps : G D G D G D G D. Il n'y a plus de touche sans poids.
+
+**Comment.** Le pas élu est une fonction du temps ; il est lu sur un temps deux fois plus rapide, calé pour que le
+poids arrive sur chaque temps de l'horloge. Si `c` est le temps de l'horloge, le pas est celui que le pas voté
+montrait au temps `2c − 1`. Les poses sont donc **exactement** celles du pas voté : même trajet du bassin (le « 8 »),
+mêmes genoux (24° à 45°, en alternance), même pivot du bassin (12°), même buste (penché de 16°, 9,5 cm de côté),
+mêmes amplitudes. Seule la durée change : les vitesses doublent, les accélérations quadruplent.
+
+| | Pas voté le 23 novembre | Depuis #195 |
+|---|---|---|
+| Temps par appui | 2 | 1 |
+| Arrivées du poids sur huit temps | G D G D | G D G D G D G D |
+| Touche sans poids | temps 2 et 4 | aucune |
+| Poses | — | les mêmes, deux fois plus vite |
+
+**Où.** Comme le pas élu : pas de base du style, danseur seul, sur place, pieds plantés (drapeau `base`). En couple
+et en déplacement, le kompa garde l'ancien modèle et ses deux temps par appui ; l'y porter est le chantier #187.
+
+**Dans le code.** `KOMPA_BEATS` (temps par appui du pas de base : 1) et `kompaBeat` dans `src/styles.ts`.
+`?kompa=deuxTemps` montre le pas élu tel qu'il a été voté (deux temps par appui), pour comparer ; les autres
+variantes de `?kompa=` et `ancien` gardent leurs deux temps.
+
+**À vérifier.**
+
+- Le poids est entier sur un pied à chaque temps, en alternance (R21) ; huit transferts en huit temps.
+- La pose au temps `c` est celle du pas voté au temps `2c − 1`, os par os.
+- Fluidité à cette vitesse (R34) : accélération du bassin et passage d'un côté à l'autre, mesurés par
+  `scripts/tracer_hanches.mjs` au tempo du kompa. Le film est montré au propriétaire.
+- En couple, rien ne change (poses identiques à celles de `main`).
+
+**Hors périmètre.** Le style suave du modèle change de côté à chaque temps ; savoir s'il doit prendre deux temps par
+appui est une question posée au propriétaire, suivie dans #195. La musique synthétisée du kompa ne change pas (ses
+temps forts restent sur les temps de l'horloge, où le poids arrive).
+
 ## Les genoux : le propriétaire a élu « genoux chevauchés »
 
 Vote de l'atlas (#132, PR #139), le 21 novembre 2026, mot pour mot : « B, genoux chevauchés » ; « c'est bien
