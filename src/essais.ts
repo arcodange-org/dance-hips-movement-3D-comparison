@@ -20,6 +20,17 @@ export const ESSAIS = {
   /** #179 : les mains jointes sur le côté du couple, plus bas et plus près, coudes détendus, avec la prise du
    * 22 novembre (l'attitude choisie les tient au niveau des épaules, emboîtées). */
   mainsBasses: "mains jointes sur le côté du couple, plus bas",
+  /** #206 (exercices d'isolation, src/isolations.ts) : candidats à élire contre la proposition. */
+  isoCouPetit: "exercices du cou : petite amplitude",
+  isoCouGrand: "exercices du cou : grande amplitude",
+  isoPoitrinePetit: "exercices de la poitrine : petite amplitude",
+  isoPoitrineGrand: "exercices de la poitrine : grande amplitude",
+  isoBassinPetit: "exercices du bassin : petite amplitude",
+  isoBassinGrand: "exercices du bassin : grande amplitude",
+  isoDeuxTemps: "allers-retours : deux temps par point",
+  isoContinu: "allers-retours : un côté par temps, sans s'arrêter au centre",
+  isoFluide: "point marqué : sans tenue, d'un point à l'autre",
+  isoHuitTourne: "huit du bassin : le bassin tourne aussi",
 } as const;
 export type Essai = keyof typeof ESSAIS;
 
