@@ -5,6 +5,17 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Pas de base « 1 2 » de la kizomba et du semba (#196, 24 novembre 2026)
+
+- Règle R41 : au 1 la jambe libre s'écarte et reçoit le poids ; au 2 l'autre la rejoint et marque sans poids, le
+  bassin refait un petit rond (double rebond) ; 3 et 4, de l'autre côté. Figure nouvelle.
+- Fait, en prototype, danseur seul : la hanche du pas élu du semba (`applySit`, `src/styles.ts`) avec des pieds qui
+  se déplacent (`src/umDois.ts`), pour la kizomba et le semba. Visible par l'adresse seulement :
+  `?unDeux=large|court|doux`. [Spec](docs/spec-pas-de-base-1-2.md), test `scripts/test_um_dois.mjs`.
+- **En attente du vote** ([films et questions](docs/elections/pas-de-base-1-2/README.md)) : l'écart (28 ou 16 cm), la
+  hanche de la kizomba, le semba, et si ce pas devient celui que la page montre. Rien n'est mis par défaut avant.
+- Ensuite : la figure dans la page et le partage d'adresse ; le couple (#187).
+
 ## Page principale : la scène toujours visible, les réglages dans un panneau (#192, 24 novembre 2026)
 
 - Deuxième lot de la simplification de la page. Le propriétaire a choisi le 24 novembre l'organisation A du canevas

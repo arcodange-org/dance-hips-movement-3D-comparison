@@ -18,7 +18,7 @@ import { essaiEnCours } from "./essais";
 import CompassRose from "./components/CompassRose";
 import { resolveCam, resolveView, viewAnglesOf, SOLID_TORSO_OPACITY } from "./cameras";
 import { usePersistentState } from "./hooks/usePersistentState";
-import { STYLES, movementOf, movementFlags, movementAllowed, travelAllowed, PAIR_DZ, setKompaProto, setSembaProto, type ModeKey, type MovementKey } from "./styles";
+import { STYLES, movementOf, movementFlags, movementAllowed, travelAllowed, PAIR_DZ, setKompaProto, setSembaProto, setUmDoisProto, type ModeKey, type MovementKey } from "./styles";
 import { QUARTS_PAIR_DZ } from "./quartsPaire";
 import { IDA_PAIR_DZ } from "./idaPaire";
 import { PLACE_PAIR_DZ } from "./placePaire";
@@ -36,6 +36,9 @@ function readParams(): URLSearchParams {
 // kompa's « 8 » in place of today's model.
 setKompaProto(readParams().get("kompa"));
 setSembaProto(readParams().get("semba"));
+// #196 (prototype, docs/spec-pas-de-base-1-2.md): `?unDeux=large|court|doux` shows the « 1 2 » of the kizomba and
+// of the semba in place of their basic step on the spot.
+setUmDoisProto(readParams().get("unDeux"));
 
 function Gauge({ label, color, hud }: { label: string; color: string; hud: any }) {
   return (

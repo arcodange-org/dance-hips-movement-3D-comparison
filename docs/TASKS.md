@@ -461,8 +461,11 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 ## Pas de base « 1 2 » de la kizomba et du semba (#196)
 
 - [x] Issue #196 ; spec poussée en premier ([spec](spec-pas-de-base-1-2.md)) ; règle R41.
-- [ ] Prototype, danseur seul : `src/umDois.ts` (pieds, port du corps), hanche du semba élu partagée avec la kizomba,
-  `?unDeux=<candidat>`.
-- [ ] Mesures (traceur des hanches, appuis, écart, hauteur du bassin) et tests.
-- [ ] Films des candidats, page de vote : l'écart, la hanche de la kizomba, ce que la page montre.
+- [x] Prototype, danseur seul : `src/umDois.ts` (pieds, port du corps), hanche du semba élu partagée avec la kizomba
+  (`applySit`), `?unDeux=large|court|doux`.
+- [x] Mesures (traceur des hanches : `<candidat> seul unDeux <style>`) et test `scripts/test_um_dois.mjs` dans
+  `npm test` : appuis, marca sans poids, écart, pieds au sol, hauteur et accélération du bassin.
+- [x] Films des candidats et dossier ([élection](elections/pas-de-base-1-2/README.md)) : l'écart, la hanche de la
+  kizomba, le semba, ce que la page montre.
+- [ ] Vote du propriétaire.
 - [ ] Après le vote : la figure dans la page, le partage d'adresse ; puis le couple (#187).

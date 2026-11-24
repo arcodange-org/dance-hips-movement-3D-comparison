@@ -14,12 +14,16 @@ export interface StyleDef {
    * `base` (#161, #162): the dancer dances the style's basic step alone, on the spot, feet planted; there
    * the kompa and the semba dance the step elected on 23 Nov. 2026, elsewhere (figures in pair, travel, the
    * rendering without the leg solver) the model of before the votes. */
-  apply: (r: RigHandle, b: number, a: number, w?: number, base?: boolean) => void;
+  apply: (r: RigHandle, b: number, a: number, w?: number, base?: BasicStep) => void;
   // Charge sur le pied DROIT dans [-1, 1] (+1 = plein appui droit, -1 = plein appui gauche).
   // Sert à la visualisation des appuis (pastilles de charge, chaîne pied→genou→hanche).
   // Côté droit du rig à x < 0 : un déplacement root.x > 0 = appui qui passe à gauche.
-  support?: (b: number, base?: boolean) => number;
+  support?: (b: number, base?: BasicStep) => number;
 }
+/** What the dancer dances when alone, feet planted, without a figure: `true`, the style's basic step on the
+ * spot; "umDois" (#196, prototype shown by `?unDeux=`), the « 1 2 » of the kizomba and of the semba, whose feet
+ * and travel are the pose's (src/umDois.ts) and whose hip is the style's; `false` or undefined, anything else. */
+export type BasicStep = boolean | "umDois";
 
 // Courbes f(temps) issues des sources documentées dans docs/styles-de-danse.md :
 // kizomba = « 2 temps » latéral sur place avec marqua (pieds joints), pas ≤ largeur
@@ -128,7 +132,7 @@ export const KOMPA_ELECTED = "assisBuste";
  * null (`ancien`), the model of before the votes; else one of `KOMPA_EIGHTS`. Read by the kompa style. */
 export const KOMPA_PROTO: { eight: KompaEight | null | undefined } = { eight: undefined };
 export const setKompaProto = (name: string | null | undefined) => { KOMPA_PROTO.eight = name === "ancien" ? null : (name && KOMPA_EIGHTS[name]) || undefined; };
-const kompaStep = (base: boolean | undefined): KompaEight | null => base ? (KOMPA_PROTO.eight === undefined ? KOMPA_EIGHTS[KOMPA_ELECTED] : KOMPA_PROTO.eight) : null;
+const kompaStep = (base: BasicStep | undefined): KompaEight | null => base ? (KOMPA_PROTO.eight === undefined ? KOMPA_EIGHTS[KOMPA_ELECTED] : KOMPA_PROTO.eight) : null;
 export function kompaSupport(b: number): number {
   const c = ((((b + 0.5) % 4) + 4) % 4), d = KOMPA.transition;
   const s = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * (3 - 2 * t); };
@@ -168,7 +172,7 @@ export const SEMBA_ELECTED = "parCote";
 /** The variant asked for by the address (`?semba=`), as `KOMPA_PROTO`. Read by the semba style. */
 export const SEMBA_PROTO: { sit: SembaSit | null | undefined } = { sit: undefined };
 export const setSembaProto = (name: string | null | undefined) => { SEMBA_PROTO.sit = name === "ancien" ? null : (name && SEMBA_SITS[name]) || undefined; };
-const sembaStep = (base: boolean | undefined): SembaSit | null => base ? (SEMBA_PROTO.sit === undefined ? SEMBA_SITS[SEMBA_ELECTED] : SEMBA_PROTO.sit) : null;
+const sembaStep = (base: BasicStep | undefined): SembaSit | null => base ? (SEMBA_PROTO.sit === undefined ? SEMBA_SITS[SEMBA_ELECTED] : SEMBA_PROTO.sit) : null;
 /** The sit comes this long (rad of the swing) after the weight has passed the centre: as elected for the kompa. */
 const SIT_AFTER = 2 * Math.PI * 0.3 - Math.PI / 2;
 /** Where the semba prototype is at motion beat `b` (the sits land on the beats of the music, motion beats
@@ -193,11 +197,14 @@ const smallRound = (s0: number, d0: number, v: number) => {
  * sit, on the beat (rule R21, the beats of the music are the weight's arrivals); a transfer takes the 0.2
  * beat before its beat (the pelvis passes the centre in its middle, as in the kompa); inside a double bounce
  * the weight stays on its foot, three quarters of it at the least, half-way: the transfer that does not happen. */
-export function sembaSupport(p: SembaSit, b: number): number {
-  const n = p.pattern.length, t = (((b - 0.5) % n) + n) % n, i = Math.floor(t), v = t - i, into = 0.2;
+export function sembaSupport(p: SembaSit, b: number, stepping = false): number {
+  // `stepping` (#196, the « 1 2 »): the feet travel. The foot that steps out lands half-way through the beat and
+  // the weight then passes onto it, both feet on the floor; during the double bounce the other foot closes and
+  // marks without weight, so the whole weight stays on the foot of the bounce.
+  const n = p.pattern.length, t = (((b - 0.5) % n) + n) % n, i = Math.floor(t), v = t - i, into = stepping ? 0.5 : 0.2;
   let side = 1;
   for (let k = 0; k < i; k++) if (p.pattern[k] === "T") side = -side;
-  if (p.pattern[i] === "D") return -side * (1 - 0.5 * Math.sin(Math.PI * v) ** 2);
+  if (p.pattern[i] === "D") return stepping ? -side : -side * (1 - 0.5 * Math.sin(Math.PI * v) ** 2);
   const x = Math.max(0, Math.min(1, (v - (1 - into)) / into)), moved = x * x * (3 - 2 * x);
   return -side * (1 - 2 * moved);
 }
@@ -205,6 +212,74 @@ export function sembaSupport(p: SembaSit, b: number): number {
 export function sembaSwing(p: SembaSit, b: number): number {
   const { theta, bounce } = sembaPhase(p, b);
   return bounce ? bounce.side * smallRound(Math.sin(SIT_AFTER), Math.PI * Math.cos(SIT_AFTER), bounce.v) : Math.sin(theta);
+}
+
+/** #196 (rule R41 of 24 Nov. 2026; docs/spec-pas-de-base-1-2.md): the « 1 2 », basic step of the kizomba and of
+ * the semba. On 1 the free leg steps aside and receives the weight; on 2 the other leg joins it and marks
+ * without weight while the pelvis makes its small round (the double bounce); 3 and 4, the same to the other
+ * side. Its supports are those of the semba's elected step (`parCote`: two landings in a row on each foot);
+ * the feet and the travel of the body are the pose's (src/umDois.ts).
+ * PROTOTYPES to show on film, off unless the address asks (`?unDeux=<candidat>`):
+ * `ecart` (m): how far the stepping foot moves aside (« almost a hip's width », 0.34 m on the model);
+ * `doux`: the kizomba dances it with a softer hip (less bounce, less sway) than the semba's. */
+export interface UmDois { ecart: number; doux: boolean }
+export const UM_DOIS: Record<string, UmDois> = {
+  large: { ecart: 0.28, doux: false },
+  court: { ecart: 0.16, doux: false },
+  doux: { ecart: 0.28, doux: true },
+};
+/** The candidate asked for by the address (`?unDeux=`): null, none, nothing changes. */
+export const UM_DOIS_PROTO: { step: UmDois | null } = { step: null };
+export const setUmDoisProto = (name: string | null | undefined) => { UM_DOIS_PROTO.step = (name && UM_DOIS[name]) || null; };
+/** The styles that dance the « 1 2 », and the candidate they dance (null: none asked for, or another style). */
+export const umDoisOf = (styleKey: string): UmDois | null => styleKey === "kizomba" || styleKey === "semba" ? UM_DOIS_PROTO.step : null;
+/** The hip of the « 1 2 »: the semba's is its elected step's; the kizomba's is the same, or a softer one. */
+const UM_DOIS_SITS: Record<"semba" | "kizomba" | "kizombaDoux", SembaSit> = {
+  semba: SEMBA_SITS.parCote,
+  kizomba: SEMBA_SITS.parCote,
+  kizombaDoux: { ...SEMBA_SITS.parCote, dip: 0.06, swing: 0.3, sway: 0.035, pivot: 0.1, back: 0.015 },
+};
+const umDoisKizombaSit = (): SembaSit => UM_DOIS_PROTO.step?.doux ? UM_DOIS_SITS.kizombaDoux : UM_DOIS_SITS.kizomba;
+/** The hip that sits (#161, #162): the pose of a `SembaSit` at motion beat `b`, amplitude `a`. Danced by the
+ * semba's elected step, and by the « 1 2 » (#196) of the semba and of the kizomba, whose feet travel. */
+function applySit(r: RigHandle, sit: SembaSit, b: number, a: number): void {
+  const { theta, bounce } = sembaPhase(sit, b), u = theta - SIT_AFTER;
+  const bump = (v: number) => (1 + Math.cos(v + sit.skew * (1 - Math.cos(v)))) / 2;
+  // The plain swing: each knee bends quickly as its leg receives the weight and straightens slowly, both
+  // bend a little more on every sit (the bounce); the pelvis pivots, the sitting hip back, and goes back
+  // with each sit.
+  let swing = Math.sin(theta), bendL = bump(u), bendR = bump(u - Math.PI), dip = bump(2 * u);
+  let turn = Math.cos(u - sit.around), sat = bump(2 * (u - sit.around));
+  if (bounce) {
+    // The double bounce: the same foot lands again one beat later. The pelvis goes on to its side, comes
+    // back to about the centre and turns (`smallRound`); the leg of the bounce straightens by the share
+    // `rise` only and bends again; the other knee bends by the share `short` half-way, the transfer that
+    // does not happen; one bounce, one recoil of the pelvis per landing.
+    const { v, side } = bounce, half = (1 - Math.cos(2 * Math.PI * v)) / 2, own = 1 - sit.rise * half, step = 1e-4;
+    // The other knee leaves and comes back with the bend and the speed it has at a sit in the plain swing.
+    const far0 = bump(-Math.PI), farSpeed = (bump(Math.PI * step - Math.PI) - bump(-Math.PI * step - Math.PI)) / (2 * step);
+    const far = far0 + farSpeed * Math.sin(2 * Math.PI * v) / (2 * Math.PI) + (sit.short - far0) * half;
+    swing = side * smallRound(Math.sin(SIT_AFTER), Math.PI * Math.cos(SIT_AFTER), v);
+    turn = side * smallRound(Math.cos(sit.around), Math.PI * Math.sin(sit.around), v);
+    sat = smallRound(bump(-2 * sit.around), (bump(2 * (Math.PI * step - sit.around)) - bump(2 * (-Math.PI * step - sit.around))) / (2 * step), v);
+    bendL = side > 0 ? own : far; bendR = side > 0 ? far : own; dip = own;
+  }
+  r.root.position.x = sit.sway * swing * a;
+  r.kneeL.rotation.x = (sit.base + sit.swing * bendL + sit.dip * dip) * a;
+  r.kneeR.rotation.x = (sit.base + sit.swing * bendR + sit.dip * dip) * a;
+  r.pelvis.rotation.z = sit.tilt * (r.kneeL.rotation.x - r.kneeR.rotation.x);
+  r.extraL = sit.heel * pos(-swing) ** 2 * a; r.extraR = sit.heel * pos(swing) ** 2 * a;
+  const yaw = sit.pivot * turn * a;
+  r.pelvis.rotation.y = yaw;
+  r.root.position.z = -sit.back * sat * a;
+  // The trunk: upright, following a share of the pivot, leaning forward (as elected for the kompa).
+  const facing = r.spine.rotation.clone().set(sit.lean * a, sit.follow * yaw, 0, "YXZ");
+  r.spine.quaternion.copy(r.pelvis.quaternion.clone().invert().multiply(r.spine.quaternion.clone().setFromEuler(facing)));
+  r.spine.rotation.x += r.pelvis.rotation.x; r.spine.rotation.z += r.pelvis.rotation.z;
+  r.head.rotation.x = -0.5 * sit.lean * a;
+  const lean = (d: number) => Math.asin(Math.max(-0.9, Math.min(0.9, sit.iso * d / TORSO_JOINTS.chest[1])));
+  r.isoLean = { side: lean(r.root.position.x - TORSO_JOINTS.spine[1] * Math.sin(r.pelvis.rotation.z)), fore: lean(r.root.position.z) };
+  r.root.position.z += sit.ahead * a;
 }
 
 export const STYLES: Record<string, StyleDef> = {
@@ -218,8 +293,9 @@ export const STYLES: Record<string, StyleDef> = {
       "Bassin souple, sous-produit de la marche — haut du corps calme",
       "En couple : sorties garçon / fille (5 temps, aller-retour hors de la ligne)",
     ],
-    support: (b) => -S2(b),
-    apply: (r, b, a) => {
+    support: (b, base) => base === "umDois" ? sembaSupport(umDoisKizombaSit(), b + 1, true) : -S2(b),
+    apply: (r, b, a, _w, base) => {
+      if (base === "umDois") { applySit(r, umDoisKizombaSit(), b + 1, a); return; }
       const s = S2(b);
       r.root.position.x = 0.07 * s * a;
       r.root.position.y = -0.02 + 0.01 * S1(b) * a;
@@ -242,49 +318,10 @@ export const STYLES: Record<string, StyleDef> = {
       "Déplacements en rond (koreidinha), changements de direction nets",
       "Plus rapide et ludique que la kizomba (≈130 bpm vs ≈90)",
     ],
-    support: (b, base) => { const sit = sembaStep(base); return sit ? sembaSupport(sit, b) : -S2(b); },
+    support: (b, base) => { const sit = sembaStep(base); return base === "umDois" ? sembaSupport(UM_DOIS_SITS.semba, b + 1, true) : sit ? sembaSupport(sit, b) : -S2(b); },
     apply: (r, b, a, _w, base) => {
-      const sit = sembaStep(base);
-      if (sit) {
-        const { theta, bounce } = sembaPhase(sit, b), u = theta - SIT_AFTER;
-        const bump = (v: number) => (1 + Math.cos(v + sit.skew * (1 - Math.cos(v)))) / 2;
-        // The plain swing: each knee bends quickly as its leg receives the weight and straightens slowly, both
-        // bend a little more on every sit (the bounce); the pelvis pivots, the sitting hip back, and goes back
-        // with each sit.
-        let swing = Math.sin(theta), bendL = bump(u), bendR = bump(u - Math.PI), dip = bump(2 * u);
-        let turn = Math.cos(u - sit.around), sat = bump(2 * (u - sit.around));
-        if (bounce) {
-          // The double bounce: the same foot lands again one beat later. The pelvis goes on to its side, comes
-          // back to about the centre and turns (`smallRound`); the leg of the bounce straightens by the share
-          // `rise` only and bends again; the other knee bends by the share `short` half-way, the transfer that
-          // does not happen; one bounce, one recoil of the pelvis per landing.
-          const { v, side } = bounce, half = (1 - Math.cos(2 * Math.PI * v)) / 2, own = 1 - sit.rise * half, step = 1e-4;
-          // The other knee leaves and comes back with the bend and the speed it has at a sit in the plain swing.
-          const far0 = bump(-Math.PI), farSpeed = (bump(Math.PI * step - Math.PI) - bump(-Math.PI * step - Math.PI)) / (2 * step);
-          const far = far0 + farSpeed * Math.sin(2 * Math.PI * v) / (2 * Math.PI) + (sit.short - far0) * half;
-          swing = side * smallRound(Math.sin(SIT_AFTER), Math.PI * Math.cos(SIT_AFTER), v);
-          turn = side * smallRound(Math.cos(sit.around), Math.PI * Math.sin(sit.around), v);
-          sat = smallRound(bump(-2 * sit.around), (bump(2 * (Math.PI * step - sit.around)) - bump(2 * (-Math.PI * step - sit.around))) / (2 * step), v);
-          bendL = side > 0 ? own : far; bendR = side > 0 ? far : own; dip = own;
-        }
-        r.root.position.x = sit.sway * swing * a;
-        r.kneeL.rotation.x = (sit.base + sit.swing * bendL + sit.dip * dip) * a;
-        r.kneeR.rotation.x = (sit.base + sit.swing * bendR + sit.dip * dip) * a;
-        r.pelvis.rotation.z = sit.tilt * (r.kneeL.rotation.x - r.kneeR.rotation.x);
-        r.extraL = sit.heel * pos(-swing) ** 2 * a; r.extraR = sit.heel * pos(swing) ** 2 * a;
-        const yaw = sit.pivot * turn * a;
-        r.pelvis.rotation.y = yaw;
-        r.root.position.z = -sit.back * sat * a;
-        // The trunk: upright, following a share of the pivot, leaning forward (as elected for the kompa).
-        const facing = r.spine.rotation.clone().set(sit.lean * a, sit.follow * yaw, 0, "YXZ");
-        r.spine.quaternion.copy(r.pelvis.quaternion.clone().invert().multiply(r.spine.quaternion.clone().setFromEuler(facing)));
-        r.spine.rotation.x += r.pelvis.rotation.x; r.spine.rotation.z += r.pelvis.rotation.z;
-        r.head.rotation.x = -0.5 * sit.lean * a;
-        const lean = (d: number) => Math.asin(Math.max(-0.9, Math.min(0.9, sit.iso * d / TORSO_JOINTS.chest[1])));
-        r.isoLean = { side: lean(r.root.position.x - TORSO_JOINTS.spine[1] * Math.sin(r.pelvis.rotation.z)), fore: lean(r.root.position.z) };
-        r.root.position.z += sit.ahead * a;
-        return;
-      }
+      const sit = base === "umDois" ? UM_DOIS_SITS.semba : sembaStep(base);
+      if (sit) { applySit(r, sit, base === "umDois" ? b + 1 : b, a); return; }
       const s = S2(b);
       r.root.position.x = 0.05 * s * a;
       r.root.position.y = (0.055 * Math.abs(S1(b)) - 0.055) * a;
@@ -491,7 +528,7 @@ export type ModeKey = (typeof MODES)[number]["key"];
 // utilisée en mode Face à face (sortie garçon côté guideur, sortie fille côté
 // suiveur — le retard du suiveur décale la seconde). Sources : voir docs/styles-de-danse.md.
 // Charge pied droit (bornée [-1,1]) : courbe du style si définie, sinon déduite de root.x.
-export function supportOf(styleKey: string, r: RigHandle, b: number, base = true): number {
+export function supportOf(styleKey: string, r: RigHandle, b: number, base: BasicStep = true): number {
   const st = STYLES[styleKey];
   const v = st && st.support ? st.support(b, base) : -r.root.position.x / 0.09;
   return Math.max(-1, Math.min(1, v));

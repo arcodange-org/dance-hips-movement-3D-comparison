@@ -49,8 +49,9 @@ même, décalée de l'écart `E` vers la gauche du danseur).
 |---|---|---|
 | Gauche | 3,05 → 3,5 | quitte sa marca et s'écarte de `E` ; posé à plat avant que le poids n'arrive |
 | Gauche | 3,5 → 6,1 | à plat, porte le poids des comptes 1 et 2, le rend pendant le temps suivant |
-| Gauche | 6,1 → 6,8 | rejoint le pied droit (retour de `E`), près du sol |
-| Gauche | 6,8 → 7,05 | marque : posé sur la plante, talon levé, sans poids, sur le compte 4 |
+| Gauche | 5,6 → 6,1 | son talon se lève : le pied roule sur sa plante, là où il est, pendant que le poids le quitte |
+| Gauche | 6,1 → 6,8 | rejoint le pied droit (retour de `E`), près du sol, sur la plante |
+| Gauche | 6,8 → 7,05 | marque : posé sur la plante, talon levé de 5 cm, sans poids, sur le compte 4 |
 | Droit | les mêmes, deux temps plus tôt | |
 
 Le pied qui s'écarte se pose avant le milieu du transfert : pendant la seconde moitié du temps, les deux pieds
@@ -62,20 +63,29 @@ sont au sol et le poids passe de l'un à l'autre.
   demi-onde par temps) ; il est à mi-chemin, entre les deux pieds, au milieu du temps.
 - Par-dessus, la hanche du pas élu : elle s'assoit à chaque arrivée du poids, le bassin pivote, le buste suit et
   se penche ; au temps de la marca, le bassin fait son petit rond et revient s'asseoir sur le même pied.
-- Le poids (jauges de la page) : entier sur le pied à chaque temps ; pendant le temps de la marca, les trois quarts
-  au moins restent sur le pied d'appui.
+- Le poids (jauges de la page) : entier sur le pied à chaque temps. Il passe d'un pied à l'autre pendant la seconde
+  moitié du temps du transfert, les deux pieds au sol ; pendant le temps de la marca il reste entier sur le pied
+  d'appui (le pied qui marque ne porte rien).
+- La hauteur du bassin est celle que donne la hanche du pas élu, comme si les pieds étaient sous les hanches : ses
+  assises et son rebond, rien de plus. Une jambe dont le pied est loin (laissée en arrière, ou tendue vers le côté)
+  ne fait que la borner par ce qu'elle peut atteindre tendue, depuis sa plante quand le talon est levé. Sans cela
+  le bassin plongeait de 6,6 cm à chaque arrivée, tiré par la jambe restée en arrière.
 
 ### Dans le code (prototype)
 
-- `src/umDois.ts` (pur) : les places, le calendrier des pieds, le port du corps.
-- `src/styles.ts` : la hanche du pas élu du semba devient une fonction partagée ; la kizomba la reçoit pour cette
-  figure, avec ses propres réglages.
-- `src/pose.ts` : la figure remplace le pas de base quand elle est demandée, danseur seul, pieds plantés.
+- `src/umDois.ts` (pur) : les places, le calendrier des pieds (`umDoisFoot`, `UM_DOIS_TIMES`), le port du corps
+  (`umDoisCarry`).
+- `src/styles.ts` : la hanche du pas élu du semba devient une fonction partagée (`applySit`) ; la kizomba la reçoit
+  pour cette figure. Candidats : `UM_DOIS` (`large`, `court`, `doux`), `setUmDoisProto`, `umDoisOf`.
+- `src/pose.ts` : la figure remplace le pas de base quand elle est demandée, danseur seul, pieds plantés
+  (`umDoisFeet`, hauteur du bassin).
+- `scripts/test_um_dois.mjs` (dans `npm test`), `scripts/tracer_hanches.mjs <candidat> seul unDeux <style>`.
 - Tant que le propriétaire n'a pas vu les films, la figure ne s'affiche que par l'adresse :
   `?style=kizomba&unDeux=<candidat>` et `?style=semba&unDeux=<candidat>`. Sans ce paramètre rien ne change.
 
 ## Ce qui reste à trancher sur film
 
+Films, mesures et propositions : [`docs/elections/pas-de-base-1-2/`](elections/pas-de-base-1-2/README.md).
 Chaque question est montrée par des films côte à côte, une scène par question.
 
 1. **L'écart.** « Presque une largeur de hanches » (34 cm sur le modèle) : le pied se déplace-t-il d'autant
