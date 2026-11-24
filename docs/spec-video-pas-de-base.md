@@ -197,6 +197,10 @@ filmé à ce tempo, et le montage cale le premier temps de la musique sur le tem
   sont retirées. Voix redites et transcrites ; chaque chapitre tient dans sa musique (film de 6 min 21 environ).
   Pas encore refilmé : le film v9 dit encore les mesures ; il sera refait avec les mouvements ci-dessous.
 
+- **Kompa à un appui par temps** (#195, fusionné le 24 novembre par #198) : le chapitre kompa dit que le modèle
+  change de pied à chaque temps, comme ce que décrivent ses professeurs ; la comparaison range le kompa avec la
+  kizomba (faits F356 à F358 ; `scripts/test_video.mjs` attend « G D G D G D G D »).
+
 ## Ce qui reste
 
 - **Le rythme du kompa et le pas de base de la kizomba et du semba** changent (demande du 24 novembre) : le
@@ -204,9 +208,8 @@ filmé à ce tempo, et le montage cale le premier temps de la musique sur le tem
   du semba devient le « 1 2 », figure nouvelle : une jambe s'écarte et reçoit le poids, l'autre la rejoint et
   marque sans poids (#196) ; le suave passe à deux temps par côté, sans rebond (#200). Le film v9 montre encore le
   kompa à deux temps par pied, la kizomba et le semba pieds plantés, le suave à un côté par temps avec un rebond.
-  Quand ces changements seront dans `main` : reprendre les chapitres kompa, kizomba, semba et suave et la
-  comparaison (narration, fiche de faits, `scripts/test_video.mjs` qui attend « G D G D » pour le kompa), puis
-  refilmer.
+  Le kompa est fait (ci-dessus). Quand les deux autres seront dans `main` : reprendre les chapitres kizomba, semba
+  et suave et la comparaison (narration, fiche de faits, `scripts/test_video.mjs`), puis refilmer.
 - **Le couple et le déplacement** gardent l'ancien déhanché du kompa et du semba, et le ginga du couple n'a pas
   encore son « 8 » : c'est le chantier #187. Le final du film le dit. La vidéo sera refilmée quand il sera
   fusionné (`node scripts/video/generer_video.mjs`).

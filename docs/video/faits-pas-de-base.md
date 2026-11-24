@@ -590,6 +590,19 @@ Mesures : `node scripts/video/mesurer_pas.mjs` et
   l'arrière au fil de l'appui (`docs/elections/ginga-huit.md`, « Limites » du huitième tour ;
   `docs/styles-de-danse.md`, kompa).
 
+#### Complément du 24 novembre 2026 : un appui par temps
+
+- **F356** Depuis le 24 novembre 2026 (#195, règle R40 du propriétaire), le pas de base du kompa, danseur seul
+  sur place, change de pied à chaque temps : le pas élu (F344) est lu deux fois plus vite. Le poids arrive à
+  gauche sur les temps impairs, à droite sur les temps pairs. Ce fait remplace F345, et F331 pour le pas de base
+  (`src/styles.ts`, `KOMPA_BEATS`, `kompaBeat` ; `docs/spec-ginga-huit.md`, « Le kompa : un appui par temps »).
+  Le modèle rejoint ainsi ce que décrivent ses professeurs : un appui par temps (F324). En couple et en
+  déplacement, le kompa garde deux temps par appui (chantier #187).
+- **F357** Mesures à ce rythme : le bassin fait 11,7 cm d'un côté à l'autre, 3,5 cm d'avant en arrière, 1,5 cm
+  de haut ; il pivote de 11,5° de chaque côté ; il n'est jamais à l'arrêt ; vu de dessus, il entoure 16,6 cm² en
+  quatre temps. Le buste suit (8,9 cm de côté), le tronc penche de 16° ; les genoux plient de 24° à 45°. Arrivées
+  du poids sur huit temps : G D G D G D G D (mesure, `scripts/video/mesurer_pas.mjs`).
+
 ### 2.4 Tarraxinha
 
 #### Origine, filiation, influences
@@ -1034,6 +1047,10 @@ remplacent F248 à F251 et F253 pour le kompa et le semba.
   16,6 cm², semba 15,4 cm², tarraxinha 11,3 cm². Dans la kizomba et le zouk, il va et vient par le même chemin
   (0 cm²). Hanche par hanche, le kompa entoure le plus : 22 cm², contre 17,5 pour le suave, 17 pour le semba,
   6 pour la tarraxinha.
+- **F358** Le rythme des appuis, au 24 novembre 2026 (remplace F350 pour le kompa) : la kizomba, le zouk et le
+  kompa changent de pied à chaque temps (F356). Le semba arrive deux fois de suite sur chaque pied (F339).
+  Tarraxinha et suave ne transfèrent qu'une partie du poids. Le kompa fait maintenant 11,7 cm d'un côté à
+  l'autre (F357) : l'ordre de F353 ne change pas.
 - **F355** Le tronc. Kompa et semba le penchent vers l'avant, de 16° et 15°, sans variation. La kizomba de 6°,
   la tarraxinha de 8°. Le suave ondule : son inclinaison varie de 19° sur quatre temps. Le zouk est cambré, de
   10° vers l'arrière, et varie de 8°.

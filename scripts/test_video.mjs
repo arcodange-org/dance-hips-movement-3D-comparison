@@ -334,10 +334,10 @@ const durees = existsSync(FICHE_DUREES) ? JSON.parse(readFileSync(FICHE_DUREES, 
 {
   const { mesurer } = await import("./video/mesurer_pas.mjs");
   const m = Object.fromEntries(Object.keys(STYLES).map((s) => [s, mesurer(s)]));
-  // Appuis (semba, kompa, comparaison) : la kizomba change de pied à chaque temps ; le kompa reste deux temps sur
-  // son pied ; le semba y arrive deux fois ; tarraxinha et suave ne transfèrent qu'en partie.
+  // Appuis (semba, kompa, comparaison) : la kizomba et le kompa changent de pied à chaque temps (le kompa depuis
+  // #195) ; le semba y arrive deux fois ; tarraxinha et suave ne transfèrent qu'en partie.
   assert.equal(m.kizomba.poids.arrivees, "GDGDGDGD", "kizomba : un pied par temps");
-  assert.equal(m.kompa.poids.arrivees, "GDGD", "kompa : une arrivée tous les deux temps");
+  assert.equal(m.kompa.poids.arrivees, "GDGDGDGD", "kompa : un pied par temps");
   assert.equal(m.semba.poids.arrivees, "GGDDGGDD", "semba : deux arrivées de suite sur chaque pied");
   assert.deepEqual([m.tarraxinha.poids.arrivees, m.suave.poids.arrivees], ["", ""], "tarraxinha, suave : le poids ne passe qu'en partie");
   // Le « 8 » : vu de dessus, le bassin du kompa et du semba entoure une surface et ne s'arrête jamais.

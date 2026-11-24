@@ -148,12 +148,10 @@
         },
         {
           "voix": "geste",
-          "texte": "Ses professeurs décrivent une marche : un appui par temps. Le modèle tient deux temps par pied : c'est le rythme ralenti.",
+          "texte": "Ses professeurs décrivent une marche : un appui par temps. Le modèle fait de même : le poids change de pied à chaque temps.",
           "faits": [
-            "F120",
             "F324",
-            "F331",
-            "F345"
+            "F356"
           ],
           "repere": "Une marche en rythme"
         },
@@ -417,17 +415,16 @@
         },
         {
           "voix": "geste",
-          "texte": "La kizomba change de pied à chaque temps. Le kompa et le semba, tous les deux temps : le kompa y reste, le semba y arrive deux fois.",
+          "texte": "La kizomba et le kompa changent de pied à chaque temps. Le semba arrive deux fois de suite sur le même pied.",
           "accent": [
             "kizomba",
             "kompa",
             "semba"
           ],
           "faits": [
-            "F044",
             "F339",
-            "F345",
-            "F350"
+            "F356",
+            "F358"
           ]
         },
         {
