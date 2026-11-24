@@ -311,14 +311,15 @@
         },
         {
           "voix": "geste",
-          "texte": "Dans le modèle, le bassin glisse à peine : vu de dessus, il trace un petit « 8 ».",
-          "dit": "Dans le modèle, le bassin glisse à peine : vu de dessus, il trace un petit huit.",
-          "repere": "Bassin : un « 8 », vu de dessus",
+          "texte": "Dans le modèle, le bassin reste deux temps de chaque côté, sans rebond, et glisse à peine : vu de dessus, il trace un petit « 8 ».",
+          "dit": "Dans le modèle, le bassin reste deux temps de chaque côté, sans rebond, et glisse à peine : vu de dessus, il trace un petit huit.",
+          "repere": "Deux temps par côté, un « 8 »",
           "faits": [
             "F190",
-            "F191",
             "F197",
-            "F353"
+            "F353",
+            "F359",
+            "F360"
           ]
         },
         {
@@ -415,16 +416,18 @@
         },
         {
           "voix": "geste",
-          "texte": "La kizomba et le kompa changent de pied à chaque temps. Le semba arrive deux fois de suite sur le même pied.",
+          "texte": "La kizomba et le kompa changent de pied à chaque temps ; le suave change de côté tous les deux temps. Le semba arrive deux fois de suite sur le même pied.",
           "accent": [
             "kizomba",
             "kompa",
+            "suave",
             "semba"
           ],
           "faits": [
             "F339",
             "F356",
-            "F358"
+            "F358",
+            "F359"
           ]
         },
         {

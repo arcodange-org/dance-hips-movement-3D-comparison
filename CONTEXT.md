@@ -161,7 +161,8 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
 - **Demandé le 24 novembre**, après le film v9 : le kompa à un appui par temps, pas élu gardé (#195) ; le pas de base
   « 1 2 » de la kizomba et du semba, figure nouvelle (#196) ; le suave à deux temps par côté, sans rebond (#200). Le film
   reprendra ses chapitres kompa, kizomba, semba, suave et sa comparaison quand ces mouvements seront dans `main`. Le
-  kompa y est (#198) : chapitre et comparaison réécrits, film refait.
+  kompa y est (#198) : chapitre et comparaison réécrits, film refait (v10). Le suave aussi (#205) : texte réécrit, pas
+  encore refilmé.
 - **Le film parle à des danseurs** (règle du 24 novembre) : ni centimètres ni degrés à l'écran ni dans la voix, des
   tailles en mots, les styles comparés entre eux ; narration réécrite, voix redites, `test_video.mjs` refuse les unités
   et prouve chaque comparaison. Pas encore refilmé.

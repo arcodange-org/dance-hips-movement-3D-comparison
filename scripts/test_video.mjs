@@ -340,6 +340,10 @@ const durees = existsSync(FICHE_DUREES) ? JSON.parse(readFileSync(FICHE_DUREES, 
   assert.equal(m.kompa.poids.arrivees, "GDGDGDGD", "kompa : un pied par temps");
   assert.equal(m.semba.poids.arrivees, "GGDDGGDD", "semba : deux arrivées de suite sur chaque pied");
   assert.deepEqual([m.tarraxinha.poids.arrivees, m.suave.poids.arrivees], ["", ""], "tarraxinha, suave : le poids ne passe qu'en partie");
+  // Suave (#200) : deux temps de chaque côté, sans rebond ; le côté qui porte change quatre fois en huit temps.
+  const cotesSuave = m.suave.poids.partDroiteSurLeTemps.map((x) => x > 0.5);
+  assert.equal(cotesSuave.filter((x, i) => x !== cotesSuave[(i + 1) % 8]).length, 4, `suave : deux temps par côté (${m.suave.poids.partDroiteSurLeTemps})`);
+  assert.ok(m.suave.bassin.hauteur <= 1.2, `suave : sans rebond (${m.suave.bassin.hauteur} cm)`);
   // Le « 8 » : vu de dessus, le bassin du kompa et du semba entoure une surface et ne s'arrête jamais.
   for (const s of ["kompa", "semba"]) {
     assert.ok(m[s].bassin.entoureVuDeDessus > 10 && m[s].bassin.arret === 0, `${s} : le bassin entoure ${m[s].bassin.entoureVuDeDessus} cm², arrêt ${m[s].bassin.arret}`);

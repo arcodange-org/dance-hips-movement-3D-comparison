@@ -802,6 +802,18 @@ Mesures : `node scripts/video/mesurer_pas.mjs` et
   la description de cours-kizomba.com (`docs/musique/confrontation-moteur.md:96-97`).
 - **F201** La « figure en 8 » du bassin n'a pas de description cinématique publiée
   (`docs/recherche-biomecanique/bassin-et-dissociation.md:88`).
+
+#### Complément du 24 novembre 2026 : deux temps par côté, sans rebond
+
+- **F359** Depuis le 24 novembre 2026 (#200, règle R44 du propriétaire), le suave du danseur seul, sur place,
+  se danse deux temps par côté, sans rebond : le poids penche à gauche (60/40) sur les temps 1 et 2, à droite sur
+  3 et 4, et passe le milieu entre 2 et 3. Le balancement prend quatre temps, sans arrêt. Les talons restent au
+  sol. Ce fait remplace, pour ce pas, F189, F195, F196 (balancement sur deux temps) et F200
+  (`docs/spec-suave-deux-temps.md` ; `src/styles.ts`, style `suave`).
+- **F360** Mesures à ce rythme : le bassin fait 6 cm d'un côté à l'autre et 4,4 cm d'avant en arrière ; vu de
+  dessus, il entoure 17,6 cm², une boucle de chaque côté ; il monte et descend de 1,0 cm, une fois par côté (1,7 cm
+  à chaque temps avant) ; les genoux plient de 38° à 43° ; la vague du tronc sur quatre temps est gardée (mesure,
+  `scripts/video/mesurer_pas.mjs` ; `docs/spec-suave-deux-temps.md`).
 - **F202** Roulis ±1,7° : « cohérent (« sous-produit de la marche ») »
   (`docs/recherche-biomecanique/confrontation-modele.md:37`).
 
