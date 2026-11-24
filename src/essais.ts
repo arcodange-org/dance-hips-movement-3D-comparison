@@ -11,6 +11,8 @@
  * Tour des mains (#179) : `mainsCote` choisie le 23 novembre 2026, devenue le comportement et retirée ;
  * `mainsBasses` reste filmable.
  * Bras du cadre (#185) : le coude levé de la suiveuse choisi le 23 novembre 2026 ; `coudeBas` retiré (#190).
+ * Tenue des mains (#199) : `paumeCiel` choisie le 24 novembre 2026, devenue la tenue des mains jointes et retirée ;
+ * la tenue sur le côté reste une option de l'app (`?tenue=cote`, `TENUE` dans src/upperBody.ts).
  */
 export const ESSAIS = {
   /** Témoin : ne change rien. Sert à filmer le comportement actuel image par image hors du mode paire. */
