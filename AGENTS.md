@@ -42,6 +42,10 @@ automatique, en musique, au tempo de la piste ; `scripts/test_vitrine.mjs`).
 Jeu et vitrine sur téléphone (#186) : [spec](docs/spec-jeu-telephone.md) ; commandes en trois dispositions (téléphone tenu droit, couché, écran large :
 `src/jeuHud.ts` pur, `src/components/jeu/`), rien n'est posé sur le couple (`CadreLibre`), boutons de 44 px au moins ; `docs/features/jeu-telephone.feature` ;
 l'interface réelle se mesure dans un navigateur avec les profils de téléphone de Playwright : `scripts/mesure_jeu_telephone.mjs` (hors `npm test`).
+Page principale (#192) : [spec](docs/spec-page-scene-panneau.md) ; la scène toujours visible, sa barre de lecture, les réglages dans un panneau à tiroirs ;
+onglets « Seul · Comparer · En couple · Jeu » (`src/page.ts` pur : inventaire `COMMANDES` des commandes et de leur place, `src/components/page/`) ;
+chaque commande porte son nom (`data-commande`) ; `docs/features/page-scene-panneau.feature` ; mesure dans un navigateur : `scripts/mesure_page.mjs` (hors `npm test`).
+`src/App.tsx` garde l'état, la lecture de l'adresse, la scène et la vue `bare=1` ; aucun paramètre d'URL renommé.
 Haut du corps anatomique (#176) : [spec](docs/spec-haut-du-corps.md) ; option `haut=1` : os et muscles du buste, des bras et des mains
 (`public/anatomy_upper.glb`, `scripts/build_upper_body.mjs`, `src/upperBody.ts` pur, `src/components/UpperBodyLayer.tsx`,
 `scripts/test_upper_body.mjs`) ; la main anatomique vient où le rig pose la sienne ; le rig publie la couche dans `rig.upperBody`.

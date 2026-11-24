@@ -47,7 +47,7 @@ Piste publiée : kizomba (variante C). Les autres styles jouent la synthèse.
 | `src/music/loop.ts` | Fonctions pures : position dans la boucle pour un temps de la danse, fondu de raccord, moteur de boucle sur un port de sortie abstrait | oui (sortie factice) |
 | `src/music/loopOutput.ts` | Port Web Audio : chargement, décodage, source en boucle, vitesse, fondus | non (navigateur) |
 | `src/music/useMusic.ts` | Choix de la source (enregistrement ou synthèse), chargement, repli | non |
-| `src/components/SoundControls.tsx` | Source, provenance, tempo de la piste | non |
+| `src/components/page/Panneau.tsx` (tiroir « Son »), `BarreLecture.tsx` | Source, provenance, tempo de la piste (#192 ; avant : `SoundControls.tsx`) | non |
 | `scripts/musique_prompts.mjs` | Prompts versionnés, un par style | oui |
 | `scripts/tempo.mjs` | Analyse pure : tempo, instant du premier temps, dérive | oui (signal de synthèse) |
 | `scripts/generer_musique.mjs` | Appel de l'API, analyse, mise à jour du registre | non (réseau) |
