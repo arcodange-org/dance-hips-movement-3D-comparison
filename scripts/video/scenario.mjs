@@ -59,6 +59,11 @@ export const musiqueDe = chapitre => chapitre.style ?? "kizomba";
 // ------------------------------------------------------------------------------------------ cadrages
 const PIED = { el: 5, dist: 3.3, fov: 38, target: [0, 0.72, 0] };
 const BASSIN = { el: 3, dist: 2.3, fov: 22, target: [0, 0.84, 0] };
+/** Milieu du trajet du bassin dans la scène, en mètres vers la gauche du danseur : le « 1 2 » de la kizomba et du
+ * semba change de ligne (#196), la caméra vise le milieu de ses deux places au lieu de la place de départ.
+ * Mesuré par `scripts/video/mesurer_pas.mjs` (`milieu`) ; `scripts/test_video.mjs` vérifie l'accord. */
+export const MILIEU = { kizomba: 0.14, semba: 0.14 };
+const vise = (style, c) => ({ ...c, target: [c.target[0] + (MILIEU[style] ?? 0), c.target[1], c.target[2]] });
 const melange = (a, b, u) => ({
   az: entre(a.az, b.az, u), el: entre(a.el, b.el, u), dist: entre(a.dist, b.dist, u), fov: entre(a.fov, b.fov, u),
   target: a.target.map((x, k) => entre(x, b.target[k], u)), shift: entre(a.shift ?? 0, b.shift ?? 0, u),
@@ -106,7 +111,7 @@ export function plansDe(chapitre, cal, bpm, ordre) {
   if (chapitre.type === "ouverture") {
     // Du bassin au corps entier : on montre d'abord ce qu'on va regarder.
     const a = { ...BASSIN, az: 24, shift: -0.27 }, b = { ...PIED, az: -6, shift: -0.2 };
-    return simple(solo("kizomba", bpm), (i, t) => melange(a, b, adouci((t - 1.2) / Math.max(4, D * 0.4))));
+    return simple(solo("kizomba", bpm), (i, t) => vise("kizomba", melange(a, b, adouci((t - 1.2) / Math.max(4, D * 0.4)))));
   }
 
   if (chapitre.type === "style") {
@@ -117,9 +122,9 @@ export function plansDe(chapitre, cal, bpm, ordre) {
     return simple(solo(chapitre.style, bpm), (i, t) => {
       const seg = segments.findLast(x => t >= x.debut) ?? segments[0], u = (t - seg.debut) / Math.max(0.1, seg.fin - seg.debut);
       // Le gros plan est fixe et de face, le même pour les six styles : ce qui tourne à l'image, c'est le bassin.
-      if (seg.plan === "bassin") return { ...BASSIN, az: 0, shift: -0.24 };
-      if (seg.plan === "profil") return { ...PIED, az: entre(80, 92, u), shift: -0.12 };
-      return { ...PIED, az: entre(-14, 10, t / D), shift: -0.12 };
+      if (seg.plan === "bassin") return vise(chapitre.style, { ...BASSIN, az: 0, shift: -0.24 });
+      if (seg.plan === "profil") return vise(chapitre.style, { ...PIED, az: entre(80, 92, u), shift: -0.12 });
+      return vise(chapitre.style, { ...PIED, az: entre(-14, 10, t / D), shift: -0.12 });
     }, { segments });
   }
 
@@ -133,17 +138,17 @@ export function plansDe(chapitre, cal, bpm, ordre) {
     const plans = [];
     for (const style of ordre) {
       plans.push({ id: `comparaison-rangee-${style}`, url: solo(style, bpm, { repere: 0 }), largeur: rangee.largeur, hauteur: rangee.hauteur, ips, images: n1,
-        cadrage: (i, t) => ({ az: entre(-8, 10, t / coupe), el: 4, dist: 3.4, fov: 32, target: [0, 0.9, 0] }) });
+        cadrage: (i, t) => vise(style, { az: entre(-8, 10, t / coupe), el: 4, dist: 3.4, fov: 32, target: [0, 0.9, 0] }) });
       // De près, de face, sans dérive : le bassin remplit la case.
       plans.push({ id: `comparaison-grille-${style}`, url: solo(style, bpm, { repere: 0 }), largeur: grille.largeur, hauteur: grille.hauteur, ips, images: n2, avance: n1,
-        cadrage: () => ({ az: 0, el: 3, dist: 2.3, fov: 15, target: [0, 0.83, 0] }) });
+        cadrage: () => vise(style, { az: 0, el: 3, dist: 2.3, fov: 15, target: [0, 0.83, 0] }) });
     }
     return { plans, composition: { type: "comparaison", ordre, coupe, n1, n2 } };
   }
 
   if (chapitre.type === "limites") {
     // Le squelette seul : ce qu'on regarde est un modèle.
-    return simple(solo("kizomba", bpm, { muscles: 0, torso: 0, solid: 0 }), (i, t) => ({ ...PIED, az: entre(18, 62, t / D), shift: -0.2 }));
+    return simple(solo("kizomba", bpm, { muscles: 0, torso: 0, solid: 0 }), (i, t) => vise("kizomba", { ...PIED, az: entre(18, 62, t / D), shift: -0.2 }));
   }
 
   if (chapitre.type === "final") {

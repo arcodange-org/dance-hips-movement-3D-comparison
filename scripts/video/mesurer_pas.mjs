@@ -76,6 +76,8 @@ export function mesurer(styleKey) {
   suiteDesArrivees.sort((a, b) => a[0] - b[0]);
   return {
     style: styleKey, trajet: bassin.slice(0, 4 * PAS).map(p => [arrondi(p[0], 2), arrondi(p[2], 2)]),
+    // Milieu du trajet du bassin dans la scène (mètres, x de la scène = vers la gauche du danseur) : où le film vise.
+    milieu: arrondi(-bassin.reduce((a, p) => a + p[0], 0) / bassin.length / 100, 3),
     bassin: { cote: arrondi(etendue(bassin.map(p => p[0]))), hauteur: arrondi(etendue(bassin.map(p => p[1]))), avantArriere: arrondi(etendue(bassin.map(p => p[2]))),
       entoureVuDeDessus: arrondi(entoure(bassin.slice(0, 4 * PAS).map(p => [p[0], p[2]]))), arret: arrondi(Math.min(bassin.length, arret) / PAS, 2) },
     pivotDuBassin: arrondi(etendue(lacet) / 2),

@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 import { RYTHME, adouci, calendrier, coupes } from "./video/calendrier.mjs";
 import { DEBIT, FICHE_DUREES, FICHE_FAITS, clePhrase, controlerNarration, faitsDe } from "./video/controle.mjs";
 import { DOSSIER_PISTES, FICHE_PISTES, VARIANTE_VIDEO, niveauxDe, partiePleine, pistes, tempoPrevu } from "./video/musique.mjs";
-import { ATTRIBUTIONS, COMPARAISON, FILM, PRONONCIATION, SOUS_TITRE_MAX, STYLES, VOIX, caseDe, chapitresDe, decouper, generiqueDe,
+import { ATTRIBUTIONS, COMPARAISON, FILM, MILIEU, PRONONCIATION, SOUS_TITRE_MAX, STYLES, VOIX, caseDe, chapitresDe, decouper, generiqueDe,
   habillageDe, lireNarration, musiqueDe, plansDe, plansDesPhrases, sourcesDe, trajetDe } from "./video/scenario.mjs";
 import { ELEMENTS, generiqueHtml } from "./video/habillage.mjs";
 import { ATTRIBUTION_VOIX, prononcer } from "./video/voix.mjs";
@@ -374,5 +374,7 @@ const durees = existsSync(FICHE_DUREES) ? JSON.parse(readFileSync(FICHE_DUREES, 
   assert.deepEqual(rang((x) => x.tronc.inclinaison).slice(0, 3).sort(), ["kizomba", "kompa", "semba"], "kizomba, kompa et semba penchent le plus");
   for (const s of ["kizomba", "kompa", "semba"]) assert.ok(m[s].tronc.inclinaison > 13 && m[s].tronc.inclinaison < 19 && m[s].tronc.variation < 1, `${s} : tronc nettement penché (${m[s].tronc.inclinaison})`);
   assert.ok(m.tarraxinha.tronc.inclinaison > 3 && m.tarraxinha.tronc.inclinaison < 0.6 * m.semba.tronc.inclinaison, "tarraxinha : un peu");
+  // Le film vise le milieu du trajet du bassin (le « 1 2 » change de ligne) : la table des cadrages suit la mesure.
+  for (const s of Object.keys(m)) assert.ok(Math.abs((MILIEU[s] ?? 0) - m[s].milieu) < 0.015, `${s} : la caméra vise le milieu du trajet (${m[s].milieu} m)`);
   console.log("PASS mesures : appuis, « 1 2 », « 8 », pivot du bassin et buste du modèle tels que la narration les dit");
 }
