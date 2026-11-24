@@ -1,5 +1,5 @@
 /**
- * #196 (rule R41 of 24 Nov. 2026; docs/spec-pas-de-base-1-2.md): the « 1 2 », basic step of the kizomba and of
+ * #196 (rule R42 of 24 Nov. 2026; docs/spec-pas-de-base-1-2.md): the « 1 2 », basic step of the kizomba and of
  * the semba, danced alone. Pure: where the two feet are and how far the body has travelled, at a beat of the
  * clock. The hip (the sits, the double bounce, the load) is the style's (`applySit`, src/styles.ts).
  *

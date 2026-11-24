@@ -214,7 +214,7 @@ export function sembaSwing(p: SembaSit, b: number): number {
   return bounce ? bounce.side * smallRound(Math.sin(SIT_AFTER), Math.PI * Math.cos(SIT_AFTER), bounce.v) : Math.sin(theta);
 }
 
-/** #196 (rule R41 of 24 Nov. 2026; docs/spec-pas-de-base-1-2.md): the « 1 2 », basic step of the kizomba and of
+/** #196 (rule R42 of 24 Nov. 2026; docs/spec-pas-de-base-1-2.md): the « 1 2 », basic step of the kizomba and of
  * the semba. On 1 the free leg steps aside and receives the weight; on 2 the other leg joins it and marks
  * without weight while the pelvis makes its small round (the double bounce); 3 and 4, the same to the other
  * side. Its supports are those of the semba's elected step (`parCote`: two landings in a row on each foot);

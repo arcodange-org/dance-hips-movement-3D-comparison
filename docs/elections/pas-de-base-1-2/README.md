@@ -2,7 +2,7 @@
 
 Fil d'Ariane : [docs](../../) › [spec du pas « 1 2 »](../../spec-pas-de-base-1-2.md) › **films à voir, questions à trancher**
 
-Dossier ouvert le 24 novembre 2026. Règle R41 : au 1 la jambe libre s'écarte et reçoit le poids ; au 2 l'autre la
+Dossier ouvert le 24 novembre 2026. Règle R42 : au 1 la jambe libre s'écarte et reçoit le poids ; au 2 l'autre la
 rejoint et marque sans poids, le bassin refait un petit rond (double rebond) ; 3 et 4, la même chose de l'autre côté.
 
 Ce sont des **prototypes** : ils ne s'affichent que par l'adresse (`?style=kizomba&unDeux=large`). Sans ce paramètre

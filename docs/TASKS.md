@@ -456,11 +456,18 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] `scripts/mesure_page.mjs` : critères tenus sur 38 couples vue × profil (ordinateur, tablette, téléphones tenus droits et couchés).
 - [x] Vu dans Safari du simulateur d'iPhone (iOS 26), tenu droit et couché.
 - [x] Captures avant et après (`docs/captures/page-scene-panneau/`).
-- [ ] Textes des transitions (`src/transitions.ts`) : « leader » et « suiveur » à aligner sur « guideur » et « suiveuse » (lot à part, partagé avec le jeu).
+- [x] Textes des transitions : lot à part, voir « Textes des pas : guideur et suiveuse (#194) ».
+
+## Textes des pas : guideur et suiveuse (#194)
+
+- [x] Issue #194 et spec poussée en premier ([spec](spec-transitions.md), « Les mots »).
+- [x] `src/transitions.ts` : « guideur » (27 fois) et « suiveuse » (9 fois) dans tous les textes, avec leurs accords ; « son pied dégage le couloir le premier » dit en clair qui dégage.
+- [x] `scripts/test_transitions.mjs` : la règle « jamais avant le guideur » ; refus du retour des anciens mots (58 transitions).
+- [x] Vérifié dans le navigateur : barre de lecture, « Ce pas en détail », fiche du jeu en danse seule ; aucun ancien mot affiché.
 
 ## Pas de base « 1 2 » de la kizomba et du semba (#196)
 
-- [x] Issue #196 ; spec poussée en premier ([spec](spec-pas-de-base-1-2.md)) ; règle R41.
+- [x] Issue #196 ; spec poussée en premier ([spec](spec-pas-de-base-1-2.md)) ; règle R42.
 - [x] Prototype, danseur seul : `src/umDois.ts` (pieds, port du corps), hanche du semba élu partagée avec la kizomba
   (`applySit`), `?unDeux=large|court|doux`.
 - [x] Mesures (traceur des hanches : `<candidat> seul unDeux <style>`) et test `scripts/test_um_dois.mjs` dans

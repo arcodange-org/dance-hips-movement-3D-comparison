@@ -7,7 +7,7 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
 
 ## Pas de base « 1 2 » de la kizomba et du semba (#196, 24 novembre 2026)
 
-- Règle R41 : au 1 la jambe libre s'écarte et reçoit le poids ; au 2 l'autre la rejoint et marque sans poids, le
+- Règle R42 : au 1 la jambe libre s'écarte et reçoit le poids ; au 2 l'autre la rejoint et marque sans poids, le
   bassin refait un petit rond (double rebond) ; 3 et 4, de l'autre côté. Figure nouvelle.
 - Fait, en prototype, danseur seul : la hanche du pas élu du semba (`applySit`, `src/styles.ts`) avec des pieds qui
   se déplacent (`src/umDois.ts`), pour la kizomba et le semba. Visible par l'adresse seulement :
@@ -35,7 +35,8 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   `SoundControls`.
 - Vérifié : `docs/features/page-scene-panneau.feature` (dans `npm test`) et `scripts/mesure_page.mjs` (navigateur,
   ordinateur, tablette et profils de téléphone de Playwright) : résultats dans la spec, « Résultat mesuré ».
-- Hors périmètre : les textes des transitions (`src/transitions.ts`) disent encore « leader » et « suiveur ».
+- Les textes des pas (`src/transitions.ts`, partagés avec le jeu) disent aussi « guideur » et « suiveuse » depuis #194
+  ([spec](docs/spec-transitions.md), « Les mots ») ; un test refuse le retour de « leader » et « suiveur ».
 
 ## Jeu et vitrine utilisables sur téléphone (#186, 23 novembre 2026)
 
@@ -80,7 +81,10 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   du guideur, refermée autour de son index, pouces croisés). Dossier :
   [élection des mains](docs/elections/2026-11-22-mains/README.md) ; **choix du 23 novembre : l'attitude B**, devenue le
   comportement (mains sur le côté du couple, leur milieu à hauteur d'épaule, emboîtées) ; C reste filmable
-  (`?essai=mainsBasses`).
+  (`?essai=mainsBasses`). Tenue choisie le 24 novembre (#199, R41) : main du guideur en
+  plateau (main renversée au poignet, paume presque parallèle au sol, pouce visible), main de la suiveuse posée
+  dessus, son coude qui retombe ; la tenue sur le côté reste en option (`?tenue=cote`)
+  ([dossier](docs/elections/2026-11-24-paume-ciel/README.md)).
   Fait dans le haut du corps anatomique : doigts articulés, formes de main, poignet de la suiveuse articulé, sa main
   posée en travers de celle du guideur ([spec](docs/spec-haut-du-corps.md)). Reste : son poignet va au bout de son
   amplitude, les doigts ne se serrent pas, et le rig stylisé (sans `haut=1`) n'a pas de doigts.

@@ -1,6 +1,6 @@
 # Spec — le pas de base « 1 2 » de la kizomba et du semba (#196)
 
-Issue : #196. Règle du propriétaire : R41 ([`regles-proprietaire.md`](regles-proprietaire.md)), 24 novembre 2026.
+Issue : #196. Règle du propriétaire : R42 ([`regles-proprietaire.md`](regles-proprietaire.md)), 24 novembre 2026.
 Suite de l'élection des pas de base ([`spec-ginga-huit.md`](spec-ginga-huit.md), #161, #162).
 
 ## La règle

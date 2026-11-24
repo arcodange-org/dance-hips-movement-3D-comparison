@@ -50,7 +50,7 @@ Haut du corps anatomique (#176) : [spec](docs/spec-haut-du-corps.md) ; option `h
 (`public/anatomy_upper.glb`, `scripts/build_upper_body.mjs`, `src/upperBody.ts` pur, `src/components/UpperBodyLayer.tsx`,
 `scripts/test_upper_body.mjs`) ; la main anatomique vient où le rig pose la sienne ; le rig publie la couche dans `rig.upperBody`.
 Cadre des bras (#40, [spec](docs/cadre/spec-implementation.md), `src/cadre.ts`, `scripts/test_cadre.mjs`) : le bras droit du guideur ne se baisse pas (#178, R35) ;
-main gauche de la suiveuse sur l'épaule droite du guideur, coude vers son bras (#180, R37) ; paume droite du guideur sur l'omoplate de la suiveuse, dont le bras passe par-dessus (#185, R38 : `BACK` dans `src/upperBody.ts`, mesure `scripts/mesure_cadre_bras.mjs` ; coude levé choisi le 23 novembre, #190) ; prise des mains (#179, R36) : attitude choisie le 23 novembre (mains sur le côté, emboîtées), candidat restant `?essai=mainsBasses`
+main gauche de la suiveuse sur l'épaule droite du guideur, coude vers son bras (#180, R37) ; paume droite du guideur sur l'omoplate de la suiveuse, dont le bras passe par-dessus (#185, R38 : `BACK` dans `src/upperBody.ts`, mesure `scripts/mesure_cadre_bras.mjs` ; coude levé choisi le 23 novembre, #190) ; prise des mains (#179, R36) : attitude choisie le 23 novembre (mains sur le côté, emboîtées), candidat restant `?essai=mainsBasses` ; tenue choisie le 24 novembre (#199, R41, `SKYWARD`, `TENUE`) : main du guideur en plateau, pouce visible, coude de la suiveuse qui retombe ; la tenue sur le côté en option `?tenue=cote`
 ([dossier](docs/elections/2026-11-22-mains/README.md)), doigts et poignet articulés dans le haut du corps (`HAND_SHAPES`, `GRIP`, `src/upperBody.ts`) ;
 emboîtement des mains : sonde de calibrage `scripts/search_prise_mains.mjs` (deux mains humaines, ou deux mains décrites en fichier avec leur chair, #183 : `UpperBody.grip`), mesure `scripts/mesure_essai_mains.mjs` (jeu entre les os des deux mains).
 Mode jeu (#140, [spec](docs/spec-jeu-file-auto.md)) : les commandes s'empilent dans une file (plus de note ni
@@ -67,7 +67,7 @@ hanches dans les trois vues : `scripts/tracer_hanches.mjs` ; GIF du mode jeu en 
 `scripts/capture_session_gif.mjs`. Kompa (#161) et semba (#162) : leur pas de base, danseur seul sur place, est le pas élu
 (`KOMPA_ELECTED`, `SEMBA_ELECTED` ; drapeau `base` de `StyleDef.apply`) ; variantes par `?kompa=`, `?semba=` (`ancien` : avant les
 votes) ; en couple et en déplacement, l'ancien modèle ; le traceur mesure aussi les genoux et la posture.
-Pas de base « 1 2 » de la kizomba et du semba (#196, R41, [spec](docs/spec-pas-de-base-1-2.md)) : prototype à élire, `?unDeux=large|court|doux`
+Pas de base « 1 2 » de la kizomba et du semba (#196, R42, [spec](docs/spec-pas-de-base-1-2.md)) : prototype à élire, `?unDeux=large|court|doux`
 (`src/umDois.ts` pur, `applySit` et `UM_DOIS` dans `src/styles.ts`, `scripts/test_um_dois.mjs` ; [films](docs/elections/pas-de-base-1-2/README.md)).
 Transfert de poids continu (#167, R34 : ni saccade, ni téléportation, ni relais soudain) : [spec](docs/spec-transfert-continu.md) ;
 `scripts/test_saccades.mjs` mesure, dans des séances du mode jeu, les à-coups du bassin de chaque figure et le passage d'un côté

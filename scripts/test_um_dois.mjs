@@ -1,4 +1,4 @@
-// #196 (rule R41, docs/spec-pas-de-base-1-2.md): the « 1 2 », basic step of the kizomba and of the semba,
+// #196 (rule R42, docs/spec-pas-de-base-1-2.md): the « 1 2 », basic step of the kizomba and of the semba,
 // PROTOTYPE shown by `?unDeux=<candidat>`. On the real GLB: the supports (weight on the leg that stepped aside
 // on 1 and 2, on the other on 3 and 4), the marka without weight, the step's width, the feet (on the floor,
 // moving only when free), the continuity of the pelvis, and nothing changed without the parameter.
