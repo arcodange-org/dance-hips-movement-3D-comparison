@@ -29,6 +29,17 @@ Pour l'intégrer dans une autre page :
 Dans le mode jeu, la danse automatique (Espace) prend aussi le tempo de la piste et affiche les
 muscles. [Spécification](docs/spec-vitrine-danse-auto.md).
 
+## Exercices d'isolation : le cou, la poitrine, le bassin (#206)
+
+Un danseur seul, pieds posés, fait **un exercice** d'échauffement ou de body move : seule la partie du corps nommée bouge,
+sur **un huit qui boucle** (le cou tourne, penche, hoche ou fait son cercle ; la poitrine glisse devant, derrière, de côté,
+en cercle marqué ou lié ; le bassin bascule, glisse, fait ses cercles ou son huit). Dix-neuf boucles, pour les exercices
+que ReCoDanse fera montrer par ses mascottes. Lien : `?isolation=poitrine-cercle-marque&haut=1&muscles=1` (les noms des
+exercices, `miroir=1` et `mode=compare` dans [la spec](docs/spec-isolations.md)). L'amplitude et la forme attendent
+[l'élection](docs/elections/2026-11-24-isolations/README.md).
+
+![Le cercle de la poitrine, marqué](docs/elections/2026-11-24-isolations/P3-poitrine-cercle-marque.gif)
+
 ## Musique enregistrée, générée par IA (#142)
 
 Quand un style a une piste, le bouton **« Son »** joue une **boucle enregistrée générée par IA**
@@ -370,7 +381,8 @@ plongeante pour lire le lacet des pieds/vírgula), `&campos=x,y,z&camtgt=x,y,z` 
 exact, ex. produit par le bouton « Partager la vue »), `&angle=45&zoom=2.5` (**angle** = azimut en
 degrés autour de la cible (0 = +Z, 90 = +X = E/ligne de danse) et **zoom** = distance caméra→cible
 en m — écrits aussi dans l'URL par « Partager la vue », prioritaires sous `campos`/`camtgt`),
-`&boussole=0` (masque la boussole 8 directions).
+`&boussole=0` (masque la boussole 8 directions), `&isolation=<exercice>&miroir=1` (exercice d'isolation seul, pieds
+posés, sur un huit qui boucle ; ignoré en paire ; [spec](docs/spec-isolations.md)).
 
 **La page (#192)** : onglets « Seul · Comparer · En couple · Jeu » ; la scène se voit dès l'ouverture, avec sa barre de
 lecture (lecture, rejouer, pas de la figure, tempo, son) ; les réglages sont dans un panneau : le style, la figure et ses

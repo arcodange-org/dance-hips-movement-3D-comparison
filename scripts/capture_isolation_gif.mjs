@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 // GIF en boucle d'un exercice d'isolation (#206, docs/spec-isolations.md) : un huit, sans image tenue à la fin (la
 // dernière image enchaîne sur la première), le compte des temps (1 à 8) écrit en bas, le temps en cours allumé.
-// Plusieurs adresses : les candidats côte à côte, même caméra, même temps, une lettre au-dessus de chacun.
+// Plusieurs adresses : les candidats côte à côte, même caméra, même temps, une lettre en bas de chacun.
 // Une seule page chargée par adresse : l'horloge de danse est retrouvée par les fibres React (comme
 // scripts/capture_session_gif.mjs) et placée sur le temps de chaque image. Rendu par la carte graphique.
 // Usage : CHROME_PATH=... BPM=96 FPS=10 node scripts/capture_isolation_gif.mjs sortie.gif "<adresse sans sortieBeat>" ["<adresse 2>" ...]
-//   LABELS="A|B|C" : lettres au-dessus des colonnes. WIDTH=400 : largeur d'une colonne dans le GIF.
+//   LABELS="A|B|C" : lettres en bas de chaque colonne (le compte des temps est en haut). WIDTH=400 : largeur d'une colonne dans le GIF.
 import { createRequire } from "node:module";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
@@ -54,7 +54,7 @@ await browser.close();
 const inputs = dirs.flatMap(d => ["-framerate", String(fps), "-i", `${d}/f%03d.png`]);
 // Chaque chiffre à sa place, éteint ; celui du temps en cours allumé par-dessus (pas de mesure de police).
 const size = 22, pitch = 26, total = width * urls.length, x0 = Math.round((total - 7 * pitch - 14) / 2);
-const scaled = dirs.map((_, k) => `[${k}:v]scale=${width}:-2:flags=lanczos${labels[k] ? `,drawtext=fontfile=${font}:text=${labels[k]}:fontsize=26:fontcolor=white:x=14:y=12` : ""}[c${k}]`).join(";");
+const scaled = dirs.map((_, k) => `[${k}:v]scale=${width}:-2:flags=lanczos${labels[k] ? `,drawtext=fontfile=${font}:text=${labels[k]}:fontsize=24:fontcolor=white:x=14:y=h-38` : ""}[c${k}]`).join(";");
 const stacked = dirs.length > 1 ? `${dirs.map((_, k) => `[c${k}]`).join("")}hstack=inputs=${dirs.length}[s]` : "[c0]null[s]";
 const digit = (i, on) => `drawtext=fontfile=${font}:text=${i + 1}:fontsize=${size}:fontcolor=${on ? "0xf8fafc" : "0x475569"}:x=${x0 + i * pitch}:y=14`
   + (on ? `:enable='eq(floor(n*8/${n}),${i})'` : "");

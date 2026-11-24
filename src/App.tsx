@@ -525,7 +525,7 @@ export default function App() {
           </span>
         </div>
         )}
-        {!demo && (isCompare || isPair) && (
+        {!demo && !isolation && (isCompare || isPair) && (
           <div className="absolute bottom-3 right-3 pointer-events-none">
             <span
               className="px-2 py-0.5 rounded-md text-[11px] font-semibold text-slate-950"

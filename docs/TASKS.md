@@ -480,9 +480,9 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 
 - [x] Issue #206 ; jeton L441 posé au plan du dossier ReCoDanse (kadans-dossier#950, PR #951) ; spec poussée en premier
   ([spec](spec-isolations.md)).
-- [ ] `src/isolations.ts` (pur) : dix-neuf boucles d'un huit, réglages explicites, candidats lus dans `src/essais.ts`.
-- [ ] `src/pose.ts` : option `isolation` (sans style, pieds posés, colonne et cage posées exactement après le solveur des
+- [x] `src/isolations.ts` (pur) : dix-neuf boucles d'un huit, réglages explicites, candidats lus dans `src/essais.ts`.
+- [x] `src/pose.ts` : option `isolation` (sans style, pieds posés, colonne et cage posées exactement après le solveur des
   jambes, cou qui plie depuis sa base) ; `isolation=`, `miroir=` dans l'adresse (seul et comparaison).
-- [ ] `scripts/test_isolations.mjs` (module pur et vrai GLB) et `docs/features/isolations.feature` dans `npm test`.
-- [ ] GIF des dix-neuf boucles et des candidats ; page d'élection (`docs/elections/2026-11-24-isolations/`).
+- [x] `scripts/test_isolations.mjs` (module pur et vrai GLB) et `docs/features/isolations.feature` dans `npm test`.
+- [x] GIF des dix-neuf boucles et des candidats ; page d'élection (`docs/elections/2026-11-24-isolations/`, tour 12 de la page de vote).
 - [ ] Vote du fondateur ; la proposition élue devient le comportement, les interrupteurs d'essai partent.
