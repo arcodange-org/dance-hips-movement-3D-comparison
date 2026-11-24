@@ -58,6 +58,9 @@ Tranché par le fondateur de ReCoDanse le 24 novembre 2026 : le cou **tourne et 
 - **Pieds posés, poids sur les deux pieds** : aucun balancement du style, aucun transfert de poids, aucun rebond.
   Genoux souples (ni tendus ni pliés en danse). Les jambes s'ajustent : c'est le solveur des jambes qui trouve la hauteur
   du bassin, comme partout.
+- **Le bassin reste à niveau toute la boucle** : à la hauteur la plus basse que les jambes lui donnent sur le huit (quand
+  le bassin glisse de côté, la jambe opposée plie). Le danseur s'assoit donc un peu dans ses genoux dès le départ, et la
+  poitrine et la tête ne montent ni ne descendent avec le bassin.
 - **La poitrine glisse** (devant, derrière, de côté, en cercle) : la cage thoracique se déplace sans tourner, la colonne
   prend le chemin entre le bassin et la cage.
 - **Le cou plie depuis sa base** quand la tête penche ou hoche ; la tête tourne en haut du cou.
@@ -143,6 +146,27 @@ danse est retiré).
 - `docs/features/isolations.feature` (Gherkin, dans `npm test`).
 - GIF : `docs/elections/2026-11-24-isolations/` (les dix-neuf boucles à la proposition, et les candidats côte à côte),
   avec les os et les muscles du haut du corps.
+
+## Résultat mesuré (24 novembre 2026)
+
+`node scripts/test_isolations.mjs`, à chaque seizième de temps des dix-neuf boucles, danseur seul et danseur décalé et
+tourné (comparaison) :
+
+| Mesure | Résultat |
+|---|---|
+| Pieds (position et orientation) | immobiles à moins de 0,1 mm, semelles posées |
+| Os sous le sol | aucun (tolérance 0,1 mm) |
+| Longueurs des jambes | constantes à moins de 0,1 mm |
+| Cage thoracique | à sa place plus son glissé à moins de 1 mm, droite et de face à moins de 0,01° |
+| Tête hors exercices du cou | suit la cage, sans tourner ni pencher |
+| Bassin hors exercices du bassin | immobile |
+| Cage qui monte et descend | 2 à 5 mm (le glissé de la colonne) ; 13 mm avant que le bassin soit tenu à niveau |
+| Plus grand déplacement en un seizième de temps | moins de 1,2 cm (tête, cage, bassin) |
+| Boucle | la pose du temps 8 est celle du temps 0 |
+
+Le module pur est vérifié pour la proposition et chaque candidat : période d'un huit, aucun saut (couture comprise), seule
+la partie nommée non nulle, marqué par le centre sur 2, 4, 6, 8 et lié sans le centre, sens des cercles, grand = 1,5 ×
+moyen, miroir.
 
 ## Hors de ce lot
 

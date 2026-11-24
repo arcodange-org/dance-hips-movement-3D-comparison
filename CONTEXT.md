@@ -5,6 +5,23 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Exercices d'isolation seul, pieds posés (#206, lot L441 de ReCoDanse, 24 novembre 2026)
+
+- Demande : ReCoDanse proposera dans « S'entraîner » des exercices sans vidéo de la personne, montrés en boucle par Rémi
+  et Corinne côte à côte, filmés par le pont des mascottes sur ce moteur (fiche 111 du dossier ReCoDanse ; lots suivants :
+  L442 filmer, L443 les corps). Jeton L441 au plan du dossier : kadans-dossier#950.
+- Fait : `?isolation=<exercice>` ([spec](docs/spec-isolations.md)) ; dix-neuf boucles d'un huit (cou : tourner, pencher,
+  hocher, deux cercles ; poitrine : devant-derrière, côtés, cercles marqués et liés dans les deux sens ; bassin : bascule,
+  côtés, cercles marqués et liés, le huit dans les deux sens). Seule la partie nommée bouge, pieds posés, poids sur les deux
+  pieds, bassin à niveau sur la boucle ; le cou plie depuis sa base. `miroir=1`, `mode=compare` (deux danseurs côte à côte).
+- Module pur `src/isolations.ts` ; option `isolation` de `applyPose` (aucun style ; colonne et cage posées exactement après
+  le solveur des jambes) ; `scripts/test_isolations.mjs` (vrai GLB) et `docs/features/isolations.feature` dans `npm test` ;
+  films `scripts/capture_isolation_gif.mjs` (boucle sans image tenue, compte des temps).
+- Attend le vote du fondateur (tour 12 de la page d'élection, [dossier](docs/elections/2026-11-24-isolations/README.md)) :
+  amplitude du cou, de la poitrine, du bassin ; rythme des allers-retours ; point marqué tenu ou fluide ; huit qui glisse ou
+  qui tourne. Candidats : `?essai=iso…` (inertes sans le paramètre). Après le vote : la variante élue devient le
+  comportement, les interrupteurs partent, le jeton L441 se rend.
+
 ## Kompa : un appui par temps (#195, 24 novembre 2026)
 
 - Règle R40 : le kompa se danse sur un temps par appui, pas deux ; ce qui est « suave » prend deux temps par appui.

@@ -513,7 +513,8 @@ export default function App() {
           </div>
         )}
         {demo && <DemoOverlay demo={demo} />}
-        {!demo && (
+        {/* #206: an isolation exercise belongs to no style: no style chip over it. */}
+        {!demo && !isolation && (
         <div className="absolute bottom-3 left-3 flex gap-2 pointer-events-none">
           <span
             className="px-2 py-0.5 rounded-md text-[11px] font-semibold text-slate-950"

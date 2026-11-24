@@ -71,6 +71,10 @@ se danse sur un temps par appui (#195, R40 : `KOMPA_BEATS`, `kompaBeat` ; `?komp
 Transfert de poids continu (#167, R34 : ni saccade, ni téléportation, ni relais soudain) : [spec](docs/spec-transfert-continu.md) ;
 `scripts/test_saccades.mjs` mesure, dans des séances du mode jeu, les à-coups du bassin de chaque figure et le passage d'un côté
 à l'autre ; l'état est enregistré (`scripts/fixtures/saccades.json`, cliquet ; `WRITE=1` après un changement voulu).
+Exercices d'isolation (#206, lot L441 de ReCoDanse) : [spec](docs/spec-isolations.md) ; `?isolation=<exercice>` (cou, poitrine,
+bassin), danseur seul pieds posés, seule la partie nommée bouge, un huit qui boucle (`src/isolations.ts` pur, option `isolation` de
+`applyPose`, `scripts/test_isolations.mjs`, `docs/features/isolations.feature`, films `scripts/capture_isolation_gif.mjs`) ; amplitude et
+forme à élire (`docs/elections/2026-11-24-isolations/`, candidats `?essai=iso…`).
 Mode guidage (PoC #69) : [spec](docs/spec-mode-guidage-poc.md) (`src/guidage.ts` pur, `src/guidagePose.ts`,
 vue `src/components/GuidageApp.tsx`, `scripts/test_guidage.mjs`) ; recherche : [jeux vidéo](docs/recherche-jeux-video/README.md).
 
