@@ -416,6 +416,9 @@ export const setKneeFloor = (degrees: string | null | undefined) => {
   const d = Number(degrees);
   KNEE_FLOOR.rad = degrees && Number.isFinite(d) && d >= 7 && d <= 40 ? d * Math.PI / 180 : 0.12;
 };
+// In node (measures of a candidate with the existing tests), the environment variable FLEXION, which the tests never
+// set; in the browser, the address (`?flexion=`, src/App.tsx).
+setKneeFloor((globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.FLEXION);
 export const onBeatShift = (o: { movement: MovementKey; sortie?: boolean; embrace?: boolean; onBeat?: boolean }): number =>
   // Solo, a selected sortie is the dance on the spot (the sorties exist only in pair). The guide mode
   // (`onBeat: false`) keeps the clock's phase: its basic step must join the figures, which keep theirs.
