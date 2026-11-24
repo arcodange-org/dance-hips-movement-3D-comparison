@@ -39,7 +39,7 @@ export const DEMOS: Record<string, DemoDef> = {
   suave: {
     chip: "Suave",
     color: "#4ade80",
-    captions: ["« 8 » au sol + talon levé → on change de pied", "vague séquentielle L5 → dorsales → tête"],
+    captions: ["« 8 » au sol, deux temps par côté, sans rebond", "vague séquentielle L5 → dorsales → tête"],
     beat: 60 / 60,
   },
   zouk: {
