@@ -70,6 +70,7 @@ votes) ; en couple et en déplacement, l'ancien modèle ; le traceur mesure auss
 se danse sur un temps par appui (#195, R40 : `KOMPA_BEATS`, `kompaBeat` ; `?kompa=deuxTemps` : le pas tel que voté).
 Pas de base « 1 2 » de la kizomba et du semba seuls (#196, R42, [spec](docs/spec-pas-de-base-1-2.md)), élu le 24 novembre : `UM_DOIS_ELECTED`
 (`src/umDois.ts` pur, `applySit` et `UM_DOIS` dans `src/styles.ts`, `scripts/test_um_dois.mjs`) ; l'ancien pas est la figure « Sur place » (`surPlace`).
+Suave seul, sur place : deux temps par côté, sans rebond (#200, R44, [spec](docs/spec-suave-deux-temps.md), `SUAVE_SLOW`) ; en couple, l'ancien modèle.
 Transfert de poids continu (#167, R34 : ni saccade, ni téléportation, ni relais soudain) : [spec](docs/spec-transfert-continu.md) ;
 `scripts/test_saccades.mjs` mesure, dans des séances du mode jeu, les à-coups du bassin de chaque figure et le passage d'un côté
 à l'autre ; l'état est enregistré (`scripts/fixtures/saccades.json`, cliquet ; `WRITE=1` après un changement voulu).

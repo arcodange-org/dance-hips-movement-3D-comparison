@@ -474,6 +474,16 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
   (`scripts/test_ginga_huit.mjs`), traceur des hanches à un temps par appui (`BPM=` pour un autre tempo).
 - [x] Textes de l'app, README, `docs/styles-de-danse.md`, `docs/musique/kompa.md`, `docs/spec-temps-transferts.md`.
 - [x] Films du kompa à un temps par appui (`docs/gifs/kompa-un-temps*.gif`), à 90 et 120 bpm.
+- [ ] En couple et en déplacement : avec #187. Style suave : deux temps par côté, sans rebond, fait seul (#200).
+
+## Suave : deux temps par côté, sans rebond (#200)
+
+- [x] Issue #200 ; spec ([spec](spec-suave-deux-temps.md)) ; règle R44.
+- [x] Danseur seul, sur place : balancement sur quatre temps, « 8 » à une boucle par côté, talons au sol
+  (`src/styles.ts`, `SUAVE_SLOW`) ; test des appuis (`scripts/test_temps_transferts.mjs`) ; textes.
+- [x] Film du suave à deux temps par côté (`docs/gifs/suave-deux-temps.gif`).
+- [ ] En couple et dans le mode jeu (son pas de base est en suave) : avec #187.
+
 - [ ] En couple et en déplacement : avec #187. Style suave : deux temps par côté, sans rebond (#200).
 
 ## Pas de base « 1 2 » de la kizomba et du semba (#196)

@@ -40,6 +40,9 @@ export type BasicStep = boolean | "umDois";
  * 0.4 beat before beat 1, holds through the touch on 2, moves to the right foot before beat 3 and holds
  * through 4. `b` is the motion beat (clock − 0,5). */
 export const KOMPA = { transition: 0.4 };
+/** #200: the suave alone on the spot, two beats per side; `depth` (m): how far the hip goes forward and back in each
+ * lobe of its « 8 » on the floor. */
+export const SUAVE_SLOW = { depth: 0.022 };
 /** #161, #159 (owner, 22 Nov.: « Le konpa est complètement faux actuellement: c'est le 8 le plus prononcé
  * justement » ; docs/spec-ginga-huit.md): PROTOTYPES of the kompa's « 8 », to elect, off by default
  * (`?kompa=huit|huitGrand|huitInverse`). Source (Jasmin's teachers' manual, quoted by Le Nouvelliste, see
@@ -482,27 +485,34 @@ export const STYLES: Record<string, StyleDef> = {
     color: "#4ade80",
     posture: { lean: 0.02, knee: 0.14 },
     bullets: [
-      "« 8 » du bassin au sol, sur place (ginga)",
-      "Talon levé → fesses montent → on redescend et change de pied",
+      "« 8 » du bassin au sol, une boucle de chaque côté (ginga)",
+      "Seul, sur place : deux temps par côté, sans rebond, les talons au sol",
       "Vague séquentielle L5 → dorsales → tête",
-      "Transferts partiels 60/40, talons au sol, aucun rise-and-fall",
+      "Transferts partiels 60/40, aucun rise-and-fall ; en couple et dans les figures, un côté par temps",
     ],
-    support: (b) => -0.2 * S2(b),
-    apply: (r, b, a, w = b) => {
+    // #200 (rule R44, 24 Nov. 2026): alone, on the spot, two beats per side, without bounce: the lateral sway takes
+    // four beats (the weight is on the left on beats 1 and 2, on the right on 3 and 4, passing half-way between 2
+    // and 3), the hip draws its « 8 » on the floor one lobe per side (forward-and-back twice per sway), the heels
+    // stay down. Elsewhere (the figures, which give the style one transfer per beat, the pair, the travel) the
+    // suave of before.
+    support: (b, base) => -0.2 * (base === true ? S4(b) : S2(b)),
+    apply: (r, b, a, w = b, base) => {
+      const slow = base === true, side = slow ? S4(b) : S2(b);
       r.root.position.y = -0.035;
-      r.pelvis.position.x = 0.03 * S2(b) * a;
-      r.pelvis.position.z = 0.022 * S4(w) * a;
+      r.pelvis.position.x = 0.03 * side * a;
+      r.pelvis.position.z = (slow ? -SUAVE_SLOW.depth * S2(b) : 0.022 * S4(w)) * a;
       r.pelvis.rotation.x = 0.05 * Math.sin((TAU * w) / 4 + 1.57) * a;
-      r.pelvis.rotation.z = 0.03 * S2(b) * a;
+      r.pelvis.rotation.z = 0.03 * side * a;
       r.spine.rotation.x = 0.09 * Math.sin((TAU * w) / 4 - 0.5) * a;
       r.lumbar.rotation.x = 0.1 * Math.sin((TAU * w) / 4 - 0.9) * a;
       r.thoracic.rotation.x = 0.1 * Math.sin((TAU * w) / 4 - 1.4) * a;
       r.chest.rotation.x = 0.08 * Math.sin((TAU * w) / 4 - 1.1) * a;
       r.head.rotation.x = 0.06 * Math.sin((TAU * w) / 4 - 1.7) * a;
-      r.kneeL.rotation.x = (0.14 + 0.1 * S2(b)) * a;
-      r.kneeR.rotation.x = (0.14 - 0.1 * S2(b)) * a;
-      r.extraL = 0.15 * pos(S1(b)) * a;
-      r.extraR = 0.15 * pos(-S1(b)) * a;
+      r.kneeL.rotation.x = (0.14 + 0.1 * side) * a;
+      r.kneeR.rotation.x = (0.14 - 0.1 * side) * a;
+      // The heel rose on every beat (the bounce); two beats per side, it stays down.
+      r.extraL = slow ? 0 : 0.15 * pos(S1(b)) * a;
+      r.extraR = slow ? 0 : 0.15 * pos(-S1(b)) * a;
     },
   },
   zouk: {
