@@ -9,12 +9,13 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
 
 - Règle R42 : au 1 la jambe libre s'écarte et reçoit le poids ; au 2 l'autre la rejoint et marque sans poids, le
   bassin refait un petit rond (double rebond) ; 3 et 4, de l'autre côté. Figure nouvelle.
-- Fait, en prototype, danseur seul : la hanche du pas élu du semba (`applySit`, `src/styles.ts`) avec des pieds qui
-  se déplacent (`src/umDois.ts`), pour la kizomba et le semba. Visible par l'adresse seulement :
-  `?unDeux=large|court|doux`. [Spec](docs/spec-pas-de-base-1-2.md), test `scripts/test_um_dois.mjs`.
-- **En attente du vote** ([films et questions](docs/elections/pas-de-base-1-2/README.md)) : l'écart (28 ou 16 cm), la
-  hanche de la kizomba, le semba, et si ce pas devient celui que la page montre. Rien n'est mis par défaut avant.
-- Ensuite : la figure dans la page et le partage d'adresse ; le couple (#187).
+- **Élu le 24 novembre** ([films et votes](docs/elections/pas-de-base-1-2/README.md)) : c'est le pas de base de la
+  kizomba (hanche douce) et du semba (hanche du pas élu), danseur seul, le pied s'écartant de 28 cm
+  (`UM_DOIS_ELECTED`). La hanche du semba élu (`applySit`, `src/styles.ts`) avec des pieds qui se déplacent
+  (`src/umDois.ts`). [Spec](docs/spec-pas-de-base-1-2.md), test `scripts/test_um_dois.mjs`.
+- La page : figure « Pas de base » (le « 1 2 ») et figure « Sur place » (`surPlace` : l'ancien pas, pieds plantés,
+  seul seulement). `?unDeux=large|court|doux` montre un autre candidat.
+- Reste : le couple (#187).
 
 ## Page principale : la scène toujours visible, les réglages dans un panneau (#192, 24 novembre 2026)
 

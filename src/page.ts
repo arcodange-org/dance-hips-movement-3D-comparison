@@ -19,7 +19,8 @@ export const jeuHref = (style: string): string => `?mode=pair&guidage=1&style=${
 
 export interface Figure { key: MovementKey; label: string; aide: string }
 export const FIGURES: readonly Figure[] = [
-  { key: "none", label: "Sur place", aide: "Le pas de base du style, sans figure" },
+  { key: "none", label: "Pas de base", aide: "Le pas de base du style ; en kizomba et en semba, le « 1 2 »" },
+  { key: "surPlace", label: "Sur place", aide: "Kizomba et semba : le pas sur place, pieds plantés, d'avant le « 1 2 »" },
   { key: "corridinho", label: "Corridinho", aide: "Un quart de tour à droite puis à gauche, puis un cercle autour du repère" },
   { key: "quarts", label: "Quarts de tour", aide: "Quatre quarts font un tour complet, pivots en virgula" },
   { key: "temps3", label: "3 temps", aide: "Marka en trois temps, avec la largeur du pas" },
@@ -30,8 +31,10 @@ export const FIGURES: readonly Figure[] = [
 /** Figure historique, rangée sous « Mise au point ». */
 export const SORTIE_COMBINEE: Figure = { key: "sortieGF", label: "Sortie combinée", aide: "Figure historique en 16 temps : sortie garçon puis sortie fille" };
 const EN_COUPLE: readonly MovementKey[] = ["sortieG", "sortieF"];
-/** Figures qui ont leur bouton dans l'onglet : les sorties ne se dansent qu'en couple. */
-export const figuresOf = (onglet: Onglet): Figure[] => FIGURES.filter(f => onglet === "couple" || !EN_COUPLE.includes(f.key));
+/** #196 : le « Sur place » de la kizomba et du semba se danse seul ; en couple, le pas de base est déjà sur place. */
+const SEUL: readonly MovementKey[] = ["surPlace"];
+/** Figures qui ont leur bouton dans l'onglet : les sorties ne se dansent qu'en couple, le « Sur place » que seul. */
+export const figuresOf = (onglet: Onglet): Figure[] => FIGURES.filter(f => onglet === "couple" ? !SEUL.includes(f.key) : !EN_COUPLE.includes(f.key));
 export const figureLabel = (movement: MovementKey): string =>
   (movement === SORTIE_COMBINEE.key ? SORTIE_COMBINEE : FIGURES.find(f => f.key === movement) ?? FIGURES[0]).label;
 /** Noms des styles affichés qui n'offrent pas la figure (vide : elle est offerte). */
@@ -93,7 +96,7 @@ export const COMMANDES: readonly Commande[] = [
   { id: "son", nom: "Son", place: "lecture", params: ["son"], quand: toujours },
   { id: "style", nom: "Style", place: "panneau", params: ["style"], quand: toujours },
   { id: "styleB", nom: "Style de droite", place: "panneau", params: ["styleB"], quand: v => v.onglet === "comparer" },
-  { id: "figure", nom: "Figure", place: "panneau", params: ["corridinho", "quarts", "temps3", "ida", "sortieG", "sortieF"], quand: toujours },
+  { id: "figure", nom: "Figure", place: "panneau", params: ["corridinho", "quarts", "temps3", "ida", "sortieG", "sortieF", "surPlace"], quand: toujours },
   { id: "fin", nom: "Fin de la sortie garçon", place: "figure", params: ["sortieVariant"], quand: v => enCouple(v) && v.movement === "sortieG" },
   { id: "deuxiemePas", nom: "Deuxième pas du guideur", place: "figure", params: ["sortieFilleVariant"], quand: v => enCouple(v) && v.movement === "sortieF" },
   { id: "virgula", nom: "Virgula du guideur", place: "figure", params: ["virgula"], quand: v => enCouple(v) && v.movement === "ida" },

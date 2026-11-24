@@ -67,8 +67,8 @@ hanches dans les trois vues : `scripts/tracer_hanches.mjs` ; GIF du mode jeu en 
 `scripts/capture_session_gif.mjs`. Kompa (#161) et semba (#162) : leur pas de base, danseur seul sur place, est le pas élu
 (`KOMPA_ELECTED`, `SEMBA_ELECTED` ; drapeau `base` de `StyleDef.apply`) ; variantes par `?kompa=`, `?semba=` (`ancien` : avant les
 votes) ; en couple et en déplacement, l'ancien modèle ; le traceur mesure aussi les genoux et la posture.
-Pas de base « 1 2 » de la kizomba et du semba (#196, R42, [spec](docs/spec-pas-de-base-1-2.md)) : prototype à élire, `?unDeux=large|court|doux`
-(`src/umDois.ts` pur, `applySit` et `UM_DOIS` dans `src/styles.ts`, `scripts/test_um_dois.mjs` ; [films](docs/elections/pas-de-base-1-2/README.md)).
+Pas de base « 1 2 » de la kizomba et du semba seuls (#196, R42, [spec](docs/spec-pas-de-base-1-2.md)), élu le 24 novembre : `UM_DOIS_ELECTED`
+(`src/umDois.ts` pur, `applySit` et `UM_DOIS` dans `src/styles.ts`, `scripts/test_um_dois.mjs`) ; l'ancien pas est la figure « Sur place » (`surPlace`).
 Transfert de poids continu (#167, R34 : ni saccade, ni téléportation, ni relais soudain) : [spec](docs/spec-transfert-continu.md) ;
 `scripts/test_saccades.mjs` mesure, dans des séances du mode jeu, les à-coups du bassin de chaque figure et le passage d'un côté
 à l'autre ; l'état est enregistré (`scripts/fixtures/saccades.json`, cliquet ; `WRITE=1` après un changement voulu).

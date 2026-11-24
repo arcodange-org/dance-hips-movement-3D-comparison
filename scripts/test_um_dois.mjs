@@ -1,7 +1,8 @@
-// #196 (rule R42, docs/spec-pas-de-base-1-2.md): the « 1 2 », basic step of the kizomba and of the semba,
-// PROTOTYPE shown by `?unDeux=<candidat>`. On the real GLB: the supports (weight on the leg that stepped aside
-// on 1 and 2, on the other on 3 and 4), the marka without weight, the step's width, the feet (on the floor,
-// moving only when free), the continuity of the pelvis, and nothing changed without the parameter.
+// #196 (rule R42, docs/spec-pas-de-base-1-2.md): the « 1 2 », basic step of the kizomba and of the semba alone,
+// elected on 24 Nov. 2026 (`UM_DOIS_ELECTED`; `?unDeux=<candidat>` shows another candidate). On the real GLB: the
+// supports (weight on the leg that stepped aside on 1 and 2, on the other on 3 and 4), the marka without weight, the
+// step's width, the feet (on the floor, moving only when free), the continuity of the pelvis, and nothing changed
+// elsewhere (other styles, pair, travel, figures, the figure « Sur place »).
 // What is NOT checked here: the choreography itself, which the owner judges on film.
 import assert from "node:assert/strict";
 import { buildSync } from "esbuild";
@@ -20,26 +21,40 @@ const pose = (styleKey, clock, extra = {}) => { const stats = api.applyPose(f.r,
 // As scripts/test_poses.mjs: the ankles on their targets, the lowest bone vertex against the floor.
 const ankleError = side => world('foot' + side).distanceTo(f.outer.localToWorld(f.model.targets[side].clone()));
 
-// 1. Off by default, and only for the two styles.
+// 1. The elected steps (vote of 24 Nov. 2026) by default, only for the two styles, alone, on the spot; the figure
+// « Sur place » keeps their step of before.
 {
   assert.equal(api.UM_DOIS_PROTO.step, null, 'no candidate asked for by default');
   assert.deepEqual(Object.keys(api.UM_DOIS), ['large', 'court', 'doux']);
+  assert.deepEqual(api.UM_DOIS_ELECTED, { kizomba: 'doux', semba: 'large' });
   for (const [name, step] of Object.entries(api.UM_DOIS)) assert.ok(step.ecart > 0.1 && step.ecart <= api.HIP_WIDTH, `${name}: the foot steps aside by a hip's width at most (R8), ${step.ecart} m`);
-  const before = Object.fromEntries(Object.keys(api.STYLES).map(k => [k, [0.3, 1, 2.6].map(c => pose(k, c).joints)]));
-  api.setUmDoisProto('large');
   for (const k of Object.keys(api.STYLES)) {
-    assert.equal(!!api.umDoisOf(k), k === 'kizomba' || k === 'semba', `${k}: ${k === 'kizomba' || k === 'semba' ? 'dances' : 'does not dance'} the « 1 2 »`);
-    if (api.umDoisOf(k)) continue;
-    [0.3, 1, 2.6].forEach((c, i) => { const now = pose(k, c).joints; for (const j of JOINTS) assert.ok(now[j].distanceTo(before[k][i][j]) < 1e-9, `${k}: unchanged by the candidate`); });
+    const dances = k === 'kizomba' || k === 'semba';
+    assert.equal(api.umDoisOf(k), dances ? api.UM_DOIS[api.UM_DOIS_ELECTED[k]] : null, `${k}: ${dances ? 'dances its elected' : 'does not dance the'} « 1 2 »`);
+    assert.equal(api.movementAllowed(k, 'surPlace'), dances, `${k}: the figure « Sur place » ${dances ? 'is' : 'is not'} offered`);
   }
-  // In pair, in travel or in a figure the two styles keep what they dance today.
-  for (const k of ['kizomba', 'semba']) for (const extra of [{ embrace: true, placePaire: true, placement: 'quinconce' }, { travel: 0.5 }, { ida: true, movement: 'ida' }, { plant: false }]) {
-    const with_ = pose(k, 1.3, extra).joints; api.setUmDoisProto(null);
-    const without = pose(k, 1.3, extra).joints; api.setUmDoisProto('large');
-    for (const j of JOINTS) assert.ok(with_[j].distanceTo(without[j]) < 1e-9, `${k} ${JSON.stringify(extra)}: unchanged by the candidate`);
+  // The elected step is the named candidate's.
+  for (const k of ['kizomba', 'semba']) for (const c of [0.3, 1, 2.6]) {
+    const plain = pose(k, c).joints; api.setUmDoisProto(api.UM_DOIS_ELECTED[k]);
+    const named = pose(k, c).joints; api.setUmDoisProto(null);
+    for (const j of JOINTS) assert.ok(plain[j].distanceTo(named[j]) < 1e-9, `${k}: the default is the elected candidate`);
+  }
+  // Other styles, and the two styles in pair, in travel, in a figure, without the leg solver or with « Sur place »:
+  // nothing depends on the candidate of the « 1 2 ».
+  const cases = [...Object.keys(api.STYLES).filter(k => !api.umDoisOf(k)).map(k => [k, {}]),
+    ...['kizomba', 'semba'].flatMap(k => [{ embrace: true, placePaire: true, placement: 'quinconce' }, { travel: 0.5 }, { ida: true, movement: 'ida' }, { plant: false }, { movement: 'surPlace' }].map(e => [k, e]))];
+  for (const [k, extra] of cases) for (const c of [0.3, 1.3, 2.6]) {
+    api.setUmDoisProto('large'); const large = pose(k, c, extra).joints;
+    api.setUmDoisProto('court'); const court = pose(k, c, extra).joints; api.setUmDoisProto(null);
+    for (const j of JOINTS) assert.ok(large[j].distanceTo(court[j]) < 1e-9, `${k} ${JSON.stringify(extra)}: no « 1 2 » there`);
+  }
+  // « Sur place »: the feet stay planted where they rest.
+  for (const k of ['kizomba', 'semba']) {
+    const feet = [0, 0.7, 1.4, 2.1, 2.8, 3.5].map(c => { pose(k, c, { movement: 'surPlace' }); return [world('footL').x, world('footR').x]; });
+    for (const [l, r] of feet) assert.ok(Math.abs(l - feet[0][0]) < 0.01 && Math.abs(r - feet[0][1]) < 0.01, `${k} « Sur place »: the feet stay where they are`);
   }
   api.setUmDoisProto('inconnu'); assert.equal(api.UM_DOIS_PROTO.step, null, 'an unknown name asks for nothing');
-  console.log('PASS « 1 2 » : éteint par défaut ; avec le paramètre, seuls la kizomba et le semba dansés seuls sur place changent');
+  console.log('PASS « 1 2 » : pas de base élu de la kizomba (hanche douce) et du semba, 28 cm ; ailleurs, et avec « Sur place », rien ne change');
 }
 
 const report = [];

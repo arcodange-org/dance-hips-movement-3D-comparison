@@ -45,7 +45,8 @@ const start = solo ? 0 : repeats[2].start;
 const points = { L: [], R: [], C: [], B: [] }, posturePoints = [], loads = [], knees = { L: [], R: [] };
 for (let i = 0; i < beats * STEPS; i++) {
   const beat = i / STEPS;
-  if (solo) api.applyPose(f.r, f.model, beat, { styleKey, amp: 1 });
+  // #196: alone, the kizomba and the semba dance the « 1 2 » by default; `seul base` traces their step on the spot.
+  if (solo) api.applyPose(f.r, f.model, beat, { styleKey, amp: 1, ...(unDeux ? {} : { movement: 'surPlace' }) });
   else {
     const sample = api.sampleGuide(plan, start + beat, ginga), t = api.compose(sample.couple, api.outerOf(follower));
     f.outer.position.set(t.x, 0, t.z); f.outer.rotation.set(0, t.yaw, 0); f.outer.updateMatrixWorld(true);

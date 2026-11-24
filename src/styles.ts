@@ -21,15 +21,15 @@ export interface StyleDef {
   support?: (b: number, base?: BasicStep) => number;
 }
 /** What the dancer dances when alone, feet planted, without a figure: `true`, the style's basic step on the
- * spot; "umDois" (#196, prototype shown by `?unDeux=`), the « 1 2 » of the kizomba and of the semba, whose feet
+ * spot; "umDois" (#196, elected on 24 Nov. 2026), the « 1 2 » of the kizomba and of the semba, whose feet
  * and travel are the pose's (src/umDois.ts) and whose hip is the style's; `false` or undefined, anything else. */
 export type BasicStep = boolean | "umDois";
 
 // Courbes f(temps) issues des sources documentées dans docs/styles-de-danse.md :
-// kizomba = « 2 temps » latéral sur place avec marqua (pieds joints), pas ≤ largeur
-// du bassin ; kompa = sur place, un transfert de poids tous les deux temps, la hanche
-// qui s'assoit (pas élu, #161) ; semba = un rebond par temps et son double rebond (pas
-// élu, #162) ; en couple et en déplacement, leurs modèles d'avant ; tarraxinha = sur
+// kizomba et semba, danseur seul = le « 1 2 » (#196 : écart, marca, double rebond ; la figure
+// « Sur place » garde leur pas d'avant, pieds plantés : semba, le pas élu #162) ; kizomba en
+// couple = « 2 temps » latéral avec marqua ; kompa = sur place, la hanche qui s'assoit (pas élu,
+// #161) ; en couple et en déplacement, leurs modèles d'avant ; tarraxinha = sur
 // place, isolations du bassin ; suave = « 8 » au sol + talon levé + vague L5→tête ;
 // zouk = basic sur place (slow-quick-quick) + cambré + ouverture de hanche.
 // En mode Face à face, les « sorties garçon / fille » (5 temps, aller-retour latéral)
@@ -219,7 +219,10 @@ export function sembaSwing(p: SembaSit, b: number): number {
  * without weight while the pelvis makes its small round (the double bounce); 3 and 4, the same to the other
  * side. Its supports are those of the semba's elected step (`parCote`: two landings in a row on each foot);
  * the feet and the travel of the body are the pose's (src/umDois.ts).
- * PROTOTYPES to show on film, off unless the address asks (`?unDeux=<candidat>`):
+ * Elected on 24 Nov. 2026 (questions 17 to 20 of the vote page): the step moves the foot by 28 cm in both
+ * dances (16 cm looked like dancing on the spot), the kizomba with the softer hip, the semba with its elected one;
+ * it is the basic step the page shows for both, alone; the step on the spot of before stays as the figure
+ * « Sur place » (`surPlace`). `?unDeux=<candidat>` shows another candidate:
  * `ecart` (m): how far the stepping foot moves aside (« almost a hip's width », 0.34 m on the model);
  * `doux`: the kizomba dances it with a softer hip (less bounce, less sway) than the semba's. */
 export interface UmDois { ecart: number; doux: boolean }
@@ -228,18 +231,21 @@ export const UM_DOIS: Record<string, UmDois> = {
   court: { ecart: 0.16, doux: false },
   doux: { ecart: 0.28, doux: true },
 };
-/** The candidate asked for by the address (`?unDeux=`): null, none, nothing changes. */
+/** The elected candidate of each style (vote of 24 Nov. 2026). */
+export const UM_DOIS_ELECTED: Record<string, string> = { kizomba: "doux", semba: "large" };
+export const UM_DOIS_STYLES: readonly string[] = Object.keys(UM_DOIS_ELECTED);
+/** The candidate asked for by the address (`?unDeux=`): null, none, each style dances its elected one. */
 export const UM_DOIS_PROTO: { step: UmDois | null } = { step: null };
 export const setUmDoisProto = (name: string | null | undefined) => { UM_DOIS_PROTO.step = (name && UM_DOIS[name]) || null; };
-/** The styles that dance the « 1 2 », and the candidate they dance (null: none asked for, or another style). */
-export const umDoisOf = (styleKey: string): UmDois | null => styleKey === "kizomba" || styleKey === "semba" ? UM_DOIS_PROTO.step : null;
+/** The « 1 2 » a style dances (null: the style has none). */
+export const umDoisOf = (styleKey: string): UmDois | null => UM_DOIS_STYLES.includes(styleKey) ? UM_DOIS_PROTO.step ?? UM_DOIS[UM_DOIS_ELECTED[styleKey]] : null;
 /** The hip of the « 1 2 »: the semba's is its elected step's; the kizomba's is the same, or a softer one. */
 const UM_DOIS_SITS: Record<"semba" | "kizomba" | "kizombaDoux", SembaSit> = {
   semba: SEMBA_SITS.parCote,
   kizomba: SEMBA_SITS.parCote,
   kizombaDoux: { ...SEMBA_SITS.parCote, dip: 0.06, swing: 0.3, sway: 0.035, pivot: 0.1, back: 0.015 },
 };
-const umDoisKizombaSit = (): SembaSit => UM_DOIS_PROTO.step?.doux ? UM_DOIS_SITS.kizombaDoux : UM_DOIS_SITS.kizomba;
+const umDoisKizombaSit = (): SembaSit => umDoisOf("kizomba")?.doux ? UM_DOIS_SITS.kizombaDoux : UM_DOIS_SITS.kizomba;
 /** The hip that sits (#161, #162): the pose of a `SembaSit` at motion beat `b`, amplitude `a`. Danced by the
  * semba's elected step, and by the « 1 2 » (#196) of the semba and of the kizomba, whose feet travel. */
 function applySit(r: RigHandle, sit: SembaSit, b: number, a: number): void {
@@ -288,8 +294,8 @@ export const STYLES: Record<string, StyleDef> = {
     color: "#2dd4bf",
     posture: { lean: 0.1, knee: 0.3 },
     bullets: [
-      "« 2 temps » latéral sur place : marqua (pieds joints) à chaque temps",
-      "Pas ≤ largeur du bassin, « touch » sans poids, transfert complet côté appui",
+      "Pas de base « 1 2 » : au 1 le pied s'écarte et reçoit le poids, au 2 l'autre le rejoint en marca, sans poids",
+      "Au 2 le bassin refait un petit rond sur le même pied (double rebond), hanche douce ; 3 et 4 de l'autre côté",
       "Bassin souple, sous-produit de la marche — haut du corps calme",
       "En couple : sorties garçon / fille (5 temps, aller-retour hors de la ligne)",
     ],
@@ -313,8 +319,8 @@ export const STYLES: Record<string, StyleDef> = {
     color: "#fb923c",
     posture: { lean: 0.06, knee: 0.24 },
     bullets: [
-      "Un rebond par temps : la hanche s'assoit à chaque arrivée du poids",
-      "Double rebond : deux arrivées de suite sur chaque pied, le poids repart vers l'autre sans y arriver",
+      "Pas de base « 1 2 » : au 1 le pied s'écarte et reçoit le poids, au 2 l'autre le rejoint en marca, sans poids",
+      "Double rebond au 2 : la hanche s'assoit deux fois de suite sur le même pied ; 3 et 4 de l'autre côté",
       "Déplacements en rond (koreidinha), changements de direction nets",
       "Plus rapide et ludique que la kizomba (≈130 bpm vs ≈90)",
     ],
@@ -710,7 +716,9 @@ export const PAIR_DZ = 0.175;
 // Phase 14 — les déplacements sont des options NON combinables (radio, pas checkbox).
 // Phase 17 — la sortie garçon/fille devient aussi une option exclusive (radio), avec le
 // combiné G→F (docs/spec-phase17-sortie-exclusive.md).
-export type MovementKey = "none" | "corridinho" | "quarts" | "temps3" | "ida" | "sortieG" | "sortieF" | "sortieGF";
+/** "surPlace" (#196): alone, in kizomba and in semba, the basic step on the spot of before the « 1 2 » (feet planted);
+ * the pose dances it as "none" without the « 1 2 ». */
+export type MovementKey = "none" | "corridinho" | "quarts" | "temps3" | "ida" | "sortieG" | "sortieF" | "sortieGF" | "surPlace";
 
 // Priorité d'exclusivité si plusieurs flags sont positionnés (ex. URL artisanale).
 /** Owner (20 Nov.): « on peut laisser le style konpa faire uniquement le sur place et le avant /
@@ -720,6 +728,7 @@ export const STYLE_MOVEMENTS: Partial<Record<string, MovementKey[]>> = {
   kompa: ["none", "ida"], tarraxinha: ["none", "ida"], zouk: ["none", "ida"],
 };
 export function movementAllowed(styleKey: string, movement: MovementKey): boolean {
+  if (movement === "surPlace") return UM_DOIS_STYLES.includes(styleKey);
   const allowed = STYLE_MOVEMENTS[styleKey];
   return !allowed || allowed.includes(movement);
 }
@@ -727,7 +736,7 @@ export function movementAllowed(styleKey: string, movement: MovementKey): boolea
  * whose lateral balance is the style itself. */
 export const travelAllowed = (styleKey: string): boolean => !STYLE_MOVEMENTS[styleKey];
 
-export function movementOf(o: { corridinho?: boolean; quarts?: boolean; temps3?: boolean; ida?: boolean; sortieG?: boolean; sortieF?: boolean; sortieGF?: boolean }): MovementKey {
+export function movementOf(o: { corridinho?: boolean; quarts?: boolean; temps3?: boolean; ida?: boolean; sortieG?: boolean; sortieF?: boolean; sortieGF?: boolean; surPlace?: boolean }): MovementKey {
   if (o.corridinho) return "corridinho";
   if (o.quarts) return "quarts";
   if (o.temps3) return "temps3";
@@ -735,14 +744,15 @@ export function movementOf(o: { corridinho?: boolean; quarts?: boolean; temps3?:
   if (o.sortieG) return "sortieG";
   if (o.sortieF) return "sortieF";
   if (o.sortieGF) return "sortieGF";
+  if (o.surPlace) return "surPlace";
   return "none";
 }
 
 // Un seul flag à true ("none" -> tous false) : garantit la non-combinabilité.
-export function movementFlags(m: MovementKey): { corridinho: boolean; quarts: boolean; temps3: boolean; ida: boolean; sortieG: boolean; sortieF: boolean; sortieGF: boolean } {
+export function movementFlags(m: MovementKey): { corridinho: boolean; quarts: boolean; temps3: boolean; ida: boolean; sortieG: boolean; sortieF: boolean; sortieGF: boolean; surPlace: boolean } {
   return {
     corridinho: m === "corridinho", quarts: m === "quarts", temps3: m === "temps3", ida: m === "ida",
-    sortieG: m === "sortieG", sortieF: m === "sortieF", sortieGF: m === "sortieGF",
+    sortieG: m === "sortieG", sortieF: m === "sortieF", sortieGF: m === "sortieGF", surPlace: m === "surPlace",
   };
 }
 

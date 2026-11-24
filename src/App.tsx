@@ -36,8 +36,8 @@ function readParams(): URLSearchParams {
 // kompa's « 8 » in place of today's model.
 setKompaProto(readParams().get("kompa"));
 setSembaProto(readParams().get("semba"));
-// #196 (prototype, docs/spec-pas-de-base-1-2.md): `?unDeux=large|court|doux` shows the « 1 2 » of the kizomba and
-// of the semba in place of their basic step on the spot.
+// #196 (docs/spec-pas-de-base-1-2.md): the « 1 2 » is the basic step of the kizomba and of the semba alone;
+// `?unDeux=large|court|doux` shows another candidate than the elected ones.
 setUmDoisProto(readParams().get("unDeux"));
 
 function Gauge({ label, color, hud }: { label: string; color: string; hud: any }) {
@@ -95,6 +95,8 @@ export default function App() {
   const [quarts, setQuarts] = usePersistentState("quarts", false);
   const [temps3, setTemps3] = usePersistentState("temps3", false);
   const [ida, setIda] = usePersistentState("ida", false);
+  // #196: alone, in kizomba and in semba, the step on the spot of before the « 1 2 ».
+  const [surPlace, setSurPlace] = usePersistentState("surPlace", false);
   // Phase 17 — sorties garçon/fille/combinée : 3 options de plus dans le mouvement exclusif.
   const [sortieG, setSortieG] = usePersistentState("sortieG", false);
   const [sortieF, setSortieF] = usePersistentState("sortieF", false);
@@ -108,10 +110,11 @@ export default function App() {
   // #128: virgula of the leader's G forward step in the pair ida e volta (style effect).
   const [idaVirgula, setIdaVirgula] = usePersistentState("idaVirgula", false);
   // Phase 14 — déplacements = options NON combinables (radio) : un seul actif à la fois.
-  const chosenMovement = movementOf({ corridinho, quarts, temps3, ida, sortieG, sortieF, sortieGF });
+  const chosenMovement = movementOf({ corridinho, quarts, temps3, ida, sortieG, sortieF, sortieGF, surPlace });
   // A style may offer only some movements (kompa: on the spot and ida e volta); otherwise on the spot.
   const shownStyles = mode === "compare" ? [styleA, styleB] : [styleA];
-  const movement = shownStyles.every(k => movementAllowed(k, chosenMovement)) ? chosenMovement : "none";
+  // The figure « Sur place » (#196) is danced alone only: in pair the couple's basic step is on the spot already.
+  const movement = shownStyles.every(k => movementAllowed(k, chosenMovement)) && !(mode === "pair" && chosenMovement === "surPlace") ? chosenMovement : "none";
   // Kompa: no lateral travel either (on the spot and ida e volta only).
   const travel = shownStyles.every(travelAllowed) ? chosenTravel : 0;
   const setMovement = (m: MovementKey) => {
@@ -121,6 +124,7 @@ export default function App() {
     setQuarts(f.quarts);
     setTemps3(f.temps3);
     setIda(f.ida);
+    setSurPlace(f.surPlace);
     setSortieG(f.sortieG);
     setSortieF(f.sortieF);
     setSortieGF(f.sortieGF);
@@ -164,7 +168,7 @@ export default function App() {
     if (s.plant !== undefined) setPlant(s.plant);
     if (s.movement !== undefined) {
       const f = movementFlags(s.movement);
-      setCorridinho(f.corridinho); setQuarts(f.quarts); setTemps3(f.temps3); setIda(f.ida);
+      setCorridinho(f.corridinho); setQuarts(f.quarts); setTemps3(f.temps3); setIda(f.ida); setSurPlace(f.surPlace);
       setSortieG(f.sortieG); setSortieF(f.sortieF); setSortieGF(f.sortieGF);
     }
     if (s.sortieFilleVariant) setSortieFilleVariant(s.sortieFilleVariant);
@@ -256,6 +260,7 @@ export default function App() {
       sortieBeat: isFiveActionFigure ? Number(clock.beat.toFixed(3)) : undefined,
       sortieF: movement === "sortieF" ? true : undefined,
       sortieGF: movement === "sortieGF" ? true : undefined,
+      surPlace: movement === "surPlace" ? true : undefined,
       plant, corridinho, ligne: showLigne, iso, cadre, quarts, temps3, ida, dir,
       ghost: ghostSel, boussole: showBoussole, contacts: showContacts,
       son: soundOn ? true : undefined, musique: soundOn && isCompare ? musicSide : undefined,

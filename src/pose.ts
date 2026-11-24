@@ -501,7 +501,9 @@ export function gingaPhase(key: string, leader: (beat: number) => { loadR?: numb
 }
 
 export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, options: Partial<PoseOptions>): PoseStats {
-  const o = { ...DEFAULT_POSE, ...options };
+  // #196: the figure « Sur place » of the kizomba and of the semba is the basic step without the « 1 2 ».
+  const surPlace = options.movement === "surPlace";
+  const o = { ...DEFAULT_POSE, ...options, ...(surPlace ? { movement: "none" as const } : {}) };
   // + 24 beats (a multiple of every on-the-spot period: styles 4, temps3 12, the semba prototypes 8, #162)
   // keeps the motion beat positive for the styles' `b % n` without changing the pose.
   const shift = onBeatShift(o);
@@ -607,10 +609,12 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   // every cycle.
   // #161, #162: the style's basic step, alone (no partner) on the spot with planted feet; there the kompa
   // and the semba dance their elected step (see `StyleDef.apply`).
-  const base = !figure && !o.embrace && !o.follower && o.plant && o.movement === "none" && !(o.travel > 0) && !o.sortie;
-  // #196 (prototype, `?unDeux=`): in place of that basic step the kizomba and the semba dance the « 1 2 »; the
-  // feet and the travel of the body are this figure's (src/umDois.ts), the hip is the style's.
-  const umDois = base ? umDoisOf(o.styleKey) : null, step = umDois ? "umDois" as const : base;
+  // Alone, a selected sortie (a pair figure) is the dance on the spot too (see `onBeatShift`).
+  const base = !figure && !o.embrace && !o.follower && o.plant && (o.movement === "none" || o.movement.startsWith("sortie")) && !(o.travel > 0) && !o.sortie;
+  // #196 (elected on 24 Nov. 2026): in place of that basic step the kizomba and the semba dance the « 1 2 », unless
+  // the figure « Sur place » is chosen; the feet and the travel of the body are this figure's (src/umDois.ts), the
+  // hip is the style's.
+  const umDois = base && !surPlace ? umDoisOf(o.styleKey) : null, step = umDois ? "umDois" as const : base;
   const applyStyle = (key: typeof o.styleKey) => {
     const g = gingaOf(key);
     STYLES[key].apply(r, g?.gingaBeat ?? styleTime, o.amp * (g?.gingaAmp ?? 1), styleTime, key === o.styleKey ? step : base);

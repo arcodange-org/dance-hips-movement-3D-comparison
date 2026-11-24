@@ -13,15 +13,15 @@ export interface DemoDef {
 
 export const DEMOS: Record<string, DemoDef> = {
   kizomba: {
-    chip: "Kizomba · « 2 temps »",
+    chip: "Kizomba · « 1 2 »",
     color: "#2dd4bf",
-    captions: ["« 2 temps » latéral, sur place", "marqua : pieds joints à chaque temps"],
+    captions: ["au 1 le pied s'écarte et reçoit le poids", "au 2 l'autre le rejoint en marca, sans poids"],
     beat: 60 / 90,
   },
   semba: {
     chip: "Semba",
     color: "#fb923c",
-    captions: ["un rebond par temps, la hanche s'assoit", "double rebond : deux arrivées sur chaque pied"],
+    captions: ["« 1 2 » : le pied s'écarte et reçoit le poids", "double rebond au 2, l'autre pied en marca"],
     beat: 60 / 130,
   },
   kompa: {

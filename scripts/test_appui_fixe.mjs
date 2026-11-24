@@ -16,7 +16,9 @@ for (const styleKey of Object.keys(api.STYLES)) for (const amp of [0.5, 1, 2]) {
   const flat = {};
   for (let i = 0; i <= 256; i++) {
     const b = i / 32;
-    const stats = api.applyPose(f.r, f.model, b, { styleKey, amp, movement: 'none', plant: true });
+    // #196: alone, the kizomba and the semba dance the « 1 2 », whose feet travel (checked by test_um_dois.mjs); their
+    // step on the spot, feet planted, is the figure « Sur place ».
+    const stats = api.applyPose(f.r, f.model, b, { styleKey, amp, movement: api.movementAllowed(styleKey, 'surPlace') ? 'surPlace' : 'none', plant: true });
     for (const side of ['L', 'R']) {
       const extra = side === 'L' ? f.r.extraL : f.r.extraR;
       if (Math.abs(extra) < 1e-9 && !flat[side]) flat[side] = { ball: point(side, 'ball'), heel: point(side, 'heel') };

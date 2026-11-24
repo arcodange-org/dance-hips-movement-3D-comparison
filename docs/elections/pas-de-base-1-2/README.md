@@ -5,8 +5,13 @@ Fil d'Ariane : [docs](../../) › [spec du pas « 1 2 »](../../spec-pas-de-base
 Dossier ouvert le 24 novembre 2026. Règle R42 : au 1 la jambe libre s'écarte et reçoit le poids ; au 2 l'autre la
 rejoint et marque sans poids, le bassin refait un petit rond (double rebond) ; 3 et 4, la même chose de l'autre côté.
 
-Ce sont des **prototypes** : ils ne s'affichent que par l'adresse (`?style=kizomba&unDeux=large`). Sans ce paramètre
-la page n'a pas changé.
+> **Choix du propriétaire, 24 novembre 2026** : l'écart de 28 cm (A) en kizomba et en semba, la hanche plus douce (C)
+> pour la kizomba, et le « 1 2 » devient le pas que la page montre pour ces deux danses (P). Commentaire, reformulé :
+> avec 16 cm, le danseur reste presque sur place au lieu de changer de ligne. C'est devenu le comportement de
+> l'application (`UM_DOIS_ELECTED`) ; le « Sur place » d'avant reste une figure de la liste.
+
+Les films ont été tournés quand ce n'étaient que des prototypes, affichés par l'adresse (`?unDeux=large`, `court`,
+`doux`), qui montre toujours un autre candidat.
 
 Le vote se fait sur la page de vote du propriétaire (onzième tour, questions 17 à 20), qui montre aussi le chemin
 des hanches de chaque candidat (`trace-*.gif` de ce dossier).

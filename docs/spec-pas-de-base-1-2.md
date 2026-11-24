@@ -71,7 +71,7 @@ sont au sol et le poids passe de l'un à l'autre.
   ne fait que la borner par ce qu'elle peut atteindre tendue, depuis sa plante quand le talon est levé. Sans cela
   le bassin plongeait de 6,6 cm à chaque arrivée, tiré par la jambe restée en arrière.
 
-### Dans le code (prototype)
+### Dans le code
 
 - `src/umDois.ts` (pur) : les places, le calendrier des pieds (`umDoisFoot`, `UM_DOIS_TIMES`), le port du corps
   (`umDoisCarry`).
@@ -80,20 +80,24 @@ sont au sol et le poids passe de l'un à l'autre.
 - `src/pose.ts` : la figure remplace le pas de base quand elle est demandée, danseur seul, pieds plantés
   (`umDoisFeet`, hauteur du bassin).
 - `scripts/test_um_dois.mjs` (dans `npm test`), `scripts/tracer_hanches.mjs <candidat> seul unDeux <style>`.
-- Tant que le propriétaire n'a pas vu les films, la figure ne s'affiche que par l'adresse :
-  `?style=kizomba&unDeux=<candidat>` et `?style=semba&unDeux=<candidat>`. Sans ce paramètre rien ne change.
+- `UM_DOIS_ELECTED` : `doux` pour la kizomba, `large` pour le semba. `?unDeux=<candidat>` montre un autre candidat.
+- La figure « Sur place » (`surPlace`, `?surPlace=1`) : l'ancien pas de base de la kizomba et du semba, pieds plantés
+  (pour le semba, le pas élu le 23 novembre). Offerte seul seulement ; en couple, le pas de base est déjà sur place.
+  La figure « Pas de base » (`none`) est le « 1 2 » pour ces deux danses.
 
-## Ce qui reste à trancher sur film
+## Ce que le propriétaire a élu (24 novembre 2026)
 
 Films, mesures et propositions : [`docs/elections/pas-de-base-1-2/`](elections/pas-de-base-1-2/README.md).
-Chaque question est montrée par des films côte à côte, une scène par question.
 
-1. **L'écart.** « Presque une largeur de hanches » (34 cm sur le modèle) : le pied se déplace-t-il d'autant
-   (candidat `large`, 28 cm), ou s'écarte-t-il jusqu'à ce que les deux pieds soient à une largeur de hanches l'un de
-   l'autre (candidat `court`, 16 cm de déplacement) ?
-2. **La kizomba.** La hanche du semba élu, au tempo de la kizomba, ou une hanche plus douce (moins de rebond) ?
-3. **La page.** Ce pas devient-il celui que la page montre pour la kizomba et le semba, danseur seul, l'ancien
-   « sur place » restant accessible ?
+| Question | Choix | Commentaire, reformulé |
+|---|---|---|
+| L'écart, en kizomba | **28 cm** (`large`) | 16 cm est possible, mais cela revient à danser sur place, pas à changer de ligne. |
+| La hanche de la kizomba | **plus douce** (`doux`) | — |
+| L'écart, en semba | **28 cm** (`large`) | Même réponse que pour la kizomba. |
+| Ce que la page montre | **le « 1 2 »** | — |
+
+Le « 1 2 » est donc, danseur seul, le pas de base de la kizomba (hanche douce) et du semba (hanche du pas élu), le
+pied s'écartant de 28 cm ; le « Sur place » reste une figure de la liste.
 
 ## À vérifier (tests)
 
@@ -105,7 +109,7 @@ Chaque question est montrée par des films côte à côte, une scène par questi
   touchent pas.
 - Continuité (R34) : accélération du bassin, passage d'un côté à l'autre, aucun arrêt ; hauteur du bassin (R3).
 - Posture (R33) : le buste au-dessus des genoux.
-- Sans le paramètre d'adresse, poses identiques à celles de `main`.
+- Ailleurs (autres styles, couple, déplacement, figures, « Sur place »), poses identiques à celles d'avant.
 
 ## Hors périmètre
 

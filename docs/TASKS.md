@@ -474,5 +474,8 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
   `npm test` : appuis, marca sans poids, écart, pieds au sol, hauteur et accélération du bassin.
 - [x] Films des candidats et dossier ([élection](elections/pas-de-base-1-2/README.md)) : l'écart, la hanche de la
   kizomba, le semba, ce que la page montre.
-- [ ] Vote du propriétaire.
-- [ ] Après le vote : la figure dans la page, le partage d'adresse ; puis le couple (#187).
+- [x] Vote du propriétaire (24 novembre) : écart de 28 cm pour les deux danses, hanche douce pour la kizomba, le
+  « 1 2 » devient le pas de base montré (`UM_DOIS_ELECTED`).
+- [x] La page : « Pas de base » (le « 1 2 ») et « Sur place » (l'ancien pas, `surPlace`, seul seulement) ; partage
+  d'adresse (`?surPlace=1`) ; textes du style et de la démo.
+- [ ] Le couple (#187).
