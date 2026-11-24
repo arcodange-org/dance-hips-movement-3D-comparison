@@ -189,8 +189,9 @@ filmé à ce tempo, et le montage cale le premier temps de la musique sur le tem
 - **Le rythme du kompa et le pas de base de la kizomba et du semba** changent (demande du 24 novembre) : le
   kompa prend un appui par temps, son pas élu gardé, deux fois plus vite (#195) ; le pas de base de la kizomba et
   du semba devient le « 1 2 », figure nouvelle : une jambe s'écarte et reçoit le poids, l'autre la rejoint et
-  marque sans poids (#196). Le film v9 montre encore le kompa à deux temps par pied et les deux autres styles
-  pieds plantés. Quand ces changements seront dans `main` : reprendre les chapitres kompa, kizomba et semba et la
+  marque sans poids (#196) ; le suave passe à deux temps par côté, sans rebond (#200). Le film v9 montre encore le
+  kompa à deux temps par pied, la kizomba et le semba pieds plantés, le suave à un côté par temps avec un rebond.
+  Quand ces changements seront dans `main` : reprendre les chapitres kompa, kizomba, semba et suave et la
   comparaison (narration, fiche de faits, `scripts/test_video.mjs` qui attend « G D G D » pour le kompa), puis
   refilmer.
 - **Le couple et le déplacement** gardent l'ancien déhanché du kompa et du semba, et le ginga du couple n'a pas

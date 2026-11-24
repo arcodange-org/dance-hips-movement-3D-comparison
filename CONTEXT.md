@@ -139,8 +139,8 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   double rebond du semba) et où il s'écarte des sources ; faits F338 à F355 ; `scripts/video/mesurer_pas.mjs`
   mesure les six pas de base et `test_video.mjs` y confronte la narration.
 - **Demandé le 24 novembre**, après le film v9 : le kompa à un appui par temps, pas élu gardé (#195) ; le pas de base
-  « 1 2 » de la kizomba et du semba, figure nouvelle (#196). Le film reprendra ses chapitres kompa, kizomba, semba et sa
-  comparaison quand ces mouvements seront dans `main`.
+  « 1 2 » de la kizomba et du semba, figure nouvelle (#196) ; le suave à deux temps par côté, sans rebond (#200). Le film
+  reprendra ses chapitres kompa, kizomba, semba, suave et sa comparaison quand ces mouvements seront dans `main`.
 - **Reste** : refilmer quand le « 8 » du couple et du déplacement (#187) sera fusionné ; l'écoute des cinq musiques ; la
   décision du propriétaire sur la piste kizomba déjà en ligne (#146, conditions d'Eleven Music).
 
