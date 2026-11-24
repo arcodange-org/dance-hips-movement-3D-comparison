@@ -94,12 +94,13 @@
         },
         {
           "voix": "geste",
-          "texte": "Le buste suit le bassin, penché d'environ quinze degrés. Les sources décrivent trois pas, puis une pause : ce motif-ci est un choix du projet.",
+          "texte": "Le buste suit le bassin, nettement penché vers l'avant. Les sources décrivent trois pas, puis une pause : ce motif-ci est un choix du projet.",
           "repere": "Buste penché vers l'avant",
           "faits": [
             "F076",
             "F342",
-            "F343"
+            "F343",
+            "F355"
           ]
         }
       ]
@@ -168,9 +169,10 @@
         },
         {
           "voix": "geste",
-          "texte": "Les genoux fléchissent l'un après l'autre. Le buste suit le bassin, penché d'environ seize degrés.",
+          "texte": "Les genoux fléchissent l'un après l'autre. Le buste suit le bassin, penché vers l'avant, comme au semba.",
           "faits": [
-            "F348"
+            "F348",
+            "F355"
           ],
           "repere": "Genoux en alternance, buste penché"
         }
@@ -201,7 +203,7 @@
         },
         {
           "voix": "geste",
-          "texte": "Dans le modèle, le poids change de pied à chaque temps. Le bassin suit : sept centimètres de chaque côté, à peine incliné. D'après une source, le poids resterait deux temps du même côté.",
+          "texte": "Dans le modèle, le poids change de pied à chaque temps. Le bassin suit, d'un côté à l'autre, plus loin que dans les autres styles. D'après une source, le poids resterait deux temps du même côté.",
           "repere": "Le bassin suit le poids",
           "faits": [
             "F036",
@@ -209,7 +211,8 @@
             "F045",
             "F047",
             "F053",
-            "F055"
+            "F055",
+            "F353"
           ]
         },
         {
@@ -277,11 +280,12 @@
         },
         {
           "voix": "geste",
-          "texte": "Le buste penche vers l'avant, d'environ huit degrés. Le poids ne passe qu'en partie d'un pied à l'autre.",
+          "texte": "Le buste penche un peu vers l'avant. Le poids ne passe qu'en partie d'un pied à l'autre.",
           "repere": "Le poids passe en partie",
           "faits": [
             "F155",
-            "F156"
+            "F156",
+            "F355"
           ]
         }
       ]
@@ -309,13 +313,14 @@
         },
         {
           "voix": "geste",
-          "texte": "Dans le modèle, le bassin glisse de quelques centimètres : vu de dessus, il trace un « 8 ».",
-          "dit": "Dans le modèle, le bassin glisse de quelques centimètres : vu de dessus, il trace un huit.",
+          "texte": "Dans le modèle, le bassin glisse à peine : vu de dessus, il trace un petit « 8 ».",
+          "dit": "Dans le modèle, le bassin glisse à peine : vu de dessus, il trace un petit huit.",
           "repere": "Bassin : un « 8 », vu de dessus",
           "faits": [
             "F190",
             "F191",
-            "F197"
+            "F197",
+            "F353"
           ]
         },
         {
@@ -372,11 +377,12 @@
         },
         {
           "voix": "geste",
-          "texte": "Comme pour la tarraxinha, le modèle fait tourner le bassin : environ dix degrés de chaque côté.",
-          "repere": "Rotation du bassin, 10°",
+          "texte": "Comme pour la tarraxinha, le modèle fait tourner le bassin, vers un côté puis vers l'autre.",
+          "repere": "Le bassin tourne, d'un côté puis de l'autre",
           "faits": [
             "F226",
-            "F249"
+            "F249",
+            "F352"
           ]
         },
         {
@@ -426,7 +432,7 @@
         },
         {
           "voix": "geste",
-          "texte": "Le haut du corps : le suave ondule, le zouk se cambre. Le kompa et le semba penchent le buste vers l'avant, d'une quinzaine de degrés.",
+          "texte": "Le haut du corps : le suave ondule, le zouk se cambre. Au kompa et au semba, le buste penche le plus vers l'avant.",
           "accent": [
             "suave",
             "zouk",
@@ -440,7 +446,7 @@
         },
         {
           "voix": "guide",
-          "texte": "De près : tarraxinha, kompa et zouk font tourner le bassin, de dix à douze degrés de chaque côté.",
+          "texte": "De près : tarraxinha, kompa et zouk font le plus tourner le bassin, vers un côté puis vers l'autre.",
           "accent": [
             "tarraxinha",
             "kompa",
@@ -453,7 +459,7 @@
         },
         {
           "voix": "guide",
-          "texte": "Le semba, de huit degrés. La kizomba, à peine. Le suave, pas du tout.",
+          "texte": "Le semba, un peu moins. La kizomba, à peine. Le suave, pas du tout.",
           "accent": [
             "semba",
             "kizomba",
@@ -478,7 +484,7 @@
         },
         {
           "voix": "geste",
-          "texte": "Tarraxinha et suave se déplacent le moins : trois centimètres de chaque côté. Le poids n'y passe qu'en partie.",
+          "texte": "Tarraxinha et suave se déplacent le moins : le bassin va à peine de côté. Le poids n'y passe qu'en partie.",
           "faits": [
             "F161",
             "F191",

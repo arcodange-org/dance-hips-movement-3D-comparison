@@ -65,7 +65,6 @@ const STYLE = (l, h) => `
   .vignette { position: absolute; border-radius: 14px; background: rgba(2, 6, 23, .74); }
   .vignette .legende { position: absolute; left: 16px; top: 10px; font-size: 16px; font-weight: 600; color: #cbd5e1; }
   .vignette.grande .legende { font-size: 23px; top: 12px; left: 18px; }
-  .vignette .mesure { position: absolute; right: 18px; bottom: 12px; font-size: 22px; color: #e2e8f0; text-align: right; line-height: 1.3; }
   .vignette svg { position: absolute; left: 0; top: 0; }
   #generique { width: ${l}px; padding: 0 90px 0 ${Math.round(l * 0.46)}px; }
   #generique h2 { font-size: 52px; font-weight: 700; margin-bottom: 14px; }
@@ -108,23 +107,20 @@ export const ELEMENTS = {
   /**
    * Trajets du bassin vus de dessus. `vignettes` = [{x, y, largeur, hauteur, echelle (pixels par centimètre),
    * points: [[x, z] en centimètres], hauteur du rebond en centimètres, couleur}] ; toutes à la même échelle
-   * dans un même élément. `detail` ajoute la légende et les mesures.
+   * dans un même élément. `detail` : la grande vignette d'un chapitre de style.
    */
   traces: ({ vignettes, legende, detail }) => cadre(vignettes.map((v, k) => {
     const cx = v.largeur / 2, cy = v.hauteur / 2 + (detail ? 8 : 0);
     // Vu de dessus : la droite du danseur à droite de l'image quand on le regarde de face, l'avant vers le bas.
     const chemin = v.points.map(([x, z], i) => `${i ? "L" : "M"}${(cx + x * v.echelle).toFixed(1)} ${(cy + z * v.echelle).toFixed(1)}`).join(" ");
-    const largeurCm = Math.max(...v.points.map(q => q[0])) - Math.min(...v.points.map(q => q[0]));
-    const barre = 5 * v.echelle;
+    // Ni échelle ni mesure à l'écran : le film parle à des danseurs (tailles en mots, styles comparés entre eux) ;
+    // les vignettes d'un même élément partagent leur échelle, la comparaison se voit.
     return `<div class="vignette${detail ? " grande" : ""}" style="left:${v.x}px; top:${v.y}px; width:${v.largeur}px; height:${v.hauteur}px">
       <svg width="${v.largeur}" height="${v.hauteur}" viewBox="0 0 ${v.largeur} ${v.hauteur}">
         <line x1="${cx - 8}" y1="${cy}" x2="${cx + 8}" y2="${cy}" stroke="#64748b" stroke-width="1.5"/><line x1="${cx}" y1="${cy - 8}" x2="${cx}" y2="${cy + 8}" stroke="#64748b" stroke-width="1.5"/>
         <path d="${chemin}" fill="none" stroke="${v.couleur}" stroke-width="${detail ? 4 : 3}" stroke-linejoin="round" stroke-linecap="round"/>
-        <line x1="14" y1="${v.hauteur - 14}" x2="${14 + barre}" y2="${v.hauteur - 14}" stroke="#e2e8f0" stroke-width="3"/>
-        <text x="${14 + barre + 8}" y="${v.hauteur - 9}" fill="#e2e8f0" font-size="${detail ? 20 : 16}" font-family="inherit">5 cm</text>
       </svg>
       <div class="legende">${echapper(legende)}</div>
-      ${detail ? `<div class="mesure">largeur ${largeurCm.toFixed(0)} cm<br>rebond ${v.hauteur_rebond.toFixed(1).replace(".", ",")} cm</div>` : ""}
     </div>`;
   }).join("")),
 };

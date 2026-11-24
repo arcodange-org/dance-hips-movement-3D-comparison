@@ -98,6 +98,8 @@ const proche = (a, b, eps = 1e-9) => Math.abs(a - b) <= eps;
 }
 
 // ---------------------------------------------------------------- 3. scénario : structure et faits
+/** Une mesure de logiciel 3D dans ce que le spectateur entend ou lit (le tempo en battements reste un mot de musicien). */
+const UNITES = /centim|millim|degr[ée]s?\b|°|\b\d+(?:[.,]\d+)?\s?(?:cm|mm)\b/i;
 const faits = readFileSync(FICHE_FAITS, "utf8");
 const narration = lireNarration();
 const durees = existsSync(FICHE_DUREES) ? JSON.parse(readFileSync(FICHE_DUREES, "utf8")) : {};
@@ -127,7 +129,10 @@ const durees = existsSync(FICHE_DUREES) ? JSON.parse(readFileSync(FICHE_DUREES, 
     const dit = prononcer(p.dit ?? p.texte, PRONONCIATION);
     assert.ok(!/\d/.test(dit), `${p.chapitre} : pas de chiffre dans le texte dit (« ${dit.slice(0, 50)}… »)`);
     assert.ok(!/\bbpm\b/i.test(dit), `${p.chapitre} : « bpm » se dit en toutes lettres`);
+    // Le film parle à des danseurs : ni centimètres ni degrés, ni dits ni écrits ; une taille se dit en mots.
+    for (const t of [p.texte, dit, p.repere ?? "", p.point ?? ""]) assert.ok(!UNITES.test(t), `${p.chapitre} : pas de mesure en unités (« ${t.slice(0, 60)}… »)`);
   }
+  for (const c of chapitres.filter((c) => c.cartouche)) assert.ok(!UNITES.test(JSON.stringify(c.cartouche)), `${c.id} : cartouche sans mesure en unités`);
   // Les limites sont dites, et affichées.
   const limites = chapitres.find((c) => c.id === "limites");
   assert.ok(limites.phrases.filter((p) => p.point).length >= 3, "au moins trois limites affichées");
@@ -209,7 +214,10 @@ const durees = existsSync(FICHE_DUREES) ? JSON.parse(readFileSync(FICHE_DUREES, 
     for (const e of elements) {
       assert.ok(ELEMENTS[e.type], `${c.id} : élément connu (${e.type})`);
       assert.ok(e.debut >= 0 && e.fin <= k.duree + 1e-9 && e.fin - e.debut > 0.2, `${c.id} ${e.type} : ${e.debut} → ${e.fin}`);
-      assert.ok(typeof ELEMENTS[e.type](e.donnees) === "string");
+      const html = ELEMENTS[e.type](e.donnees);
+      assert.ok(typeof html === "string");
+      const lu = html.replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<[^>]*>/g, " ");
+      assert.ok(!UNITES.test(lu), `${c.id} ${e.type} : rien à l'écran en centimètres ni en degrés (${lu.match(UNITES)?.[0]})`);
     }
     const cartons = elements.filter((e) => e.type === "soustitre");
     assert.ok(cartons.length >= c.phrases.length, `${c.id} : au moins un carton de sous-titre par phrase`);
@@ -272,7 +280,7 @@ const durees = existsSync(FICHE_DUREES) ? JSON.parse(readFileSync(FICHE_DUREES, 
     assert.ok(derniere.y + derniere.hauteur <= FILM.hauteur - 180, "la bande des sous-titres reste libre");
   }
   // Sous-titres : coupés aux fins de phrase, puis à la ponctuation d'une phrase longue ; rien ne se perd.
-  const long = "Dans le modèle, le poids change de pied à chaque temps. Le bassin suit : sept centimètres de chaque côté, à peine incliné. D'après une source, le poids resterait deux temps du même côté.";
+  const long = "Dans le modèle, le poids change de pied à chaque temps. Le bassin suit, d'un côté à l'autre, plus loin que dans les autres styles. D'après une source, le poids resterait deux temps du même côté.";
   const morceaux = decouper(long);
   assert.equal(morceaux.join(" "), long);
   assert.ok(morceaux.length >= 2 && morceaux.every((m) => m.length <= SOUS_TITRE_MAX), "cartons courts");
@@ -340,12 +348,22 @@ const durees = existsSync(FICHE_DUREES) ? JSON.parse(readFileSync(FICHE_DUREES, 
   // Comparaison : quatre bassins entourent une surface, deux vont et viennent sur une ligne.
   for (const s of ["suave", "kompa", "semba", "tarraxinha"]) assert.ok(m[s].bassin.entoureVuDeDessus > 10, `${s} : une surface vue de dessus`);
   for (const s of ["kizomba", "zouk"]) assert.ok(m[s].bassin.entoureVuDeDessus < 1, `${s} : une ligne vue de dessus`);
-  // Pivot du bassin : tarraxinha, kompa et zouk de dix à douze degrés ; le semba de huit ; la kizomba à peine ; le suave pas.
+  // La narration compare en mots ; les mesures le prouvent ici. Du plus au moins : `rang(grandeur)` range les six styles.
+  const rang = (g) => Object.keys(m).sort((a, b) => g(m[b]) - g(m[a]));
+  // Pivot du bassin : tarraxinha, kompa et zouk tournent le plus (dix à douze degrés) ; le semba un peu moins (huit) ;
+  // la kizomba à peine ; le suave pas.
+  assert.deepEqual(rang((x) => x.pivotDuBassin).slice(0, 3).sort(), ["kompa", "tarraxinha", "zouk"], "les trois qui tournent le plus");
+  assert.equal(rang((x) => x.pivotDuBassin)[3], "semba", "le semba, un peu moins");
   for (const s of ["tarraxinha", "kompa", "zouk"]) assert.ok(m[s].pivotDuBassin >= 10 && m[s].pivotDuBassin <= 12.6, `${s} : pivot ${m[s].pivotDuBassin}°`);
-  assert.ok(Math.abs(m.semba.pivotDuBassin - 8) < 0.6 && m.kizomba.pivotDuBassin < 3 && m.suave.pivotDuBassin < 0.5, "semba 8°, kizomba à peine, suave pas");
-  // Tarraxinha et suave se déplacent le moins : trois centimètres de chaque côté.
-  const cotes = Object.values(m).map((x) => x.bassin.cote).sort((a, b) => a - b);
-  assert.deepEqual([m.tarraxinha.bassin.cote, m.suave.bassin.cote].sort(), cotes.slice(0, 2), "les deux plus petits déplacements");
-  assert.ok(Math.abs(m.tarraxinha.bassin.cote - 6) < 0.3 && Math.abs(m.suave.bassin.cote - 6) < 0.3, "3 cm de chaque côté");
+  assert.ok(m.semba.pivotDuBassin > 6 && m.kizomba.pivotDuBassin < 3 && m.suave.pivotDuBassin < 0.5, "semba un peu moins, kizomba à peine, suave pas");
+  // Le bassin va le plus loin de côté en kizomba ; tarraxinha et suave se déplacent le moins, à peine (deux fois moins).
+  const cotes = rang((x) => x.bassin.cote);
+  assert.equal(cotes[0], "kizomba", "kizomba : le bassin va le plus loin de côté");
+  assert.deepEqual(cotes.slice(-2).sort(), ["suave", "tarraxinha"], "les deux plus petits déplacements");
+  assert.ok(Math.max(m.tarraxinha.bassin.cote, m.suave.bassin.cote) <= m.kizomba.bassin.cote / 2, "à peine de côté");
+  // Le buste : kompa et semba le penchent le plus vers l'avant ; la tarraxinha un peu (moins de la moitié de leur pente
+  // ou guère plus).
+  assert.deepEqual(rang((x) => x.tronc.inclinaison).slice(0, 2).sort(), ["kompa", "semba"], "kompa et semba penchent le plus");
+  assert.ok(m.tarraxinha.tronc.inclinaison > 3 && m.tarraxinha.tronc.inclinaison < 0.6 * m.semba.tronc.inclinaison, "tarraxinha : un peu");
   console.log("PASS mesures : appuis, « 8 », pivot du bassin et buste du modèle tels que la narration les dit");
 }
