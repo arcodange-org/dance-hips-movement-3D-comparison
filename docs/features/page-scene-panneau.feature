@@ -81,7 +81,7 @@ Feature: Page principale : la scène toujours visible, les réglages dans un pan
     And au battement 19.5 le compte est 4
 
   Scenario: Le nom d'un pas s'affiche sans son numéro
-    Then le pas "4 · D du leader en face" se nomme "D du leader en face"
+    Then le pas "4 · D du guideur en face" se nomme "D du guideur en face"
     And le pas "5 · Marka" se nomme "Marka"
 
   Scenario: Repère au centre : masqué, point ou boussole
