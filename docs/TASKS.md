@@ -475,3 +475,14 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Textes de l'app, README, `docs/styles-de-danse.md`, `docs/musique/kompa.md`, `docs/spec-temps-transferts.md`.
 - [x] Films du kompa à un temps par appui (`docs/gifs/kompa-un-temps*.gif`), à 90 et 120 bpm.
 - [ ] En couple et en déplacement : avec #187. Style suave : deux temps par côté, sans rebond (#200).
+
+## Exercices d'isolation seul, pieds posés (#206, lot L441 de ReCoDanse)
+
+- [x] Issue #206 ; jeton L441 posé au plan du dossier ReCoDanse (kadans-dossier#950, PR #951) ; spec poussée en premier
+  ([spec](spec-isolations.md)).
+- [ ] `src/isolations.ts` (pur) : dix-neuf boucles d'un huit, réglages explicites, candidats lus dans `src/essais.ts`.
+- [ ] `src/pose.ts` : option `isolation` (sans style, pieds posés, colonne et cage posées exactement après le solveur des
+  jambes, cou qui plie depuis sa base) ; `isolation=`, `miroir=` dans l'adresse (seul et comparaison).
+- [ ] `scripts/test_isolations.mjs` (module pur et vrai GLB) et `docs/features/isolations.feature` dans `npm test`.
+- [ ] GIF des dix-neuf boucles et des candidats ; page d'élection (`docs/elections/2026-11-24-isolations/`).
+- [ ] Vote du fondateur ; la proposition élue devient le comportement, les interrupteurs d'essai partent.
