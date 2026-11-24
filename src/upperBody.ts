@@ -123,20 +123,22 @@ export const GRIP = { shift: 0.012, gap: 0.004, wrist: 1.0, swivel: 0.7,
     hers: { fingers: [1, 1.011, 0.306], thumb: [0.459, 0, 0.573] } as HandShape,
     elbow: [0.25, -1, 0.1] as V3, drop: 0.1, wrist: 1.25,
   } };
-/** #199: the hold of the joined hands. Since 24 November 2026 (the owner's choice) the leader keeps the hold on the side
- * and bends his wrist outwards (`SKYWARD`), and the follower lets her elbow drop; the hold on the side as it was (#179,
- * `GRIP.upright`) stays as an option, `?tenue=cote` (in node: the environment variable TENUE, or `TENUE.current`). */
+/** #199: the hold of the joined hands. Since 24 November 2026 (the owner's choice) the leader holds his hand like a
+ * waiter's tray (`SKYWARD`) and the follower lets her elbow drop; the hold on the side (#179, `GRIP.upright`: his thumb
+ * to the sky) stays as an option, `?tenue=cote` (in node: the environment variable TENUE, or `TENUE.current`). */
 export type Tenue = "ciel" | "cote";
 const askedTenue = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("tenue")
   : (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.TENUE;
 export const TENUE: { current: Tenue } = { current: askedTenue === "cote" ? "cote" : "ciel" };
-/** Hold with the wrist bent (#199, chosen on 24 November 2026): the leader's arm is that of the hold on the side, his
- * thumb still to the sky; only his wrist bends, towards the back of his hand (outwards, to his left), until his hand
- * makes `angle` with his forearm (rad; π: the hand in line with the forearm). His palm then turns up, towards the sky and
- * the follower, and leaves the rig's point by the bend. `wrist`: how far his wrist may bend in all (rad). The follower's
- * hand lies on his as in `GRIP.upright` (same place in the frame of his hand, same shapes), but her elbow drops: it bends
- * towards the rig's elbow, as in the first hold of 22 November, instead of staying close under the line of her hand. */
-export const SKYWARD = { angle: (120 * Math.PI) / 180, wrist: 1.4 };
+/** The tray (#199, chosen on 24 November 2026): the leader's arm raised halfway as in the hold on the side (his palm on
+ * the rig's point, his elbow towards `GRIP.upright.elbow`), his hand bent back at the wrist like a waiter carrying
+ * plates, the palm almost level, facing the sky. Seen from above his fingers go `heading` from straight ahead towards
+ * the outside (his left), about the way his forearm goes, so that the hand makes some 120° with the forearm; his thumb
+ * then points outwards and back, raised by `tilt` above the level so that it stays in sight (the palm leans as much
+ * towards the inside). `wrist`: how far his wrist may bend in all (rad). The follower's hand lies on his as in
+ * `GRIP.upright` (same place in the frame of his hand, same shapes), but her elbow drops: it bends towards the rig's
+ * elbow, as in the first hold of 22 November, instead of staying close under the line of her hand. */
+export const SKYWARD = { heading: (50 * Math.PI) / 180, tilt: (15 * Math.PI) / 180, wrist: 1.4 };
 /** Hand on the partner's back (#185): the rig's hand point is at the edge of the back, where the forearm arrives
  * from the side; that is where the wrist comes. The palm lies further in, on the shoulder blade itself, the fingers
  * towards the spine. In the partner's chest frame, for a hand on her left side (mirrored on the right):
@@ -294,15 +296,22 @@ export class UpperBody {
           ? Math.max(-GRIP.swivel, Math.min(GRIP.swivel, Math.atan2(new THREE.Vector3().crossVectors(his.radial, natural).dot(facing), his.radial.dot(natural)))) : 0;
         const along = his.radial.clone().applyAxisAngle(facing, swivel);
         posed = this.take(this.arms[s], his.palm.clone().addScaledVector(his.radial, GRIP.shift).addScaledVector(his.normal, GRIP.gap), facing, along, rigElbow);
+      } else if (upright && !follower && TENUE.current === "ciel") {
+        // #199: the tray. Directions from his chest's heading and the vertical: the palm is levelled on the world.
+        const out = s === "L" ? 1 : -1, U = new THREE.Vector3(0, 1, 0);
+        const A = new THREE.Vector3(0, 0, 1).transformDirection(r.chest.matrixWorld).setY(0).normalize();
+        const L = new THREE.Vector3().crossVectors(U, A).multiplyScalar(out), { heading: h, tilt: t } = SKYWARD;
+        const fingers = L.clone().multiplyScalar(Math.sin(h)).addScaledVector(A, Math.cos(h));
+        const thumb = L.clone().multiplyScalar(Math.cos(h)).addScaledVector(A, -Math.sin(h));
+        const palm = U.clone().multiplyScalar(Math.cos(t)).addScaledVector(thumb, -Math.sin(t));
+        posed = this.take(this.arms[s], target, palm, fingers, low(), SKYWARD.wrist);
       } else if (upright && !follower) {
-        // The leader's hand: the palm on the rig's point, facing between his right and her; his thumb to the sky, his
+        // Hold on the side (`?tenue=cote`). The leader's hand: the palm on the rig's point, facing between his right and her; his thumb to the sky, his
         // fingers forwards (a left hand: fingers = thumb's side × palm's normal), raised by `lift`.
         const facing = new THREE.Vector3(...G.palm).transformDirection(r.chest.matrixWorld).setY(0).normalize();
         const sky = new THREE.Vector3(0, 1, 0), lift = G.lift;
         const along = new THREE.Vector3().crossVectors(sky, facing).normalize().multiplyScalar(Math.cos(lift)).addScaledVector(sky, Math.sin(lift));
         posed = this.take(this.arms[s], target, facing, along, low());
-        // #199: the hold chosen on 24 November: from that pose, only his wrist bends outwards.
-        if (TENUE.current === "ciel") posed = this.bendOut(this.arms[s], posed);
       } else if (hold === "free" && folded) {
         // #182: the rig's frame, alone, folds its raised forearm flat on the arm, the hand on the shoulder. No elbow
         // does that: the forearm rises from the rig's elbow, as the frame means it, the palm inwards.
@@ -318,34 +327,6 @@ export class UpperBody {
       this.state[s] = { ...posed, target, hold, shape };
       this.shape(s, shape);
     }
-  }
-
-  /** #199: the hand as `take` left it, bent at the wrist towards its back (round the axis square to the fingers and
-   * the palm's normal: the thumb keeps its direction) until it makes `SKYWARD.angle` with the forearm, within
-   * `SKYWARD.wrist` in all. The arm and the forearm's turn do not move; the palm leaves its place by the bend. */
-  private bendOut(b: Arm, posed: Omit<ArmState, "hold" | "shape">): Omit<ArmState, "hold" | "shape"> {
-    b.arm.updateWorldMatrix(false, true);
-    const W = b.hand.getWorldPosition(new THREE.Vector3()), forearm = W.clone().sub(b.fore[0].getWorldPosition(new THREE.Vector3())).normalize();
-    const was = b.hand.getWorldQuaternion(new THREE.Quaternion()), carrier = b.fore[4].getWorldQuaternion(new THREE.Quaternion()).invert();
-    const fingers = b.fingers.clone().applyQuaternion(was), normal = b.palmNormal.clone().applyQuaternion(was);
-    // A turn round normal × fingers takes the fingers towards the back of the hand.
-    const axis = new THREE.Vector3().crossVectors(normal, fingers).normalize(), turn = new THREE.Quaternion(), wrist = new THREE.Quaternion();
-    const bent = (a: number) => {
-      wrist.copy(carrier).multiply(turn.setFromAxisAngle(axis, a)).multiply(was);
-      return { angle: fingers.clone().applyAxisAngle(axis, a).angleTo(forearm), wrist: 2 * Math.acos(Math.min(1, Math.abs(wrist.w))) };
-    };
-    // The bend that makes the angle, found by halves; the wrist's range bounds it.
-    const want = Math.PI - SKYWARD.angle;
-    let lo = 0, hi = Math.PI / 2;
-    for (let k = 0; k < 30; k++) {
-      const mid = (lo + hi) / 2, at = bent(mid);
-      if (at.angle < want && at.wrist <= SKYWARD.wrist) lo = mid; else hi = mid;
-    }
-    const { wrist: bend } = bent(lo);
-    b.hand.quaternion.copy(wrist);
-    b.hand.updateWorldMatrix(false, true);
-    const palm = b.hand.localToWorld(b.palmFromWrist.clone());
-    return { ...posed, palm, error: palm.distanceTo(posed.target), wrist: bend };
   }
 
   /** A hand as it is posed, in the world: centre of the palm, its normal (out of the palm), the fingers'

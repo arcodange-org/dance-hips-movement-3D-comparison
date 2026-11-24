@@ -97,8 +97,12 @@ for (const [label, dz, beats, opt] of cases) {
       const g = gap(A, B);
       if (g < seen.play) { seen.play = g; seen.pair = `${NOMS[A.f]} ${A.k} (elle) / ${NOMS[B.f]} ${B.k} (lui)`; }
     }
-    if (label === "sur place" && Math.abs(b - 2) < 1e-9)
+    if (label === "sur place" && Math.abs(b - 2) < 1e-9) {
       console.log(`sur place, temps 2 : paume du guideur en (${his.palm.toArray().map(x => x.toFixed(2)).join(", ")}), de la suiveuse en (${hers.palm.toArray().map(x => x.toFixed(2)).join(", ")})`);
+      // Directions dans le repère de la poitrine du guideur (x : sa gauche, y : le ciel, z : vers la suiveuse).
+      const inv = pair[0].r.chest.matrixWorld.clone().invert(), dir = d => d.clone().transformDirection(inv).toArray().map(x => x.toFixed(2)).join(", ");
+      console.log(`  guideur : avant-bras (${dir(wristL.clone().sub(elbowL))}), doigts (${dir(his.fingers)}), pouce (${dir(his.radial)}), paume (${dir(his.normal)})`);
+    }
   }
   const span = (r, f) => seen.joined ? `${f(r[0])} à ${f(r[1])}` : "—";
   table.push({ figure: label, "mains jointes (échantillons)": `${seen.joined} / ${seen.n}`, "milieu des mains / épaules (cm)": span(seen.height, cm),

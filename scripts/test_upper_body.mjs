@@ -75,22 +75,23 @@ const options = { boneMaterial: new THREE.MeshBasicMaterial(), muscleMaterial: (
   // from the spine, 2 to 10 cm above the chest's origin. And the least the follower's left arm keeps over the
   // leader's right arm: her elbow above his, the axes of the two arms apart (two arms' half-thicknesses).
   const BLADE = { x: [0.06, 0.13], y: [0.02, 0.10] }, ARMS = { elbows: 0.03, gap: 0.09, open: 0.04 };
-  // #199: in the hold with his wrist bent her hand lies more on his: her fingers lean further from the vertical; her
-  // elbow stays this far under her wrist (m).
-  const UPRIGHT_BENT = 0.5, HER_DROP = 0.06;
+  // #199: the tray: his palm at most this far from the sky, his thumb this far outwards (and not under the level), the
+  // angle between his forearm and his hand within this range (rad), his palm off the rig's point by at most this much
+  // when the wrist runs out of range (m); her elbow at least this far under her wrist (m).
+  const TRAY = { sky: 0.44, thumb: 0.3, angle: [1.83, 2.53], miss: 0.01 }, HER_DROP = 0.08;
   const nearest = (a0, a1, b0, b1) => {
     const d1 = a1.clone().sub(a0), d2 = b1.clone().sub(b0), r = a0.clone().sub(b0), a = d1.dot(d1), e = d2.dot(d2), f = d2.dot(r), c = d1.dot(r), b = d1.dot(d2), den = a * e - b * b;
     let s = den > 1e-12 ? Math.min(1, Math.max(0, (b * f - c * e) / den)) : 0, t = (b * s + f) / e;
     if (t < 0) { t = 0; s = Math.min(1, Math.max(0, -c / a)); } else if (t > 1) { t = 1; s = Math.min(1, Math.max(0, (b - c) / a)); }
     return [a0.clone().addScaledVector(d1, s), b0.clone().addScaledVector(d2, t)];
   };
-  // #199: the hold chosen on 24 November (`ciel`: the hold on the side, his wrist bent outwards, her elbow dropped), then
+  // #199: the hold chosen on 24 November (`ciel`: his hand like a waiter's tray, her elbow dropped), then
   // the hold on the side kept as an option (`cote`).
   for (const tenue of ["ciel", "cote"]) for (const [label, dz, beats, opt] of cases) {
     api.TENUE.current = tenue;
     const pair = [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];
     const uppers = pair.map(f => new api.UpperBody(f.r, model, options));
-    const seen = { error: 0, bent: [Infinity, 0], bentWrist: 0, bentMiss: 0, herDrop: Infinity, holds: { back: 0, hands: 0, free: 0 }, elbow: [Infinity, 0], pronation: [Infinity, -Infinity], jump: 0, rigJump: 0, yaw: [Infinity, 0],
+    const seen = { error: 0, bent: [Infinity, 0], bentWrist: 0, bentMiss: 0, sky: 0, thumbOut: Infinity, herDrop: Infinity, holds: { back: 0, hands: 0, free: 0 }, elbow: [Infinity, 0], pronation: [Infinity, -Infinity], jump: 0, rigJump: 0, yaw: [Infinity, 0],
       grip: 0, wrist: 0, facing: 0, crossed: [Infinity, 0], play: Infinity, thumbUp: Infinity, upright: Infinity,
       blade: { n: 0, off: 0, elbows: Infinity, gap: Infinity, over: Infinity, wrist: 0 } };
     const before = [{}, {}];
@@ -125,10 +126,12 @@ const options = { boneMaterial: new THREE.MeshBasicMaterial(), muscleMaterial: (
             seen.herDrop = Math.min(seen.herDrop, world(u.joints.get("hand" + s)).y - world(u.joints.get("fore0" + s)).y);
             for (const A of handBones(u, s)) for (const B of handBones(uppers[0], "L")) if (!(A.fore && B.fore)) seen.play = Math.min(seen.play, play(A, B));
           } else if (!i && s === "L" && e.hold === "hands" && tenue === "ciel") {
-            // #199: the arm of the hold on the side, the wrist bent outwards until the hand makes SKYWARD.angle with the
-            // forearm; the palm leaves the rig's point by the bend only (a hand's length at most).
-            const angle = C.clone().sub(world(u.joints.get("handL"))).angleTo(u.hand("L").fingers);
-            seen.bent = [Math.min(seen.bent[0], angle), Math.max(seen.bent[1], angle)];
+            // #199: the tray: his palm almost level, facing the sky; his thumb in sight, outwards (not towards his chest);
+            // the hand bent back from the forearm by about 60°; the palm on the rig's point while the wrist has range.
+            const h = u.hand("L"), angle = C.clone().sub(world(u.joints.get("handL"))).angleTo(h.fingers);
+            const outwards = new THREE.Vector3(1, 0, 0).transformDirection(r.chest.matrixWorld).setY(0).normalize();
+            seen.bent = [Math.min(seen.bent[0], angle), Math.max(seen.bent[1], angle)]; seen.sky = Math.max(seen.sky, h.normal.angleTo(new THREE.Vector3(0, 1, 0)));
+            seen.thumbOut = Math.min(seen.thumbOut, h.radial.dot(outwards), h.radial.y + 0.2);
             seen.bentWrist = Math.max(seen.bentWrist, e.wrist); seen.bentMiss = Math.max(seen.bentMiss, e.error);
           } else seen.error = Math.max(seen.error, e.error);
           seen.elbow = [Math.min(seen.elbow[0], flexion), Math.max(seen.elbow[1], flexion)];
@@ -170,11 +173,11 @@ const options = { boneMaterial: new THREE.MeshBasicMaterial(), muscleMaterial: (
     assert(seen.grip < 0.06, `${label}: the follower's palm is ${(seen.grip * 100).toFixed(1)} cm from the leader's (#179)`);
     assert(seen.play > -0.001, `${label}: bones of the two joined hands go through each other by ${(-seen.play * 1000).toFixed(1)} mm (#179)`);
     assert(seen.facing < 0.3, `${label}: the palms face each other within ${Math.round(seen.facing * 180 / Math.PI)}° only (#179)`);
-    assert(seen.thumbUp > 0.7 && seen.upright > (tenue === "ciel" ? UPRIGHT_BENT : 0.85), `${label} (${tenue}): the leader's thumb (${seen.thumbUp.toFixed(2)}) or the follower's fingers (${seen.upright.toFixed(2)}) leave the vertical (#179)`);
-    if (tenue === "ciel") {
-      const want = api.SKYWARD.angle;
-      assert(seen.bent[0] > want - 0.03 && seen.bent[1] < want + 0.03 && seen.bentWrist <= api.SKYWARD.wrist + 1e-9 && seen.bentMiss < 0.1,
-        `${label}: the leader's hand makes ${seen.bent.map(x => Math.round(x * 180 / Math.PI)).join(" to ")}° with his forearm, his wrist ${Math.round(seen.bentWrist * 180 / Math.PI)}°, his palm ${(seen.bentMiss * 100).toFixed(1)} cm from the rig's point (#199)`);
+    if (tenue === "cote") assert(seen.thumbUp > 0.7 && seen.upright > 0.85, `${label}: the leader's thumb (${seen.thumbUp.toFixed(2)}) or the follower's fingers (${seen.upright.toFixed(2)}) leave the vertical (#179)`);
+    else {
+      assert(seen.sky < TRAY.sky && seen.thumbOut > TRAY.thumb, `${label}: the leader's palm leans ${Math.round(seen.sky * 180 / Math.PI)}° from the sky, his thumb ${seen.thumbOut.toFixed(2)} outwards (#199)`);
+      assert(seen.bent[0] > TRAY.angle[0] && seen.bent[1] < TRAY.angle[1] && seen.bentWrist <= api.SKYWARD.wrist + 1e-9 && seen.bentMiss < TRAY.miss,
+        `${label}: the leader's hand makes ${seen.bent.map(x => Math.round(x * 180 / Math.PI)).join(" to ")}° with his forearm, his wrist ${Math.round(seen.bentWrist * 180 / Math.PI)}°, his palm ${(seen.bentMiss * 1000).toFixed(1)} mm from the rig's point (#199)`);
       assert(seen.herDrop > HER_DROP, `${label}: the follower's elbow only ${(seen.herDrop * 100).toFixed(1)} cm under her wrist (#199)`);
     }
     // The elbow never jumps more than the rig's own elbow does (a released hand jumps in the rig too).
