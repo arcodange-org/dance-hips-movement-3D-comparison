@@ -487,7 +487,6 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] GIF des dix-neuf boucles et des candidats ; page d'élection (`docs/elections/2026-11-24-isolations/`, tour 12 de la page de vote).
 - [ ] Vote du fondateur ; la proposition élue devient le comportement, les interrupteurs d'essai partent.
 
-
 ## Suave : deux temps par côté, sans rebond (#200)
 
 - [x] Issue #200 ; spec ([spec](spec-suave-deux-temps.md)) ; règle R44.
