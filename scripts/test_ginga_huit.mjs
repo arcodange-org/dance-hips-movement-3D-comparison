@@ -78,8 +78,29 @@ const api = await import(bundle.href); unlinkSync(bundle);
   // The elected step is the basic step when the address asks for nothing; `ancien` is the model of before.
   assert.equal(api.KOMPA_PROTO.eight, undefined, 'no kompa variant asked for by default');
   assert.equal(api.KOMPA_ELECTED, 'assisBuste');
-  { const elected = trace('assisBuste', 'seul', 'base', 'kompa'), plain = trace('aujourdhui', 'seul', 'base', 'kompa');
-    assert.deepEqual(plain.mesures, elected.mesures, 'kompa: the basic step is the elected one'); }
+  // #195 (rule R40, 24 Nov. 2026): the basic step is the elected one read twice as fast, one beat per support;
+  // `deuxTemps` is the step as voted. Same knees, same hips' path but for the 8 mm hip accent of the touch,
+  // which goes with the touch; the pose at the clock's beat c is the voted pose at 2c − 1.
+  { const elected = trace('assisBuste', 'seul', 'base', 'kompa'), voted = trace('deuxTemps', 'seul', 'base', 'kompa'), plain = trace('aujourdhui', 'seul', 'base', 'kompa');
+    assert.equal(api.KOMPA_BEATS, 1);
+    assert.deepEqual(voted.mesures, elected.mesures, 'kompa: `deuxTemps` is the elected step as voted');
+    assert.equal(voted.transfert.periode, 4); assert.equal(plain.transfert.periode, 2, 'kompa: one beat per support, a side-to-side cycle in two beats');
+    assert.deepEqual([plain.genoux.gauche, plain.genoux.droit], [elected.genoux.gauche, elected.genoux.droit], 'kompa: the knees keep their range');
+    for (const hip of ['L', 'R']) for (const view of ['dessus', 'face', 'profil'])
+      assert.ok(Math.abs(plain.mesures[hip][view] - elected.mesures[hip][view]) < 0.05 * elected.mesures[hip][view], `kompa: hip ${hip} keeps its path seen from ${view} (${plain.mesures[hip][view]} against ${elected.mesures[hip][view]} cm²)`);
+    assert.ok(Math.abs(plain.posture.inclinaison[1] - elected.posture.inclinaison[1]) < 0.1 && Math.abs(plain.buste.largeur - elected.buste.largeur) < 1, `kompa: the bust keeps its lean and its sway (${JSON.stringify(plain.buste)})`);
+    assert.ok(plain.fluidite.arretPart === 0 && plain.fluidite.acceleration99 < 5 && plain.transfert.soudain < 1.1, `kompa: smooth at one beat per support (${JSON.stringify(plain.fluidite)}, ${plain.transfert.soudain})`);
+    const f = fixture(api, {}), joints = ['pelvis', 'spine', 'chest', 'head', 'hipL', 'hipR', 'kneeL', 'kneeR', 'footL', 'footR'];
+    const pose = (beat, name) => { api.setKompaProto(name); api.applyPose(f.r, f.model, beat, { styleKey: 'kompa', amp: 1 }); f.r.root.updateWorldMatrix(true, true); return joints.map(j => f.r[j].getWorldPosition(f.r[j].position.clone())); };
+    let worst = 0, same = 0, count = 0;
+    for (let c = 1; c < 5; c += 1 / 16) {
+      const fast = pose(c, null), slow = pose(2 * c - 1, 'deuxTemps'), gap = Math.max(...fast.map((p, i) => p.distanceTo(slow[i])));
+      worst = Math.max(worst, gap); count++; if (gap < 1e-9) same++;
+    }
+    api.setKompaProto(null);
+    assert.ok(worst < 0.0085, `kompa: the poses are the voted ones but for the hip accent of the touch (${(worst * 1000).toFixed(1)} mm)`);
+    assert.ok(same / count > 0.7, `kompa: most poses are exactly the voted ones (${same} of ${count})`);
+    console.log(`PASS kompa, un appui par temps (#195) : poses du pas voté lues deux fois plus vite (écart maximal ${(worst * 1000).toFixed(1)} mm, l'accent de hanche de la touche), genoux ${plain.genoux.gauche.join('° à ')}°, accélération du bassin ${plain.fluidite.acceleration99} m/s² (${voted.fluidite.acceleration99} à deux temps par appui)`); }
   assert.deepEqual(Object.keys(api.KOMPA_EIGHTS), ['huit', 'huitGrand', 'huitInverse', 'genoux', 'genouxRond', 'hanches', 'hanchesFortes', 'profil', 'profilFort', 'alterne', 'alterneTalon', 'alterneDirect', 'hancheFinit', 'hancheTenue', 'hancheAssise', 'hancheApres', 'assis', 'assisMarque', 'assisBuste', 'assisBusteAvant']);
   const k0 = kompa('ancien'), k1 = kompa('huit'), k2 = kompa('huitGrand'), k3 = kompa('huitInverse');
   assert.ok(k0.C.profondeur < 0.5 && k0.L.dessus < 2 && k0.C.arret > 0.4, `kompa today: a line (${k0.C.profondeur} cm deep, ${k0.L.dessus} cm², stop ${k0.C.arret})`);

@@ -5,6 +5,16 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Kompa : un appui par temps (#195, 24 novembre 2026)
+
+- Règle R40 : le kompa se danse sur un temps par appui, pas deux ; ce qui est « suave » prend deux temps par appui.
+- Fait, danseur seul sur place : le pas élu est lu deux fois plus vite (`KOMPA_BEATS`, `kompaBeat` dans
+  `src/styles.ts`), le poids arrive à gauche sur les temps impairs, à droite sur les temps pairs. Poses du pas voté,
+  moins l'accent de hanche de la touche (8 mm). `?kompa=deuxTemps` : le pas tel que voté.
+  [Spec](docs/spec-ginga-huit.md#le-kompa--un-appui-par-temps-195), mesures et films (`docs/gifs/kompa-un-temps*.gif`).
+- Reste : le couple et le déplacement (#187), qui gardent deux temps par appui ; le style suave passe à deux temps
+  par côté, sans rebond (#200) ; le film du pas de base (#155) est à refaire.
+
 ## Page principale : la scène toujours visible, les réglages dans un panneau (#192, 24 novembre 2026)
 
 - Deuxième lot de la simplification de la page. Le propriétaire a choisi le 24 novembre l'organisation A du canevas
@@ -24,7 +34,8 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   `SoundControls`.
 - Vérifié : `docs/features/page-scene-panneau.feature` (dans `npm test`) et `scripts/mesure_page.mjs` (navigateur,
   ordinateur, tablette et profils de téléphone de Playwright) : résultats dans la spec, « Résultat mesuré ».
-- Hors périmètre : les textes des transitions (`src/transitions.ts`) disent encore « leader » et « suiveur ».
+- Les textes des pas (`src/transitions.ts`, partagés avec le jeu) disent aussi « guideur » et « suiveuse » depuis #194
+  ([spec](docs/spec-transitions.md), « Les mots ») ; un test refuse le retour de « leader » et « suiveur ».
 
 ## Jeu et vitrine utilisables sur téléphone (#186, 23 novembre 2026)
 
@@ -69,7 +80,10 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   du guideur, refermée autour de son index, pouces croisés). Dossier :
   [élection des mains](docs/elections/2026-11-22-mains/README.md) ; **choix du 23 novembre : l'attitude B**, devenue le
   comportement (mains sur le côté du couple, leur milieu à hauteur d'épaule, emboîtées) ; C reste filmable
-  (`?essai=mainsBasses`).
+  (`?essai=mainsBasses`). Tenue choisie le 24 novembre (#199, R41) : main du guideur en
+  plateau (main renversée au poignet, paume presque parallèle au sol, pouce visible), main de la suiveuse posée
+  dessus, son coude qui retombe ; la tenue sur le côté reste en option (`?tenue=cote`)
+  ([dossier](docs/elections/2026-11-24-paume-ciel/README.md)).
   Fait dans le haut du corps anatomique : doigts articulés, formes de main, poignet de la suiveuse articulé, sa main
   posée en travers de celle du guideur ([spec](docs/spec-haut-du-corps.md)). Reste : son poignet va au bout de son
   amplitude, les doigts ne se serrent pas, et le rig stylisé (sans `haut=1`) n'a pas de doigts.

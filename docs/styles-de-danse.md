@@ -127,6 +127,11 @@ tours de films (#161, [élection](elections/ginga-huit.md)) : la hanche s'assoit
 alternent, le buste suit le bassin et se penche. Ce choix est le sien, pas celui d'une source ; il s'écarte du manuel
 cité par *Le Nouvelliste* sur l'ordre avant-arrière de la hanche (voir [la spec](spec-ginga-huit.md)).
 
+Depuis le 24 novembre 2026 (#195, règle R40) : ce pas se danse sur **un temps par appui**, le poids change de pied à
+chaque temps ; ce qui se danse « suave » prend deux temps par appui, le kompa n'en fait pas partie. Là encore la règle
+est celle du propriétaire : la page pédagogique citée dans [`musique/kompa.md`](musique/kompa.md) décrit un pas puis
+une touche sans poids, soit deux temps par appui, que le kompa garde en couple en attendant #187.
+
 ### Tarraxinha
 **Sur place**, isolations pelviennes (contact bassin à bassin)
 ([Udansa](https://udansa.com)), haut du corps immobile.

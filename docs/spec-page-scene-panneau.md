@@ -123,8 +123,8 @@ L'ancien mode « Observation hanche » devient un préréglage du tiroir « Corp
 
 ### Les mots
 
-Le guideur et la suiveuse, partout sur la page. Les textes des transitions (`src/transitions.ts`),
-partagés avec le jeu et couverts par leurs tests, gardent leurs mots : voir « Hors périmètre ».
+Le guideur et la suiveuse, partout sur la page ; les textes des transitions (`src/transitions.ts`),
+partagés avec le jeu, les disent aussi depuis #194.
 
 | Avant | Maintenant |
 | --- | --- |
@@ -292,7 +292,7 @@ Aussi : `comparer-ordinateur.jpg`, `couple-sortie-tablette.jpg`, `seul-iphone14-
 
 ## Hors périmètre
 
-- Les textes des transitions (`src/transitions.ts`) disent encore « leader » et « suiveur » : ils sont
-  partagés avec le jeu, sourcés et couverts par `scripts/test_transitions.mjs`. Les réécrire est un lot à part.
+- Les textes des transitions (`src/transitions.ts`), partagés avec le jeu, disaient encore « leader » et
+  « suiveur » à la livraison de ce lot ; ils ont été réécrits ensuite ([spec](spec-transitions.md), #194).
 - Des onglets communs dans le jeu : le jeu garde son bouton de retour (#186).
 - Les GIF du README ne sont pas refaits : ils viennent de la vue `bare=1`, inchangée.

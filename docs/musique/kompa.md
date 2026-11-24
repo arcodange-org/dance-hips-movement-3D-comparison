@@ -117,6 +117,11 @@ citant Haitian Music Zone, ce que la page pédagogique du même site ne confirme
 (`b % 4 ≥ 3`) ajoute un petit décalage sans suspendre l'oscillation. Voir
 [confrontation-moteur.md](confrontation-moteur.md).
 
+**Depuis #195 (24 novembre 2026).** Règle du propriétaire (R40) : le kompa se danse sur un temps par appui. Le pas
+de base du danseur seul pose donc le poids sur chaque temps, à gauche sur les temps impairs, à droite sur les temps
+pairs, sans touche ; elle s'écarte de la page pédagogique ci-dessus (pas, touche, pas, touche), que le couple garde
+en attendant #187. La grille musicale ne change pas : ses temps restent ceux de l'horloge, où le poids arrive.
+
 ## Spécification de synthèse
 
 ### Tempo

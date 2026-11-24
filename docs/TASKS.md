@@ -475,4 +475,22 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] `scripts/mesure_page.mjs` : critères tenus sur 38 couples vue × profil (ordinateur, tablette, téléphones tenus droits et couchés).
 - [x] Vu dans Safari du simulateur d'iPhone (iOS 26), tenu droit et couché.
 - [x] Captures avant et après (`docs/captures/page-scene-panneau/`).
-- [ ] Textes des transitions (`src/transitions.ts`) : « leader » et « suiveur » à aligner sur « guideur » et « suiveuse » (lot à part, partagé avec le jeu).
+- [x] Textes des transitions : lot à part, voir « Textes des pas : guideur et suiveuse (#194) ».
+
+## Textes des pas : guideur et suiveuse (#194)
+
+- [x] Issue #194 et spec poussée en premier ([spec](spec-transitions.md), « Les mots »).
+- [x] `src/transitions.ts` : « guideur » (27 fois) et « suiveuse » (9 fois) dans tous les textes, avec leurs accords ; « son pied dégage le couloir le premier » dit en clair qui dégage.
+- [x] `scripts/test_transitions.mjs` : la règle « jamais avant le guideur » ; refus du retour des anciens mots (58 transitions).
+- [x] Vérifié dans le navigateur : barre de lecture, « Ce pas en détail », fiche du jeu en danse seule ; aucun ancien mot affiché.
+
+## Kompa : un appui par temps (#195)
+
+- [x] Issue #195 ; spec poussée en premier ([spec](spec-ginga-huit.md#le-kompa--un-appui-par-temps-195)) ; règle R40.
+- [x] `KOMPA_BEATS`, `kompaBeat` (`src/styles.ts`) : le pas élu lu deux fois plus vite, danseur seul sur place ;
+  `?kompa=deuxTemps` : le pas tel que voté. L'accent de hanche de la touche (8 mm) part avec la touche.
+- [x] Tests : appuis (`scripts/test_temps_transferts.mjs`), poses du pas voté et mesures
+  (`scripts/test_ginga_huit.mjs`), traceur des hanches à un temps par appui (`BPM=` pour un autre tempo).
+- [x] Textes de l'app, README, `docs/styles-de-danse.md`, `docs/musique/kompa.md`, `docs/spec-temps-transferts.md`.
+- [x] Films du kompa à un temps par appui (`docs/gifs/kompa-un-temps*.gif`), à 90 et 120 bpm.
+- [ ] En couple et en déplacement : avec #187. Style suave : deux temps par côté, sans rebond (#200).
