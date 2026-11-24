@@ -464,3 +464,11 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] `src/transitions.ts` : « guideur » (27 fois) et « suiveuse » (9 fois) dans tous les textes, avec leurs accords ; « son pied dégage le couloir le premier » dit en clair qui dégage.
 - [x] `scripts/test_transitions.mjs` : la règle « jamais avant le guideur » ; refus du retour des anciens mots (58 transitions).
 - [x] Vérifié dans le navigateur : barre de lecture, « Ce pas en détail », fiche du jeu en danse seule ; aucun ancien mot affiché.
+
+## Suave : deux temps par côté, sans rebond (#200)
+
+- [x] Issue #200 ; spec ([spec](spec-suave-deux-temps.md)) ; règle R44.
+- [x] Danseur seul, sur place : balancement sur quatre temps, « 8 » à une boucle par côté, talons au sol
+  (`src/styles.ts`, `SUAVE_SLOW`) ; test des appuis (`scripts/test_temps_transferts.mjs`) ; textes.
+- [x] Film du suave à deux temps par côté (`docs/gifs/suave-deux-temps.gif`).
+- [ ] En couple et dans le mode jeu (son pas de base est en suave) : avec #187.

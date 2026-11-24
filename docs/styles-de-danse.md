@@ -130,6 +130,12 @@ cité par *Le Nouvelliste* sur l'ordre avant-arrière de la hanche (voir [la spe
 base « 8 temps » ([Emove thérapie](https://emoveretherapie.com)). Transferts partiels, aucun
 rise-and-fall.
 
+Dans l'app, depuis le 24 novembre 2026 (#200, règle du propriétaire R44), le suave dansé seul prend **deux temps par
+côté, sans rebond** : le poids penche à gauche sur 1 et 2, à droite sur 3 et 4, les talons restent au sol, le « 8 » au
+sol fait une boucle de chaque côté ([spec](spec-suave-deux-temps.md)). La source ci-dessus décrit un talon levé à chaque
+changement de pied ; c'est le choix du propriétaire qui l'emporte. En couple (pas de base du mode jeu), le modèle
+d'avant (#187).
+
 ### Zouk brésilien
 **Basic sur place** slow-quick-quick, cambré, body waves, rouleaux de tête
 ([Get Bailar](https://getbailar.com), [DanceIn NJ](https://danceinnj.com)) ; zouk love : cambré

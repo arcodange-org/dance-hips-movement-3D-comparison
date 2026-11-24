@@ -16,7 +16,7 @@ const api = await import(bundle.href); unlinkSync(bundle);
 // danced alone (its elected step, #162, below); in pair the semba keeps one transfer per beat.
 const styles = Object.keys(api.STYLES).filter(k => k !== 'kompa');
 for (const styleKey of styles) for (const pair of [false, true]) {
-  if (styleKey === 'semba' && !pair) continue;
+  if ((styleKey === 'semba' || styleKey === 'suave') && !pair) continue;
   const f = fixture(api, {});
   const load = beat => api.applyPose(f.r, f.model, beat, { styleKey, amp: 1, ...(pair ? { embrace: true, placePaire: true, placement: 'quinconce' } : {}) }).loadR;
   for (let k = 0; k < 4; k++) {
@@ -26,7 +26,24 @@ for (const styleKey of styles) for (const pair of [false, true]) {
     assert(Math.abs(half - 0.5) < 1e-6, `${styleKey}: the transfer crosses half-way between beats (${half.toFixed(3)} at ${k + 0.5})`);
   }
 }
-console.log(`PASS temps et transferts : sur place (solo et paire ; le semba en paire seulement), poids sur chaque temps pour ${styles.join(', ')}`);
+console.log(`PASS temps et transferts : sur place (solo et paire ; le semba et le suave en paire seulement), poids sur chaque temps pour ${styles.join(', ')}`);
+
+// #200 (rule R44, 24 Nov. 2026): the suave alone, two beats per side, without bounce: the weight leans on the left
+// foot on beats 1 and 2, on the right on 3 and 4 (partial transfers, 60/40), passing half-way between 2 and 3 and
+// between 4 and 5; the heels stay down.
+{
+  const f = fixture(api, {});
+  const at = beat => { const s = api.applyPose(f.r, f.model, beat, { styleKey: 'suave', amp: 1 }); return { load: s.loadR, heel: Math.max(Math.abs(f.r.extraL ?? 0), Math.abs(f.r.extraR ?? 0)) }; };
+  for (const k of [1, 2, 5, 6]) assert(at(k).load < 0.45, `suave alone: the weight leans left on beat ${k} (${at(k).load.toFixed(3)})`);
+  for (const k of [3, 4, 7, 8]) assert(at(k).load > 0.55, `suave alone: the weight leans right on beat ${k} (${at(k).load.toFixed(3)})`);
+  for (const k of [2.5, 4.5, 6.5]) assert(Math.abs(at(k).load - 0.5) < 1e-6, `suave alone: half-way between the sides at ${k}`);
+  assert(Math.abs(at(1).load - at(2).load) < 1e-6, 'suave alone: the same weight on both beats of a side');
+  let transfers = 0, prev = at(0.05).load;
+  for (let b = 0.1; b <= 8.05; b += 0.05) { const l = at(b).load; if ((l - 0.5) * (prev - 0.5) < 0) transfers++; prev = l; }
+  assert.equal(transfers, 4, `suave alone: one side every two beats (${transfers} crossings in 8 beats)`);
+  for (let b = 0; b < 4; b += 0.125) assert(at(b).heel === 0, `suave alone: the heels stay down (${b})`);
+}
+console.log('PASS temps et transferts : suave seul, deux temps par côté (gauche sur 1 et 2, droite sur 3 et 4), talons au sol');
 
 // Kompa (docs/musique/kompa.md: step 1, touch 2, step 3, touch 4): one transfer every two beats, the
 // weight landing on 1 and 3 and held through the touches on 2 and 4.

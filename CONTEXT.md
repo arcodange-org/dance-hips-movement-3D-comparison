@@ -5,6 +5,12 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Suave : deux temps par côté, sans rebond (#200, 24 novembre 2026)
+
+- Règle R44. Fait pour le danseur seul, sur place : le poids penche à gauche sur 1 et 2, à droite sur 3 et 4, les
+  talons au sol, le « 8 » au sol garde sa taille avec une boucle de chaque côté ([spec](docs/spec-suave-deux-temps.md)).
+- Reste : le couple et le mode jeu, dont le pas de base est en suave (#187).
+
 ## Page principale : la scène toujours visible, les réglages dans un panneau (#192, 24 novembre 2026)
 
 - Deuxième lot de la simplification de la page. Le propriétaire a choisi le 24 novembre l'organisation A du canevas
