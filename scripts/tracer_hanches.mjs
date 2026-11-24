@@ -10,7 +10,8 @@
 // Usage : CHROME_PATH=... node scripts/tracer_hanches.mjs out.gif <ginga> [suiveur|leader] [figure] [style]
 //         … out.gif <variante> seul base <style> : le danseur seul, pas de base sur place du style (4 temps) ;
 //         pour le kompa et le semba, <variante> est une variante de `KOMPA_EIGHTS` ou `SEMBA_SITS`, `ancien` (le modèle
-//         d'avant les votes) ou `aujourdhui` (le pas de base : la variante élue).
+//         d'avant les votes) ou `aujourdhui` (le pas de base : la variante élue ; pour le kompa, à un appui par temps,
+//         #195 ; `deuxTemps` : le pas tel que voté, deux temps par appui).
 //         MESURES=1 n'écrit pas de GIF : seulement les mesures (JSON sur la sortie standard).
 import { buildSync } from "esbuild";
 import { execFileSync } from "node:child_process";
@@ -29,8 +30,9 @@ const solo = role === "seul";
 // Alone: four beats, eight for the semba (its « one, two, three, pause » comes back to the same foot in eight).
 const follower = !solo && role !== "leader", dz = api.GUIDE_PAIR_DZ, beats = solo ? (styleKey === 'semba' ? 8 : 4) : api.GUIDE_FIGURES[kind].beats, movement = solo ? "none" : api.GUIDE_FIGURES[kind].movement;
 if (solo) { api.setKompaProto(styleKey === 'kompa' ? ginga : null); api.setSembaProto(styleKey === 'semba' ? ginga : null); }
-// Tempo of the measures and of the GIF: the semba at 130 bpm, the others at 90.
-const BPM = styleKey === 'semba' ? 130 : 90;
+// Tempo of the measures and of the GIF: the semba at 130 bpm, the others at 90 ; BPM=… in the environment
+// measures at another tempo (the kompa's music plays at 120 by default).
+const BPM = Number(process.env.BPM) || (styleKey === 'semba' ? 130 : 90);
 const f = { ...fixture(api), cache: new Map() };
 const rest = { L: f.model.legs.L.rest, R: f.model.legs.R.rest }, stance = (f.model.legs.L.hipX - rest.L.x + rest.R.x - f.model.legs.R.hipX) / 2;
 // The game's own session: the figure commanded five times in a row, the third one measured.
@@ -151,7 +153,7 @@ const panels = [
 const at = (panel, p) => [panel.cx + (p[panel.a] - centre[panel.a]) * SCALE, panel.cy - (p[panel.b] - centre[panel.b]) * SCALE];
 const path = (panel, pts) => pts.map((p, i) => `${i ? 'L' : 'M'}${at(panel, p).map(v => v.toFixed(1)).join(' ')}`).join(' ') + ' Z';
 const COLORS = { L: '#fb923c', R: '#22d3ee', C: '#94a3b8' };
-const label = solo ? ({ ancien: 'avant les votes', huit: '« 8 »', huitGrand: '« 8 » plus grand', huitInverse: '« 8 », autre sens', genoux: 'genoux alternés', genouxRond: 'genoux alternés, une demi-temps après', hanches: 'hanches qui mènent', hanchesFortes: 'hanches qui mènent, plus fort', profil: '« 8 » de profil, fessiers en arrière', profilFort: '« 8 » de profil, plus fort', alterne: 'jambe d’appui tendue, jambe libre fléchie', alterneTalon: 'jambes alternées, talon libre levé', alterneDirect: 'jambes alternées, genoux avec le poids', hancheFinit: 'la hanche attend, puis arrive avec le poids', hancheTenue: 'la hanche reste haute, puis rattrape', pause: 'trois transferts, puis le même pied deux fois', parCote: 'deux arrivées sur chaque pied', simple: 'un transfert par temps, la hanche s’assoit', hancheAssise: 'la hanche s’assoit dès l’arrivée', hancheApres: 'la hanche finit après l’arrivée du bassin', assis: 'la hanche s’assoit sur le temps, puis remonte', assisMarque: 'la hanche s’assoit sur le temps, plus marqué', assisBuste: 'la hanche s’assoit, le buste suit, penché en avant', assisBusteAvant: 'la hanche s’assoit, le buste au-dessus des genoux' }[ginga] ?? 'aujourd’hui') : { marque: 'aller-retour (aujourd’hui)', huit: '« 8 » anguleux', huitRond: '« 8 » arrondi', huitInverse: '« 8 » arrondi, autre sens', huitAmple: '« 8 » arrondi, ample', huitGrand: '« 8 » arrondi, très ample', genoux: 'genoux qui mènent, en même temps (G1)', genouxQuart: 'genoux qui mènent, un quart de temps après (G2)', genouxRond: 'genoux qui mènent, une demi-temps après (G3)' }[ginga] ?? ginga;
+const label = solo ? ({ ancien: 'avant les votes', huit: '« 8 »', huitGrand: '« 8 » plus grand', huitInverse: '« 8 », autre sens', genoux: 'genoux alternés', genouxRond: 'genoux alternés, une demi-temps après', hanches: 'hanches qui mènent', hanchesFortes: 'hanches qui mènent, plus fort', profil: '« 8 » de profil, fessiers en arrière', profilFort: '« 8 » de profil, plus fort', alterne: 'jambe d’appui tendue, jambe libre fléchie', alterneTalon: 'jambes alternées, talon libre levé', alterneDirect: 'jambes alternées, genoux avec le poids', hancheFinit: 'la hanche attend, puis arrive avec le poids', hancheTenue: 'la hanche reste haute, puis rattrape', pause: 'trois transferts, puis le même pied deux fois', parCote: 'deux arrivées sur chaque pied', simple: 'un transfert par temps, la hanche s’assoit', hancheAssise: 'la hanche s’assoit dès l’arrivée', hancheApres: 'la hanche finit après l’arrivée du bassin', assis: 'la hanche s’assoit sur le temps, puis remonte', assisMarque: 'la hanche s’assoit sur le temps, plus marqué', assisBuste: 'la hanche s’assoit, le buste suit, penché en avant', assisBusteAvant: 'la hanche s’assoit, le buste au-dessus des genoux', deuxTemps: 'deux temps par appui (pas voté le 23 novembre)' }[ginga] ?? (styleKey === 'kompa' ? 'un appui par temps' : 'aujourd’hui')) : { marque: 'aller-retour (aujourd’hui)', huit: '« 8 » anguleux', huitRond: '« 8 » arrondi', huitInverse: '« 8 » arrondi, autre sens', huitAmple: '« 8 » arrondi, ample', huitGrand: '« 8 » arrondi, très ample', genoux: 'genoux qui mènent, en même temps (G1)', genouxQuart: 'genoux qui mènent, un quart de temps après (G2)', genouxRond: 'genoux qui mènent, une demi-temps après (G3)' }[ginga] ?? ginga;
 const fixed = panels.map(panel => `
   <text x="16" y="${panel.cy - 70}" class="t">${panel.title}</text><text x="16" y="${panel.cy - 52}" class="h">${panel.hint}</text>
   ${['C', 'L', 'R'].map(k => `<path d="${path(panel, points[k])}" fill="none" stroke="${COLORS[k]}" stroke-width="${k === 'C' ? 1 : 2}" stroke-opacity="${k === 'C' ? 0.5 : 0.85}"/>`).join('')}`).join('');

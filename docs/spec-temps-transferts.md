@@ -28,9 +28,12 @@ de l'horloge (`src/music/scheduler.ts`).
   temps, le transfert à mi-chemin entre deux temps. C'est un décalage dans le temps du même
   mouvement : les poses sont les mêmes, donc aucun croisement d'os nouveau. Les figures gardent
   leur propre calendrier d'appuis, et la sortie combinée historique (`sortie`) aussi (oracle).
-- **Kompa** : un transfert tous les deux temps. Le poids arrive sur 1 et 3 et reste pendant la touche
-  sans poids sur 2 et 4 ; il passe sur l'autre pied dans les 0,4 temps qui précèdent le pas
-  (`kompaSupport`). Le hip check se fait sur la touche.
+- **Kompa** : danseur seul, sur place, un appui par temps depuis #195 (règle R40 du 24 novembre 2026) : le poids
+  arrive à gauche sur les temps impairs, à droite sur les temps pairs, et passe sur l'autre pied dans les 0,2 temps
+  qui précèdent le temps (`kompaBeat`, `kompaSupport` ; [spec](spec-ginga-huit.md#le-kompa--un-appui-par-temps-195)).
+  En couple, en attendant #187 : un transfert tous les deux temps ; le poids arrive sur 1 et 3 et reste pendant la
+  touche sans poids sur 2 et 4 ; il passe sur l'autre pied dans les 0,4 temps qui précèdent le pas. Le hip check se
+  fait sur la touche.
 - **Kompa, tarraxinha et zouk : sur place et avant-arrière seulement** (demandes du propriétaire du
   20 novembre : « on peut laisser le style konpa faire uniquement le sur place et le avant / arrière (pas
   de marka en konpa) », puis « gère tarraxinha et zouk comme avec le konpa », priorité au kizomba et au

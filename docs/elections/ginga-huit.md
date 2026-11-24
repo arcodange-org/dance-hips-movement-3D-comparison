@@ -489,3 +489,6 @@ place, pieds plantés ; voir [la spec](../spec-ginga-huit.md#les-pas-élus-devie
 variantes restent visibles par `?kompa=` et `?semba=` (`ancien` : le modèle d'avant les votes). En couple et en
 déplacement, les deux styles gardent leur ancien déhanché : les y porter, avec le « 8 » G1 élu pour le couple, est
 le chantier #187.
+
+Le 24 novembre (#195) : le kompa se danse sur un temps par appui. Le pas élu garde ses poses et se parcourt deux fois
+plus vite ; `?kompa=deuxTemps` le montre tel qu'il a été voté ([spec](../spec-ginga-huit.md#le-kompa--un-appui-par-temps-195)).
