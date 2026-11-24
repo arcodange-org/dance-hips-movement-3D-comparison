@@ -41,7 +41,7 @@ Une vidéo de 4 à 6 minutes 30, 1920 × 1080, 25 images par seconde, sous-titr�
 - **Le film parle à des danseurs** (règle du propriétaire, 24 novembre) : ni centimètres ni degrés, ni dits ni
   écrits à l'écran (pas d'échelle graduée sous les trajets du bassin). Une taille se dit en mots (petit, à
   peine, nettement, le plus), en comparant les styles entre eux, avec la partie du corps, la direction, le côté
-  et le moment. Le tempo en battements par minute reste : c'est un mot de musicien. Les mesures chiffrées
+  et le moment. Le tempo en battements par minute reste dans les cartouches : c'est un mot de musicien (choix du propriétaire, 24 novembre). Les mesures chiffrées
   restent dans la fiche de faits et dans `scripts/test_video.mjs`, qui prouve chaque comparaison dite (« le
   plus », « un peu moins », « à peine ») et refuse toute unité dans la narration, les repères, les cartouches
   et l'habillage.
