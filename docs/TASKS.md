@@ -448,10 +448,12 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 ## Page principale : scène et panneau (#192)
 
 - [x] Issue #192 et spec poussée en premier ([spec](spec-page-scene-panneau.md)).
-- [ ] `src/page.ts` (pur) : onglets, figures par onglet, inventaire des commandes, pas affiché, repère au centre, « Hanches au ralenti ».
-- [ ] `src/components/page/` : bandeau et onglets, scène et barre de lecture, panneau et tiroirs, « À propos » ; trois dispositions.
-- [ ] `src/App.tsx` : le rendu de la page passe par `PagePrincipale` ; anciens blocs de commandes retirés.
-- [ ] Fiche d'un pas : « Guideur » et « Suiveuse ».
-- [ ] `page-scene-panneau.feature` dans `npm test`.
-- [ ] `scripts/mesure_page.mjs` : critères tenus à l'ordinateur et sur les profils de téléphone.
-- [ ] Captures avant et après (`docs/captures/page-scene-panneau/`).
+- [x] `src/page.ts` (pur) : onglets, figures par onglet, inventaire des commandes, pas affiché, repère au centre, « Hanches au ralenti ».
+- [x] `src/components/page/` : bandeau et onglets, scène et barre de lecture, panneau et tiroirs, « À propos » ; trois dispositions.
+- [x] `src/App.tsx` : le rendu de la page passe par `PagePrincipale` ; anciens blocs de commandes retirés.
+- [x] Fiche d'un pas : « Guideur » et « Suiveuse ».
+- [x] `page-scene-panneau.feature` dans `npm test` (24 scénarios).
+- [x] `scripts/mesure_page.mjs` : critères tenus sur 38 couples vue × profil (ordinateur, tablette, téléphones tenus droits et couchés).
+- [x] Vu dans Safari du simulateur d'iPhone (iOS 26), tenu droit et couché.
+- [x] Captures avant et après (`docs/captures/page-scene-panneau/`).
+- [ ] Textes des transitions (`src/transitions.ts`) : « leader » et « suiveur » à aligner sur « guideur » et « suiveuse » (lot à part, partagé avec le jeu).

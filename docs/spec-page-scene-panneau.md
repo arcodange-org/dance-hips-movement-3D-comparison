@@ -71,7 +71,8 @@ La disposition suit la taille de la fenêtre, par la même règle que le jeu (`h
 - Lecture ou pause, et « Rejouer » (revient au début et lance la lecture), pour toute figure.
 - Pour une figure en cinq actions (sortie garçon, sortie fille, en couple) : « Départ » et les pas 1 à 5.
   Un pas choisi arrête la lecture sur sa pose, comme la liste « Pose de la sortie » d'avant. Au
-  téléphone, et sous 1 024 px de large : pas précédent, « Pas 4 sur 5 », pas suivant.
+  téléphone, et sous 1 024 px de large : pas précédent, « Pas 4 sur 5 », pas suivant (« 4 / 5 » sous 360 px ;
+  téléphone couché, les deux flèches seules : le pas est écrit juste au-dessus, sur la scène).
 - Ce qui se danse : le numéro et le nom du pas pour une figure en cinq actions ; sinon le compte de 1 à 8 et
   le nom de la figure. En disposition `large`, la barre dit aussi ce que fait le guideur et ce que fait la
   suiveuse (les textes de `src/transitions.ts`), une ligne chacun, coupée si elle est trop longue : la barre
@@ -214,8 +215,9 @@ Par l'adresse seulement, inchangé : `cam`, `angle`, `zoom`, `campos`, `camtgt`,
 
 - `src/page.ts` (pur) : onglets, figures offertes par onglet, inventaire `COMMANDES` et `commandeVisible`,
   pas affiché et pas voisin, compte, repère au centre, préréglage « Hanches au ralenti ».
-- `src/components/page/` : `PagePrincipale` (disposition, bandeau, scène), `BarreLecture`, `Panneau`,
-  `Tiroirs`, `APropos`, `commun` (boutons, interrupteurs, curseurs).
+- `src/components/page/` : `PagePrincipale` (disposition, bandeau, scène), `BarreLecture`, `Panneau` (style,
+  figure, tiroirs), `APropos`, `commun` (boutons, choix, interrupteurs, curseurs, tiroir), `types`.
+- `src/components/credit.ts` : l'attribution, la même dans le jeu, la vitrine et la page.
 - `src/App.tsx` : seul le rendu de la page change (un appel à `PagePrincipale`) ; l'état, la lecture de
   l'adresse, la scène et la vue `bare=1` restent.
 - Retirés, remplacés par le panneau : `Controls`, `SortieGarconControls`, `SortieFilleControls`,
@@ -235,6 +237,58 @@ Par l'adresse seulement, inchangé : `cam`, `angle`, `zoom`, `campos`, `camtgt`,
   - sur un profil tactile, chaque commande fait au moins 44 px ;
   - téléphone tenu droit : la page défile sous le doigt posé hors de la scène, et la scène reste à l'écran ;
   - l'attribution est dans la page.
+
+## Résultat mesuré
+
+`scripts/mesure_page.mjs` sur le serveur de dev, le 24 novembre 2026 : neuf profils (ordinateur 1280 × 800 et
+1024 × 640, tablette 768 × 1024, iPhone 14, iPhone SE et Pixel 7 tenus droits, iPhone 14 et iPhone SE couchés,
+iPhone couché avec la barre d'onglets de Safari, 750 × 280) et cinq vues, soit 38 couples vue × profil.
+**Tous les critères sont tenus.**
+
+À l'ouverture, avant et après :
+
+| Vue | Écran | Début de la scène | Scène à l'écran | Commandes cliquables | Mots |
+| --- | --- | --- | --- | --- | --- |
+| Un danseur | 1280 × 800 | 640 → 56 px | 79 % de la hauteur | 43 → 30 | 398 → 88 |
+| Comparaison | 1280 × 800 | 712 → 56 px | 79 % | 46 → 36 | 461 → 101 |
+| En couple | 1280 × 800 | 910 → 56 px | 79 % | 51 → 34 | 629 → 98 |
+| En couple, sortie garçon | 1280 × 800 | 1 134 → 56 px | 74 % | 55 → 43 | 770 → 162 |
+| Un danseur | iPhone 14, 664 px visibles | 2,3 écrans → 104 px | 45 % | 43 → 30 | 398 → 71 |
+| En couple, sortie garçon | iPhone 14, 664 px visibles | 3,6 écrans → 104 px | 45 % | 55 → 39 | 770 → 101 |
+
+- Scène à l'ouverture sur les autres profils : 67 % de la hauteur à 1024 × 640 (62 % en sortie garçon), 78 % sur la
+  tablette, 45 % sur l'iPhone SE et le Pixel 7 tenus droits, 81 à 82 % téléphone couché, 78 % avec la barre d'onglets.
+- Tiroirs ouverts, la page montre 24 à 31 des 40 commandes de l'inventaire, exactement celles attendues pour la vue.
+- Téléphone tenu droit : un doigt posé sous la scène fait défiler la page, et la scène reste en haut de l'écran.
+- Défauts trouvés par la mesure et corrigés avant la livraison : le curseur du tempo écrasé à zéro sur les écrans
+  étroits ; « Partager » et « À propos » à 40 px sur la tablette ; la barre plus large que la scène sur la tablette ;
+  une scène de 300 px seulement sur un grand téléphone (36 % de l'écran) ; sur le plus petit téléphone couché, un
+  onglet de 34 px et le bouton du son recouvert par le panneau ; le choix « Musique » plus large que le panneau.
+
+### Dans Safari, sur le simulateur d'iPhone
+
+Vu le 24 novembre dans Safari du simulateur (iPhone 16e, iOS 26), sur le serveur de dev :
+
+- tenu droit, la vue en couple, sortie garçon, tient dans le premier écran : onglets, scène, pas en cours, barre de
+  lecture, tempo, styles et figures ;
+- le doigt posé sous la scène fait défiler les réglages jusqu'à l'attribution ; la scène reste collée en haut ;
+- couché, la scène est à gauche et le panneau à droite ; la scène est la même (ni rechargement ni saut de caméra).
+
+Non vérifié : un téléphone réel, et un navigateur Android réel (seulement émulé).
+
+### Captures
+
+Dans `docs/captures/page-scene-panneau/`.
+
+| Avant | Après |
+| --- | --- |
+| `avant-seul-ordinateur.jpg` | `seul-ordinateur.jpg` |
+| `avant-couple-sortie-ordinateur.jpg` | `couple-sortie-ordinateur.jpg`, `couple-sortie-ordinateur-tiroirs.jpg` |
+| `avant-couple-sortie-telephone.jpg` | `couple-sortie-iphone14-droit.jpg`, `couple-sortie-iphone14-droit-defile.jpg` |
+
+Aussi : `comparer-ordinateur.jpg`, `couple-sortie-tablette.jpg`, `seul-iphone14-droit.jpg`,
+`couple-sortie-iphone14-couche.jpg`, `couple-sortie-iphone-couche-onglets.jpg`, et dans Safari du simulateur
+`safari-couple-sortie-droit.jpg`, `safari-couple-sortie-droit-defile.jpg`, `safari-couple-sortie-couche.jpg`.
 
 ## Hors périmètre
 

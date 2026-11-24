@@ -45,7 +45,8 @@ export function Choix({ actif, couleur, disabled, title, onClick, children, larg
   );
 }
 
-/** Deux ou trois valeurs côte à côte, une seule choisie. */
+/** Deux ou trois valeurs côte à côte, une seule choisie. Chaque valeur prend la largeur de son nom, puis sa part de
+ * la place qui reste ; faute de place, les noms sont coupés plutôt que de dépasser. */
 export function Segments<T extends string>({ nom, valeur, options, onChange, commande, className = "" }: {
   nom: string; valeur: T; options: readonly { key: T; label: string; title?: string }[]; onChange: (v: T) => void;
   commande?: string; className?: string;
@@ -56,7 +57,7 @@ export function Segments<T extends string>({ nom, valeur, options, onChange, com
       className={`flex overflow-hidden rounded-lg border border-slate-700 bg-slate-900 ${className}`}>
       {options.map(o => (
         <button key={o.key} type="button" aria-pressed={o.key === valeur} title={o.title} onClick={() => onChange(o.key)}
-          className={`min-w-0 flex-1 select-none whitespace-nowrap touch-manipulation ${FOCUS} ${tactile ? "h-11 px-2 text-sm" : "h-8 px-2.5 text-[13px]"} `
+          className={`flex-auto select-none truncate touch-manipulation ${FOCUS} ${tactile ? "h-11 min-w-[44px] px-2 text-sm" : "h-8 min-w-0 px-2.5 text-[13px]"} `
             + (o.key === valeur ? "bg-sky-400 font-semibold text-slate-950" : "text-slate-200 hover:bg-slate-800")}>
           {o.label}
         </button>

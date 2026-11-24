@@ -119,19 +119,19 @@ export default function Panneau({ clock, disposition, vue, cle, etat, on, son, r
         {reglagesFigure && (
           <div className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900 p-3">
             {montre("fin") && <Ligne nom="Fin" aide="Fin de la sortie garçon : retour sur la ligne, ou décalage commun à droite">
-              <Segments nom="Fin de la sortie garçon" commande="fin" valeur={etat.sortieVariant} className="min-w-[13rem] flex-1"
+              <Segments nom="Fin de la sortie garçon" commande="fin" valeur={etat.sortieVariant} className="min-w-[13rem] flex-auto"
                 options={[{ key: "line", label: "Sur la ligne" }, { key: "right", label: "À droite" }]}
                 onChange={v => { on.sortieVariant(v); auDepart(); }} />
             </Ligne>}
             {montre("deuxiemePas") && <Ligne nom="Deuxième pas du guideur" aide="Crochet du droit, ou recul du droit">
-              <Segments nom="Deuxième pas du guideur" commande="deuxiemePas" valeur={etat.sortieFilleVariant} className="min-w-[11rem] flex-1"
+              <Segments nom="Deuxième pas du guideur" commande="deuxiemePas" valeur={etat.sortieFilleVariant} className="min-w-[11rem] flex-auto"
                 options={[{ key: "hook", label: "Crochet" }, { key: "back", label: "Recul" }]}
                 onChange={v => { on.sortieFilleVariant(sortieFilleVariantOf(v)); auDepart(); }} />
             </Ligne>}
             {montre("virgula") && <Interrupteur nom="Virgula du guideur" commande="virgula" valeur={etat.idaVirgula} onChange={on.idaVirgula}
               aide="Effet de style : quand son gauche avance, il se pose perpendiculaire, pointe à gauche, talon près du droit ; son bassin s'ouvre et son buste garde sa direction" />}
             {montre("placement") && <Ligne nom="Placement" aide="En quinconce, les demi-pointes se touchent et les genoux droits se croisent">
-              <Segments nom="Placement du couple" commande="placement" valeur={etat.placement} className="min-w-[13rem] flex-1"
+              <Segments nom="Placement du couple" commande="placement" valeur={etat.placement} className="min-w-[13rem] flex-auto"
                 options={(Object.keys(PLACEMENT_LABELS) as CouplePlacement[]).map(key => ({ key, label: key === "quinconce" ? "Quinconce" : "Face à face", title: PLACEMENT_LABELS[key] }))}
                 onChange={v => { on.placement(v); auDepart(); }} />
             </Ligne>}
@@ -146,7 +146,7 @@ export default function Panneau({ clock, disposition, vue, cle, etat, on, son, r
             aide="Pastilles de charge sous les pieds, chaîne d'appui du pied à la hanche, et mesures sur la scène (indicatif)" />
           {montre("montrer") && <Ligne nom="Montrer" aide="L'autre corps devient transparent">
             <Segments nom="Corps montrés" commande="montrer" valeur={etat.ghostSel} options={MONTRER[couple ? "couple" : "comparer"]}
-              onChange={on.ghostSel} className="min-w-[14rem] flex-1" />
+              onChange={on.ghostSel} className="min-w-[14rem] flex-auto" />
           </Ligne>}
           {montre("ralenti") && <Interrupteur nom="Hanches au ralenti" commande="ralenti" valeur={ralenti} onChange={onRalenti}
             aide="Tempo lent, buste masqué, sur place, poids sur chaque pied : pour suivre le bassin temps par temps. Le quitter remet les réglages d'avant" />}
@@ -169,7 +169,7 @@ export default function Panneau({ clock, disposition, vue, cle, etat, on, son, r
           {montre("ligne") && <Interrupteur nom="Ligne de danse" commande="ligne" valeur={etat.showLigne} onChange={on.showLigne}
             aide={couple ? "Elle passe par les deux danseurs ; le couple progresse le long de la ligne" : "La ligne le long de laquelle on se déplace"} />}
           <Ligne nom="Repère au centre" aide="Point fixe au sol d'où se lisent les déplacements ; sa boussole donne huit directions">
-            <Segments nom="Repère au centre" commande="repere" valeur={repereOf(etat.showRepere, etat.showBoussole)} options={REPERES} className="min-w-[14rem] flex-1"
+            <Segments nom="Repère au centre" commande="repere" valeur={repereOf(etat.showRepere, etat.showBoussole)} options={REPERES} className="min-w-[14rem] flex-auto"
               onChange={choix => { const f = repereFlags(choix, etat.showBoussole); on.showRepere(f.repere); on.showBoussole(f.boussole); }} />
           </Ligne>
           {montre("proximite") && <Interrupteur nom="Repères de proximité" commande="proximite" valeur={etat.showContacts} onChange={on.showContacts}
@@ -178,14 +178,15 @@ export default function Panneau({ clock, disposition, vue, cle, etat, on, son, r
 
         {tiroir("son", "Son", <>
           {montre("source") && <Ligne nom="Source">
-            <Segments nom="Source de la musique" commande="source" valeur={son.source} onChange={son.onSource} className="min-w-[14rem] flex-1"
+            <Segments nom="Source de la musique" commande="source" valeur={son.source} onChange={son.onSource} className="min-w-[14rem] flex-auto"
               options={[{ key: "enregistrement", label: "Enregistrement", title: "Boucle enregistrée, générée par IA (Eleven Music, ElevenLabs)" },
                 { key: "synthese", label: "Synthèse", title: "Musique synthétisée dans le navigateur d'après les grilles documentées" }]} />
           </Ligne>}
           <Curseur nom="Volume" commande="volume" valeur={son.volume} min={0} max={1} pas={0.05} lu={`${Math.round(son.volume * 100)} %`} onChange={son.onVolume} />
           {montre("musiqueCote") && <Ligne nom="Musique" aide="En comparaison, la musique est celle d'un des deux styles">
-            <Segments nom="Musique jouée en comparaison" commande="musiqueCote" valeur={son.side} onChange={son.onSide} className="min-w-[14rem] flex-1"
-              options={[{ key: "A", label: `Gauche · ${STYLES[etat.styleA]?.label ?? etat.styleA}` }, { key: "B", label: `Droite · ${STYLES[etat.styleB]?.label ?? etat.styleB}` }]} />
+            <Segments nom="Musique jouée en comparaison" commande="musiqueCote" valeur={son.side} onChange={son.onSide} className="min-w-[14rem] flex-auto"
+              options={[{ key: "A", label: `Gauche · ${nomCourtDuStyle(STYLES[etat.styleA]?.label ?? etat.styleA)}` },
+                { key: "B", label: `Droite · ${nomCourtDuStyle(STYLES[etat.styleB]?.label ?? etat.styleB)}` }]} />
           </Ligne>}
           <p className="text-xs leading-relaxed text-slate-400">
             {son.recording
@@ -226,8 +227,8 @@ export default function Panneau({ clock, disposition, vue, cle, etat, on, son, r
           {montre("contraSortie") && <Curseur nom="Contraposition de la sortie garçon" commande="contraSortie" valeur={etat.sortieContra} min={0} max={30} pas={1}
             lu={`${etat.sortieContra}°`} onChange={on.sortieContra} aide="Réglage d'illustration, sans valeur imposée par style" />}
           {montre("plexus") && <Ligne nom="Plexus contre plexus" aide="Le buste fait face au partenaire (contraposition), ou reste aligné sur le bassin">
-            <Segments nom="Plexus contre plexus" commande="plexus" valeur={etat.contraposition ? "1" : "0"} className="min-w-[14rem] flex-1"
-              options={[{ key: "1", label: "Buste face à face" }, { key: "0", label: "Buste sur le bassin" }]}
+            <Segments nom="Plexus contre plexus" commande="plexus" valeur={etat.contraposition ? "1" : "0"} className="min-w-[14rem] flex-auto"
+              options={[{ key: "1", label: "Avec contraposition", title: "Le buste fait face au partenaire" }, { key: "0", label: "Sans", title: "Le buste reste aligné sur le bassin" }]}
               onChange={v => on.contraposition(v === "0" ? 0 : 1)} />
           </Ligne>}
           {montre("sortieCombinee") && <Interrupteur nom={SORTIE_COMBINEE.label} commande="sortieCombinee" aide={SORTIE_COMBINEE.aide}

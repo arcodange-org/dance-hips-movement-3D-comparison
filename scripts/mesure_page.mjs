@@ -6,6 +6,7 @@
 //
 // Usage : CHROME_PATH=... node scripts/mesure_page.mjs <adresse de l'app> [dossier des captures]
 //   ex.   node scripts/mesure_page.mjs http://localhost:5173/ docs/captures/page-scene-panneau
+//   PROFILS=ordinateur,iphone14-droit … pour ne mesurer que certains profils.
 // Hors `npm test` (il faut un navigateur et un serveur). Code de sortie 1 si un critère échoue.
 import { createRequire } from "node:module";
 import { mkdirSync, rmSync } from "node:fs";
@@ -94,8 +95,10 @@ const ouvrirTiroirs = () => { for (const b of document.querySelectorAll('[data-t
 
 const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH, args: ["--no-sandbox", "--ignore-gpu-blocklist", "--enable-webgl"] });
 const echecs = [];
-console.log("vue · profil | écran | disposition | scène à l'ouverture | commandes | mots | résultat");
+const choisis = process.env.PROFILS ? process.env.PROFILS.split(",") : null;
+console.log("vue · profil | écran | disposition | scène à l'ouverture | cliquables à l'ouverture | commandes, tiroirs ouverts | mots | résultat");
 for (const [profil, device] of Object.entries(PROFILS)) {
+  if (choisis && !choisis.includes(profil)) continue;
   for (const [nomVue, vue] of Object.entries(VUES)) {
     if (nomVue === "seul-kompa" && profil !== "ordinateur" && profil !== "iphone14-droit") continue;
     const { defaultBrowserType, ...options } = device;
@@ -188,7 +191,7 @@ for (const [profil, device] of Object.entries(PROFILS)) {
         await page.locator('[data-commande="styleB"]').waitFor({ timeout: 5000 }).catch(() => refus.push("l'onglet « Comparer » ne montre pas le style de droite"));
       }
       refus.push(...erreurs);
-      console.log(`${nomVue} · ${profil} | ${m.vw}×${m.vh} | ${m.disposition} | ${s ? `${Math.round(s.y)} à ${Math.round(s.y + s.h)} px (${Math.round(100 * s.h / m.vh)} %)` : "absente"} | ${o.ids.length} | ${m.mots} | ${refus.length ? "REFUSÉ" : "ok"}`);
+      console.log(`${nomVue} · ${profil} | ${m.vw}×${m.vh} | ${m.disposition} | ${s ? `${Math.round(s.y)} à ${Math.round(s.y + s.h)} px (${Math.round(100 * s.h / m.vh)} %)` : "absente"} | ${m.commandes} | ${o.ids.length} | ${m.mots} | ${refus.length ? "REFUSÉ" : "ok"}`);
     } catch (e) {
       refus.push(String(e).slice(0, 240));
       console.log(`${nomVue} · ${profil} | REFUSÉ`);
