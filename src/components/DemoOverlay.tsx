@@ -27,7 +27,7 @@ export const DEMOS: Record<string, DemoDef> = {
   kompa: {
     chip: "Kompa",
     color: "#f87171",
-    captions: ["la hanche s'assoit quand le poids arrive", "un transfert tous les deux temps · buste penché"],
+    captions: ["la hanche s'assoit quand le poids arrive", "un appui par temps · buste penché"],
     beat: 60 / 120,
   },
   tarraxinha: {
