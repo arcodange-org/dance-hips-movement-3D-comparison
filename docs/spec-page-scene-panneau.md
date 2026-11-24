@@ -86,8 +86,9 @@ La disposition suit la taille de la fenêtre, par la même règle que le jeu (`h
 
 1. **Style** : les six styles (« Zouk » pour « Zouk brésilien », dont le nom entier reste sur la scène). Dans
    « Comparer », deux rangées : « Style de gauche » et « Style de droite ». La seconde n'existe pas ailleurs.
-2. **Figure** : Sur place, Corridinho, Quarts de tour, 3 temps, Ida e volta ; en couple s'ajoutent Sortie
-   garçon et Sortie fille. Une figure qu'un style n'offre pas reste visible, grisée, avec la raison.
+2. **Figure** : Pas de base, Sur place, Corridinho, Quarts de tour, 3 temps, Ida e volta ; en couple s'ajoutent
+   Sortie garçon et Sortie fille, et « Sur place » disparaît (#196 : seul, la kizomba et le semba ont pour pas de
+   base le « 1 2 » ; « Sur place » est leur pas d'avant, pieds plantés). Une figure qu'un style n'offre pas reste visible, grisée, avec la raison.
 3. **Réglages de la figure choisie**, juste sous elle : la fin de la sortie garçon, le deuxième pas du
    guideur dans la sortie fille, la virgula du guideur dans l'ida e volta en couple, le placement du couple.
 4. **Tiroirs**, fermés à l'ouverture :

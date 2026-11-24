@@ -484,6 +484,23 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Film du suave à deux temps par côté (`docs/gifs/suave-deux-temps.gif`).
 - [ ] En couple et dans le mode jeu (son pas de base est en suave) : avec #187.
 
+- [ ] En couple et en déplacement : avec #187. Style suave : deux temps par côté, sans rebond (#200).
+
+## Pas de base « 1 2 » de la kizomba et du semba (#196)
+
+- [x] Issue #196 ; spec poussée en premier ([spec](spec-pas-de-base-1-2.md)) ; règle R42.
+- [x] Prototype, danseur seul : `src/umDois.ts` (pieds, port du corps), hanche du semba élu partagée avec la kizomba
+  (`applySit`), `?unDeux=large|court|doux`.
+- [x] Mesures (traceur des hanches : `<candidat> seul unDeux <style>`) et test `scripts/test_um_dois.mjs` dans
+  `npm test` : appuis, marca sans poids, écart, pieds au sol, hauteur et accélération du bassin.
+- [x] Films des candidats et dossier ([élection](elections/pas-de-base-1-2/README.md)) : l'écart, la hanche de la
+  kizomba, le semba, ce que la page montre.
+- [x] Vote du propriétaire (24 novembre) : écart de 28 cm pour les deux danses, hanche douce pour la kizomba, le
+  « 1 2 » devient le pas de base montré (`UM_DOIS_ELECTED`).
+- [x] La page : « Pas de base » (le « 1 2 ») et « Sur place » (l'ancien pas, `surPlace`, seul seulement) ; partage
+  d'adresse (`?surPlace=1`) ; textes du style et de la démo.
+- [ ] Le couple (#187).
+
 ## Jamais de jambe tendue : un minimum de flexion des genoux (#203)
 
 - [x] Issue #203 ; spec poussée en premier ([spec](spec-flexion-minimale.md)) ; règle R43.

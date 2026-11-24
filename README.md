@@ -52,12 +52,32 @@ Le tempo reste celui du curseur (un bouton propose le tempo conseillé du style)
 affiche son niveau de preuve (documenté, faible, proposition) et peut être coupée. URL :
 `son=1&musique=A|B`. [Spécification et choix provisoires](docs/spec-son-synthese.md).
 
+## Kizomba et semba : le pas de base « 1 2 » (#196)
+
+Danseur seul, la kizomba et le semba ont pour pas de base le « 1 2 », élu par le propriétaire le 24 novembre 2026 :
+au 1 la jambe libre s'écarte de 28 cm et reçoit le poids, au 2 l'autre la rejoint et marque sans poids pendant que le
+bassin refait un petit rond (double rebond), puis la même chose de l'autre côté. La kizomba le danse avec une hanche
+douce, le semba avec celle de son pas élu. L'ancien pas, pieds plantés, reste la figure « Sur place ».
+
+| Kizomba, 90 bpm | Semba, 130 bpm |
+|---|---|
+| ![Kizomba, pas de base « 1 2 »](docs/elections/pas-de-base-1-2/kizomba-doux.gif) | ![Semba, pas de base « 1 2 »](docs/elections/pas-de-base-1-2/semba-large.gif) |
+
+<details><summary>Détails & source</summary>
+
+Règle du propriétaire (R42), [spec](docs/spec-pas-de-base-1-2.md), [films et votes](docs/elections/pas-de-base-1-2/README.md).
+Les pieds sont dans `src/umDois.ts`, la hanche dans `applySit` (`src/styles.ts`) ; vérifié par
+`scripts/test_um_dois.mjs` (appuis, marca sans poids, pieds au sol, bassin sans à-coup). En couple, le modèle d'avant
+(#187).
+</details>
+
 ## Kompa et semba : les pas de base élus (#161, #162)
 
 Le pas de base du kompa et celui du semba, danseur seul, sont ceux que le propriétaire a élus sur films, tour
 après tour (22 et 23 novembre 2026). La hanche s'assoit quand le poids arrive, vers l'arrière et l'extérieur, puis
 remonte en tournant ; les jambes alternent ; le buste suit le bassin et se penche légèrement, les genoux ne le
-dépassent plus.
+dépassent plus. Depuis le 24 novembre, le semba seul danse le « 1 2 » ci-dessus ; son pas élu sur place est la figure
+« Sur place ».
 
 | Kompa : un appui par temps | Semba : un rebond par temps, deux arrivées sur chaque pied |
 |---|---|
