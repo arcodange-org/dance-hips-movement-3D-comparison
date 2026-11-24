@@ -103,41 +103,40 @@ Ces amplitudes sont des paramètres de ce modèle, pas des normes cliniques ni d
   paume du guideur vers sa seule droite ; les deux mains dressées l'une contre l'autre (les doigts de la suiveuse
   traversaient ceux du guideur) ; la main du guideur vers le ciel et celle de la suiveuse en travers (même emboîtement,
   un quart de tour plus tôt : son poignet pliait de 61° à 63° et la prise ne ressemblait pas à la photo).
-- **Tenue « paume au ciel » (#199, candidat, 24 novembre 2026).** Une autre tenue de la main gauche du guideur et de
-  la main droite de la suiveuse, demandée par le propriétaire, à élire contre la tenue sur le côté :
+- **Tenue des mains jointes, poignet plié (#199, choisie le 24 novembre 2026).** La tenue des mains jointes en
+  position fermée depuis le 24 novembre ; la tenue sur le côté ci-dessus reste en option (`?tenue=cote`, en node la
+  variable `TENUE` ou `TENUE.current` dans `src/upperBody.ts`).
 
-  - le guideur lève toujours le bras gauche à mi-hauteur : sa paume reste au point du rig, son coude tend au même
-    endroit (`GRIP.upright.elbow`) ;
-  - sa paume regarde le ciel ; son poignet est plié vers l'extérieur, vers sa gauche : la main fait 120° avec
-    l'avant-bras (`SKYWARD.angle` ; 180° : main dans le prolongement). Les doigts restent à l'horizontale, tournés
-    vers sa gauche autant qu'il faut pour que l'angle au poignet soit celui-là ; le radius prend la part de la torsion
-    qu'il peut, le poignet le reste, jusqu'à `SKYWARD.wrist` ;
-  - la suiveuse pose sa main dessus de la même manière que dans la tenue sur le côté : même place dans le repère de
-    la main du guideur (`across`, `at`, `roll`, `pitch`), mêmes formes de main (`his`, `hers`). L'emboîtement est
-    donc le même, tourné avec la main du guideur : ses quatre doigts entre le pouce et l'index du guideur, paume
-    contre paume, sa paume vers le sol.
+  - le guideur garde la tenue sur le côté : même bras, même coude, même torsion de l'avant-bras, **pouce vers le ciel,
+    visible** ; seul son poignet se plie, vers le dos de la main, donc vers l'extérieur (sa gauche), jusqu'à ce que la
+    main fasse 120° avec l'avant-bras (`SKYWARD.angle` ; 180° : main dans le prolongement). La rotation se fait autour
+    de l'axe du pouce : le pouce garde sa direction. Sa paume s'ouvre alors vers la suiveuse et un peu vers le ciel, et
+    quitte le point du rig de la longueur du pli (6 à 7 cm) ;
+  - la suiveuse pose sa main dessus de la même manière que dans la tenue sur le côté : même place dans le repère de la
+    main du guideur (`across`, `at`, `roll`, `pitch`), mêmes formes de main (`his`, `hers`) ;
+  - son coude **retombe**, comme dans la première prise (22 novembre) : il plie du côté du coude du rig, au lieu de
+    rester presque à hauteur de sa main.
 
-  Comment c'est posé (`SKYWARD`) : le coude du guideur tend presque où il tend dans la tenue sur le côté (`elbow`, un
-  peu plus en avant), 25 cm sous l'épaule ; son avant-bras monte alors presque droit, la main pliée vers sa gauche.
-  L'avant-bras qui sert à tourner les doigts est lu sur la seule place de la paume (le solveur du bras, pour une paume à
-  la distance que laisse une main pliée de 60°), pas sur le bras qui en résulte : les deux pouvaient basculer ensemble
-  d'un côté à l'autre entre deux images dans la sortie fille, où la main revient à 14 cm de l'épaule. Pour la même
-  raison, les doigts ne pointent jamais derrière lui (`heading`) et une supination que l'avant-bras n'a pas reste à
-  sa borne au lieu de passer à l'autre bout de la pronation (`supination`, paramètre `flip` de `take`). Le poignet du
-  guideur peut plier jusqu'à 80° dans cette tenue (`wrist`) : il en prend 71° à 79°, au bord de ce que permet un
-  poignet.
+  Un premier candidat (`?essai=paumeCiel`, filmé le 24 novembre) tournait la paume du guideur droit vers le ciel : son
+  pouce partait vers lui, caché, et l'avant-bras de la suiveuse arrivait presque à l'horizontale. Le propriétaire a
+  choisi la tenue, puis précisé ces deux points ; le candidat et son solveur ont été retirés. Le poignet du guideur
+  peut plier jusqu'à 80° en tout dans cette tenue (`SKYWARD.wrist`) : il en prend 79° à 80°, au bord de ce que permet
+  un poignet ; c'est le prix des 120°, la main de la tenue sur le côté étant déjà pliée d'une trentaine de degrés.
 
-  | `ESSAI=paumeCiel node scripts/mesure_essai_mains.mjs` | Sur place | Dans les figures |
+  | `node scripts/mesure_essai_mains.mjs` (tenue sur le côté : `TENUE=cote`) | Sur place | Dans les figures |
   |---|---|---|
-  | Paume du guideur / ciel | 0° | 0° |
-  | Main du guideur / son avant-bras | 120° | 116° à 121° |
-  | Doigts du guideur, vers sa gauche (depuis le cap de l'avant-bras) | 41° à 43° | −5° à 61° |
-  | Paume de la suiveuse / sol | 7° | 6° à 7° |
-  | Jeu entre les os des deux mains et des avant-bras | 0 cm (contact) | 0 cm ; moins d'un demi-millimètre de recouvrement à un instant de la sortie fille |
-  | Poignets | guideur 75°, suiveuse 15° à 20° | guideur 71° à 79°, suiveuse 2° à 72° (limite de la prise, dans la sortie fille) |
+  | Main du guideur / son avant-bras | 120° (côté : 150°) | 120° |
+  | Pouce du guideur | vers le ciel | vers le ciel (`test_upper_body.mjs`) |
+  | Paume du guideur / ciel | 62° (côté : 85°) | 61° à 74° |
+  | Paume du guideur / la suiveuse | 39° à 42° (côté : 46°) | 31° à 48° |
+  | Paume du guideur hors du point du rig | 6,4 à 6,8 cm | 2,6 à 7,4 cm |
+  | Doigts de la suiveuse / verticale | 33° (côté : 19°) | 24° à 35° |
+  | Coude de la suiveuse sous son poignet | 15 cm (côté : 16,5 cm ; premier candidat : avant-bras presque à l'horizontale) | 8 à 19 cm |
+  | Jeu entre les os des deux mains et des avant-bras | 0 cm (contact) | 0 cm ; 0,2 mm de recouvrement à un instant de la sortie fille |
+  | Poignets | guideur 80°, suiveuse 37° | guideur 79° à 80°, suiveuse 23° à 72° (limite de la prise, sortie fille) |
+  | Plus grand saut d'un seizième de temps au suivant : doigts du guideur, avant-bras de la suiveuse | — | 21°, 14° (côté : 17°, 13°), dans les quarts de tour |
 
-  Filmable avec `?essai=paumeCiel` ; sans ce paramètre rien ne change. Images : [dossier de
-  l'élection](elections/2026-11-24-paume-ciel/README.md).
+  Images : [dossier de l'élection](elections/2026-11-24-paume-ciel/README.md).
 - **La main au dos, sur l'omoplate (#185).** Le point du cadre, au bord du dos, est la place du poignet ; la paume
   se pose plus près de la colonne, sur le corps de l'omoplate, à plat, les doigts vers la colonne (`BACK`). Mesures et
   gardes : [cadre](cadre/spec-implementation.md#la-main-droite-du-guideur-sur-lomoplate-le-bras-de-la-suiveuse-par-dessus-185-23-novembre-2026).

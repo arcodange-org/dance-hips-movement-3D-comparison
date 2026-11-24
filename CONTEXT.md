@@ -31,8 +31,9 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   du guideur, refermée autour de son index, pouces croisés). Dossier :
   [élection des mains](docs/elections/2026-11-22-mains/README.md) ; **choix du 23 novembre : l'attitude B**, devenue le
   comportement (mains sur le côté du couple, leur milieu à hauteur d'épaule, emboîtées) ; C reste filmable
-  (`?essai=mainsBasses`). Autre tenue demandée le 24 novembre (#199, R41) : paume du guideur vers le ciel, poignet plié
-  vers sa gauche, main de la suiveuse posée dessus ; candidat `?essai=paumeCiel`, à élire
+  (`?essai=mainsBasses`). Tenue choisie le 24 novembre (#199, R41) : celle sur le côté, dont
+  le guideur plie le poignet vers l'extérieur (main à 120° de l'avant-bras, pouce vers le ciel), main de la suiveuse
+  posée dessus, son coude qui retombe ; la tenue sur le côté reste en option (`?tenue=cote`)
   ([dossier](docs/elections/2026-11-24-paume-ciel/README.md)).
   Fait dans le haut du corps anatomique : doigts articulés, formes de main, poignet de la suiveuse articulé, sa main
   posée en travers de celle du guideur ([spec](docs/spec-haut-du-corps.md)). Reste : son poignet va au bout de son

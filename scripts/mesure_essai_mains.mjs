@@ -52,13 +52,13 @@ for (const [label, dz, beats, opt] of cases) {
   const pair = [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];
   const uppers = pair.map(f => new api.UpperBody(f.r, model, options));
   const range = () => [Infinity, -Infinity], add = (r, x) => { r[0] = Math.min(r[0], x); r[1] = Math.max(r[1], x); };
-  const seen = { height: range(), top: range(), play: Infinity, pair: "", miss: 0, right: range(), towards: range(), tilt: [range(), range()], grip: range(), wrist: [range(), range()], facing: range(), sky: range(), angle: range(), outward: range(), down: range(), pronation: range(), elbowDrop: range(), foreRise: range(), joined: 0, n: 0 };
+  const seen = { height: range(), top: range(), play: Infinity, pair: "", miss: 0, right: range(), towards: range(), tilt: [range(), range()], grip: range(), wrist: [range(), range()], facing: range(), sky: range(), angle: range(), outward: range(), down: range(), pronation: range(), elbowDrop: range(), foreRise: range(), leave: range(), jumps: [0, 0, 0], prev: null, joined: 0, n: 0 };
   for (let b = 0; b <= beats; b += 1 / 16) {
     pair.forEach((f, i) => api.applyPose(f.r, f.model, b, { ...opt, embrace: true, placement: "quinconce", follower: !!i, styleKey: "kizomba", amp: 1, plexus: true }));
     pair.forEach((f, i) => api.solveFrame(f.r, pair[1 - i].r, !!i));
     uppers.forEach((u, i) => u.update(pair[1 - i].r, !!i));
     seen.n++;
-    if (uppers[0].state.L.hold !== "hands" || uppers[1].state.R.hold !== "hands") continue;
+    if (uppers[0].state.L.hold !== "hands" || uppers[1].state.R.hold !== "hands") { seen.prev = null; continue; }
     seen.joined++;
     const his = uppers[0].hand("L"), hers = uppers[1].hand("R");
     const shoulders = pair[0].r.chest.localToWorld(new THREE.Vector3(...api.ARM_JOINTS.shoulderL)).y / 2 + pair[1].r.chest.localToWorld(new THREE.Vector3(...api.ARM_JOINTS.shoulderR)).y / 2;
@@ -83,6 +83,12 @@ for (const [label, dz, beats, opt] of cases) {
     add(seen.pronation, uppers[0].state.L.pronation);
     // Le coude de la suiveuse sous son poignet (cm) et la pente de son avant-bras (°, positif : il monte vers la main).
     const wristR = world(uppers[1].joints.get("handR")), elbowR = world(uppers[1].joints.get("fore0R"));
+    // #199 : la paume du guideur hors du point du rig (le pli du poignet la déplace) ; les plus grands sauts d'un
+    // seizième de temps au suivant : doigts et avant-bras du guideur, avant-bras de la suiveuse.
+    add(seen.leave, uppers[0].state.L.error);
+    const now = [his.fingers.clone(), wristL.clone().sub(elbowL).normalize(), wristR.clone().sub(elbowR).normalize()];
+    if (seen.prev) now.forEach((x, k) => { seen.jumps[k] = Math.max(seen.jumps[k], x.angleTo(seen.prev[k])); });
+    seen.prev = now;
     add(seen.elbowDrop, wristR.y - elbowR.y); add(seen.foreRise, Math.asin(Math.min(1, (wristR.y - elbowR.y) / wristR.distanceTo(elbowR))));
     // Les os des deux mains (et des avant-bras) ne se traversent pas : jeu minimal entre leurs segments, rayons d'os ôtés.
     seen.miss = Math.max(seen.miss, uppers[1].state.R.error);
@@ -100,6 +106,7 @@ for (const [label, dz, beats, opt] of cases) {
     "doigts / verticale, guideur (°)": span(seen.tilt[0], deg), "suiveuse (°)": span(seen.tilt[1], deg),
     "paume guideur / ciel (°)": span(seen.sky, deg), "avant-bras / main (°)": span(seen.angle, deg), "doigts vers sa gauche (°)": span(seen.outward, deg), "paume suiveuse / sol (°)": span(seen.down, deg), "pronation guideur (°)": span(seen.pronation, deg),
     "coude suiveuse sous son poignet (cm)": span(seen.elbowDrop, cm), "son avant-bras monte de (°)": span(seen.foreRise, deg),
+    "paume guideur hors du point du rig (cm)": span(seen.leave, cm), "sauts : doigts guideur / son avant-bras / avant-bras suiveuse (°)": seen.jumps.map(deg).join(" / "),
     "paumes (cm)": span(seen.grip, cm), "face à face, à (°)": span(seen.facing, deg),
     "poignet guideur (°)": span(seen.wrist[0], deg), "poignet suiveuse (°)": span(seen.wrist[1], deg),
     "jeu minimal entre os (cm)": seen.joined ? cm(seen.play) : "—", "au plus près": seen.pair, "sa paume manque sa place de (mm)": +(seen.miss * 1000).toFixed(1) });
