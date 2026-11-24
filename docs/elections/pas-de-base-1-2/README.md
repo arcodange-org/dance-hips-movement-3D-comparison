@@ -8,6 +8,9 @@ rejoint et marque sans poids, le bassin refait un petit rond (double rebond) ; 3
 Ce sont des **prototypes** : ils ne s'affichent que par l'adresse (`?style=kizomba&unDeux=large`). Sans ce paramètre
 la page n'a pas changé.
 
+Le vote se fait sur la page de vote du propriétaire (onzième tour, questions 17 à 20), qui montre aussi le chemin
+des hanches de chaque candidat (`trace-*.gif` de ce dossier).
+
 ## Ce que montrent les films
 
 Danseur seul, couche des muscles, huit temps. La kizomba à 90 bpm, le semba à 130 bpm. Le premier temps du film est
