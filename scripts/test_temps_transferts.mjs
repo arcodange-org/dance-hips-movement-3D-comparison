@@ -12,7 +12,7 @@ buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'rigJoints', 'place
 const api = await import(bundle.href); unlinkSync(bundle);
 
 // On the spot, solo and in pair: full weight on a foot on each beat, alternating feet (one transfer per
-// beat), and the transfer half-way between beats. Kompa has its own rhythm (below), and so has the semba
+// beat), and the transfer half-way between beats. Kompa has its own rhythms (below), and so has the semba
 // danced alone (its elected step, #162, below); in pair the semba keeps one transfer per beat.
 const styles = Object.keys(api.STYLES).filter(k => k !== 'kompa');
 for (const styleKey of styles) for (const pair of [false, true]) {
@@ -45,18 +45,38 @@ console.log(`PASS temps et transferts : sur place (solo et paire ; le semba et l
 }
 console.log('PASS temps et transferts : suave seul, deux temps par côté (gauche sur 1 et 2, droite sur 3 et 4), talons au sol');
 
-// Kompa (docs/musique/kompa.md: step 1, touch 2, step 3, touch 4): one transfer every two beats, the
-// weight landing on 1 and 3 and held through the touches on 2 and 4.
-for (const pair of [false, true]) {
+// Kompa. Alone, on the spot (#195, rule R40 of 24 Nov. 2026: one beat per support, not two): the weight is
+// whole on a foot on every beat, the left on the odd beats, the right on the even ones, and it stays there
+// for most of the beat (the transfer takes the 0.2 beat before the beat). In pair the kompa keeps the two
+// beats per support of #62 (step 1, touch 2, step 3, touch 4) until #187: the weight lands on 1 and 3 and is
+// held through the touches on 2 and 4.
+{
   const f = fixture(api, {});
-  const load = beat => api.applyPose(f.r, f.model, beat, { styleKey: 'kompa', amp: 1, ...(pair ? { embrace: true, placePaire: true, placement: 'quinconce' } : {}) }).loadR;
-  for (const k of [1, 2, 5, 6]) assert(load(k) < 1e-6, `kompa: left foot full on beat ${k} (${load(k)})`);
-  for (const k of [3, 4, 7, 8]) assert(load(k) > 1 - 1e-6, `kompa: right foot full on beat ${k} (${load(k)})`);
+  const load = beat => api.applyPose(f.r, f.model, beat, { styleKey: 'kompa', amp: 1 }).loadR;
+  for (const k of [1, 3, 5, 7]) assert(load(k) < 1e-6, `kompa alone: left foot full on beat ${k} (${load(k)})`);
+  for (const k of [2, 4, 6, 8]) assert(load(k) > 1 - 1e-6, `kompa alone: right foot full on beat ${k} (${load(k)})`);
+  for (const k of [1, 3, 5, 7]) for (const d of [0.2, 0.5, 0.75]) assert(load(k + d) < 1e-6 && load(k + 1 + d) > 1 - 1e-6, `kompa alone: the weight is held after beat ${k} (+${d})`);
   let transfers = 0, prev = load(0);
   for (let b = 0.05; b <= 8; b += 0.05) { const l = load(b); if ((l - 0.5) * (prev - 0.5) < 0) transfers++; prev = l; }
-  assert.equal(transfers, 4, `kompa: one transfer every two beats (${transfers} in 8 beats)`);
+  assert.equal(transfers, 8, `kompa alone: one transfer per beat (${transfers} in 8 beats)`);
+  // The step as voted on 23 Nov. (`?kompa=deuxTemps`) and the model of before the votes: two beats per support.
+  for (const name of ['deuxTemps', 'ancien']) {
+    api.setKompaProto(name);
+    for (const k of [1, 2, 5, 6]) assert(load(k) < 1e-6, `kompa ${name}: left foot full on beat ${k} (${load(k)})`);
+    for (const k of [3, 4, 7, 8]) assert(load(k) > 1 - 1e-6, `kompa ${name}: right foot full on beat ${k} (${load(k)})`);
+  }
+  api.setKompaProto(null);
 }
-console.log('PASS temps et transferts : kompa, pas sur 1 et 3, touche sur 2 et 4');
+{
+  const f = fixture(api, {});
+  const load = beat => api.applyPose(f.r, f.model, beat, { styleKey: 'kompa', amp: 1, embrace: true, placePaire: true, placement: 'quinconce' }).loadR;
+  for (const k of [1, 2, 5, 6]) assert(load(k) < 1e-6, `kompa in pair: left foot full on beat ${k} (${load(k)})`);
+  for (const k of [3, 4, 7, 8]) assert(load(k) > 1 - 1e-6, `kompa in pair: right foot full on beat ${k} (${load(k)})`);
+  let transfers = 0, prev = load(0);
+  for (let b = 0.05; b <= 8; b += 0.05) { const l = load(b); if ((l - 0.5) * (prev - 0.5) < 0) transfers++; prev = l; }
+  assert.equal(transfers, 4, `kompa in pair: one transfer every two beats (${transfers} in 8 beats)`);
+}
+console.log('PASS temps et transferts : kompa seul, un appui par temps (gauche sur les temps impairs) ; en paire, pas sur 1 et 3, touche sur 2 et 4');
 
 // Semba alone (#162, the step elected on 23 Nov. 2026: two landings in a row on each foot, the double
 // bounce): the weight is whole on a foot on every beat, the same foot twice, then the other; one transfer
