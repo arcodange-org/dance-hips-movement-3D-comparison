@@ -19,6 +19,7 @@ import CompassRose from "./components/CompassRose";
 import { resolveCam, resolveView, viewAnglesOf, SOLID_TORSO_OPACITY } from "./cameras";
 import { usePersistentState } from "./hooks/usePersistentState";
 import { STYLES, movementOf, movementFlags, movementAllowed, travelAllowed, PAIR_DZ, setKompaProto, setSembaProto, type ModeKey, type MovementKey } from "./styles";
+import { setKneeFloor } from "./pose";
 import { QUARTS_PAIR_DZ } from "./quartsPaire";
 import { IDA_PAIR_DZ } from "./idaPaire";
 import { PLACE_PAIR_DZ } from "./placePaire";
@@ -36,6 +37,8 @@ function readParams(): URLSearchParams {
 // kompa's « 8 » in place of today's model.
 setKompaProto(readParams().get("kompa"));
 setSembaProto(readParams().get("semba"));
+// #203 (prototype, docs/spec-flexion-minimale.md): `?flexion=15|20` shows a candidate minimum flexion of the knees.
+setKneeFloor(readParams().get("flexion"));
 
 function Gauge({ label, color, hud }: { label: string; color: string; hud: any }) {
   return (

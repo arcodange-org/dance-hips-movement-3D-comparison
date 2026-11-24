@@ -464,3 +464,10 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] `src/transitions.ts` : « guideur » (27 fois) et « suiveuse » (9 fois) dans tous les textes, avec leurs accords ; « son pied dégage le couloir le premier » dit en clair qui dégage.
 - [x] `scripts/test_transitions.mjs` : la règle « jamais avant le guideur » ; refus du retour des anciens mots (58 transitions).
 - [x] Vérifié dans le navigateur : barre de lecture, « Ce pas en détail », fiche du jeu en danse seule ; aucun ancien mot affiché.
+
+## Jamais de jambe tendue : un minimum de flexion des genoux (#203)
+
+- [x] Issue #203 ; spec poussée en premier ([spec](spec-flexion-minimale.md)) ; règle R43.
+- [x] Prototype : `KNEE_FLOOR`, `setKneeFloor` (`src/pose.ts`), `?flexion=<degrés>` ; mesures de 7° à 30°.
+- [ ] Films des candidats (quart de tour en couple, kompa seul, « 1 2 », zouk) et vote.
+- [ ] Le plancher élu par défaut ; contrôles en couple (croisements d'os, contacts, plexus), R3, saccades.

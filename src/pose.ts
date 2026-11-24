@@ -395,6 +395,15 @@ function mixStyleState(r: RigHandle, a: ReturnType<typeof styleState>, b: Return
  * keep their own timing (aligning them is the rest of #62), and so do the legacy combined sortie
  * (oracle) and the guide mode's basic step, which must join the figures. */
 export const ON_BEAT_SHIFT = 0.5;
+/** #203 (rule R43, 24 Nov. 2026: in every dance no leg straightens, both knees always keep some flexion, so the
+ * dancers stand a little lower; docs/spec-flexion-minimale.md): the least flexion (rad) a leg that sets the pelvis
+ * height may ask for. 0.12 (7°) until the owner has chosen the minimum on film; `?flexion=<degrés>` shows a
+ * candidate (PROTOTYPE). */
+export const KNEE_FLOOR = { rad: 0.12 };
+export const setKneeFloor = (degrees: string | null | undefined) => {
+  const d = Number(degrees);
+  KNEE_FLOOR.rad = degrees && Number.isFinite(d) && d >= 7 && d <= 40 ? d * Math.PI / 180 : 0.12;
+};
 export const onBeatShift = (o: { movement: MovementKey; sortie?: boolean; embrace?: boolean; onBeat?: boolean }): number =>
   // Solo, a selected sortie is the dance on the spot (the sorties exist only in pair). The guide mode
   // (`onBeat: false`) keeps the clock's phase: its basic step must join the figures, which keep theirs.
@@ -789,9 +798,10 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
       const leg = model.legs[s];
       const hip = r.root.parent!.worldToLocal(r["hip" + s].getWorldPosition(new THREE.Vector3()));
       const cap = figure ? (figure as { kneeCap?: number }).kneeCap ?? 0.45 : 1.2;
-      const own = Math.max(0.12, Math.min(cap, posture.knee + desiredKnee[s]));
+      const own = Math.max(KNEE_FLOOR.rad, Math.min(cap, posture.knee + desiredKnee[s]));
       // #159 (prototype): the knees lead; where the figure leaves no room, its own flexion comes back.
-      const flex = kneeLed ? own + (kneeLed[s] - own) * kneeLed.share : own;
+      // #203: never below the floor, whatever leads them.
+      const flex = Math.max(KNEE_FLOOR.rad, kneeLed ? own + (kneeLed[s] - own) * kneeLed.share : own);
       const reach2 = leg.length1 ** 2 + leg.length2 ** 2 + 2 * leg.length1 * leg.length2 * Math.cos(flex);
       return { s, hipOffset: hip.sub(r.root.position), reach2 };
     });
