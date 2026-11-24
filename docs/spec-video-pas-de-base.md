@@ -200,6 +200,8 @@ filmé à ce tempo, et le montage cale le premier temps de la musique sur le tem
 - **Kompa à un appui par temps** (#195, fusionné le 24 novembre par #198) : le chapitre kompa dit que le modèle
   change de pied à chaque temps, comme ce que décrivent ses professeurs ; la comparaison range le kompa avec la
   kizomba (faits F356 à F358 ; `scripts/test_video.mjs` attend « G D G D G D G D »).
+- **Dixième version (24 novembre)**, refilmée avec ce kompa, la narration en mots de danseur et la tenue des mains
+  du couple (#199) : 6 min 19, −16 LUFS. Images contrôlées : plus d'échelle ni de mesure sous le trajet du bassin.
 
 ## Ce qui reste
 
