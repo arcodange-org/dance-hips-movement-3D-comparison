@@ -102,7 +102,7 @@ interface Arm {
  * may bend away from the forearm's axis (rad); `swivel`: how far her hand may turn on his palm, away from the
  * line to his index, towards where her forearm comes from (rad). */
 export const GRIP = { shift: 0.012, gap: 0.004, wrist: 1.0, swivel: 0.7,
-  /** Hands held up at the couple's side (#179; the owner's choice, 23 November 2026).
+  /** Hands held up at the couple's side (#179; the owner's choice, 23 November 2026; an option since #199, `?tenue=cote`).
    * As in a ballroom hold (reference photograph, see the election's README): the leader's thumb points to the sky,
    * his fingers go forwards, raised by `lift` (rad), and close in one block round the edge of the follower's hand,
    * onto its back; `palm`: where his palm is asked to face, in his chest frame (the palm's normal leans 9° towards
@@ -123,18 +123,20 @@ export const GRIP = { shift: 0.012, gap: 0.004, wrist: 1.0, swivel: 0.7,
     hers: { fingers: [1, 1.011, 0.306], thumb: [0.459, 0, 0.573] } as HandShape,
     elbow: [0.25, -1, 0.1] as V3, drop: 0.1, wrist: 1.25,
   } };
-/** Candidate hold (#199, `?essai=paumeCiel`): the leader's left palm faces the sky, his wrist bent outwards (to his
- * left). `angle`: between his forearm and his hand (rad; π: the hand in line with the forearm); his fingers stay
- * level and turn towards his left as far as that angle needs. `wrist`: how far his wrist may bend in this hold (rad).
- * `elbow`: where his elbow tends, from his shoulder, in his chest frame (x away from the midline). `heading`: the range
- * of his fingers' heading, seen from above, from straight ahead (rad, positive outwards): they never point behind him.
- * `supination`: how far past the forearm's range a wanted supination is still taken as one (rad): the palm to the sky
- * asks the forearm to supinate, and when the hand comes back close to the chest it asks more than the forearm has;
- * the radius then stays at its bound instead of turning to the other end of its range. His palm stays on the rig's
- * point; the follower's hand lies on
- * his as in `GRIP.upright` (same place in the frame of his hand, same shapes). */
-export const SKYWARD = { angle: (120 * Math.PI) / 180, wrist: 1.4, elbow: [0.25, -1, 0.25] as V3,
-  heading: [-0.7, 2.1] as [number, number], supination: 2.4 };
+/** #199: the hold of the joined hands. Since 24 November 2026 (the owner's choice) the leader keeps the hold on the side
+ * and bends his wrist outwards (`SKYWARD`), and the follower lets her elbow drop; the hold on the side as it was (#179,
+ * `GRIP.upright`) stays as an option, `?tenue=cote` (in node: the environment variable TENUE, or `TENUE.current`). */
+export type Tenue = "ciel" | "cote";
+const askedTenue = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("tenue")
+  : (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.TENUE;
+export const TENUE: { current: Tenue } = { current: askedTenue === "cote" ? "cote" : "ciel" };
+/** Hold with the wrist bent (#199, chosen on 24 November 2026): the leader's arm is that of the hold on the side, his
+ * thumb still to the sky; only his wrist bends, towards the back of his hand (outwards, to his left), until his hand
+ * makes `angle` with his forearm (rad; π: the hand in line with the forearm). His palm then turns up, towards the sky and
+ * the follower, and leaves the rig's point by the bend. `wrist`: how far his wrist may bend in all (rad). The follower's
+ * hand lies on his as in `GRIP.upright` (same place in the frame of his hand, same shapes), but her elbow drops: it bends
+ * towards the rig's elbow, as in the first hold of 22 November, instead of staying close under the line of her hand. */
+export const SKYWARD = { angle: (120 * Math.PI) / 180, wrist: 1.4 };
 /** Hand on the partner's back (#185): the rig's hand point is at the edge of the back, where the forearm arrives
  * from the side; that is where the wrist comes. The palm lies further in, on the shoulder blade itself, the fingers
  * towards the spine. In the partner's chest frame, for a hand on her left side (mirrored on the right):
@@ -281,7 +283,9 @@ export class UpperBody {
         const n = N.clone().negate().applyAxisAngle(d, G.roll).applyAxisAngle(side, G.pitch);
         d.applyAxisAngle(side, G.pitch);
         const at = his.palm.clone().addScaledVector(R, G.at[0]).addScaledVector(U, G.at[1]).addScaledVector(N, G.at[2]);
-        posed = this.take(this.arms[s], at, n, d, at.clone().addScaledVector(d, -0.3).add(new THREE.Vector3(0, -G.drop, 0)), G.wrist);
+        // #199: on his palm turned to the sky her elbow drops, towards the rig's elbow (as in the first hold).
+        const pole = TENUE.current === "ciel" ? rigElbow : at.clone().addScaledVector(d, -0.3).add(new THREE.Vector3(0, -G.drop, 0));
+        posed = this.take(this.arms[s], at, n, d, pole, G.wrist);
       } else if (his) {
         // Her fingers go towards his index; her hand may turn on his palm towards the line of her own forearm.
         const facing = his.normal.clone().negate(), forearm = target.clone().sub(rigElbow);
@@ -290,10 +294,6 @@ export class UpperBody {
           ? Math.max(-GRIP.swivel, Math.min(GRIP.swivel, Math.atan2(new THREE.Vector3().crossVectors(his.radial, natural).dot(facing), his.radial.dot(natural)))) : 0;
         const along = his.radial.clone().applyAxisAngle(facing, swivel);
         posed = this.take(this.arms[s], his.palm.clone().addScaledVector(his.radial, GRIP.shift).addScaledVector(his.normal, GRIP.gap), facing, along, rigElbow);
-      } else if (upright && !follower && essai("paumeCiel")) {
-        const out = s === "L" ? 1 : -1, E = SKYWARD.elbow;
-        const pole = this.arms[s].arm.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(out * E[0], E[1], E[2]).transformDirection(r.chest.matrixWorld));
-        posed = this.skyward(this.arms[s], target, pole, r.chest, out);
       } else if (upright && !follower) {
         // The leader's hand: the palm on the rig's point, facing between his right and her; his thumb to the sky, his
         // fingers forwards (a left hand: fingers = thumb's side × palm's normal), raised by `lift`.
@@ -301,6 +301,8 @@ export class UpperBody {
         const sky = new THREE.Vector3(0, 1, 0), lift = G.lift;
         const along = new THREE.Vector3().crossVectors(sky, facing).normalize().multiplyScalar(Math.cos(lift)).addScaledVector(sky, Math.sin(lift));
         posed = this.take(this.arms[s], target, facing, along, low());
+        // #199: the hold chosen on 24 November: from that pose, only his wrist bends outwards.
+        if (TENUE.current === "ciel") posed = this.bendOut(this.arms[s], posed);
       } else if (hold === "free" && folded) {
         // #182: the rig's frame, alone, folds its raised forearm flat on the arm, the hand on the shoulder. No elbow
         // does that: the forearm rises from the rig's elbow, as the frame means it, the palm inwards.
@@ -318,34 +320,32 @@ export class UpperBody {
     }
   }
 
-  /** #199: the palm on `P`, facing the sky, the fingers turned outwards until the hand makes `SKYWARD.angle` with the
-   * forearm. `out`: +1 when the outside is the chest's +x (a left arm). */
-  private skyward(b: Arm, P: THREE.Vector3, pole: THREE.Vector3, chest: THREE.Object3D, out: number) {
-    const sky = new THREE.Vector3(0, 1, 0), bend = Math.PI - SKYWARD.angle;
-    const ahead = new THREE.Vector3(0, 0, 1).transformDirection(chest.matrixWorld).setY(0).normalize();
-    // The forearm, read from the place of the palm alone: the elbow as the arm's solver puts it for a palm at the
-    // distance a hand bent by `bend` leaves from the elbow. Not the forearm the arm then takes: that one depends on the
-    // hand, and the two can flip together between two images (in the sortie fille, when the hand comes back close to
-    // the shoulder). The palm then lies off the forearm's line, by `off` on the side away from the fingers.
-    const S = b.arm.getWorldPosition(new THREE.Vector3()), a = b.wrist.length(), c = b.palmFromWrist.length();
-    const reach = Math.sqrt(a * a + c * c + 2 * a * c * Math.cos(bend)), off = Math.asin(Math.min(1, (c * Math.sin(bend)) / reach));
-    const f = P.clone().sub(solveArm(S, P, b.length, reach, pole).elbow).normalize();
-    // At rest the fingers lean towards the palm (their direction is not square to the palm's normal): with the palm
-    // to the sky they rise by as much.
-    const rise = Math.PI / 2 - b.fingers.angleTo(b.palmNormal);
-    // The fingers at `bend − off` from the line elbow-palm: their heading turns from that line's by θ, with
-    // cos(bend − off) = cos rise · |level part| · cos θ + sin rise · (the line's rise). A line straight up has no
-    // heading: the fingers then go straight ahead.
-    const level = f.clone().setY(0), h = level.length();
-    if (h < 1e-6) level.copy(ahead); else level.divideScalar(h);
-    // Outwards: seen from above, to the left of the forearm for a left arm (a positive turn round the vertical).
-    const theta = Math.acos(Math.max(-1, Math.min(1, (Math.cos(bend - off) - Math.sin(rise) * f.y) / Math.max(Math.cos(rise) * h, 1e-6))));
-    level.applyAxisAngle(sky, out * theta);
-    // The fingers never point behind him: their heading stays within `SKYWARD.heading` of straight ahead.
-    const turn = out * Math.atan2(new THREE.Vector3().crossVectors(ahead, level).y, ahead.dot(level));
-    const kept = Math.max(SKYWARD.heading[0], Math.min(SKYWARD.heading[1], turn));
-    const fingers = ahead.clone().applyAxisAngle(sky, out * kept).multiplyScalar(Math.cos(rise)).addScaledVector(sky, Math.sin(rise));
-    return this.take(b, P, sky, fingers, pole, SKYWARD.wrist, PRONATION.min - SKYWARD.supination);
+  /** #199: the hand as `take` left it, bent at the wrist towards its back (round the axis square to the fingers and
+   * the palm's normal: the thumb keeps its direction) until it makes `SKYWARD.angle` with the forearm, within
+   * `SKYWARD.wrist` in all. The arm and the forearm's turn do not move; the palm leaves its place by the bend. */
+  private bendOut(b: Arm, posed: Omit<ArmState, "hold" | "shape">): Omit<ArmState, "hold" | "shape"> {
+    b.arm.updateWorldMatrix(false, true);
+    const W = b.hand.getWorldPosition(new THREE.Vector3()), forearm = W.clone().sub(b.fore[0].getWorldPosition(new THREE.Vector3())).normalize();
+    const was = b.hand.getWorldQuaternion(new THREE.Quaternion()), carrier = b.fore[4].getWorldQuaternion(new THREE.Quaternion()).invert();
+    const fingers = b.fingers.clone().applyQuaternion(was), normal = b.palmNormal.clone().applyQuaternion(was);
+    // A turn round normal × fingers takes the fingers towards the back of the hand.
+    const axis = new THREE.Vector3().crossVectors(normal, fingers).normalize(), turn = new THREE.Quaternion(), wrist = new THREE.Quaternion();
+    const bent = (a: number) => {
+      wrist.copy(carrier).multiply(turn.setFromAxisAngle(axis, a)).multiply(was);
+      return { angle: fingers.clone().applyAxisAngle(axis, a).angleTo(forearm), wrist: 2 * Math.acos(Math.min(1, Math.abs(wrist.w))) };
+    };
+    // The bend that makes the angle, found by halves; the wrist's range bounds it.
+    const want = Math.PI - SKYWARD.angle;
+    let lo = 0, hi = Math.PI / 2;
+    for (let k = 0; k < 30; k++) {
+      const mid = (lo + hi) / 2, at = bent(mid);
+      if (at.angle < want && at.wrist <= SKYWARD.wrist) lo = mid; else hi = mid;
+    }
+    const { wrist: bend } = bent(lo);
+    b.hand.quaternion.copy(wrist);
+    b.hand.updateWorldMatrix(false, true);
+    const palm = b.hand.localToWorld(b.palmFromWrist.clone());
+    return { ...posed, palm, error: palm.distanceTo(posed.target), wrist: bend };
   }
 
   /** A hand as it is posed, in the world: centre of the palm, its normal (out of the palm), the fingers'
@@ -445,9 +445,8 @@ export class UpperBody {
   /** The hand takes a given place (#179): the palm's centre on `P`, the palm facing `n`, the fingers along `d`.
    * The wrist comes where that hand needs it, the elbow bends on the side of `pole`, the radius turns as far as
    * it can and the wrist bends for the rest, within `limit` (`GRIP.wrist` unless the hold says otherwise). A turn the
-   * radius cannot give is taken the shorter way round its range; `flip`: below that angle (rad), the other way. */
-  private take(b: Arm, P: THREE.Vector3, n: THREE.Vector3, d: THREE.Vector3, pole: THREE.Vector3, limit = GRIP.wrist,
-    flip = (PRONATION.min + PRONATION.max) / 2 - Math.PI): Omit<ArmState, "hold" | "shape"> {
+   * radius cannot give is taken the shorter way round its range. */
+  private take(b: Arm, P: THREE.Vector3, n: THREE.Vector3, d: THREE.Vector3, pole: THREE.Vector3, limit = GRIP.wrist): Omit<ArmState, "hold" | "shape"> {
     const S = b.arm.getWorldPosition(new THREE.Vector3());
     const parent = b.arm.parent!.getWorldQuaternion(new THREE.Quaternion());
     const basis = (x: THREE.Vector3, y: THREE.Vector3) => new THREE.Matrix4().makeBasis(x, y, new THREE.Vector3().crossVectors(x, y));
@@ -479,8 +478,8 @@ export class UpperBody {
       // radius (within its range), the rest to the wrist.
       const rest = fore.clone().invert().multiply(hand), along = new THREE.Vector3(rest.x, rest.y, rest.z).dot(b.axis);
       let angle = 2 * Math.atan2(along, rest.w) * b.sign;
-      if (angle < flip) angle += 2 * Math.PI;
-      if (angle > flip + 2 * Math.PI) angle -= 2 * Math.PI;
+      if (angle < (PRONATION.min + PRONATION.max) / 2 - Math.PI) angle += 2 * Math.PI;
+      if (angle > (PRONATION.min + PRONATION.max) / 2 + Math.PI) angle -= 2 * Math.PI;
       phi = b.sign * Math.max(PRONATION.min, Math.min(PRONATION.max, angle));
       for (let i = 1; i <= 4; i++) b.fore[i].quaternion.setFromAxisAngle(b.axis, (phi * i) / 4);
       const wrist = turn.setFromAxisAngle(b.axis, phi).clone().invert().multiply(rest);

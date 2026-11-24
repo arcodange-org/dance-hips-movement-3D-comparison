@@ -1,8 +1,8 @@
 // #179 (élections de variantes) — mesure d'une attitude des mains jointes sur le vrai GLB, haut du corps anatomique.
 // Ce n'est pas un test : il chiffre ce que montrent les images (kizomba, quinconce, plexus, amplitude 1).
-// Usage : node scripts/mesure_essai_mains.mjs                        (attitude choisie : sur le côté, milieu des mains à l'épaule, emboîtées)
-//         ESSAI=mainsBasses node scripts/mesure_essai_mains.mjs      (candidat : sur le côté, plus bas, prise du 22 novembre)
-//         ESSAI=paumeCiel node scripts/mesure_essai_mains.mjs        (candidat #199 : paume du guideur vers le ciel, main de la suiveuse dessus)
+// Usage : node scripts/mesure_essai_mains.mjs                        (tenue choisie #199 : paume du guideur vers le ciel, main de la suiveuse dessus, son coude retombe)
+//         TENUE=cote node scripts/mesure_essai_mains.mjs             (option : sur le côté, milieu des mains à l'épaule, emboîtées, #179)
+//         TENUE=cote ESSAI=mainsBasses node scripts/mesure_essai_mains.mjs (candidat : sur le côté, plus bas, prise du 22 novembre)
 // Même montage du couple que scripts/test_upper_body.mjs.
 import { buildSync } from "esbuild";
 import { readFileSync, unlinkSync } from "node:fs";
@@ -52,7 +52,7 @@ for (const [label, dz, beats, opt] of cases) {
   const pair = [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];
   const uppers = pair.map(f => new api.UpperBody(f.r, model, options));
   const range = () => [Infinity, -Infinity], add = (r, x) => { r[0] = Math.min(r[0], x); r[1] = Math.max(r[1], x); };
-  const seen = { height: range(), top: range(), play: Infinity, pair: "", miss: 0, right: range(), towards: range(), tilt: [range(), range()], grip: range(), wrist: [range(), range()], facing: range(), sky: range(), angle: range(), outward: range(), down: range(), pronation: range(), joined: 0, n: 0 };
+  const seen = { height: range(), top: range(), play: Infinity, pair: "", miss: 0, right: range(), towards: range(), tilt: [range(), range()], grip: range(), wrist: [range(), range()], facing: range(), sky: range(), angle: range(), outward: range(), down: range(), pronation: range(), elbowDrop: range(), foreRise: range(), joined: 0, n: 0 };
   for (let b = 0; b <= beats; b += 1 / 16) {
     pair.forEach((f, i) => api.applyPose(f.r, f.model, b, { ...opt, embrace: true, placement: "quinconce", follower: !!i, styleKey: "kizomba", amp: 1, plexus: true }));
     pair.forEach((f, i) => api.solveFrame(f.r, pair[1 - i].r, !!i));
@@ -81,6 +81,9 @@ for (const [label, dz, beats, opt] of cases) {
     const heading = wristL.clone().sub(elbowL).setY(0).normalize(), fingersH = his.fingers.clone().setY(0).normalize();
     add(seen.outward, Math.atan2(new THREE.Vector3().crossVectors(heading, fingersH).y, heading.dot(fingersH)));
     add(seen.pronation, uppers[0].state.L.pronation);
+    // Le coude de la suiveuse sous son poignet (cm) et la pente de son avant-bras (°, positif : il monte vers la main).
+    const wristR = world(uppers[1].joints.get("handR")), elbowR = world(uppers[1].joints.get("fore0R"));
+    add(seen.elbowDrop, wristR.y - elbowR.y); add(seen.foreRise, Math.asin(Math.min(1, (wristR.y - elbowR.y) / wristR.distanceTo(elbowR))));
     // Les os des deux mains (et des avant-bras) ne se traversent pas : jeu minimal entre leurs segments, rayons d'os ôtés.
     seen.miss = Math.max(seen.miss, uppers[1].state.R.error);
     for (const A of bones(uppers[1], "R")) for (const B of bones(uppers[0], "L")) {
@@ -96,10 +99,11 @@ for (const [label, dz, beats, opt] of cases) {
     "haut des doigts / épaules (cm)": span(seen.top, cm), "paume du guideur / sa droite (°)": span(seen.right, deg), "/ la suiveuse (°)": span(seen.towards, deg),
     "doigts / verticale, guideur (°)": span(seen.tilt[0], deg), "suiveuse (°)": span(seen.tilt[1], deg),
     "paume guideur / ciel (°)": span(seen.sky, deg), "avant-bras / main (°)": span(seen.angle, deg), "doigts vers sa gauche (°)": span(seen.outward, deg), "paume suiveuse / sol (°)": span(seen.down, deg), "pronation guideur (°)": span(seen.pronation, deg),
+    "coude suiveuse sous son poignet (cm)": span(seen.elbowDrop, cm), "son avant-bras monte de (°)": span(seen.foreRise, deg),
     "paumes (cm)": span(seen.grip, cm), "face à face, à (°)": span(seen.facing, deg),
     "poignet guideur (°)": span(seen.wrist[0], deg), "poignet suiveuse (°)": span(seen.wrist[1], deg),
     "jeu minimal entre os (cm)": seen.joined ? cm(seen.play) : "—", "au plus près": seen.pair, "sa paume manque sa place de (mm)": +(seen.miss * 1000).toFixed(1) });
   uppers.forEach(u => u.dispose());
 }
-console.log(`ESSAI=${process.env.ESSAI ?? "(aucun)"}`);
+console.log(`TENUE=${api.TENUE.current} ESSAI=${process.env.ESSAI ?? "(aucun)"}`);
 console.table(table);
