@@ -5,6 +5,12 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Suave : deux temps par côté, sans rebond (#200, 24 novembre 2026)
+
+- Règle R44. Fait pour le danseur seul, sur place : le poids penche à gauche sur 1 et 2, à droite sur 3 et 4, les
+  talons au sol, le « 8 » au sol garde sa taille avec une boucle de chaque côté ([spec](docs/spec-suave-deux-temps.md)).
+- Reste : le couple et le mode jeu, dont le pas de base est en suave (#187).
+
 ## Kompa : un appui par temps (#195, 24 novembre 2026)
 
 - Règle R40 : le kompa se danse sur un temps par appui, pas deux ; ce qui est « suave » prend deux temps par appui.
@@ -12,8 +18,8 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   `src/styles.ts`), le poids arrive à gauche sur les temps impairs, à droite sur les temps pairs. Poses du pas voté,
   moins l'accent de hanche de la touche (8 mm). `?kompa=deuxTemps` : le pas tel que voté.
   [Spec](docs/spec-ginga-huit.md#le-kompa--un-appui-par-temps-195), mesures et films (`docs/gifs/kompa-un-temps*.gif`).
-- Reste : le couple et le déplacement (#187), qui gardent deux temps par appui ; le style suave passe à deux temps
-  par côté, sans rebond (#200) ; le film du pas de base (#155) est à refaire.
+- Reste : le couple et le déplacement (#187), qui gardent deux temps par appui ; le style suave à deux temps par
+  côté est fait seul, sur place (#200) ; le film du pas de base (#155) est à refaire.
 
 ## Page principale : la scène toujours visible, les réglages dans un panneau (#192, 24 novembre 2026)
 

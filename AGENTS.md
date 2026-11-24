@@ -72,6 +72,7 @@ hanches dans les trois vues : `scripts/tracer_hanches.mjs` ; GIF du mode jeu en 
 (`KOMPA_ELECTED`, `SEMBA_ELECTED` ; drapeau `base` de `StyleDef.apply`) ; variantes par `?kompa=`, `?semba=` (`ancien` : avant les
 votes) ; en couple et en déplacement, l'ancien modèle ; le traceur mesure aussi les genoux et la posture. Le kompa seul
 se danse sur un temps par appui (#195, R40 : `KOMPA_BEATS`, `kompaBeat` ; `?kompa=deuxTemps` : le pas tel que voté).
+Suave seul, sur place : deux temps par côté, sans rebond (#200, R44, [spec](docs/spec-suave-deux-temps.md), `SUAVE_SLOW`) ; en couple, l'ancien modèle.
 Transfert de poids continu (#167, R34 : ni saccade, ni téléportation, ni relais soudain) : [spec](docs/spec-transfert-continu.md) ;
 `scripts/test_saccades.mjs` mesure, dans des séances du mode jeu, les à-coups du bassin de chaque figure et le passage d'un côté
 à l'autre ; l'état est enregistré (`scripts/fixtures/saccades.json`, cliquet ; `WRITE=1` après un changement voulu).
