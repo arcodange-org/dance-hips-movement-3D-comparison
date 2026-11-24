@@ -103,6 +103,22 @@ Ces amplitudes sont des paramètres de ce modèle, pas des normes cliniques ni d
   paume du guideur vers sa seule droite ; les deux mains dressées l'une contre l'autre (les doigts de la suiveuse
   traversaient ceux du guideur) ; la main du guideur vers le ciel et celle de la suiveuse en travers (même emboîtement,
   un quart de tour plus tôt : son poignet pliait de 61° à 63° et la prise ne ressemblait pas à la photo).
+- **Tenue « paume au ciel » (#199, candidat, 24 novembre 2026).** Une autre tenue de la main gauche du guideur et de
+  la main droite de la suiveuse, demandée par le propriétaire, à élire contre la tenue sur le côté :
+
+  - le guideur lève toujours le bras gauche à mi-hauteur : sa paume reste au point du rig, son coude tend au même
+    endroit (`GRIP.upright.elbow`) ;
+  - sa paume regarde le ciel ; son poignet est plié vers l'extérieur, vers sa gauche : la main fait 120° avec
+    l'avant-bras (`SKYWARD.angle` ; 180° : main dans le prolongement). Les doigts restent à l'horizontale, tournés
+    vers sa gauche autant qu'il faut pour que l'angle au poignet soit celui-là ; le radius prend la part de la torsion
+    qu'il peut, le poignet le reste, jusqu'à `SKYWARD.wrist` ;
+  - la suiveuse pose sa main dessus de la même manière que dans la tenue sur le côté : même place dans le repère de
+    la main du guideur (`across`, `at`, `roll`, `pitch`), mêmes formes de main (`his`, `hers`). L'emboîtement est
+    donc le même, tourné avec la main du guideur : ses quatre doigts entre le pouce et l'index du guideur, paume
+    contre paume, sa paume vers le sol.
+
+  Filmable avec `?essai=paumeCiel` ; sans ce paramètre rien ne change. Mesures (`ESSAI=paumeCiel node
+  scripts/mesure_essai_mains.mjs`) et images : [dossier de l'élection](elections/2026-11-24-paume-ciel/README.md).
 - **La main au dos, sur l'omoplate (#185).** Le point du cadre, au bord du dos, est la place du poignet ; la paume
   se pose plus près de la colonne, sur le corps de l'omoplate, à plat, les doigts vers la colonne (`BACK`). Mesures et
   gardes : [cadre](cadre/spec-implementation.md#la-main-droite-du-guideur-sur-lomoplate-le-bras-de-la-suiveuse-par-dessus-185-23-novembre-2026).
