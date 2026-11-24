@@ -21,7 +21,13 @@ export function assemblerComparaison({ ordre, fichiers, largeur, hauteur, ips, s
   const disposition = ordre.map((_, k) => `${(k % grille.colonnes) * grille.largeur}_${Math.floor(k / grille.colonnes) * (grille.hauteur + grille.ecart)}`).join("|");
   filtres.push(`${ordre.map((_, k) => `[${n + k}:v]`).join("")}xstack=inputs=${n}:layout=${disposition}:fill=${FOND},pad=${largeur}:${hauteur}:0:${COMPARAISON.haut}:color=${FOND},setsar=1[b]`);
   filtres.push(`[a][b]concat=n=2:v=1:a=0,format=yuv420p[v]`);
+  // Le clip assemblé porte l'empreinte des douze plans : le montage du chapitre se refait quand l'un d'eux change
+  // (sans elle, il gardait l'ancien clip, sa clé ne voyant que le nom du fichier).
+  const fiche = sortie.replace(/\.mp4$/, ".json");
+  const cle = empreinte({ plans: Object.keys(fichiers).sort().map(id => lireJson(fichiers[id].replace(/\.mp4$/, ".json"))?.cle ?? fichiers[id]), filtres, ips });
+  if (lireJson(fiche)?.cle === cle && existsSync(sortie)) return sortie;
   ffmpeg([...entrees, "-filter_complex", filtres.join(";"), "-map", "[v]", "-r", String(ips), "-c:v", "libx264", "-preset", "medium", "-crf", "14", "-color_range", "tv", sortie]);
+  ecrireJson(fiche, { cle });
   return sortie;
 }
 

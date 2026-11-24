@@ -214,6 +214,13 @@ filmé à ce tempo, et le montage cale le premier temps de la musique sur le tem
 - **Dixième version (24 novembre)**, refilmée avec ce kompa, la narration en mots de danseur et la tenue des mains
   du couple (#199) : 6 min 19, −16 LUFS. Images contrôlées : plus d'échelle ni de mesure sous le trajet du bassin.
 
+- **Onzième version (24 novembre)**, avec le kompa à un appui par temps, le suave à deux temps par côté et le
+  « 1 2 » de la kizomba et du semba : 6 min 23, −16 LUFS. Images contrôlées. Le « 1 2 » porte le danseur d'une place
+  à l'autre : la caméra vise maintenant le milieu des deux places (`MILIEU` dans `scenario.mjs`, vérifié contre la
+  mesure) ; dans la rangée de la comparaison, un bras touche encore le bord de sa case aux points extrêmes. Le
+  montage de la comparaison gardait l'ancien clip quand ses plans changeaient : le clip assemblé porte désormais
+  l'empreinte de ses douze plans (`assemblerComparaison`).
+
 ## Ce qui reste
 
 - **Le rythme du kompa et le pas de base de la kizomba et du semba** changent (demande du 24 novembre) : le
