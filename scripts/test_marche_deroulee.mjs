@@ -29,8 +29,9 @@ const point = (side, name) => f.model.legs[side][name].clone().applyMatrix4(f.r[
 /** Inclinaison du pied : angle de l'axe talon → demi-pointe avec l'horizontale (+ = talon levé). */
 const slope = side => { const b = point(side, "ball"), h = point(side, "heel"); return Math.atan2(h.y - b.y, Math.hypot(h.x - b.x, h.z - b.z)); };
 
-// Pose de repos : hauteur des deux points de la semelle et inclinaison à plat.
-api.applyPose(f.r, f.model, 0, { styleKey: "kizomba", amp: 0, movement: "none", plant: true });
+// Pose de repos : hauteur des deux points de la semelle et inclinaison à plat (« Sur place » : seule, la kizomba danse
+// le « 1 2 », dont un pied marque sur sa demi-pointe, #196).
+api.applyPose(f.r, f.model, 0, { styleKey: "kizomba", amp: 0, movement: "surPlace", plant: true });
 f.r.root.updateWorldMatrix(true, true);
 const rest = Object.fromEntries(SIDES.map(s => [s, { slope: slope(s), ball: point(s, "ball").y, heel: point(s, "heel").y }]));
 const pitch = side => slope(side) - rest[side].slope;
@@ -122,7 +123,9 @@ for (const [travel, dir] of [[1, 1], [0.5, -1]])
   walk(`déplacement ${travel}${dir < 0 ? " arrière" : ""} kizomba`, { styleKey: "kizomba", amp: 1, movement: "none", travel, dir }, 0, 8, { flat: true });
 for (const styleKey of ["kizomba", "kompa", "tarraxinha"])
   walk(`ida e volta en solo ${styleKey}`, { styleKey, amp: 1, movement: "ida", ida: true }, 0, 8, { flat: true });
-walk("sur place kizomba", { styleKey: "kizomba", amp: 1, movement: "none", plant: true }, 0, 8, { flat: true });
+// #196: seule, la kizomba danse le « 1 2 » (pieds qui se déplacent, marca sur la demi-pointe, test_um_dois.mjs) ; son
+// pas sur place, pieds à plat, est la figure « Sur place ».
+walk("sur place kizomba", { styleKey: "kizomba", amp: 1, movement: "surPlace", plant: true }, 0, 8, { flat: true });
 
 const worst = key => Math.max(...report.map(r => r[key]));
 const corridinho = report.filter(r => r.label.startsWith("corridinho"));

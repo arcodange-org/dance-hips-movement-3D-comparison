@@ -16,9 +16,9 @@ Feature: Page principale : la scène toujours visible, les réglages dans un pan
     And l'onglet « Jeu » mène à "?mode=pair&guidage=1&style=semba" quand le style affiché est "semba"
 
   Scenario: Les sorties ne se proposent qu'en couple
-    Then l'onglet "seul" propose les figures "Sur place, Corridinho, Quarts de tour, 3 temps, Ida e volta"
-    And l'onglet "comparer" propose les figures "Sur place, Corridinho, Quarts de tour, 3 temps, Ida e volta"
-    And l'onglet "couple" propose les figures "Sur place, Corridinho, Quarts de tour, 3 temps, Ida e volta, Sortie garçon, Sortie fille"
+    Then l'onglet "seul" propose les figures "Pas de base, Sur place, Corridinho, Quarts de tour, 3 temps, Ida e volta"
+    And l'onglet "comparer" propose les figures "Pas de base, Sur place, Corridinho, Quarts de tour, 3 temps, Ida e volta"
+    And l'onglet "couple" propose les figures "Pas de base, Corridinho, Quarts de tour, 3 temps, Ida e volta, Sortie garçon, Sortie fille"
 
   Scenario: Une figure qu'un style n'offre pas est grisée, avec le nom du style
     Then avec les styles "kompa" la figure "corridinho" est refusée par "Kompa"

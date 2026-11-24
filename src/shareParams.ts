@@ -6,7 +6,7 @@ import { sortieFilleBeat, sortieFilleVariantOf, type SortieFilleVariant } from "
 import { sortieGarconSettings, type SortieVariant } from "./sortieGarcon";
 
 const MODES: ModeKey[] = ["solo", "observe", "compare", "pair"];
-const MOVEMENT_PARAMS = ["corridinho", "quarts", "temps3", "ida", "sortie", "sortieG", "sortieF", "sortieGF"];
+const MOVEMENT_PARAMS = ["corridinho", "quarts", "temps3", "ida", "sortie", "sortieG", "sortieF", "sortieGF", "surPlace"];
 
 export interface ShareParams {
   mode?: ModeKey; styleA?: string; styleB?: string; bpm?: number; travel?: number; amp?: number;
@@ -42,7 +42,7 @@ export function parseShareParams(p: URLSearchParams, current: { mode: ModeKey; m
   if (MOVEMENT_PARAMS.some(k => p.has(k))) {
     const set = (k: string) => p.has(k) && on(k);
     s.movement = movementOf({ corridinho: set("corridinho"), quarts: set("quarts"), temps3: set("temps3"), ida: set("ida"),
-      sortieG: set("sortie") || set("sortieG"), sortieF: set("sortieF"), sortieGF: set("sortieGF") });
+      sortieG: set("sortie") || set("sortieG"), sortieF: set("sortieF"), sortieGF: set("sortieGF"), surPlace: set("surPlace") });
   }
   if (p.has("sortieFilleVariant")) s.sortieFilleVariant = sortieFilleVariantOf(p.get("sortieFilleVariant"));
   if (p.has("placement")) s.placement = placementOf(p.get("placement"));

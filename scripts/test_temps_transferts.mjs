@@ -16,7 +16,7 @@ const api = await import(bundle.href); unlinkSync(bundle);
 // danced alone (its elected step, #162, below); in pair the semba keeps one transfer per beat.
 const styles = Object.keys(api.STYLES).filter(k => k !== 'kompa');
 for (const styleKey of styles) for (const pair of [false, true]) {
-  if ((styleKey === 'semba' || styleKey === 'suave') && !pair) continue;
+  if ((styleKey === 'semba' || styleKey === 'kizomba' || styleKey === 'suave') && !pair) continue;
   const f = fixture(api, {});
   const load = beat => api.applyPose(f.r, f.model, beat, { styleKey, amp: 1, ...(pair ? { embrace: true, placePaire: true, placement: 'quinconce' } : {}) }).loadR;
   for (let k = 0; k < 4; k++) {
@@ -26,7 +26,7 @@ for (const styleKey of styles) for (const pair of [false, true]) {
     assert(Math.abs(half - 0.5) < 1e-6, `${styleKey}: the transfer crosses half-way between beats (${half.toFixed(3)} at ${k + 0.5})`);
   }
 }
-console.log(`PASS temps et transferts : sur place (solo et paire ; le semba et le suave en paire seulement), poids sur chaque temps pour ${styles.join(', ')}`);
+console.log(`PASS temps et transferts : sur place (solo et paire ; la kizomba, le semba et le suave en paire seulement), poids sur chaque temps pour ${styles.join(', ')}`);
 
 // #200 (rule R44, 24 Nov. 2026): the suave alone, two beats per side, without bounce: the weight leans on the left
 // foot on beats 1 and 2, on the right on 3 and 4 (partial transfers, 60/40), passing half-way between 2 and 3 and
@@ -83,7 +83,8 @@ console.log('PASS temps et transferts : kompa seul, un appui par temps (gauche s
 // every two beats; between its two landings the weight does not leave the foot of the bounce.
 {
   const f = fixture(api, {});
-  const load = beat => api.applyPose(f.r, f.model, beat, { styleKey: 'semba', amp: 1 }).loadR;
+  // #196: alone the semba's basic step is the « 1 2 » (below); its step on the spot is the figure « Sur place ».
+  const load = beat => api.applyPose(f.r, f.model, beat, { styleKey: 'semba', amp: 1, movement: 'surPlace' }).loadR;
   for (const k of [1, 2, 5, 6]) assert(load(k) < 1e-6, `semba alone: left foot full on beat ${k} (${load(k)})`);
   for (const k of [3, 4, 7, 8]) assert(load(k) > 1 - 1e-6, `semba alone: right foot full on beat ${k} (${load(k)})`);
   let transfers = 0, prev = load(0);
@@ -94,6 +95,22 @@ console.log('PASS temps et transferts : kompa seul, un appui par temps (gauche s
   assert(Math.sign(pairLoad(1) - 0.5) === -Math.sign(pairLoad(2) - 0.5), 'semba in pair: one transfer per beat, as before');
 }
 console.log('PASS temps et transferts : semba seul, deux arrivées sur chaque pied (double rebond), poids sur chaque temps');
+
+// #196 (rule R42): alone, the kizomba and the semba dance the « 1 2 »: the weight lands on the leg that stepped aside
+// on 1 (the clock's beat 0) and again on 2, then on the other on 3 and 4; it is whole on a foot on every beat. The
+// kizomba's step on the spot (the figure « Sur place ») keeps one transfer per beat.
+for (const styleKey of ['kizomba', 'semba']) {
+  const f = fixture(api, {});
+  const load = beat => api.applyPose(f.r, f.model, beat, { styleKey, amp: 1 }).loadR;
+  for (const k of [0, 1, 4, 5]) assert(load(k) < 1e-6, `${styleKey} « 1 2 »: left foot full on the clock's beat ${k} (${load(k)})`);
+  for (const k of [2, 3, 6, 7]) assert(load(k) > 1 - 1e-6, `${styleKey} « 1 2 »: right foot full on the clock's beat ${k} (${load(k)})`);
+}
+{
+  const f = fixture(api, {});
+  const load = beat => api.applyPose(f.r, f.model, beat, { styleKey: 'kizomba', amp: 1, movement: 'surPlace' }).loadR;
+  for (let k = 0; k < 4; k++) assert(Math.sign(load(k) - 0.5) === -Math.sign(load(k + 1) - 0.5) && Math.abs(load(k + 0.5) - 0.5) < 1e-6, `kizomba « Sur place »: one transfer per beat (${k})`);
+}
+console.log('PASS temps et transferts : kizomba et semba seuls, le « 1 2 » (gauche aux comptes 1 et 2, droite aux comptes 3 et 4) ; « Sur place », comme avant');
 
 // Owner (20 Nov.): « on peut laisser le style konpa faire uniquement le sur place et le avant / arrière
 // (pas de marka en konpa) » : kompa offers on the spot and ida e volta only; the other styles everything.

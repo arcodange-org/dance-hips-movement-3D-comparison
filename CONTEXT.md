@@ -22,6 +22,18 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   qui tourne. Candidats : `?essai=iso…` (inertes sans le paramètre). Après le vote : la variante élue devient le
   comportement, les interrupteurs partent, le jeton L441 se rend.
 
+## Pas de base « 1 2 » de la kizomba et du semba (#196, 24 novembre 2026)
+
+- Règle R42 : au 1 la jambe libre s'écarte et reçoit le poids ; au 2 l'autre la rejoint et marque sans poids, le
+  bassin refait un petit rond (double rebond) ; 3 et 4, de l'autre côté. Figure nouvelle.
+- **Élu le 24 novembre** ([films et votes](docs/elections/pas-de-base-1-2/README.md)) : c'est le pas de base de la
+  kizomba (hanche douce) et du semba (hanche du pas élu), danseur seul, le pied s'écartant de 28 cm
+  (`UM_DOIS_ELECTED`). La hanche du semba élu (`applySit`, `src/styles.ts`) avec des pieds qui se déplacent
+  (`src/umDois.ts`). [Spec](docs/spec-pas-de-base-1-2.md), test `scripts/test_um_dois.mjs`.
+- La page : figure « Pas de base » (le « 1 2 ») et figure « Sur place » (`surPlace` : l'ancien pas, pieds plantés,
+  seul seulement). `?unDeux=large|court|doux` montre un autre candidat.
+- Reste : le couple (#187).
+
 ## Suave : deux temps par côté, sans rebond (#200, 24 novembre 2026)
 
 - Règle R44. Fait pour le danseur seul, sur place : le poids penche à gauche sur 1 et 2, à droite sur 3 et 4, les
