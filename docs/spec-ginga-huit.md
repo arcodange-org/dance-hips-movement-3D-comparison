@@ -376,8 +376,8 @@ variantes de `?kompa=` et `ancien` gardent leurs deux temps.
   `scripts/tracer_hanches.mjs` au tempo du kompa. Le film est montré au propriétaire.
 - En couple, rien ne change (poses identiques à celles de `main`).
 
-**Hors périmètre.** Le style suave du modèle change de côté à chaque temps ; savoir s'il doit prendre deux temps par
-appui est une question posée au propriétaire, suivie dans #195. La musique synthétisée du kompa ne change pas (ses
+**Hors périmètre.** Le style suave du modèle change de côté à chaque temps ; il prend deux temps par côté, sans
+rebond (réponse du propriétaire, 24 novembre) : chantier #200. La musique synthétisée du kompa ne change pas (ses
 temps forts restent sur les temps de l'horloge, où le poids arrive).
 
 ## Les genoux : le propriétaire a élu « genoux chevauchés »
