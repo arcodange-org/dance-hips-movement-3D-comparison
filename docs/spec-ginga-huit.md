@@ -318,20 +318,48 @@ le temps 1, restait pendant la touche du temps 2, arrivait à droite sur le temp
 temps 4 (#62, d'après une source pédagogique : `docs/musique/kompa.md`). Sur huit temps : G D G D.
 
 **Ce qu'il fait désormais.** Une arrivée du poids par temps : à gauche sur les temps impairs, à droite sur les temps
-pairs. Sur huit temps : G D G D G D G D. Il n'y a plus de touche sans poids.
+pairs (temps de l'horloge du modèle ; comme dans les autres styles, le pied gauche reçoit le poids au temps 1). Sur
+huit temps : G D G D G D G D. Il n'y a plus de touche sans poids.
+
+| Pas voté, deux temps par appui, puis un temps par appui (90 bpm) | Un temps par appui à 120 bpm, tempo de sa musique |
+|---|---|
+| ![Kompa, pas voté puis un temps par appui](gifs/kompa-deux-temps-et-un-temps.gif) | ![Kompa à 120 bpm](gifs/kompa-un-temps-120.gif) |
+
+De profil : ![Kompa de profil](gifs/kompa-un-temps-profil.gif) Chemin des hanches et genoux :
+![Tracé](gifs/trace-kompa-un-temps.gif)
 
 **Comment.** Le pas élu est une fonction du temps ; il est lu sur un temps deux fois plus rapide, calé pour que le
 poids arrive sur chaque temps de l'horloge. Si `c` est le temps de l'horloge, le pas est celui que le pas voté
-montrait au temps `2c − 1`. Les poses sont donc **exactement** celles du pas voté : même trajet du bassin (le « 8 »),
-mêmes genoux (24° à 45°, en alternance), même pivot du bassin (12°), même buste (penché de 16°, 9,5 cm de côté),
-mêmes amplitudes. Seule la durée change : les vitesses doublent, les accélérations quadruplent.
+montrait au temps `2c − 1`. Les poses sont donc celles du pas voté : même trajet du bassin (le « 8 »), mêmes genoux
+(24° à 45°, en alternance), même pivot du bassin (12°), même buste (penché de 16°). Seule la durée change.
+
+Une exception : l'accent de hanche de la touche. Le pas voté poussait le bassin de 8 mm vers la gauche pendant la
+demi-temps qui précède les temps 2 et 4 (le « hip check » de #62), en partant d'un coup. Sans touche, il n'a plus
+lieu d'être : il est retiré à un temps par appui. Le bassin va et vient alors sur 11,7 cm au lieu de 12,2, le buste
+sur 8,9 cm au lieu de 9,5.
+
+**Mesures** (`scripts/tracer_hanches.mjs`, danseur seul, sur le GLB) :
+
+| | Avant les votes (`ancien`) | Pas voté, deux temps par appui (`deuxTemps`) | Un temps par appui |
+|---|---|---|---|
+| Genoux | 53° à 60° | 24° à 45° | 24° à 45° |
+| Bassin, de côté | 20,6 cm | 12,2 cm | 11,7 cm |
+| Hanche gauche, surface entourée vue de dessus, de face, de profil | 1, 0, 0 cm² | 22, 26, 9 cm² | 21, 26, 9 cm² |
+| Buste, inclinaison | 5° | 16° | 16° |
+| Passage d'un côté à l'autre, rapporté à un balancier (1) | 4,6 | 0,96 | 1,0 |
+| Bassin à l'arrêt | 58 % du temps | jamais | jamais |
+| Accélération du bassin à 90 bpm | 14,7 m/s² | 3,3 m/s² | 3,9 m/s² |
+| Accélération du bassin à 120 bpm, tempo de sa musique | 26,1 m/s² | 5,9 m/s² | 6,9 m/s² |
+
+À deux temps par appui, l'accélération mesurée était celle du départ de l'accent de hanche ; sans lui, le pas deux
+fois plus rapide reste presque aussi doux.
 
 | | Pas voté le 23 novembre | Depuis #195 |
 |---|---|---|
 | Temps par appui | 2 | 1 |
 | Arrivées du poids sur huit temps | G D G D | G D G D G D G D |
 | Touche sans poids | temps 2 et 4 | aucune |
-| Poses | — | les mêmes, deux fois plus vite |
+| Poses | — | les mêmes, deux fois plus vite, sans l'accent de hanche de la touche |
 
 **Où.** Comme le pas élu : pas de base du style, danseur seul, sur place, pieds plantés (drapeau `base`). En couple
 et en déplacement, le kompa garde l'ancien modèle et ses deux temps par appui ; l'y porter est le chantier #187.
@@ -343,7 +371,7 @@ variantes de `?kompa=` et `ancien` gardent leurs deux temps.
 **À vérifier.**
 
 - Le poids est entier sur un pied à chaque temps, en alternance (R21) ; huit transferts en huit temps.
-- La pose au temps `c` est celle du pas voté au temps `2c − 1`, os par os.
+- La pose au temps `c` est celle du pas voté au temps `2c − 1`, à l'accent de hanche près (8 mm au plus).
 - Fluidité à cette vitesse (R34) : accélération du bassin et passage d'un côté à l'autre, mesurés par
   `scripts/tracer_hanches.mjs` au tempo du kompa. Le film est montré au propriétaire.
 - En couple, rien ne change (poses identiques à celles de `main`).

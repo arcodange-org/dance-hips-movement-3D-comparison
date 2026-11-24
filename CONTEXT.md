@@ -5,6 +5,16 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Kompa : un appui par temps (#195, 24 novembre 2026)
+
+- Règle R40 : le kompa se danse sur un temps par appui, pas deux ; ce qui est « suave » prend deux temps par appui.
+- Fait, danseur seul sur place : le pas élu est lu deux fois plus vite (`KOMPA_BEATS`, `kompaBeat` dans
+  `src/styles.ts`), le poids arrive à gauche sur les temps impairs, à droite sur les temps pairs. Poses du pas voté,
+  moins l'accent de hanche de la touche (8 mm). `?kompa=deuxTemps` : le pas tel que voté.
+  [Spec](docs/spec-ginga-huit.md#le-kompa--un-appui-par-temps-195), mesures et films (`docs/gifs/kompa-un-temps*.gif`).
+- Reste : le couple et le déplacement (#187), qui gardent deux temps par appui ; le style suave change de côté à
+  chaque temps dans le modèle, question posée au propriétaire ; le film du pas de base (#155) est à refaire.
+
 ## Page principale : la scène toujours visible, les réglages dans un panneau (#192, 24 novembre 2026)
 
 - Deuxième lot de la simplification de la page. Le propriétaire a choisi le 24 novembre l'organisation A du canevas
