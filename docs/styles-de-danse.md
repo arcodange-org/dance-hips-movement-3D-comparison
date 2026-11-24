@@ -99,6 +99,12 @@ les pas réels (et non sur la seule spec biomécanique). Les captures GIF de `do
   **Banga** (garçons) : mouvement de hanche droite→gauche accentué.
 - **Corridinho/koreidinha** : succession de pas formant un cercle au sol (lié au semba).
 
+Dans l'app, depuis le 24 novembre 2026, le pas de base du danseur seul est le **« 1 2 »** (#196, règle du
+propriétaire, [élection](elections/pas-de-base-1-2/README.md)) : au 1 la jambe libre s'écarte de 28 cm et reçoit le
+poids, au 2 l'autre la rejoint et marque sans poids pendant que le bassin refait un petit rond (double rebond), puis la
+même chose de l'autre côté ; hanche douce. C'est le « 2 temps » ci-dessus, avec la marca ; le « sur place » d'avant
+reste la figure « Sur place ». En couple, le modèle d'avant (#187).
+
 ### Semba
 Plus rapide que la kizomba, **rebond marqué** (« allure sautillante ») et changements de
 direction nets sur musique vive ([O'Dance Events](https://odanceevents.com/blog/kizomba-semba-urban-kiz)).
@@ -116,6 +122,10 @@ Depuis le 23 novembre 2026, le pas de base du danseur seul est celui que le prop
 [élection](elections/ginga-huit.md)) : un rebond par temps (la hanche s'assoit à chaque arrivée du poids) et un double
 rebond un temps sur deux, deux arrivées de suite sur chaque pied. Ce motif d'appuis est son choix ; les sources écrites
 décrivent « un, deux, trois, pause », qui reste visible par `?semba=pause`.
+
+Depuis le 24 novembre 2026, le semba dansé seul a le même pas de base que la kizomba, le **« 1 2 »** (#196), avec la
+hanche de son pas élu : le pied s'écarte de 28 cm et reçoit le poids, l'autre le rejoint en marca, le double rebond
+tombe au 2. Le pas élu le 23 novembre reste la figure « Sur place ».
 
 ### Kompa (Haïti)
 Balancier latéral **sur place**, un transfert de poids par temps

@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { resetRig, groundDip, type RigHandle } from "./anatomy";
 import {
-  STYLES, supportOf, travelOffset, travelAllowed, corridinhoPath, reversePath, quartTurnStep,
+  STYLES, supportOf, umDoisOf, travelOffset, travelAllowed, corridinhoPath, reversePath, quartTurnStep,
   idaEVoltaStep, idaContra, sortieEnvelope, sortieActive, lockUpperTrunk,
   applyDanceFrame, applyFollowerFrame, swingLift, type MovementKey,
 } from "./styles";
@@ -20,6 +20,7 @@ import { SORTIE_GARCON_PAIR_DZ } from "./sortieGarcon";
 import { SORTIE_FILLE_PAIR_DZ } from "./sortieFille";
 import { placementOffset, placementScale, type CouplePlacement } from "./placement";
 import { gaitStep, GAIT } from "./gait";
+import { umDoisFoot, umDoisCarry } from "./umDois";
 
 export type Side = "L" | "R";
 const SIDES: Side[] = ["L", "R"];
@@ -229,6 +230,17 @@ function pivotShift(leg: PoseModel["legs"][Side], yaw: number, pitch: number, pi
  * for a step backwards; it fades as the foot flies, and a foot in the air or landing bends its knee
  * instead of lifting the pelvis. */
 export const ROLLED_WALK = { flight: 0.75, bear: 0.75, bearBack: 1 };
+/** #196: the feet of the « 1 2 » (src/umDois.ts): each at its rest place, moved aside by its share of `ecart`;
+ * a foot whose heel is up (left behind, closing, marking) stands on its ball, and its leg reaches from there. */
+const UM_DOIS_SOFT = 0.007;
+function umDoisFeet(clock: number, ecart: number, m: PoseModel): Record<Side, FootPlan> {
+  const feet = {} as Record<Side, FootPlan>;
+  for (const s of SIDES) {
+    const foot = umDoisFoot(s, clock), rest = m.legs[s].rest;
+    feet[s] = { x: rest.x + ecart * foot.place, z: rest.z, yaw: 0, lift: foot.lift, pitch: foot.pitch, pivot: foot.pitch > 0 ? "ball" : null, bear: 1 };
+  }
+  return feet;
+}
 function plannedFeet(b: number, o: PoseOptions, m: PoseModel): Record<Side, FootPlan> {
   const feet = {} as Record<Side, FootPlan>;
   if (o.quarts) {
@@ -489,7 +501,9 @@ export function gingaPhase(key: string, leader: (beat: number) => { loadR?: numb
 }
 
 export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, options: Partial<PoseOptions>): PoseStats {
-  const o = { ...DEFAULT_POSE, ...options };
+  // #196: the figure « Sur place » of the kizomba and of the semba is the basic step without the « 1 2 ».
+  const surPlace = options.movement === "surPlace";
+  const o = { ...DEFAULT_POSE, ...options, ...(surPlace ? { movement: "none" as const } : {}) };
   // + 24 beats (a multiple of every on-the-spot period: styles 4, temps3 12, the semba prototypes 8, #162)
   // keeps the motion beat positive for the styles' `b % n` without changing the pose.
   const shift = onBeatShift(o);
@@ -595,10 +609,15 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   // every cycle.
   // #161, #162: the style's basic step, alone (no partner) on the spot with planted feet; there the kompa
   // and the semba dance their elected step (see `StyleDef.apply`).
-  const base = !figure && !o.embrace && !o.follower && o.plant && o.movement === "none" && !(o.travel > 0) && !o.sortie;
+  // Alone, a selected sortie (a pair figure) is the dance on the spot too (see `onBeatShift`).
+  const base = !figure && !o.embrace && !o.follower && o.plant && (o.movement === "none" || o.movement.startsWith("sortie")) && !(o.travel > 0) && !o.sortie;
+  // #196 (elected on 24 Nov. 2026): in place of that basic step the kizomba and the semba dance the « 1 2 », unless
+  // the figure « Sur place » is chosen; the feet and the travel of the body are this figure's (src/umDois.ts), the
+  // hip is the style's.
+  const umDois = base && !surPlace ? umDoisOf(o.styleKey) : null, step = umDois ? "umDois" as const : base;
   const applyStyle = (key: typeof o.styleKey) => {
     const g = gingaOf(key);
-    STYLES[key].apply(r, g?.gingaBeat ?? styleTime, o.amp * (g?.gingaAmp ?? 1), styleTime, base);
+    STYLES[key].apply(r, g?.gingaBeat ?? styleTime, o.amp * (g?.gingaAmp ?? 1), styleTime, key === o.styleKey ? step : base);
     // #157: where the figure leaves no room for the ginga (a tight spot, a touch), the style goes back to
     // the figure's own time and full amplitude: there the pose is the one the figure was calibrated with.
     if (g?.gingaBeat !== undefined && (figure as { gingaOwn?: boolean }).gingaOwn === false && gingaRoom.sway < 1) {
@@ -685,7 +704,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   const desiredKnee = { L: r.kneeL.rotation.x, R: r.kneeR.rotation.x };
   const ownPosture = STYLES[o.styleKey].posture, otherPosture = blend ? STYLES[blend.key].posture : ownPosture, bw = blend?.weight ?? 0;
   const posture = { lean: ownPosture.lean + (otherPosture.lean - ownPosture.lean) * bw, knee: ownPosture.knee + (otherPosture.knee - ownPosture.knee) * bw };
-  const feet = figure?.feet ?? plannedFeet(beat, o, model);
+  const feet = figure?.feet ?? (umDois ? umDoisFeet(clockBeat, umDois.ecart, model) : plannedFeet(beat, o, model));
   if (figure) {
     // The coupled follower mirrors it like her pelvis: the couple sways together in the world.
     const coupledSway = o.follower ? 1 - 2 * figure.coupling : 1;
@@ -711,6 +730,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   } else {
     const path = bodyPath(beat, o);
     r.root.position.x += path.x; r.root.position.z += path.z; r.root.rotation.y = path.ry;
+    if (umDois) r.root.position.x += umDois.ecart * umDoisCarry(clockBeat);
   }
   lockUpperTrunk({ spine: r.spine.rotation, chest: r.chest.rotation, head: r.head.rotation }, r.pelvis.rotation, o.iso);
   // #161 (prototype): a style may ask the spine to take up the pelvis's travel (`isoLean`, see KompaEight.iso).
@@ -812,11 +832,24 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
       }
     }
     let height = Infinity;
+    // #196: in the « 1 2 » the feet travel. The pelvis keeps the height the hip's own step gives it, as if both
+    // feet stood under the hips (the sits and the bounce of the elected step); a leg whose foot is far, left
+    // behind or reaching aside, only bounds it by what it can reach straight, from where its foot stands (on its
+    // ball when the heel is up). A smooth minimum hands the height from one bound to the other without a kink.
+    const reaches: number[] = [];
     for (const { s, hipOffset, reach2 } of bounds) {
       const hip = hipOffset.clone().add(r.root.position);
       const target = model.targets[s];
       const horizontal2 = (target.x - hip.x) ** 2 + (target.z - hip.z) ** 2;
-      height = Math.min(height, bearingY[s] + Math.sqrt(Math.max(0, reach2 - horizontal2)) - hip.y);
+      if (umDois) {
+        const leg = model.legs[s], straight2 = leg.length1 ** 2 + leg.length2 ** 2 + 2 * leg.length1 * leg.length2 * Math.cos(0.12);
+        const flatY = soleHeight(leg.sole, new THREE.Quaternion().setFromAxisAngle(Y, feet[s].yaw));
+        reaches.push(flatY + Math.sqrt(reach2) - hip.y, bearingY[s] + Math.sqrt(Math.max(0, straight2 - horizontal2)) - hip.y);
+      } else height = Math.min(height, bearingY[s] + Math.sqrt(Math.max(0, reach2 - horizontal2)) - hip.y);
+    }
+    if (umDois) {
+      const lowest = Math.min(...reaches);
+      height = lowest - UM_DOIS_SOFT * Math.log(reaches.reduce((sum, v) => sum + Math.exp(-(v - lowest) / UM_DOIS_SOFT), 0));
     }
     // #157: the small bounce, one per beat of the music: lowest on the beat, where the weight arrives.
     // A figure that leaves no room to lower the pelvis (`dip` 0: the quarter turn while the legs cross)
@@ -884,7 +917,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
       lowest = Math.min(lowest, v.copy(p).applyMatrix4(foot.matrixWorld).y);
     grounded[s] = lowest <= 0.0001;
   }
-  const prescribedR = (figure as { loadR?: number } | null)?.loadR ?? (supportOf(o.styleKey, r, beat, base) + 1) / 2;
+  const prescribedR = (figure as { loadR?: number } | null)?.loadR ?? (supportOf(o.styleKey, r, beat, step) + 1) / 2;
   const loadR = grounded.R ? (grounded.L ? prescribedR : 1) : 0;
   const loadL = grounded.L ? (grounded.R ? 1 - prescribedR : 1) : 0;
   const chestQ = r.chest.getWorldQuaternion(new THREE.Quaternion());
