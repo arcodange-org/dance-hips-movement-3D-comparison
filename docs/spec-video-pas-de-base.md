@@ -204,6 +204,13 @@ filmé à ce tempo, et le montage cale le premier temps de la musique sur le tem
   (« le bassin reste deux temps de chaque côté, sans rebond ») ; la comparaison ajoute que le suave change de côté
   tous les deux temps (faits F359, F360 ; `scripts/test_video.mjs` compte quatre changements de côté en huit temps
   et un bassin qui ne rebondit pas). Pas encore refilmé : le film v10 montre l'ancien suave.
+- **Le « 1 2 » de la kizomba et du semba** (#196, fusionné le 24 novembre par #201) : le chapitre semba présente
+  le « 1 2 » (un pied s'écarte de presque une largeur de hanches et reçoit le poids, l'autre le rejoint et marque
+  sans poids) et son double rebond (pendant la marque, le poids reste, la hanche refait un petit rond) ; le chapitre
+  kizomba le reprend avec sa hanche plus douce et dit que le buste penche nettement et suit le bassin ; la
+  comparaison est reprise (appuis, buste, pivot, trajets vus de dessus : cinq boucles ou « 8 », le zouk sur une
+  ligne). `scripts/video/mesurer_pas.mjs` lit maintenant le poids que la pose calcule (`loadR`), figure comprise ;
+  faits F361 à F364 ; `scripts/test_video.mjs` vérifie deux temps sur chaque pied et le changement de ligne.
 - **Dixième version (24 novembre)**, refilmée avec ce kompa, la narration en mots de danseur et la tenue des mains
   du couple (#199) : 6 min 19, −16 LUFS. Images contrôlées : plus d'échelle ni de mesure sous le trajet du bassin.
 
@@ -214,8 +221,7 @@ filmé à ce tempo, et le montage cale le premier temps de la musique sur le tem
   du semba devient le « 1 2 », figure nouvelle : une jambe s'écarte et reçoit le poids, l'autre la rejoint et
   marque sans poids (#196) ; le suave passe à deux temps par côté, sans rebond (#200). Le film v9 montre encore le
   kompa à deux temps par pied, la kizomba et le semba pieds plantés, le suave à un côté par temps avec un rebond.
-  Le kompa et le suave sont faits (ci-dessus). Quand le « 1 2 » sera dans `main` : reprendre les chapitres kizomba
-  et semba et la comparaison (narration, fiche de faits, `scripts/test_video.mjs`), puis refilmer.
+  Les trois sont faits (ci-dessus) ; la onzième version les filme.
 - **Le couple et le déplacement** gardent l'ancien déhanché du kompa et du semba, et le ginga du couple n'a pas
   encore son « 8 » : c'est le chantier #187. Le final du film le dit. La vidéo sera refilmée quand il sera
   fusionné (`node scripts/video/generer_video.mjs`).

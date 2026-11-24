@@ -329,45 +329,50 @@ const durees = existsSync(FICHE_DUREES) ? JSON.parse(readFileSync(FICHE_DUREES, 
 }
 
 // ---------------------------------------------------------------- mesures du modèle
-// Ce que la narration affirme du pas de base de chaque style est mesuré sur le GLB (danseur seul, sur place) :
-// si le moteur change, ce bloc dit quelles phrases du film ne sont plus vraies.
+// Ce que la narration affirme du pas de base de chaque style est mesuré sur le GLB (danseur seul) : si le moteur
+// change, ce bloc dit quelles phrases du film ne sont plus vraies.
 {
   const { mesurer } = await import("./video/mesurer_pas.mjs");
   const m = Object.fromEntries(Object.keys(STYLES).map((s) => [s, mesurer(s)]));
-  // Appuis (semba, kompa, comparaison) : la kizomba et le kompa changent de pied à chaque temps (le kompa depuis
-  // #195) ; le semba y arrive deux fois ; tarraxinha et suave ne transfèrent qu'en partie.
-  assert.equal(m.kizomba.poids.arrivees, "GDGDGDGD", "kizomba : un pied par temps");
+  const parTemps = (s) => m[s].poids.partDroiteSurLeTemps.map((x) => Math.round(x));
+  // Appuis (comparaison) : le kompa et le zouk changent de pied à chaque temps (le kompa depuis #195).
   assert.equal(m.kompa.poids.arrivees, "GDGDGDGD", "kompa : un pied par temps");
-  assert.equal(m.semba.poids.arrivees, "GGDDGGDD", "semba : deux arrivées de suite sur chaque pied");
+  assert.equal(m.zouk.poids.arrivees, "GDGDGDGD", "zouk : un pied par temps");
+  // Le « 1 2 » (#196) : kizomba et semba, poids entier sur le pied gauche aux temps 1 et 2, sur le droit aux temps 3
+  // et 4 ; le pied qui marque ne prend pas le poids ; le bassin change de ligne (bien plus loin que les autres).
+  for (const s of ["kizomba", "semba"]) {
+    assert.deepEqual(parTemps(s), [0, 0, 1, 1, 0, 0, 1, 1], `${s} : deux temps sur chaque pied (${m[s].poids.partDroiteSurLeTemps})`);
+    assert.equal(m[s].poids.arrivees, "DGDG", `${s} : une arrivée tous les deux temps, la marque ne prend pas le poids`);
+    assert.ok(m[s].bassin.cote > 2 * Math.max(m.kompa.bassin.cote, m.zouk.bassin.cote), `${s} : change de ligne (${m[s].bassin.cote} cm)`);
+  }
   assert.deepEqual([m.tarraxinha.poids.arrivees, m.suave.poids.arrivees], ["", ""], "tarraxinha, suave : le poids ne passe qu'en partie");
   // Suave (#200) : deux temps de chaque côté, sans rebond ; le côté qui porte change quatre fois en huit temps.
   const cotesSuave = m.suave.poids.partDroiteSurLeTemps.map((x) => x > 0.5);
   assert.equal(cotesSuave.filter((x, i) => x !== cotesSuave[(i + 1) % 8]).length, 4, `suave : deux temps par côté (${m.suave.poids.partDroiteSurLeTemps})`);
   assert.ok(m.suave.bassin.hauteur <= 1.2, `suave : sans rebond (${m.suave.bassin.hauteur} cm)`);
-  // Le « 8 » : vu de dessus, le bassin du kompa et du semba entoure une surface et ne s'arrête jamais.
-  for (const s of ["kompa", "semba"]) {
-    assert.ok(m[s].bassin.entoureVuDeDessus > 10 && m[s].bassin.arret === 0, `${s} : le bassin entoure ${m[s].bassin.entoureVuDeDessus} cm², arrêt ${m[s].bassin.arret}`);
-    assert.ok(m[s].tronc.inclinaison > 13 && m[s].tronc.inclinaison < 18 && m[s].tronc.variation < 1, `${s} : tronc penché d'une quinzaine de degrés (${m[s].tronc.inclinaison})`);
-  }
-  // Comparaison : quatre bassins entourent une surface, deux vont et viennent sur une ligne.
-  for (const s of ["suave", "kompa", "semba", "tarraxinha"]) assert.ok(m[s].bassin.entoureVuDeDessus > 10, `${s} : une surface vue de dessus`);
-  for (const s of ["kizomba", "zouk"]) assert.ok(m[s].bassin.entoureVuDeDessus < 1, `${s} : une ligne vue de dessus`);
+  // Kompa : le bassin entoure une surface vue de dessus et ne s'arrête jamais ; le « 1 2 » non plus.
+  for (const s of ["kompa", "semba", "kizomba"]) assert.ok(m[s].bassin.entoureVuDeDessus > 10 && m[s].bassin.arret === 0, `${s} : le bassin entoure ${m[s].bassin.entoureVuDeDessus} cm², arrêt ${m[s].bassin.arret}`);
+  // Comparaison : cinq bassins entourent une surface, le zouk va et vient sur une ligne.
+  for (const s of ["suave", "kompa", "semba", "tarraxinha", "kizomba"]) assert.ok(m[s].bassin.entoureVuDeDessus > 10, `${s} : une surface vue de dessus`);
+  assert.ok(m.zouk.bassin.entoureVuDeDessus < 1, "zouk : une ligne vue de dessus");
   // La narration compare en mots ; les mesures le prouvent ici. Du plus au moins : `rang(grandeur)` range les six styles.
   const rang = (g) => Object.keys(m).sort((a, b) => g(m[b]) - g(m[a]));
-  // Pivot du bassin : tarraxinha, kompa et zouk tournent le plus (dix à douze degrés) ; le semba un peu moins (huit) ;
-  // la kizomba à peine ; le suave pas.
+  // Pivot du bassin : tarraxinha, kompa et zouk tournent le plus (dix à douze degrés) ; le semba et la kizomba
+  // moins ; le suave pas.
   assert.deepEqual(rang((x) => x.pivotDuBassin).slice(0, 3).sort(), ["kompa", "tarraxinha", "zouk"], "les trois qui tournent le plus");
-  assert.equal(rang((x) => x.pivotDuBassin)[3], "semba", "le semba, un peu moins");
+  assert.deepEqual(rang((x) => x.pivotDuBassin).slice(3), ["semba", "kizomba", "suave"], "puis le semba et la kizomba, puis le suave");
   for (const s of ["tarraxinha", "kompa", "zouk"]) assert.ok(m[s].pivotDuBassin >= 10 && m[s].pivotDuBassin <= 12.6, `${s} : pivot ${m[s].pivotDuBassin}°`);
-  assert.ok(m.semba.pivotDuBassin > 6 && m.kizomba.pivotDuBassin < 3 && m.suave.pivotDuBassin < 0.5, "semba un peu moins, kizomba à peine, suave pas");
-  // Le bassin va le plus loin de côté en kizomba ; tarraxinha et suave se déplacent le moins, à peine (deux fois moins).
+  assert.ok(m.kizomba.pivotDuBassin > 2 && m.suave.pivotDuBassin < 0.5, "kizomba : moins, mais tourne ; suave : pas du tout");
+  // De côté : tarraxinha et suave se déplacent le moins, à peine (nettement moins que le kompa et le zouk, qui
+  // restent aussi sur place).
   const cotes = rang((x) => x.bassin.cote);
-  assert.equal(cotes[0], "kizomba", "kizomba : le bassin va le plus loin de côté");
+  assert.deepEqual(cotes.slice(0, 2).sort(), ["kizomba", "semba"], "le « 1 2 » va le plus loin de côté");
   assert.deepEqual(cotes.slice(-2).sort(), ["suave", "tarraxinha"], "les deux plus petits déplacements");
-  assert.ok(Math.max(m.tarraxinha.bassin.cote, m.suave.bassin.cote) <= m.kizomba.bassin.cote / 2, "à peine de côté");
-  // Le buste : kompa et semba le penchent le plus vers l'avant ; la tarraxinha un peu (moins de la moitié de leur pente
-  // ou guère plus).
-  assert.deepEqual(rang((x) => x.tronc.inclinaison).slice(0, 2).sort(), ["kompa", "semba"], "kompa et semba penchent le plus");
+  assert.ok(Math.max(m.tarraxinha.bassin.cote, m.suave.bassin.cote) <= 0.65 * Math.min(m.kompa.bassin.cote, m.zouk.bassin.cote), "à peine de côté");
+  // Le buste : kizomba, kompa et semba le penchent nettement vers l'avant (une quinzaine de degrés), plus que les
+  // autres ; la tarraxinha un peu (moins de six dixièmes de leur pente).
+  assert.deepEqual(rang((x) => x.tronc.inclinaison).slice(0, 3).sort(), ["kizomba", "kompa", "semba"], "kizomba, kompa et semba penchent le plus");
+  for (const s of ["kizomba", "kompa", "semba"]) assert.ok(m[s].tronc.inclinaison > 13 && m[s].tronc.inclinaison < 19 && m[s].tronc.variation < 1, `${s} : tronc nettement penché (${m[s].tronc.inclinaison})`);
   assert.ok(m.tarraxinha.tronc.inclinaison > 3 && m.tarraxinha.tronc.inclinaison < 0.6 * m.semba.tronc.inclinaison, "tarraxinha : un peu");
-  console.log("PASS mesures : appuis, « 8 », pivot du bassin et buste du modèle tels que la narration les dit");
+  console.log("PASS mesures : appuis, « 1 2 », « 8 », pivot du bassin et buste du modèle tels que la narration les dit");
 }

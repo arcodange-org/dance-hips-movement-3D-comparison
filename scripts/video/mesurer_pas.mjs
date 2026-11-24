@@ -4,7 +4,8 @@
 // Par style, sur huit temps : trajet du bassin (côté, hauteur, avant-arrière, surface entourée vue de dessus,
 // arrêt le plus long), pivot du bassin autour de la verticale (lu sur la ligne des deux hanches), inclinaison du
 // tronc vers l'avant, déplacement du buste de côté, flexion des genoux, et le poids : part portée par le pied
-// droit sur chaque temps, suite des arrivées du poids (G, D) sur huit temps.
+// droit sur chaque temps (celle que la pose calcule, figure du « 1 2 » comprise), suite des arrivées du poids (G, D)
+// sur huit temps ; le trajet du bassin vu de dessus sur quatre temps (`trajet`, pour le dessiner).
 // Usage : node scripts/video/mesurer_pas.mjs [--json]
 import { buildSync } from "esbuild";
 import { unlinkSync } from "node:fs";
@@ -42,7 +43,7 @@ export function mesurer(styleKey) {
   const f = fixture(api), bassin = [], lacet = [], tronc = [], buste = [], genoux = { L: [], R: [] }, droite = [];
   for (let i = 0; i < TEMPS * PAS; i++) {
     const temps = i / PAS;
-    api.applyPose(f.r, f.model, temps, { styleKey, amp: 1 });
+    const stats = api.applyPose(f.r, f.model, temps, { styleKey, amp: 1 });
     f.r.root.updateWorldMatrix(true, true);
     const inverse = f.r.root.parent.matrixWorld.clone().invert();
     // Repère du danseur : x vers sa droite, y vers le haut, z vers l'avant ; centimètres.
@@ -53,7 +54,7 @@ export function mesurer(styleKey) {
     tronc.push(Math.atan2(epaules[2] - base[2], epaules[1] - base[1]) * 180 / Math.PI);
     buste.push(base[0]);
     for (const c of ["L", "R"]) genoux[c].push(Math.abs(f.r["knee" + c].rotation.x) * 180 / Math.PI);
-    droite.push((api.STYLES[styleKey].support(temps - 0.5, true) + 1) / 2);
+    droite.push(stats.loadR); // la part du poids que la pose donne au pied droit (le « 1 2 » compris)
   }
   // Arrêt le plus long : le bassin bouge de moins de 1 mm par seizième de temps.
   let arret = 0, suite = 0;
@@ -74,7 +75,7 @@ export function mesurer(styleKey) {
   }
   suiteDesArrivees.sort((a, b) => a[0] - b[0]);
   return {
-    style: styleKey,
+    style: styleKey, trajet: bassin.slice(0, 4 * PAS).map(p => [arrondi(p[0], 2), arrondi(p[2], 2)]),
     bassin: { cote: arrondi(etendue(bassin.map(p => p[0]))), hauteur: arrondi(etendue(bassin.map(p => p[1]))), avantArriere: arrondi(etendue(bassin.map(p => p[2]))),
       entoureVuDeDessus: arrondi(entoure(bassin.slice(0, 4 * PAS).map(p => [p[0], p[2]]))), arret: arrondi(Math.min(bassin.length, arret) / PAS, 2) },
     pivotDuBassin: arrondi(etendue(lacet) / 2),

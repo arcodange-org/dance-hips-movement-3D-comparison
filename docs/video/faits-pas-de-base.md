@@ -1063,6 +1063,36 @@ remplacent F248 à F251 et F253 pour le kompa et le semba.
   kompa changent de pied à chaque temps (F356). Le semba arrive deux fois de suite sur chaque pied (F339).
   Tarraxinha et suave ne transfèrent qu'une partie du poids. Le kompa fait maintenant 11,7 cm d'un côté à
   l'autre (F357) : l'ordre de F353 ne change pas.
+
+#### Complément du 24 novembre 2026 : le « 1 2 » de la kizomba et du semba
+
+Mesures : `node scripts/video/mesurer_pas.mjs` (le poids est celui que la pose calcule, figure comprise).
+
+- **F361** Depuis le 24 novembre 2026 (#196, règle R42 du propriétaire), le pas de base de la kizomba et du semba,
+  danseur seul, est le « 1 2 », élu par le propriétaire le même jour. Au 1, la jambe libre s'écarte de l'autre de
+  presque une largeur de hanches (28 cm dans le modèle) : le danseur change de ligne, et le poids passe sur elle.
+  Au 2, l'autre jambe la rejoint et marque, posée sur la plante, sans prendre le poids. Au 3 et au 4, la même
+  chose de l'autre côté. Sur quatre temps, le danseur part d'un côté et revient à sa place. La kizomba a une
+  hanche plus douce ; le semba garde la hanche de son pas élu du 23 novembre. L'ancien pas, pieds plantés,
+  devient la figure « Sur place ». Pour le pas de base, ce fait remplace F044, F045, F047, F048 (kizomba) et
+  F339 (semba) (`docs/spec-pas-de-base-1-2.md` ; `src/umDois.ts` ; `UM_DOIS_ELECTED` dans `src/styles.ts`).
+- **F362** Mesures : le poids est entier sur le pied gauche aux temps 1 et 2, sur le droit aux temps 3 et 4.
+  Le bassin est porté d'une place à l'autre : 35 cm d'un côté à l'autre en kizomba, 37 cm en semba. Vu de dessus,
+  il trace un long « 8 » à plat, avec une petite boucle à chaque bout, pendant la marque (34,9 cm² et 49,8 cm²
+  entourés) ; il ne s'arrête jamais. Le buste suit le bassin ; le tronc penche de 17° en kizomba, 15° en semba ;
+  le bassin pivote de 5,7° et de 8° de chaque côté.
+- **F363** Le double rebond du semba, dans le « 1 2 » : au 2, le poids reste sur le pied d'appui pendant que
+  l'autre marque ; le bassin refait un petit rond, l'effet « cha-cha », et la hanche se rassoit sur le même pied
+  (`docs/spec-pas-de-base-1-2.md`, tableau de la règle). Le modèle rejoint ce que décrit cours-kizomba.com : le
+  pied qui rejoint touche sans poids (F036), et le poids reste deux temps du même côté (la question de F055).
+- **F364** La comparaison, au 24 novembre 2026 (remplace F350, F352, F353, F354, F355 et F358 là où ils diffèrent).
+  Appuis : le kompa et le zouk changent de pied à chaque temps ; la kizomba et le semba restent deux temps sur
+  chaque pied ; le suave change de côté tous les deux temps ; tarraxinha et suave ne transfèrent qu'en partie.
+  D'un côté à l'autre : semba 37 cm et kizomba 35 cm (ils changent de ligne), kompa 11,7, zouk 10, tarraxinha et
+  suave 6. Vu de dessus, le bassin entoure une surface dans cinq styles (semba 49,8 cm², kizomba 34,9, suave
+  17,6, kompa 16,6, tarraxinha 11,3) ; le zouk va et vient sur une ligne. Pivot du bassin : tarraxinha 12,5°,
+  kompa 11,5°, zouk 10,3°, semba 8°, kizomba 5,7°, suave 0,1°. Tronc : kizomba 17°, kompa 16°, semba 15° vers
+  l'avant ; tarraxinha 8° ; le suave ondule ; le zouk se cambre.
 - **F355** Le tronc. Kompa et semba le penchent vers l'avant, de 16° et 15°, sans variation. La kizomba de 6°,
   la tarraxinha de 8°. Le suave ondule : son inclinaison varie de 19° sur quatre temps. Le zouk est cambré, de
   10° vers l'arrière, et varie de 8°.
