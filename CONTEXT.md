@@ -5,6 +5,27 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Page principale : la scène toujours visible, les réglages dans un panneau (#192, 24 novembre 2026)
+
+- Deuxième lot de la simplification de la page. Le propriétaire a choisi le 24 novembre l'organisation A du canevas
+  d'audit ([spec](docs/spec-page-scene-panneau.md)). Avant : la scène commençait à 640 px (un danseur) ou 1 134 px
+  (couple, sortie garçon) à l'ordinateur, à 2,3 et 3,6 écrans au téléphone ; 43 à 55 commandes à plat, 398 à 770 mots.
+- Fait : onglets « Seul · Comparer · En couple · Jeu » ; la scène dès l'ouverture, avec une barre de lecture (lecture,
+  rejouer, « Départ » et pas 1 à 5, tempo, son) ; un panneau (style, figure et ses réglages, tiroirs « Corps »,
+  « Mouvement », « Repères au sol », « Son », « Ce pas en détail », « Mise au point ») ; fiche « À propos ». Trois
+  dispositions, par la règle du jeu (`hudLayout`) : écran large, téléphone couché, téléphone tenu droit, où la scène
+  reste collée en haut pendant qu'on fait défiler les réglages.
+- Une commande n'apparaît que là où elle sert : `COMMANDES` et `commandeVisible` (`src/page.ts`, pur) ; chaque commande
+  de la page porte le même nom (`data-commande`). « Observation hanche » devient le préréglage « Hanches au ralenti »,
+  qui remet les réglages d'avant quand on le quitte. Le guideur et la suiveuse dans les libellés.
+- Ce qui ne change pas : aucun paramètre d'URL, les clés gardées dans le navigateur, la vue `bare=1`, le jeu, la
+  vitrine, le mouvement. `src/App.tsx` garde l'état et la scène ; son rendu passe par `PagePrincipale`
+  (`src/components/page/`). Retirés : `Controls`, `SortieGarconControls`, `SortieFilleControls`, `PlacementControl`,
+  `SoundControls`.
+- Vérifié : `docs/features/page-scene-panneau.feature` (dans `npm test`) et `scripts/mesure_page.mjs` (navigateur,
+  ordinateur, tablette et profils de téléphone de Playwright) : résultats dans la spec, « Résultat mesuré ».
+- Hors périmètre : les textes des transitions (`src/transitions.ts`) disent encore « leader » et « suiveur ».
+
 ## Jeu et vitrine utilisables sur téléphone (#186, 23 novembre 2026)
 
 - Premier lot de la simplification de la page. Sur téléphone, les panneaux du jeu couvraient 78 % de l'écran
@@ -20,8 +41,7 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   de haut) : rien sous la barre de Safari, les figures se commandent au doigt, la musique part au toucher.
 - Essayé par le propriétaire sur son téléphone le 23 novembre (version construite, servie sur le réseau local) : le
   jeu s'y joue.
-- Reste : la page principale, dont l'audit et trois organisations sont proposés au propriétaire (choix en attente),
-  et où la scène retient le doigt au téléphone.
+- Suite : la page principale, organisation A choisie le 24 novembre (#192, section ci-dessus).
 
 ## Kompa et semba : pas de base élus (#161, #162, 23 novembre 2026)
 

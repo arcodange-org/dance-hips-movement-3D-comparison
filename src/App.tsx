@@ -7,14 +7,10 @@ import { createDanceClock, cycleBeats, exportBeat, seekClock } from "./clock";
 import ContactViz from "./components/ContactViz";
 import SortieGarconContactViz from "./components/SortieGarconContactViz";
 import GridFloor from "./components/GridFloor";
-import Controls from "./components/Controls";
-import SortieFilleControls from "./components/SortieFilleControls";
-import PlacementControl from "./components/PlacementControl";
 import { DEFAULT_PLACEMENT, placementOf, type CouplePlacement } from "./placement";
 import { SORTIE_FILLE_BEATS, SORTIE_FILLE_PAIR_DZ, sortieFilleBeat, sortieFilleVariantOf, type SortieFilleVariant } from "./sortieFille";
-import SortieGarconControls from "./components/SortieGarconControls";
 import { SORTIE_GARCON_BEATS, SORTIE_GARCON_PAIR_DZ, DEFAULT_SORTIE_CONTRA, sortieGarconSettings, type SortieVariant } from "./sortieGarcon";
-import { InfoCard, PairInfoCard } from "./components/InfoCards";
+import PagePrincipale from "./components/page/PagePrincipale";
 import DemoOverlay, { DEMOS } from "./components/DemoOverlay";
 import OriginMarker from "./components/OriginMarker";
 import LineOfDance from "./components/LineOfDance";
@@ -29,7 +25,6 @@ import { PLACE_PAIR_DZ } from "./placePaire";
 import { parseVec3, buildShareUrl } from "./share";
 import { parseShareParams } from "./shareParams";
 import { DIR_LABELS, isDiagonal } from "./directions";
-import SoundControls from "./components/SoundControls";
 import { useMusic, type MusicSource } from "./music/useMusic";
 import { recordingOf } from "./music/recordings";
 import FilmDriver from "./components/FilmDriver";
@@ -542,200 +537,33 @@ export default function App() {
     );
   }
 
+  // #192 (docs/spec-page-scene-panneau.md): the page (tabs, scene, playback bar, settings panel) is laid out by
+  // `PagePrincipale`; the state, the URL parameters and the scene stay here.
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-6 space-y-4 max-w-6xl mx-auto">
-      <div>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-xl md:text-2xl font-bold tracking-tight">
-            Comparateur 3D des styles de danse
-          </h1>
-          {/* #69: the guide mode proof of concept (docs/spec-mode-guidage-poc.md). */}
-          <a href={`?mode=pair&guidage=1&style=${styleA}`}
-            className="rounded-xl bg-pink-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-pink-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-300">
-            Essayer le mode guidage : guidez votre partenaire
-          </a>
-        </div>
-        <p className="text-xs md:text-sm text-slate-400 mt-1">
-          {isSortieGarcon ? <>Sortie garçon : le leader avance et sort à sa gauche, puis rentre par un croisé.
-            La partenaire recule. Les cinq actions distinguent pieds posés et transferts d’appui ;
-            le marka final laisse le gauche du leader disponible. La ligne rose est la ligne de danse : elle passe par les deux danseurs.</> : isSortieFille ? <>
-            Le buste du leader ouvre le cadre pour guider le pas gauche du suiveur hors de la ligne.
-            Au troisième pas, le droit du suiveur avance en diagonale et se place à côté du droit du leader.
-            Le leader libère ensuite le passage au croisé.
-            La ligne rose est la ligne de danse : elle passe par les deux danseurs.</> : <>
-          Anatomie du bassin au pied (BodyParts3D), animation paramétrique illustrative. Le
-          curseur « Déplacement » passe du sur place à une amplitude latérale d'une largeur de
-          hanche (les pieds marchent quand Déplacement &gt; 0). Le tracé coloré visualise l'orbite
-          du centre du bassin. Mode « Observation hanche » : tempo lent (~32 bpm), buste masqué,
-          pour détailler le déhanché temps par temps.</>}
-
-        </p>
-      </div>
-
-      <fieldset className="min-w-0" disabled={exporting}>
-      <Controls
-        mode={mode}
-        onMode={handleMode}
-        styleA={styleA}
-        styleB={styleB}
-        onStyleA={setStyleA}
-        onStyleB={setStyleB}
-        playing={playing}
-        onPlaying={handlePlaying}
-        travel={travel}
-        onTravel={setTravel}
-        bpm={bpm}
-        onBpm={setBpm}
-        amp={amp}
-        onAmp={setAmp}
-        showTorso={showTorso}
-        onShowTorso={setShowTorso}
-        showContacts={showContacts}
-        onShowContacts={setShowContacts}
-        showMuscles={showMuscles}
-        onShowMuscles={setShowMuscles}
-        movement={movement}
-        showRepere={showRepere}
-        onShowRepere={setShowRepere}
-        showAppui={showAppui}
-        onShowAppui={setShowAppui}
-        plant={plant}
-        onPlant={setPlant}
-        onMovement={setMovement}
-        showLigne={showLigne}
-        onShowLigne={setShowLigne}
-        iso={iso}
-        onIso={setIso}
-        cadre={cadre}
-        onCadre={setCadre}
-        dir={dir}
-        onDir={setDir}
-        showBoussole={showBoussole}
-        onShowBoussole={setShowBoussole}
-        onShare={onShare}
-        copied={copied}
-        ghostSel={ghostSel}
-        onGhostSel={setGhostSel}
-        onExport={exportCycle}
-      />
-      {isSortieGarcon && <SortieGarconControls clock={clock} variant={sortieVariant}
-        onVariant={setSortieVariant} contra={sortieContra} onContra={setSortieContra} onPlaying={setPlaying} />}
-      {hasPlacement && <PlacementControl clock={clock} placement={placement}
-        onPlacement={setPlacement} onPlaying={setPlaying} quarts={isQuartsPaire} ida={isIdaPaire}
-        contraposition={contraposition} onContraposition={setContraposition} />}
-      {isIdaPaire && <label className="mt-3 flex items-start gap-2 text-sm">
-        <input type="checkbox" className="mt-1" checked={idaVirgula} onChange={event => setIdaVirgula(event.target.checked)} />
-        <span>Virgula du leader (effet de style) : quand son gauche avance, il se pose perpendiculaire,
-          pointe à gauche, talon près du droit ; son bassin s’ouvre et son buste garde sa direction.</span>
-      </label>}
-      {isSortieFille && <SortieFilleControls clock={clock} variant={sortieFilleVariant}
-        onVariant={setSortieFilleVariant} onPlaying={setPlaying} />}
-      <SoundControls
-        status={music.status}
-        wanted={soundWanted}
-        onToggle={() => { setSoundWanted(false); void music.toggle(); }}
-        musicStyleKey={musicStyleKey}
-        isCompare={isCompare}
-        musicSide={musicSide}
-        onMusicSide={setMusicSide}
-        styleA={styleA}
-        styleB={styleB}
-        bpm={bpm}
-        onBpm={setBpm}
-        muted={musicMuted}
-        onMuted={setMusicMuted}
-        volume={musicVolume}
-        onVolume={setMusicVolume}
-        recording={music.recording}
-        hasRecording={recordingOf(musicStyleKey) !== undefined}
-        source={musicSource}
-        onSource={setMusicSource}
-        unavailable={music.unavailable}
-        loading={music.loading}
-      />
-      </fieldset>
-      {exporting && <p role="status">Export du cycle complet en cours…</p>}
-      {exportError && <p role="alert">{exportError}</p>}
-
-      <div
-        className="relative rounded-2xl overflow-hidden border border-slate-800"
-        style={{ height: 540 }}
-      >
-        {renderScene(false, music.driver)}
-        <div className="absolute bottom-3 left-3 flex gap-2 pointer-events-none">
-          <span
-            className="px-2 py-0.5 rounded-md text-[11px] font-semibold text-slate-950"
-            style={{ background: STYLES[styleA].color }}
-          >
-            {isPair ? "Guideur · " : ""}
-            {STYLES[styleA].label}
-          </span>
-        </div>
-        {(isCompare || isPair) && (
-          <div className="absolute bottom-3 right-3 pointer-events-none">
-            <span
-              className="px-2 py-0.5 rounded-md text-[11px] font-semibold text-slate-950"
-              style={{ background: STYLES[isPair ? styleA : styleB].color }}
-            >
-              {isPair ? "Suiveur · " : ""}
-              {STYLES[isPair ? styleA : styleB].label}
-            </span>
-          </div>
-        )}
-        <div className="absolute top-3 right-3 text-[10px] text-slate-500 pointer-events-none">
-          glisser pour orbiter, molette pour zoomer
-        </div>
-        {showAppui && (isCompare || isFiveActionFigure) && hud && hudB && (
-          <div className="absolute top-10 right-3 pointer-events-none bg-slate-900/70 rounded-md px-2 py-1 space-y-1.5 max-w-[90%]">
-            <Gauge label={`${isFiveActionFigure ? "Leader" : "A"} · ${STYLES[styleA].label}`} color={STYLES[styleA].color} hud={hud} />
-            <Gauge label={`${isFiveActionFigure ? "Partenaire" : "B"} · ${STYLES[isPair ? styleA : styleB].label}`} color={STYLES[isFiveActionFigure ? styleA : styleB].color} hud={hudB} />
-          </div>
-        )}
-        {showAppui && !isCompare && !isFiveActionFigure && hud && (
-          <div className="absolute top-10 right-3 pointer-events-none text-[11px] font-mono text-slate-200 bg-slate-900/70 rounded-md px-2 py-1 space-y-0.5">
-            <div>
-              appuis indicatifs · D {Math.round(hud.loadR * 100)}% · G {Math.round(hud.loadL * 100)}%
-            </div>
-            <div>
-              genou D {hud.kneeR.toFixed(0)}° · G {hud.kneeL.toFixed(0)}°
-            </div>
-            <div>roll bassin {hud.roll.toFixed(1)}° · inclinaison buste {(hud.trunkTilt ?? 0).toFixed(1)}°</div>
-            <div>
-              direction {DIR_LABELS[hud.facing ?? 0]}
-              {isDiagonal(hud.facing ?? 0) ? " (diago)" : ""} · pos/ repère : ligne{" "}
-              {(hud.posX ?? 0) >= 0 ? "+" : ""}
-              {(hud.posX ?? 0).toFixed(2)} m, travers {(hud.posZ ?? 0) >= 0 ? "+" : ""}
-              {(hud.posZ ?? 0).toFixed(2)} m
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className={"grid gap-4 " + (isPair ? "md:grid-cols-3" : isCompare ? "md:grid-cols-2" : "")}>
-        <InfoCard sortieGarcon={isSortieGarcon}
-          figureSteps={isSortieFille ? (sortieFilleVariant === "back"
-            ? "Avance G, recul D, recul G puis D, marka G."
-            : "Virgula G (posé perpendiculaire), crochet D, recul G puis D, marka G.") : undefined} styleKey={styleA} position={isPair ? "guideur" : isCompare ? "gauche" : ""} />
-        {(isCompare || isPair) && (
-          <InfoCard sortieGarcon={isSortieGarcon}
-            figureSteps={isSortieFille ? (sortieFilleVariant === "back"
-              ? "Recul D, avance G en diagonale gauche, diagonale D, croisé G, marka D."
-              : "Recul D, sortie G à gauche, diagonale D, croisé G, marka D.") : undefined}
-            styleKey={isPair ? styleA : styleB} position={isPair ? isFiveActionFigure ? "partenaire" : "suiveur (miroir)" : "droite"} />
-        )}
-        {isPair && <PairInfoCard sortieGarcon={isSortieGarcon} sortieFille={isSortieFille} />}
-      </div>
-
-      <p className="text-[11px] text-slate-500 leading-relaxed">
-        Anatomie réelle du bassin au pied : os coxaux, sacrum, fémurs, patellas, tibias, fibulas et
-        les 52 os des pieds, d'après BodyParts3D (réduction polygonale 99 %), © The Database Center
-        for Life Science (DBCLS), licence CC BY-SA 2.1 Japan (
-        https://dbarchive.biosciencedbc.jp/en/bodyparts3d/license.html). Buste stylisé en
-        transparence au-dessus du sacrum ; couche musculaire optionnelle issue du même jeu de
-        données BodyParts3D (même attribution CC BY-SA 2.1 Japan © DBCLS). « Déplacement » :
-        0 = sur place, 100 % = largeur de hanche (±17 cm). Réglages sauvegardés localement
-        (localStorage).
-      </p>
-    </div>
+    <PagePrincipale
+      scene={renderScene(false, music.driver)}
+      clock={clock}
+      etat={{ mode, styleA, styleB, movement, playing, bpm, amp, travel, dir, showTorso, showMuscles, showAppui, ghostSel,
+        showRepere, showBoussole, showLigne, showContacts, plant, iso, cadre, sortieVariant, sortieContra, sortieFilleVariant,
+        placement, contraposition, idaVirgula }}
+      on={{ mode: handleMode, styleA: setStyleA, styleB: setStyleB, movement: setMovement, playing: handlePlaying, bpm: setBpm,
+        amp: setAmp, travel: setTravel, dir: setDir, showTorso: setShowTorso, showMuscles: setShowMuscles, showAppui: setShowAppui,
+        ghostSel: setGhostSel, showRepere: setShowRepere, showBoussole: setShowBoussole, showLigne: setShowLigne,
+        showContacts: setShowContacts, plant: setPlant, iso: setIso, cadre: setCadre, sortieVariant: setSortieVariant,
+        sortieContra: setSortieContra, sortieFilleVariant: setSortieFilleVariant, placement: setPlacement,
+        contraposition: setContraposition, idaVirgula: setIdaVirgula }}
+      son={{ status: music.status, wanted: soundWanted, toggle: () => { setSoundWanted(false); void music.toggle(); },
+        styleKey: musicStyleKey, side: musicSide, onSide: setMusicSide, muted: musicMuted, onMuted: setMusicMuted,
+        volume: musicVolume, onVolume: setMusicVolume, recording: music.recording,
+        hasRecording: recordingOf(musicStyleKey) !== undefined, source: musicSource, onSource: setMusicSource,
+        unavailable: music.unavailable, loading: music.loading }}
+      mesures={hud}
+      mesuresB={hudB}
+      onShare={onShare}
+      copied={copied}
+      onExport={exportCycle}
+      exporting={exporting}
+      exportError={exportError}
+    />
   );
 }

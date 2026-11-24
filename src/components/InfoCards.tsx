@@ -24,7 +24,7 @@ export function InfoCard({ styleKey, position, sortieGarcon = false, figureSteps
 export function PairInfoCard({ sortieGarcon = false, sortieFille = false }: { sortieGarcon?: boolean; sortieFille?: boolean }) {
   if (sortieFille) return <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4 space-y-2">
     <div className="font-semibold">Cuisses droites · sortie fille</div>
-    <p className="text-xs text-slate-300">Au troisième arrêt, le droit du suiveur se pose à côté du droit du leader, à sa droite.</p>
+    <p className="text-xs text-slate-300">Au troisième arrêt, le droit de la suiveuse se pose à côté du droit du guideur, à sa droite.</p>
     <p className="text-xs text-slate-400">Le bleu indique la proximité de deux enveloppes de cuisse.
       Les repères représentent une distance illustrative.</p>
   </div>;

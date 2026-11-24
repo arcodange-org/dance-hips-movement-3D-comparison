@@ -25,7 +25,7 @@ tempo, « une clave fausse est pire que pas de clave » : chaque ligne garde son
 | `src/music/scheduler.ts` | Fonctions pures : notes d'une fenêtre de temps `[de, à)`, humanisation déterministe ; transport audio (ancre temps ↔ temps musical) ; moteur de planification sur un port de sortie abstrait | oui (sortie factice) |
 | `src/music/synth.ts` | Port Web Audio : recettes de timbres (`KICK`, `RIM`, `SHAKER`, `SCRAPER`, `CONGA`, `BASS`, `PAD`…), gain maître, annulation des notes futures | non (navigateur) |
 | `src/music/useMusic.ts` | Hook React : crée l'`AudioContext` au clic, boucle de planification (25 ms, avance ~120 ms), pilote d'horloge pour `DanceTransport` | non |
-| `src/components/SoundControls.tsx` | Interface « Son » | non |
+| `src/components/page/Panneau.tsx` (tiroir « Son »), `BarreLecture.tsx` | Interface « Son » (#192 ; avant : `SoundControls.tsx`) | non |
 
 ### Grille
 

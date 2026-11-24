@@ -42,6 +42,10 @@ automatique, en musique, au tempo de la piste ; `scripts/test_vitrine.mjs`).
 Jeu et vitrine sur téléphone (#186) : [spec](docs/spec-jeu-telephone.md) ; commandes en trois dispositions (téléphone tenu droit, couché, écran large :
 `src/jeuHud.ts` pur, `src/components/jeu/`), rien n'est posé sur le couple (`CadreLibre`), boutons de 44 px au moins ; `docs/features/jeu-telephone.feature` ;
 l'interface réelle se mesure dans un navigateur avec les profils de téléphone de Playwright : `scripts/mesure_jeu_telephone.mjs` (hors `npm test`).
+Page principale (#192) : [spec](docs/spec-page-scene-panneau.md) ; la scène toujours visible, sa barre de lecture, les réglages dans un panneau à tiroirs ;
+onglets « Seul · Comparer · En couple · Jeu » (`src/page.ts` pur : inventaire `COMMANDES` des commandes et de leur place, `src/components/page/`) ;
+chaque commande porte son nom (`data-commande`) ; `docs/features/page-scene-panneau.feature` ; mesure dans un navigateur : `scripts/mesure_page.mjs` (hors `npm test`).
+`src/App.tsx` garde l'état, la lecture de l'adresse, la scène et la vue `bare=1` ; aucun paramètre d'URL renommé.
 Vidéo éducative (#155) : [spec](docs/spec-video-pas-de-base.md) ; la chaîne `scripts/video/` (scénario, voix Phonon locales, musiques,
 capture image par image avec `film=1` — `src/film.ts`, `src/components/FilmDriver.tsx` —, habillage, montage) régénère la vidéo ; la
 narration ne dit que ce que porte la fiche de faits `docs/video/faits-pas-de-base.md` (mesures du modèle : `scripts/video/mesurer_pas.mjs`,

@@ -397,6 +397,12 @@ degrés autour de la cible (0 = +Z, 90 = +X = E/ligne de danse) et **zoom** = di
 en m — écrits aussi dans l'URL par « Partager la vue », prioritaires sous `campos`/`camtgt`),
 `&boussole=0` (masque la boussole 8 directions).
 
+**La page (#192)** : onglets « Seul · Comparer · En couple · Jeu » ; la scène se voit dès l'ouverture, avec sa barre de
+lecture (lecture, rejouer, pas de la figure, tempo, son) ; les réglages sont dans un panneau : le style, la figure et ses
+réglages, puis les tiroirs « Corps », « Mouvement », « Repères au sol », « Son » et « Mise au point ». Sur un téléphone tenu
+droit, la scène reste en haut de l'écran pendant qu'on règle. Les options ci-dessous portent leurs noms d'avant ; le nom
+actuel et la place de chacune sont dans [la spec](docs/spec-page-scene-panneau.md) (« Les mots », « Inventaire »).
+
 Options d'interface : **Vue « Squelette » / « + Muscles (tissus) »** (bascule segmentée ; couche musculaire BodyParts3D greffée sur les pivots
 osseux, rouge semi-transparent — la chaîne d'appui sol→genoux→hanches reste visible dans les deux vues), **Boussole 8 directions** (4 cardinales + 4 diago au repère fixe ; E-W = ligne de danse ; la direction du buste et la position / repère s'affichent dans le HUD), **🔗 Partager la vue** (copie l'URL avec tous les paramètres + l'angle caméra `campos=`/`camtgt=` + l'angle/zoom lisibles `angle=`/`zoom=`), **Déplacement (options exclusives, radio)** : Aucun / **Corridinho** (après 1/4 de tour à droite
 puis à gauche, cercle au sol autour du repère fixe) / **Quarts de tour** (4 = tour complet, pivots
@@ -435,7 +441,8 @@ sur une police (ex. DejaVu) — sinon aucun texte n'est rendu dans les vidéos.
   au lieu de glisser). **Amendement 2026-11-18 (demandé)** : à 0 (sur place), les pieds restent
   **plantés au sol** par défaut (contact constant, petit pivot sur la plante du pied /
   « semi-pointe » autorisé via `plantBlend`) ; `plant=0` restaure l'ancien comportement glissé.
-- **Modes** : Solo / Observation hanche (lent, ~32 bpm, buste masqué) / Comparaison /
+- **Modes** (onglets « Seul », « Comparer », « En couple » depuis #192 ; « Observation hanche » est le préréglage
+  « Hanches au ralenti ») : Solo / Observation hanche (lent, ~32 bpm, buste masqué) / Comparaison /
   Face à face (contacts vert/rouge poitrine/bassin/genoux via `contacts=`, suiveur = miroir exact
   du guideur — pas de retard —, isolation ghost). La comparaison de styles différents se fait en
   mode **Comparaison côte à côte** (`styleB` n'est utilisé qu'en `mode=compare`).
@@ -453,10 +460,12 @@ sur une police (ex. DejaVu) — sinon aucun texte n'est rendu dans les vidéos.
 - `src/rigJoints.ts` — positions du buste partagées entre le rendu et les tests.
 - `src/music/` — son synthétisé : `patterns.ts` (grilles par style, niveau de preuve),
   `scheduler.ts` (fenêtres de notes, transport audio, moteur testable), `synth.ts` (timbres
-  Web Audio), `useMusic.ts` (hook, pilote d'horloge) ; `src/components/SoundControls.tsx`.
+  Web Audio), `useMusic.ts` (hook, pilote d'horloge) ; réglages dans le tiroir « Son » de la page.
 - `src/components/Rig.tsx` — montage GLB/buste, apparence, appuis et traînée du bassin.
 - `CONTEXT.md` — état du projet + méthode anti-amnésie + procédure de reprise de session.
-- `src/components/Controls.tsx`, `InfoCards.tsx`, `ContactViz.tsx`, `GridFloor.tsx`,
+- `src/page.ts`, `src/components/page/` — la page principale : onglets, scène et barre de lecture, panneau
+  et tiroirs ([spec](docs/spec-page-scene-panneau.md)).
+- `src/components/InfoCards.tsx`, `ContactViz.tsx`, `GridFloor.tsx`,
   `DemoOverlay.tsx` (habillage motion design des captures `?demo=`), `OriginMarker.tsx`
   (repère fixe au sol), `LineOfDance.tsx` (ligne de danse, axe x au repère),
   `src/cameras.ts` (presets caméra `cam=`, `solid=`).
