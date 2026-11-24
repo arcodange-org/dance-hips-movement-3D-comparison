@@ -28,8 +28,8 @@ export type BasicStep = boolean | "umDois";
 // Courbes f(temps) issues des sources documentées dans docs/styles-de-danse.md :
 // kizomba et semba, danseur seul = le « 1 2 » (#196 : écart, marca, double rebond ; la figure
 // « Sur place » garde leur pas d'avant, pieds plantés : semba, le pas élu #162) ; kizomba en
-// couple = « 2 temps » latéral avec marqua ; kompa = sur place, la hanche qui s'assoit (pas élu,
-// #161) ; en couple et en déplacement, leurs modèles d'avant ; tarraxinha = sur
+// couple = « 2 temps » latéral avec marqua ; kompa = sur place, un appui par temps (#195), la hanche qui
+// s'assoit (pas élu, #161) ; en couple et en déplacement, leurs modèles d'avant ; tarraxinha = sur
 // place, isolations du bassin ; suave = « 8 » au sol + talon levé + vague L5→tête ;
 // zouk = basic sur place (slow-quick-quick) + cambré + ouverture de hanche.
 // En mode Face à face, les « sorties garçon / fille » (5 temps, aller-retour latéral)
@@ -131,7 +131,19 @@ export const KOMPA_ELECTED = "assisBuste";
 /** The variant asked for by the address (`?kompa=`): undefined, none, the basic step is the elected one;
  * null (`ancien`), the model of before the votes; else one of `KOMPA_EIGHTS`. Read by the kompa style. */
 export const KOMPA_PROTO: { eight: KompaEight | null | undefined } = { eight: undefined };
-export const setKompaProto = (name: string | null | undefined) => { KOMPA_PROTO.eight = name === "ancien" ? null : (name && KOMPA_EIGHTS[name]) || undefined; };
+export const setKompaProto = (name: string | null | undefined) => {
+  KOMPA_PROTO.eight = name === "ancien" ? null : name === "deuxTemps" ? KOMPA_EIGHTS[KOMPA_ELECTED] : (name && KOMPA_EIGHTS[name]) || undefined;
+};
+/** #195 (rule of 24 Nov. 2026, R40): the kompa is danced one beat per support, not two. Beats per weight
+ * arrival of the basic step: the elected step, voted at two beats per support, keeps its poses and runs
+ * twice as fast. `?kompa=deuxTemps` shows it as voted; the other variants and `ancien` keep their two beats,
+ * and so does the kompa in pair and in travel (#187). */
+export const KOMPA_BEATS = 1;
+/** The beat on which the kompa's step is read. The step voted on 23 Nov. lands its weight on the clock's
+ * beats 1 and 3 (motion beats 0.5 and 2.5); at one beat per support it is read at `2c − 1` for the clock's
+ * beat `c`: the weight lands on every beat, on the left foot on the odd ones. `b`: motion beat (clock − 0.5). */
+export const kompaBeat = (b: number, base?: BasicStep): number =>
+  base && KOMPA_PROTO.eight === undefined ? 0.5 + (b - 0.5) * 2 / KOMPA_BEATS : b;
 const kompaStep = (base: BasicStep | undefined): KompaEight | null => base ? (KOMPA_PROTO.eight === undefined ? KOMPA_EIGHTS[KOMPA_ELECTED] : KOMPA_PROTO.eight) : null;
 export function kompaSupport(b: number): number {
   const c = ((((b + 0.5) % 4) + 4) % 4), d = KOMPA.transition;
@@ -348,15 +360,18 @@ export const STYLES: Record<string, StyleDef> = {
     color: "#f87171",
     posture: { lean: 0.08, knee: 0.2 },
     bullets: [
-      "Sur place : pas sur 1 et 3, touche sans poids sur 2 et 4 (un transfert tous les deux temps)",
+      "Sur place : un appui par temps, le poids change de pied à chaque temps",
       "La hanche s'assoit quand le poids arrive, vers l'arrière et l'extérieur, puis remonte en tournant",
       "Jambes en alternance : celle qui reçoit le poids plie, puis se tend ; talon du pied libre à peine levé",
       "Buste légèrement penché en avant, qui suit le bassin",
     ],
     // #62 (R21; docs/musique/kompa.md, Haitian Music Zone: step 1, touch 2, step 3, touch 4): one
     // transfer every two beats, the weight landing on 1 and 3 (motion beats 0,5 and 2,5, see ON_BEAT_SHIFT).
-    support: (b) => kompaSupport(b),
-    apply: (r, b, a, _w, base) => {
+    // #195: the basic step danced alone lands its weight on every beat (`kompaBeat`); in pair and in
+    // travel the two beats per support stay.
+    support: (b, base) => kompaSupport(kompaBeat(b, base)),
+    apply: (r, clock, a, _w, base) => {
+      const b = kompaBeat(clock, base);
       // The « 8 »: the lateral swing never waits (its zeros are the support's, at motion beats 0.3 and 2.3),
       // and the pelvis goes forward as it leaves for the support, back as it returns.
       const eight = kompaStep(base), turn = 2 * Math.PI * (b - (0.5 - KOMPA.transition / 2)) / 4;
@@ -433,8 +448,8 @@ export const STYLES: Record<string, StyleDef> = {
       // `ahead` (m): the pelvis stands that far forward over the feet (after `iso`, which follows its sway only).
       if (eight?.lean) { if (!eight.sit) r.spine.rotation.x += eight.lean * a; r.head.rotation.x -= 0.5 * eight.lean * a; }
       if (eight?.ahead) r.root.position.z += eight.ahead * a;
-      // Hip check on the touch (2 and 4).
-      if (((b + 0.5) % 2 + 2) % 2 >= 1.5) r.pelvis.position.x += 0.008 * S1(b) * a;
+      // Hip check on the touch (2 and 4). At one beat per support (#195) there is no touch left, hence no check.
+      if (b === clock && ((b + 0.5) % 2 + 2) % 2 >= 1.5) r.pelvis.position.x += 0.008 * S1(b) * a;
     },
   },
   tarraxinha: {

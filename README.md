@@ -79,13 +79,15 @@ remonte en tournant ; les jambes alternent ; le buste suit le bassin et se pench
 dépassent plus. Depuis le 24 novembre, le semba seul danse le « 1 2 » ci-dessus ; son pas élu sur place est la figure
 « Sur place ».
 
-| Kompa : un transfert tous les deux temps | Semba : un rebond par temps, deux arrivées sur chaque pied |
+| Kompa : un appui par temps | Semba : un rebond par temps, deux arrivées sur chaque pied |
 |---|---|
-| ![Kompa, pas de base élu](docs/gifs/election-kompa-assisBuste.gif) | ![Semba, pas de base élu](docs/gifs/election-semba-parCote.gif) |
+| ![Kompa, pas de base élu, un appui par temps](docs/gifs/kompa-un-temps.gif) | ![Semba, pas de base élu](docs/gifs/election-semba-parCote.gif) |
 
 <details><summary>Détails & source</summary>
 
-Films de l'élection (`scripts/capture_session_gif.mjs`, couche des muscles, 90 et 130 bpm). Les dix tours, leurs
+Films pris par `scripts/capture_session_gif.mjs` (couche des muscles, 90 et 130 bpm). Le kompa a été voté à deux
+temps par appui ; depuis #195 il se danse sur un temps par appui, mêmes poses, deux fois plus vite (`?kompa=deuxTemps`
+montre le pas tel que voté). Les dix tours, leurs
 candidats, les votes et les mesures (genoux, posture, accélération du bassin) sont dans
 [`docs/elections/ginga-huit.md`](docs/elections/ginga-huit.md) ; le chemin des hanches se trace avec
 `scripts/tracer_hanches.mjs`. Les autres variantes restent visibles par `?style=kompa&kompa=…` et

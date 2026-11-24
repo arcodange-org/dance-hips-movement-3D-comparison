@@ -66,7 +66,8 @@ le « 8 » des hanches (#159, [spec](docs/spec-ginga-huit.md)) : prototypes `GUI
 hanches dans les trois vues : `scripts/tracer_hanches.mjs` ; GIF du mode jeu en un seul chargement de page :
 `scripts/capture_session_gif.mjs`. Kompa (#161) et semba (#162) : leur pas de base, danseur seul sur place, est le pas élu
 (`KOMPA_ELECTED`, `SEMBA_ELECTED` ; drapeau `base` de `StyleDef.apply`) ; variantes par `?kompa=`, `?semba=` (`ancien` : avant les
-votes) ; en couple et en déplacement, l'ancien modèle ; le traceur mesure aussi les genoux et la posture.
+votes) ; en couple et en déplacement, l'ancien modèle ; le traceur mesure aussi les genoux et la posture. Le kompa seul
+se danse sur un temps par appui (#195, R40 : `KOMPA_BEATS`, `kompaBeat` ; `?kompa=deuxTemps` : le pas tel que voté).
 Pas de base « 1 2 » de la kizomba et du semba seuls (#196, R42, [spec](docs/spec-pas-de-base-1-2.md)), élu le 24 novembre : `UM_DOIS_ELECTED`
 (`src/umDois.ts` pur, `applySit` et `UM_DOIS` dans `src/styles.ts`, `scripts/test_um_dois.mjs`) ; l'ancien pas est la figure « Sur place » (`surPlace`).
 Transfert de poids continu (#167, R34 : ni saccade, ni téléportation, ni relais soudain) : [spec](docs/spec-transfert-continu.md) ;
