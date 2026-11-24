@@ -11,6 +11,7 @@
  * Tour des mains (#179) : `mainsCote` choisie le 23 novembre 2026, devenue le comportement et retirée ;
  * `mainsBasses` reste filmable.
  * Bras du cadre (#185) : le coude levé de la suiveuse choisi le 23 novembre 2026 ; `coudeBas` retiré (#190).
+ * Tenue des mains (#199) : `paumeCiel`, demandée le 24 novembre 2026, à élire contre la tenue sur le côté.
  */
 export const ESSAIS = {
   /** Témoin : ne change rien. Sert à filmer le comportement actuel image par image hors du mode paire. */
@@ -18,6 +19,9 @@ export const ESSAIS = {
   /** #179 : les mains jointes sur le côté du couple, plus bas et plus près, coudes détendus, avec la prise du
    * 22 novembre (l'attitude choisie les tient au niveau des épaules, emboîtées). */
   mainsBasses: "mains jointes sur le côté du couple, plus bas",
+  /** #199 : la paume gauche du guideur vers le ciel, son poignet plié vers sa gauche (main à 120° de l'avant-bras) ;
+   * la main de la suiveuse posée dessus comme dans la tenue sur le côté. */
+  paumeCiel: "paume du guideur vers le ciel, main de la suiveuse posée dessus",
 } as const;
 export type Essai = keyof typeof ESSAIS;
 

@@ -117,8 +117,27 @@ Ces amplitudes sont des paramètres de ce modèle, pas des normes cliniques ni d
     donc le même, tourné avec la main du guideur : ses quatre doigts entre le pouce et l'index du guideur, paume
     contre paume, sa paume vers le sol.
 
-  Filmable avec `?essai=paumeCiel` ; sans ce paramètre rien ne change. Mesures (`ESSAI=paumeCiel node
-  scripts/mesure_essai_mains.mjs`) et images : [dossier de l'élection](elections/2026-11-24-paume-ciel/README.md).
+  Comment c'est posé (`SKYWARD`) : le coude du guideur tend presque où il tend dans la tenue sur le côté (`elbow`, un
+  peu plus en avant), 25 cm sous l'épaule ; son avant-bras monte alors presque droit, la main pliée vers sa gauche.
+  L'avant-bras qui sert à tourner les doigts est lu sur la seule place de la paume (le solveur du bras, pour une paume à
+  la distance que laisse une main pliée de 60°), pas sur le bras qui en résulte : les deux pouvaient basculer ensemble
+  d'un côté à l'autre entre deux images dans la sortie fille, où la main revient à 14 cm de l'épaule. Pour la même
+  raison, les doigts ne pointent jamais derrière lui (`heading`) et une supination que l'avant-bras n'a pas reste à
+  sa borne au lieu de passer à l'autre bout de la pronation (`supination`, paramètre `flip` de `take`). Le poignet du
+  guideur peut plier jusqu'à 80° dans cette tenue (`wrist`) : il en prend 71° à 79°, au bord de ce que permet un
+  poignet.
+
+  | `ESSAI=paumeCiel node scripts/mesure_essai_mains.mjs` | Sur place | Dans les figures |
+  |---|---|---|
+  | Paume du guideur / ciel | 0° | 0° |
+  | Main du guideur / son avant-bras | 120° | 116° à 121° |
+  | Doigts du guideur, vers sa gauche (depuis le cap de l'avant-bras) | 41° à 43° | −5° à 61° |
+  | Paume de la suiveuse / sol | 7° | 6° à 7° |
+  | Jeu entre les os des deux mains et des avant-bras | 0 cm (contact) | 0 cm ; moins d'un demi-millimètre de recouvrement à un instant de la sortie fille |
+  | Poignets | guideur 75°, suiveuse 15° à 20° | guideur 71° à 79°, suiveuse 2° à 72° (limite de la prise, dans la sortie fille) |
+
+  Filmable avec `?essai=paumeCiel` ; sans ce paramètre rien ne change. Images : [dossier de
+  l'élection](elections/2026-11-24-paume-ciel/README.md).
 - **La main au dos, sur l'omoplate (#185).** Le point du cadre, au bord du dos, est la place du poignet ; la paume
   se pose plus près de la colonne, sur le corps de l'omoplate, à plat, les doigts vers la colonne (`BACK`). Mesures et
   gardes : [cadre](cadre/spec-implementation.md#la-main-droite-du-guideur-sur-lomoplate-le-bras-de-la-suiveuse-par-dessus-185-23-novembre-2026).

@@ -2,6 +2,7 @@
 // Ce n'est pas un test : il chiffre ce que montrent les images (kizomba, quinconce, plexus, amplitude 1).
 // Usage : node scripts/mesure_essai_mains.mjs                        (attitude choisie : sur le côté, milieu des mains à l'épaule, emboîtées)
 //         ESSAI=mainsBasses node scripts/mesure_essai_mains.mjs      (candidat : sur le côté, plus bas, prise du 22 novembre)
+//         ESSAI=paumeCiel node scripts/mesure_essai_mains.mjs        (candidat #199 : paume du guideur vers le ciel, main de la suiveuse dessus)
 // Même montage du couple que scripts/test_upper_body.mjs.
 import { buildSync } from "esbuild";
 import { readFileSync, unlinkSync } from "node:fs";
@@ -51,7 +52,7 @@ for (const [label, dz, beats, opt] of cases) {
   const pair = [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];
   const uppers = pair.map(f => new api.UpperBody(f.r, model, options));
   const range = () => [Infinity, -Infinity], add = (r, x) => { r[0] = Math.min(r[0], x); r[1] = Math.max(r[1], x); };
-  const seen = { height: range(), top: range(), play: Infinity, pair: "", miss: 0, right: range(), towards: range(), tilt: [range(), range()], grip: range(), wrist: [range(), range()], facing: range(), joined: 0, n: 0 };
+  const seen = { height: range(), top: range(), play: Infinity, pair: "", miss: 0, right: range(), towards: range(), tilt: [range(), range()], grip: range(), wrist: [range(), range()], facing: range(), sky: range(), angle: range(), outward: range(), down: range(), pronation: range(), joined: 0, n: 0 };
   for (let b = 0; b <= beats; b += 1 / 16) {
     pair.forEach((f, i) => api.applyPose(f.r, f.model, b, { ...opt, embrace: true, placement: "quinconce", follower: !!i, styleKey: "kizomba", amp: 1, plexus: true }));
     pair.forEach((f, i) => api.solveFrame(f.r, pair[1 - i].r, !!i));
@@ -70,6 +71,16 @@ for (const [label, dz, beats, opt] of cases) {
     add(seen.tilt[0], his.fingers.angleTo(UP)); add(seen.tilt[1], hers.fingers.angleTo(UP));
     add(seen.grip, hers.palm.distanceTo(his.palm)); add(seen.facing, Math.PI - hers.normal.angleTo(his.normal));
     add(seen.wrist[0], uppers[0].state.L.wrist); add(seen.wrist[1], uppers[1].state.R.wrist);
+    // #199 : la paume du guideur par rapport au ciel ; l'angle entre son avant-bras et sa main (180° : dans le
+    // prolongement) ; ses doigts vers sa gauche (vers le dehors) par rapport au cap de son avant-bras ; la paume de la
+    // suiveuse par rapport au sol.
+    const wristL = world(uppers[0].joints.get("handL")), elbowL = world(uppers[0].joints.get("fore0L"));
+    add(seen.sky, his.normal.angleTo(UP)); add(seen.down, hers.normal.angleTo(UP.clone().negate()));
+    add(seen.angle, elbowL.clone().sub(wristL).angleTo(his.fingers));
+    // Vu de dessus, un angle positif tourne vers la gauche de l'avant-bras (vers le dehors pour un bras gauche).
+    const heading = wristL.clone().sub(elbowL).setY(0).normalize(), fingersH = his.fingers.clone().setY(0).normalize();
+    add(seen.outward, Math.atan2(new THREE.Vector3().crossVectors(heading, fingersH).y, heading.dot(fingersH)));
+    add(seen.pronation, uppers[0].state.L.pronation);
     // Les os des deux mains (et des avant-bras) ne se traversent pas : jeu minimal entre leurs segments, rayons d'os ôtés.
     seen.miss = Math.max(seen.miss, uppers[1].state.R.error);
     for (const A of bones(uppers[1], "R")) for (const B of bones(uppers[0], "L")) {
@@ -84,6 +95,7 @@ for (const [label, dz, beats, opt] of cases) {
   table.push({ figure: label, "mains jointes (échantillons)": `${seen.joined} / ${seen.n}`, "milieu des mains / épaules (cm)": span(seen.height, cm),
     "haut des doigts / épaules (cm)": span(seen.top, cm), "paume du guideur / sa droite (°)": span(seen.right, deg), "/ la suiveuse (°)": span(seen.towards, deg),
     "doigts / verticale, guideur (°)": span(seen.tilt[0], deg), "suiveuse (°)": span(seen.tilt[1], deg),
+    "paume guideur / ciel (°)": span(seen.sky, deg), "avant-bras / main (°)": span(seen.angle, deg), "doigts vers sa gauche (°)": span(seen.outward, deg), "paume suiveuse / sol (°)": span(seen.down, deg), "pronation guideur (°)": span(seen.pronation, deg),
     "paumes (cm)": span(seen.grip, cm), "face à face, à (°)": span(seen.facing, deg),
     "poignet guideur (°)": span(seen.wrist[0], deg), "poignet suiveuse (°)": span(seen.wrist[1], deg),
     "jeu minimal entre os (cm)": seen.joined ? cm(seen.play) : "—", "au plus près": seen.pair, "sa paume manque sa place de (mm)": +(seen.miss * 1000).toFixed(1) });
