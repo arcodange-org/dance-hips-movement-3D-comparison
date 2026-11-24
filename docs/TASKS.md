@@ -457,3 +457,12 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Vu dans Safari du simulateur d'iPhone (iOS 26), tenu droit et couché.
 - [x] Captures avant et après (`docs/captures/page-scene-panneau/`).
 - [ ] Textes des transitions (`src/transitions.ts`) : « leader » et « suiveur » à aligner sur « guideur » et « suiveuse » (lot à part, partagé avec le jeu).
+
+## Pas de base « 1 2 » de la kizomba et du semba (#196)
+
+- [x] Issue #196 ; spec poussée en premier ([spec](spec-pas-de-base-1-2.md)) ; règle R41.
+- [ ] Prototype, danseur seul : `src/umDois.ts` (pieds, port du corps), hanche du semba élu partagée avec la kizomba,
+  `?unDeux=<candidat>`.
+- [ ] Mesures (traceur des hanches, appuis, écart, hauteur du bassin) et tests.
+- [ ] Films des candidats, page de vote : l'écart, la hanche de la kizomba, ce que la page montre.
+- [ ] Après le vote : la figure dans la page, le partage d'adresse ; puis le couple (#187).
