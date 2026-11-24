@@ -461,6 +461,6 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 ## Textes des pas : guideur et suiveuse (#194)
 
 - [x] Issue #194 et spec poussée en premier ([spec](spec-transitions.md), « Les mots »).
-- [ ] `src/transitions.ts` : « guideur » et « suiveuse » dans tous les textes, avec leurs accords.
-- [ ] `scripts/test_transitions.mjs` : la règle « jamais avant le guideur » ; refus du retour des anciens mots.
-- [ ] Vérifié dans le navigateur : barre de lecture, « Ce pas en détail », fiche du jeu.
+- [x] `src/transitions.ts` : « guideur » (27 fois) et « suiveuse » (9 fois) dans tous les textes, avec leurs accords ; « son pied dégage le couloir le premier » dit en clair qui dégage.
+- [x] `scripts/test_transitions.mjs` : la règle « jamais avant le guideur » ; refus du retour des anciens mots (58 transitions).
+- [x] Vérifié dans le navigateur : barre de lecture, « Ce pas en détail », fiche du jeu en danse seule ; aucun ancien mot affiché.

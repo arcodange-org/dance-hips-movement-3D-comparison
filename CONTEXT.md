@@ -24,7 +24,8 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   `SoundControls`.
 - Vérifié : `docs/features/page-scene-panneau.feature` (dans `npm test`) et `scripts/mesure_page.mjs` (navigateur,
   ordinateur, tablette et profils de téléphone de Playwright) : résultats dans la spec, « Résultat mesuré ».
-- Hors périmètre : les textes des transitions (`src/transitions.ts`) disent encore « leader » et « suiveur ».
+- Les textes des pas (`src/transitions.ts`, partagés avec le jeu) disent aussi « guideur » et « suiveuse » depuis #194
+  ([spec](docs/spec-transitions.md), « Les mots ») ; un test refuse le retour de « leader » et « suiveur ».
 
 ## Jeu et vitrine utilisables sur téléphone (#186, 23 novembre 2026)
 

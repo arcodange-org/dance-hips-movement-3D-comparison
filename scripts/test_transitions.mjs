@@ -32,10 +32,12 @@ for (const key of api.TRANSITION_KEYS) for (const t of api.transitionsOf(key)) {
     else assert(s === 'Pr' || /^#\d+$/.test(s), `${key}: source ${s} format`);
   }
   // 4. The follower never leaves before the leader (R24).
-  assert(!/avant le leader\b(?!, jamais)|anticipe/.test(t.follower.replace('jamais avant le leader', '')), `${key} ${t.title}: no anticipation`);
+  assert(!/avant le guideur\b(?!, jamais)|anticipe/.test(t.follower.replace('jamais avant le guideur', '')), `${key} ${t.title}: no anticipation`);
+  // 6. #194: the texts say « guideur » and « suiveuse », never the former words.
+  for (const field of ['title', 'leader', 'follower', 'contacts']) assert(!/\b(leader|suiveur)\b/i.test(t[field]), `${key} ${t.title} ${field}: « guideur » et « suiveuse »`);
   count++;
 }
-console.log(`PASS ${count} transitions : titre, leader, suiveur, contacts et sources (règles et références existantes)`);
+console.log(`PASS ${count} transitions : titre, guideur, suiveuse, contacts et sources (règles et références existantes) ; ni « leader » ni « suiveur »`);
 
 // 3. transitionAt.
 for (const key of api.TRANSITION_KEYS) {
@@ -55,7 +57,7 @@ const g = api.transitionsOf('sortieG');
 for (const i of [0, 1]) assert.match(g[i].follower, /[Rr]ecule/, `sortie garçon action ${i + 1}: the follower walks back (#110)`);
 for (const key of ['sortieG', 'sortieF', 'sortieF:back']) assert.match(api.transitionsOf(key).at(-1).follower, /sans transfert/, `${key}: marka without transfer`);
 assert.match(api.transitionsOf('quart')[0].leader, /diagonale/, 'quart: the diagonal (R25)');
-console.log('PASS cohérence : suiveur qui recule dans la sortie garçon, markas sans transfert, diagonale des quarts');
+console.log('PASS cohérence : suiveuse qui recule dans la sortie garçon, markas sans transfert, diagonale des quarts');
 
 // 5. Composite figures reuse the simple ones word for word.
 const text = t => [t.title, t.leader, t.follower, t.contacts].join('|');
