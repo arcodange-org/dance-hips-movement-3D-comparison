@@ -3,8 +3,13 @@
 Fil d'Ariane : [docs](../../) › [spec pointes et talons](../../spec-pointes-talons.md) › **élection**
 
 Deux demandes sur les exercices d'isolation : chaque exercice peut se faire **sur la pointe des pieds**, et un exercice
-nouveau **lève et baisse les talons** (les mollets, l'équilibre). Avant de figer, deux questions se tranchent sur films.
-Le choix sera consigné dans l'issue #216.
+nouveau **lève et baisse les talons** (les mollets, l'équilibre). Avant de figer, deux questions se sont tranchées sur
+films.
+
+**Résultat (vote du 25 novembre 2026, tour 17, questions 33 à 35)** : Q1 → **A**, les talons montent à mi-hauteur ;
+Q2 → **A**, l'exercice des talons suit les trois vitesses ; les films conviennent. Le choix élu est devenu le
+comportement ; les interrupteurs `talonsBas` et `talonsTenue` sont retirés (les films Q1 et Q2 restent comme trace du
+vote).
 
 Tous les films : la boucle entière à 96 temps par minute, os et muscles affichés, le compte des temps en haut. Le pied du
 squelette est d'un seul bloc (les orteils ne plient pas) : talon levé, il tient sur le bout des orteils. Pour monter plus
@@ -16,7 +21,7 @@ L'exercice des talons, vu de côté, à hauteur des jambes. Vaut aussi pour les 
 
 ![Q1](Q1-hauteur-des-talons.gif)
 
-| A (la proposition) | B (`?essai=talonsBas`) |
+| A (la proposition, **élue**) | B (`talonsBas`, retiré) |
 |---|---|
 | à mi-hauteur : le talon monte nettement, le mollet travaille | un peu : le talon quitte à peine le sol |
 
@@ -24,11 +29,11 @@ L'exercice des talons, vu de côté, à hauteur des jambes. Vaut aussi pour les 
 
 ![Q2](Q2-rythme-des-talons.gif)
 
-| A (la proposition) | B (`?essai=talonsTenue`) |
+| A (la proposition, **élue**) | B (`talonsTenue`, retiré) |
 |---|---|
 | les trois vitesses des autres exercices, deux mesures chacune : en haut sur 1, à plat sur 3 ; puis en haut sur 1, à plat sur 2 ; puis sans s'arrêter, en haut sur chaque temps | monter, tenir, redescendre : en haut sur 1, tenu jusqu'au 3, à plat sur 4, toute la boucle ; l'équilibre se travaille dans la tenue |
 
-## L'exercice des talons (proposition)
+## L'exercice des talons
 
 T1, de côté, le corps entier : les deux talons ensemble, le poids sur les deux pieds ; tout le corps monte et descend
 d'un bloc, les genoux gardent leur souplesse. La vitesse jouée est écrite en bas.

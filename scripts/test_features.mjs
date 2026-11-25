@@ -148,11 +148,12 @@ const steps = [
     if (!mod.isolations.isIsolationId(m[1])) throw new Error(`exercice inconnu ${m[1]}`);
     c.isolation = m[1]; c.isoStart = 0; c.isoSettings = mod.isolations.isolationSettings({ pointes: true });
   }],
-  [/^le candidat "(talonsBas|talonsTenue)"$/, (c, m) => {
-    c.isoSettings = mod.isolations.isolationSettings({ pointes: !!c.isoSettings?.pointes }, e => e === m[1]);
+  [/^les talons levés montent à mi-hauteur$/, () => {
+    const high = mod.isolations.ISOLATION_HEEL;
+    if (Math.abs(high - 25 * Math.PI / 180) > 1e-12) throw new Error(`talon levé de ${(high * 180 / Math.PI).toFixed(1)}°`);
   }],
   [/^les talons sont (.+)$/, (c, m) => {
-    const s = c.isoSettings ?? mod.isolations.ISOLATION_DEFAULT, high = mod.isolations.ISOLATION_HEEL[s.hauteur];
+    const high = mod.isolations.ISOLATION_HEEL;
     for (const item of m[1].split(", ")) {
       const hit = /^(en haut|à plat) sur (\d)$/.exec(item);
       if (!hit) throw new Error(`position illisible : ${item}`);
@@ -161,7 +162,7 @@ const steps = [
     }
   }],
   [/^les talons restent levés toute la boucle$/, (c) => {
-    const high = mod.isolations.ISOLATION_HEEL[c.isoSettings.hauteur];
+    const high = mod.isolations.ISOLATION_HEEL;
     for (let b = 0; b <= mod.isolations.isolationBeats(c.isolation); b += 1 / 16) if (isoPose(c, b).heel !== high) throw new Error(`au temps ${b}`);
   }],
   [/^l'exercice bouge comme à plat$/, (c) => {

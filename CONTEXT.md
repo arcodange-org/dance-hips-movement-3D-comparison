@@ -29,8 +29,8 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
 - Fait : `pointes=1` (les talons levés toute la boucle, l'exercice monté d'un bloc) ; `isolation=talons` (T1, trois
   vitesses, le corps monte d'un bloc avec les chevilles). Pied roulé sur l'avant-pied (#49) ; le niveau du bassin se mesure
   sans la montée des chevilles. Le pied du squelette est d'un bloc : talon levé, il tient sur le bout des orteils.
-- Attend le vote ([dossier](docs/elections/2026-11-25-pointes-talons/README.md)) : la hauteur (`?essai=talonsBas`) et le
-  rythme des talons (`?essai=talonsTenue`).
+- Élu le 25 novembre (tour 17, [dossier](docs/elections/2026-11-25-pointes-talons/README.md)) : les talons montent à
+  mi-hauteur ; l'exercice des talons suit les trois vitesses ; les films conviennent. Interrupteurs retirés.
 
 ## Jamais de jambe tendue : 30° de flexion au moins (#203, 24-25 novembre 2026)
 

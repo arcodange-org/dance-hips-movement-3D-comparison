@@ -14,7 +14,7 @@ import PagePrincipale from "./components/page/PagePrincipale";
 import DemoOverlay, { DEMOS } from "./components/DemoOverlay";
 import OriginMarker from "./components/OriginMarker";
 import LineOfDance from "./components/LineOfDance";
-import { essai, essaiEnCours, type Essai } from "./essais";
+import { essaiEnCours } from "./essais";
 import { isIsolationId, isolationSettings } from "./isolations";
 import CompassRose from "./components/CompassRose";
 import { resolveCam, resolveView, viewAnglesOf, SOLID_TORSO_OPACITY } from "./cameras";
@@ -91,8 +91,7 @@ export default function App() {
   // #216 (docs/spec-pointes-talons.md): `pointes=1`, the exercise on tiptoe.
   const isolationParam = params.get("isolation");
   const isolationAsked = isIsolationId(isolationParam)
-    ? { id: isolationParam, settings: isolationSettings({ miroir: params.get("miroir") === "1", pointes: params.get("pointes") === "1" },
-      k => essai(k as Essai)) } : null;
+    ? { id: isolationParam, settings: isolationSettings({ miroir: params.get("miroir") === "1", pointes: params.get("pointes") === "1" }) } : null;
   const [showRepere, setShowRepere] = usePersistentState("repere", true);
   const [showAppui, setShowAppui] = usePersistentState("appui", false);
   const statsRef = useRef<any>({ loadR: 0.5, loadL: 0.5, kneeR: 0, kneeL: 0, roll: 0 });

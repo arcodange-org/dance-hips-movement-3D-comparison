@@ -15,7 +15,7 @@ buildSync({ stdin: { contents: ["pose", "anatomy", "rigJoints", "isolations", "e
   define: { "import.meta.env.BASE_URL": '"/"' }, logLevel: "silent" });
 const api = await import(bundle.href);
 unlinkSync(bundle);
-const { ESSAIS, ISOLATIONS, ISOLATION_IDS, ISOLATION_DEFAULT, ISOLATION_AMPLITUDES, ISOLATION_ESSAIS, ISOLATION_HEEL, ISOLATION_SPEEDS, ISOLATION_TENUE,
+const { ESSAIS, ISOLATIONS, ISOLATION_IDS, ISOLATION_DEFAULT, ISOLATION_AMPLITUDES, ISOLATION_HEEL, ISOLATION_SPEEDS, ISOLATION_TENUE,
   isolationAt, isolationPath, isolationSettings, isIsolationId, isolationBeats, isolationStages, isolationStage } = api;
 
 const STEP = 1 / 32;
@@ -24,7 +24,7 @@ const flat = p => [p.head.nod, p.head.turn, p.head.tilt, p.chest.fore, p.chest.s
 const maxDiff = (a, b) => Math.max(...a.map((x, i) => Math.abs(x - b[i])));
 const settings = (patch) => ({ ...ISOLATION_DEFAULT, ...patch });
 const VARIANTS = [["élu", ISOLATION_DEFAULT], ["huit qui glisse", settings({ huit: "glisse" })], ["huit qui tourne", settings({ huit: "tourne" })], ["miroir", settings({ miroir: true })],
-  ["sur pointes", settings({ pointes: true })], ["talons un peu", settings({ hauteur: "unPeu", pointes: true })], ["talons tenus", settings({ talons: "tenue" })]];
+  ["sur pointes", settings({ pointes: true })]];
 const where = { devant: [1, 0], derriere: [-1, 0], gauche: [0, 1], droite: [0, -1], centre: [0, 0] };
 const at = (id, b, s = ISOLATION_DEFAULT) => isolationAt(id, b, s);
 const isAt = (id, b, name, s) => { const p = at(id, b, s).path, [f, sd] = where[name]; return Math.abs(p.fore - f) < 1e-9 && Math.abs(p.side - sd) < 1e-9; };
@@ -46,18 +46,15 @@ const pointAt = (id, k, m) => startOf(id, k) + m * ISOLATION_SPEEDS[k];
 }
 
 {
-  // Le comportement élu (le huit, tranché le 25 novembre) ; à plat sans `pointes` ; les candidats de #216 inertes sans ?essai=.
+  // Le comportement élu (le huit, tranché le 25 novembre ; les talons à mi-hauteur, aux trois vitesses, tranchés le même
+  // jour) ; à plat sans `pointes` ; plus aucun candidat des exercices dans les essais.
   assert.deepEqual(isolationSettings(), ISOLATION_DEFAULT);
-  assert.equal(ISOLATION_DEFAULT.huit, "alterne");
-  assert.ok(!ISOLATION_DEFAULT.pointes && ISOLATION_DEFAULT.hauteur === "miHauteur" && ISOLATION_DEFAULT.talons === "vitesses");
+  assert.deepEqual(ISOLATION_DEFAULT, { huit: "alterne", miroir: false, pointes: false });
   assert.equal(isolationSettings({ miroir: true }).miroir, true);
   assert.equal(isolationSettings({ pointes: true }).pointes, true);
-  assert.deepEqual([...ISOLATION_ESSAIS], ["talonsBas", "talonsTenue"]);
-  assert.ok(ISOLATION_ESSAIS.every(k => k in ESSAIS) && !Object.keys(ESSAIS).some(k => k.startsWith("iso")), "les candidats sont des essais");
-  assert.equal(isolationSettings({}, e => e === "talonsBas").hauteur, "unPeu");
-  assert.equal(isolationSettings({}, e => e === "talonsTenue").talons, "tenue");
+  assert.ok(!Object.keys(ESSAIS).some(k => k.startsWith("iso") || k.startsWith("talons")), "les candidats élus ou perdants ont quitté les essais");
   assert.ok(ISOLATION_IDS.every(id => beats(0, isolationBeats(id), 1 / 4).every(b => ISOLATIONS[id].famille === "pieds" || at(id, b).heel === 0)), "à plat sans pointes");
-  console.log("PASS réglages : le comportement élu, à plat sans pointes, candidats des talons inertes sans ?essai=");
+  console.log("PASS réglages : le comportement élu, à plat sans pointes, plus de candidat dans les essais");
 }
 
 {
@@ -100,8 +97,8 @@ const pointAt = (id, k, m) => startOf(id, k) + m * ISOLATION_SPEEDS[k];
     for (const b of beats(0, isolationBeats(id), 1 / 16)) {
       const p = at(id, b, s);
       const head = [p.head.nod, p.head.turn, p.head.tilt], chest = [p.chest.fore, p.chest.side], pelvis = flat(p).slice(5, 10);
-      // Sur pointes, les talons restent levés toute la boucle (à la hauteur réglée) ; dans l'exercice des talons, ils bougent.
-      if (f !== "pieds") assert.equal(p.heel, s.pointes ? ISOLATION_HEEL[s.hauteur] : 0, `${id} (${name}) : talons au temps ${b}`);
+      // Sur pointes, les talons restent levés toute la boucle (à mi-hauteur) ; dans l'exercice des talons, ils bougent.
+      if (f !== "pieds") assert.equal(p.heel, s.pointes ? ISOLATION_HEEL : 0, `${id} (${name}) : talons au temps ${b}`);
       for (const [part, values] of [["cou", head], ["poitrine", chest], ["bassin", pelvis], ["pieds", [p.heel]]]) {
         if (part === "pieds" && f !== "pieds") continue;
         if (part === f) moved = Math.max(moved, ...values.map(Math.abs));
@@ -213,22 +210,17 @@ const pointAt = (id, k, m) => startOf(id, k) + m * ISOLATION_SPEEDS[k];
 }
 
 {
-  // #216 : l'exercice des talons, en haut puis à plat, aux trois vitesses ; candidats : un peu, et monter-tenir-redescendre.
-  const id = "talons", H = ISOLATION_HEEL.miHauteur;
-  assert.ok(H > ISOLATION_HEEL.unPeu && ISOLATION_HEEL.unPeu > 0);
+  // #216 : l'exercice des talons, en haut (à mi-hauteur) puis à plat, aux trois vitesses (élu le 25 novembre).
+  const id = "talons", H = ISOLATION_HEEL;
+  assert.ok(Math.abs(H - 25 * Math.PI / 180) < 1e-12, "talons à mi-hauteur");
   for (const k of [0, 1, 2]) for (let j = 0; j < 4; j++)
     assert.ok(Math.abs(at(id, pointAt(id, k, j)).heel - (j % 2 === 0 ? H : 0)) < 1e-12, `${id} : vitesse ${k}, en haut puis à plat (point ${j})`);
   // Posé puis tenu à deux temps et à un temps ; fluide au demi-temps.
   const held = k => at(id, pointAt(id, k, 0) + 0.2 * ISOLATION_SPEEDS[k]).heel === H;
   assert.ok(held(0) && held(1) && !held(2), "tenu à deux temps et à un temps, fluide au demi-temps");
-  // Le rythme candidat : en haut sur 1, tenu jusqu'au 3, en bas sur 4.
-  const tenue = settings({ talons: "tenue" });
-  for (const [b, h] of [[0, H], [1, H], [2, H], [3, 0], [4, H], [23, 0], [24, H]])
-    assert.ok(Math.abs(at(id, b, tenue).heel - h) < 1e-12, `talons tenus : au temps ${b}`);
-  assert.equal(at(id, 0, settings({ hauteur: "unPeu" })).heel, ISOLATION_HEEL.unPeu);
   // `pointes` ne change rien à l'exercice des talons.
   assert.ok(beats(0, 24, 1 / 16).every(b => at(id, b, settings({ pointes: true })).heel === at(id, b).heel));
-  console.log("PASS talons : en haut puis à plat aux trois vitesses, tenus puis fluides ; candidats un peu, et monter-tenir-redescendre");
+  console.log("PASS talons : à mi-hauteur puis à plat aux trois vitesses, tenus puis fluides");
 }
 
 // ---------------------------------------------------------------- 2. vrai GLB

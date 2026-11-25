@@ -41,8 +41,8 @@ puis deux fois plus vite, puis encore deux fois plus vite ; la forme a été [é
 ![Le cercle de la poitrine, marqué](docs/elections/2026-11-24-isolations/P3-poitrine-cercle-marque.gif)
 
 Chaque exercice se fait aussi **sur la pointe des pieds** (`pointes=1`), et un exercice lève et baisse **les talons**
-(`?isolation=talons`, les mollets et l'équilibre) ; leur hauteur et leur rythme attendent
-[l'élection](docs/elections/2026-11-25-pointes-talons/README.md) (#216, [spec](docs/spec-pointes-talons.md)).
+(`?isolation=talons`, les mollets et l'équilibre) : les talons montent à mi-hauteur, aux trois vitesses des autres
+exercices, [élus le 25 novembre](docs/elections/2026-11-25-pointes-talons/README.md) (#216, [spec](docs/spec-pointes-talons.md)).
 
 ## Musique enregistrée, générée par IA (#142)
 

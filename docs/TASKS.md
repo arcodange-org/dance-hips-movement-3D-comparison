@@ -497,7 +497,8 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
   l'avant-pied, niveau du bassin qui reçoit la montée des chevilles (`src/isolations.ts`, `src/pose.ts`).
 - [x] Tests sur le vrai squelette (`scripts/test_isolations.mjs`) et Gherkin (`docs/features/pointes-talons.feature`).
 - [x] Films des candidats (`docs/elections/2026-11-25-pointes-talons/`).
-- [ ] Vote du fondateur : hauteur des talons (`talonsBas`), rythme de l'exercice des talons (`talonsTenue`).
+- [x] Vote du 25 novembre (tour 17) : talons à mi-hauteur, l'exercice des talons aux trois vitesses, films validés ;
+  `talonsBas` et `talonsTenue` retirés ; films refaits avec les muscles.
 
 ## Suave : deux temps par côté, sans rebond (#200)
 

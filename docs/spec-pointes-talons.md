@@ -36,25 +36,24 @@ Sans les nouveaux paramètres, rien ne change.
   mi-hauteur ; plus haut, on verrait une pointe de ballet. Monter plus haut demande des orteils qui plient : hors de ce
   lot. L'avant-pied reste immobile à l'horizontale.
 
-## À élire (procédure des élections, films avant de figer)
+## Élu le 25 novembre 2026 (tour 17, [dossier](elections/2026-11-25-pointes-talons/README.md))
 
-| Question | Proposition (filmée) | Autre candidat (`essai=`) |
+| Question | Élu (A, la proposition) | Écarté (B) |
 |---|---|---|
-| Jusqu'où montent les talons (sur pointes et dans l'exercice des talons) | à mi-hauteur | `talonsBas` : un peu |
-| Le rythme de l'exercice des talons | les trois vitesses des autres exercices : deux temps, un temps, un demi-temps par mouvement (monter ou descendre), le point posé puis tenu, fluide au demi-temps | `talonsTenue` : en haut sur 1, tenu jusqu'au 3, en bas sur 4 (l'équilibre se travaille dans la tenue) |
+| Jusqu'où montent les talons (sur pointes et dans l'exercice des talons) | **à mi-hauteur** | un peu |
+| Le rythme de l'exercice des talons | **les trois vitesses des autres exercices** : deux temps, un temps, un demi-temps par mouvement (monter ou descendre), le point posé puis tenu, fluide au demi-temps | en haut sur 1, tenu jusqu'au 3, en bas sur 4 |
+| Les films sur la pointe des pieds et de l'exercice des talons | conviennent | — |
 
-Hauteurs du modèle (mesures de spec, jamais montrées au danseur), sur le pied du GLB (22 cm) :
+Le choix élu est le comportement ; les interrupteurs `essai=talonsBas` et `essai=talonsTenue` qui filmaient l'autre
+candidat sont retirés.
 
-| Candidat | Rotation du pied | Talon au-dessus du sol | La cheville monte de |
-|---|---|---|---|
-| un peu | 15° | 6 cm | 4 cm |
-| à mi-hauteur | 25° | 9 cm | 6,5 cm |
+Hauteur du modèle (mesure de spec, jamais montrée au danseur), sur le pied du GLB (22 cm) : à mi-hauteur, le pied tourne
+de 25°, le talon est à 9 cm du sol, la cheville monte de 6,5 cm. (Le candidat écarté : 15°, 6 cm, 4 cm.)
 
 ## Moteur
 
 - `src/isolations.ts` (pur) : l'exercice `talons` (code T1, famille `pieds`, forme à deux points : en haut, à plat) ; la
-  pose porte `heel` (rad, rotation du pied, talon levé) ; réglages `pointes`, `hauteur`, `talons` ; les candidats
-  passent par `src/essais.ts`.
+  pose porte `heel` (rad, rotation du pied, talon levé ; `ISOLATION_HEEL`, mi-hauteur) ; réglage `pointes`.
 - `src/pose.ts` : pendant un exercice, chaque pied porte `heel` comme rotation autour de son avant-pied (le pied roulé de
   #49 : `pitch`, pivot sur l'avant-pied, la cheville porte le bassin). Le niveau du bassin tenu sur la boucle se mesure
   sans la montée des chevilles, puis la reçoit : le corps monte et descend avec les talons, et seulement avec eux.
@@ -63,7 +62,7 @@ Hauteurs du modèle (mesures de spec, jamais montrées au danseur), sur le pied 
 ## Vérifications
 
 - `scripts/test_isolations.mjs` (dans `npm test`) : module pur (talons à plat sans `pointes`, tenus avec, chemin de
-  l'exercice des talons aux trois vitesses et en tenue, candidats inertes sans `essai=`) ; vrai GLB : avant-pieds
+  l'exercice des talons aux trois vitesses, plus de candidat dans les essais) ; vrai GLB : avant-pieds
   immobiles et posés, talons à la hauteur demandée, os au-dessus du sol, longueurs des jambes, seule la partie nommée
   bouge (sur pointes), le corps monte d'un bloc avec les chevilles (talons), boucle fermée, aucun saut.
 - `docs/features/pointes-talons.feature` (Gherkin, dans `npm test`).
