@@ -41,12 +41,12 @@ Une jambe dont le pied est en l'air ne fixe pas la hauteur : sa cheville est plu
 
 Le rendu sans solveur des jambes (`plant=0`, mode historique) n'est pas concerné.
 
-## Ce qui reste à trancher sur film
+## Le minimum élu : 30° (vote du 24 novembre 2026)
 
-Le minimum est un nombre : il se choisit à l'œil. Candidats, activés par l'adresse seulement (`?flexion=<degrés>`,
-de 7 à 40) tant que le vote n'a pas eu lieu, filmés avec la couche des muscles sur les scènes où une jambe se tend
-le plus aujourd'hui : le quart de tour en couple (7° aujourd'hui), le kompa seul (sa jambe la moins pliée, 23°), le
-« 1 2 » de la kizomba (la jambe laissée en arrière, 20°), le zouk seul (14°).
+Le minimum s'est choisi à l'œil, sur film ([dossier du vote](elections/flexion-minimale/README.md), treizième tour,
+question 28) : candidats 7° (l'ancien plancher), 20° et 30°. **Le propriétaire a choisi 30°**, sans commentaire.
+C'est désormais le minimum de l'application (`KNEE_FLOOR_ELECTED`, `src/pose.ts`) ; `?flexion=<degrés>` (7 à 40)
+montre un autre minimum, `FLEXION=<degrés>` le mesure en node.
 
 Mesures du prototype (flexion la plus faible des deux genoux, et le bassin au plus bas, en cm sous sa hauteur au repos) :
 
@@ -60,7 +60,63 @@ Mesures du prototype (flexion la plus faible des deux genoux, et le bassin au pl
 
 Jusqu'à 20°, seules les poses où une jambe se tendait changent ; à 30°, presque toutes descendent d'un peu.
 
-## À vérifier (tests)
+## Mise en œuvre à 30°
+
+**Le plancher, sans à-coup.** La flexion demandée rejoint le plancher en douceur (`KNEE_FLOOR_SOFT`, 0,1 rad) : un
+genou qui se tendrait au-delà ralentit en s'en approchant au lieu de s'arrêter net. Sans cela, le kompa seul (dont
+la jambe la plus droite descendait à 23°) donnait au bassin un à-coup de 6,2 m/s² à chaque appui ; il en donne 4,8.
+Au-dessus du plancher de 12°, la flexion est celle demandée. Les figures en couple, qui plafonnaient les genoux sous
+le plancher (12° au plus), prennent le plancher lui-même : deux figures qui se suivent dans le mode jeu gardent la
+même pose à leur jonction.
+
+**Le « 1 2 ».** La jambe laissée loin atteint moins loin : le bassin plongeait à l'arrivée du pied (6,8 m/s² en
+kizomba, 14,5 en semba). Le relais entre les deux hauteurs du bassin est plus doux (`UM_DOIS_SOFT` 0,025 m, au lieu
+de 0,007) : le bassin descend sur toute la durée du pas, 3,8 et 7,8 m/s², les valeurs d'avant.
+
+**Le couple.** Les genoux pliés à 30° avancent d'environ 6 cm vers le partenaire (les figures étaient calibrées avec
+12° au plus) : les os des jambes se croisaient dans toutes les figures en couple (307 croisements sur 288 poses
+dans le seul quart de tour en quinconce). Mesuré figure par figure (`scripts/sonde_croisements_couple.mjs`, hors `npm test`) :
+
+- **Chaque danseur se tient 4 cm plus loin** (`COUPLE_DZ` 0,24 m au lieu de 0,20, `KNEE_ROOM`, `src/placement.ts`),
+  dans toutes les figures (le mode jeu les enchaîne : un seul écart). Les pas gardent leur longueur dans le repère de
+  chaque danseur ; les arrivées D/D des sorties, calculées depuis cet écart, gardent leurs contacts. Un rapprochement
+  plus faible du quinconce (essayé de 6 à 0 cm) ne suffisait pas au quart de tour et faussait les premiers pas des
+  sorties (la virgula ne tombait plus à côté du D du guideur).
+- **Sortie fille** : son D3 se pose où il se posait dans son propre repère (son G4 croise devant lui comme avant),
+  donc 8 cm plus loin derrière le D du guideur, et son bassin avance de 8 cm de plus au-dessus : les cuisses se
+  touchent toujours à l'arrivée D/D.
+- **Quart de tour** : la part du balancement du style gardée pendant le tour passe de 0,5 à 0,25 (le semba et le
+  suave rapprochaient les genoux d'appui).
+- **Plexus** : l'écart visé entre les poitrines passe de 8 à 5 cm (`PLEXUS.gap`) : le contact reste sous 6 cm dans
+  le quinconce, le buste penché de 4 à 5° au plus en kizomba (sous la limite de 8°, « danseurs, pas lutteurs »).
+- **Bras du cadre** : le coude de la suiveuse vise 5 cm plus haut (`CADRE_SITES.armR`) : la main du guideur va plus
+  loin sur son omoplate et son coude remonte ; celui de la suiveuse reste 3 cm au-dessus.
+
+Résultat : aucun croisement d'os des jambes, entre danseurs ni pour un même danseur, dans les sorties (crochet,
+recul ; quatre placements), les quarts de tour, l'ida e volta, la marche, les allers-retours et le sur place, six
+styles, amplitudes 0,5 à 2.
+
+**Ce qui bouge dans les mesures enregistrées** (`WRITE=1`, changement voulu) :
+
+| Mesure | Avant | À 30° |
+|---|---|---|
+| Saccades, quart de tour, suiveuse : bassin en un huitième de temps, en hauteur | 3,3 cm | 4,5 cm |
+| idem, à l'horizontale (son arc est plus grand) | 13,1 cm | 15,7 cm |
+| Saccades, sortie garçon, suiveuse, en hauteur | 12,9 cm | 13,6 cm |
+| Saccades, sortie fille, guideur, en hauteur | 1,6 cm | 2,2 cm |
+| R4, poitrines au plus loin : sortie garçon (partie ouverte) | 27,1 cm | 36,8 cm |
+| R4 : quart de tour ; ida e volta | 10,1 ; 7,7 cm | 8,0 ; 6,6 cm |
+| R21, sur place : poids sur le temps (kizomba, semba ; kompa) | 0,045 ; 0,015 temps | 0,02 ; 0,005 temps |
+
+Les empreintes de la sortie historique (`scripts/fixtures/sorties-historiques.json`) sont régénérées.
+
+**Contrôles ajustés** (chacun dit pourquoi dans le test) : les prototypes du kompa des tours de vote (« une jambe
+presque tendue », désormais au minimum de flexion), le « 8 » mené par les genoux (moins rond vu de face, les hanches
+montent moins), le buste de `assisBusteAvant` (2,3 cm derrière les genoux), le corridinho à reculons (le bassin creuse
+un peu plus sur les grands pas : marge de 22 % au lieu de 15 %), les gardes du plexus en position de référence
+(tests seulement), le saut aux jonctions du mode jeu (0,4 mm au lieu de 0,2 : 0,3 mm à la tête, en zouk, où la
+sortie enchaînée rejoint le pas de base, invisible).
+## Vérifié (tests)
 
 - Flexion de chaque genou au-dessus du plancher élu, dans toutes les figures, tous les styles, seul et en couple,
   mode jeu compris.

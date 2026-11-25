@@ -2,12 +2,12 @@
  * GLB coordinates: left +x, forward +z. The couple frame is the leader's outer frame; the
  * follower's outer frame is translated by 2·QUARTS_PAIR_DZ along +z and turned by π. */
 import { gaitStep, GAIT } from "./gait";
-import { placementOffset, type CouplePlacement, type PlacementOffset } from "./placement";
+import { COUPLE_DZ, placementOffset, type CouplePlacement, type PlacementOffset } from "./placement";
 import type { FigureFoot, FigureFootPose, FootPoint } from "./sortieGarcon";
 
 export const QUARTS_BEATS = 16;
 /** Same half-spacing as the five-action figures: the couple placements are calibrated for it. */
-export const QUARTS_PAIR_DZ = 0.20;
+export const QUARTS_PAIR_DZ = COUPLE_DZ;
 /** Owner rule (phase 14): the left heel comes to the tip of the right foot, at a right angle.
  * Ankle offset from the right ankle: the heel lies 5.6 cm behind the ankle, the toe 15.6 cm ahead. */
 export const QUARTS_HEEL_AT_TOE: FootPoint = { x: 0.056, z: 0.20 };
@@ -91,11 +91,12 @@ export const QUARTS_SHAPES: QuartsShapes = {
  *   « le buste peut avoir un léger retard sur le pied : le temps de transfert »); `heel`:
  *   the leader's trailing D rises on its ball (rad) while his G carries him;
  * - `coupling`: the follower's pelvis mirrors the leader's (hips that seek each other);
- * - `sway`: share of the style's pelvis sway kept while the couple turns interleaved;
+ * - `sway`: share of the style's pelvis sway kept while the couple turns interleaved (#203: 0.25, half as before:
+ *   with the knees at 30° at least, the semba's and the suave's swaying pelvis brought the standing knees together);
  * - knee flexion cap, style pelvis rotation cap and style bounce, softened around the `crossing`
  *   (both pairs of thighs interleaved while the leader's G lands next to the follower's standing G). */
 export const QUARTS_BODY = {
-  extremity: 0.09, travel: { leader: 0.65, follower: 0.58 }, delay: 0.4, chestLag: 0.25, heel: 0.18, coupling: 1, sway: 0.5, kneeCap: 0.22, rotationCap: 0.12, dip: -0.008, roll: 0.5,
+  extremity: 0.09, travel: { leader: 0.65, follower: 0.58 }, delay: 0.4, chestLag: 0.25, heel: 0.18, coupling: 1, sway: 0.25, kneeCap: 0.22, rotationCap: 0.12, dip: -0.008, roll: 0.5,
   crossing: { from: 0.6, to: 1.6, ramp: 0.3, kneeCap: 0.12, rotationCap: 0.04 },
 };
 function crossingAt(q: number): number {

@@ -3,8 +3,12 @@
 Fil d'Ariane : [docs](../../) › [spec](../../spec-flexion-minimale.md) › **films à voir, minimum à élire**
 
 Dossier ouvert le 24 novembre 2026. Règle R43 : dans toutes les danses, les deux genoux gardent toujours un peu de
-flexion, et les danseurs sont un peu plus bas. Le vote se fait sur la page de vote du propriétaire (treizième tour,
+flexion, et les danseurs sont un peu plus bas. Le vote s'est fait sur la page de vote du propriétaire (treizième tour,
 question 28).
+
+**Résultat du vote (24 novembre 2026) : 30°** (C), sans commentaire. C'est le minimum de l'application ; les figures en
+couple ont été réglées de nouveau ([spec, mise en œuvre](../../spec-flexion-minimale.md#mise-en-œuvre-à-30)) et
+[filmées à 30°](#à-30-dans-lapplication) plus bas.
 
 Dans le modèle, la jambe la plus allongée fixe la hauteur du bassin, à la flexion qu'elle demande, jamais sous un
 minimum : aujourd'hui 7°. Les candidats relèvent ce minimum (`?flexion=<degrés>` dans l'application, `FLEXION=<degrés>`
@@ -46,3 +50,8 @@ entrelacés) et contrôlées avant que le minimum devienne celui de l'applicatio
 
 **Proposition : 20°.** Plus aucune jambe ne se tend, et seules les poses qui se tendaient changent ; 30° met les
 danseurs plus bas partout, mais demande de reprendre toutes les figures en couple.
+
+## À 30°, dans l'application
+
+Films à venir dans ce dossier une fois la mise en œuvre vérifiée (couche des muscles) : le quart de tour, la sortie
+fille et l'ida e volta en couple.

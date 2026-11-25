@@ -5,14 +5,14 @@
  * GLB coordinates: left +x, forward +z. Every position is in the dancer's own outer frame (the root
  * starts at the placement offset); the follower's frame faces the leader's, 2·IDA_PAIR_DZ away. */
 import { gaitStep, GAIT } from "./gait";
-import { placementOffset, type CouplePlacement, type PlacementOffset } from "./placement";
+import { COUPLE_DZ, placementOffset, type CouplePlacement, type PlacementOffset } from "./placement";
 import { idaContra, idaEVoltaStep } from "./styles";
 import { SORTIE_FILLE_VIRGULA } from "./sortieFille";
 import type { FigureFoot, FigureFootPose, FootPoint } from "./sortieGarcon";
 
 export const IDA_BEATS = 8;
 /** Same half-spacing as the other pair figures: the couple placements are calibrated for it. */
-export const IDA_PAIR_DZ = 0.20;
+export const IDA_PAIR_DZ = COUPLE_DZ;
 /** The leader's upper body anticipates by a quarter beat (owner rule, #37). */
 export const IDA_LEAD = 0.25;
 /** Proposals to validate by eye (owner), calibrated on the GLB (docs/spec-ida-paire.md, Calibrage):

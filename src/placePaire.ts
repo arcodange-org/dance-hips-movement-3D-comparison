@@ -4,13 +4,13 @@
  * them. In the close couple the follower's pelvis mirrors the leader's (coupled pelvises, #28), so the
  * interleaved knees travel side by side instead of meeting.
  * GLB coordinates: left +x, forward +z, in each dancer's own outer frame. */
-import { placementOffset, type CouplePlacement, type PlacementOffset } from "./placement";
+import { COUPLE_DZ, placementOffset, type CouplePlacement, type PlacementOffset } from "./placement";
 import { idaNeutral } from "./idaPaire";
 import { travelOffset, swingLift } from "./styles";
 import type { FigureFoot, FigureFootPose, FootPoint } from "./sortieGarcon";
 
 /** Same half-spacing as the pair figures: the couple placements are calibrated for it. */
-export const PLACE_PAIR_DZ = 0.20;
+export const PLACE_PAIR_DZ = COUPLE_DZ;
 /** Proposals calibrated on the GLB (six styles, three amplitudes): `rotationCap` bounds the pelvis
  * rotations, `kneeCap` the knee flexion of the reach, `styleSway` the share of the style's lateral
  * hip shift kept on top of the planted feet, `dip` the lowest pelvis level. */

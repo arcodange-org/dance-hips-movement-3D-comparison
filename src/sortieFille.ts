@@ -1,11 +1,11 @@
 import { HIP_WIDTH } from "./anatomy";
 import { SORTIE_GINGA_CAP, gingaWindow, type FigureFoot, type FigureFootPose, type FootPoint } from "./sortieGarcon";
 import { gaitStep } from "./gait";
-import { placementOffset, startCoupling, endCoupling, type CouplePlacement, type PlacementOffset } from "./placement";
+import { COUPLE_DZ, KNEE_ROOM, placementOffset, startCoupling, endCoupling, type CouplePlacement, type PlacementOffset } from "./placement";
 
 export type SortieFilleVariant = "hook" | "back";
 export const SORTIE_FILLE_BEATS = 5;
-export const SORTIE_FILLE_PAIR_DZ = 0.20;
+export const SORTIE_FILLE_PAIR_DZ = COUPLE_DZ;
 /** #49: share of the roll of the first two (interleaved) steps: a full heel rise would push a knee into the partner's. */
 export const SORTIE_FILLE_FIRST_ROLL = 0.2;
 /** #49: share of the roll of the follower's G4, crossing in front of her planted D, and of her D3
@@ -144,12 +144,15 @@ export function sampleSortieFille(beat: number, follower: boolean,
   const secondFollowerX = back ? U.backOpen : mix(U.hookOpenWide, U.hookOpen, touch);
   const secondLeader: FootPoint = { x: back ? 0 : -halfHip, z: back ? -U.backD2 : rest.L.z + firstLeaderZ - rest.R.z };
   // The follower's D arrives on the right of the leader's D, `stagger` behind it (#105). The follower's
-  // +x is the leader's right; the clearance is measured between those ankle targets.
+  // +x is the leader's right; the clearance is measured between those ankle targets. #203: with the knees bent the
+  // couple stands `2 · KNEE_ROOM` further apart; her D3 lands where it did in her own frame (her G4 then crosses in
+  // front of it as before), that much further behind his D, and her pelvis comes that much further forward over it:
+  // the upper thighs still touch.
   const approach: FootPoint = {
     // #51: the D/D contact of action 3 is 7 cm closer to the line in the hook (shorter opening);
     // like the thigh contact it fades back above amplitude 1.
     x: (back ? .22 : mix(.28, .21, touch)) - 2 * rest.R.x - secondLeader.x,
-    z: 2 * SORTIE_FILLE_PAIR_DZ - 2 * rest.R.z - secondLeader.z - (back ? U.backStagger : U.hookStagger),
+    z: 2 * SORTIE_FILLE_PAIR_DZ - 2 * rest.R.z - secondLeader.z - (back ? U.backStagger : U.hookStagger) - 2 * KNEE_ROOM,
   };
   const leaderEndZ = secondLeader.z - (back ? U.backD4 : U.hookD4);
   // #48: the figure ends in the neutral position, the start translated. The leader's last landings
@@ -165,7 +168,7 @@ export function sampleSortieFille(beat: number, follower: boolean,
     { foot: "R", target: { x: .07, z: firstFollowerZ }, body: { x: 0, z: firstFollowerZ * .7 } },
     { foot: "L", target: { x: secondFollowerX, z: back ? .13 : -.06 * touch }, body: { x: back ? .22 : .33 * secondFollowerX / .55, z: back ? -.005 : -.12 } },
     // #105: her pelvis stops 3 cm in front of her D3 so that the upper thighs touch despite the stagger.
-    { foot: "R", target: approach, body: { x: mix(back ? .36 : .43, back ? .32 : .40, touch), z: approach.z + .03 } },
+    { foot: "R", target: approach, body: { x: mix(back ? .36 : .43, back ? .32 : .40, touch), z: approach.z + .03 + 2 * KNEE_ROOM } },
     // After her G4 the follower's pelvis stays 12 cm behind it and 6 cm towards her D (#105): over her
     // G, her pelvis drops between her crossed feet and her G knee meets the leader's (amplitude 2).
     { foot: "L", target: mark, body: { x: .22, z: returnZ - .12 },

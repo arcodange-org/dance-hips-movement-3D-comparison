@@ -505,5 +505,8 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 
 - [x] Issue #203 ; spec poussée en premier ([spec](spec-flexion-minimale.md)) ; règle R43.
 - [x] Prototype : `KNEE_FLOOR`, `setKneeFloor` (`src/pose.ts`), `?flexion=<degrés>` ; mesures de 7° à 30°.
-- [ ] Films des candidats (quart de tour en couple, kompa seul, « 1 2 », zouk) et vote.
-- [ ] Le plancher élu par défaut ; contrôles en couple (croisements d'os, contacts, plexus), R3, saccades.
+- [x] Films des candidats (quart de tour en couple, kompa seul, « 1 2 ») et vote : 30° (24 novembre).
+- [x] Le plancher élu par défaut (`KNEE_FLOOR_ELECTED`), atteint en douceur ; le « 1 2 » plus doux (`UM_DOIS_SOFT`).
+- [x] Couple réglé de nouveau : `COUPLE_DZ` 0,24, sortie fille (D3 dans son repère), quart de tour (balancement au
+  quart), plexus (5 cm), coude de la suiveuse ; sonde `scripts/sonde_croisements_couple.mjs` ; mesures enregistrées reprises.
+- [x] Films à 30° dans le dossier du vote (quart de tour, sortie fille, ida e volta en couple).

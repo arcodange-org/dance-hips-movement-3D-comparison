@@ -117,6 +117,14 @@ leader dépend aussi de son pied libre : garder l'amplitude du G1 relèverait le
 relative prime, donc le rapprochement se résorbe sur le premier pas de chaque pied. Les autres atterrissages sont validés. Les marka finals et les variantes (fin à droite, recul)
 sont donc inchangés.
 
+## Écart du couple avec les genoux pliés (#203, 24 novembre 2026)
+
+Depuis la règle R43 (jamais de jambe tendue, minimum de flexion de 30°), les genoux avancent d'environ 6 cm vers le
+partenaire. Toutes les figures en couple partagent un écart plus grand : `COUPLE_DZ` = 0,24 m au lieu de 0,20
+(`src/placement.ts`), chaque danseur 4 cm plus loin (`KNEE_ROOM`). Les placements décalent les pieds depuis cet écart
+comme avant ; les pas gardent leur longueur dans le repère de chaque danseur, et les arrivées D/D, calculées depuis
+l'écart, leurs contacts. [Spec](spec-flexion-minimale.md#mise-en-œuvre-à-30).
+
 ## Contact des cuisses à l'arrivée D/D (demande du 19 novembre)
 
 À l'action 2 (garçon) et à l'action 3 (fille), le milieu et le haut des cuisses D des deux
