@@ -1,5 +1,6 @@
 /** Validated five-action figure. GLB coordinates: left +x, forward +z. */
 import { gaitStep } from "./gait";
+import { FIGURE_GESTURE, figureWay, followWay } from "./gesteHanche";
 import { COUPLE_DZ, placementOffset, startCoupling, endCoupling, type CouplePlacement, type PlacementOffset } from "./placement";
 export type FigureFoot = "L" | "R";
 export type SortieVariant = "line" | "right";
@@ -37,6 +38,8 @@ export const SORTIE_GARCON_EXIT = { step1X: 0.28, step2X: 0.26, body0X: 0.15, bo
  * crossing. With his pelvis over his D, feet that close put the right femurs through each other. */
 export const SORTIE_GARCON_POS2 = { d1: 0.16, g2: 0.25, pass: 0.05, back: 0.06, inward: 0.08 };
 const STEP3_LEAD = 0.2;
+/** #213: share of the hip's head start (`FIGURE_GESTURE`) kept at the crossing (action 3). */
+export const SORTIE_GARCON_CROSS_HEAD = 0.5;
 /** #56: progression of the couple along the line after each action (m, validated figure), and the
  * share of it kept. Steps of about one foot length: only the common translation shrinks, the
  * relative geometry (D/D contact, crossing, neutral end) is unchanged. */
@@ -123,7 +126,6 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   // and marka G5 of the leader, G4 and marka D5 of the follower), the landings are neutral again:
   // shift o, feet under the hips and the right foot's stagger, as at the start.
   const neutral = [false, false, false, true, true];
-  const shiftOf: Record<FigureFoot, number> = { L: 1, R: 1 };
   // Initial/neutral stance: each foot `stance` further out (feet under the hips), absorbed on its first step.
   const widen = Number.isFinite(stance) ? stance : 0;
   const stagger = (o.stagger ?? 0) / 2;
@@ -160,23 +162,21 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
     const point = bodyAt(action, offset);
     return { x: point.x, z: point.z + line(action) };
   };
+  const shiftedBody = (point: FootPoint, weight: number): FootPoint =>
+    ({ x: point.x + o.x * weight, z: point.z + o.z * weight });
+  // #213: where the pelvis stands after each action (P[0] before the first). The pelvis follows the shift of the
+  // support foot, so it is validated whenever the dancer stands on a validated landing (the D/D arrival in particular).
+  const P: FootPoint[] = [shiftedBody({ x: 0, z: 0 }, 1)];
+  for (let i = 0; i < 4; i++) P.push(shiftedBody(bodyAfter(i, steps[i][1]), shifted[i] || neutral[i] ? 1 : 0));
   let support: FigureFoot = follower ? "L" : "R";
-  let body: FootPoint = { x: 0, z: 0 };
   for (let i = 0; i < index; i++) {
     const [side, offset] = steps[i];
     positions[side] = target(i, side, offset);
-    shiftOf[side] = shifted[i] || neutral[i] ? 1 : 0;
-    if (i < 4) { support = side; body = bodyAfter(i, offset); }
+    if (i < 4) support = side;
   }
   const [moving, offset] = steps[index];
   const from = positions[moving];
   const to = target(index, moving, offset);
-  // The pelvis follows the shift of the support foot, so it is validated whenever the dancer
-  // stands on a validated landing (the D/D arrival in particular).
-  const weightBefore = shiftOf[support];
-  const weightAfter = index < 4 ? (shifted[index] || neutral[index] ? 1 : 0) : weightBefore;
-  const shiftedBody = (point: FootPoint, weight: number): FootPoint =>
-    ({ x: point.x + o.x * weight, z: point.z + o.z * weight });
   // The leader's forward intention starts in the frame: his G1 (and pelvis) leave 0.1 beat after the
   // partner's D1, so his knee never meets her thigh before she retreats (face-à-face placement).
   // #50: the leader's G3 crosses once the follower's D3 has stepped out of the D/D foot contact; at
@@ -184,8 +184,15 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   // #88 (owner: « le suiveur est soit en même temps que le leader soit très légèrement en retard, il ne
   // peut pas être en avance »): the follower's step leaves when the leader's does, `SORTIE_GARCON_SYNC`
   // later (her span is shortened by as much, so she still lands on time).
-  const leaderLead = index === 0 ? STEP1_LEAD : index === 2 ? STEP3_LEAD : index === 3 ? SORTIE_GARCON_SYNC.step4 : 0;
-  const lead = follower ? leaderLead + SORTIE_GARCON_SYNC.lag : leaderLead;
+  const leadOf = (i: number) => (i === 0 ? STEP1_LEAD : i === 2 ? STEP3_LEAD : i === 3 ? SORTIE_GARCON_SYNC.step4 : 0) + (follower ? SORTIE_GARCON_SYNC.lag : 0);
+  const lead = leadOf(index);
+  // #213 (R45): the pelvis's way towards each landing, from `head` beats before the step leaves to the beat; the ways of
+  // two actions overlap, so the pelvis never stops. Without `head` each way starts when its step leaves (as before).
+  // At the crossing (action 3) the pelvises start half as early: sooner, the follower's D3 leaving the D/D contact
+  // brings her right femur against his while his G3 crosses (suave, with the game's ginga; measured on the GLB).
+  const G = FIGURE_GESTURE.v;
+  const wayStart = (i: number) => Math.max(0, i + leadOf(i) - G.head * (i === 2 ? SORTIE_GARCON_CROSS_HEAD : 1));
+  const way = (i: number, at: number) => figureWay(at, wayStart(i), i + 1);
   // D4 returns behind the planted G once the partner's G4 has left (same 0.65 touchdown).
   const span = !follower && index === 3 ? 0.65 - SORTIE_GARCON_SYNC.step4
     : follower && index === 3 && SORTIE_GARCON_SYNC.g4span > 0 ? SORTIE_GARCON_SYNC.g4span
@@ -198,7 +205,7 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   // partner's D thigh). The partner's D1 leaves at once, before the leader's G1 heel rise reaches her;
   // #56: with her shorter D1 his G1 rolls little too (a full heel rise pushes his knee into her thigh).
   const gait = gaitStep(flight, { x: to.x - from.x, z: to.z - from.z }, 0, !follower && (index === 0 || index === 2 || index === 3) || follower && index === 0 ? 0.3 : !follower && index === 1 ? 0 : 1);
-  const along = index === 4 ? flight : gait.progress;
+  const along = index === 4 ? flight : followWay(gait.progress, b, index + lead, index + lead + span, at => way(index, at));
   let point = interpolate(from, to, smooth(along));
   // D2 slides sideways past the partner's right knee, then advances; G crosses in front of the planted D.
   // From the interleaved quinconce start, the partner's first two steps retreat before sliding back
@@ -231,13 +238,11 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   const transfer = index < 4 ? smooth((t - 0.65) / 0.35) : 0;
   const oldR = support === "R" ? 1 : 0;
   const loadR = mix(oldR, moving === "R" ? 1 : 0, transfer);
-  const root = index < 4
-    ? interpolate(shiftedBody(body, weightBefore), shiftedBody(bodyAfter(index, offset), weightAfter),
-      smooth((t - lead) / (1 - lead)))
-    : shiftedBody(body, weightBefore);
+  const root = { ...P[0] };
+  for (let i = 0; i < 4; i++) { const w = way(i, b); root.x += (P[i + 1].x - P[i].x) * w; root.z += (P[i + 1].z - P[i].z) * w; }
   // #104: on his way to stand over his D, the leader's pelvis passes a little to his left while the
   // follower's pelvis opens with her G2 (face to face, straight ahead it meets her right thigh mid-step).
-  if (!follower && index === 1) root.x += SORTIE_GARCON_POS2.pass * Math.sin(Math.PI * Math.max(0, Math.min(1, (t - lead) / (1 - lead)))) ** 2;
+  if (!follower) root.x += SORTIE_GARCON_POS2.pass * Math.sin(Math.PI * Math.max(0, Math.min(1, (b - wayStart(1)) / (2 - wayStart(1))))) ** 2;
   // Same local yaw for both partners, whose outer frames differ by π.
   const exit = b < 1 ? smooth(b) : b < 2 ? 1 : b < 3 ? 1 - smooth(b - 2) : 0;
   const contra = Number.isFinite(contraDegrees) ? Math.max(0, Math.min(30, contraDegrees)) : DEFAULT_SORTIE_CONTRA;

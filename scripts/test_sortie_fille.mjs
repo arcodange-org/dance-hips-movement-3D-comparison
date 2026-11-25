@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { fixture, minimumBoneY, snapshot } from "./pose_fixture.mjs";
 import { transformedMesh, meshIntersection, footHull, footHullsOverlap, hullGap } from "./mesh_intersections.mjs";
 const bundle = new URL("./.test-sortie-fille-bundle.mjs", import.meta.url);
-buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'clock', 'rigJoints', 'gait', 'sortieGarcon', 'sortieFille', 'placement', 'sortieGarconContact', 'share']
+buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'clock', 'rigJoints', 'gait', 'sortieGarcon', 'sortieFille', 'placement', 'sortieGarconContact', 'share', 'gesteHanche']
   .map(n => `export * from "./src/${n}";`).join('\n'), resolveDir: new URL('../', import.meta.url).pathname },
   bundle: true, packages: 'external', platform: 'node', format: 'esm', outfile: bundle.pathname,
   define: { 'import.meta.env.BASE_URL': '"/"' }, logLevel: 'silent' });
@@ -61,12 +61,13 @@ for (const variant of variants) {
   if (variant === 'hook') {
     // #51 (shorter opening): her G2 lands 6 cm behind her line (world +z for the follower).
     near(second[1].L.z, first[1].L.z + .06);
-    // Same flight fractions as the validated hook, shifted by the close-start lead.
-    const lead = api.sortieFilleHookLead(o), when = f => 1 + lead + f * (.68 - lead);
-    // #49: the foot travels during the swing of its (reduced) walking roll: the corner of the hook is
-    // reached half-way through that swing.
-    const roll = api.SORTIE_FILLE_FIRST_ROLL, push = api.GAIT.push * roll, land = 1 - (1 - api.GAIT.land) * roll;
-    const early = at(when(.15 / .68))[0].R, corner = at(when(push + .5 * (land - push)))[0].R, late = at(when(.5 / .68 * 1))[0].R;
+    // The hook's flight, from its leaving (after the close-start lead) to its landing (#214: late, following the
+    // pelvis). Its corner: the last instant the foot is still on its starting line (found by bisection, whatever
+    // the timing of the flight); halfway to it and halfway from it to the landing.
+    const lead = api.sortieFilleHookLead(o), landing = 1.68;
+    let lo = 1 + lead, hi = landing;
+    for (let k = 0; k < 60; k++) { const mid = (lo + hi) / 2; if (Math.abs(at(mid)[0].R.z - first[0].R.z) < 1e-12) lo = mid; else hi = mid; }
+    const early = at((1 + lead + lo) / 2)[0].R, corner = at(lo)[0].R, late = at((lo + landing) / 2)[0].R;
     assert(early.x < first[0].R.x - .03, 'initial flight moves right');
     near(early.z, first[0].R.z);
     // The leader's D starts shifted by o (world +x = his left) and widened to the hips (−x),
@@ -297,11 +298,18 @@ for (const sortieFilleVariant of variants) for (const amp of [1, 1.5, 2]) {
       assert(!footHullsOverlap(polygons[i], polygons[j]), `foot clearance at ${tick / 100} (${sortieFilleVariant}, amp ${amp}), feet ${i}/${j}`);
   }
   if (amp !== 1) continue;
-  pair.forEach((f, i) => api.applyPose(f.r, f.model, 3, { ...options, follower: !!i, sortieFilleVariant }));
+  // #214: the D/D arrival is the first touch of the thighs before the beat of action 3 (with the hip first the
+  // bodies arrive a little before it).
+  let arrival = 3;
+  for (let beat = 2.5; beat <= 3; beat += .005) {
+    pair.forEach((f, i) => api.applyPose(f.r, f.model, beat, { ...options, follower: !!i, sortieFilleVariant }));
+    if (api.thighProximity(world(pair[0], 'hipR'), world(pair[0], 'kneeR'), world(pair[1], 'hipR'), world(pair[1], 'kneeR')).gap <= .003) { arrival = beat; break; }
+  }
+  pair.forEach((f, i) => api.applyPose(f.r, f.model, arrival, { ...options, follower: !!i, sortieFilleVariant }));
   const proximity = api.thighProximity(world(pair[0], 'hipR'), world(pair[0], 'kneeR'), world(pair[1], 'hipR'), world(pair[1], 'kneeR'));
   assert(proximity.direction.x < -.95, `rightward thigh proximity: ${proximity.direction.x}`);
   const { sA, sB } = thighContact(proximity, world(pair[0], 'hipR'), world(pair[0], 'kneeR'), world(pair[1], 'hipR'), world(pair[1], 'kneeR'), `sortieF ${sortieFilleVariant}`);
-  console.log(sortieFilleVariant, `D/D thigh contact ${(proximity.gap * 1000).toFixed(1)} mm at s=${sA.toFixed(2)}/${sB.toFixed(2)}, rightward component ${proximity.direction.x.toFixed(2)}`);
+  console.log(sortieFilleVariant, `D/D thigh contact at ${arrival.toFixed(3)}: ${(proximity.gap * 1000).toFixed(1)} mm at s=${sA.toFixed(2)}/${sB.toFixed(2)}, rightward component ${proximity.direction.x.toFixed(2)}`);
 }
 console.log('PASS sortie fille: swept foot hulls and D/D contact of the upper thighs');
 

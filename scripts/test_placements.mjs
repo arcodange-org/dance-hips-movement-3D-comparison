@@ -9,7 +9,7 @@ import { unlinkSync } from "node:fs";
 import * as THREE from "three";
 import { fixture, snapshot } from "./pose_fixture.mjs";
 const bundle = new URL("./.test-placements-bundle.mjs", import.meta.url);
-buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'rigJoints', 'sortieGarcon', 'sortieFille', 'placement', 'share']
+buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'rigJoints', 'sortieGarcon', 'sortieFille', 'placement', 'share', 'gesteHanche']
   .map(n => `export * from "./src/${n}";`).join('\n'), resolveDir: new URL('../', import.meta.url).pathname },
   bundle: true, packages: 'external', platform: 'node', format: 'esm', outfile: bundle.pathname,
   define: { 'import.meta.env.BASE_URL': '"/"' }, logLevel: 'silent' });
@@ -35,8 +35,9 @@ console.log('PASS placements: parsing, share parameter and amplitude fade');
 const figures = [
   // arrival: the D/D relative arrival; identical: beats where every foot is validated, until the
   // neutral landings (#48) start at action 4 (in the sortie fille the follower's free G keeps its
-  // shift until then: no identical window).
-  { movement: 'sortieG', key: 'sortieVariant', variants: ['line', 'right'], dz: api.SORTIE_GARCON_PAIR_DZ, arrival: 2, identical: [2, 3] },
+  // shift until then: no identical window). #213: with the hip first, the pelvis starts towards the neutral end
+  // `head` beats before action 4's step leaves.
+  { movement: 'sortieG', key: 'sortieVariant', variants: ['line', 'right'], dz: api.SORTIE_GARCON_PAIR_DZ, arrival: 2, identical: [2, 3 + api.SORTIE_GARCON_SYNC.step4 - api.FIGURE_GESTURE.v.head] },
   { movement: 'sortieF', key: 'sortieFilleVariant', variants: ['hook', 'back'], dz: api.SORTIE_FILLE_PAIR_DZ, arrival: 3, identical: null },
 ];
 const couple = dz => [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];
@@ -63,12 +64,15 @@ for (const figure of figures) for (const variant of figure.variants) for (const 
     assert(lead.R.x > part.L.x && lead.R.x < part.R.x, 'leader D between the partner\'s feet');
     assert(part.R.x > lead.R.x && part.R.x < lead.L.x, 'partner D between the leader\'s feet');
   }
-  // At the relative arrival, the D/D ankles and both pelvis roots are the validated ones.
+  // At the relative arrival, the D/D ankles and both pelvis roots are the validated ones. #214: with the hip first, at the
+  // arrival of the sortie fille (beat 3) both pelvises have already started towards the neutral end, which carries the
+  // placement's shift: the roots differ by the share of that shift they have made (at most a fifth of it).
   for (const amp of [.5, 1]) for (const role of [0, 1]) {
     pose(pair, figure.arrival, role, { placement, amp }); pose(reference, figure.arrival, role, { placement: 'reference', amp });
+    const shift = api.placementOffset(placement, amp), started = Math.hypot(shift.x, shift.z) * .2;
     for (const name of ['footR', 'root']) {
-      const a = world(pair[role], name), b = world(reference[role], name);
-      near(a.x, b.x, 1e-9, `${figure.movement} ${placement} arrival ${name}.x`); near(a.z, b.z, 1e-9, `${figure.movement} ${placement} arrival ${name}.z`);
+      const a = world(pair[role], name), b = world(reference[role], name), tolerance = name === 'root' ? started + 1e-9 : 1e-9;
+      near(a.x, b.x, tolerance, `${figure.movement} ${placement} arrival ${name}.x`); near(a.z, b.z, tolerance, `${figure.movement} ${placement} arrival ${name}.z`);
     }
   }
   // #48: the figure ends in the neutral position: the validated end shifted by o like the start

@@ -22,6 +22,7 @@ import { usePersistentState } from "./hooks/usePersistentState";
 import { STYLES, movementOf, movementFlags, movementAllowed, travelAllowed, PAIR_DZ, setKompaProto, setSembaProto, setUmDoisProto, type ModeKey, type MovementKey } from "./styles";
 import { setKneeFloor } from "./pose";
 import { setUmDoisGesture } from "./umDois";
+import { setFigureGesture } from "./gesteHanche";
 import { QUARTS_PAIR_DZ } from "./quartsPaire";
 import { IDA_PAIR_DZ } from "./idaPaire";
 import { PLACE_PAIR_DZ } from "./placePaire";
@@ -45,8 +46,10 @@ setUmDoisProto(readParams().get("unDeux"));
 // #203 (prototype, docs/spec-flexion-minimale.md): `?flexion=15|20` shows a candidate minimum flexion of the knees.
 setKneeFloor(readParams().get("flexion"));
 // #209 (docs/spec-un-deux-geste.md): the hip first is elected (25 Nov. 2026); `?geste=ancien|ensemble|hancheFinit` shows
-// another timing of the step aside of the « 1 2 » against the body that carries it.
+// another timing of the step aside of the « 1 2 » against the body that carries it. #213, #214
+// (docs/spec-sorties-geste.md): the same reading in the sorties; `?geste=ancien` shows the former one there too.
 setUmDoisGesture(readParams().get("geste"));
+setFigureGesture(readParams().get("geste"));
 
 function Gauge({ label, color, hud }: { label: string; color: string; hud: any }) {
   return (
