@@ -532,4 +532,8 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Films et vote : page de vote, quatorzième tour, questions 29 et 30 ([dossier](elections/quart-virgula/README.md)).
 - [x] Après le vote : C (`unPied`) et G (`entreLesPas`, hypothèse de travail) par défaut (`QUART_ELECTED`), réglés
   sans croisement d'os (0 sur 288 poses, trois placements), tests des quarts réécrits (#106 → R47), règle R47 ajoutée.
-- [ ] Le propriétaire confirme G et la conséquence sur R11 (le centre du quart passe entre les danseurs).
+- [x] G confirmé (25 nov.) ; à-coups, ginga, plexus réglés ; films du côté du guideur.
+- [x] Précision du 25 nov. : la suiveuse recule droit puis pivote sur son D, prototype `?quart=pivotSuiveur` (0 os
+  croisé ; semelles qui se chevauchent en quinconce, amplitude 1), filmé.
+- [ ] Le propriétaire tranche : pivot de la suiveuse malgré le chevauchement des semelles, ou version par défaut ;
+  conséquences sur R11 (centre du quart entre les danseurs) et R8 (pas du guideur de 54 cm).

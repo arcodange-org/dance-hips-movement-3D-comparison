@@ -133,6 +133,31 @@ Deux autres écarts, conséquences du même choix, enregistrés (`scripts/fixtur
   pieds, hors de l'app), les poitrines s'écartent de côté jusqu'à 20 cm à la pose du premier pied : les pieds prennent
   déjà les places du quart pendant que les corps restent de face (garde portée de 16 à 21 cm, `scripts/test_plexus.mjs`).
 
+## Le pivot de la suiveuse (précision du 25 novembre, prototype `?quart=pivotSuiveur`)
+
+G est confirmé, avec une précision : la suiveuse recule son D droit, sans rotation, en réponse à la virgula ; puis elle
+pivote sur ce pied, posé et chargé, pendant que le couple tourne (entre son premier et son second pas, en même temps que
+le guideur).
+
+Le quart reste rigide (le quinconce retrouvé à chaque fin de quart, spec #37) : le D de la suiveuse doit finir à la place
+du quart. Un pivot sur l'avant-pied déplace la cheville (le talon balaie) : posé à la bonne place, le D recule de 31 cm
+et de 13 cm seulement vers sa droite (27 cm de côté et 21 en arrière dans la version par défaut), puis il pivote d'un
+quart sur son avant-pied (`QUART_BALL`, mesuré sur le GLB ; l'avant-pied reste fixe au centième de millimètre). Son pied
+ne tourne pas pendant le recul ; son genou D s'ouvre un peu vers sa droite (`QUART_KNEE.follower`, 0,3 rad) pendant le
+recul et le pivot.
+
+Mesuré :
+
+- os des jambes : **0 croisement** sur 288 poses (quinconce, face à face, plexus) ;
+- semelles : en quinconce à l'amplitude 1 (le placement par défaut de l'app), **les orteils du D de la suiveuse se
+  posent sur ceux de la virgula** : leurs enveloppes se chevauchent de 0,8 à 1,9 temps environ (55 échantillons sur un
+  quart). Le pied de la virgula, perpendiculaire, pointe vers la gauche du guideur, là où le D de la suiveuse arrive en
+  reculant droit. Aucun chevauchement aux amplitudes 1,5 et 2 ni face à face. Le point de pivot n'y change rien : talon,
+  milieu du pied ou avant-pied, 27 à 55 échantillons ; une virgula plus courte ou plus à gauche non plus (50 à 65).
+
+Le test des enveloppes de pieds (`scripts/test_quarts_paire.mjs`, section 6) échouerait : ce pivot n'est donc pas la
+figure par défaut. Il est filmé pour être jugé (`pivot-pieds.gif`, `pivot-dessus.gif`, `pivot-guideur.gif` dans le dossier du vote).
+
 ## À vérifier une fois élu (tests sur le GLB réel, `scripts/test_quarts_paire.mjs`)
 
 - Contraintes de la spec #37 inchangées : fin de chaque quart égale au départ tourné d'un quart autour de C, retour au

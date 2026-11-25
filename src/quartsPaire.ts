@@ -25,7 +25,7 @@ export const QUARTS_HEEL_AT_TOE: FootPoint = { x: 0.056, z: 0.20 };
  * forward and makes the follower step back) and the second. `progressif`: the block turns the whole quarter in one
  * smooth curve from the moment the first foot leaves to the landing of the second, nearly facing front when the first
  * foot lands; `entreLesPas`: the first step only goes forward, the block turns from its landing to the second's. */
-export interface QuartVirgula { beyond: number; beside?: number; turn: "aujourdhui" | "diagonale" | "apres" | "progressif" | "entreLesPas" }
+export interface QuartVirgula { beyond: number; beside?: number; pivot?: boolean; turn: "aujourdhui" | "diagonale" | "apres" | "progressif" | "entreLesPas" }
 export const QUART_AFTER = 0.4;
 export const QUART_TODAY: QuartVirgula = { beyond: 0, turn: "aujourdhui" };
 export const QUART_CANDIDATES: Record<string, QuartVirgula> = {
@@ -42,9 +42,14 @@ export const QUART_CANDIDATES: Record<string, QuartVirgula> = {
  * until the owner confirms it). Tuned on the GLB without any leg-bone crossing (scripts/sonde_croisements_couple.mjs):
  * `beside` (m), the virgula lands that much further to his left, clear of the follower's standing G. */
 export const QUART_ELECTED: QuartVirgula = { beyond: 0.19, beside: 0.034, turn: "entreLesPas" };
+/** #208, precision of 25 Nov. (PROTOTYPE, `?quart=pivotSuiveur`): the follower's D steps straight back without turning,
+ * then pivots on its ball, loaded, while the couple turns. Its bones never cross his, but in the quinconce at amplitude
+ * 1 her toes land on his virgula's (spec, « Le pivot de la suiveuse »): not the default until the owner decides. */
+QUART_CANDIDATES.pivotSuiveur = { ...QUART_ELECTED, pivot: true };
 /** #208 (`entreLesPas`): the leader's G knee points where its foot does (the virgula turned out to the left, the
- * pelvis not yet turned); his trailing D knee opens `right` rad outwards meanwhile, in proportion. */
-export const QUART_KNEE = { left: 1, right: 0.6 };
+ * pelvis not yet turned); his trailing D knee opens `right` rad outwards meanwhile, in proportion; the follower's D
+ * knee opens `follower` rad to her right while she steps back and pivots on it. */
+export const QUART_KNEE = { left: 1, right: 0.6, follower: 0.3 };
 export const QUART_PROTO: { v: QuartVirgula } = { v: QUART_ELECTED };
 export const setQuartProto = (name: string | null | undefined) => { QUART_PROTO.v = (name && QUART_CANDIDATES[name]) || QUART_ELECTED; };
 /** Quintic ease: zero speed and zero acceleration at both ends. */
@@ -119,6 +124,9 @@ export const QUARTS_SHAPES: QuartsShapes = {
     { ...still, start: 1.45, end: 3.0, bump: { x: 0, z: -0.18 }, bumpPeak: 0.2, arcDelay: 0.1, bulge: 0.35 },
   ],
 };
+/** #208: where the right foot pivots, its ball, from the ankle, figure frame at foot yaw 0 (measured on the GLB foot,
+ * turned out at rest: `model.legs.R.ball` through the posed foot). */
+export const QUART_BALL: FootPoint = { x: -0.01684, z: 0.11664 };
 /** #208 (`entreLesPas`): how far ahead of its yaw the place of the pelvis goes round C with the first step (1: an
  * eighth of the quarter at the first landing, as the feet; 0: it waits for the second step). */
 export const QUART_LEAD = 0.9;
@@ -233,6 +241,22 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
     const travel = rotate({ x: endPoint.x - startPoint.x, z: endPoint.z - startPoint.z }, -base);
     // No roll around the crossing, where the interleaved knees leave no room for a heel rise.
     const roll = QUARTS_BODY.roll * (1 - crossingAt(now.q));
+    // #208 (`entreLesPas`, 25 Nov.): the follower's D steps straight back, without turning, then pivots on its ball,
+    // loaded, while the couple turns: it lands where that pivot brings its ankle to the quarter's place.
+    const backStep = between && follower && index === 0 && !!QUART_PROTO.v.pivot;
+    let pivotYaw = 0, landing = own;
+    if (backStep) {
+      const from = toFollower(startPoint), to = toFollower(endPoint), ball = rotate(QUART_BALL, base + QUARTER);
+      const on = { x: to.x + ball.x, z: to.z + ball.z }, back = rotate(QUART_BALL, base);
+      landing = { x: on.x - back.x, z: on.z - back.z };
+      pivotYaw = QUARTER * (a1 + a2) / 2;
+      // She answers the virgula: most of her way back is done early in the step (smooth start and landing).
+      const turnedBall = rotate(QUART_BALL, base + pivotYaw), e = 1 - (1 - smooth(raw)) ** 3;
+      own = raw < 1 ? { x: mix(from.x, landing.x, e), z: mix(from.z, landing.z, e) } : { x: on.x - turnedBall.x, z: on.z - turnedBall.z };
+      // The straight way back, in the dancer's frame at the start of the quarter.
+      const way = rotate({ x: landing.x - from.x, z: landing.z - from.z }, -base);
+      travel.x = -way.x; travel.z = -way.z;
+    }
     const gait = gaitStep(raw, follower ? { x: -travel.x, z: -travel.z } : travel, 0, roll);
     // #106: the leader's trailing D rises on its ball once his G carries him (the pelvis then stays up
     // instead of dropping and pushing the front knee into the partner), until its own push-off.
@@ -245,7 +269,7 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
     }
     const lift = raw > 0 && raw < 1 ? Math.max(gait.lift, GAIT.liftPeak * 0.35 * Math.sin(Math.PI * raw) ** 2) : 0;
     // The moving foot pivots once it has left its neighbours.
-    feet[side] = { ...own, yaw: base + QUARTER * ramp(raw, Math.max(shape.yawDelay, shape.arcDelay)), lift,
+    feet[side] = { ...own, yaw: backStep ? base + (raw < 1 ? 0 : pivotYaw) : base + QUARTER * ramp(raw, Math.max(shape.yawDelay, shape.arcDelay)), lift,
       pitch, pivot };
   }
   // Weight: on the second foot at the start of a quarter; it moves to each foot as that foot lands.
@@ -284,9 +308,12 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
   const action = now.quarter * 2 + (now.q >= role[1].start ? 1 : 0);
   // #208: the leader's G goes forward with its knee turned to the left like its foot (the virgula); the knee comes
   // back over the pelvis as the block catches up with the foot.
+  // The follower's D knee opens to her right (away from his virgula) while she steps back and pivots on it.
   const kneeOut = follower || !between ? 0 : Math.max(0, feet.L.yaw - bodyYaw);
+  const herOut = follower && between && QUART_PROTO.v.pivot ? QUART_KNEE.follower * p1 * (1 - (a1 + a2) / 2) : 0;
   return { beat: b, action, moving, feet, root, rootYaw: bodyYaw, chestYaw,
-    ...(kneeOut > 0 ? { kneeYawSide: { L: -QUART_KNEE.left * kneeOut, R: QUART_KNEE.right * kneeOut / QUARTER } } : {}), loadR, loadL: 1 - loadR,
+    ...(kneeOut > 0 ? { kneeYawSide: { L: -QUART_KNEE.left * kneeOut, R: QUART_KNEE.right * kneeOut / QUARTER } } : {}),
+    ...(herOut > 0 ? { kneeYawSide: { L: 0, R: herOut } } : {}), loadR, loadL: 1 - loadR,
     coupling: QUARTS_BODY.coupling * Math.min(1, Math.hypot(o.x, o.z) / 0.05), cyclic: true, kneeCap: mix(QUARTS_BODY.kneeCap, QUARTS_BODY.crossing.kneeCap, crossing), sway: QUARTS_BODY.sway,
     rotationCap: mix(QUARTS_BODY.rotationCap, QUARTS_BODY.crossing.rotationCap, crossing),
     dip: mix(QUARTS_BODY.dip, 0, crossing),

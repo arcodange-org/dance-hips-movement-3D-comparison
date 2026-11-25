@@ -58,5 +58,17 @@ Question 29 : **C** (`unPied`). Question 30 refaite : pas de vote ; la précisio
 
 ![Vu de dessus](retenu-dessus.gif)
 
+### Le pivot de la suiveuse (prototype `?quart=pivotSuiveur`)
+
+La suiveuse recule son D droit, sans rotation, puis pivote sur son avant-pied pendant que le couple tourne. Les os ne se
+croisent pas, mais en quinconce ses orteils se posent sur ceux de la virgula ([spec](../../spec-quart-virgula.md#le-pivot-de-la-suiveuse-précision-du-25-novembre-prototype-quartpivotsuiveur)).
+À gauche la version par défaut, à droite le pivot.
+
+![Les pieds vus d'en haut, le pivot du D de la suiveuse](pivot-pieds.gif)
+
+![Vu de dessus](pivot-dessus.gif)
+
+![Derrière le guideur](pivot-guideur.gif)
+
 **Propositions d'avant le vote** : B pour la question 29 (C si le recul d'un pied se mesure au pied droit de la suiveuse) ; F pour la
 question 30 refaite (E avant la précision du 25 novembre).
