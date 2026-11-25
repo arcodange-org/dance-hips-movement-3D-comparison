@@ -76,6 +76,10 @@ le couple se tient plus loin (`COUPLE_DZ`, `KNEE_ROOM`, `src/placement.ts`) ; cr
 Transfert de poids continu (#167, R34 : ni saccade, ni téléportation, ni relais soudain) : [spec](docs/spec-transfert-continu.md) ;
 `scripts/test_saccades.mjs` mesure, dans des séances du mode jeu, les à-coups du bassin de chaque figure et le passage d'un côté
 à l'autre ; l'état est enregistré (`scripts/fixtures/saccades.json`, cliquet ; `WRITE=1` après un changement voulu).
+Exercices d'isolation (#206, lot L441 de ReCoDanse) : [spec](docs/spec-isolations.md) ; `?isolation=<exercice>` (cou, poitrine,
+bassin), danseur seul pieds posés, seule la partie nommée bouge, en boucle (`src/isolations.ts` pur, option `isolation` de
+`applyPose`, `scripts/test_isolations.mjs`, `docs/features/isolations.feature`, films `scripts/capture_isolation_gif.mjs`) ; trois vitesses
+par boucle, amplitude moyenne, le huit qui alterne glisse et tourne, élus les 24 et 25 novembre (`docs/elections/2026-11-24-isolations/`).
 Mode guidage (PoC #69) : [spec](docs/spec-mode-guidage-poc.md) (`src/guidage.ts` pur, `src/guidagePose.ts`,
 vue `src/components/GuidageApp.tsx`, `scripts/test_guidage.mjs`) ; recherche : [jeux vidéo](docs/recherche-jeux-video/README.md).
 
