@@ -57,6 +57,10 @@ C, exprimée dans le repère du leader (+x à gauche, +z vers l'avant) :
   avec son pied gauche ») : avant, le D du suiveur partait à 0 et le G du leader à 0,8. Désormais les
   deux partent à 0,4 et se posent sur le 1. Le D du suiveur recule toujours d'abord le long de son
   chemin, ce qui laisse sa place au G du leader.
+- **Remplacé pour le quart par R47 (#208, 25 novembre, [spec](spec-quart-virgula.md))** : la virgula avance d'un pied,
+  le premier pas ne fait qu'avancer (guideur) et reculer (suiveuse), sans pivot ; le bloc tourne ensuite jusqu'à la pose
+  du second pied, en rotation rigide autour de C. Le paragraphe suivant décrit le quart d'avant, toujours sous
+  `?quart=ancien`.
 - **Bassin et buste tournent avec les pieds** (#106, propriétaire, 20 novembre : « le bassin et
   l'épaule (avec tout le haut du corps) bougent en même temps que le pied. […] l'extrémité (par
   exemple épaule gauche) est déjà en position finale et le reste est en position intermédiaire

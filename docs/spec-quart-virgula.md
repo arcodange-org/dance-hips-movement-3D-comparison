@@ -1,5 +1,7 @@
 # Spec — quart de tour en couple : la virgula avance, la rotation s'accélère moins vite (#208)
 
+Règle consolidée : R47 de [`regles-proprietaire.md`](regles-proprietaire.md).
+
 Issue : #208. Figure : [quarts de tour en paire, spec #37](spec-quarts-paire.md). Règle du propriétaire du 24 novembre
 2026, après un cours ; à ajouter à [`regles-proprietaire.md`](regles-proprietaire.md) une fois les candidats élus.
 
@@ -82,6 +84,41 @@ page de vote est refaite avec ces deux lectures ; D et E en sont retirées.
 jambes se croisent de nouveau (80 à 117 poses sur 288 en quinconce, 14 à 49 face à face ; 0 aujourd'hui,
 `scripts/sonde_croisements_couple.mjs`). Comme pour le minimum de flexion (#203), le candidat élu sera réglé (trajets
 des pieds, moments de départ, adoucissement au croisement) et contrôlé avant de devenir la figure par défaut.
+
+## La version retenue (25 novembre) : C et G, par défaut
+
+Votes : question 29 → C (`unPied`). La question 30 refaite (F `progressif` / G `entreLesPas`) n'a pas reçu de vote, mais
+la précision du propriétaire décrit G : le suiveur recule d'abord, puis tourne ; le guideur avance son pied G, genou
+tourné vers la gauche, et n'entame la rotation qu'après ce premier pas ; la rotation monte progressivement entre le
+premier et le second pas. G est mis par défaut **comme hypothèse de travail** ; la PR reste en brouillon jusqu'à sa
+confirmation. `?quart=ancien` montre le quart d'avant #208 ; les autres candidats restent sous `?quart=<nom>`.
+
+`QUART_ELECTED` (`src/quartsPaire.ts`) : virgula de C (`beyond` 19 cm), rotation de G, et trois réglages pour que les
+os des jambes ne se croisent plus (`scripts/sonde_croisements_couple.mjs quarts` : 0 croisement sur 288 poses en
+quinconce, face à face et plexus, contre 220, 240 et 220 avec G tel que filmé pour le vote) :
+
+- **le bassin suit le pas** : il passe sur le premier pied pendant que le poids s'y pose (sa place suit les pieds,
+  seul son lacet attend la pose) ; laissé en arrière de la virgula, il poussait le genou D du guideur dans la jambe G
+  de la suiveuse ;
+- **rotation rigide** autour de C : la diagonale de #106 (l'extrémité en place à la première pose, `travel`)
+  appartenait à un bloc qui tourne avec le premier pas ; elle n'a plus de sens et, gardée, croisait les jambes G du
+  guideur et D de la suiveuse quand le bloc tourne (temps 2 à 2,5) ;
+- **genoux** : le genou G du guideur suit son pied (la virgula tournée vers la gauche, le bassin encore de face), puis
+  revient au-dessus du bassin à mesure que le bloc rattrape le pied ; son genou D s'ouvre d'autant vers la droite, au
+  plus 0,3 rad (`QUART_KNEE`) ;
+- **virgula 3,4 cm plus à gauche** (`beside`) : le talon reste au-delà du bout du D, un peu à gauche, à l'écart de la
+  jambe G de la suiveuse, qui ne bouge pas pendant le premier pas.
+
+Mesures de la version retenue (kizomba, quinconce, amplitude 1, premier quart, `scripts/mesure_quart_virgula.mjs`) :
+talon 21,3 cm au-delà du bout du D, G avancé de 43,9 cm ; D de la suiveuse 21,3 cm en arrière à la pose (42,9 au plus) ;
+lacet nul à la pose du premier pied ; vitesse max 94 / 79 °/temps, accélération max 438 / 414 °/temps² (guideur /
+suiveuse). Vitesse moyenne par quart de temps, guideur : 5 2 −2 −5 2 35 69 92 87 58 20 −3 −5 −2 2 5.
+
+**Conséquence à faire valider.** Le quart reste une rotation rigide du couple (le quinconce est retrouvé à chaque fin
+de quart, spec #37) ; son centre est fixé par l'endroit où la virgula se pose. Une virgula qui avance d'un pied place ce
+centre **entre les deux danseurs** et non plus à côté du guideur : le bassin du guideur parcourt 2,69 m par tour, celui
+de la suiveuse 2,58 m (1,55 et 1,71 m avant #208). La règle R11 (« le suiveur fait plus de distance ») n'est donc plus
+tenue au sens strict ; le test l'exige à 10 % près. Question posée au propriétaire.
 
 ## À vérifier une fois élu (tests sur le GLB réel, `scripts/test_quarts_paire.mjs`)
 

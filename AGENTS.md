@@ -19,7 +19,7 @@ Ces consignes remplacent les anciennes procédures « ff-push sur `main` » des 
 Modules des figures en paire : [sortie garçon](docs/spec-sortie-garcon.md) (`src/sortieGarcon.ts`,
 `scripts/test_sortie_garcon.mjs`), [sortie fille](docs/spec-sortie-fille.md) (`src/sortieFille.ts`,
 `scripts/test_sortie_fille.mjs`), [quarts de tour en paire](docs/spec-quarts-paire.md) (`src/quartsPaire.ts`,
-`scripts/test_quarts_paire.mjs`), [ida e volta en paire](docs/spec-ida-paire.md) (`src/idaPaire.ts`,
+`scripts/test_quarts_paire.mjs` ; virgula d'un pied, rotation entre les deux pas : #208, R47, [spec](docs/spec-quart-virgula.md), `QUART_ELECTED`), [ida e volta en paire](docs/spec-ida-paire.md) (`src/idaPaire.ts`,
 `scripts/test_ida_paire.mjs`), [marche en paire et flèches du mode jeu](docs/spec-jeu-fleches.md)
 (`src/marchePaire.ts`, `scripts/test_marche_paire.mjs`), [enchaînement sortie fille → sortie garçon](docs/spec-enchainements.md)
 (`src/enchainement.ts`, `scripts/test_enchainement.mjs`), [ida inséré dans les sorties](docs/spec-insertion-ida.md)

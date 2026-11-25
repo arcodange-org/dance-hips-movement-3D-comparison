@@ -60,16 +60,19 @@ console.log('PASS quarts en paire: rotation rigide du couple autour du centre, f
     previous = roots;
   }
   assert.equal(quadrants.size, 4, `leader feet in every quarter of the compass (${[...quadrants]})`);
-  assert(follower > leader, `follower travels further (${follower.toFixed(3)} > ${leader.toFixed(3)})`);
+  // #208: the virgula lands one foot further forward and the follower steps back as far: the turn centre (fixed by
+  // where the virgula lands, the quarter being rigid) moves from beside the leader to between the partners, who then
+  // travel about the same distance (the follower further before #208). Question put to the owner.
+  assert(follower > 0.9 * leader, `follower travels about as far as the leader (${follower.toFixed(3)} > 0.9 × ${leader.toFixed(3)})`);
   console.log(`PASS boussole: pieds du leader dans les 4 quarts ; bassin du leader ${leader.toFixed(2)} m, du suiveur ${follower.toFixed(2)} m par tour`);
 }
 
 // 3. Sequence (#82, owner: « le suiveur anticipe [...] ça doit se faire en simultané » ; « le leader engage
-// le buste avec son pied gauche ») and body rotation (#106: « le bassin et l'épaule (avec tout le haut du
-// corps) bougent en même temps que le pied », diagonal when the first foot lands, the rest with the other
-// foot): the follower's D and the leader's G leave together and land together on beat 1, then her G and
-// his D. Pelvis and chest turn with the feet, the chest a little later (#126): half the quarter when the first foot
-// lands, the whole quarter when the second does; both dancers in step.
+// le buste avec son pied gauche »): the follower's D and the leader's G leave together and land together on beat 1,
+// then her G and his D. Body rotation, #208 (rule of 25 Nov. 2026, replacing the #106 diagonal for the quarter): no
+// pivot with the first step, which only goes forward (his virgula) and back (her D); pelvis and chest turn from the
+// first landing to the second, gradually (never backwards), the chest a little later (#126); both dancers in step.
+// The pelvis still goes over the first foot as the weight moves onto it.
 {
   const rest = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
   const S = api.QUARTS_SHAPES, Q = Math.PI / 2;
@@ -85,19 +88,20 @@ console.log('PASS quarts en paire: rotation rigide du couple autour du centre, f
       near(wrap(s(t).rootYaw + s(t).chestYaw - s(t - api.QUARTS_BODY.chestLag).rootYaw), 0, 1e-9, `chest follows the pelvis ${api.QUARTS_BODY.chestLag} beat later at ${t}`); }
     for (let quarter = 0; quarter < 4; quarter++) {
       const t0 = quarter * 4;
-      near(wrap(s(t0 + first[0].start - 0.01).rootYaw - s(t0).rootYaw), 0, 1e-9, 'still before the first foot');
-      near(wrap(s(t0 + first[0].end).rootYaw - s(t0).rootYaw), Q / 2, 1e-6, `diagonal when the first foot lands (quarter ${quarter})`);
-      // The side of the first foot (his left, her right) is nearer its final place than the other side.
-      const hips = b => { const v = s(b), side = follower ? -1 : 1, e = api.QUARTS_BODY.extremity;
-        const off = sgn => ({ x: v.root.x + sgn * e * Math.cos(v.rootYaw), z: v.root.z - sgn * e * Math.sin(v.rootYaw) });
-        return { first: off(side), other: off(-side) }; };
-      const landed = hips(t0 + first[0].end), final = hips(t0 + 4);
-      const gap = k => Math.hypot(landed[k].x - final[k].x, landed[k].z - final[k].z);
-      assert(gap('first') < gap('other'), `extremity of the first foot ahead (quarter ${quarter}, ${gap('first').toFixed(3)} vs ${gap('other').toFixed(3)})`);
+      near(wrap(s(t0 + first[0].end).rootYaw - s(t0).rootYaw), 0, 1e-9, `no pivot with the first step (quarter ${quarter})`);
       near(wrap(s(t0 + first[1].end).rootYaw - s(t0).rootYaw), Q, 1e-6, `whole quarter with the second foot (quarter ${quarter})`);
+      let previous = 0;
+      for (let tick = 0; tick <= 100; tick++) {
+        const t = t0 + first[0].end + (first[1].end - first[0].end) * tick / 100, turned = wrap(s(t).rootYaw - s(t0).rootYaw);
+        assert(turned >= previous - 1e-9, `the block turns gradually between the two landings (quarter ${quarter}, ${t})`); previous = turned;
+      }
+      // The pelvis has moved towards the first foot when it lands (his forward, her back): more than half its way.
+      const from = s(t0).root, at = s(t0 + first[0].end).root, foot = s(t0 + first[0].end).feet[follower ? 'R' : 'L'], start = s(t0).feet[follower ? 'R' : 'L'];
+      const along = ((at.x - from.x) * (foot.x - start.x) + (at.z - from.z) * (foot.z - start.z)) / Math.hypot(foot.x - start.x, foot.z - start.z) ** 2;
+      assert(along > 0.5, `the pelvis goes over the first foot (quarter ${quarter}, ${along.toFixed(2)})`);
     }
   }
-  console.log('PASS séquence : D du suiveur et G du leader ensemble (posés sur le 1) ; bassin et buste tournent avec les pieds, en diagonale au premier pied (#106)');
+  console.log('PASS séquence : D du suiveur et G du leader ensemble (posés sur le 1) ; le premier pas avance sans pivot, le bloc tourne entre les deux poses (#208)');
 }
 
 

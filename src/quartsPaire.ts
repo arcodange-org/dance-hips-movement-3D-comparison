@@ -25,7 +25,7 @@ export const QUARTS_HEEL_AT_TOE: FootPoint = { x: 0.056, z: 0.20 };
  * forward and makes the follower step back) and the second. `progressif`: the block turns the whole quarter in one
  * smooth curve from the moment the first foot leaves to the landing of the second, nearly facing front when the first
  * foot lands; `entreLesPas`: the first step only goes forward, the block turns from its landing to the second's. */
-export interface QuartVirgula { beyond: number; turn: "aujourdhui" | "diagonale" | "apres" | "progressif" | "entreLesPas" }
+export interface QuartVirgula { beyond: number; beside?: number; turn: "aujourdhui" | "diagonale" | "apres" | "progressif" | "entreLesPas" }
 export const QUART_AFTER = 0.4;
 export const QUART_TODAY: QuartVirgula = { beyond: 0, turn: "aujourdhui" };
 export const QUART_CANDIDATES: Record<string, QuartVirgula> = {
@@ -34,9 +34,19 @@ export const QUART_CANDIDATES: Record<string, QuartVirgula> = {
   unPied: { beyond: 0.19, turn: "diagonale" }, apres: { beyond: 0.10, turn: "apres" },
   // 25 Nov.: the turn spread over the two steps (the virgula of `plus10`).
   progressif: { beyond: 0.10, turn: "progressif" }, entreLesPas: { beyond: 0.10, turn: "entreLesPas" },
+  // The quarter before #208.
+  ancien: QUART_TODAY,
 };
-export const QUART_PROTO: { v: QuartVirgula } = { v: QUART_TODAY };
-export const setQuartProto = (name: string | null | undefined) => { QUART_PROTO.v = (name && QUART_CANDIDATES[name]) || QUART_TODAY; };
+/** #208, votes of 25 Nov. 2026: the virgula goes one foot further (`unPied`) and the first step only goes forward
+ * (the follower steps back), the block turning from its landing to the second's (`entreLesPas`, working hypothesis
+ * until the owner confirms it). Tuned on the GLB without any leg-bone crossing (scripts/sonde_croisements_couple.mjs):
+ * `beside` (m), the virgula lands that much further to his left, clear of the follower's standing G. */
+export const QUART_ELECTED: QuartVirgula = { beyond: 0.19, beside: 0.034, turn: "entreLesPas" };
+/** #208 (`entreLesPas`): the leader's G knee points where its foot does (the virgula turned out to the left, the
+ * pelvis not yet turned); his trailing D knee opens `right` rad outwards meanwhile, in proportion. */
+export const QUART_KNEE = { left: 1, right: 0.3 };
+export const QUART_PROTO: { v: QuartVirgula } = { v: QUART_ELECTED };
+export const setQuartProto = (name: string | null | undefined) => { QUART_PROTO.v = (name && QUART_CANDIDATES[name]) || QUART_ELECTED; };
 /** Quintic ease: zero speed and zero acceleration at both ends. */
 const ease5 = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * t * (10 - 15 * t + 6 * t * t); };
 const QUARTER = Math.PI / 2;
@@ -76,6 +86,7 @@ export function quartsCouple(rest: Record<FigureFoot, FootPoint>, o: PlacementOf
   const follower = { L: toFollower(own.L), R: toFollower(own.R), root: toFollower(own.root) };
   // The quarter rotation sending L0 onto L1 = R0 + heel-at-toe: rotate(u) - u = d with u = L0 - C.
   const target = { x: own.R.x + QUARTS_HEEL_AT_TOE.x, z: own.R.z + QUARTS_HEEL_AT_TOE.z + QUART_PROTO.v.beyond };
+  target.x += QUART_PROTO.v.beside ?? 0;
   const d = { x: target.x - own.L.x, z: target.z - own.L.z };
   const u = { x: -(d.x + d.z) / 2, z: (d.x - d.z) / 2 };
   return { centre: { x: own.L.x - u.x, z: own.L.z - u.z }, leader, follower };
@@ -192,6 +203,12 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
     return [ramp(rawAt(role[0], t), Math.max(QUARTS_BODY.delay, role[0].arcDelay)), ramp(rawAt(role[1], t), role[1].arcDelay)];
   };
   const [a1, a2] = turnAt(now.q);
+  // #208 (`entreLesPas`): the pelvis goes over the first foot as the weight moves onto it, its yaw waiting for the
+  // landing: the place of the block follows the steps, only its turn is delayed (a pelvis left behind the virgula
+  // pushed the trailing knee into the partner's). It follows the rigid quarter about C: the #106 diagonal (the
+  // extremity in place at the first landing) belongs to a block that turns with the first step.
+  const between = QUART_PROTO.v.turn === "entreLesPas";
+  const [p1, p2]: [number, number] = between ? [ease5(rawAt(role[0], now.q)), ease5(rawAt(role[1], now.q))] : [a1, a2];
   for (const [index, { side, shape, raw, arc }] of now.feet.entries()) {
     angle[side] = base + QUARTER * arc;
     let point = about(c, start[side], angle[side]);
@@ -215,7 +232,7 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
     const heel = follower || index === 0 ? 0 : QUARTS_BODY.heel;
     if (heel > 0) {
       const push = GAIT.push * Math.max(0, Math.min(1, roll));
-      const trail = heel * a1 * (raw <= 0 ? 1 : push > 0 && raw < push ? 1 - smooth(raw / push) : 0);
+      const trail = heel * p1 * (raw <= 0 ? 1 : push > 0 && raw < push ? 1 - smooth(raw / push) : 0);
       if (trail > pitch) { pitch = trail; pivot = "ball"; }
     }
     const lift = raw > 0 && raw < 1 ? Math.max(gait.lift, GAIT.liftPeak * 0.35 * Math.sin(Math.PI * raw) ** 2) : 0;
@@ -236,8 +253,8 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
   // follows the pelvis `chestLag` beats later.
   const lagged = turnAt(now.q - QUARTS_BODY.chestLag);
   const chestYaw = (QUARTER / 2) * (lagged[0] + lagged[1] - a1 - a2);
-  const rigid = about(c, start.root, bodyYaw - base), diagonal = diagonalRoot(c, start.root, QUARTS_BODY.extremity, a1, a2);
-  const travel = QUARTS_BODY.travel[follower ? "follower" : "leader"];
+  const rigid = about(c, start.root, (QUARTER / 2) * (p1 + p2)), diagonal = diagonalRoot(c, start.root, QUARTS_BODY.extremity, p1, p2);
+  const travel = between ? 0 : QUARTS_BODY.travel[follower ? "follower" : "leader"];
   const rootPoint = about(c, { x: mix(rigid.x, diagonal.x, travel), z: mix(rigid.z, diagonal.z, travel) }, base);
   const root = follower ? toFollower(rootPoint) : rootPoint;
   // #82 (« le leader engage le buste avec son pied gauche ») holds: his chest turns with his G, which
@@ -249,7 +266,11 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
     * (1 - smooth((now.q - QUARTS_GINGA.until[0]) / (QUARTS_GINGA.until[1] - QUARTS_GINGA.until[0])));
   const moving = two.flying || two.raw >= 1 ? order[1] : order[0];
   const action = now.quarter * 2 + (now.q >= role[1].start ? 1 : 0);
-  return { beat: b, action, moving, feet, root, rootYaw: bodyYaw, chestYaw, loadR, loadL: 1 - loadR,
+  // #208: the leader's G goes forward with its knee turned to the left like its foot (the virgula); the knee comes
+  // back over the pelvis as the block catches up with the foot.
+  const kneeOut = follower || !between ? 0 : Math.max(0, feet.L.yaw - bodyYaw);
+  return { beat: b, action, moving, feet, root, rootYaw: bodyYaw, chestYaw,
+    ...(kneeOut > 0 ? { kneeYawSide: { L: -QUART_KNEE.left * kneeOut, R: QUART_KNEE.right * kneeOut / QUARTER } } : {}), loadR, loadL: 1 - loadR,
     coupling: QUARTS_BODY.coupling * Math.min(1, Math.hypot(o.x, o.z) / 0.05), cyclic: true, kneeCap: mix(QUARTS_BODY.kneeCap, QUARTS_BODY.crossing.kneeCap, crossing), sway: QUARTS_BODY.sway,
     rotationCap: mix(QUARTS_BODY.rotationCap, QUARTS_BODY.crossing.rotationCap, crossing),
     dip: mix(QUARTS_BODY.dip, 0, crossing),

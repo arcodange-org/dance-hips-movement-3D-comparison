@@ -530,4 +530,6 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Spec ([spec](spec-quart-virgula.md)) ; mesures (`scripts/mesure_quart_virgula.mjs`) ; candidats sous `?quart=`
   (`plus5`, `plus10`, `unPied`, `apres`).
 - [x] Films et vote : page de vote, quatorzième tour, questions 29 et 30 ([dossier](elections/quart-virgula/README.md)).
-- [ ] Après le vote : la version élue par défaut, réglée sans croisement d'os (spec #37), règle ajoutée, saccades.
+- [x] Après le vote : C (`unPied`) et G (`entreLesPas`, hypothèse de travail) par défaut (`QUART_ELECTED`), réglés
+  sans croisement d'os (0 sur 288 poses, trois placements), tests des quarts réécrits (#106 → R47), règle R47 ajoutée.
+- [ ] Le propriétaire confirme G et la conséquence sur R11 (le centre du quart passe entre les danseurs).
