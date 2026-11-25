@@ -495,6 +495,20 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Films du kompa à un temps par appui (`docs/gifs/kompa-un-temps*.gif`), à 90 et 120 bpm.
 - [ ] En couple et en déplacement : avec #187. Style suave : deux temps par côté, sans rebond, fait seul (#200).
 
+## Exercices d'isolation seul, pieds posés (#206, lot L441 de ReCoDanse)
+
+- [x] Issue #206 ; jeton L441 posé au plan du dossier ReCoDanse (kadans-dossier#950, PR #951) ; spec poussée en premier
+  ([spec](spec-isolations.md)).
+- [x] `src/isolations.ts` (pur) : dix-neuf boucles, réglages explicites, candidats lus dans `src/essais.ts`.
+- [x] `src/pose.ts` : option `isolation` (sans style, pieds posés, colonne et cage posées exactement après le solveur des
+  jambes, cou qui plie depuis sa base) ; `isolation=`, `miroir=` dans l'adresse (seul et comparaison).
+- [x] `scripts/test_isolations.mjs` (module pur et vrai GLB) et `docs/features/isolations.feature` dans `npm test`.
+- [x] GIF des dix-neuf boucles et des candidats ; page d'élection (`docs/elections/2026-11-24-isolations/`, tour 12 de la page de vote).
+- [x] Vote du fondateur (24 novembre, tour 12) : amplitude moyenne, trois vitesses par boucle (deux temps, un temps, un
+  demi-temps par mouvement), point tenu puis fluide, demi-cercles de la tête et de la poitrine ; interrupteurs retirés.
+- [x] Vingt et une boucles refilmées (`docs/elections/2026-11-24-isolations/`).
+- [x] Le huit du bassin (25 novembre) : il alterne, une mesure il glisse, une mesure il tourne aussi ; B7 et B7′ refilmés.
+
 ## Suave : deux temps par côté, sans rebond (#200)
 
 - [x] Issue #200 ; spec ([spec](spec-suave-deux-temps.md)) ; règle R44.
@@ -519,3 +533,13 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] La page : « Pas de base » (le « 1 2 ») et « Sur place » (l'ancien pas, `surPlace`, seul seulement) ; partage
   d'adresse (`?surPlace=1`) ; textes du style et de la démo.
 - [ ] Le couple (#187).
+
+## Jamais de jambe tendue : un minimum de flexion des genoux (#203)
+
+- [x] Issue #203 ; spec poussée en premier ([spec](spec-flexion-minimale.md)) ; règle R43.
+- [x] Prototype : `KNEE_FLOOR`, `setKneeFloor` (`src/pose.ts`), `?flexion=<degrés>` ; mesures de 7° à 30°.
+- [x] Films des candidats (quart de tour en couple, kompa seul, « 1 2 ») et vote : 30° (24 novembre).
+- [x] Le plancher élu par défaut (`KNEE_FLOOR_ELECTED`), atteint en douceur ; le « 1 2 » plus doux (`UM_DOIS_SOFT`).
+- [x] Couple réglé de nouveau : `COUPLE_DZ` 0,24, sortie fille (D3 dans son repère), quart de tour (balancement au
+  quart), plexus (5 cm), coude de la suiveuse ; sonde `scripts/sonde_croisements_couple.mjs` ; mesures enregistrées reprises.
+- [x] Films à 30° dans le dossier du vote (quart de tour, sortie fille, ida e volta en couple).

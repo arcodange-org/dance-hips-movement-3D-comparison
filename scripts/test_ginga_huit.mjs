@@ -85,7 +85,10 @@ const api = await import(bundle.href); unlinkSync(bundle);
     assert.equal(api.KOMPA_BEATS, 1);
     assert.deepEqual(voted.mesures, elected.mesures, 'kompa: `deuxTemps` is the elected step as voted');
     assert.equal(voted.transfert.periode, 4); assert.equal(plain.transfert.periode, 2, 'kompa: one beat per support, a side-to-side cycle in two beats');
-    assert.deepEqual([plain.genoux.gauche, plain.genoux.droit], [elected.genoux.gauche, elected.genoux.droit], 'kompa: the knees keep their range');
+    // The same poses, sampled at other instants: the extremes agree to a tenth of a degree (#203: the knee floor is
+    // reached smoothly, the extremes are no longer the floor itself).
+    [plain.genoux.gauche, plain.genoux.droit].flat().forEach((v, i) => assert.ok(Math.abs(v - [elected.genoux.gauche, elected.genoux.droit].flat()[i]) < 0.1,
+      `kompa: the knees keep their range (${JSON.stringify([plain.genoux, elected.genoux])})`));
     for (const hip of ['L', 'R']) for (const view of ['dessus', 'face', 'profil'])
       assert.ok(Math.abs(plain.mesures[hip][view] - elected.mesures[hip][view]) < 0.05 * elected.mesures[hip][view], `kompa: hip ${hip} keeps its path seen from ${view} (${plain.mesures[hip][view]} against ${elected.mesures[hip][view]} cm²)`);
     assert.ok(Math.abs(plain.posture.inclinaison[1] - elected.posture.inclinaison[1]) < 0.1 && Math.abs(plain.buste.largeur - elected.buste.largeur) < 1, `kompa: the bust keeps its lean and its sway (${JSON.stringify(plain.buste)})`);
@@ -129,7 +132,9 @@ const api = await import(bundle.href); unlinkSync(bundle);
   }
   const g0 = led('genoux'), g2 = led('genouxRond');
   assert.ok(g0.genoux.auCentre.every(([l, r]) => Math.abs(l - r) < 2), `genoux: both knees bent alike at the centre (${JSON.stringify(g0.genoux.auCentre)})`);
-  assert.ok(g2.mesures.L.face > 2 * g0.mesures.L.face, `genouxRond: each hip goes round seen from the front (${g2.mesures.L.face} cm²)`);
+  // #203: with the knees never under 30° the hips rise less in the knee-led prototypes (2.4 → 1.5 cm for `genoux`), and
+  // the roundness seen from the front shrinks with them (17.1 → 9.3 cm² for `genouxRond`, 6.3 for `genoux`).
+  assert.ok(g2.mesures.L.face > 1.4 * g0.mesures.L.face, `genouxRond: each hip goes round seen from the front (${g2.mesures.L.face} cm² against ${g0.mesures.L.face})`);
   const kg = trace('genouxRond', 'seul', 'base', 'kompa');
   assert.ok(kg.fluidite.arretPart === 0 && kg.mesures.L.face > 10, `kompa genouxRond: never still, hips round seen from the front (${kg.mesures.L.face} cm²)`);
   // Fourth round (vote: still « skiing », the 8 seen from the front must be larger than from above): less glide.
@@ -151,10 +156,13 @@ const api = await import(bundle.href); unlinkSync(bundle);
   // Sixth round (vote for KG3 again: the legs must visibly alternate, one bent, one straighter). Measured: in
   // `hanches` the supporting leg is the more bent of the two most of the time, both knees past 60°.
   assert.ok(kh.genoux.appuiPlusPlie > 0.5 && kh.genoux.gauche[0] > 55 && kh.genoux.ecart < 20, `kompa hanches: both legs bent, the supporting one more (${JSON.stringify(kh.genoux)})`);
+  const straighter = api.KNEE_FLOOR_ELECTED + 6;
   for (const name of ['alterne', 'alterneTalon', 'alterneDirect']) {
     const k = trace(name, 'seul', 'base', 'kompa'), g = k.genoux;
-    assert.ok(g.gauche[0] < 25 && g.droit[0] < 25 && g.gauche[1] > 45 && g.droit[1] > 45 && g.ecart > 25, `kompa ${name}: one leg nearly straight, the other bent (${JSON.stringify(g)})`);
-    assert.ok(g.gauche[0] > 12 && g.droit[0] > 12, `kompa ${name}: the straighter leg stays a little bent (${g.gauche[0]}°)`);
+    // #203 (R43, 24 Nov.: no leg ever straight; the alternation of these rounds was there to show the movement): the
+    // straighter leg now stays at the minimum flexion, 30°.
+    assert.ok(g.gauche[0] < straighter && g.droit[0] < straighter && g.gauche[1] > 45 && g.droit[1] > 45 && g.ecart > 15, `kompa ${name}: one leg at the minimum flexion, the other bent (${JSON.stringify(g)})`);
+    assert.ok(g.gauche[0] > api.KNEE_FLOOR_ELECTED - 1 && g.droit[0] > api.KNEE_FLOOR_ELECTED - 1, `kompa ${name}: the straighter leg keeps the minimum flexion (${g.gauche[0]}°)`);
     assert.ok(g.appuiPlusPlie <= (name === 'alterneDirect' ? 0.01 : 0.25), `kompa ${name}: the supporting leg is the straighter one (${g.appuiPlusPlie})`);
     assert.ok(k.fluidite.arretPart === 0 && k.fluidite.acceleration99 < kh.fluidite.acceleration99, `kompa ${name}: never still, no harsher than hanches (${k.fluidite.acceleration99} m/s²)`);
     if (name !== 'alterneDirect') assert.ok(k.mesures.L.face > 1.2 * k.mesures.L.dessus && k.mesures.R.face > 1.2 * k.mesures.R.dessus, `kompa ${name}: the « 8 » seen from the front stays larger than from above (${k.mesures.L.face} against ${k.mesures.L.dessus} cm²)`);
@@ -163,7 +171,7 @@ const api = await import(bundle.href); unlinkSync(bundle);
   // `hanches`: the hip finishes the transfer and does not start it). The three keep the alternation.
   for (const name of ['hancheFinit', 'hancheTenue', 'hancheAssise', 'hancheApres']) {
     const k = trace(name, 'seul', 'base', 'kompa'), g = k.genoux;
-    assert.ok(g.gauche[0] < 25 && g.gauche[0] > 12 && g.gauche[1] > 45 && g.ecart > 25, `kompa ${name}: one leg nearly straight, the other bent (${JSON.stringify(g)})`);
+    assert.ok(g.gauche[0] < straighter && g.gauche[0] > api.KNEE_FLOOR_ELECTED - 1 && g.gauche[1] > 45 && g.ecart > 15, `kompa ${name}: one leg at the minimum flexion, the other bent (${JSON.stringify(g)})`);
     assert.ok(g.appuiPlusPlie <= (name === 'hancheFinit' ? 0.2 : 0.01), `kompa ${name}: the supporting leg is the straighter one (${g.appuiPlusPlie})`);
     assert.ok(k.fluidite.arretPart === 0 && k.fluidite.acceleration99 < kh.fluidite.acceleration99, `kompa ${name}: never still (${k.fluidite.acceleration99} m/s²)`);
     // The hip that waits then arrives with the weight goes round seen from the front; the two others stay
@@ -176,7 +184,8 @@ const api = await import(bundle.href); unlinkSync(bundle);
   // the free heel lower still). The supporting leg is then the bent one as it receives the weight.
   for (const name of ['assis', 'assisMarque']) {
     const k = trace(name, 'seul', 'base', 'kompa'), g = k.genoux;
-    assert.ok(g.gauche[0] < 30 && g.gauche[1] > 40 && g.ecart > 15, `kompa ${name}: the legs still alternate (${JSON.stringify(g)})`);
+    // #203: the less bent leg at the minimum flexion (30°).
+    assert.ok(g.gauche[0] < api.KNEE_FLOOR_ELECTED + 6 && g.gauche[1] > 40 && g.ecart > 15, `kompa ${name}: the legs still alternate (${JSON.stringify(g)})`);
     assert.ok(g.appuiPlusPlie > 0.5, `kompa ${name}: the supporting leg sits (${g.appuiPlusPlie})`);
     assert.ok(k.fluidite.arretPart === 0 && k.fluidite.acceleration99 < kh.fluidite.acceleration99, `kompa ${name}: never still (${JSON.stringify(k.fluidite)})`);
     assert.ok(k.buste.largeur < 2 && k.buste.profondeur < 3, `kompa ${name}: the chest stays above the feet (${JSON.stringify(k.buste)})`);
@@ -186,12 +195,14 @@ const api = await import(bundle.href); unlinkSync(bundle);
   // upright; and it leans slightly forward: seen from the side the knees do not pass the bust, rule R33).
   const km = trace('assisMarque', 'seul', 'base', 'kompa');
   assert.ok(km.posture.busteDevantGenoux[1] < -10 && trace('ancien', 'seul', 'base', 'kompa').posture.busteDevantGenoux[1] < -18, `kompa: the bust stands behind the knees today and in assisMarque (${km.posture.busteDevantGenoux})`);
-  for (const [name, behind] of [['assisBuste', -7], ['assisBusteAvant', -2]]) {
+  // #203: with the knees at 30° at least they stand about 1 cm further forward: the bust of `assisBusteAvant` is 2.3 cm
+  // behind them at the most (−2 before).
+  for (const [name, behind] of [['assisBuste', -7], ['assisBusteAvant', -3]]) {
     const k = trace(name, 'seul', 'base', 'kompa');
     assert.ok(k.posture.busteDevantGenoux[0] > behind && k.posture.busteDevantGenoux[2] < 3, `kompa ${name}: the bust above the knees (${k.posture.busteDevantGenoux} cm)`);
     assert.ok(k.posture.inclinaison[1] > 12 && k.posture.inclinaison[1] < 25 && k.posture.inclinaison[2] - k.posture.inclinaison[0] < 1, `kompa ${name}: a steady forward lean (${k.posture.inclinaison}°)`);
     assert.ok(k.buste.largeur > 5 && k.buste.largeur < 12, `kompa ${name}: the bust follows the pelvis sideways (${k.buste.largeur} cm)`);
-    assert.ok(k.fluidite.arretPart === 0 && k.genoux.gauche[0] < 30 && k.genoux.gauche[1] > 40 && Math.abs(k.mesures.L.face - km.mesures.L.face) < 2, `kompa ${name}: the hips of assisMarque (${k.mesures.L.face} cm²)`);
+    assert.ok(k.fluidite.arretPart === 0 && k.genoux.gauche[0] < api.KNEE_FLOOR_ELECTED + 6 && k.genoux.gauche[1] > 40 && Math.abs(k.mesures.L.face - km.mesures.L.face) < 2, `kompa ${name}: the hips of assisMarque (${k.mesures.L.face} cm²)`);
   }
   console.log(`PASS genoux qui mènent (vote du 22 novembre) : jamais à l'arrêt, accélération du bassin ${led('genouxQuart').fluidite.acceleration99} m/s² (${fToday.acceleration99} aujourd'hui, ${fF.acceleration99} pour F) ; de face ${g0.mesures.L.face} à ${g2.mesures.L.face} cm² ; kompa ${kg.mesures.L.face} cm²`);
   console.log(`PASS kompa seul : aujourd'hui une ligne (${k0.C.profondeur} cm d'avant en arrière, arrêt de ${k0.C.arret} temps) ; prototypes : ${k1.L.dessus} et ${k2.L.dessus} cm² entourés vu de dessus, aucun arrêt`);
@@ -227,7 +238,7 @@ const api = await import(bundle.href); unlinkSync(bundle);
   for (const name of ['simple', 'pause', 'parCote']) {
     const k = trace(name, 'seul', 'base', 'semba'), g = k.genoux;
     assert.ok(k.fluidite.arretPart === 0 && k.fluidite.acceleration99 < 12, `semba ${name}: never still, no jolt (${JSON.stringify(k.fluidite)})`);
-    assert.ok(g.gauche[0] < 32 && g.gauche[1] > 44 && g.ecart > 14, `semba ${name}: the legs alternate (${JSON.stringify(g)})`);
+    assert.ok(g.gauche[0] < api.KNEE_FLOOR_ELECTED + 6 && g.gauche[1] > 44 && g.ecart > 14, `semba ${name}: the legs alternate (${JSON.stringify(g)})`);
     assert.ok(k.posture.busteDevantGenoux[0] > -8.5 && k.posture.inclinaison[1] > 12 && k.buste.largeur > 4 && k.buste.largeur < 10, `semba ${name}: the bust of the elected kompa (${JSON.stringify(k.posture)}, ${k.buste.largeur} cm sideways)`);
     assert.ok(k.mesures.C.hauteur > 1.5 && k.mesures.C.hauteur < 4, `semba ${name}: one bounce per landing (${k.mesures.C.hauteur} cm)`);
     report.push(`${name} ${k.fluidite.acceleration99} m/s², genoux ${g.gauche[0]}° à ${g.gauche[1]}°`);

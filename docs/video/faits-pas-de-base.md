@@ -1093,6 +1093,11 @@ Mesures : `node scripts/video/mesurer_pas.mjs` (le poids est celui que la pose c
   17,6, kompa 16,6, tarraxinha 11,3) ; le zouk va et vient sur une ligne. Pivot du bassin : tarraxinha 12,5°,
   kompa 11,5°, zouk 10,3°, semba 8°, kizomba 5,7°, suave 0,1°. Tronc : kizomba 17°, kompa 16°, semba 15° vers
   l'avant ; tarraxinha 8° ; le suave ondule ; le zouk se cambre.
+- **F365** Depuis le 24 novembre 2026 (#203, règle R43 du propriétaire), aucune jambe ne se tend dans aucune
+  danse : chaque genou garde au moins 30° de flexion, élus sur film, et les danseurs se tiennent un peu plus bas.
+  Mesures du pas de base, danseur seul : kizomba 40° à 63°, semba 39° à 63°, kompa 31° à 48°, tarraxinha 45° à
+  51°, suave 46° à 49°, zouk 31° à 58° (`scripts/video/mesurer_pas.mjs` ; `docs/spec-flexion-minimale.md`). Ce
+  fait remplace les plages de genoux des faits précédents.
 - **F355** Le tronc. Kompa et semba le penchent vers l'avant, de 16° et 15°, sans variation. La kizomba de 6°,
   la tarraxinha de 8°. Le suave ondule : son inclinaison varie de 19° sur quatre temps. Le zouk est cambré, de
   10° vers l'arrière, et varie de 8°.

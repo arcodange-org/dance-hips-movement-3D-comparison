@@ -14,6 +14,7 @@ import type { SortieFilleVariant } from "../sortieFille";
 import type { CouplePlacement } from "../placement";
 import { DEFAULT_SORTIE_CONTRA, type SortieVariant } from "../sortieGarcon";
 import { IDA_DEFAULT, type IdaVariant } from "../idaPaire";
+import type { IsolationId, IsolationSettings } from "../isolations";
 import {
   MUSCLES_URL,
   DRACO_DECODER_PATH,
@@ -73,6 +74,8 @@ export interface RigProps {
   /** #176: anatomical bones and muscles of the trunk, arms and hands in place of the stylised volumes
    * (docs/spec-haut-du-corps.md) ; `{ carriage: false }` keeps the heads face to face. */
   upperBody?: boolean | { carriage?: boolean };
+  /** #206: an isolation exercise, alone with planted feet (docs/spec-isolations.md). */
+  isolation?: { id: IsolationId; settings?: IsolationSettings } | null;
 }
 
 export default function Rig({
@@ -114,6 +117,7 @@ export default function Rig({
   ida = false,
   guide = null,
   upperBody = false,
+  isolation = null,
 }: RigProps) {
   const torsoOp = torsoOpacity ?? TORSO_OPACITY;
   // With the muscle layer, the stylised trunk blocks are hidden (owner's rule, see src/muscles.ts).
@@ -239,6 +243,7 @@ export default function Rig({
         // #51: plexus-to-plexus contact in the pair figures.
         plexus: embrace && placement !== undefined && (movement === "sortieG" || movement === "sortieF" || movement === "quarts" || movement === "ida" || movement === "none" || movement === "temps3" || movement === "corridinho"),
         contraposition: contraposition ?? 1,
+        isolation,
       });
     // #40: in pair with the frame, the arms reach contact sites on the partner (pure IK, src/cadre.ts);
     // the partner's chest is the one of its latest pose (at most one frame old).

@@ -74,7 +74,8 @@ C, exprimée dans le repère du leader (+x à gauche, +z vers l'avant) :
   0 croisement ; un départ à 30 % du vol avec 0,3 temps de retard donne 2 poses croisées. La règle de la phase 14 (haut du
   corps avec le premier pied, bas du corps avec le second) et le retard du buste du suiveur
   (`QUARTS_LEAD`) sont abandonnés.
-- **Bassins couplés** pendant tout le tour ; balancement du style réduit de moitié.
+- **Bassins couplés** pendant tout le tour ; balancement du style réduit de moitié (au quart depuis #203 : avec les
+  genoux pliés à 30° au moins, le semba et le suave rapprochaient les genoux d'appui des deux danseurs).
 - **Genoux et style au croisement** : flexion plafonnée à 0,22 rad (≈ 13°, contre 0,45 rad dans les
   sorties). Autour du croisement (temps 1 à 1,9 de chaque quart, quand les deux paires de cuisses
   sont intercalées et que le G du leader se pose à côté du G d'appui du suiveur), les genoux se

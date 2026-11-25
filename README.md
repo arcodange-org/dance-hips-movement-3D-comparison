@@ -31,7 +31,7 @@ muscles. [Spécification](docs/spec-vitrine-danse-auto.md).
 
 ## Vidéo éducative : le pas de base sur place, d'un style à l'autre (#155)
 
-Une vidéo d'environ cinq minutes et demie présente le pas de base sur place des six styles : un chapitre par
+Une vidéo d'un peu plus de six minutes présente le pas de base sur place des six styles : un chapitre par
 style (d'où il vient, ce que fait le modèle), un plan où les six dansent côte à côte au même tempo, les
 limites, puis le couple en danse automatique pendant que le générique cite toutes les sources.
 
@@ -44,7 +44,7 @@ node scripts/video/generer_video.mjs   # voix, plans, habillage, montage → ess
 ```
 
 - Le texte (`scripts/video/narration.json`) ne dit que ce que porte la fiche de faits
-  [`docs/video/faits-pas-de-base.md`](docs/video/faits-pas-de-base.md) (314 faits numérotés, tirés des
+  [`docs/video/faits-pas-de-base.md`](docs/video/faits-pas-de-base.md) (365 faits numérotés, tirés des
   recherches du dépôt) ; chaque phrase cite ses faits, un test le vérifie.
 - L'application se filme image par image avec `film=1`, au tempo de chaque musique.
 - Voix : Phonon 40m français, en local. **« Voice: Phonon by Gradium — gradium.ai »**, licence CC BY-NC 4.0 :
@@ -53,6 +53,17 @@ node scripts/video/generer_video.mjs   # voix, plans, habillage, montage → ess
   ([pourquoi](docs/spec-musique-elevenlabs.md#conditions-dusage-relevé-du-21-novembre-2026-à-confirmer-par-le-propriétaire)).
 
 [Spécification](docs/spec-video-pas-de-base.md) · [la chaîne, pas à pas](scripts/video/README.md).
+
+## Exercices d'isolation : le cou, la poitrine, le bassin (#206)
+
+Un danseur seul, pieds posés, fait **un exercice** d'échauffement ou de body move : seule la partie du corps nommée bouge,
+**en boucle** (le cou tourne, penche, hoche, fait son cercle ou son demi-cercle ; la poitrine glisse devant, derrière, de
+côté, en demi-cercle, en cercle marqué ou lié ; le bassin bascule, glisse, fait ses cercles ou son huit). Vingt et une boucles, pour les exercices
+que ReCoDanse fera montrer par ses mascottes. Lien : `?isolation=poitrine-cercle-marque&haut=1&muscles=1` (les noms des
+exercices, `miroir=1` et `mode=compare` dans [la spec](docs/spec-isolations.md)). Chaque exercice se joue lentement,
+puis deux fois plus vite, puis encore deux fois plus vite ; la forme a été [élue](docs/elections/2026-11-24-isolations/README.md).
+
+![Le cercle de la poitrine, marqué](docs/elections/2026-11-24-isolations/P3-poitrine-cercle-marque.gif)
 
 ## Musique enregistrée, générée par IA (#142)
 
@@ -76,6 +87,14 @@ son coupé, le comportement est inchangé. En comparaison, on choisit la musique
 Le tempo reste celui du curseur (un bouton propose le tempo conseillé du style) ; chaque piste
 affiche son niveau de preuve (documenté, faible, proposition) et peut être coupée. URL :
 `son=1&musique=A|B`. [Spécification et choix provisoires](docs/spec-son-synthese.md).
+
+## Jamais de jambe tendue : 30° de flexion au moins (#203)
+
+Dans toutes les danses, les deux genoux gardent toujours au moins 30° de flexion (minimum élu sur film par le
+propriétaire le 24 novembre 2026) : les danseurs sont un peu plus bas. Le genou rejoint ce minimum en douceur, sans
+à-coup du bassin. En couple, les genoux pliés avancent vers le partenaire : chaque danseur se tient 4 cm plus loin,
+et aucun os des jambes ne croise ceux de l'autre. `?flexion=<degrés>` (7 à 40) montre un autre minimum.
+[Spécification](docs/spec-flexion-minimale.md) · [films et vote](docs/elections/flexion-minimale/README.md).
 
 ## Kizomba et semba : le pas de base « 1 2 » (#196)
 
@@ -417,7 +436,8 @@ plongeante pour lire le lacet des pieds/vírgula), `&campos=x,y,z&camtgt=x,y,z` 
 exact, ex. produit par le bouton « Partager la vue »), `&angle=45&zoom=2.5` (**angle** = azimut en
 degrés autour de la cible (0 = +Z, 90 = +X = E/ligne de danse) et **zoom** = distance caméra→cible
 en m — écrits aussi dans l'URL par « Partager la vue », prioritaires sous `campos`/`camtgt`),
-`&boussole=0` (masque la boussole 8 directions).
+`&boussole=0` (masque la boussole 8 directions), `&isolation=<exercice>&miroir=1` (exercice d'isolation seul, pieds
+posés, en boucle à trois vitesses ; ignoré en paire ; [spec](docs/spec-isolations.md)).
 
 **La page (#192)** : onglets « Seul · Comparer · En couple · Jeu » ; la scène se voit dès l'ouverture, avec sa barre de
 lecture (lecture, rejouer, pas de la figure, tempo, son) ; les réglages sont dans un panneau : le style, la figure et ses

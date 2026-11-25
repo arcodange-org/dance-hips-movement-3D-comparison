@@ -221,6 +221,10 @@ filmé à ce tempo, et le montage cale le premier temps de la musique sur le tem
   montage de la comparaison gardait l'ancien clip quand ses plans changeaient : le clip assemblé porte désormais
   l'empreinte de ses douze plans (`assemblerComparaison`).
 
+- **Flexion minimale des genoux** (#203, fusionnée le 24 novembre par #204) : chaque genou garde au moins 30° de
+  flexion. La narration n'en dit rien de chiffré (« genoux fléchis ») et reste vraie ; fait F365 ; douzième version
+  à filmer.
+
 ## Ce qui reste
 
 - **Le rythme du kompa et le pas de base de la kizomba et du semba** changent (demande du 24 novembre) : le

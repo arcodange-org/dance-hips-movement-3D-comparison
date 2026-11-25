@@ -5,6 +5,35 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## Exercices d'isolation seul, pieds posés (#206, lot L441 de ReCoDanse, 24 novembre 2026)
+
+- Demande : ReCoDanse proposera dans « S'entraîner » des exercices sans vidéo de la personne, montrés en boucle par Rémi
+  et Corinne côte à côte, filmés par le pont des mascottes sur ce moteur (fiche 111 du dossier ReCoDanse ; lots suivants :
+  L442 filmer, L443 les corps). Jeton L441 au plan du dossier : kadans-dossier#950.
+- Fait : `?isolation=<exercice>` ([spec](docs/spec-isolations.md)) ; vingt et une boucles (cou : tourner, pencher,
+  hocher, deux cercles, le demi-cercle ; poitrine : devant-derrière, côtés, cercles marqués et liés dans les deux sens, le
+  demi-cercle ; bassin : bascule, côtés, cercles marqués et liés, le huit dans les deux sens). Chaque boucle enchaîne trois
+  vitesses, deux mesures chacune : deux temps, un temps, un demi-temps par mouvement (24 temps ; 32 pour les cercles marqués). Seule la partie nommée bouge, pieds posés, poids sur les deux
+  pieds, bassin à niveau sur la boucle ; le cou plie depuis sa base. `miroir=1`, `mode=compare` (deux danseurs côte à côte).
+- Module pur `src/isolations.ts` ; option `isolation` de `applyPose` (aucun style ; colonne et cage posées exactement après
+  le solveur des jambes) ; `scripts/test_isolations.mjs` (vrai GLB) et `docs/features/isolations.feature` dans `npm test` ;
+  films `scripts/capture_isolation_gif.mjs` (boucle sans image tenue, compte des temps).
+- **Élu le 24 novembre** (tour 12, [dossier](docs/elections/2026-11-24-isolations/README.md)) : amplitude moyenne ; les
+  trois vitesses ; le point posé et tenu à deux temps et à un temps, fluide au demi-temps ; les demi-cercles ajoutés.
+  Le 25 : le huit du bassin alterne, une mesure il glisse, une mesure il tourne aussi. Interrupteurs retirés.
+
+## Jamais de jambe tendue : 30° de flexion au moins (#203, 24-25 novembre 2026)
+
+- Règle R43 : dans toutes les danses, les deux genoux gardent un minimum de flexion. **Minimum élu le 24 novembre :
+  30°** (contre 7° et 20°, [vote](docs/elections/flexion-minimale/README.md)). `KNEE_FLOOR_ELECTED`, plancher atteint en
+  douceur (`KNEE_FLOOR_SOFT`) ; les figures en couple plafonnées sous le plancher le prennent tel quel.
+- Couple : chaque danseur se tient 4 cm plus loin (`COUPLE_DZ` 0,24, `KNEE_ROOM`, `src/placement.ts`) ; sortie fille :
+  D3 dans son propre repère, bassin plus en avant ; quart de tour : balancement du style au quart ; plexus visé à 5 cm ;
+  coude de la suiveuse plus haut. Sonde de calibrage : `scripts/sonde_croisements_couple.mjs` (tous les croisements
+  d'os des figures en couple, `REGLAGE` pour essayer un réglage sans toucher au code).
+- « 1 2 » : relais plus doux de la hauteur du bassin (`UM_DOIS_SOFT`). Mesures enregistrées reprises (saccades, écarts
+  aux règles, empreintes historiques) : [spec](docs/spec-flexion-minimale.md#mise-en-œuvre-à-30).
+
 ## Pas de base « 1 2 » de la kizomba et du semba (#196, 24 novembre 2026)
 
 - Règle R42 : au 1 la jambe libre s'écarte et reçoit le poids ; au 2 l'autre la rejoint et marque sans poids, le

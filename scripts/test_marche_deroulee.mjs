@@ -109,9 +109,12 @@ for (const styleKey of Object.keys(api.STYLES)) {
     const m = walk(label, options, 8, 16, extra.reverse ? { heelUp: 12, ballLanding: true } : { heelUp: 12, toeUp: 6 });
     // Un pas par temps : envol de 0 à `F` temps, phases du déroulé à 18 % et 78 % de l'envol.
     checkedSeams += seams(label, options, [8, 9, 10, 11].flatMap(k => [k, k + F * 0.18, k + F * 0.78, k + F]));
-    // Bassin : en avant, pas plus brusque que la marche à plat ; à reculons, au plus 15 % de plus.
+    // Bassin : en avant, pas plus brusque que la marche à plat ; à reculons, au plus 15 % de plus. #203 (R43, genoux
+    // jamais sous 30°) : sur les longs pas en arrière du cercle, le bassin, plus bas, creuse un peu plus entre les deux
+    // pieds écartés et remonte d'autant (suave 65,3 → 68,5 mm, zouk 67,0 → 71,6 mm) : 22 % à reculons. En avant, la
+    // marge ne change pas.
     const flat = FLAT_PELVIS_EIGHTH[styleKey][extra.reverse ? 1 : 0], pelvis = pelvisEighth(options);
-    const limit = extra.reverse ? flat * 1.15 : flat + 0.5;
+    const limit = extra.reverse ? flat * 1.22 : flat + 0.5;
     assert(pelvis <= limit, `${label} : le bassin fait ${pelvis.toFixed(1)} mm en un huitième de temps (marche à plat : ${flat} mm, limite ${limit.toFixed(1)} mm)`);
     report.push({ label, ...m, pelvis, flat });
   }

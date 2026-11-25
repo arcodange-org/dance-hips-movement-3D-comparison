@@ -82,7 +82,7 @@ const SORTIE_F_REST: Entry[] = [
   { title: "3 · La suiveuse avance le long du flanc droit",
     leader: "Recule son G en gardant le torse tourné ; sa main D accompagne la suiveuse vers l'avant.",
     follower: "Avance son D en diagonale, à droite du D du guideur, et cherche le contact de cuisse.",
-    contacts: "Cuisses D au contact (milieu et haut) ; son D s'arrête 15 à 17 cm en retrait de celui du guideur.",
+    contacts: "Cuisses D au contact (milieu et haut) ; son D s'arrête 23 à 25 cm en retrait de celui du guideur.",
     sources: ["S8", "Pr", "#105"] },
   { title: "4 · Reconnexion, retour sur la ligne",
     leader: "Recule son D pour dégager ; son torse revient au neutre, signal de reconnexion.",
