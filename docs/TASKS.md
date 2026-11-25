@@ -510,3 +510,10 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Couple réglé de nouveau : `COUPLE_DZ` 0,24, sortie fille (D3 dans son repère), quart de tour (balancement au
   quart), plexus (5 cm), coude de la suiveuse ; sonde `scripts/sonde_croisements_couple.mjs` ; mesures enregistrées reprises.
 - [x] Films à 30° dans le dossier du vote (quart de tour, sortie fille, ida e volta en couple).
+
+## Quart de tour en couple : la virgula avance, la rotation s'accélère moins vite (#208)
+
+- [x] Spec ([spec](spec-quart-virgula.md)) ; mesures (`scripts/mesure_quart_virgula.mjs`) ; candidats sous `?quart=`
+  (`plus5`, `plus10`, `unPied`, `apres`).
+- [x] Films et vote : page de vote, quatorzième tour, questions 29 et 30 ([dossier](elections/quart-virgula/README.md)).
+- [ ] Après le vote : la version élue par défaut, réglée sans croisement d'os (spec #37), règle ajoutée, saccades.
