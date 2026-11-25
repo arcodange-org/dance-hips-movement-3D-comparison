@@ -26,7 +26,7 @@ const sample = clock => {
   const e = new THREE.Euler().setFromQuaternion(f.r.pelvis.getWorldQuaternion(new THREE.Quaternion()), 'YXZ');
   return { footL: world(f.r.footL).x, footR: world(f.r.footR).x, pelvis: world(f.r.pelvis).x, roll: e.z * deg, kneeL: stats.kneeL, kneeR: stats.kneeR, loadL: stats.loadL };
 };
-const report = { style: styleKey, geste: process.env.GESTE ?? 'aujourdhui', pas: process.env.UNDEUX ?? 'élu' };
+const report = { style: styleKey, geste: process.env.GESTE ?? 'élu (hancheDabord)', pas: process.env.UNDEUX ?? 'élu' };
 for (const [name, from, foot, knee] of [['pas de côté (G, temps 3 → 4)', 3, 'footL', 'kneeL'], ['marque (D rejoint, temps 0 → 1)', 0, 'footR', 'kneeR']]) {
   const rows = Array.from({ length: STEPS + 1 }, (_, k) => ({ t: from + k / STEPS, ...sample(from + k / STEPS) }));
   const way = key => { const a = rows[0][key], b = rows[STEPS][key]; return rows.map(r => (r[key] - a) / (b - a || 1)); };

@@ -35,23 +35,25 @@ const mod4 = (x: number) => ((x % 4) + 4) % 4;
 const wave = (v: number) => (1 - Math.cos(Math.PI * Math.max(0, Math.min(1, v)))) / 2;
 
 /** #209 (owner, 24 Nov. 2026; docs/spec-un-deux-geste.md): the hip's ginga carries the step aside, one gesture
- * instead of a foot set down and then the hip. Prototype to elect on film (`?geste=<name>`); nothing changes without
- * the parameter:
- * - `land`: beat into the step at which the stepping foot lands (today 0.5); the weight passes onto it from there to
- *   the count;
- * - `lead`: share of a beat by which the body starts across before the step's beat (today 0: it goes over the beat);
- * - `follow`: the foot's way across follows the body's (1) instead of its own quicker ease (0, today);
+ * instead of a foot set down and then the hip. Elected on 25 Nov. 2026 (vote round 16, question 32): the hip first
+ * (`hancheDabord`), the default; the other candidates and the former timing (`ancien`) stay under `?geste=<name>`:
+ * - `land`: beat into the step at which the stepping foot lands (formerly 0.5); the weight passes onto it from there
+ *   to the count;
+ * - `lead`: share of a beat by which the body starts across before the step's beat (formerly 0: over the beat);
+ * - `follow`: the foot's way across follows the body's (1) instead of its own quicker ease (0, formerly);
  * - `join`: the beats, counted from the foot's marka as in `UM_DOIS_TIMES.close`, over which the other foot joins
- *   it for the marca (today [3.1, 3.8]). */
+ *   it for the marca (formerly [3.1, 3.8]). */
 export interface UmDoisGesture { land: number; lead: number; follow: number; join: readonly [number, number] }
-export const UM_DOIS_GESTURE_TODAY: UmDoisGesture = { land: 0.5, lead: 0, follow: 0, join: [3.1, 3.8] };
 export const UM_DOIS_GESTURES: Record<string, UmDoisGesture> = {
+  ancien: { land: 0.5, lead: 0, follow: 0, join: [3.1, 3.8] },
   ensemble: { land: 0.8, lead: 0, follow: 1, join: [3.0, 3.95] },
   hancheDabord: { land: 0.85, lead: 0.3, follow: 1, join: [3.0, 3.95] },
   hancheFinit: { land: 0.6, lead: 0, follow: 0.5, join: [3.0, 3.95] },
 };
-export const UM_DOIS_GESTURE = { v: UM_DOIS_GESTURE_TODAY };
-export const setUmDoisGesture = (name?: string | null) => { UM_DOIS_GESTURE.v = (name && UM_DOIS_GESTURES[name]) || UM_DOIS_GESTURE_TODAY; };
+/** The elected gesture (25 Nov. 2026): the hip starts across a third of a beat before the foot, which follows it. */
+export const UM_DOIS_GESTURE_ELECTED = "hancheDabord";
+export const UM_DOIS_GESTURE = { v: UM_DOIS_GESTURES[UM_DOIS_GESTURE_ELECTED] };
+export const setUmDoisGesture = (name?: string | null) => { UM_DOIS_GESTURE.v = (name && UM_DOIS_GESTURES[name]) || UM_DOIS_GESTURES[UM_DOIS_GESTURE_ELECTED]; };
 /** Share of the body's way across, at `x` beats into the step's beat (from −`lead` to 1). */
 const bodyWay = (x: number) => { const lead = UM_DOIS_GESTURE.v.lead; return wave((x + lead) / (1 + lead)); };
 

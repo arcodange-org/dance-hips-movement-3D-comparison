@@ -30,7 +30,19 @@ temps (de 3 à 4) ; le poids passe de 3,5 à 4.
 Le pied part seul et se pose ; le bassin fait l'essentiel de son chemin ensuite. À la marque, le pied qui rejoint
 voyage de 0,2 à 0,72 pendant que le bassin fait son petit rond sur place.
 
-## Les candidats (prototype, `?geste=<nom>`, rien ne change sans le paramètre)
+## Élu le 25 novembre : la hanche d'abord
+
+Page de vote, seizième tour, question 32 : **C, `hancheDabord`**. C'est le comportement par défaut
+(`UM_DOIS_GESTURE_ELECTED`) : le corps part un tiers de temps avant le temps du pas, le pied suit le chemin du bassin et
+se pose à 0,85 du temps, le poids passe ensuite jusqu'au compte. Les autres lectures restent sous `?geste=` : `ancien`
+(le pas puis la hanche), `ensemble`, `hancheFinit`.
+
+`scripts/test_um_dois.mjs` contrôle désormais R45 sur la version élue : au pas de côté, le bassin arrive à mi-chemin moins
+d'un dixième de temps après le pied, et le pied a fait moins de 15 % de son trajet quand le bassin a fait un dixième du
+sien (mesuré : 0,03 à 0,06 temps, 2 à 3 %, kizomba et semba, trois écarts). La même mesure refuse `ancien`. Les quatre
+gestes passent tous les autres contrôles du « 1 2 ».
+
+## Les candidats (`?geste=<nom>`)
 
 Trois lectures du même geste, dans `src/umDois.ts` (`UM_DOIS_GESTURES`) :
 
@@ -78,12 +90,12 @@ ne parte, ou que le bassin arrive à mi-chemin un quart de temps ou plus après 
 | Marche (avance, recule, double) | aucun (décalage de 0,22 au plus, pied fait 44 % au plus) | — |
 | Sur place en couple | pas de pas de plus de 8 cm | — |
 
-## À vérifier une fois élu
+## Vérifié après le vote
 
-- `scripts/test_um_dois.mjs` avec la version élue par défaut ; R21 (le poids arrive sur le temps) et R34 (ni saccade, ni
+- [x] `scripts/test_um_dois.mjs` avec la version élue par défaut ; R21 (le poids arrive sur le temps) et R34 (ni saccade, ni
   relais soudain : le poids passe plus vite quand le pied se pose plus tard, à vérifier à l'œil et dans les mesures).
-- Les comptes 1 et 2 gardent le poids entier sur la jambe écartée ; l'écart reste 28 cm.
-- Les films du pas de base (#155) sont refaits quand c'est dans `main`.
+- [x] Les comptes 1 et 2 gardent le poids entier sur la jambe écartée ; l'écart reste 28 cm.
+- [ ] Les films du pas de base (#155) sont refaits quand c'est dans `main`.
 
 ## Hors périmètre
 

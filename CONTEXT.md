@@ -5,6 +5,18 @@ Règle d'or : **aucun état important uniquement en mémoire ou dans /tmp** — 
 dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et sur GitHub
 (branche + PR), poussés tôt et souvent.
 
+## « 1 2 » : la hanche porte le pas de côté (#209, R45, 25 novembre 2026)
+
+- Règle R45 : le ginga se fond dans le mouvement ; la hanche, le fessier et la cuisse emmènent la jambe, on ne voit pas
+  un pas puis la hanche. Avant, dans le « 1 2 », le pied partait seul et se posait au milieu du temps, le bassin suivait.
+- **Élu le 25 novembre** (tour 16, question 32, [dossier](docs/elections/un-deux-geste/README.md)) : la hanche d'abord
+  (`hancheDabord`, défaut de `UM_DOIS_GESTURE`, `src/umDois.ts`) : le corps part un tiers de temps avant le pas, le pied
+  suit le chemin du bassin et se pose à 0,85 du temps, le poids passe ensuite jusqu'au compte. Bassin à mi-chemin
+  0,03 temps après le pied (0,30 avant). `?geste=ancien|ensemble|hancheFinit` montre les autres lectures.
+- Relevé des autres figures (`scripts/sonde_geste_hanche.mjs`) : sorties garçon (#213) et fille (#214) à reprendre avec
+  la même lecture ; virgula du quart de tour (#208).
+- Reste : refaire les films du pas de base (#155).
+
 ## Exercices d'isolation seul, pieds posés (#206, lot L441 de ReCoDanse, 24 novembre 2026)
 
 - Demande : ReCoDanse proposera dans « S'entraîner » des exercices sans vidéo de la personne, montrés en boucle par Rémi

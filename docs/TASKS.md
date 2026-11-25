@@ -532,4 +532,6 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Films et vote : page de vote, seizième tour, question 32 ([dossier](elections/un-deux-geste/README.md)).
 - [x] Relevé des autres figures (`scripts/sonde_geste_hanche.mjs`) : sorties à reprendre (#213, #214), virgula du quart
   de tour (#208).
-- [ ] Après le vote : la lecture élue par défaut, tests repris, films du pas de base (#155) refaits.
+- [x] Élu le 25 novembre : C, `hancheDabord`, par défaut ; R45 contrôlée dans `scripts/test_um_dois.mjs`.
+- [ ] Films du pas de base (#155) refaits une fois dans `main`.
+- [ ] Sorties garçon (#213) et fille (#214) : la hanche d'abord.

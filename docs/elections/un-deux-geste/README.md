@@ -5,7 +5,10 @@ Fil d'Ariane : [docs](../../) › [spec](../../spec-un-deux-geste.md) › **film
 Dossier ouvert le 25 novembre 2026, après la correction du propriétaire du 24 novembre : dans le « 1 2 », le mouvement
 de la hanche en ginga produit à lui seul l'écart du pas ; on ne doit pas voir un pas puis un mouvement de hanche, mais un
 seul geste (règle R45, le ginga se fond dans le mouvement). Vote sur la page de vote du propriétaire, seizième tour,
-question 32. Candidats sous `?geste=<nom>` (rien ne change sans le paramètre), mesures `scripts/mesure_un_deux_geste.mjs`.
+question 32. Candidats sous `?geste=<nom>`, mesures `scripts/mesure_un_deux_geste.mjs`.
+
+**Élu le 25 novembre : C, `hancheDabord`** (la hanche part la première et emmène la jambe), désormais le comportement
+par défaut ; l'ancienne lecture reste sous `?geste=ancien`.
 
 ## Question 32 : comment la hanche porte-t-elle le pas ?
 
@@ -31,4 +34,4 @@ Le pas de côté de la jambe gauche (temps 3 à 4), kizomba / semba.
 
 Les trois passent les contrôles du « 1 2 » (`scripts/test_um_dois.mjs`).
 
-**Proposition** : B, un seul geste. A est la lecture la plus proche du vote du kompa (la hanche finit le transfert).
+Proposition avant le vote : B, un seul geste. Élu : C.
