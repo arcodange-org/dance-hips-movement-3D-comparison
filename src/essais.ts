@@ -15,6 +15,7 @@
  * la tenue sur le côté reste une option de l'app (`?tenue=cote`, `TENUE` dans src/upperBody.ts).
  * Exercices d'isolation (#206) : votes des 24 et 25 novembre 2026 (amplitude moyenne ; trois vitesses, posé puis fluide ;
  * le huit qui alterne glisse et tourne, une mesure chacun) devenus le comportement ; leurs interrupteurs retirés.
+ * Pointes et talons (#216) : `talonsBas`, `talonsTenue` attendent leur vote.
  */
 export const ESSAIS = {
   /** Témoin : ne change rien. Sert à filmer le comportement actuel image par image hors du mode paire. */
@@ -22,6 +23,10 @@ export const ESSAIS = {
   /** #179 : les mains jointes sur le côté du couple, plus bas et plus près, coudes détendus, avec la prise du
    * 22 novembre (l'attitude choisie les tient au niveau des épaules, emboîtées). */
   mainsBasses: "mains jointes sur le côté du couple, plus bas",
+  /** #216 (src/isolations.ts) : les talons montent un peu (la proposition : à mi-hauteur). */
+  talonsBas: "talons : un peu",
+  /** #216 : l'exercice des talons en haut sur 1, tenu jusqu'au 3, en bas sur 4 (la proposition : les trois vitesses). */
+  talonsTenue: "talons : monter, tenir, redescendre",
 } as const;
 export type Essai = keyof typeof ESSAIS;
 

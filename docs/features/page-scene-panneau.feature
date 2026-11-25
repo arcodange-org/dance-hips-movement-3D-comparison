@@ -56,7 +56,7 @@ Feature: Page principale : la scène toujours visible, les réglages dans un pan
     And les tiroirs "corps, mouvement, reperes, son, miseAuPoint" apparaissent dans toutes les vues
 
   Scenario: Chaque paramètre du lien partagé a sa commande, ou reste réglé par l'adresse
-    Then les paramètres que « Partager » écrit ont chacun une commande, sauf "cam, demo, bare, solid, isolation, miroir, campos, camtgt, angle, zoom"
+    Then les paramètres que « Partager » écrit ont chacun une commande, sauf "cam, demo, bare, solid, isolation, miroir, pointes, campos, camtgt, angle, zoom"
     And les paramètres "mode, style, styleB, bpm, playing, muscles, placement, sortieVariant, ghost, repere, boussole" ont chacun une commande
     And aucun paramètre n'est réglé par deux commandes
 

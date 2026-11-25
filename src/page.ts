@@ -128,7 +128,9 @@ export const COMMANDES: readonly Commande[] = [
 /** Paramètres d'URL sans commande sur la page : captures, film, pages de vote, liens. */
 export const PAR_ADRESSE: readonly string[] = ["cam", "angle", "zoom", "campos", "camtgt", "bare", "demo", "solid", "haut", "essai", "kompa", "semba", "unDeux", "flexion",
   // #206 : les exercices d'isolation (docs/spec-isolations.md), filmés par le pont des mascottes.
-  "isolation", "miroir"];
+  "isolation", "miroir",
+  // #216 : sur la pointe des pieds (docs/spec-pointes-talons.md).
+  "pointes"];
 
 const COMMANDE_PAR_ID = new Map(COMMANDES.map(c => [c.id, c]));
 export function commandeVisible(id: string, v: Vue): boolean {

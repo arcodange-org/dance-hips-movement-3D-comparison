@@ -14,7 +14,7 @@ import PagePrincipale from "./components/page/PagePrincipale";
 import DemoOverlay, { DEMOS } from "./components/DemoOverlay";
 import OriginMarker from "./components/OriginMarker";
 import LineOfDance from "./components/LineOfDance";
-import { essaiEnCours } from "./essais";
+import { essai, essaiEnCours, type Essai } from "./essais";
 import { isIsolationId, isolationSettings } from "./isolations";
 import CompassRose from "./components/CompassRose";
 import { resolveCam, resolveView, viewAnglesOf, SOLID_TORSO_OPACITY } from "./cameras";
@@ -88,9 +88,11 @@ export default function App() {
   const upperBody = params.get("haut") === "1";
   // #206 (docs/spec-isolations.md): `isolation=<exercice>` makes the dancer (both dancers in the comparison) do an
   // isolation exercise, alone with planted feet; `miroir=1` swaps left and right. Ignored in pair.
+  // #216 (docs/spec-pointes-talons.md): `pointes=1`, the exercise on tiptoe.
   const isolationParam = params.get("isolation");
   const isolationAsked = isIsolationId(isolationParam)
-    ? { id: isolationParam, settings: isolationSettings(params.get("miroir") === "1") } : null;
+    ? { id: isolationParam, settings: isolationSettings({ miroir: params.get("miroir") === "1", pointes: params.get("pointes") === "1" },
+      k => essai(k as Essai)) } : null;
   const [showRepere, setShowRepere] = usePersistentState("repere", true);
   const [showAppui, setShowAppui] = usePersistentState("appui", false);
   const statsRef = useRef<any>({ loadR: 0.5, loadL: 0.5, kneeR: 0, kneeL: 0, roll: 0 });
@@ -278,6 +280,7 @@ export default function App() {
       cam: params.get("cam") ?? undefined, demo: params.get("demo") ?? undefined,
       bare: params.get("bare") ?? undefined, solid: params.get("solid") ?? undefined,
       isolation: isolation?.id, miroir: isolation && params.get("miroir") === "1" ? true : undefined,
+      pointes: isolation && params.get("pointes") === "1" ? true : undefined,
     }, camPos, camTgt, view);
     history.replaceState(null, "", rel);
     const full = window.location.origin + rel;
