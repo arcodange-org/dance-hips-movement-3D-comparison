@@ -1,7 +1,12 @@
 /**
  * Exercices d'isolation seul, pieds posés (#206, lot L441 de ReCoDanse, docs/spec-isolations.md) : le cou, la poitrine
- * ou le bassin bouge seul, sur un huit (8 temps) qui boucle. Module pur (sans three.js) : il dit, à chaque temps, ce que
- * fait la partie du corps nommée, en mots de danseur ; `src/pose.ts` le pose sur le squelette.
+ * ou le bassin bouge seul, en boucle. Module pur (sans three.js) : il dit, à chaque temps, ce que fait la partie du corps
+ * nommée, en mots de danseur ; `src/pose.ts` le pose sur le squelette.
+ *
+ * Élu le 24 novembre 2026 (tour 12) : amplitude moyenne ; chaque exercice enchaîne trois vitesses, du plus lent au plus
+ * rapide, deux mesures chacune : deux temps par mouvement, un temps, un demi-temps ; un point marqué est posé puis tenu,
+ * et fluide quand la vitesse ne le permet plus (au demi-temps). Un « mouvement » est le passage d'un point de la figure
+ * au suivant, le centre compris.
  *
  * Repère du danseur : il regarde vers l'avant ; « gauche » est sa gauche (+x dans le moteur). Le temps 0 est le temps 1
  * de la musique ; « sur 1 » veut dire « arrivé sur le temps 1 ».
@@ -11,17 +16,19 @@ export type IsolationFamily = "cou" | "poitrine" | "bassin";
 
 /** Le chemin d'un exercice dans un plan « devant / côté » sans unité (−1 à 1). */
 type Form =
-  /** Aller-retour sur un axe, `first` d'abord (devant = fore +1, gauche = side +1). */
+  /** Aller-retour sur un axe, devant (fore +1) ou à gauche (side +1) d'abord, en repassant par le centre. */
   | { kind: "allerRetour"; axis: "fore" | "side" }
-  /** Cercle marqué : devant, centre, côté, centre, derrière, centre, autre côté, centre (un point par temps). */
+  /** Demi-cercle par devant : à gauche, devant, à droite, devant (`sens` −1 : à droite d'abord). */
+  | { kind: "demiCercle"; sens: 1 | -1 }
+  /** Cercle marqué : devant, centre, côté, centre, derrière, centre, autre côté, centre. */
   | { kind: "cercleMarque"; sens: 1 | -1 }
-  /** Cercle lié : un tour par huit, devant sur 1, côté sur 3, derrière sur 5, autre côté sur 7. */
+  /** Cercle lié : devant, côté, derrière, autre côté, sans le centre. */
   | { kind: "cercleLie"; sens: 1 | -1 }
-  /** Huit du bassin, un par huit : chaque côté part par devant (`sens` 1) ou par derrière (−1). */
+  /** Huit du bassin : centre, gauche, centre, droite ; chaque côté part par devant (`sens` 1) ou par derrière (−1). */
   | { kind: "huit"; sens: 1 | -1 };
 
 export interface IsolationDef {
-  /** Numéro de la fiche 111 § 7 (B7′ : le huit dans l'autre sens). */
+  /** Numéro de la fiche 111 § 7 (B7′ : le huit dans l'autre sens ; C6, P7 : les demi-cercles, ajoutés au vote). */
   code: string;
   famille: IsolationFamily;
   /** Ce qu'on voit, en mots de danseur. */
@@ -38,12 +45,14 @@ export const ISOLATIONS = {
   "cou-hoche": { code: "C3", famille: "cou", nom: "Le menton en bas, puis en haut", form: { kind: "allerRetour", axis: "fore" } },
   "cou-cercle": { code: "C4", famille: "cou", nom: "Le cercle de la tête : devant, à droite, derrière, à gauche", form: { kind: "cercleLie", sens: 1 } },
   "cou-cercle-inverse": { code: "C5", famille: "cou", nom: "Le cercle de la tête dans l'autre sens : devant, à gauche, derrière, à droite", form: { kind: "cercleLie", sens: -1 } },
+  "cou-demi-cercle": { code: "C6", famille: "cou", nom: "Le demi-cercle de la tête : l'oreille gauche, le menton en bas, l'oreille droite", form: { kind: "demiCercle", sens: 1 } },
   "poitrine-avant": { code: "P1", famille: "poitrine", nom: "La poitrine devant, puis derrière", form: { kind: "allerRetour", axis: "fore" } },
   "poitrine-cote": { code: "P2", famille: "poitrine", nom: "La poitrine glisse à gauche, puis à droite", form: { kind: "allerRetour", axis: "side" } },
   "poitrine-cercle-marque": { code: "P3", famille: "poitrine", nom: "Le cercle de la poitrine marqué : devant, droite, derrière, gauche, en repassant par le centre", form: { kind: "cercleMarque", sens: 1 } },
   "poitrine-cercle-lie": { code: "P4", famille: "poitrine", nom: "Le cercle de la poitrine lié : devant, droite, derrière, gauche", form: { kind: "cercleLie", sens: 1 } },
   "poitrine-cercle-marque-inverse": { code: "P5", famille: "poitrine", nom: "Le cercle de la poitrine marqué dans l'autre sens : devant, gauche, derrière, droite", form: { kind: "cercleMarque", sens: -1 } },
   "poitrine-cercle-lie-inverse": { code: "P6", famille: "poitrine", nom: "Le cercle de la poitrine lié dans l'autre sens : devant, gauche, derrière, droite", form: { kind: "cercleLie", sens: -1 } },
+  "poitrine-demi-cercle": { code: "P7", famille: "poitrine", nom: "Le demi-cercle de la poitrine : à gauche, devant, à droite", form: { kind: "demiCercle", sens: 1 } },
   "bassin-bascule": { code: "B1", famille: "bassin", nom: "Le bassin bascule : avant, puis arrière", form: { kind: "allerRetour", axis: "fore" } },
   "bassin-cote": { code: "B2", famille: "bassin", nom: "Le bassin glisse à gauche, puis à droite, le poids sur les deux pieds", form: { kind: "allerRetour", axis: "side" } },
   "bassin-cercle-marque": { code: "B3", famille: "bassin", nom: "Le cercle du bassin marqué : devant, droite, derrière, gauche, en repassant par le centre", form: { kind: "cercleMarque", sens: 1 } },
@@ -56,13 +65,18 @@ export const ISOLATIONS = {
 
 export type IsolationId = keyof typeof ISOLATIONS;
 export const ISOLATION_IDS = Object.keys(ISOLATIONS) as IsolationId[];
-/** Un exercice dure un huit. */
-export const ISOLATION_BEATS = 8;
 
 export const isIsolationId = (s: string | null | undefined): s is IsolationId => !!s && Object.prototype.hasOwnProperty.call(ISOLATIONS, s);
 
+/** Les trois vitesses, du plus lent au plus rapide : temps par mouvement (élu le 24 novembre). */
+export const ISOLATION_SPEEDS = [2, 1, 0.5] as const;
+/** Une vitesse dure deux mesures (huit temps), ou le tour entier de la figure s'il est plus long. */
+export const ISOLATION_STAGE_BEATS = 8;
+/** Part d'un mouvement tenue sur le point où il arrive, aux vitesses où le point est posé (deux temps, un temps). */
+export const ISOLATION_TENUE = 0.35;
+
 const DEG = Math.PI / 180;
-/** Amplitudes moyennes (rad, m), à élire (docs/spec-isolations.md) ; jamais montrées au danseur. */
+/** Amplitudes (rad, m), élues moyennes le 24 novembre ; jamais montrées au danseur. */
 export const ISOLATION_AMPLITUDES = {
   cou: { turn: 50 * DEG, tilt: 30 * DEG, down: 30 * DEG, up: 20 * DEG, circleDown: 25 * DEG, circleSide: 25 * DEG, circleUp: 15 * DEG },
   poitrine: { fore: 0.05, back: 0.04, side: 0.05 },
@@ -77,8 +91,6 @@ export const ISOLATION_AMPLITUDES = {
     eightSide: 0.05, eightFore: 0.03, eightTurn: 10 * DEG,
   },
 } as const;
-/** Petit, moyen, grand : facteurs de l'amplitude moyenne (candidats à élire). */
-export const AMPLITUDE_LEVELS = { petit: 0.6, moyen: 1, grand: 1.5 } as const;
 /** La tête penche et hoche autour de la base du cou, à cette distance (m) sous le nœud de la tête (le haut du cou) ;
  * elle tourne en haut du cou. */
 export const NECK_PIVOT = 0.07;
@@ -86,41 +98,92 @@ export const NECK_PIVOT = 0.07;
 export const ISOLATION_KNEE = 0.2;
 
 export interface IsolationSettings {
-  /** Facteur de l'amplitude moyenne, par famille. */
-  amplitude: Record<IsolationFamily, number>;
-  /** Allers-retours de la poitrine et du bassin : un point par temps en repassant par le centre (`centre`), deux temps
-   * par point (`deuxTemps`), ou un côté par temps sans s'arrêter au centre (`continu`). Le cou garde deux temps par point. */
-  rythme: "centre" | "deuxTemps" | "continu";
-  /** Part du temps tenue sur un point marqué, avant de partir vers le suivant (0 : fluide). */
-  tenue: number;
-  /** Huit du bassin : il glisse, ou il tourne aussi (la hanche de devant mène). */
+  /** Huit du bassin : il glisse, ou il tourne aussi (la hanche de devant mène). Question 26, sans vote. */
   huit: "glisse" | "tourne";
   /** Gauche et droite échangés : l'exercice vu comme dans le miroir d'un studio. */
   miroir: boolean;
 }
-export const ISOLATION_TENUE = 0.35;
-export const ISOLATION_DEFAULT: IsolationSettings = {
-  amplitude: { cou: 1, poitrine: 1, bassin: 1 }, rythme: "centre", tenue: ISOLATION_TENUE, huit: "glisse", miroir: false,
-};
+export const ISOLATION_DEFAULT: IsolationSettings = { huit: "glisse", miroir: false };
 
-/** Les interrupteurs d'essai des candidats (src/essais.ts), à retirer après le vote. */
-export const ISOLATION_ESSAIS = [
-  "isoCouPetit", "isoCouGrand", "isoPoitrinePetit", "isoPoitrineGrand", "isoBassinPetit", "isoBassinGrand",
-  "isoDeuxTemps", "isoContinu", "isoFluide", "isoHuitTourne",
-] as const;
+/** Les interrupteurs d'essai des candidats encore à élire (src/essais.ts). */
+export const ISOLATION_ESSAIS = ["isoHuitTourne"] as const;
 export type IsolationEssai = typeof ISOLATION_ESSAIS[number];
 
-/** Les réglages d'un exercice : la proposition, sauf les candidats demandés par `?essai=`. */
+/** Les réglages d'un exercice : le comportement élu, sauf les candidats demandés par `?essai=`. */
 export function isolationSettings(active: (essai: IsolationEssai) => boolean, miroir = false): IsolationSettings {
-  const level = (petit: IsolationEssai, grand: IsolationEssai) =>
-    active(petit) ? AMPLITUDE_LEVELS.petit : active(grand) ? AMPLITUDE_LEVELS.grand : AMPLITUDE_LEVELS.moyen;
-  return {
-    amplitude: { cou: level("isoCouPetit", "isoCouGrand"), poitrine: level("isoPoitrinePetit", "isoPoitrineGrand"), bassin: level("isoBassinPetit", "isoBassinGrand") },
-    rythme: active("isoDeuxTemps") ? "deuxTemps" : active("isoContinu") ? "continu" : "centre",
-    tenue: active("isoFluide") ? 0 : ISOLATION_TENUE,
-    huit: active("isoHuitTourne") ? "tourne" : "glisse",
-    miroir,
-  };
+  return { huit: active("isoHuitTourne") ? "tourne" : "glisse", miroir };
+}
+
+/** Points (mouvements) d'un tour de la figure. */
+const POINTS: Record<Form["kind"], number> = { allerRetour: 4, demiCercle: 4, cercleMarque: 8, cercleLie: 4, huit: 4 };
+const formOf = (id: IsolationId): Form => (ISOLATIONS[id] as IsolationDef).form;
+
+/** Durée (temps) de chaque vitesse d'un exercice : deux mesures, ou un tour entier de la figure s'il est plus long ;
+ * toujours un nombre entier de tours, pour que chaque vitesse commence au premier point de la figure. */
+export function isolationStages(id: IsolationId): number[] {
+  const n = POINTS[formOf(id).kind];
+  return ISOLATION_SPEEDS.map(speed => speed * n * Math.ceil(ISOLATION_STAGE_BEATS / (speed * n)));
+}
+/** Durée de la boucle d'un exercice (temps) : ses trois vitesses. */
+export const isolationBeats = (id: IsolationId): number => isolationStages(id).reduce((a, b) => a + b, 0);
+
+const mod = (x: number, n: number) => ((x % n) + n) % n;
+
+/** La vitesse jouée au temps `beat` : son rang (0 lent, 1, 2 rapide), son début, sa durée, ses temps par mouvement, et
+ * le nombre de mouvements faits depuis son début. */
+export function isolationStage(id: IsolationId, beat: number) {
+  const stages = isolationStages(id), t = mod(beat, isolationBeats(id));
+  let start = 0, k = 0;
+  while (k < stages.length - 1 && t >= start + stages[k]) { start += stages[k]; k++; }
+  const speed = ISOLATION_SPEEDS[k];
+  return { stage: k, start, beats: stages[k], speed, moves: (t - start) / speed };
+}
+
+const smoother = (t: number) => t * t * t * (t * (6 * t - 15) + 10);
+type P = { fore: number; side: number };
+const C: P = { fore: 0, side: 0 };
+/** Sur des points visités un par mouvement : arrivé sur le point, tenu `tenue` du mouvement, puis on part vers le
+ * suivant sans à-coup (vitesse et accélération nulles aux points). */
+function waypoints(moves: number, points: P[], tenue: number): P {
+  const t = mod(moves, points.length), k = Math.floor(t), u = t - k;
+  const from = points[k], to = points[(k + 1) % points.length];
+  const e = u <= tenue ? 0 : smoother((u - tenue) / (1 - tenue));
+  return { fore: from.fore + (to.fore - from.fore) * e, side: from.side + (to.side - from.side) * e };
+}
+
+/** Le chemin sans unité d'un exercice au temps `beat` (avant le miroir). Aux vitesses lentes chaque point est posé puis
+ * tenu ; au demi-temps le mouvement est fluide : il passe par les points sans s'y arrêter. */
+export function isolationPath(id: IsolationId, beat: number): P {
+  const f = formOf(id), { speed, moves } = isolationStage(id, beat);
+  const fluid = speed < 1;
+  switch (f.kind) {
+    case "allerRetour":
+    case "demiCercle": {
+      // u : +1 au premier point, 0 au centre (ou devant, pour le demi-cercle), −1 à l'autre point.
+      const u = fluid ? Math.cos(Math.PI * moves / 2)
+        : waypoints(moves, [{ fore: 1, side: 0 }, C, { fore: -1, side: 0 }, C], ISOLATION_TENUE).fore;
+      if (f.kind === "demiCercle") {
+        const a = (Math.PI / 2) * u * f.sens;
+        return { fore: Math.cos(a), side: Math.sin(a) };
+      }
+      return f.axis === "fore" ? { fore: u, side: 0 } : { fore: 0, side: u };
+    }
+    case "cercleMarque": {
+      const side = -f.sens, dirs: P[] = [{ fore: 1, side: 0 }, { fore: 0, side }, { fore: -1, side: 0 }, { fore: 0, side: -side }];
+      if (!fluid) return waypoints(moves, [dirs[0], C, dirs[1], C, dirs[2], C, dirs[3], C], ISOLATION_TENUE);
+      // Fluide : chaque point est un aller-retour depuis le centre, sans arrêt ni au point ni au centre.
+      const q = mod(moves + 1, 8), k = Math.floor(q / 2), w = q - 2 * k, a = Math.sin(Math.PI * w / 2);
+      return { fore: dirs[k].fore * a, side: dirs[k].side * a };
+    }
+    case "cercleLie": {
+      const phase = 2 * Math.PI * moves / 4;
+      return { fore: Math.cos(phase), side: -f.sens * Math.sin(phase) };
+    }
+    case "huit": {
+      const phase = 2 * Math.PI * moves / 4;
+      return { fore: f.sens * Math.sin(2 * phase), side: Math.sin(phase) };
+    }
+  }
 }
 
 /** Ce que fait le corps à un temps : seule la partie de l'exercice est non nulle. */
@@ -137,88 +200,46 @@ export interface IsolationPose {
   path: { fore: number; side: number };
 }
 
-const mod = (x: number, n: number) => ((x % n) + n) % n;
-const smoother = (t: number) => t * t * t * (t * (6 * t - 15) + 10);
-
-type P = { fore: number; side: number };
-const C: P = { fore: 0, side: 0 };
-/** Sur des points visités tous les `step` temps : arrivé sur le point au temps, tenu `tenue` du pas, puis on part vers le
- * suivant sans à-coup (vitesse et accélération nulles aux points). */
-function waypoints(beat: number, points: P[], step: number, tenue: number): P {
-  const t = mod(beat, points.length * step) / step, k = Math.floor(t), u = t - k;
-  const from = points[k], to = points[(k + 1) % points.length];
-  const e = u <= tenue ? 0 : smoother((u - tenue) / (1 - tenue));
-  return { fore: from.fore + (to.fore - from.fore) * e, side: from.side + (to.side - from.side) * e };
-}
-
-/** Le chemin sans unité d'un exercice au temps `beat` (avant le miroir). */
-export function isolationPath(id: IsolationId, beat: number, s: IsolationSettings = ISOLATION_DEFAULT): P {
-  const def: IsolationDef = ISOLATIONS[id];
-  const f = def.form;
-  const phase = 2 * Math.PI * mod(beat, ISOLATION_BEATS) / ISOLATION_BEATS;
-  switch (f.kind) {
-    case "allerRetour": {
-      const a: P = f.axis === "fore" ? { fore: 1, side: 0 } : { fore: 0, side: 1 };
-      const b: P = { fore: -a.fore, side: -a.side };
-      const rythme = def.famille === "cou" ? "deuxTemps" : s.rythme;
-      if (rythme === "continu") {
-        const c = Math.cos(Math.PI * beat);
-        return { fore: a.fore * c, side: a.side * c };
-      }
-      return waypoints(beat, [a, C, b, C], rythme === "deuxTemps" ? 2 : 1, s.tenue);
-    }
-    case "cercleMarque": {
-      const side = -f.sens;
-      return waypoints(beat, [{ fore: 1, side: 0 }, C, { fore: 0, side }, C, { fore: -1, side: 0 }, C, { fore: 0, side: -side }, C], 1, s.tenue);
-    }
-    case "cercleLie":
-      return { fore: Math.cos(phase), side: -f.sens * Math.sin(phase) };
-    case "huit":
-      return { fore: f.sens * Math.sin(2 * phase), side: Math.sin(phase) };
-  }
-}
-
 /** Le maximum de côté × profondeur sur le huit (sin φ · sin 2φ), pour que la rotation du candidat « tourne » atteigne
  * son amplitude. */
 const EIGHT_TURN_MAX = 4 / (3 * Math.sqrt(3));
 
-/** Ce que fait le corps au temps `beat` de l'exercice `id`. Fonction de période 8 temps. */
+/** Ce que fait le corps au temps `beat` de l'exercice `id`, en boucle (`isolationBeats(id)` temps). */
 export function isolationAt(id: IsolationId, beat: number, s: IsolationSettings = ISOLATION_DEFAULT): IsolationPose {
   const def: IsolationDef = ISOLATIONS[id];
-  const raw = isolationPath(id, beat, s);
+  const raw = isolationPath(id, beat);
   const path = { fore: raw.fore + 0, side: s.miroir ? -raw.side + 0 : raw.side + 0 };
   const pose: IsolationPose = {
     head: { nod: 0, turn: 0, tilt: 0 }, chest: { fore: 0, side: 0 },
     pelvis: { fore: 0, side: 0, tilt: 0, hike: 0, turn: 0 }, path,
   };
-  const k = s.amplitude[def.famille];
   const { fore, side } = path;
   const signed = (v: number, plus: number, minus: number) => (v >= 0 ? plus : minus) * v;
+  const f = def.form;
   if (def.famille === "cou") {
     const A = ISOLATION_AMPLITUDES.cou;
-    if (def.form.kind === "cercleLie") {
-      pose.head.nod = k * signed(fore, A.circleDown, A.circleUp);
+    if (f.kind === "cercleLie" || f.kind === "demiCercle") {
+      pose.head.nod = signed(fore, A.circleDown, A.circleUp);
       // Sur le côté droit du cercle, l'oreille droite descend vers l'épaule droite.
-      pose.head.tilt = k * A.circleSide * side;
-    } else if (def.tete === "tourne") pose.head.turn = k * A.turn * side;
-    else if (def.tete === "penche") pose.head.tilt = k * A.tilt * side;
-    else pose.head.nod = k * signed(fore, A.down, A.up);
+      pose.head.tilt = A.circleSide * side;
+    } else if (def.tete === "tourne") pose.head.turn = A.turn * side;
+    else if (def.tete === "penche") pose.head.tilt = A.tilt * side;
+    else pose.head.nod = signed(fore, A.down, A.up);
   } else if (def.famille === "poitrine") {
     const A = ISOLATION_AMPLITUDES.poitrine;
-    pose.chest = { fore: k * signed(fore, A.fore, A.back), side: k * A.side * side };
+    pose.chest = { fore: signed(fore, A.fore, A.back), side: A.side * side };
   } else {
     const A = ISOLATION_AMPLITUDES.bassin;
-    const f = def.form;
-    if (f.kind === "allerRetour" && f.axis === "fore") pose.pelvis.tilt = k * signed(fore, A.forward, A.back);
-    else if (f.kind === "allerRetour") pose.pelvis = { ...pose.pelvis, side: k * A.side * side, hike: k * A.hike * side };
+    if (f.kind === "allerRetour" && f.axis === "fore") pose.pelvis.tilt = signed(fore, A.forward, A.back);
+    else if (f.kind === "allerRetour") pose.pelvis = { ...pose.pelvis, side: A.side * side, hike: A.hike * side };
     else if (f.kind === "huit") {
-      pose.pelvis = { ...pose.pelvis, side: k * A.eightSide * side, fore: k * A.eightFore * fore, hike: k * A.hike * side };
+      pose.pelvis = { ...pose.pelvis, side: A.eightSide * side, fore: A.eightFore * fore, hike: A.hike * side };
       // La hanche de devant mène : à gauche et devant, la hanche gauche avance (le bassin tourne vers la droite) ; à
       // gauche et derrière, elle recule.
-      if (s.huit === "tourne") pose.pelvis.turn = -k * A.eightTurn * side * fore / EIGHT_TURN_MAX;
+      if (s.huit === "tourne") pose.pelvis.turn = -A.eightTurn * side * fore / EIGHT_TURN_MAX;
     } else {
-      pose.pelvis = { fore: k * A.circleFore * fore, side: k * A.side * side, tilt: k * signed(fore, A.circleForward, A.circleBack),
-        hike: k * A.hike * side, turn: 0 };
+      pose.pelvis = { fore: A.circleFore * fore, side: A.side * side, tilt: signed(fore, A.circleForward, A.circleBack),
+        hike: A.hike * side, turn: 0 };
     }
   }
   return pose;

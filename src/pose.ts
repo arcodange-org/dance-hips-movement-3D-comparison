@@ -20,7 +20,7 @@ import { SORTIE_GARCON_PAIR_DZ } from "./sortieGarcon";
 import { SORTIE_FILLE_PAIR_DZ } from "./sortieFille";
 import { placementOffset, placementScale, type CouplePlacement } from "./placement";
 import { gaitStep, GAIT } from "./gait";
-import { isolationAt, ISOLATION_KNEE, NECK_PIVOT, type IsolationId, type IsolationPose, type IsolationSettings } from "./isolations";
+import { isolationAt, isolationBeats, ISOLATION_KNEE, NECK_PIVOT, type IsolationId, type IsolationPose, type IsolationSettings } from "./isolations";
 import { TORSO_JOINTS } from "./rigJoints";
 import { umDoisFoot, umDoisCarry } from "./umDois";
 
@@ -87,7 +87,7 @@ export interface PoseOptions {
   /** #69: the partner's `rootOffset` (its own frame), for the plexus lean towards the partner. */
   partnerRootOffset: { x: number; z: number } | null;
   /** #206 (docs/spec-isolations.md): an isolation exercise, alone with planted feet. No style is applied (no sway,
-   * no transfer, no bounce); only the named part moves, on an eight-beat loop of the clock. */
+   * no transfer, no bounce); only the named part moves, looping on the clock at three speeds (`isolationBeats`). */
   isolation: { id: IsolationId; settings?: IsolationSettings } | null;
 }
 export const DEFAULT_POSE: PoseOptions = {
@@ -535,7 +535,7 @@ function poseIsolationTrunk(r: RigHandle, iso: IsolationPose): void {
   r.root.updateWorldMatrix(false, true);
 }
 /** #206: the pelvis of an isolation exercise stays level all along its loop: at the lowest height the legs give it over
- * the eight beats (a slide sideways bends the far knee), measured once on the rig itself, by exercise and settings.
+ * its beats (a slide sideways bends the far knee), measured once on the rig itself, by exercise and settings.
  * Otherwise the chest and the head would bob as the pelvis slides. */
 const isolationLevels = new WeakMap<PoseModel, Map<string, number>>();
 let measuringLevel = false;
@@ -548,7 +548,7 @@ function isolationLevel(r: RigHandle, model: PoseModel, o: PoseOptions): number 
     level = Infinity;
     measuringLevel = true;
     try {
-      for (let k = 0; k < 64; k++) { applyPose(r, model, k / 8, o); level = Math.min(level, r.root.position.y); }
+      for (let k = 0, n = 8 * isolationBeats(o.isolation!.id); k < n; k++) { applyPose(r, model, k / 8, o); level = Math.min(level, r.root.position.y); }
     } finally { measuringLevel = false; }
     levels.set(key, level);
   }
@@ -562,7 +562,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   const o: typeof given = given.isolation ? { ...given, travel: 0, movement: "none", quarts: false, corridinho: false, ida: false,
     temps3: false, sortie: false, embrace: false, follower: false, touches: [], ginga: null, gingaFrom: null, styleBlend: null,
     marche: null, rootOffset: null, partnerRootOffset: null, pelvisOffset: null, trunkOffset: null } : given;
-  // #206: an isolation exercise is a function of the clock alone (eight beats, looping).
+  // #206: an isolation exercise is a function of the clock alone (looping, three speeds).
   const iso = o.isolation ? isolationAt(o.isolation.id, clockBeat, o.isolation.settings) : null;
   const isoLevel = iso && !measuringLevel ? isolationLevel(r, model, o) : Infinity;
   // + 24 beats (a multiple of every on-the-spot period: styles 4, temps3 12, the semba prototypes 8, #162)

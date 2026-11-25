@@ -10,17 +10,17 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
 - Demande : ReCoDanse proposera dans « S'entraîner » des exercices sans vidéo de la personne, montrés en boucle par Rémi
   et Corinne côte à côte, filmés par le pont des mascottes sur ce moteur (fiche 111 du dossier ReCoDanse ; lots suivants :
   L442 filmer, L443 les corps). Jeton L441 au plan du dossier : kadans-dossier#950.
-- Fait : `?isolation=<exercice>` ([spec](docs/spec-isolations.md)) ; dix-neuf boucles d'un huit (cou : tourner, pencher,
-  hocher, deux cercles ; poitrine : devant-derrière, côtés, cercles marqués et liés dans les deux sens ; bassin : bascule,
-  côtés, cercles marqués et liés, le huit dans les deux sens). Seule la partie nommée bouge, pieds posés, poids sur les deux
+- Fait : `?isolation=<exercice>` ([spec](docs/spec-isolations.md)) ; vingt et une boucles (cou : tourner, pencher,
+  hocher, deux cercles, le demi-cercle ; poitrine : devant-derrière, côtés, cercles marqués et liés dans les deux sens, le
+  demi-cercle ; bassin : bascule, côtés, cercles marqués et liés, le huit dans les deux sens). Chaque boucle enchaîne trois
+  vitesses, deux mesures chacune : deux temps, un temps, un demi-temps par mouvement (24 temps ; 32 pour les cercles marqués). Seule la partie nommée bouge, pieds posés, poids sur les deux
   pieds, bassin à niveau sur la boucle ; le cou plie depuis sa base. `miroir=1`, `mode=compare` (deux danseurs côte à côte).
 - Module pur `src/isolations.ts` ; option `isolation` de `applyPose` (aucun style ; colonne et cage posées exactement après
   le solveur des jambes) ; `scripts/test_isolations.mjs` (vrai GLB) et `docs/features/isolations.feature` dans `npm test` ;
   films `scripts/capture_isolation_gif.mjs` (boucle sans image tenue, compte des temps).
-- Attend le vote du fondateur (tour 12 de la page d'élection, [dossier](docs/elections/2026-11-24-isolations/README.md)) :
-  amplitude du cou, de la poitrine, du bassin ; rythme des allers-retours ; point marqué tenu ou fluide ; huit qui glisse ou
-  qui tourne. Candidats : `?essai=iso…` (inertes sans le paramètre). Après le vote : la variante élue devient le
-  comportement, les interrupteurs partent, le jeton L441 se rend.
+- **Élu le 24 novembre** (tour 12, [dossier](docs/elections/2026-11-24-isolations/README.md)) : amplitude moyenne ; les
+  trois vitesses ; le point posé et tenu à deux temps et à un temps, fluide au demi-temps ; les demi-cercles ajoutés.
+  Interrupteurs retirés. Reste à trancher : le huit du bassin glisse (comportement) ou tourne aussi (`?essai=isoHuitTourne`).
 
 ## Pas de base « 1 2 » de la kizomba et du semba (#196, 24 novembre 2026)
 

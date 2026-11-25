@@ -480,12 +480,15 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 
 - [x] Issue #206 ; jeton L441 posé au plan du dossier ReCoDanse (kadans-dossier#950, PR #951) ; spec poussée en premier
   ([spec](spec-isolations.md)).
-- [x] `src/isolations.ts` (pur) : dix-neuf boucles d'un huit, réglages explicites, candidats lus dans `src/essais.ts`.
+- [x] `src/isolations.ts` (pur) : dix-neuf boucles, réglages explicites, candidats lus dans `src/essais.ts`.
 - [x] `src/pose.ts` : option `isolation` (sans style, pieds posés, colonne et cage posées exactement après le solveur des
   jambes, cou qui plie depuis sa base) ; `isolation=`, `miroir=` dans l'adresse (seul et comparaison).
 - [x] `scripts/test_isolations.mjs` (module pur et vrai GLB) et `docs/features/isolations.feature` dans `npm test`.
 - [x] GIF des dix-neuf boucles et des candidats ; page d'élection (`docs/elections/2026-11-24-isolations/`, tour 12 de la page de vote).
-- [ ] Vote du fondateur ; la proposition élue devient le comportement, les interrupteurs d'essai partent.
+- [x] Vote du fondateur (24 novembre, tour 12) : amplitude moyenne, trois vitesses par boucle (deux temps, un temps, un
+  demi-temps par mouvement), point tenu puis fluide, demi-cercles de la tête et de la poitrine ; interrupteurs retirés.
+- [x] Vingt et une boucles refilmées (`docs/elections/2026-11-24-isolations/`).
+- [ ] Le huit du bassin : glisse (comportement) ou tourne aussi (`?essai=isoHuitTourne`), à élire.
 
 ## Suave : deux temps par côté, sans rebond (#200)
 
