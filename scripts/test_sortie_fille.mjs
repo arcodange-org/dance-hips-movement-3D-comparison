@@ -140,8 +140,9 @@ for (const variant of variants) {
   assert(third[1].R.z < second[1].R.z - .2, 'follower D advances on action 3');
   assert(third[1].R.x < third[0].R.x - .12, 'follower D lies right of leader D in leader coordinates');
   // #105: her D stops `stagger` behind the leader's D (world +z is her back), its diagonal no longer
-  // covering the whole couple depth.
-  near(third[1].R.z - third[0].R.z, api.SORTIE_FILLE_UNITS[variant === 'hook' ? 'hookStagger' : 'backStagger']);
+  // covering the whole couple depth. #203: the couple stands `2 · KNEE_ROOM` further apart, her D3 where it was in
+  // her own frame: that much further behind his D.
+  near(third[1].R.z - third[0].R.z, api.SORTIE_FILLE_UNITS[variant === 'hook' ? 'hookStagger' : 'backStagger'] + 2 * api.KNEE_ROOM);
   at(3);
   // Neutral feet (owner request): the heel → ball axis of the final right foot points forward.
   const forward = footAxis(pair[1], 'R');

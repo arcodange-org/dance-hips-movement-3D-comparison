@@ -65,7 +65,7 @@ permet plus ; les demi-cercles de la tête et de la poitrine.
   de la poitrine, le bassin et la tête restent droits (la tête suit la poitrine, sans tourner ni pencher) ; dans un
   exercice du bassin, la poitrine et la tête restent où elles sont.
 - **Pieds posés, poids sur les deux pieds** : aucun balancement du style, aucun transfert de poids, aucun rebond.
-  Genoux souples (ni tendus ni pliés en danse). Les jambes s'ajustent : c'est le solveur des jambes qui trouve la hauteur
+  Genoux souples : la flexion minimale de toutes les danses (règle R43, #203), jamais une jambe tendue. Les jambes s'ajustent : c'est le solveur des jambes qui trouve la hauteur
   du bassin, comme partout.
 - **Le bassin reste à niveau toute la boucle** : à la hauteur la plus basse que les jambes lui donnent sur le huit (quand
   le bassin glisse de côté, la jambe opposée plie). Le danseur s'assoit donc un peu dans ses genoux dès le départ, et la

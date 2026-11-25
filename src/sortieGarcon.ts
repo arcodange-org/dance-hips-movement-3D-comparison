@@ -1,6 +1,6 @@
 /** Validated five-action figure. GLB coordinates: left +x, forward +z. */
 import { gaitStep } from "./gait";
-import { placementOffset, startCoupling, endCoupling, type CouplePlacement, type PlacementOffset } from "./placement";
+import { COUPLE_DZ, placementOffset, startCoupling, endCoupling, type CouplePlacement, type PlacementOffset } from "./placement";
 export type FigureFoot = "L" | "R";
 export type SortieVariant = "line" | "right";
 export interface FootPoint { x: number; z: number }
@@ -8,8 +8,8 @@ export interface FigureFootPose extends FootPoint { yaw: number; lift: number;
   /** #49: rolling foot (src/gait.ts). */
   pitch?: number; pivot?: "ball" | "heel" | null }
 export const SORTIE_GARCON_BEATS = 5;
-// Half-spacing calibrated for this figure's real leg meshes; other pair figures retain PAIR_DZ.
-export const SORTIE_GARCON_PAIR_DZ = 0.20;
+// The couple's half-spacing, shared by the pair figures (#203: `COUPLE_DZ`).
+export const SORTIE_GARCON_PAIR_DZ = COUPLE_DZ;
 export const SORTIE_GARCON_ACTIONS = [
   "Départ · gauche disponible", "1 · Gauche en avant à gauche",
   "2 · Droit en avant, hors ligne", "3 · Gauche croisé devant",

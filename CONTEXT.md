@@ -22,6 +22,18 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   trois vitesses ; le point posé et tenu à deux temps et à un temps, fluide au demi-temps ; les demi-cercles ajoutés.
   Interrupteurs retirés. Reste à trancher : le huit du bassin glisse (comportement) ou tourne aussi (`?essai=isoHuitTourne`).
 
+## Jamais de jambe tendue : 30° de flexion au moins (#203, 24-25 novembre 2026)
+
+- Règle R43 : dans toutes les danses, les deux genoux gardent un minimum de flexion. **Minimum élu le 24 novembre :
+  30°** (contre 7° et 20°, [vote](docs/elections/flexion-minimale/README.md)). `KNEE_FLOOR_ELECTED`, plancher atteint en
+  douceur (`KNEE_FLOOR_SOFT`) ; les figures en couple plafonnées sous le plancher le prennent tel quel.
+- Couple : chaque danseur se tient 4 cm plus loin (`COUPLE_DZ` 0,24, `KNEE_ROOM`, `src/placement.ts`) ; sortie fille :
+  D3 dans son propre repère, bassin plus en avant ; quart de tour : balancement du style au quart ; plexus visé à 5 cm ;
+  coude de la suiveuse plus haut. Sonde de calibrage : `scripts/sonde_croisements_couple.mjs` (tous les croisements
+  d'os des figures en couple, `REGLAGE` pour essayer un réglage sans toucher au code).
+- « 1 2 » : relais plus doux de la hauteur du bassin (`UM_DOIS_SOFT`). Mesures enregistrées reprises (saccades, écarts
+  aux règles, empreintes historiques) : [spec](docs/spec-flexion-minimale.md#mise-en-œuvre-à-30).
+
 ## Pas de base « 1 2 » de la kizomba et du semba (#196, 24 novembre 2026)
 
 - Règle R42 : au 1 la jambe libre s'écarte et reçoit le poids ; au 2 l'autre la rejoint et marque sans poids, le

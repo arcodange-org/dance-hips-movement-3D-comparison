@@ -71,6 +71,8 @@ se danse sur un temps par appui (#195, R40 : `KOMPA_BEATS`, `kompaBeat` ; `?komp
 Pas de base « 1 2 » de la kizomba et du semba seuls (#196, R42, [spec](docs/spec-pas-de-base-1-2.md)), élu le 24 novembre : `UM_DOIS_ELECTED`
 (`src/umDois.ts` pur, `applySit` et `UM_DOIS` dans `src/styles.ts`, `scripts/test_um_dois.mjs`) ; l'ancien pas est la figure « Sur place » (`surPlace`).
 Suave seul, sur place : deux temps par côté, sans rebond (#200, R44, [spec](docs/spec-suave-deux-temps.md), `SUAVE_SLOW`) ; en couple, l'ancien modèle.
+Jamais de jambe tendue (#203, R43, [spec](docs/spec-flexion-minimale.md)) : 30° de flexion au moins (`KNEE_FLOOR_ELECTED`, élu le 24 novembre) ;
+le couple se tient plus loin (`COUPLE_DZ`, `KNEE_ROOM`, `src/placement.ts`) ; croisements d'os en couple : `scripts/sonde_croisements_couple.mjs` (hors `npm test`, `REGLAGE` pour essayer un réglage).
 Transfert de poids continu (#167, R34 : ni saccade, ni téléportation, ni relais soudain) : [spec](docs/spec-transfert-continu.md) ;
 `scripts/test_saccades.mjs` mesure, dans des séances du mode jeu, les à-coups du bassin de chaque figure et le passage d'un côté
 à l'autre ; l'état est enregistré (`scripts/fixtures/saccades.json`, cliquet ; `WRITE=1` après un changement voulu).

@@ -20,6 +20,7 @@ import CompassRose from "./components/CompassRose";
 import { resolveCam, resolveView, viewAnglesOf, SOLID_TORSO_OPACITY } from "./cameras";
 import { usePersistentState } from "./hooks/usePersistentState";
 import { STYLES, movementOf, movementFlags, movementAllowed, travelAllowed, PAIR_DZ, setKompaProto, setSembaProto, setUmDoisProto, type ModeKey, type MovementKey } from "./styles";
+import { setKneeFloor } from "./pose";
 import { QUARTS_PAIR_DZ } from "./quartsPaire";
 import { IDA_PAIR_DZ } from "./idaPaire";
 import { PLACE_PAIR_DZ } from "./placePaire";
@@ -40,6 +41,8 @@ setSembaProto(readParams().get("semba"));
 // #196 (docs/spec-pas-de-base-1-2.md): the « 1 2 » is the basic step of the kizomba and of the semba alone;
 // `?unDeux=large|court|doux` shows another candidate than the elected ones.
 setUmDoisProto(readParams().get("unDeux"));
+// #203 (prototype, docs/spec-flexion-minimale.md): `?flexion=15|20` shows a candidate minimum flexion of the knees.
+setKneeFloor(readParams().get("flexion"));
 
 function Gauge({ label, color, hud }: { label: string; color: string; hud: any }) {
   return (

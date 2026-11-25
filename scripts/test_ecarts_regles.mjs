@@ -22,7 +22,8 @@ const FIGURES = {
   'ida e volta': { options: { movement: 'ida', ida: true, idaPaire: true }, beats: 8, kind: 'ida' },
 };
 const world = (f, name) => f.r[name].getWorldPosition(new THREE.Vector3());
-const couple = () => [fixture(api, { offset: [0, 0, -0.2] }), fixture(api, { rotation: Math.PI, offset: [0, 0, 0.2] })];
+// The couple's half-spacing, shared by the pair figures (#203).
+const couple = () => [fixture(api, { offset: [0, 0, -api.COUPLE_DZ] }), fixture(api, { rotation: Math.PI, offset: [0, 0, api.COUPLE_DZ] })];
 const app = { placement: 'quinconce', amp: 1, embrace: true };
 const cm = v => Math.round(v * 1000) / 10;
 

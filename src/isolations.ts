@@ -94,7 +94,8 @@ export const ISOLATION_AMPLITUDES = {
 /** La tête penche et hoche autour de la base du cou, à cette distance (m) sous le nœud de la tête (le haut du cou) ;
  * elle tourne en haut du cou. */
 export const NECK_PIVOT = 0.07;
-/** Genoux souples pendant un exercice (rad) : ni tendus, ni pliés en danse. */
+/** Genoux souples pendant un exercice (rad) : ni tendus, ni pliés en danse. Le plancher de flexion de toutes les danses
+ * (#203, règle R43 : 30°, `KNEE_FLOOR` dans src/pose.ts) le relève : les genoux tiennent ce minimum. */
 export const ISOLATION_KNEE = 0.2;
 
 export interface IsolationSettings {

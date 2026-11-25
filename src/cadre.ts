@@ -32,8 +32,10 @@ export const CADRE_SITES = {
    * height of his chest. Her arm passes over his: her elbow comes above his elbow (kept at his ribs), her upper arm
    * outside his forearm, which goes under her armpit to her shoulder blade. (Under his shoulder, as first set by
    * #180, her elbow hung lower than his and the two arms ran side by side, closer than their thickness. The owner
-   * chose the raised elbow on 23 November 2026, #190.) */
-  armR: [-0.36, 0, 0.06] as Vec3,
+   * chose the raised elbow on 23 November 2026, #190.) #203: 5 cm above his chest (was at its height): with the knees
+   * bent the couple stands 8 cm further apart, his hand reaches further along her back and his elbow rises; hers stays
+   * 3 cm above it at least. */
+  armR: [-0.36, 0.05, 0.06] as Vec3,
   /** Leader's right elbow kept towards his right ribs (owner gesture: elbow to the ribs). */
   ribsR: [-0.15, -0.10, 0] as Vec3,
 };

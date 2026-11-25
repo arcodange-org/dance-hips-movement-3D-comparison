@@ -63,6 +63,14 @@ Le tempo reste celui du curseur (un bouton propose le tempo conseillé du style)
 affiche son niveau de preuve (documenté, faible, proposition) et peut être coupée. URL :
 `son=1&musique=A|B`. [Spécification et choix provisoires](docs/spec-son-synthese.md).
 
+## Jamais de jambe tendue : 30° de flexion au moins (#203)
+
+Dans toutes les danses, les deux genoux gardent toujours au moins 30° de flexion (minimum élu sur film par le
+propriétaire le 24 novembre 2026) : les danseurs sont un peu plus bas. Le genou rejoint ce minimum en douceur, sans
+à-coup du bassin. En couple, les genoux pliés avancent vers le partenaire : chaque danseur se tient 4 cm plus loin,
+et aucun os des jambes ne croise ceux de l'autre. `?flexion=<degrés>` (7 à 40) montre un autre minimum.
+[Spécification](docs/spec-flexion-minimale.md) · [films et vote](docs/elections/flexion-minimale/README.md).
+
 ## Kizomba et semba : le pas de base « 1 2 » (#196)
 
 Danseur seul, la kizomba et le semba ont pour pas de base le « 1 2 », élu par le propriétaire le 24 novembre 2026 :

@@ -422,8 +422,10 @@ const place = (f, follower, frame) => {
   const t = api.compose(frame, api.outerOf(follower));
   f.outer.position.set(t.x, 0, t.z); f.outer.rotation.set(0, t.yaw, 0); f.outer.updateMatrixWorld(true);
 };
-/** Largest joint displacement across a boundary over 1e-6 beat (the motion itself is ≪ 0.01 mm). */
-const GUIDE_JUMP = 0.0002;
+/** Largest joint displacement across a boundary over 1e-6 beat (the motion itself is ≪ 0.01 mm). #203: 0.4 mm (was
+ * 0.2): with the knees bent the couple stands 8 cm further apart, and the plexus lean now acts where the chained sortie
+ * meets the basic step; the faded trunk residual matches it to 0.3 mm (zouk, chest and head), far below what shows. */
+const GUIDE_JUMP = 0.0004;
 
 // 4b. GLB: the whole skeleton is continuous at every boundary (pelvis pose inertialized before the IK).
 {
