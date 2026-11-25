@@ -54,6 +54,30 @@ Mesures (kizomba, quinconce, amplitude 1, premier quart ; lacet des bassins, gui
 Vitesse moyenne par quart de temps, guideur : `plus10` 5 8 109 58 −5 −1 1 13 57 76 41 −1 −5 −2 2 5 ;
 `apres` 5 4 39 76 47 4 1 13 57 76 41 −1 −5 −2 2 5.
 
+### Précision du 25 novembre : pas de pivot au premier pas
+
+Le propriétaire précise la correction : pas d'accélération de pivot dès le premier pas ; la rotation est progressive
+entre le premier pas (qui avance et fait reculer la suiveuse) et le deuxième. D et E tournent encore beaucoup au premier
+pas (45° et 31° à sa pose) : la règle #106 (le bloc fait un huitième de tour avec le premier pied, la diagonale à sa
+pose) est à revoir pour le quart. Deux lectures, la virgula de `plus10` (`turn`) :
+
+- `progressif` : le bloc fait tout le quart d'une seule courbe douce, du départ du premier pied à la pose du second ; il
+  est presque de face quand le premier pied se pose ;
+- `entreLesPas` : le premier pas ne fait qu'avancer ; le bloc tourne de la pose du premier pied à celle du second.
+
+| Candidat | Rotation à la pose du premier pied | Vitesse max (°/temps) | Accélération max (°/temps²) |
+|---|---|---|---|
+| D `plus10` (diagonale) | 45° | 140 / 143 | 815 / 1 134 |
+| E `apres` | 31° | 79 / 89 | 411 / 641 |
+| `progressif` | **8°** | 71 / 69 | 376 / 449 |
+| `entreLesPas` | **0°** | 94 / 79 | 438 / 414 |
+
+Vitesse moyenne par quart de temps, guideur : `progressif` 5 2 6 21 41 60 68 68 54 32 9 −4 −5 −2 2 5 ;
+`entreLesPas` 5 2 −2 −5 2 35 69 92 87 58 20 −3 −5 −2 2 5. Les accélérations les plus fortes de ces deux candidats
+viennent du balancement du style au temps 0,53, pas de la rotation. Os croisés : `progressif` 116 poses sur 288 en
+quinconce, 14 face à face ; `entreLesPas` 133 et 100 (à régler sur la version élue, comme les autres). La question 30 de la
+page de vote est refaite avec ces deux lectures ; D et E en sont retirées.
+
 **Ce qui n'est pas encore réglé.** Les candidats déplacent les pieds et le moment où les corps tournent : les os des
 jambes se croisent de nouveau (80 à 117 poses sur 288 en quinconce, 14 à 49 face à face ; 0 aujourd'hui,
 `scripts/sonde_croisements_couple.mjs`). Comme pour le minimum de flexion (#203), le candidat élu sera réglé (trajets
@@ -64,7 +88,9 @@ des pieds, moments de départ, adoucissement au croisement) et contrôlé avant 
 - Contraintes de la spec #37 inchangées : fin de chaque quart égale au départ tourné d'un quart autour de C, retour au
   départ après quatre quarts, quinconce retrouvé ; enveloppes des pieds disjointes ; pied porteur immobile ; cibles
   atteintes ; aucun croisement des os des jambes (six styles, amplitudes 0,5 à 2, quinconce et face à face, plexus).
-- Lacet des bassins : vitesse et accélération maximales mesurées avant et après (ce tableau), sans arrêt net.
+- Lacet des bassins : vitesse et accélération maximales mesurées avant et après (ces tableaux), sans arrêt net, sans
+  pivot au premier pas (25 novembre).
+- La règle #106 (spec #37, `regles-proprietaire.md`) réécrite pour le quart selon la lecture élue.
 - Saccades (R34, `scripts/fixtures/saccades.json`) reprises si les mesures changent.
 - La virgula de la sortie fille (#127) reste la référence : le guideur avance, la suiveuse recule.
 

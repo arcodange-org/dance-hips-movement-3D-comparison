@@ -20,14 +20,20 @@ export const QUARTS_HEEL_AT_TOE: FootPoint = { x: 0.056, z: 0.20 };
  * - `turn`: `diagonale`: the block (pelvis and chest) turns half the quarter over the first foot's whole flight and
  *   the rest over the second's, easing in and out (no sudden stop at the landing; today it turns over the last 60 % of
  *   the first flight and stops dead); `apres`: the same, the first half ending `QUART_AFTER` beats after the first
- *   foot has landed (the block catches up with the foot while the weight settles). */
-export interface QuartVirgula { beyond: number; turn: "aujourdhui" | "diagonale" | "apres" }
+ *   foot has landed (the block catches up with the foot while the weight settles).
+ * Owner, 25 Nov. 2026: no pivot from the first step on; the turn grows gradually between the first step (which goes
+ * forward and makes the follower step back) and the second. `progressif`: the block turns the whole quarter in one
+ * smooth curve from the moment the first foot leaves to the landing of the second, nearly facing front when the first
+ * foot lands; `entreLesPas`: the first step only goes forward, the block turns from its landing to the second's. */
+export interface QuartVirgula { beyond: number; turn: "aujourdhui" | "diagonale" | "apres" | "progressif" | "entreLesPas" }
 export const QUART_AFTER = 0.4;
 export const QUART_TODAY: QuartVirgula = { beyond: 0, turn: "aujourdhui" };
 export const QUART_CANDIDATES: Record<string, QuartVirgula> = {
   plus5: { beyond: 0.05, turn: "diagonale" }, plus10: { beyond: 0.10, turn: "diagonale" },
   // The follower's D lands about one foot back (21 cm).
   unPied: { beyond: 0.19, turn: "diagonale" }, apres: { beyond: 0.10, turn: "apres" },
+  // 25 Nov.: the turn spread over the two steps (the virgula of `plus10`).
+  progressif: { beyond: 0.10, turn: "progressif" }, entreLesPas: { beyond: 0.10, turn: "entreLesPas" },
 };
 export const QUART_PROTO: { v: QuartVirgula } = { v: QUART_TODAY };
 export const setQuartProto = (name: string | null | undefined) => { QUART_PROTO.v = (name && QUART_CANDIDATES[name]) || QUART_TODAY; };
@@ -178,6 +184,11 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
     const v = QUART_PROTO.v;
     if (v.turn === "apres") return [ease5((t - role[0].start) / (role[0].end + QUART_AFTER - role[0].start)), ease5(rawAt(role[1], t))];
     if (v.turn === "diagonale") return [ease5(rawAt(role[0], t)), ease5(rawAt(role[1], t))];
+    if (v.turn === "progressif" || v.turn === "entreLesPas") {
+      // One curve for the whole quarter, its first half then its second (the diagonal root keeps its two halves).
+      const from = v.turn === "progressif" ? role[0].start : role[0].end, p = 2 * ease5((t - from) / (role[1].end - from));
+      return [Math.min(1, p), Math.max(0, p - 1)];
+    }
     return [ramp(rawAt(role[0], t), Math.max(QUARTS_BODY.delay, role[0].arcDelay)), ramp(rawAt(role[1], t), role[1].arcDelay)];
   };
   const [a1, a2] = turnAt(now.q);

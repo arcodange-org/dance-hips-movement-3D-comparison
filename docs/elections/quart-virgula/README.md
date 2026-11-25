@@ -15,13 +15,20 @@ De gauche à droite : aujourd'hui, A (`plus5`), B (`plus10`), C (`unPied`). Kizo
 
 ![Vu de dessus](q1-distance-dessus.gif)
 
-## Question 30 : quand le bassin finit-il son premier demi-quart ?
+## Question 30 (refaite le 25 novembre) : comment la rotation se répartit-elle entre les deux pas ?
 
-De gauche à droite : D (`plus10`, diagonale à la pose), E (`apres`, finit 0,4 temps après la pose).
+Précision du propriétaire du 25 novembre : pas de pivot dès le premier pas ; la rotation monte progressivement entre le
+premier pas (qui avance et fait reculer la suiveuse) et le deuxième. Les lectures D (diagonale à la pose, 45°) et E
+(31° à la pose) tournaient encore beaucoup au premier pas : elles sont retirées du vote.
 
-![De trois quarts](q2-rotation-34.gif)
+De gauche à droite : aujourd'hui, F (`progressif` : une seule courbe du départ du premier pied à la pose du second, 8°
+à la pose du premier), G (`entreLesPas` : le premier pas ne fait qu'avancer, 0° à sa pose). Virgula de B (`plus10`).
 
-![Vu de dessus](q2-rotation-dessus.gif)
+![De trois quarts](q2-progressif-34.gif)
+
+![Vu de dessus](q2-progressif-dessus.gif)
+
+Les films de D et E, retirés : [de trois quarts](q2-rotation-34.gif), [vu de dessus](q2-rotation-dessus.gif).
 
 ## Mesures
 
@@ -34,9 +41,11 @@ Kizomba, quinconce, amplitude 1, premier quart ; lacet des bassins, guideur / su
 | B `plus10` (D) | 12,3 cm | 35 cm | 12,3 ; 39,2 cm | 140 / 143 | 815 / 1 134 | 45° | 113 ; 20 |
 | C `unPied` | 21,3 cm | 44 cm | 21,3 ; 42,2 cm | 140 / 143 | 815 / 1 134 | 45° | 117 ; 25 |
 | E `apres` | 12,3 cm | 35 cm | 12,3 ; 39,2 cm | 79 / 89 | 411 / 641 | 31° | 80 ; 22 |
+| F `progressif` | 12,3 cm | 35 cm | 12,3 ; 39,2 cm | 71 / 69 | 376 / 449 | 8° | 116 ; 14 |
+| G `entreLesPas` | 12,3 cm | 35 cm | 12,3 ; 39,2 cm | 94 / 79 | 438 / 414 | 0° | 133 ; 100 |
 
 Les croisements d'os des candidats seront réglés sur la version élue, avant qu'elle devienne la figure par défaut
 (comme pour le minimum de flexion, #203).
 
-**Propositions** : B pour la question 29 (C si le recul d'un pied se mesure au pied droit de la suiveuse) ; E pour la
-question 30.
+**Propositions** : B pour la question 29 (C si le recul d'un pied se mesure au pied droit de la suiveuse) ; F pour la
+question 30 refaite (E avant la précision du 25 novembre).
