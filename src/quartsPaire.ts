@@ -11,6 +11,28 @@ export const QUARTS_PAIR_DZ = COUPLE_DZ;
 /** Owner rule (phase 14): the left heel comes to the tip of the right foot, at a right angle.
  * Ankle offset from the right ankle: the heel lies 5.6 cm behind the ankle, the toe 15.6 cm ahead. */
 export const QUARTS_HEEL_AT_TOE: FootPoint = { x: 0.056, z: 0.20 };
+/** #208 (owner, 24 Nov. 2026, after a lesson: « on va corriger le quart de tour (qui est trop rapide) […] le pas
+ * virgula avance (il est un peu plus loin que le bout du pied pour faire reculer la partenaire d'environ la distance
+ * d'un pied) et donc l'accélération de la rotation n'est pas aussi soudaine »). PROTOTYPE until his vote, shown by the
+ * address only (`?quart=<nom>`), the quarter of today by default:
+ * - `beyond` (m): how much further forward than today the virgula's heel lands (today 2 cm beyond the tip of his D);
+ *   in the rigid quarter about C, the follower's D lands back by as much;
+ * - `turn`: `diagonale`: the block (pelvis and chest) turns half the quarter over the first foot's whole flight and
+ *   the rest over the second's, easing in and out (no sudden stop at the landing; today it turns over the last 60 % of
+ *   the first flight and stops dead); `apres`: the same, the first half ending `QUART_AFTER` beats after the first
+ *   foot has landed (the block catches up with the foot while the weight settles). */
+export interface QuartVirgula { beyond: number; turn: "aujourdhui" | "diagonale" | "apres" }
+export const QUART_AFTER = 0.4;
+export const QUART_TODAY: QuartVirgula = { beyond: 0, turn: "aujourdhui" };
+export const QUART_CANDIDATES: Record<string, QuartVirgula> = {
+  plus5: { beyond: 0.05, turn: "diagonale" }, plus10: { beyond: 0.10, turn: "diagonale" },
+  // The follower's D lands about one foot back (21 cm).
+  unPied: { beyond: 0.19, turn: "diagonale" }, apres: { beyond: 0.10, turn: "apres" },
+};
+export const QUART_PROTO: { v: QuartVirgula } = { v: QUART_TODAY };
+export const setQuartProto = (name: string | null | undefined) => { QUART_PROTO.v = (name && QUART_CANDIDATES[name]) || QUART_TODAY; };
+/** Quintic ease: zero speed and zero acceleration at both ends. */
+const ease5 = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * t * (10 - 15 * t + 6 * t * t); };
 const QUARTER = Math.PI / 2;
 
 const smooth = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * (3 - 2 * t); };
@@ -47,7 +69,7 @@ export function quartsCouple(rest: Record<FigureFoot, FootPoint>, o: PlacementOf
   const leader = own;
   const follower = { L: toFollower(own.L), R: toFollower(own.R), root: toFollower(own.root) };
   // The quarter rotation sending L0 onto L1 = R0 + heel-at-toe: rotate(u) - u = d with u = L0 - C.
-  const target = { x: own.R.x + QUARTS_HEEL_AT_TOE.x, z: own.R.z + QUARTS_HEEL_AT_TOE.z };
+  const target = { x: own.R.x + QUARTS_HEEL_AT_TOE.x, z: own.R.z + QUARTS_HEEL_AT_TOE.z + QUART_PROTO.v.beyond };
   const d = { x: target.x - own.L.x, z: target.z - own.L.z };
   const u = { x: -(d.x + d.z) / 2, z: (d.x - d.z) / 2 };
   return { centre: { x: own.L.x - u.x, z: own.L.z - u.z }, leader, follower };
@@ -150,7 +172,15 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
   const feet = {} as Record<FigureFoot, FigureFootPose>;
   const angle = { L: base, R: base } as Record<FigureFoot, number>;
   const [one, two] = now.feet;
-  const a1 = ramp(one.raw, Math.max(QUARTS_BODY.delay, one.shape.arcDelay));
+  const rawAt = (shape: QuartsStepShape, t: number) => Math.max(0, Math.min(1, (t - shape.start) / (shape.end - shape.start)));
+  // #106, #208: how much of each half of the quarter the block (pelvis and chest) has turned at time t of the quarter.
+  const turnAt = (t: number): [number, number] => {
+    const v = QUART_PROTO.v;
+    if (v.turn === "apres") return [ease5((t - role[0].start) / (role[0].end + QUART_AFTER - role[0].start)), ease5(rawAt(role[1], t))];
+    if (v.turn === "diagonale") return [ease5(rawAt(role[0], t)), ease5(rawAt(role[1], t))];
+    return [ramp(rawAt(role[0], t), Math.max(QUARTS_BODY.delay, role[0].arcDelay)), ramp(rawAt(role[1], t), role[1].arcDelay)];
+  };
+  const [a1, a2] = turnAt(now.q);
   for (const [index, { side, shape, raw, arc }] of now.feet.entries()) {
     angle[side] = base + QUARTER * arc;
     let point = about(c, start[side], angle[side]);
@@ -190,14 +220,11 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
   // pied […] l'extrémité est déjà en position finale et le reste est en position intermédiaire "diago"
   // jusqu'à ramener l'autre pied »): pelvis and upper body turn with the feet, the diagonal when the first
   // foot lands, the quarter when the second does.
-  const a2 = two.arc;
   const bodyYaw = base + (QUARTER / 2) * (a1 + a2);
   // #126 (owner: « le buste peut avoir un léger retard sur le pied : le temps de transfert »): the chest
   // follows the pelvis `chestLag` beats later.
-  const rawAt = (shape: QuartsStepShape, t: number) => Math.max(0, Math.min(1, (t - shape.start) / (shape.end - shape.start)));
-  const lagged = now.q - QUARTS_BODY.chestLag;
-  const chestYaw = (QUARTER / 2) * (ramp(rawAt(one.shape, lagged), Math.max(QUARTS_BODY.delay, one.shape.arcDelay))
-    + ramp(rawAt(two.shape, lagged), two.shape.arcDelay) - a1 - a2);
+  const lagged = turnAt(now.q - QUARTS_BODY.chestLag);
+  const chestYaw = (QUARTER / 2) * (lagged[0] + lagged[1] - a1 - a2);
   const rigid = about(c, start.root, bodyYaw - base), diagonal = diagonalRoot(c, start.root, QUARTS_BODY.extremity, a1, a2);
   const travel = QUARTS_BODY.travel[follower ? "follower" : "leader"];
   const rootPoint = about(c, { x: mix(rigid.x, diagonal.x, travel), z: mix(rigid.z, diagonal.z, travel) }, base);

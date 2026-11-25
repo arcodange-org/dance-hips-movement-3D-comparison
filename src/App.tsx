@@ -20,7 +20,7 @@ import { resolveCam, resolveView, viewAnglesOf, SOLID_TORSO_OPACITY } from "./ca
 import { usePersistentState } from "./hooks/usePersistentState";
 import { STYLES, movementOf, movementFlags, movementAllowed, travelAllowed, PAIR_DZ, setKompaProto, setSembaProto, setUmDoisProto, type ModeKey, type MovementKey } from "./styles";
 import { setKneeFloor } from "./pose";
-import { QUARTS_PAIR_DZ } from "./quartsPaire";
+import { QUARTS_PAIR_DZ, setQuartProto } from "./quartsPaire";
 import { IDA_PAIR_DZ } from "./idaPaire";
 import { PLACE_PAIR_DZ } from "./placePaire";
 import { parseVec3, buildShareUrl } from "./share";
@@ -40,8 +40,10 @@ setSembaProto(readParams().get("semba"));
 // #196 (docs/spec-pas-de-base-1-2.md): the « 1 2 » is the basic step of the kizomba and of the semba alone;
 // `?unDeux=large|court|doux` shows another candidate than the elected ones.
 setUmDoisProto(readParams().get("unDeux"));
-// #203 (prototype, docs/spec-flexion-minimale.md): `?flexion=15|20` shows a candidate minimum flexion of the knees.
+// #203 (docs/spec-flexion-minimale.md): `?flexion=<degrés>` shows another minimum flexion of the knees than the elected 30°.
 setKneeFloor(readParams().get("flexion"));
+// #208 (prototype, docs/spec-quart-virgula.md): `?quart=plus5|plus10|unPied|apres` shows a candidate pair quarter turn.
+setQuartProto(readParams().get("quart"));
 
 function Gauge({ label, color, hud }: { label: string; color: string; hud: any }) {
   return (
