@@ -244,3 +244,9 @@ Trois premiers temps à 60 bpm : le G du leader se pose perpendiculaire, son D f
 recule et revient pointé vers l'avant. La figure entière, vue du guideur :
 [sortie fille, variante crochet](gifs/sortie-fille-crochet.gif).
 
+## Genoux pliés à 30° au moins (#203, 24 novembre 2026)
+
+Le couple se tient 8 cm plus loin (chaque danseur 4 cm, `COUPLE_DZ`, [spec](spec-flexion-minimale.md#mise-en-œuvre-à-30)).
+Le D3 du suiveur se pose où il se posait dans son propre repère : son G4 croise devant lui comme avant (les semelles
+restent écartées), et il s'arrête donc 8 cm plus loin derrière le D du leader (23 cm en crochet, 25 cm en recul). Son
+bassin avance d'autant au-dessus de lui : à l'arrivée D/D, le haut des cuisses D se touche toujours.

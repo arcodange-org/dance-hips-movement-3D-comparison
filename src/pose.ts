@@ -103,8 +103,10 @@ export const DEFAULT_POSE: PoseOptions = {
  * at most `maxLean` towards the partner, and only in a close couple: the lean fades out between `open`
  * and `open + fade` of missing distance (an open position does not chase the plexus contact). The chest
  * turns towards the partner by at most `facing` (rad). The lean stops once the trunk (pelvis → head, the
- * style's own posture included) is `maxTrunk` (rad) from the vertical. */
-export const PLEXUS = { gap: 0.08, maxLean: 0.08, maxTrunk: 0.13, open: 0.06, fade: 0.08, facing: 0.3, marker: 0.16, pelvisDistance: 0.34, pelvisPull: 0 };
+ * style's own posture included) is `maxTrunk` (rad) from the vertical. #203: `gap` 0.05 (was 0.08): with the knees
+ * bent the couple stands 8 cm further apart (`COUPLE_DZ`), and the chests aim 3 cm closer to keep their contact
+ * (the owner's 6 cm) with a trunk still under 8° from the vertical. */
+export const PLEXUS = { gap: 0.05, maxLean: 0.08, maxTrunk: 0.13, open: 0.06, fade: 0.08, facing: 0.3, marker: 0.16, pelvisDistance: 0.34, pelvisPull: 0 };
 interface Leg {
   length1: number; length2: number; f0: THREE.Vector3; t0: THREE.Vector3;
   hip: THREE.Vector3; rest: THREE.Vector3; sole: THREE.Vector3[];
@@ -232,7 +234,10 @@ function pivotShift(leg: PoseModel["legs"][Side], yaw: number, pitch: number, pi
 export const ROLLED_WALK = { flight: 0.75, bear: 0.75, bearBack: 1 };
 /** #196: the feet of the « 1 2 » (src/umDois.ts): each at its rest place, moved aside by its share of `ecart`;
  * a foot whose heel is up (left behind, closing, marking) stands on its ball, and its leg reaches from there. */
-const UM_DOIS_SOFT = 0.007;
+/** #196, #203: softness (m) of the smooth minimum that hands the pelvis height of the « 1 2 » from one bound to the
+ * other. 0.007 with nearly straight legs; with the minimum flexion of R43 the far leg reaches less and binds sooner,
+ * and the pelvis dipped as the stepping foot landed (6.8 m/s² for the kizomba): it now lowers over the whole step. */
+const UM_DOIS_SOFT = 0.025;
 function umDoisFeet(clock: number, ecart: number, m: PoseModel): Record<Side, FootPlan> {
   const feet = {} as Record<Side, FootPlan>;
   for (const s of SIDES) {
@@ -407,6 +412,24 @@ function mixStyleState(r: RigHandle, a: ReturnType<typeof styleState>, b: Return
  * keep their own timing (aligning them is the rest of #62), and so do the legacy combined sortie
  * (oracle) and the guide mode's basic step, which must join the figures. */
 export const ON_BEAT_SHIFT = 0.5;
+/** #203 (rule R43, 24 Nov. 2026: in every dance no leg straightens, both knees always keep some flexion, so the
+ * dancers stand a little lower; docs/spec-flexion-minimale.md): the least flexion (rad) a leg that sets the pelvis
+ * height may ask for: 30°, chosen by the owner on film on 24 Nov. 2026 (vote round 13, against 7°, the former floor,
+ * and 20°). `?flexion=<degrés>` (7 to 40) shows another minimum. */
+export const KNEE_FLOOR_ELECTED = 30;
+export const KNEE_FLOOR = { rad: KNEE_FLOOR_ELECTED * Math.PI / 180 };
+export const setKneeFloor = (degrees: string | null | undefined) => {
+  const d = Number(degrees);
+  KNEE_FLOOR.rad = (degrees && Number.isFinite(d) && d >= 7 && d <= 40 ? d : KNEE_FLOOR_ELECTED) * Math.PI / 180;
+};
+// In node (measures of another minimum with the existing tests), the environment variable FLEXION, which the tests
+// never set; in the browser, the address (`?flexion=`, src/App.tsx).
+setKneeFloor((globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.FLEXION);
+/** #203: the floor is reached smoothly (softplus of width `KNEE_FLOOR_SOFT`, rad): a knee that would straighten past
+ * it slows down as it nears it instead of stopping dead, and the pelvis it holds does not jerk (the kompa alone, whose
+ * straighter leg came down to 23°, and the walks). Above the floor by twice the width, the flexion is as asked. */
+export const KNEE_FLOOR_SOFT = 0.1;
+const kneeFloor = (flex: number) => KNEE_FLOOR.rad + KNEE_FLOOR_SOFT * Math.log1p(Math.exp((flex - KNEE_FLOOR.rad) / KNEE_FLOOR_SOFT));
 export const onBeatShift = (o: { movement: MovementKey; sortie?: boolean; embrace?: boolean; onBeat?: boolean }): number =>
   // Solo, a selected sortie is the dance on the spot (the sorties exist only in pair). The guide mode
   // (`onBeat: false`) keeps the clock's phase: its basic step must join the figures, which keep theirs.
@@ -809,9 +832,11 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
       const leg = model.legs[s];
       const hip = r.root.parent!.worldToLocal(r["hip" + s].getWorldPosition(new THREE.Vector3()));
       const cap = figure ? (figure as { kneeCap?: number }).kneeCap ?? 0.45 : 1.2;
-      const own = Math.max(0.12, Math.min(cap, posture.knee + desiredKnee[s]));
+      // A figure's cap under the floor leaves the floor itself: figures joined in the game mode keep one pose.
+      const own = Math.max(KNEE_FLOOR.rad, Math.min(cap, kneeFloor(posture.knee + desiredKnee[s])));
       // #159 (prototype): the knees lead; where the figure leaves no room, its own flexion comes back.
-      const flex = kneeLed ? own + (kneeLed[s] - own) * kneeLed.share : own;
+      // #203: never below the floor, whatever leads them.
+      const flex = kneeLed ? kneeFloor(own + (kneeLed[s] - own) * kneeLed.share) : own;
       const reach2 = leg.length1 ** 2 + leg.length2 ** 2 + 2 * leg.length1 * leg.length2 * Math.cos(flex);
       return { s, hipOffset: hip.sub(r.root.position), reach2 };
     });
@@ -842,7 +867,8 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
       const target = model.targets[s];
       const horizontal2 = (target.x - hip.x) ** 2 + (target.z - hip.z) ** 2;
       if (umDois) {
-        const leg = model.legs[s], straight2 = leg.length1 ** 2 + leg.length2 ** 2 + 2 * leg.length1 * leg.length2 * Math.cos(0.12);
+        // #203: « straight » is the least flexion of the rule.
+        const leg = model.legs[s], straight2 = leg.length1 ** 2 + leg.length2 ** 2 + 2 * leg.length1 * leg.length2 * Math.cos(KNEE_FLOOR.rad);
         const flatY = soleHeight(leg.sole, new THREE.Quaternion().setFromAxisAngle(Y, feet[s].yaw));
         reaches.push(flatY + Math.sqrt(reach2) - hip.y, bearingY[s] + Math.sqrt(Math.max(0, straight2 - horizontal2)) - hip.y);
       } else height = Math.min(height, bearingY[s] + Math.sqrt(Math.max(0, reach2 - horizontal2)) - hip.y);

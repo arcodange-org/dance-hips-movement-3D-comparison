@@ -13,6 +13,7 @@
 //         d'avant les votes) ou `aujourdhui` (le pas de base : la variante élue ; pour le kompa, à un appui par temps,
 //         #195 ; `deuxTemps` : le pas tel que voté, deux temps par appui).
 //         … out.gif <candidat> seul unDeux <kizomba|semba> : le pas de base « 1 2 » (#196, `UM_DOIS`) ;
+//         FLEXION=<degrés> : avec ce minimum de flexion des genoux (#203).
 //         MESURES=1 n'écrit pas de GIF : seulement les mesures (JSON sur la sortie standard).
 import { buildSync } from "esbuild";
 import { execFileSync } from "node:child_process";
@@ -37,6 +38,8 @@ if (unDeux && !api.umDoisOf(styleKey)) throw new Error(`${ginga}: not a candidat
 // Tempo of the measures and of the GIF: the semba at 130 bpm, the others at 90 ; BPM=… in the environment
 // measures at another tempo (the kompa's music plays at 120 by default).
 const BPM = Number(process.env.BPM) || (styleKey === 'semba' ? 130 : 90);
+// #203: FLEXION=<degrés> measures with that least flexion of the knees (prototype `?flexion=`).
+api.setKneeFloor(process.env.FLEXION);
 const f = { ...fixture(api), cache: new Map() };
 const rest = { L: f.model.legs.L.rest, R: f.model.legs.R.rest }, stance = (f.model.legs.L.hipX - rest.L.x + rest.R.x - f.model.legs.R.hipX) / 2;
 // The game's own session: the figure commanded five times in a row, the third one measured.

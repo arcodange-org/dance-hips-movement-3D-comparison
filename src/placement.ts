@@ -8,6 +8,15 @@ export interface PlacementOffset {
   stagger?: number;
 }
 export type CouplePlacement = "quinconce" | "face";
+/** Half the distance (m) between the two partners' frames, the same in every pair figure (the game mode chains them):
+ * the placements below shift the feet from there. 0.20 with the nearly straight legs the figures were calibrated
+ * with (12° of knee flexion at most in the close couple); #203 (rule R43, minimum knee flexion of 30°, elected on 24
+ * Nov. 2026): the bent knees stand about 6 cm further forward, each dancer stands 4 cm further back. The steps keep
+ * their length in each dancer's own frame and the D/D arrivals of the sorties, computed from this spacing, their
+ * contacts; measured bone-clear by `scripts/sonde_croisements_couple.mjs`. */
+export const COUPLE_DZ = 0.24;
+/** #203: how much further back (m) each dancer stands than in the figures as calibrated (0.20). */
+export const KNEE_ROOM = COUPLE_DZ - 0.20;
 export const DEFAULT_PLACEMENT: CouplePlacement = "quinconce";
 export const PLACEMENT_OFFSETS: Record<CouplePlacement | "reference", PlacementOffset> = {
   // The validated figures, unchanged (roots at ±SORTIE_*_PAIR_DZ).

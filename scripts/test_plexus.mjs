@@ -22,10 +22,13 @@ const world = (f, name) => f.r[name].getWorldPosition(new THREE.Vector3());
 const cases = [
   ['sortieG line', api.SORTIE_GARCON_PAIR_DZ, 5, { movement: 'sortieG', sortieVariant: 'line' }, .37],
   ['sortieG right', api.SORTIE_GARCON_PAIR_DZ, 5, { movement: 'sortieG', sortieVariant: 'right' }, .37],
-  ['quarts paire', api.QUARTS_PAIR_DZ, 16, { movement: 'quarts', quarts: true, quartsPaire: true }, .11],
+  // #203: with the knees bent the couple stands 8 cm further apart. In the app's quinconce the chests keep their
+  // contact; the reference spacing (tests only, feet facing feet) keeps the pelvises 48 cm apart, and the trunk, at
+  // its largest lean, leaves the chests 13 to 16 cm apart (guards only).
+  ['quarts paire', api.QUARTS_PAIR_DZ, 16, { movement: 'quarts', quarts: true, quartsPaire: true }, { quinconce: .11, reference: .16 }],
   // #54: the couple travels as a block (pelvises together): the plexus contact holds in quinconce
-  // (owner's indicator, 6 cm). The reference spacing keeps the pelvises 40 cm apart (guard only).
-  ['ida paire', api.IDA_PAIR_DZ, 8, { movement: 'ida', ida: true, idaPaire: true }, { quinconce: .06, reference: .10 }],
+  // (owner's indicator, 6 cm). The reference spacing keeps the pelvises apart (guard only).
+  ['ida paire', api.IDA_PAIR_DZ, 8, { movement: 'ida', ida: true, idaPaire: true }, { quinconce: .06, reference: .145 }],
   ['sortieF hook', api.SORTIE_FILLE_PAIR_DZ, 5, { movement: 'sortieF', sortieFilleVariant: 'hook' }, .41],
   ['sortieF back', api.SORTIE_FILLE_PAIR_DZ, 5, { movement: 'sortieF', sortieFilleVariant: 'back' }, .41],
 ];
