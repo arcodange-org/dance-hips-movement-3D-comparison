@@ -222,8 +222,8 @@ filmé à ce tempo, et le montage cale le premier temps de la musique sur le tem
   l'empreinte de ses douze plans (`assemblerComparaison`).
 
 - **Flexion minimale des genoux** (#203, fusionnée le 24 novembre par #204) : chaque genou garde au moins 30° de
-  flexion. La narration n'en dit rien de chiffré (« genoux fléchis ») et reste vraie ; fait F365 ; douzième version
-  à filmer.
+  flexion. La narration n'en dit rien de chiffré (« genoux fléchis ») et reste vraie ; fait F365. Douzième version
+  filmée le 25 novembre (6 min 23, −16 LUFS), images contrôlées.
 
 ## Ce qui reste
 
