@@ -530,5 +530,9 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Spec ([spec](spec-ida-poids.md)) ; mesures (`scripts/mesure_ida_poids.mjs`) ; candidats sous `?idaPoids=`
   (`peu`, `moitie`, `troisQuarts`) ; aucun croisement d'os.
 - [x] Films et vote : page de vote, quinzième tour, question 31 ([dossier](elections/ida-poids/README.md)).
-- [ ] Après le vote : la part élue par défaut (appuis, bassin, ginga), tests repris, allers-retours insérés vérifiés
-  (#144), R27 complétée, saccades.
+- [x] Après le vote (C, 75 %) : la part élue par défaut (appuis, bassin, ginga), tests repris, allers-retours insérés
+  vérifiés (#144), R27 complétée, saccades.
+- [x] Ginga continu par défaut (`idaGingaWindows`, `?idaGinga=tenu` pour l'ancien) ; mesures `scripts/mesure_ida_ginga.mjs`.
+- [x] Contraposition de 20° en prototype (`?idaContra=20`), mesurée (32,8° du buste contre le bassin en quinconce, 4 poses
+  d'os croisés en kompa) et filmée du côté du guideur ([dossier](elections/ida-poids/README.md)).
+- [ ] Contraposition de 20° : le propriétaire tranche le plafond de 18° (`test_plexus`) pour l'ida e volta.
