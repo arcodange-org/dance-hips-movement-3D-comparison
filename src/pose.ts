@@ -834,7 +834,9 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   // #51: with plexus contact the chest turns towards the partner (contraposition share) instead of
   // the figure's own chest yaw; the lean towards the partner is applied once the frame is set.
   const facing = partnerRoot ? Math.atan2(partnerRoot.x - r.root.position.x, partnerRoot.z - r.root.position.z) : 0;
-  if (figure && partnerRoot) r.chest.rotation.y += o.contraposition * Math.max(-PLEXUS.facing, Math.min(PLEXUS.facing, angleDelta(r.root.rotation.y, facing)));
+  // #210 (prototype `?idaContra=`): a figure may leave the chest more room to hold the partner (`facingRoom`, rad).
+  const facingCap = PLEXUS.facing + ((figure as { facingRoom?: number } | null)?.facingRoom ?? 0);
+  if (figure && partnerRoot) r.chest.rotation.y += o.contraposition * Math.max(-facingCap, Math.min(facingCap, angleDelta(r.root.rotation.y, facing)));
   else if (figure) r.chest.rotation.y += figure.chestYaw;
   if (o.quarts && !figure) {
     const qs = quartTurnStep(beat, o.reverse);
@@ -889,7 +891,8 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     // #73, R34: in a rolled walk outside the figures, a foot in the air or landing bends its knee instead
     // of lifting the pelvis, and the heel rising at push-off holds the pelvis up by a share only (`bear`).
     // On these long steps the pelvis otherwise jumped up as the trailing heel rose.
-    if (!figure && feet[s].pitch !== undefined) {
+    // #210: a figure foot may declare it too (`bear`): the ida e volta's moving foot, whose hips keep swaying.
+    if ((!figure && feet[s].pitch !== undefined) || (figure && (feet[s] as FootPlan).bear !== undefined)) {
       const flatY = soleHeight(model.legs[s].sole, flat);
       bearingY[s] = flatY + ((feet[s] as FootPlan).bear ?? 0) * (soleHeight(model.legs[s].sole, q) - flatY);
     } else bearingY[s] = model.targets[s].y;

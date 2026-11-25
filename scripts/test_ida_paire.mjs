@@ -112,9 +112,11 @@ console.log('PASS neutre : quinconce (ou placement) retrouvé aux temps 0, 4 et 
     assert(peak > 0.02, `#84: the moving hip leads by a few centimetres (${peak})`);
     console.log(`PASS #84 : bassin qui pivote sur la hanche d’appui, hanche du pied qui bouge en avance de ${(peak * 100).toFixed(1)} cm au plus ; genoux au-dessus des pieds`);
   }
-  // #84: the pelvis travels with the weight (carry) plus half of the moving hip's advance (hip).
-  assert(travel >= api.IDA_PAIR.carry * api.IDA_PAIR.step - 1e-3 && travel <= (api.IDA_PAIR.carry + api.IDA_PAIR.hip / 2) * api.IDA_PAIR.step + 1e-3,
-    `pelvises travel between carry·step and (carry + hip/2)·step (${travel})`);
+  // #84: the pelvis travels with the weight (carry) plus half of the moving hip's advance (hip); #210: as far as the
+  // share of the weight that goes onto the outgoing foot.
+  const carry = api.IDA_PAIR.carry * api.IDA_WEIGHT_PROTO.v.share;
+  assert(travel >= carry * api.IDA_PAIR.step - 1e-3 && travel <= (carry + api.IDA_PAIR.hip / 2) * api.IDA_PAIR.step + 1e-3,
+    `pelvises travel between carry·share·step and (carry·share + hip/2)·step (${travel})`);
   // #89: the variants are the cycle started later (right leg +4, backwards first +2).
   for (const [v, shift] of [[{ side: 'R', back: false }, 4], [{ side: 'L', back: true }, 2], [{ side: 'R', back: true }, 6]])
     for (let b = 0; b < 8; b += .25) { const x = api.sampleIdaPaire(b, false, rest, 'quinconce', 0, v), y = api.sampleIdaPaire(b + shift, false, rest, 'quinconce');
@@ -122,40 +124,59 @@ console.log('PASS neutre : quinconce (ou placement) retrouvé aux temps 0, 4 et 
   console.log(`PASS séquence : avant G, arrière G, avant D, arrière D (un aller-retour par 2 temps), suiveur en miroir sans partir avant le leader, couple d'un bloc (${(travel * 100).toFixed(1)} cm), buste du leader en avance de ${api.IDA_LEAD} temps ; variantes = cycle décalé`);
 }
 
-// 2c. Ginga (#42, docs/spec-ginga.md): the style's hip pattern is triggered by each transfer. Its phase
-// is continuous and non-decreasing, advances one half-cycle per transfer (ten per 8-beat cycle, #107) and holds
-// on the support between transfers; once a transfer has ended, the style's support is the figure's
-// (the coupled follower dances the leader's phase mirrored, i.e. on her own mirrored feet). The leader
-// transmits at 70 %, the follower pronounces it fully.
+// 2c. Ginga (#42, docs/spec-ginga.md): the style's hip pattern is triggered by each transfer. #210: the outgoing foot
+// takes three quarters of the weight (vote of 25 Nov.): the phase goes towards it until the style's support is the
+// figure's and comes back the same way; it advances one half-cycle per whole transfer (two per 8-beat cycle). The
+// go-and-returns follow one another without the ginga stopping: the phase moves all along the cycle, each swing over
+// its window (`idaGingaWindows`, which follow one another), and at the end of each window the style's support is the
+// figure's after that transfer (the coupled follower dances the leader's phase mirrored, i.e. on her own mirrored
+// feet). The leader transmits at 70 %, the follower pronounces it fully.
 {
   const rest = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
+  assert.equal(api.IDA_WEIGHT_PROTO.v.share, 0.75, 'three quarters of the weight by default (#210, question 31: C)');
+  for (const follower of [false, true]) {
+    const windows = api.idaGingaWindows(follower), transfers = api.idaTransfers(follower);
+    windows.forEach((w, k) => {
+      const next = windows[(k + 1) % windows.length];
+      near(next.start + (k === windows.length - 1 ? api.IDA_BEATS : 0), w.end, 1e-12, `ginga windows follow one another (${k})`);
+      // The hip reaches the outgoing foot as the weight does, on the beat.
+      if (!transfers[k].returning && transfers[k].amount < 1) near(w.end, transfers[k].end, 1e-12, `the hip arrives with the weight (${k})`);
+    });
+  }
   for (const styleKey of Object.keys(api.STYLES).filter(k => k !== 'kompa')) {
     const support = api.STYLES[styleKey].support;
     for (const follower of [false, true]) {
-      let previous = -Infinity;
-      for (let b = 0; b <= 16; b += 0.01) {
+      // Never held: between two samples a hundredth of a beat apart the phase moves, except where a swing turns
+      // back (a window's ends).
+      const windows = api.idaGingaWindows(follower), ends = windows.flatMap(w => [w.start, w.end].map(x => ((x % 8) + 8) % 8));
+      let previous = api.sampleIdaPaire(0, follower, rest, 'quinconce').gingaBeat, held = 0;
+      for (let b = 0.01; b <= 16; b += 0.01) {
         const g = api.sampleIdaPaire(b, follower, rest, 'quinconce').gingaBeat;
-        assert(g >= previous - 1e-9, `${styleKey}: ginga phase non-decreasing at ${b.toFixed(2)}`);
+        if (Math.abs(g - previous) < 1e-6 && !ends.some(e => Math.abs(((b % 8) + 8) % 8 - e) < 0.03)) held++;
         previous = g;
       }
+      assert.equal(held, 0, `${styleKey}: the ginga never holds (${held} samples)`);
       const s0 = api.sampleIdaPaire(0, follower, rest, 'quinconce').gingaBeat, s8 = api.sampleIdaPaire(8, follower, rest, 'quinconce').gingaBeat;
-      assert(Math.abs(s8 - s0 - 10) < 1e-9, `${styleKey}: ten half-cycles per cycle (${s8 - s0})`);
-      for (const t of api.idaTransfers(follower)) {
-        const f = api.sampleIdaPaire(t.end + 0.02, follower, rest, 'quinconce');
+      assert(Math.abs(s8 - s0 - 2) < 1e-9, `${styleKey}: two half-cycles per cycle (${s8 - s0})`);
+      api.idaTransfers(follower).forEach((t, k) => {
+        const f = api.sampleIdaPaire(windows[k].end, follower, rest, 'quinconce');
         const side = Math.sign(support(f.gingaBeat)) * (follower ? -1 : 1);
-        assert.equal(side, t.to === 'R' ? 1 : -1, `${styleKey} ${follower ? 'follower' : 'leader'}: style support = figure support after ${t.from}→${t.to}@${t.end}`);
-        assert.equal(f.support, t.to);
-      }
+        const after = api.sampleIdaPaire(t.end + 1e-6, follower, rest, 'quinconce');
+        assert.equal(side, after.loadR >= 0.5 ? 1 : -1, `${styleKey} ${follower ? 'follower' : 'leader'}: style support = figure support after ${t.from}→${t.to}@${t.end}`);
+        // The style's support carries the figure's share of the weight: -sin(π·phase) is -1 on the left, +1 on the right.
+        near((1 - Math.sin(Math.PI * f.gingaBeat) * (follower ? -1 : 1)) / 2, after.loadR, 1e-6, `${styleKey}: style's share of the weight after ${t.from}→${t.to}@${t.end}`);
+      });
     }
   }
   const lead = api.sampleIdaPaire(1, false, rest, 'quinconce'), foll = api.sampleIdaPaire(1, true, rest, 'quinconce');
   assert(Math.abs(lead.gingaAmp / foll.gingaAmp - 0.7) < 1e-9, 'leader at 70 % of the follower');
-  console.log('PASS ginga : phase déclenchée par chaque transfert (dix demi-cycles par cycle, continue), appui du style = appui de la figure, leader à 70 %');
+  console.log('PASS ginga : trois quarts du poids sur le pied sorti, la hanche y va et revient, sans jamais s’arrêter d’un aller-retour à l’autre ; appui du style = appui de la figure ; leader à 70 %');
 }
 
 // 2b. Support transfers, explicit for the ginga (#42, « transferts de poids […] à chaque alternance ») :
 // ten per cycle (#107), alternating feet, the same instants for both dancers with mirrored feet; the load
-// only changes inside a transfer and ends fully on its target foot.
+// only changes inside a transfer and ends on its target foot: three quarters of the weight on the outgoing foot
+// (#210), all of it once it has come back.
 {
   const rest = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
   for (const follower of [false, true]) {
@@ -177,13 +198,14 @@ console.log('PASS neutre : quinconce (ou placement) retrouvé aux temps 0, 4 et 
       const t = list.find(x => b > x.start + 1e-9 && b < x.end - 1e-9);
       if (!t) { const inside = list.some(x => b >= x.start - .011 && b <= x.end + .011);
         if (!inside) near(s.loadR, previous.loadR, 1e-12, `load constant outside transfers at ${b}`);
-        assert(s.loadR === 0 || s.loadR === 1 || inside, `full support outside transfers at ${b}`); }
+        assert(Math.abs(s.loadR - 0.5) >= 0.25 - 1e-9 || inside, `support outside transfers at ${b}`); }
       else { assert.equal(s.transfer?.to, t.to); assert(t.to === 'R' ? s.loadR >= previous.loadR - 1e-12 : s.loadR <= previous.loadR + 1e-12, `monotonic transfer at ${b}`); }
       previous = s;
     }
     for (const t of list) {
       const s = api.sampleIdaPaire(t.end + 1e-6, follower, rest, 'quinconce');
-      near(t.to === 'R' ? s.loadR : s.loadL, 1, 1e-9, `transfer ends on ${t.to}`);
+      const share = t.returning || t.amount === 1 ? 1 : t.amount;
+      near(t.to === 'R' ? s.loadR : s.loadL, share, 1e-9, `transfer ends on ${t.to} (${share})`);
       // Both feet are down during every transfer.
       for (const side of ['L', 'R']) near(api.sampleIdaPaire((t.start + t.end) / 2, follower, rest, 'quinconce').feet[side].lift, 0, 1e-12);
     }

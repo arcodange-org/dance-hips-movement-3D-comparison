@@ -13,6 +13,9 @@ await build({ stdin: { contents: ['pose', 'anatomy', 'styles', 'rigJoints', 'pla
   define: { 'import.meta.env.BASE_URL': '"/"' }, logLevel: 'silent' });
 const api = await import(bundle.href); unlinkSync(bundle);
 if (process.env.IDA_POIDS) api.setIdaWeightProto(process.env.IDA_POIDS);
+// #210: IDA_GINGA=tenu holds the ginga between two go-and-returns; IDA_CONTRA=<degrees> probes the contraposition.
+if (process.env.IDA_GINGA) api.setIdaGingaFlow(process.env.IDA_GINGA);
+if (process.env.IDA_CONTRA) api.setIdaContraProto(process.env.IDA_CONTRA);
 const [styleKey = 'kizomba', placement = 'quinconce'] = process.argv.slice(2);
 const dz = api.IDA_PAIR_DZ;
 const pair = [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];

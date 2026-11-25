@@ -47,19 +47,43 @@ export const IDA_PAIR = {
 };
 
 /** #210 (owner, 24 Nov. 2026): the ida e volta is a go-and-return of the foot that never lets the whole weight
- * go onto the foot that goes out, forward or backward, with or without the virgula. Prototype to elect on film
- * (`?idaPoids=<name>`, docs/spec-ida-poids.md); nothing changes without the parameter:
- * - `share`: share of the weight the outgoing foot takes on the beat (today all of it), given back to the other
- *   foot before the return. The pelvis travels that share of today's way (`IDA_PAIR.carry`, the hip pivot
- *   unchanged), and the ginga goes that far towards the foot and comes back the same way. */
+ * go onto the foot that goes out, forward or backward, with or without the virgula. Elected on film on 25 Nov.
+ * (docs/spec-ida-poids.md, question 31: C): the outgoing foot takes three quarters of the weight.
+ * - `share`: share of the weight the outgoing foot takes on the beat, given back to the other foot before the
+ *   return. The pelvis travels that share of the whole weight's way (`IDA_PAIR.carry`, the hip pivot unchanged),
+ *   and the ginga goes that far towards the foot and comes back the same way.
+ * The other candidates stay under `?idaPoids=<name>` (`entier`: the whole weight, the model before the vote). */
 export interface IdaWeight { share: number }
-export const IDA_WEIGHT_TODAY: IdaWeight = { share: 1 };
+export const IDA_WEIGHT_ELECTED: IdaWeight = { share: 0.75 };
 export const IDA_WEIGHT_CANDIDATES: Record<string, IdaWeight> = {
-  peu: { share: 0.2 }, moitie: { share: 0.5 }, troisQuarts: { share: 0.75 },
+  entier: { share: 1 }, peu: { share: 0.2 }, moitie: { share: 0.5 }, troisQuarts: IDA_WEIGHT_ELECTED,
 };
-export const IDA_WEIGHT_PROTO = { v: IDA_WEIGHT_TODAY };
+export const IDA_WEIGHT_PROTO = { v: IDA_WEIGHT_ELECTED };
 export const setIdaWeightProto = (name?: string | null) => {
-  IDA_WEIGHT_PROTO.v = (name && IDA_WEIGHT_CANDIDATES[name]) || IDA_WEIGHT_TODAY;
+  IDA_WEIGHT_PROTO.v = (name && IDA_WEIGHT_CANDIDATES[name]) || IDA_WEIGHT_ELECTED;
+};
+
+/** #210 (owner, 25 Nov. 2026): the go-and-returns follow one another without the ginga stopping: the hips keep
+ * swaying from one to the next. `v` 1 (default): the style's phase moves all along the cycle, each transfer's swing
+ * spread from half-way after the transfer before it to half-way before the one after it (`idaGingaWindows`): the hip
+ * arrives over the outgoing foot as the weight does, on the beat, and is back on the other side as the next foot
+ * leaves. The hips then also sway while one foot is in the air: that foot bends its knee instead of lifting the pelvis
+ * (`bear` 0, as in the rolled walk, R34); otherwise the pelvis jumped up as the foot left the floor (measured in the
+ * game mode, scripts/test_saccades.mjs: 1.9 cm within an eighth of a beat, 0.7 cm with it).
+ * `v` 0 (`?idaGinga=tenu`): the model before, the swing within the transfer itself, held on the support in between. */
+export const IDA_GINGA_FLOW = { v: 1 };
+export const setIdaGingaFlow = (name?: string | null) => { IDA_GINGA_FLOW.v = name === "tenu" ? 0 : 1; };
+
+/** #210 (owner, 25 Nov. 2026): « ajouter de la contraposition (20°) ». Prototype to elect on film
+ * (`?idaContra=<degrees>`, docs/spec-ida-poids.md): the pelvis turns that far towards the moving foot at the end of
+ * its step (the #84 pivot about the standing hip, about 10° today), the chest still facing the partner; the plexus
+ * contact lets the chest hold the partner that far from the pelvis (`facingCap`). 0: today's pivot. Not the
+ * default: the rule « dancers, not wrestlers » (scripts/test_plexus.mjs) keeps the chest within 18° of the pelvis
+ * in every pair figure. */
+export const IDA_CONTRA_PROTO = { degrees: 0 };
+export const setIdaContraProto = (value?: string | null) => {
+  const d = Number(value);
+  IDA_CONTRA_PROTO.degrees = value && Number.isFinite(d) && d > 0 && d <= 45 ? d : 0;
 };
 
 /** #88: the follower never leaves before the leader. On an outgoing step both moving feet leave at
@@ -202,7 +226,7 @@ function idaFeet(b: number, follower: boolean, neutral: ReturnType<typeof idaNeu
       const open = comma ? (neutral.R.x + IDA_VIRGULA.beside - n.x) * late(along / step, IDA_VIRGULA.inFrom)
         : side === "L" && raw > 0 && raw < 1 ? IDA_PAIR.aside * smooth(raw / 0.25) * (1 - smooth((raw - 0.75) / 0.25)) : 0;
       feet[side] = { x: n.x + open, z: n.z + along, yaw: IDA_VIRGULA.yaw * out, lift: gait.lift,
-        pitch: gait.pitch, pivot: gait.pivot };
+        pitch: gait.pitch, pivot: gait.pivot, ...(IDA_GINGA_FLOW.v ? { bear: 0 } : {}) };
     } else feet[side] = { x: n.x, z: n.z, yaw: 0, lift: 0 };
   }
   return { now, moving, forward, step, feet, out, opening };
@@ -226,7 +250,10 @@ export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<Fig
   const hipSpan = Math.max(0.05, neutral.L.x - neutral.R.x);
   const lead = idaFeet(b, false, neutral);
   const leadOffset = lead.feet[lead.moving].z - neutral[lead.moving].z;
-  const hip = IDA_PAIR.hip * (follower ? -leadOffset : leadOffset);
+  // #210 (prototype `?idaContra=`): the pivot reaches that many degrees at the end of the leader's step, still
+  // about the standing hip.
+  const contra = IDA_CONTRA_PROTO.degrees > 0 ? (IDA_CONTRA_PROTO.degrees * Math.PI / 180) / (IDA_PAIR.hip * IDA_PAIR.step / hipSpan) : 1;
+  const hip = contra * IDA_PAIR.hip * (follower ? -leadOffset : leadOffset);
   const pivot = (moving === "L" ? -1 : 1) * hip / hipSpan;
   // #128: the pelvis opens to his left with the virgula; the chest keeps its own direction (`upper`).
   const lower = pivot + IDA_VIRGULA.pelvis * opening;
@@ -257,29 +284,46 @@ export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<Fig
     loadR, loadL: 1 - loadR, support: (loadR >= 0.5 ? "R" : "L") as FigureFoot, transfer, cyclic: true as const,
     coupling: IDA_GINGA.mode === "own" ? 0 : IDA_PAIR.coupling * Math.min(1, Math.hypot(o.x, o.z) / 0.05),
     kneeCap: IDA_PAIR.kneeCap, rotationCap: IDA_PAIR.rotationCap, dip: IDA_PAIR.dip, sway: IDA_PAIR.sway,
+    // #210 (prototype): with the plexus contact the chest holds the partner that much further from the pelvis.
+    ...(IDA_CONTRA_PROTO.degrees > 0 ? { facingRoom: IDA_CONTRA_PROTO.degrees * Math.PI / 180 } : {}),
     // #163: the ida e volta takes the bounce of the largest setting, except around its cycle beat 5.
     gingaCap: { sway: 1, bounce: IDA_GINGA_BOUNCE.cap },
     gingaCapRoom: { sway: 1, bounce: 1 - smooth((p - W[0]) / (W[1] - W[0])) * (1 - smooth((p - W[2]) / (W[3] - W[2]))) } };
 }
 
+/** #210: the beats over which each transfer swings the style's phase. With the ginga flowing (`IDA_GINGA_FLOW`),
+ * from half-way after the transfer before it to half-way before the one after it: the windows follow one another
+ * over the whole cycle (the first may start before 0, the last end after `IDA_BEATS`). Otherwise the transfer's own
+ * beats. */
+export function idaGingaWindows(follower: boolean): { start: number; end: number }[] {
+  const list = idaTransfers(follower), n = list.length;
+  return list.map((t, k) => {
+    if (!IDA_GINGA_FLOW.v) return { start: t.start, end: t.end };
+    const before = list[(k + n - 1) % n], after = list[(k + 1) % n];
+    const beforeEnd = before.end - (k === 0 ? IDA_BEATS : 0), afterStart = after.start + (k === n - 1 ? IDA_BEATS : 0);
+    return { start: (beforeEnd + t.start) / 2, end: (t.end + afterStart) / 2 };
+  });
+}
+
 /** #42: phase of the style's hip pattern driven by the support transfers. The style puts full weight on
- * the left foot at phase 0.5 and on the right at 1.5 (support = -S2): each transfer advances the phase by
- * one beat with its progress, and it holds on the support between transfers. Continuous over cycles
- * (ten transfers per 8-beat cycle). #210: a partial transfer advances it until the style's support is the
+ * the left foot at phase 0.5 and on the right at 1.5 (support = -S2): each whole transfer advances the phase
+ * by one beat. Continuous over cycles. #210: a partial transfer advances it until the style's support is the
  * figure's, and the one that gives the weight back goes back the same way (the hip goes towards the foot and
- * comes back). */
+ * comes back); each swing spreads over its window (`idaGingaWindows`): with the ginga flowing the phase never
+ * holds. */
 export function idaGingaBeat(beat: number, follower: boolean): number {
   const b = Number.isFinite(beat) ? beat : 0;
   const cycle = Math.floor(b / IDA_BEATS), p = b - cycle * IDA_BEATS;
-  const transfers = idaTransfers(follower);
+  const transfers = idaTransfers(follower), windows = idaGingaWindows(follower);
   let phase = transfers[0].from === "R" ? 1.5 : 0.5, net = 0;
-  for (const t of transfers) {
+  transfers.forEach((t, k) => {
     // The style's support is -sin(π·phase): advancing by acos(1 - 2·amount)/π puts on the foot the share of
     // the weight the figure gives it.
     const step = (t.returning ? -1 : 1) * Math.acos(Math.max(-1, Math.min(1, 1 - 2 * t.amount))) / Math.PI;
+    const { start, end } = windows[k], at = (x: number) => smooth((x - start) / (end - start));
     net += step;
-    if (p >= t.end) phase += step;
-    else if (p > t.start) phase += step * smooth((p - t.start) / (t.end - t.start));
-  }
+    // This cycle's swing, the end of the previous cycle's, the start of the next one's.
+    phase += step * (at(p) + at(p + IDA_BEATS) - 1 + at(p - IDA_BEATS));
+  });
   return cycle * net + phase;
 }

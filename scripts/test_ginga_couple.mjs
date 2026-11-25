@@ -57,6 +57,9 @@ const heldTo = (value, cap, room) => (cap === undefined || value <= cap ? value 
   let figures = 0;
   for (const kind of api.GUIDE_FIGURE_KEYS) {
     if (load(kind, 0) === undefined) continue;
+    // #210: a figure that gives its own phase (the ida e volta, `gingaBeat`) is danced on it, never on a phase read on
+    // its loads; with three quarters of the weight its loads go back and forth (scripts/test_ida_paire.mjs checks it).
+    if ('gingaBeat' in sample(kind, 0)) continue;
     const end = api.GUIDE_FIGURES[kind].beats, phase = t => api.gingaPhase(`test:${kind}`, b => sample(kind, b), t);
     let previous = phase(0);
     const junctions = sample(kind, 0).gingaJunctions ?? [];
