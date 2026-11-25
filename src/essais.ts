@@ -15,6 +15,8 @@
  * la tenue sur le côté reste une option de l'app (`?tenue=cote`, `TENUE` dans src/upperBody.ts).
  * Exercices d'isolation (#206) : votes des 24 et 25 novembre 2026 (amplitude moyenne ; trois vitesses, posé puis fluide ;
  * le huit qui alterne glisse et tourne, une mesure chacun) devenus le comportement ; leurs interrupteurs retirés.
+ * Pointes et talons (#216) : votes du 25 novembre 2026 (talons à mi-hauteur ; l'exercice des talons aux trois vitesses)
+ * devenus le comportement ; `talonsBas` et `talonsTenue` retirés.
  */
 export const ESSAIS = {
   /** Témoin : ne change rien. Sert à filmer le comportement actuel image par image hors du mode paire. */

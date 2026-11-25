@@ -122,16 +122,16 @@ function ampMax(travel) {
 
 // ---------- exercices d'isolation (#206) ----------
 const ISO_WHERE = { "devant": [1, 0], "derrière": [-1, 0], "à gauche": [0, 1], "à droite": [0, -1], "au centre": [0, 0] };
-const isoPose = (c, b) => mod.isolations.isolationAt(c.isolation, b);
+const isoPose = (c, b, s = c.isoSettings) => mod.isolations.isolationAt(c.isolation, b, s);
 const isoParts = p => ({ cou: [p.head.nod, p.head.turn, p.head.tilt], poitrine: [p.chest.fore, p.chest.side],
-  bassin: [p.pelvis.fore, p.pelvis.side, p.pelvis.tilt, p.pelvis.hike, p.pelvis.turn] });
+  bassin: [p.pelvis.fore, p.pelvis.side, p.pelvis.tilt, p.pelvis.hike, p.pelvis.turn], pieds: [p.heel] });
 
 // ---------- registre de steps ----------
 const steps = [
   // Exercices d'isolation (#206, docs/spec-isolations.md) : src/isolations.ts.
   [/^l'exercice "([\w-]+)"(?:, à (deux temps|un temps|un demi-temps) par mouvement)?$/, (c, m) => {
     if (!mod.isolations.isIsolationId(m[1])) throw new Error(`exercice inconnu ${m[1]}`);
-    c.isolation = m[1];
+    c.isolation = m[1]; c.isoSettings = undefined;
     const k = ["deux temps", "un temps", "un demi-temps"].indexOf(m[2] ?? "deux temps");
     c.isoStart = mod.isolations.isolationStages(m[1]).slice(0, k).reduce((a, b) => a + b, 0);
   }],
@@ -143,10 +143,44 @@ const steps = [
       if (Math.abs(p.fore - fore) > 1e-9 || Math.abs(p.side - side) > 1e-9) throw new Error(`sur ${hit[2]} : devant ${p.fore.toFixed(3)}, côté ${p.side.toFixed(3)} au lieu de ${hit[1]}`);
     }
   }],
+  // Pointes et talons (#216, docs/spec-pointes-talons.md).
+  [/^l'exercice "([\w-]+)" sur la pointe des pieds$/, (c, m) => {
+    if (!mod.isolations.isIsolationId(m[1])) throw new Error(`exercice inconnu ${m[1]}`);
+    c.isolation = m[1]; c.isoStart = 0; c.isoSettings = mod.isolations.isolationSettings({ pointes: true });
+  }],
+  [/^les talons levés montent à mi-hauteur$/, () => {
+    const high = mod.isolations.ISOLATION_HEEL;
+    if (Math.abs(high - 25 * Math.PI / 180) > 1e-12) throw new Error(`talon levé de ${(high * 180 / Math.PI).toFixed(1)}°`);
+  }],
+  [/^les talons sont (.+)$/, (c, m) => {
+    const high = mod.isolations.ISOLATION_HEEL;
+    for (const item of m[1].split(", ")) {
+      const hit = /^(en haut|à plat) sur (\d)$/.exec(item);
+      if (!hit) throw new Error(`position illisible : ${item}`);
+      const heel = isoPose(c, c.isoStart + Number(hit[2]) - 1).heel, want = hit[1] === "en haut" ? high : 0;
+      if (Math.abs(heel - want) > 1e-9) throw new Error(`sur ${hit[2]} : talon ${heel.toFixed(3)} au lieu de ${want.toFixed(3)}`);
+    }
+  }],
+  [/^les talons restent levés toute la boucle$/, (c) => {
+    const high = mod.isolations.ISOLATION_HEEL;
+    for (let b = 0; b <= mod.isolations.isolationBeats(c.isolation); b += 1 / 16) if (isoPose(c, b).heel !== high) throw new Error(`au temps ${b}`);
+  }],
+  [/^l'exercice bouge comme à plat$/, (c) => {
+    const parts = p => [...isoParts(p).cou, ...isoParts(p).poitrine, ...isoParts(p).bassin];
+    for (let b = 0; b <= mod.isolations.isolationBeats(c.isolation); b += 1 / 16) {
+      const on = parts(isoPose(c, b)), flat = parts(isoPose(c, b, mod.isolations.ISOLATION_DEFAULT));
+      if (on.some((v, i) => v !== flat[i])) throw new Error(`au temps ${b}`);
+    }
+  }],
+  [/^sans pointes, les talons restent à plat dans tous les exercices sauf celui des talons$/, () => {
+    const { ISOLATION_IDS, ISOLATIONS, isolationAt, isolationBeats } = mod.isolations;
+    for (const id of ISOLATION_IDS) if (ISOLATIONS[id].famille !== "pieds")
+      for (let b = 0; b <= isolationBeats(id); b += 1 / 8) if (isolationAt(id, b).heel !== 0) throw new Error(`${id} au temps ${b}`);
+  }],
   [/^(?:elle|il) ne repasse jamais par le centre$/, (c) => {
     for (let b = 0; b <= mod.isolations.isolationBeats(c.isolation); b += 1 / 64) { const p = isoPose(c, b).path; if (Math.hypot(p.fore, p.side) < 0.999) throw new Error(`au centre au temps ${b}`); }
   }],
-  [/^seule la partie "(cou|poitrine|bassin)" bouge$/, (c, m) => {
+  [/^seule la partie "(cou|poitrine|bassin|pieds)" bouge$/, (c, m) => {
     let moved = 0;
     for (let b = 0; b <= mod.isolations.isolationBeats(c.isolation); b += 1 / 16) for (const [part, values] of Object.entries(isoParts(isoPose(c, b)))) {
       if (part === m[1]) moved = Math.max(moved, ...values.map(Math.abs));

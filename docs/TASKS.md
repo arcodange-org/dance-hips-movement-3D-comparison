@@ -490,6 +490,16 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Vingt et une boucles refilmées (`docs/elections/2026-11-24-isolations/`).
 - [x] Le huit du bassin (25 novembre) : il alterne, une mesure il glisse, une mesure il tourne aussi ; B7 et B7′ refilmés.
 
+## Pointe des pieds et talons (#216)
+
+- [x] Issue #216 ; spec poussée en premier ([spec](spec-pointes-talons.md)).
+- [x] `pointes=1` : les exercices sur la pointe des pieds, montés d'un bloc ; `isolation=talons` (T1) ; pied roulé sur
+  l'avant-pied, niveau du bassin qui reçoit la montée des chevilles (`src/isolations.ts`, `src/pose.ts`).
+- [x] Tests sur le vrai squelette (`scripts/test_isolations.mjs`) et Gherkin (`docs/features/pointes-talons.feature`).
+- [x] Films des candidats (`docs/elections/2026-11-25-pointes-talons/`).
+- [x] Vote du 25 novembre (tour 17) : talons à mi-hauteur, l'exercice des talons aux trois vitesses, films validés ;
+  `talonsBas` et `talonsTenue` retirés ; films refaits avec les muscles.
+
 ## Suave : deux temps par côté, sans rebond (#200)
 
 - [x] Issue #200 ; spec ([spec](spec-suave-deux-temps.md)) ; règle R44.

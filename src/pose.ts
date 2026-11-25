@@ -562,6 +562,8 @@ function poseIsolationTrunk(r: RigHandle, iso: IsolationPose): void {
  * Otherwise the chest and the head would bob as the pelvis slides. */
 const isolationLevels = new WeakMap<PoseModel, Map<string, number>>();
 let measuringLevel = false;
+/** #216: the ankles' rise of the pose just measured (heels up). */
+let measuredRise = 0;
 function isolationLevel(r: RigHandle, model: PoseModel, o: PoseOptions): number {
   const key = JSON.stringify([o.isolation!.id, o.isolation!.settings ?? null]);
   let levels = isolationLevels.get(model);
@@ -571,7 +573,8 @@ function isolationLevel(r: RigHandle, model: PoseModel, o: PoseOptions): number 
     level = Infinity;
     measuringLevel = true;
     try {
-      for (let k = 0, n = 8 * isolationBeats(o.isolation!.id); k < n; k++) { applyPose(r, model, k / 8, o); level = Math.min(level, r.root.position.y); }
+      // #216: measured without the ankles' rise (heels up), which the pelvis then receives in full.
+      for (let k = 0, n = 8 * isolationBeats(o.isolation!.id); k < n; k++) { applyPose(r, model, k / 8, o); level = Math.min(level, r.root.position.y - measuredRise); }
     } finally { measuringLevel = false; }
     levels.set(key, level);
   }
@@ -797,6 +800,9 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   // #209: where the body is across (travel and the hip's sway, in shares of `ecart`), for a foot that follows it.
   const umDoisBody = umDois ? (c: number) => umDoisCarry(c) + umDoisSway(o.styleKey, shift ? c - shift + 24 : c, o.amp) / umDois.ecart : undefined;
   const feet = figure?.feet ?? (umDois ? umDoisFeet(clockBeat, umDois.ecart, model, umDoisBody) : plannedFeet(beat, o, model));
+  // #216: during an exercise both feet roll about their ball, heels up by `heel` (0: flat), and their ankles carry the
+  // pelvis up (the rolled foot of #49).
+  if (iso) for (const s of SIDES) (feet as Record<Side, FootPlan>)[s] = { ...(feet as Record<Side, FootPlan>)[s], pitch: iso.heel, pivot: "ball", bear: 1 };
   if (figure) {
     // The coupled follower mirrors it like her pelvis: the couple sways together in the world.
     const coupledSway = o.follower ? 1 - 2 * figure.coupling : 1;
@@ -864,6 +870,8 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   const footOrientations = {} as Record<Side, THREE.Quaternion>;
   // Height of the ankle that bounds the pelvis height (the ankle target itself, except in a rolled walk).
   const bearingY = {} as Record<Side, number>;
+  // #216: how much each bearing ankle rises above its flat height (heels up).
+  const rise = { L: 0, R: 0 } as Record<Side, number>;
   for (const s of SIDES) {
     // #73: outside the figures, the feet of a rolled walk carry a pitch from `plannedFeet` and roll like
     // figure feet; feet without a pitch (on the spot, solo ida, historical sorties) keep the style's rock.
@@ -894,6 +902,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     if (!figure && feet[s].pitch !== undefined) {
       const flatY = soleHeight(model.legs[s].sole, flat);
       bearingY[s] = flatY + ((feet[s] as FootPlan).bear ?? 0) * (soleHeight(model.legs[s].sole, q) - flatY);
+      rise[s] = bearingY[s] - flatY;
     } else bearingY[s] = model.targets[s].y;
   }
   if (activeIK) {
@@ -975,7 +984,10 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
       height += (led - height) * kneeLed.share;
       r.pelvis.rotation.z += Math.asin(sin) * kneeLed.share;
     }
-    height = Math.min(height, isoLevel);
+    // #206, #216: the pelvis keeps the exercise's level, raised by the ankles when the heels are up.
+    const isoRise = iso ? (rise.L + rise.R) / 2 : 0;
+    if (measuringLevel) measuredRise = isoRise;
+    height = Math.min(height, isoLevel + isoRise);
     r.root.position.y = height + Math.min(0, styleY) + bounce + (o.rootOffset?.y ?? 0);
     r.root.updateWorldMatrix(true, true);
     const skeleton = r["Skeleton"] as THREE.Object3D;
