@@ -54,13 +54,20 @@ const ankleError = side => world('foot' + side).distanceTo(f.outer.localToWorld(
     for (const [l, r] of feet) assert.ok(Math.abs(l - feet[0][0]) < 0.01 && Math.abs(r - feet[0][1]) < 0.01, `${k} « Sur place »: the feet stay where they are`);
   }
   api.setUmDoisProto('inconnu'); assert.equal(api.UM_DOIS_PROTO.step, null, 'an unknown name asks for nothing');
+  // #209 (vote of 25 Nov. 2026, round 16, question 32): the hip first by default; `?geste=` shows the others.
+  assert.equal(api.UM_DOIS_GESTURE_ELECTED, 'hancheDabord');
+  assert.equal(api.UM_DOIS_GESTURE.v, api.UM_DOIS_GESTURES.hancheDabord, 'the elected gesture by default');
+  api.setUmDoisGesture('inconnu'); assert.equal(api.UM_DOIS_GESTURE.v, api.UM_DOIS_GESTURES.hancheDabord, 'an unknown gesture gives the elected one');
   console.log('PASS « 1 2 » : pas de base élu de la kizomba (hanche douce) et du semba, 28 cm ; ailleurs, et avec « Sur place », rien ne change');
 }
 
 const report = [];
-for (const styleKey of ['kizomba', 'semba']) for (const name of Object.keys(api.UM_DOIS)) {
-  api.setUmDoisProto(name);
-  const step = api.UM_DOIS[name], tag = `${styleKey} ${name}`, rest = f.model.legs, stance = rest.L.rest.x - rest.R.rest.x;
+// Every gesture of #209 (the elected one first) keeps the step's supports, feet and continuity.
+const GESTURES = [api.UM_DOIS_GESTURE_ELECTED, ...Object.keys(api.UM_DOIS_GESTURES).filter(g => g !== api.UM_DOIS_GESTURE_ELECTED)];
+for (const gesture of GESTURES) for (const styleKey of ['kizomba', 'semba']) for (const name of Object.keys(api.UM_DOIS)) {
+  api.setUmDoisProto(name); api.setUmDoisGesture(gesture);
+  const elected = gesture === api.UM_DOIS_GESTURE_ELECTED;
+  const step = api.UM_DOIS[name], tag = `${styleKey} ${name}${elected ? '' : ` geste=${gesture}`}`, rest = f.model.legs, stance = rest.L.rest.x - rest.R.rest.x;
   const load = clock => pose(styleKey, clock).stats.loadR;
   // 2. Supports (R21, R39): the weight is whole on the left foot on 1 and 2 (clock 0 and 1), on the right one
   // on 3 and 4; four transfers in eight beats.
@@ -89,7 +96,22 @@ for (const styleKey of ['kizomba', 'semba']) for (const name of Object.keys(api.
   // Step aside: the foot that receives the weight on 1 (left) and on 3 (right) has moved by `ecart`, and is flat
   // on the floor half a beat before; the dancer is back where he started every four beats.
   assert.ok(Math.abs(at(0).x.L - at(3).x.L - step.ecart) < 1e-9 && Math.abs(at(1).x.R - at(2).x.R - step.ecart) < 1e-9, `${tag}: each foot steps aside by ${step.ecart} m`);
-  for (const [clock, side] of [[3.5, 'L'], [1.5, 'R']]) assert.ok(!at(clock).feet[side].air && at(clock).feet[side].lift === 0, `${tag}: the stepping foot has landed half a beat before its beat`);
+  // #209: when it lands is the gesture's (`UM_DOIS_GESTURE`; 0.15 beat before its beat in the elected one).
+  const land = api.UM_DOIS_GESTURE.v.land, landed = Math.ceil(land * STEPS - 1e-9) / STEPS;
+  for (const [clock, side] of [[3 + landed, 'L'], [1 + landed, 'R']]) assert.ok(!at(clock).feet[side].air && at(clock).feet[side].lift === 0, `${tag}: the stepping foot has landed ${(1 - land).toFixed(2)} beat before its beat`);
+  // R45 (#209): the hip carries the step aside, one gesture. Over the beat before 1 (clock 3 → 4, the left foot
+  // steps aside), the shares of their way the left foot and the pelvis have covered: the pelvis is half-way no later
+  // than the foot (a little slack), and the foot has hardly left when the pelvis has done a tenth of its way. The
+  // former timing (`ancien`: the foot, then the hip) fails this measure.
+  {
+    const rows = Array.from({ length: STEPS + 1 }, (_, k) => at(3 + k / STEPS));
+    const way = get => { const a = get(rows[0]), b = get(rows[STEPS]); return rows.map(r => (get(r) - a) / (b - a || 1)); };
+    const foot = way(r => r.joints.footL.x), pelvis = way(r => r.joints.pelvis.x), half = w => w.findIndex(v => v >= 0.5) / STEPS;
+    const lag = half(pelvis) - half(foot), footDone = foot[pelvis.findIndex(v => v >= 0.1)];
+    if (elected) assert.ok(lag < 0.1 && footDone < 0.15, `${tag}: the hip carries the step (pelvis half-way ${lag.toFixed(2)} beat after the foot, foot ${(footDone * 100).toFixed(0)} % on its way when the pelvis leaves)`);
+    if (gesture === 'ancien') assert.ok(lag > 0.2 && footDone > 0.4, `${tag}: the former timing is the foot, then the hip (${lag.toFixed(2)} beat, ${(footDone * 100).toFixed(0)} %)`);
+    if (elected) report.push(`${tag} : bassin à mi-chemin ${lag.toFixed(2)} temps après le pied, pied à ${(footDone * 100).toFixed(0)} % quand le bassin part`);
+  }
   for (const j of JOINTS) assert.ok(pose(styleKey, 0.7).joints[j].distanceTo(pose(styleKey, 4.7).joints[j]) < 1e-9 && pose(styleKey, 2.2).joints[j].distanceTo(pose(styleKey, 10.2).joints[j]) < 1e-9, `${tag}: the same pose every four beats`);
   let lowest = Infinity, missed = 0, movedLoaded = 0, closest = Infinity, bone = 0;
   samples.forEach((s, i) => {
@@ -121,7 +143,7 @@ for (const styleKey of ['kizomba', 'semba']) for (const name of Object.keys(api.
   assert.ok(jump < 0.03, `${tag}: no joint jumps (${(jump * 100).toFixed(1)} cm in 1/${STEPS} beat)`);
   const width = Math.max(...pelvis.map(p => p.x)) - Math.min(...pelvis.map(p => p.x));
   assert.ok(width > step.ecart && width < step.ecart + 0.12, `${tag}: the pelvis travels the step plus its own sway (${(width * 100).toFixed(1)} cm)`);
-  report.push(`${tag} : écart ${Math.round(step.ecart * 100)} cm, bassin ${(width * 100).toFixed(1)} cm de côté et ${(bounce * 100).toFixed(1)} cm de haut, ${peak.toFixed(1)} m/s² à ${TEMPO[styleKey]} bpm`);
+  if (elected) report.push(`${tag} : écart ${Math.round(step.ecart * 100)} cm, bassin ${(width * 100).toFixed(1)} cm de côté et ${(bounce * 100).toFixed(1)} cm de haut, ${peak.toFixed(1)} m/s² à ${TEMPO[styleKey]} bpm`);
 }
-api.setUmDoisProto(null);
-console.log(`PASS « 1 2 » : appuis G G D D sur les comptes 1 à 4, marca sans poids sur la plante, pieds au sol, bassin sans à-coup\n  ${report.join('\n  ')}`);
+api.setUmDoisProto(null); api.setUmDoisGesture(null);
+console.log(`PASS « 1 2 » : appuis G G D D sur les comptes 1 à 4, marca sans poids sur la plante, pieds au sol, bassin sans à-coup ; la hanche porte le pas (R45), et les autres gestes de ?geste= tiennent les mêmes contrôles\n  ${report.join('\n  ')}`);

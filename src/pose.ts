@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { resetRig, groundDip, type RigHandle } from "./anatomy";
 import {
-  STYLES, supportOf, umDoisOf, travelOffset, travelAllowed, corridinhoPath, reversePath, quartTurnStep,
+  STYLES, supportOf, umDoisOf, umDoisSway, travelOffset, travelAllowed, corridinhoPath, reversePath, quartTurnStep,
   idaEVoltaStep, idaContra, sortieEnvelope, sortieActive, lockUpperTrunk,
   applyDanceFrame, applyFollowerFrame, swingLift, type MovementKey,
 } from "./styles";
@@ -243,10 +243,10 @@ export const ROLLED_WALK = { flight: 0.75, bear: 0.75, bearBack: 1 };
  * other. 0.007 with nearly straight legs; with the minimum flexion of R43 the far leg reaches less and binds sooner,
  * and the pelvis dipped as the stepping foot landed (6.8 m/s² for the kizomba): it now lowers over the whole step. */
 const UM_DOIS_SOFT = 0.025;
-function umDoisFeet(clock: number, ecart: number, m: PoseModel): Record<Side, FootPlan> {
+function umDoisFeet(clock: number, ecart: number, m: PoseModel, body?: (clock: number) => number): Record<Side, FootPlan> {
   const feet = {} as Record<Side, FootPlan>;
   for (const s of SIDES) {
-    const foot = umDoisFoot(s, clock), rest = m.legs[s].rest;
+    const foot = umDoisFoot(s, clock, body), rest = m.legs[s].rest;
     feet[s] = { x: rest.x + ecart * foot.place, z: rest.z, yaw: 0, lift: foot.lift, pitch: foot.pitch, pivot: foot.pitch > 0 ? "ball" : null, bear: 1 };
   }
   return feet;
@@ -794,7 +794,9 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   const ownPosture = STYLES[o.styleKey].posture, otherPosture = blend ? STYLES[blend.key].posture : ownPosture, bw = blend?.weight ?? 0;
   // #206: an exercise stands upright on soft knees, whatever the style.
   const posture = iso ? { lean: 0, knee: ISOLATION_KNEE } : { lean: ownPosture.lean + (otherPosture.lean - ownPosture.lean) * bw, knee: ownPosture.knee + (otherPosture.knee - ownPosture.knee) * bw };
-  const feet = figure?.feet ?? (umDois ? umDoisFeet(clockBeat, umDois.ecart, model) : plannedFeet(beat, o, model));
+  // #209: where the body is across (travel and the hip's sway, in shares of `ecart`), for a foot that follows it.
+  const umDoisBody = umDois ? (c: number) => umDoisCarry(c) + umDoisSway(o.styleKey, shift ? c - shift + 24 : c, o.amp) / umDois.ecart : undefined;
+  const feet = figure?.feet ?? (umDois ? umDoisFeet(clockBeat, umDois.ecart, model, umDoisBody) : plannedFeet(beat, o, model));
   if (figure) {
     // The coupled follower mirrors it like her pelvis: the couple sways together in the world.
     const coupledSway = o.follower ? 1 - 2 * figure.coupling : 1;
