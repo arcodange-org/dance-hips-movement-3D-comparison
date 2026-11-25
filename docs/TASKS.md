@@ -510,3 +510,11 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Couple réglé de nouveau : `COUPLE_DZ` 0,24, sortie fille (D3 dans son repère), quart de tour (balancement au
   quart), plexus (5 cm), coude de la suiveuse ; sonde `scripts/sonde_croisements_couple.mjs` ; mesures enregistrées reprises.
 - [x] Films à 30° dans le dossier du vote (quart de tour, sortie fille, ida e volta en couple).
+
+## Ida e volta : le pied sorti ne prend qu'une partie du poids (#210)
+
+- [x] Spec ([spec](spec-ida-poids.md)) ; mesures (`scripts/mesure_ida_poids.mjs`) ; candidats sous `?idaPoids=`
+  (`peu`, `moitie`, `troisQuarts`) ; aucun croisement d'os.
+- [x] Films et vote : page de vote, quinzième tour, question 31 ([dossier](elections/ida-poids/README.md)).
+- [ ] Après le vote : la part élue par défaut (appuis, bassin, ginga), tests repris, allers-retours insérés vérifiés
+  (#144), R27 complétée, saccades.
