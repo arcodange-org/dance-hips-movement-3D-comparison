@@ -46,6 +46,22 @@ export const IDA_PAIR = {
   hip: 0.15, kneeFoot: 1.2, coupling: 1, kneeCap: 0.22, rotationCap: 0.035, dip: -0.008, sway: 1,
 };
 
+/** #210 (owner, 24 Nov. 2026): the ida e volta is a go-and-return of the foot that never lets the whole weight
+ * go onto the foot that goes out, forward or backward, with or without the virgula. Prototype to elect on film
+ * (`?idaPoids=<name>`, docs/spec-ida-poids.md); nothing changes without the parameter:
+ * - `share`: share of the weight the outgoing foot takes on the beat (today all of it), given back to the other
+ *   foot before the return. The pelvis travels that share of today's way (`IDA_PAIR.carry`, the hip pivot
+ *   unchanged), and the ginga goes that far towards the foot and comes back the same way. */
+export interface IdaWeight { share: number }
+export const IDA_WEIGHT_TODAY: IdaWeight = { share: 1 };
+export const IDA_WEIGHT_CANDIDATES: Record<string, IdaWeight> = {
+  peu: { share: 0.2 }, moitie: { share: 0.5 }, troisQuarts: { share: 0.75 },
+};
+export const IDA_WEIGHT_PROTO = { v: IDA_WEIGHT_TODAY };
+export const setIdaWeightProto = (name?: string | null) => {
+  IDA_WEIGHT_PROTO.v = (name && IDA_WEIGHT_CANDIDATES[name]) || IDA_WEIGHT_TODAY;
+};
+
 /** #88: the follower never leaves before the leader. On an outgoing step both moving feet leave at
  * `start` (beats into the slot); her backward foot lands `backFlight` later, clearing the lane before his
  * forward foot (which keeps landing at `IDA_PAIR.flight`). */
@@ -84,18 +100,23 @@ export function idaStepAt(beat: number): IdaStep {
 
 /** One support transfer: the weight moves from one foot to the other between `start` and `end`
  * (beats in the 8-beat cycle). The ginga (#42) is triggered at each left/right alternation. */
-export interface IdaTransfer { start: number; end: number; from: FigureFoot; to: FigureFoot }
+export interface IdaTransfer { start: number; end: number; from: FigureFoot; to: FigureFoot;
+  /** #210: share of the whole weight that moves (1: all of it, from one foot to the other). */
+  amount: number;
+  /** #210: a partial transfer that gives back what the one before it took: the ginga goes back the way it came. */
+  returning: boolean }
 /** Every support transfer of a dancer over the cycle (ten, alternating feet): in each slot the weight
  * goes onto the outgoing foot on the beat, then rocks back onto the other foot; after a backward slot the
  * returning foot takes the weight as it lands, so that the other foot is free for the next slot (G then D:
- * #107). */
+ * #107). #210: the outgoing foot takes `IDA_WEIGHT_PROTO.v.share` of the weight and gives it back; the
+ * returning foot's transfer after a backward slot is a whole one (the feet are side by side). */
 export function idaTransfers(follower: boolean): IdaTransfer[] {
-  const w = IDA_PAIR.weight, list: IdaTransfer[] = [];
+  const w = IDA_PAIR.weight, list: IdaTransfer[] = [], share = IDA_WEIGHT_PROTO.v.share, partial = share < 1;
   for (let index = 0; index < 4; index++) {
     const side: FigureFoot = index < 2 ? "L" : "R", moving = follower ? other(side) : side, slot = 2 * index;
-    list.push({ start: slot + w.on[0], end: slot + w.on[1], from: other(moving), to: moving });
-    list.push({ start: slot + w.back[0], end: slot + w.back[1], from: moving, to: other(moving) });
-    if (index % 2 === 1) list.push({ start: slot + w.home[0], end: slot + w.home[1], from: other(moving), to: moving });
+    list.push({ start: slot + w.on[0], end: slot + w.on[1], from: other(moving), to: moving, amount: share, returning: false });
+    list.push({ start: slot + w.back[0], end: slot + w.back[1], from: moving, to: other(moving), amount: share, returning: partial });
+    if (index % 2 === 1) list.push({ start: slot + w.home[0], end: slot + w.home[1], from: other(moving), to: moving, amount: 1, returning: false });
   }
   return list;
 }
@@ -107,7 +128,8 @@ function idaLoadR(p: number, follower: boolean): number {
   for (const t of idaTransfers(follower)) {
     if (p <= t.start) break;
     const k = smooth((p - t.start) / (t.end - t.start));
-    loadR = t.to === "R" ? Math.max(loadR, k) : Math.min(loadR, 1 - k);
+    // Each transfer moves its share of the weight from where the one before it left the feet.
+    loadR = Math.max(0, Math.min(1, loadR + (t.to === "R" ? 1 : -1) * t.amount * k));
   }
   return loadR;
 }
@@ -212,7 +234,9 @@ export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<Fig
   // where the weight arrives) and comes back over half a beat (`pelvisBack`). It followed the weight, which
   // rocks onto the foot and back within a fifth of a beat each way: a jab. Its place on the beat is unchanged.
   const through = smooth((now.q - IDA_PAIR.out[0]) / (w.on[1] - IDA_PAIR.out[0])) * (1 - smooth((now.q - w.back[0]) / (IDA_PAIR.pelvisBack - w.back[0])));
-  const root = { x: neutral.root.x, z: neutral.root.z + forward * IDA_PAIR.carry * IDA_PAIR.step * through + hip / 2 };
+  // #210: the pelvis goes as far as the weight does (today's way for the whole weight).
+  const carry = IDA_PAIR.carry * IDA_WEIGHT_PROTO.v.share;
+  const root = { x: neutral.root.x, z: neutral.root.z + forward * carry * IDA_PAIR.step * through + hip / 2 };
   // Phase 15 contraposition of the chest, on the dancer's own moving foot (the follower mirrors the
   // leader). The leader's upper body leads by IDA_LEAD.
   const sign = follower ? -1 : 1;
@@ -241,15 +265,21 @@ export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<Fig
 /** #42: phase of the style's hip pattern driven by the support transfers. The style puts full weight on
  * the left foot at phase 0.5 and on the right at 1.5 (support = -S2): each transfer advances the phase by
  * one beat with its progress, and it holds on the support between transfers. Continuous over cycles
- * (six transfers per 8-beat cycle). */
+ * (ten transfers per 8-beat cycle). #210: a partial transfer advances it until the style's support is the
+ * figure's, and the one that gives the weight back goes back the same way (the hip goes towards the foot and
+ * comes back). */
 export function idaGingaBeat(beat: number, follower: boolean): number {
   const b = Number.isFinite(beat) ? beat : 0;
   const cycle = Math.floor(b / IDA_BEATS), p = b - cycle * IDA_BEATS;
   const transfers = idaTransfers(follower);
-  let phase = transfers[0].from === "R" ? 1.5 : 0.5;
+  let phase = transfers[0].from === "R" ? 1.5 : 0.5, net = 0;
   for (const t of transfers) {
-    if (p >= t.end) phase += 1;
-    else if (p > t.start) phase += smooth((p - t.start) / (t.end - t.start));
+    // The style's support is -sin(π·phase): advancing by acos(1 - 2·amount)/π puts on the foot the share of
+    // the weight the figure gives it.
+    const step = (t.returning ? -1 : 1) * Math.acos(Math.max(-1, Math.min(1, 1 - 2 * t.amount))) / Math.PI;
+    net += step;
+    if (p >= t.end) phase += step;
+    else if (p > t.start) phase += step * smooth((p - t.start) / (t.end - t.start));
   }
-  return cycle * transfers.length + phase;
+  return cycle * net + phase;
 }

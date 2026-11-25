@@ -8,6 +8,7 @@
 // Usage : CHROME_PATH=... BPM=90 node scripts/capture_session_gif.mjs out.gif "<URL sans sortieBeat>" <temps de départ> <temps> [images/s]
 //   Mode jeu : l'URL du mode jeu (la page ajoute `sortieBeat`, qui met l'horloge à l'arrêt).
 //   App de comparaison (danseur seul) : ajouter `playing=0` à l'URL.
+//   HEAVY=<octets> : poids de la première image attendue (60 000 par défaut ; plus bas pour une vue légère, os seuls).
 //   CHECK=temps,chemin.png enregistre aussi l'image de ce temps (à comparer à une image prise avec sortieBeat=temps).
 // Fragile par nature (structure interne de React) : quand le mode `film=1` (#155) sera fusionné, préférer
 // son interface `window.__film`.
@@ -27,7 +28,9 @@ await page.goto(`${url}&sortieBeat=${from.toFixed(4)}`, { waitUntil: "load", tim
 await page.waitForSelector("canvas");
 const shot = () => page.locator("canvas").first().screenshot();
 const settled = async (heavy = 0) => { let previous = null; for (let k = 0; k < 400; k++) { await page.waitForTimeout(150); const png = await shot(); if (previous && png.equals(previous) && png.length > heavy) return png; previous = png; } throw new Error('never settled'); };
-await settled(60000);
+// The first image is taken once the models are drawn: an image this heavy (bytes). A light view (bones alone, in
+// profile) is lighter: HEAVY=<bytes> lowers it.
+await settled(Number(process.env.HEAVY ?? 60000));
 // The shared dance clock ({ beat, exportFrame, revision }) lives in a hook of a component above the canvas.
 const found = await page.evaluate(() => {
   const isClock = v => v && typeof v === 'object' && typeof v.beat === 'number' && typeof v.revision === 'number' && 'exportFrame' in v;
