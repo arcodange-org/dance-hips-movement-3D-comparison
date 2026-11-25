@@ -51,8 +51,12 @@ Les croisements d'os des candidats seront réglés sur la version élue, avant q
 
 Question 29 : **C** (`unPied`). Question 30 refaite : pas de vote ; la précision du propriétaire décrit **G**
 (`entreLesPas`), mise par défaut comme hypothèse de travail, réglée sans croisement d'os
-([spec, version retenue](../../spec-quart-virgula.md#la-version-retenue-25-novembre--c-et-g-par-défaut)). Films de la
-version retenue, vue du côté du guideur : [de trois quarts](retenu-guideur.gif), [vu de dessus](retenu-dessus.gif).
+([spec, version retenue](../../spec-quart-virgula.md#la-version-retenue-25-novembre--c-et-g-par-défaut)). Films (kizomba,
+90 bpm, premier quart, muscles visibles ; à gauche le quart d'avant #208, à droite la version retenue) :
+
+![Derrière le guideur](retenu-guideur.gif)
+
+![Vu de dessus](retenu-dessus.gif)
 
 **Propositions d'avant le vote** : B pour la question 29 (C si le recul d'un pied se mesure au pied droit de la suiveuse) ; F pour la
 question 30 refaite (E avant la précision du 25 novembre).

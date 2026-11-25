@@ -44,7 +44,7 @@ export const QUART_CANDIDATES: Record<string, QuartVirgula> = {
 export const QUART_ELECTED: QuartVirgula = { beyond: 0.19, beside: 0.034, turn: "entreLesPas" };
 /** #208 (`entreLesPas`): the leader's G knee points where its foot does (the virgula turned out to the left, the
  * pelvis not yet turned); his trailing D knee opens `right` rad outwards meanwhile, in proportion. */
-export const QUART_KNEE = { left: 1, right: 0.3 };
+export const QUART_KNEE = { left: 1, right: 0.6 };
 export const QUART_PROTO: { v: QuartVirgula } = { v: QUART_ELECTED };
 export const setQuartProto = (name: string | null | undefined) => { QUART_PROTO.v = (name && QUART_CANDIDATES[name]) || QUART_ELECTED; };
 /** Quintic ease: zero speed and zero acceleration at both ends. */
@@ -119,6 +119,14 @@ export const QUARTS_SHAPES: QuartsShapes = {
     { ...still, start: 1.45, end: 3.0, bump: { x: 0, z: -0.18 }, bumpPeak: 0.2, arcDelay: 0.1, bulge: 0.35 },
   ],
 };
+/** #208 (`entreLesPas`): how far ahead of its yaw the place of the pelvis goes round C with the first step (1: an
+ * eighth of the quarter at the first landing, as the feet; 0: it waits for the second step). */
+export const QUART_LEAD = 0.9;
+/** #208 (`entreLesPas`): the leader's D arcs from the moment it leaves (the virgula one foot further makes its way
+ * longer; arcing late, it caught up at the end and the pelvis rose 6 cm within a quarter of a beat). */
+export const QUART_BETWEEN_SHAPES: QuartsShapes = {
+  ...QUARTS_SHAPES, leader: [QUARTS_SHAPES.leader[0], { ...QUARTS_SHAPES.leader[1], arcDelay: 0 }],
+};
 /** Pelvis and style during the pair quarter turns (calibrated, docs/spec-quarts-paire.md):
  * - #106: pelvis and upper body turn as one block with the feet, half the quarter with the first foot
  *   (the diagonal when it lands), the rest with the second; `extremity`: lateral offset of the side
@@ -168,7 +176,8 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
   const c = couple.centre;
   // Leader: G first (upper body follows), then D (lower body). Follower: D first, then G.
   const order: [FigureFoot, FigureFoot] = follower ? ["R", "L"] : ["L", "R"];
-  const role = shapes[follower ? "follower" : "leader"];
+  const between = QUART_PROTO.v.turn === "entreLesPas";
+  const role = (between && shapes === QUARTS_SHAPES ? QUART_BETWEEN_SHAPES : shapes)[follower ? "follower" : "leader"];
   const step = (time: number) => {
     const p = ((time % QUARTS_BEATS) + QUARTS_BEATS) % QUARTS_BEATS;
     const quarter = Math.min(3, Math.floor(p / 4));
@@ -204,11 +213,10 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
   };
   const [a1, a2] = turnAt(now.q);
   // #208 (`entreLesPas`): the pelvis goes over the first foot as the weight moves onto it, its yaw waiting for the
-  // landing: the place of the block follows the steps, only its turn is delayed (a pelvis left behind the virgula
-  // pushed the trailing knee into the partner's). It follows the rigid quarter about C: the #106 diagonal (the
-  // extremity in place at the first landing) belongs to a block that turns with the first step.
-  const between = QUART_PROTO.v.turn === "entreLesPas";
-  const [p1, p2]: [number, number] = between ? [ease5(rawAt(role[0], now.q)), ease5(rawAt(role[1], now.q))] : [a1, a2];
+  // landing: the place of the block follows the steps round C, only its turn is delayed (a pelvis left behind the
+  // virgula pushed the trailing knee into the partner's). The #106 diagonal (the extremity in place at the first
+  // landing) belongs to a block that turns with the first step: it is not followed.
+  const p1 = between ? ease5(rawAt(role[0], now.q)) : a1;
   for (const [index, { side, shape, raw, arc }] of now.feet.entries()) {
     angle[side] = base + QUARTER * arc;
     let point = about(c, start[side], angle[side]);
@@ -253,9 +261,17 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
   // follows the pelvis `chestLag` beats later.
   const lagged = turnAt(now.q - QUARTS_BODY.chestLag);
   const chestYaw = (QUARTER / 2) * (lagged[0] + lagged[1] - a1 - a2);
-  const rigid = about(c, start.root, (QUARTER / 2) * (p1 + p2)), diagonal = diagonalRoot(c, start.root, QUARTS_BODY.extremity, p1, p2);
-  const travel = between ? 0 : QUARTS_BODY.travel[follower ? "follower" : "leader"];
-  const rootPoint = about(c, { x: mix(rigid.x, diagonal.x, travel), z: mix(rigid.z, diagonal.z, travel) }, base);
+  // #208 (`entreLesPas`): the place of the pelvis goes round C with the feet, `QUART_LEAD` of an eighth with the first
+  // step, the rest with the second (following the yaw instead crossed the legs; staying in place, the trailing knee).
+  let rootPoint: FootPoint;
+  if (between) {
+    const placed = QUART_LEAD * (p1 / 2) + (1 - QUART_LEAD / 2) * ease5(rawAt(role[1], now.q));
+    rootPoint = about(c, about(c, start.root, QUARTER * placed), base);
+  } else {
+    const rigid = about(c, start.root, (QUARTER / 2) * (a1 + a2)), diagonal = diagonalRoot(c, start.root, QUARTS_BODY.extremity, a1, a2);
+    const travel = QUARTS_BODY.travel[follower ? "follower" : "leader"];
+    rootPoint = about(c, { x: mix(rigid.x, diagonal.x, travel), z: mix(rigid.z, diagonal.z, travel) }, base);
+  }
   const root = follower ? toFollower(rootPoint) : rootPoint;
   // #82 (« le leader engage le buste avec son pied gauche ») holds: his chest turns with his G, which
   // leaves with her D (#88: she never anticipates); the chest turns with the pelvis (#106).

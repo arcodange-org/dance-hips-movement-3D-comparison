@@ -43,15 +43,15 @@
   },
   "quart de tour": {
     "R21": 0.12,
-    "R4": 8,
+    "R4": 8.1,
     "R8": {
       "leader": {
-        "long": 38.4,
-        "side": 14.2
+        "long": 54.2,
+        "side": 24.2
       },
       "follower": {
-        "long": 30.3,
-        "side": 47.6
+        "long": 33.2,
+        "side": 55.4
       }
     }
   },

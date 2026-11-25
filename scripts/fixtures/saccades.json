@@ -113,22 +113,22 @@
     "quart": {
       "leader": {
         "vertical": {
-          "cm": 2.5,
-          "temps": 1.72
+          "cm": 2,
+          "temps": 2.19
         },
         "horizontal": {
-          "cm": 13.4,
-          "temps": 0.75
+          "cm": 9.7,
+          "temps": 0.63
         }
       },
       "suiveur": {
         "vertical": {
-          "cm": 4.5,
-          "temps": 0.81
+          "cm": 2.3,
+          "temps": 1.5
         },
         "horizontal": {
-          "cm": 15.7,
-          "temps": 0.75
+          "cm": 10,
+          "temps": 0.66
         }
       }
     },
