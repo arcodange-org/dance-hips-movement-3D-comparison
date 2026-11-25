@@ -20,6 +20,8 @@ import { SORTIE_GARCON_PAIR_DZ } from "./sortieGarcon";
 import { SORTIE_FILLE_PAIR_DZ } from "./sortieFille";
 import { placementOffset, placementScale, type CouplePlacement } from "./placement";
 import { gaitStep, GAIT } from "./gait";
+import { isolationAt, isolationBeats, ISOLATION_KNEE, NECK_PIVOT, type IsolationId, type IsolationPose, type IsolationSettings } from "./isolations";
+import { TORSO_JOINTS } from "./rigJoints";
 import { umDoisFoot, umDoisCarry } from "./umDois";
 
 export type Side = "L" | "R";
@@ -84,6 +86,9 @@ export interface PoseOptions {
   trunkOffset: number[] | null;
   /** #69: the partner's `rootOffset` (its own frame), for the plexus lean towards the partner. */
   partnerRootOffset: { x: number; z: number } | null;
+  /** #206 (docs/spec-isolations.md): an isolation exercise, alone with planted feet. No style is applied (no sway,
+   * no transfer, no bounce); only the named part moves, looping on the clock at three speeds (`isolationBeats`). */
+  isolation: { id: IsolationId; settings?: IsolationSettings } | null;
 }
 export const DEFAULT_POSE: PoseOptions = {
   styleKey: "kizomba", amp: 1, travel: 0, dir: 1, plant: true, iso: true, cadre: true,
@@ -91,7 +96,7 @@ export const DEFAULT_POSE: PoseOptions = {
   embrace: false, reverse: false, follower: false, movement: "none",
   sortieFilleVariant: "hook", sortieVariant: "line", sortieContra: DEFAULT_SORTIE_CONTRA, sortieVirgula: true,
   placement: "reference", quartsPaire: false, idaPaire: false, idaVariant: IDA_DEFAULT, marche: null, sortieChain: false, sortieInsert: false, touches: [], ginga: null, gingaFrom: null, placePaire: false, plexus: false, contraposition: 1,
-  rootOffset: null, partnerRootOffset: null, pelvisOffset: null, trunkOffset: null,
+  rootOffset: null, partnerRootOffset: null, pelvisOffset: null, trunkOffset: null, isolation: null,
 };
 /** Plexus-to-plexus contact (#51): chest-marker gap targeted between partners (m) and the largest
  * lean of the upper body towards the partner (rad). */
@@ -523,10 +528,66 @@ export function gingaPhase(key: string, leader: (beat: number) => { loadR?: numb
   return table[k] + (table[k + 1] - table[k]) * (x - k);
 }
 
+/** #206 (docs/spec-isolations.md): the upper body of an isolation exercise, once the root and the legs are in place.
+ * The rib cage stands upright and facing front at its rest place plus its slide (in the root's parent frame); the spine
+ * goes from its base, carried by the pelvis, to the rib cage, swinging without twist; so whatever the pelvis does, the
+ * chest stays where it is, and a chest slide moves the chest alone. The head turns at the top of the neck and bends
+ * (nod, tilt) about the base of the neck, `NECK_PIVOT` below its node: the node moves with it. */
+function poseIsolationTrunk(r: RigHandle, iso: IsolationPose): void {
+  const outer = r.root.parent!;
+  outer.updateWorldMatrix(true, false);
+  r.root.updateWorldMatrix(false, true);
+  const outerQ = outer.getWorldQuaternion(new THREE.Quaternion());
+  const base = outer.worldToLocal(r.spine.getWorldPosition(new THREE.Vector3()));
+  const length = TORSO_JOINTS.chest[1];
+  // The rest place of the rib cage is above the root before the pelvis's slide (the root is a child of `outer`).
+  const restX = r.root.position.x - iso.pelvis.side, restZ = r.root.position.z - iso.pelvis.fore;
+  const dx = restX + iso.chest.side - base.x, dz = restZ + iso.chest.fore - base.z, flat = Math.hypot(dx, dz);
+  // A reach beyond the spine's length leans it as far as it goes (never met at the amplitudes to elect).
+  const k = flat > 0.95 * length ? 0.95 * length / flat : 1;
+  const direction = new THREE.Vector3(dx * k, Math.sqrt(length ** 2 - (flat * k) ** 2), dz * k).normalize();
+  const swing = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
+  const parentQ = r.spine.parent!.getWorldQuaternion(new THREE.Quaternion());
+  r.spine.quaternion.copy(parentQ.invert().multiply(outerQ).multiply(swing));
+  r.chest.quaternion.copy(swing.clone().invert());
+  const bend = new THREE.Quaternion().setFromEuler(new THREE.Euler(iso.head.nod, 0, -iso.head.tilt, "XZY"));
+  r.head.quaternion.copy(bend).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), iso.head.turn));
+  const up = new THREE.Vector3(0, NECK_PIVOT, 0);
+  r.head.position.fromArray(TORSO_JOINTS.head).add(up.clone().applyQuaternion(bend)).sub(up);
+  r.isolationHead = true;
+  r.root.updateWorldMatrix(false, true);
+}
+/** #206: the pelvis of an isolation exercise stays level all along its loop: at the lowest height the legs give it over
+ * its beats (a slide sideways bends the far knee), measured once on the rig itself, by exercise and settings.
+ * Otherwise the chest and the head would bob as the pelvis slides. */
+const isolationLevels = new WeakMap<PoseModel, Map<string, number>>();
+let measuringLevel = false;
+function isolationLevel(r: RigHandle, model: PoseModel, o: PoseOptions): number {
+  const key = JSON.stringify([o.isolation!.id, o.isolation!.settings ?? null]);
+  let levels = isolationLevels.get(model);
+  if (!levels) isolationLevels.set(model, levels = new Map());
+  let level = levels.get(key);
+  if (level === undefined) {
+    level = Infinity;
+    measuringLevel = true;
+    try {
+      for (let k = 0, n = 8 * isolationBeats(o.isolation!.id); k < n; k++) { applyPose(r, model, k / 8, o); level = Math.min(level, r.root.position.y); }
+    } finally { measuringLevel = false; }
+    levels.set(key, level);
+  }
+  return level;
+}
 export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, options: Partial<PoseOptions>): PoseStats {
   // #196: the figure « Sur place » of the kizomba and of the semba is the basic step without the « 1 2 ».
   const surPlace = options.movement === "surPlace";
-  const o = { ...DEFAULT_POSE, ...options, ...(surPlace ? { movement: "none" as const } : {}) };
+  const given = { ...DEFAULT_POSE, ...options, ...(surPlace ? { movement: "none" as const } : {}) };
+  // #206: an isolation exercise is danced alone, on the spot: no figure, no travel, no ginga.
+  const o: typeof given = given.isolation ? { ...given, travel: 0, movement: "none", quarts: false, corridinho: false, ida: false,
+    temps3: false, sortie: false, embrace: false, follower: false, touches: [], ginga: null, gingaFrom: null, styleBlend: null,
+    marche: null, rootOffset: null, partnerRootOffset: null, pelvisOffset: null, trunkOffset: null } : given;
+  // #206: an isolation exercise is a function of the clock alone (looping, three speeds).
+  const iso = o.isolation ? isolationAt(o.isolation.id, clockBeat, o.isolation.settings) : null;
+  const isoLevel = iso && !measuringLevel ? isolationLevel(r, model, o) : Infinity;
   // + 24 beats (a multiple of every on-the-spot period: styles 4, temps3 12, the semba prototypes 8, #162)
   // keeps the motion beat positive for the styles' `b % n` without changing the pose.
   const shift = onBeatShift(o);
@@ -617,6 +678,8 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
       gingaSway: (o.follower ? -1 : 1) * gingaSet!.sway * gingaRoom.sway / Math.max(1, o.amp) });
   }
   resetRig(r);
+  // #206: the head node is moved by an isolation of the neck (it bends from the neck's base); back to rest otherwise.
+  if (r.isolationHead) { r.head.position.fromArray(TORSO_JOINTS.head); r.isolationHead = false; }
   for (const s of SIDES) r["foot" + s].rotation.set(0, 0, 0);
   // A marka moves the free foot without starting another body's weight oscillation.
   // #107: a cyclic figure started later in its cycle (the ida e volta's variants) gives its offset, so that
@@ -637,7 +700,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   // #196 (elected on 24 Nov. 2026): in place of that basic step the kizomba and the semba dance the « 1 2 », unless
   // the figure « Sur place » is chosen; the feet and the travel of the body are this figure's (src/umDois.ts), the
   // hip is the style's.
-  const umDois = base && !surPlace ? umDoisOf(o.styleKey) : null, step = umDois ? "umDois" as const : base;
+  const umDois = base && !surPlace && !iso ? umDoisOf(o.styleKey) : null, step = umDois ? "umDois" as const : base;
   const applyStyle = (key: typeof o.styleKey) => {
     const g = gingaOf(key);
     STYLES[key].apply(r, g?.gingaBeat ?? styleTime, o.amp * (g?.gingaAmp ?? 1), styleTime, key === o.styleKey ? step : base);
@@ -651,10 +714,10 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
       mixStyleState(r, swung, styleState(r), 1 - gingaRoom.sway);
     }
   };
-  applyStyle(o.styleKey);
+  if (!iso) applyStyle(o.styleKey);
   // #85: blend towards another style's pose (the guide mode changes style at a boundary: the basic step
   // in suave, the figures in the chosen style); `weight` 1 = the other style entirely.
-  const blend = o.styleBlend && o.styleBlend.weight > 0 && STYLES[o.styleBlend.key] && o.styleBlend.key !== o.styleKey ? o.styleBlend : null;
+  const blend = !iso && o.styleBlend && o.styleBlend.weight > 0 && STYLES[o.styleBlend.key] && o.styleBlend.key !== o.styleKey ? o.styleBlend : null;
   if (blend) {
     const mine = styleState(r);
     resetRig(r);
@@ -716,6 +779,9 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     const sway = (figure as { sway?: number }).sway ?? 1;
     r.pelvis.position.x *= sway; r.pelvis.position.z *= sway;
   }
+  // #206: the pelvis of an isolation tilts (pubis forward: the top of the pelvis goes back), turns, and its hip on the
+  // side where it goes rises; its slide moves the root below.
+  if (iso) r.pelvis.rotation.set(-iso.pelvis.tilt, iso.pelvis.turn, iso.pelvis.hike);
   if (o.pelvisOffset) {
     const { position: p, rotation: q } = o.pelvisOffset;
     r.pelvis.position.x += p[0]; r.pelvis.position.y += p[1]; r.pelvis.position.z += p[2];
@@ -726,7 +792,8 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   const styleY = figure ? Math.max((figure as { dip?: number }).dip ?? -0.008, r.root.position.y * 0.25) : r.root.position.y;
   const desiredKnee = { L: r.kneeL.rotation.x, R: r.kneeR.rotation.x };
   const ownPosture = STYLES[o.styleKey].posture, otherPosture = blend ? STYLES[blend.key].posture : ownPosture, bw = blend?.weight ?? 0;
-  const posture = { lean: ownPosture.lean + (otherPosture.lean - ownPosture.lean) * bw, knee: ownPosture.knee + (otherPosture.knee - ownPosture.knee) * bw };
+  // #206: an exercise stands upright on soft knees, whatever the style.
+  const posture = iso ? { lean: 0, knee: ISOLATION_KNEE } : { lean: ownPosture.lean + (otherPosture.lean - ownPosture.lean) * bw, knee: ownPosture.knee + (otherPosture.knee - ownPosture.knee) * bw };
   const feet = figure?.feet ?? (umDois ? umDoisFeet(clockBeat, umDois.ecart, model) : plannedFeet(beat, o, model));
   if (figure) {
     // The coupled follower mirrors it like her pelvis: the couple sways together in the world.
@@ -754,6 +821,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     const path = bodyPath(beat, o);
     r.root.position.x += path.x; r.root.position.z += path.z; r.root.rotation.y = path.ry;
     if (umDois) r.root.position.x += umDois.ecart * umDoisCarry(clockBeat);
+    if (iso) { r.root.position.x += iso.pelvis.side; r.root.position.z += iso.pelvis.fore; }
   }
   lockUpperTrunk({ spine: r.spine.rotation, chest: r.chest.rotation, head: r.head.rotation }, r.pelvis.rotation, o.iso);
   // #161 (prototype): a style may ask the spine to take up the pelvis's travel (`isoLean`, see KompaEight.iso).
@@ -786,10 +854,11 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     const t = o.trunkOffset;
     [r.spine, r.chest, r.head].forEach((node, k) => { node.rotation.x += t[3 * k]; node.rotation.y += t[3 * k + 1]; node.rotation.z += t[3 * k + 2]; });
   }
-  applyDanceFrame(r, o.cadre);
+  // #206: the arms hang during an exercise (no dance frame).
+  applyDanceFrame(r, o.cadre && !iso);
   if (o.follower) applyFollowerFrame(r, o.cadre);
   if (partnerRoot) leanTowards(r, partnerRoot);
-  const activeIK = !!figure || o.plant || o.travel > 0 || o.quarts || o.ida || o.corridinho;
+  const activeIK = !!iso || !!figure || o.plant || o.travel > 0 || o.quarts || o.ida || o.corridinho;
   const footOrientations = {} as Record<Side, THREE.Quaternion>;
   // Height of the ankle that bounds the pelvis height (the ankle target itself, except in a rolled walk).
   const bearingY = {} as Record<Side, number>;
@@ -904,6 +973,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
       height += (led - height) * kneeLed.share;
       r.pelvis.rotation.z += Math.asin(sin) * kneeLed.share;
     }
+    height = Math.min(height, isoLevel);
     r.root.position.y = height + Math.min(0, styleY) + bounce + (o.rootOffset?.y ?? 0);
     r.root.updateWorldMatrix(true, true);
     const skeleton = r["Skeleton"] as THREE.Object3D;
@@ -931,6 +1001,9 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     }
     r.root.position.y += groundDip(r["Skeleton"]);
   }
+  // #206: with the root and the legs in place, the spine and the rib cage are set exactly (the trunk lock above
+  // only approximates them), and the head.
+  if (iso) poseIsolationTrunk(r, iso);
   r.root.updateWorldMatrix(true, true);
   updateKneeMarkers(r);
   const grounded = {} as Record<Side, boolean>;
@@ -943,7 +1016,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
       lowest = Math.min(lowest, v.copy(p).applyMatrix4(foot.matrixWorld).y);
     grounded[s] = lowest <= 0.0001;
   }
-  const prescribedR = (figure as { loadR?: number } | null)?.loadR ?? (supportOf(o.styleKey, r, beat, step) + 1) / 2;
+  const prescribedR = iso ? 0.5 : (figure as { loadR?: number } | null)?.loadR ?? (supportOf(o.styleKey, r, beat, step) + 1) / 2;
   const loadR = grounded.R ? (grounded.L ? prescribedR : 1) : 0;
   const loadL = grounded.L ? (grounded.R ? 1 - prescribedR : 1) : 0;
   const chestQ = r.chest.getWorldQuaternion(new THREE.Quaternion());
