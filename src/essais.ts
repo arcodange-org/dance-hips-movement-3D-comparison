@@ -13,8 +13,8 @@
  * Bras du cadre (#185) : le coude levé de la suiveuse choisi le 23 novembre 2026 ; `coudeBas` retiré (#190).
  * Tenue des mains (#199) : `paumeCiel` choisie le 24 novembre 2026, devenue la tenue des mains jointes et retirée ;
  * la tenue sur le côté reste une option de l'app (`?tenue=cote`, `TENUE` dans src/upperBody.ts).
- * Exercices d'isolation (#206) : votes du 24 novembre 2026 (amplitude moyenne ; trois vitesses, posé puis fluide) devenus
- * le comportement ; leurs interrupteurs retirés. `isoHuitTourne` attend son vote.
+ * Exercices d'isolation (#206) : votes des 24 et 25 novembre 2026 (amplitude moyenne ; trois vitesses, posé puis fluide ;
+ * le huit qui alterne glisse et tourne, une mesure chacun) devenus le comportement ; leurs interrupteurs retirés.
  */
 export const ESSAIS = {
   /** Témoin : ne change rien. Sert à filmer le comportement actuel image par image hors du mode paire. */
@@ -22,8 +22,6 @@ export const ESSAIS = {
   /** #179 : les mains jointes sur le côté du couple, plus bas et plus près, coudes détendus, avec la prise du
    * 22 novembre (l'attitude choisie les tient au niveau des épaules, emboîtées). */
   mainsBasses: "mains jointes sur le côté du couple, plus bas",
-  /** #206 (exercices d'isolation, src/isolations.ts) : le huit du bassin qui tourne aussi (question 26, sans vote). */
-  isoHuitTourne: "huit du bassin : le bassin tourne aussi",
 } as const;
 export type Essai = keyof typeof ESSAIS;
 

@@ -488,7 +488,7 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Vote du fondateur (24 novembre, tour 12) : amplitude moyenne, trois vitesses par boucle (deux temps, un temps, un
   demi-temps par mouvement), point tenu puis fluide, demi-cercles de la tête et de la poitrine ; interrupteurs retirés.
 - [x] Vingt et une boucles refilmées (`docs/elections/2026-11-24-isolations/`).
-- [ ] Le huit du bassin : glisse (comportement) ou tourne aussi (`?essai=isoHuitTourne`), à élire.
+- [x] Le huit du bassin (25 novembre) : il alterne, une mesure il glisse, une mesure il tourne aussi ; B7 et B7′ refilmés.
 
 ## Suave : deux temps par côté, sans rebond (#200)
 

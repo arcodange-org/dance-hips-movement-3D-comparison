@@ -87,7 +87,7 @@ export const ISOLATION_AMPLITUDES = {
     side: 0.05, hike: 4 * DEG,
     /** Cercles : glissé devant et derrière, avec la bascule. */
     circleFore: 0.04, circleForward: 8 * DEG, circleBack: 10 * DEG,
-    /** Huit : glissé de côté et en profondeur ; candidat « tourne » : la hanche de devant mène. */
+    /** Huit : glissé de côté et en profondeur ; quand il tourne, la hanche de devant mène. */
     eightSide: 0.05, eightFore: 0.03, eightTurn: 10 * DEG,
   },
 } as const;
@@ -99,20 +99,17 @@ export const NECK_PIVOT = 0.07;
 export const ISOLATION_KNEE = 0.2;
 
 export interface IsolationSettings {
-  /** Huit du bassin : il glisse, ou il tourne aussi (la hanche de devant mène). Question 26, sans vote. */
-  huit: "glisse" | "tourne";
+  /** Huit du bassin : élu le 25 novembre 2026, il alterne, une mesure où il glisse, une mesure où il tourne aussi (la
+   * hanche de devant mène), en commençant par glisser. `glisse` et `tourne` : l'un des deux seulement. */
+  huit: "alterne" | "glisse" | "tourne";
   /** Gauche et droite échangés : l'exercice vu comme dans le miroir d'un studio. */
   miroir: boolean;
 }
-export const ISOLATION_DEFAULT: IsolationSettings = { huit: "glisse", miroir: false };
+export const ISOLATION_DEFAULT: IsolationSettings = { huit: "alterne", miroir: false };
 
-/** Les interrupteurs d'essai des candidats encore à élire (src/essais.ts). */
-export const ISOLATION_ESSAIS = ["isoHuitTourne"] as const;
-export type IsolationEssai = typeof ISOLATION_ESSAIS[number];
-
-/** Les réglages d'un exercice : le comportement élu, sauf les candidats demandés par `?essai=`. */
-export function isolationSettings(active: (essai: IsolationEssai) => boolean, miroir = false): IsolationSettings {
-  return { huit: active("isoHuitTourne") ? "tourne" : "glisse", miroir };
+/** Les réglages d'un exercice depuis l'adresse : le comportement élu (plus aucun candidat à élire), et le miroir. */
+export function isolationSettings(miroir = false): IsolationSettings {
+  return { ...ISOLATION_DEFAULT, miroir };
 }
 
 /** Points (mouvements) d'un tour de la figure. */
@@ -201,7 +198,7 @@ export interface IsolationPose {
   path: { fore: number; side: number };
 }
 
-/** Le maximum de côté × profondeur sur le huit (sin φ · sin 2φ), pour que la rotation du candidat « tourne » atteigne
+/** Le maximum de côté × profondeur sur le huit (sin φ · sin 2φ), pour que la rotation du huit qui tourne atteigne
  * son amplitude. */
 const EIGHT_TURN_MAX = 4 / (3 * Math.sqrt(3));
 
@@ -236,8 +233,10 @@ export function isolationAt(id: IsolationId, beat: number, s: IsolationSettings 
     else if (f.kind === "huit") {
       pose.pelvis = { ...pose.pelvis, side: A.eightSide * side, fore: A.eightFore * fore, hike: A.hike * side };
       // La hanche de devant mène : à gauche et devant, la hanche gauche avance (le bassin tourne vers la droite) ; à
-      // gauche et derrière, elle recule.
-      if (s.huit === "tourne") pose.pelvis.turn = -A.eightTurn * side * fore / EIGHT_TURN_MAX;
+      // gauche et derrière, elle recule. En alternance, une mesure sur deux (la deuxième) : chaque mesure commence et
+      // finit au centre, où la rotation et sa vitesse sont nulles, le passage d'une manière à l'autre est donc sans à-coup.
+      const turning = s.huit === "tourne" || (s.huit === "alterne" && Math.floor(mod(beat, isolationBeats(id)) / 4) % 2 === 1);
+      if (turning) pose.pelvis.turn = -A.eightTurn * side * fore / EIGHT_TURN_MAX;
     } else {
       pose.pelvis = { fore: A.circleFore * fore, side: A.side * side, tilt: signed(fore, A.circleForward, A.circleBack),
         hike: A.hike * side, turn: 0 };

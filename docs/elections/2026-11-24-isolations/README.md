@@ -17,25 +17,26 @@ est consigné dans l'issue #206.
   passe par les points sans s'y arrêter.
 - **Les boucles conviennent** ; s'y ajoutent les demi-cercles de la tête et de la poitrine (C6, P7), qui ne passent
   jamais derrière.
-- **Reste à trancher** : le huit du bassin (ci-dessous).
+- **Le huit du bassin alterne** (tranché le 25 novembre) : une mesure il glisse, la suivante il tourne aussi.
 
 Tous les films : la boucle entière à 96 temps par minute (la dernière image enchaîne sur la première), os et muscles du
 haut du corps affichés. Le compte des temps est écrit en haut, par huit, le temps en cours en clair ; la vitesse jouée
 est écrite en bas. Gauche et droite sont ceux du danseur, qui regarde la caméra : quand il va à sa gauche, on le voit
 partir vers la droite de l'image.
 
-## La question restante — le huit du bassin : il glisse, ou il tourne aussi ?
+## Le huit du bassin : il glisse, ou il tourne aussi ?
 
 Le bassin part à gauche par devant, revient par derrière, passe au centre, part à droite par devant, revient par
 derrière ; la boucle entière, aux trois vitesses. Vue de trois quarts, d'en haut.
 
 ![Q6](Q6-huit-du-bassin.gif)
 
-| A (le comportement, filmé dans les boucles) | B (`?essai=isoHuitTourne`) |
+| A | B |
 |---|---|
 | le bassin glisse sur le huit, face à l'avant | le bassin tourne aussi : la hanche de devant mène (à gauche et devant, la hanche gauche avance) |
 
-Vaut pour le huit dans ses deux sens.
+**Élu : les deux, une mesure chacun**, en commençant par A (filmé dans B7 et B7′ ci-dessous). Vaut pour le huit dans
+ses deux sens.
 
 ## Les vingt et une boucles (élues)
 
@@ -80,7 +81,7 @@ demi-temps, deux points par temps, sans s'arrêter.
 | B7 — le huit | B7′ — le huit dans l'autre sens |
 |---|---|
 | ![B7](B7-bassin-huit.gif) | ![B7′](B7b-bassin-huit-inverse.gif) |
-| chaque côté part par devant et revient par derrière | chaque côté part par derrière et revient par devant |
+| chaque côté part par devant et revient par derrière ; une mesure il glisse, la suivante il tourne aussi | chaque côté part par derrière et revient par devant ; une mesure il glisse, la suivante il tourne aussi |
 
 ## Les questions tranchées, pour mémoire
 

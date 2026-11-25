@@ -14,7 +14,7 @@ import PagePrincipale from "./components/page/PagePrincipale";
 import DemoOverlay, { DEMOS } from "./components/DemoOverlay";
 import OriginMarker from "./components/OriginMarker";
 import LineOfDance from "./components/LineOfDance";
-import { essai, essaiEnCours, type Essai } from "./essais";
+import { essaiEnCours } from "./essais";
 import { isIsolationId, isolationSettings } from "./isolations";
 import CompassRose from "./components/CompassRose";
 import { resolveCam, resolveView, viewAnglesOf, SOLID_TORSO_OPACITY } from "./cameras";
@@ -90,7 +90,7 @@ export default function App() {
   // isolation exercise, alone with planted feet; `miroir=1` swaps left and right. Ignored in pair.
   const isolationParam = params.get("isolation");
   const isolationAsked = isIsolationId(isolationParam)
-    ? { id: isolationParam, settings: isolationSettings(k => essai(k as Essai), params.get("miroir") === "1") } : null;
+    ? { id: isolationParam, settings: isolationSettings(params.get("miroir") === "1") } : null;
   const [showRepere, setShowRepere] = usePersistentState("repere", true);
   const [showAppui, setShowAppui] = usePersistentState("appui", false);
   const statsRef = useRef<any>({ loadR: 0.5, loadL: 0.5, kneeR: 0, kneeL: 0, roll: 0 });

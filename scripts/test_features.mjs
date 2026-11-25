@@ -172,8 +172,17 @@ const steps = [
       if (b === 0 && !(own > 0.3)) throw new Error("ne bouge pas");
     }
   }],
+  [/^le huit glisse dans les mesures 1, 3, 5 et tourne aussi dans les mesures 2, 4, 6$/, c => {
+    const beats = mod.isolations.isolationBeats(c.isolation);
+    if (beats !== 24) throw new Error(`boucle de ${beats} temps`);
+    for (let m = 0; m < 6; m++) {
+      let most = 0;
+      for (let b = 4 * m + 1 / 16; b < 4 * m + 4; b += 1 / 16) most = Math.max(most, Math.abs(isoPose(c, b).pelvis.turn));
+      if (m % 2 === 0 ? most !== 0 : most < 0.1) throw new Error(`mesure ${m + 1} : rotation ${most}`);
+    }
+  }],
   [/^sans interrupteur d'essai, les réglages sont ceux élus$/, () => {
-    const got = mod.isolations.isolationSettings(() => false);
+    const got = mod.isolations.isolationSettings();
     if (JSON.stringify(got) !== JSON.stringify(mod.isolations.ISOLATION_DEFAULT)) throw new Error(JSON.stringify(got));
   }],
   // Page principale : scène et panneau (#192, docs/spec-page-scene-panneau.md) : src/page.ts, chargé à part (pageMod()).

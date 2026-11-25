@@ -20,7 +20,7 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   films `scripts/capture_isolation_gif.mjs` (boucle sans image tenue, compte des temps).
 - **Élu le 24 novembre** (tour 12, [dossier](docs/elections/2026-11-24-isolations/README.md)) : amplitude moyenne ; les
   trois vitesses ; le point posé et tenu à deux temps et à un temps, fluide au demi-temps ; les demi-cercles ajoutés.
-  Interrupteurs retirés. Reste à trancher : le huit du bassin glisse (comportement) ou tourne aussi (`?essai=isoHuitTourne`).
+  Le 25 : le huit du bassin alterne, une mesure il glisse, une mesure il tourne aussi. Interrupteurs retirés.
 
 ## Jamais de jambe tendue : 30° de flexion au moins (#203, 24-25 novembre 2026)
 

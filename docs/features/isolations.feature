@@ -1,7 +1,8 @@
 Feature: Exercices d'isolation seul, pieds posés : le cou, la poitrine, le bassin (#206)
   Spec : docs/spec-isolations.md (lot L441 de ReCoDanse). Élu le 24 novembre 2026 : chaque exercice enchaîne trois
   vitesses, du plus lent au plus rapide, deux mesures chacune : deux temps par mouvement, un temps, un demi-temps ; un
-  point marqué est posé puis tenu, fluide au demi-temps. « Sur 1 » veut dire « arrivé sur le temps 1 » de cette vitesse ;
+  point marqué est posé puis tenu, fluide au demi-temps. Élu le 25 novembre : le huit du bassin alterne, une mesure où il
+  glisse, une mesure où il tourne aussi. « Sur 1 » veut dire « arrivé sur le temps 1 » de cette vitesse ;
   gauche et droite sont ceux du danseur. Sur le vrai squelette (pieds posés et immobiles, cage droite et de face, sens
   réels) : scripts/test_isolations.mjs.
 
@@ -66,7 +67,13 @@ Feature: Exercices d'isolation seul, pieds posés : le cou, la poitrine, le bass
     Given l'exercice "bassin-huit", à deux temps par mouvement
     Then le bassin est au centre sur 1, à gauche sur 3, au centre sur 5, à droite sur 7
 
-  Scenario: Le seul candidat encore à élire ne change rien sans essai demandé
+  Scenario: Le huit alterne : une mesure il glisse, une mesure il tourne aussi
+    Given l'exercice "bassin-huit", à un temps par mouvement
+    Then le huit glisse dans les mesures 1, 3, 5 et tourne aussi dans les mesures 2, 4, 6
+    Given l'exercice "bassin-huit-inverse", à un temps par mouvement
+    Then le huit glisse dans les mesures 1, 3, 5 et tourne aussi dans les mesures 2, 4, 6
+
+  Scenario: Plus aucun candidat à élire : les réglages sont ceux élus
     Then sans interrupteur d'essai, les réglages sont ceux élus
 
   Scenario Outline: Seule la partie nommée bouge, et la boucle se referme (<exercice>)

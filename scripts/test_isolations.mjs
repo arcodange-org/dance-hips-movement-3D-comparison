@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// #206 (docs/spec-isolations.md) : exercices d'isolation seul, pieds posés, sur un huit qui boucle.
-// 1. Le module pur (src/isolations.ts) : catalogue, boucle, chemins (marqué par le centre, lié sans), sens, candidats.
+// #206 (docs/spec-isolations.md) : exercices d'isolation seul, pieds posés, en boucle à trois vitesses.
+// 1. Le module pur (src/isolations.ts) : catalogue, boucle, chemins (marqué par le centre, lié sans), sens, réglages élus.
 // 2. Le vrai GLB avec applyPose : pieds posés et immobiles, seule la partie nommée bouge, sens réels, boucle fermée.
 import assert from "node:assert/strict";
 import { buildSync } from "esbuild";
@@ -9,13 +9,13 @@ import * as THREE from "three";
 import { fixture, minimumBoneY, snapshot } from "./pose_fixture.mjs";
 
 const bundle = new URL("./.test-isolations-bundle.mjs", import.meta.url);
-buildSync({ stdin: { contents: ["pose", "anatomy", "rigJoints", "isolations"].map(n => `export * from "./src/${n}";`).join("\n"),
+buildSync({ stdin: { contents: ["pose", "anatomy", "rigJoints", "isolations", "essais"].map(n => `export * from "./src/${n}";`).join("\n"),
   resolveDir: new URL("../", import.meta.url).pathname },
   bundle: true, packages: "external", platform: "node", format: "esm", outfile: bundle.pathname,
   define: { "import.meta.env.BASE_URL": '"/"' }, logLevel: "silent" });
 const api = await import(bundle.href);
 unlinkSync(bundle);
-const { ISOLATIONS, ISOLATION_IDS, ISOLATION_DEFAULT, ISOLATION_ESSAIS, ISOLATION_AMPLITUDES, ISOLATION_SPEEDS, ISOLATION_TENUE,
+const { ESSAIS, ISOLATIONS, ISOLATION_IDS, ISOLATION_DEFAULT, ISOLATION_AMPLITUDES, ISOLATION_SPEEDS, ISOLATION_TENUE,
   isolationAt, isolationPath, isolationSettings, isIsolationId, isolationBeats, isolationStages, isolationStage } = api;
 
 const STEP = 1 / 32;
@@ -23,7 +23,7 @@ const beats = (from, to, step = STEP) => { const out = []; for (let b = from; b 
 const flat = p => [p.head.nod, p.head.turn, p.head.tilt, p.chest.fore, p.chest.side, p.pelvis.fore, p.pelvis.side, p.pelvis.tilt, p.pelvis.hike, p.pelvis.turn];
 const maxDiff = (a, b) => Math.max(...a.map((x, i) => Math.abs(x - b[i])));
 const settings = (patch) => ({ ...ISOLATION_DEFAULT, ...patch });
-const VARIANTS = [["élu", ISOLATION_DEFAULT], ["huit qui tourne", settings({ huit: "tourne" })], ["miroir", settings({ miroir: true })]];
+const VARIANTS = [["élu", ISOLATION_DEFAULT], ["huit qui glisse", settings({ huit: "glisse" })], ["huit qui tourne", settings({ huit: "tourne" })], ["miroir", settings({ miroir: true })]];
 const where = { devant: [1, 0], derriere: [-1, 0], gauche: [0, 1], droite: [0, -1], centre: [0, 0] };
 const at = (id, b, s = ISOLATION_DEFAULT) => isolationAt(id, b, s);
 const isAt = (id, b, name, s) => { const p = at(id, b, s).path, [f, sd] = where[name]; return Math.abs(p.fore - f) < 1e-9 && Math.abs(p.side - sd) < 1e-9; };
@@ -45,12 +45,12 @@ const pointAt = (id, k, m) => startOf(id, k) + m * ISOLATION_SPEEDS[k];
 }
 
 {
-  // Le comportement élu ; seul le candidat du huit (question 26, sans vote) reste, inerte sans ?essai=.
-  assert.deepEqual(isolationSettings(() => false), ISOLATION_DEFAULT);
-  assert.deepEqual([...ISOLATION_ESSAIS], ["isoHuitTourne"]);
-  assert.equal(isolationSettings(e => e === "isoHuitTourne").huit, "tourne");
-  assert.equal(isolationSettings(() => false, true).miroir, true);
-  console.log("PASS candidats : seul le huit qui tourne reste à élire, inerte sans ?essai=");
+  // Le comportement élu ; plus aucun candidat à élire (le huit, dernière question, tranché le 25 novembre).
+  assert.deepEqual(isolationSettings(), ISOLATION_DEFAULT);
+  assert.equal(ISOLATION_DEFAULT.huit, "alterne");
+  assert.equal(isolationSettings(true).miroir, true);
+  assert.ok(!("isoHuitTourne" in ESSAIS) && !Object.keys(ESSAIS).some(k => k.startsWith("iso")), "aucun interrupteur d'essai des isolations");
+  console.log("PASS réglages : le comportement élu, plus aucun interrupteur d'essai");
 }
 
 {
@@ -177,8 +177,17 @@ const pointAt = (id, k, m) => startOf(id, k) + m * ISOLATION_SPEEDS[k];
   const tourne = settings({ huit: "tourne" });
   assert.ok(at("bassin-huit", 1, tourne).pelvis.turn < 0 && at("bassin-huit", 5, tourne).pelvis.turn > 0, "la hanche de devant mène");
   assert.ok(Math.abs(Math.max(...beats(0, 8, 1 / 64).map(b => Math.abs(at("bassin-huit", b, tourne).pelvis.turn))) - ISOLATION_AMPLITUDES.bassin.eightTurn) < 1e-3);
-  assert.ok(beats(0, 24, 1 / 16).every(b => at("bassin-huit", b).pelvis.turn === 0), "sans le candidat : le bassin glisse sans tourner");
-  console.log("PASS huit : centre, gauche, centre, droite aux trois vitesses ; candidat « tourne »");
+  assert.ok(beats(0, 24, 1 / 16).every(b => at("bassin-huit", b, settings({ huit: "glisse" })).pelvis.turn === 0), "qui glisse : sans tourner");
+  // Élu : il alterne, une mesure chacun, en commençant par glisser (mesures 1, 3, 5 glissent ; 2, 4, 6 tournent).
+  for (const id of ["bassin-huit", "bassin-huit-inverse"]) for (let m = 0; m < isolationBeats(id) / 4; m++) {
+    const inside = beats(4 * m, 4 * m + 4, 1 / 32).slice(1, -1);
+    const turn = inside.map(b => Math.abs(at(id, b).pelvis.turn)), same = inside.every(b => at(id, b).pelvis.turn === at(id, b, tourne).pelvis.turn);
+    if (m % 2 === 0) assert.ok(turn.every(t => t === 0), `${id} : mesure ${m + 1}, il glisse`);
+    else assert.ok(same && Math.max(...turn) > 0.5 * ISOLATION_AMPLITUDES.bassin.eightTurn, `${id} : mesure ${m + 1}, il tourne`);
+    // Chaque mesure commence au centre : rien ne tourne au passage d'une manière à l'autre.
+    assert.ok(isAt(id, 4 * m, "centre") && Math.abs(at(id, 4 * m, tourne).pelvis.turn) < 1e-12, `${id} : mesure ${m + 1}, au centre`);
+  }
+  console.log("PASS huit : centre, gauche, centre, droite aux trois vitesses ; il alterne, une mesure il glisse, une mesure il tourne");
 }
 
 {

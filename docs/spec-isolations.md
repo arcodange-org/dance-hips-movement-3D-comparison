@@ -77,6 +77,10 @@ permet plus ; les demi-cercles de la tête et de la poitrine.
   en une, puis en une demi-mesure ; le huit du bassin de même. À deux temps et à un temps par mouvement, **chaque point
   est posé puis tenu** un instant (un tiers du mouvement), puis on part vers le suivant ; **au demi-temps, le mouvement
   est fluide** : il passe par les points sans s'y arrêter (le marqué traverse le centre).
+- **Le huit alterne** : une mesure il glisse (le bassin reste face à l'avant), la mesure suivante il tourne aussi (la
+  hanche de devant mène : à gauche et devant, la hanche gauche avance), en commençant par glisser. Chaque mesure commence
+  au centre du huit : on passe de l'un à l'autre sans à-coup. À deux temps par mouvement, un huit dure deux mesures : le
+  côté gauche glisse, le côté droit tourne.
 - **La tête en arrière va moins loin** que la tête en avant (menton en haut, derrière du cercle) : un échauffement ne
   casse pas la nuque.
 
@@ -90,8 +94,7 @@ L'amplitude et la forme se sont montrées en GIF avant d'être figées ([procéd
   rapide (deux temps, un temps, un demi-temps par mouvement).
 - **Point marqué** : posé puis tenu, sauf quand la vitesse ne le permet plus ; il est alors fluide (au demi-temps).
 - **Les dix-neuf boucles conviennent** ; ajouter les demi-cercles de la tête et de la poitrine (C6, P7).
-- **Le huit du bassin** (glisse ou tourne) : pas de vote enregistré. Le huit glisse ; le candidat `?essai=isoHuitTourne`
-  reste filmable jusqu'au vote.
+- **Le huit du bassin** (glisse ou tourne), tranché le 25 novembre : **il alterne, une mesure chacun**.
 
 Les candidats du premier tour, pour mémoire :
 
@@ -143,7 +146,8 @@ danse est retiré).
   tourne, penche, rad), poitrine (glissé devant et de côté, m), bassin (glissé, bascule, hanche qui remonte, rotation).
   Fonction périodique de `isolationBeats(id)` temps (24, ou 32 pour les cercles marqués) ; `isolationStages(id)` donne
   la durée de chaque vitesse (`ISOLATION_SPEEDS` : 2, 1, ½ temps par mouvement), `isolationStage(id, temps)` la vitesse
-  jouée. Les réglages (forme du huit, miroir) sont explicites ; `isolationSettings(essais)` lit le candidat du huit.
+  jouée. Les réglages (forme du huit : `alterne` élu, `glisse` ou `tourne` seuls ; miroir) sont explicites ;
+  `isolationSettings(miroir)` rend le comportement élu.
 - `src/pose.ts` : option `isolation` de `applyPose`. Quand elle est donnée : aucun style appliqué (ni balancement, ni
   rebond, ni pas), pieds à leur place de repos, posture neutre (buste droit, genoux souples), poids moitié-moitié. Le
   bassin reçoit son glissé et ses rotations avant le solveur des jambes. **Après** le solveur, la colonne et la cage sont
@@ -182,7 +186,7 @@ tourné (comparaison) :
 | Plus grand déplacement en un huitième de temps | 3,0 cm (la poitrine en demi-cercle et le huit, au demi-temps : une vitesse, aucun saut) |
 | Boucle | la pose de la fin (24 ou 32 temps) est celle du temps 0 |
 
-Le module pur est vérifié pour le comportement élu, le huit qui tourne et le miroir : trois vitesses, boucle fermée, aucun saut (changements de vitesse et couture compris), seule
+Le module pur est vérifié pour le comportement élu, le huit qui glisse ou qui tourne seul et le miroir (le huit alterne, une mesure chacun) : trois vitesses, boucle fermée, aucun saut (changements de vitesse et couture compris), seule
 la partie nommée non nulle, marqué par le centre entre ses points et lié sans le centre aux trois vitesses, points tenus
 à deux temps et à un temps et fluides au demi-temps, sens des cercles, demi-cercles par devant, miroir.
 
