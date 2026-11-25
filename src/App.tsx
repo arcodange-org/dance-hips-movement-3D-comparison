@@ -15,6 +15,7 @@ import DemoOverlay, { DEMOS } from "./components/DemoOverlay";
 import OriginMarker from "./components/OriginMarker";
 import LineOfDance from "./components/LineOfDance";
 import { essaiEnCours } from "./essais";
+import { isIsolationId, isolationSettings } from "./isolations";
 import CompassRose from "./components/CompassRose";
 import { resolveCam, resolveView, viewAnglesOf, SOLID_TORSO_OPACITY } from "./cameras";
 import { usePersistentState } from "./hooks/usePersistentState";
@@ -87,6 +88,11 @@ export default function App() {
   const [showMuscles, setShowMuscles] = usePersistentState("showMuscles", false);
   // #176: `haut=1` shows the anatomical bones and muscles of the trunk, arms and hands (docs/spec-haut-du-corps.md).
   const upperBody = params.get("haut") === "1";
+  // #206 (docs/spec-isolations.md): `isolation=<exercice>` makes the dancer (both dancers in the comparison) do an
+  // isolation exercise, alone with planted feet; `miroir=1` swaps left and right. Ignored in pair.
+  const isolationParam = params.get("isolation");
+  const isolationAsked = isIsolationId(isolationParam)
+    ? { id: isolationParam, settings: isolationSettings(params.get("miroir") === "1") } : null;
   const [showRepere, setShowRepere] = usePersistentState("repere", true);
   const [showAppui, setShowAppui] = usePersistentState("appui", false);
   const statsRef = useRef<any>({ loadR: 0.5, loadL: 0.5, kneeR: 0, kneeL: 0, roll: 0 });
@@ -234,6 +240,7 @@ export default function App() {
   };
   const isCompare = mode === "compare";
   const isObserve = mode === "observe";
+  const isolation = isPair ? null : isolationAsked;
   const reverseB = isPair && corridinho;
   // Comparaison : la musique de A ou de B ; sinon celle du style A.
   const musicStyleKey = isCompare && musicSide === "B" ? styleB : styleA;
@@ -272,6 +279,7 @@ export default function App() {
       source: soundOn && musicSource === "synthese" && recordingOf(musicStyleKey) ? "synthese" : undefined,
       cam: params.get("cam") ?? undefined, demo: params.get("demo") ?? undefined,
       bare: params.get("bare") ?? undefined, solid: params.get("solid") ?? undefined,
+      isolation: isolation?.id, miroir: isolation && params.get("miroir") === "1" ? true : undefined,
     }, camPos, camTgt, view);
     history.replaceState(null, "", rel);
     const full = window.location.origin + rel;
@@ -426,12 +434,13 @@ export default function App() {
           corridinho={corridinho}
           torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
           iso={iso}
-          cadre={cadre}
+          cadre={cadre && !isolation}
           quarts={quarts}
           reverse={false}
           dir={dir}
           temps3={temps3}
           ida={ida}
+          isolation={isolation}
         />
         {(isCompare || isPair) && (
           <Rig
@@ -464,12 +473,13 @@ export default function App() {
             corridinho={corridinho}
             torsoOpacity={solid ? SOLID_TORSO_OPACITY : undefined}
           iso={iso}
-          cadre={cadre}
+          cadre={cadre && !isolation}
           quarts={quarts}
           reverse={reverseB}
           dir={dir}
           temps3={temps3}
           ida={ida}
+          isolation={isolation}
           />
         )}
         {isPair && showContacts && (isFiveActionFigure
@@ -516,7 +526,8 @@ export default function App() {
           </div>
         )}
         {demo && <DemoOverlay demo={demo} />}
-        {!demo && (
+        {/* #206: an isolation exercise belongs to no style: no style chip over it. */}
+        {!demo && !isolation && (
         <div className="absolute bottom-3 left-3 flex gap-2 pointer-events-none">
           <span
             className="px-2 py-0.5 rounded-md text-[11px] font-semibold text-slate-950"
@@ -527,7 +538,7 @@ export default function App() {
           </span>
         </div>
         )}
-        {!demo && (isCompare || isPair) && (
+        {!demo && !isolation && (isCompare || isPair) && (
           <div className="absolute bottom-3 right-3 pointer-events-none">
             <span
               className="px-2 py-0.5 rounded-md text-[11px] font-semibold text-slate-950"

@@ -15,7 +15,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const bundle = join(root, "scripts", ".test-features-bundle.mjs");
 esbuild.buildSync({
   stdin: {
-    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon"; export * from "../src/sortieFille"; export * from "../src/idaPaire"; export * from "../src/gait"; export * from "../src/music/patterns"; export * from "../src/music/scheduler"; export * as guidage from "../src/guidage"; export * as insertion from "../src/insertion"; export { gingaPhase } from "../src/pose"; export * from "../src/music/loop"; export * from "../src/vitrine"; export { trunkBlocksVisible } from "../src/muscles"; export * from "../src/music/recordings";',
+    contents: 'export * from "../src/styles"; export * from "../src/anatomy"; export * from "../src/cameras"; export * from "../src/share"; export * from "../src/directions"; export * from "../src/sortieGarcon"; export * from "../src/sortieFille"; export * from "../src/idaPaire"; export * from "../src/gait"; export * from "../src/music/patterns"; export * from "../src/music/scheduler"; export * as guidage from "../src/guidage"; export * as insertion from "../src/insertion"; export { gingaPhase } from "../src/pose"; export * from "../src/music/loop"; export * from "../src/vitrine"; export { trunkBlocksVisible } from "../src/muscles"; export * from "../src/music/recordings"; export * as isolations from "../src/isolations";',
     resolveDir: join(root, "scripts"),
     loader: "ts",
   },
@@ -120,8 +120,71 @@ function ampMax(travel) {
   return travel * (HIP_WIDTH / 2) * m;
 }
 
+// ---------- exercices d'isolation (#206) ----------
+const ISO_WHERE = { "devant": [1, 0], "derrière": [-1, 0], "à gauche": [0, 1], "à droite": [0, -1], "au centre": [0, 0] };
+const isoPose = (c, b) => mod.isolations.isolationAt(c.isolation, b);
+const isoParts = p => ({ cou: [p.head.nod, p.head.turn, p.head.tilt], poitrine: [p.chest.fore, p.chest.side],
+  bassin: [p.pelvis.fore, p.pelvis.side, p.pelvis.tilt, p.pelvis.hike, p.pelvis.turn] });
+
 // ---------- registre de steps ----------
 const steps = [
+  // Exercices d'isolation (#206, docs/spec-isolations.md) : src/isolations.ts.
+  [/^l'exercice "([\w-]+)"(?:, à (deux temps|un temps|un demi-temps) par mouvement)?$/, (c, m) => {
+    if (!mod.isolations.isIsolationId(m[1])) throw new Error(`exercice inconnu ${m[1]}`);
+    c.isolation = m[1];
+    const k = ["deux temps", "un temps", "un demi-temps"].indexOf(m[2] ?? "deux temps");
+    c.isoStart = mod.isolations.isolationStages(m[1]).slice(0, k).reduce((a, b) => a + b, 0);
+  }],
+  [/^(?:la tête|la poitrine|le bassin) est (.+)$/, (c, m) => {
+    for (const item of m[1].split(", ")) {
+      const hit = /^(devant|derrière|à gauche|à droite|au centre) sur (\d)$/.exec(item);
+      if (!hit) throw new Error(`position illisible : ${item}`);
+      const [fore, side] = ISO_WHERE[hit[1]], p = isoPose(c, c.isoStart + Number(hit[2]) - 1).path;
+      if (Math.abs(p.fore - fore) > 1e-9 || Math.abs(p.side - side) > 1e-9) throw new Error(`sur ${hit[2]} : devant ${p.fore.toFixed(3)}, côté ${p.side.toFixed(3)} au lieu de ${hit[1]}`);
+    }
+  }],
+  [/^(?:elle|il) ne repasse jamais par le centre$/, (c) => {
+    for (let b = 0; b <= mod.isolations.isolationBeats(c.isolation); b += 1 / 64) { const p = isoPose(c, b).path; if (Math.hypot(p.fore, p.side) < 0.999) throw new Error(`au centre au temps ${b}`); }
+  }],
+  [/^seule la partie "(cou|poitrine|bassin)" bouge$/, (c, m) => {
+    let moved = 0;
+    for (let b = 0; b <= mod.isolations.isolationBeats(c.isolation); b += 1 / 16) for (const [part, values] of Object.entries(isoParts(isoPose(c, b)))) {
+      if (part === m[1]) moved = Math.max(moved, ...values.map(Math.abs));
+      else if (values.some(v => v !== 0)) throw new Error(`${part} bouge au temps ${b}`);
+    }
+    if (moved < 0.01) throw new Error(`${m[1]} ne bouge pas`);
+  }],
+  [/^la dernière image enchaîne sur la première$/, (c) => {
+    const L = mod.isolations.isolationBeats(c.isolation), flatten = p => Object.values(isoParts(p)).flat();
+    const a = flatten(isoPose(c, 0)), z = flatten(isoPose(c, L)), near = flatten(isoPose(c, L - 1e-4));
+    if (a.some((v, i) => Math.abs(v - z[i]) > 1e-9 || Math.abs(v - near[i]) > 1e-3)) throw new Error("la boucle ne se referme pas");
+  }],
+  [/^l'exercice "([\w-]+)" joue deux temps, puis un temps, puis un demi-temps par mouvement, pendant (\d+), (\d+) et (\d+) temps$/, (c, m) => {
+    const { isolationStages, ISOLATION_SPEEDS } = mod.isolations;
+    if ([...ISOLATION_SPEEDS].join() !== "2,1,0.5") throw new Error(`vitesses ${[...ISOLATION_SPEEDS]}`);
+    const got = isolationStages(m[1]).join(", "), want = [m[2], m[3], m[4]].join(", ");
+    if (got !== want) throw new Error(`durées ${got}`);
+  }],
+  [/^la tête (tourne|penche) sans (tourner|pencher)$/, (c, m) => {
+    for (let b = 0; b <= mod.isolations.isolationBeats(c.isolation); b += 1 / 16) {
+      const h = isoPose(c, b).head, own = m[1] === "tourne" ? h.turn : h.tilt, other = m[1] === "tourne" ? h.tilt : h.turn;
+      if (other !== 0 || h.nod !== 0) throw new Error(`au temps ${b}`);
+      if (b === 0 && !(own > 0.3)) throw new Error("ne bouge pas");
+    }
+  }],
+  [/^le huit glisse dans les mesures 1, 3, 5 et tourne aussi dans les mesures 2, 4, 6$/, c => {
+    const beats = mod.isolations.isolationBeats(c.isolation);
+    if (beats !== 24) throw new Error(`boucle de ${beats} temps`);
+    for (let m = 0; m < 6; m++) {
+      let most = 0;
+      for (let b = 4 * m + 1 / 16; b < 4 * m + 4; b += 1 / 16) most = Math.max(most, Math.abs(isoPose(c, b).pelvis.turn));
+      if (m % 2 === 0 ? most !== 0 : most < 0.1) throw new Error(`mesure ${m + 1} : rotation ${most}`);
+    }
+  }],
+  [/^sans interrupteur d'essai, les réglages sont ceux élus$/, () => {
+    const got = mod.isolations.isolationSettings();
+    if (JSON.stringify(got) !== JSON.stringify(mod.isolations.ISOLATION_DEFAULT)) throw new Error(JSON.stringify(got));
+  }],
   // Page principale : scène et panneau (#192, docs/spec-page-scene-panneau.md) : src/page.ts, chargé à part (pageMod()).
   [/^le mode "(\w+)" s'affiche dans l'onglet "(\w+)"$/, (c, m) => {
     const got = pageMod().ongletOf(m[1]);
