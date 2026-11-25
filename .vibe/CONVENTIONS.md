@@ -86,8 +86,9 @@ repères de proximité poitrine/bassin/genoux en paire. Posture par style : `pos
 + `&torso=0&muscles=1&sortie=1&repere=0&appui=1&plant=0&corridinho=1&ligne=0&iso=0&cadre=0&quarts=1&temps3=1&ida=1&dir=-1&boussole=0&solid=1&bare=1`
 + `&son=1&musique=A|B` (son synthétisé #44 : `son=1` invite à cliquer sur « Son », l'audio exige un geste ;
 `musique` = musique jouée en comparaison ; voir `docs/spec-son-synthese.md`)
-+ `&isolation=<exercice>&miroir=1` (#206 : exercice d'isolation seul, pieds posés, sur un huit qui boucle ; seul et
-comparaison, ignoré en paire ; [spec](../docs/spec-isolations.md))
++ `&isolation=<exercice>&miroir=1` (#206 : exercice d'isolation seul, pieds posés, en boucle à trois vitesses ; seul et
+comparaison, ignoré en paire ; [spec](../docs/spec-isolations.md)) ; `&pointes=1` (#216 : sur la pointe des pieds ;
+`isolation=talons` : lever et baisser les talons ; [spec](../docs/spec-pointes-talons.md))
 + `&demo=<clé>&cam=default|hip|fixed|wide|diag|front|back|top&campos=x,y,z&camtgt=x,y,z&angle=45&zoom=2.5`
 (`campos/camtgt` = angle caméra exact, produit par le bouton « Partager la vue », prioritaire sur
 `cam=` ; `angle=` = azimut ° autour de la cible (0=+Z, 90=+X=E), `zoom=` = distance m, appliqués

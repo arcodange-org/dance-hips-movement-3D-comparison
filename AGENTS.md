@@ -80,6 +80,8 @@ Exercices d'isolation (#206, lot L441 de ReCoDanse) : [spec](docs/spec-isolation
 bassin), danseur seul pieds posés, seule la partie nommée bouge, en boucle (`src/isolations.ts` pur, option `isolation` de
 `applyPose`, `scripts/test_isolations.mjs`, `docs/features/isolations.feature`, films `scripts/capture_isolation_gif.mjs`) ; trois vitesses
 par boucle, amplitude moyenne, le huit qui alterne glisse et tourne, élus les 24 et 25 novembre (`docs/elections/2026-11-24-isolations/`).
+Sur la pointe des pieds et l'exercice des talons (#216) : [spec](docs/spec-pointes-talons.md) ; `pointes=1`, `isolation=talons` (talons
+levés par `heel` de la pose, pied roulé sur l'avant-pied) ; `docs/features/pointes-talons.feature` ; hauteur et rythme à élire (`?essai=talonsBas`, `talonsTenue`).
 Mode guidage (PoC #69) : [spec](docs/spec-mode-guidage-poc.md) (`src/guidage.ts` pur, `src/guidagePose.ts`,
 vue `src/components/GuidageApp.tsx`, `scripts/test_guidage.mjs`) ; recherche : [jeux vidéo](docs/recherche-jeux-video/README.md).
 

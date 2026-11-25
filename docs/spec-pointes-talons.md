@@ -31,9 +31,10 @@ Sans les nouveaux paramètres, rien ne change.
   au-dessus des chevilles, les genoux gardent leur flexion (rien ne plie ni ne se tend pour monter). « En haut sur 1 »
   : arrivé en haut sur le temps 1.
 - **Les genoux gardent la flexion minimale** de toutes les danses (règle R43, #203).
-- **Le pied du squelette est d'un seul bloc** (pas d'articulation des orteils). Jusqu'à mi-hauteur il se tient sur son
-  avant-pied ; plus haut, il tiendrait sur le bout des orteils, comme une pointe de ballet. Monter plus haut demande des
-  orteils qui plient : hors de ce lot.
+- **Le pied du squelette est d'un seul bloc** (pas d'articulation des orteils) : talon levé, il tient sur le bout des
+  orteils, l'avant-pied un peu au-dessus du sol (1 cm un peu, 2 cm à mi-hauteur). C'est peu visible jusqu'à
+  mi-hauteur ; plus haut, on verrait une pointe de ballet. Monter plus haut demande des orteils qui plient : hors de ce
+  lot. L'avant-pied reste immobile à l'horizontale.
 
 ## À élire (procédure des élections, films avant de figer)
 
@@ -67,3 +68,14 @@ Hauteurs du modèle (mesures de spec, jamais montrées au danseur), sur le pied 
   bouge (sur pointes), le corps monte d'un bloc avec les chevilles (talons), boucle fermée, aucun saut.
 - `docs/features/pointes-talons.feature` (Gherkin, dans `npm test`).
 - Films : `docs/elections/2026-11-25-pointes-talons/`.
+
+## Résultat mesuré (25 novembre 2026)
+
+`node scripts/test_isolations.mjs`, danseur seul et danseur décalé et tourné (comparaison), à mi-hauteur :
+
+| Mesure | Résultat |
+|---|---|
+| Avant-pieds (à l'horizontale) | immobiles à moins de 0,1 mm ; semelles posées ; os au-dessus du sol |
+| Sur la pointe des pieds | chaque exercice monté d'un bloc de 6,5 cm (bassin, cage, tête : même place, même orientation qu'à plat, écart de moins de 0,1 mm sur la boucle) ; talons à 9 cm du sol |
+| Exercice des talons | le corps monte de 6,5 cm d'un bloc, sans glisser ni tourner ; à plat, le bassin revient à sa place (moins de 1 mm) ; au plus 2,6 cm en un huitième de temps (le demi-temps) |
+| Boucle | la pose de la fin (24 temps) est celle du temps 0 |
