@@ -89,7 +89,9 @@ for (const styleKey of ['kizomba', 'semba']) for (const name of Object.keys(api.
   // Step aside: the foot that receives the weight on 1 (left) and on 3 (right) has moved by `ecart`, and is flat
   // on the floor half a beat before; the dancer is back where he started every four beats.
   assert.ok(Math.abs(at(0).x.L - at(3).x.L - step.ecart) < 1e-9 && Math.abs(at(1).x.R - at(2).x.R - step.ecart) < 1e-9, `${tag}: each foot steps aside by ${step.ecart} m`);
-  for (const [clock, side] of [[3.5, 'L'], [1.5, 'R']]) assert.ok(!at(clock).feet[side].air && at(clock).feet[side].lift === 0, `${tag}: the stepping foot has landed half a beat before its beat`);
+  // #209: when it lands is the gesture's (`UM_DOIS_GESTURE`; half a beat before its beat today).
+  const land = api.UM_DOIS_GESTURE.v.land, landed = Math.ceil(land * STEPS - 1e-9) / STEPS;
+  for (const [clock, side] of [[3 + landed, 'L'], [1 + landed, 'R']]) assert.ok(!at(clock).feet[side].air && at(clock).feet[side].lift === 0, `${tag}: the stepping foot has landed ${(1 - land).toFixed(2)} beat before its beat`);
   for (const j of JOINTS) assert.ok(pose(styleKey, 0.7).joints[j].distanceTo(pose(styleKey, 4.7).joints[j]) < 1e-9 && pose(styleKey, 2.2).joints[j].distanceTo(pose(styleKey, 10.2).joints[j]) < 1e-9, `${tag}: the same pose every four beats`);
   let lowest = Infinity, missed = 0, movedLoaded = 0, closest = Infinity, bone = 0;
   samples.forEach((s, i) => {
