@@ -11,9 +11,11 @@ Issue : #210. Figures : [ida e volta en paire](spec-ida-paire.md) (#54, #107) et
   d'avant le vote).
 - **Les allers-retours s'enchaînent sans que le ginga s'arrête** : les hanches chaloupent d'un aller-retour à l'autre.
   Par défaut (`IDA_GINGA_FLOW`) ; `?idaGinga=tenu` remet le modèle d'avant. Voir [Ginga continu](#ginga-continu).
-- **Contraposition de 20°** entre le bassin et le buste : prototype `?idaContra=<degrés>`, pas par défaut. Le plafond
-  de 18° du buste contre le bassin (règle « danseurs, pas lutteurs », `scripts/test_plexus.mjs`) l'interdit dans toute
-  figure en paire. Voir [Contraposition](#contraposition-20-prototype) : chiffres et question au propriétaire.
+- **Le bassin ne s'arrête jamais** : pas de pose tenue sur les temps ; son trajet est continu en vitesse sur tout le
+  cycle. Voir [Bassin continu](#bassin-continu-pas-de-pose-tenue-sur-les-temps).
+- **Contraposition** : pas de contraposition ajoutée. Le buste reste à 18° au plus du bassin dans toute figure en paire
+  (règle « danseurs, pas lutteurs », `scripts/test_plexus.mjs`), décision du 25 novembre. Voir
+  [Contraposition](#contraposition-le-plafond-de-18-reste).
 
 ### Ginga continu
 
@@ -35,7 +37,8 @@ Les hanches chaloupent donc aussi quand un pied est en l'air. Ce pied plie le ge
 | enregistré avant #210 (tout le poids, ginga tenu) | 1,0 / 3,5 cm | 1,2 / 4,2 cm |
 | 75 %, ginga tenu | 1,3 / 2,7 cm | 1,6 / 3,5 cm |
 | 75 %, ginga continu, pied qui soulève le bassin | 1,9 / 2,9 cm | 1,8 / 3,0 cm |
-| **75 %, ginga continu, pied qui plie le genou (par défaut)** | **0,7 / 2,9 cm** | **1,1 / 3,0 cm** |
+| 75 %, ginga continu, pied qui plie le genou | 0,7 / 2,9 cm | 1,1 / 3,0 cm |
+| **par défaut : en plus, le bassin ne s'arrête jamais** | **1,0 / 2,0 cm** | **1,2 / 2,4 cm** |
 
 Mesures (`scripts/mesure_ida_ginga.mjs`, vue de l'app : quinconce, contact des plexus, contraposition 1 ; « hanches
 immobiles » : le bassin va de côté à moins de 1 cm par temps) :
@@ -47,31 +50,50 @@ immobiles » : le bassin va de côté à moins de 1 cm par temps) :
 
 Ce qui reste immobile est le haut de chaque balancement, là où la hanche change de sens.
 
-### Contraposition (20°, prototype)
+### Bassin continu (pas de pose tenue sur les temps)
+
+Le ginga continu ne suffisait pas : sur les films, le couple marquait encore un arrêt entre chaque pas. Mesuré sur le
+GLB (`scripts/mesure_vitesse_bassin_ida.mjs`, vue en paire de l'app, tous les 1/50 de temps, centre du bassin et sa
+rotation) : à chaque temps pair, le bassin était **à l'arrêt complet, 0 cm et 0° par temps**, de 1,85 à 2,1 de chaque
+créneau, et sous 0,6 cm par temps à chaque temps impair. Trois mouvements s'arrêtaient ensemble : l'avancée du bassin
+avec le poids (aller jusqu'au temps, retour à 1,5, tenue jusqu'au créneau suivant), le pivot sur la hanche d'appui (#84,
+calé sur le pied, tenu tant que les deux pieds sont posés) et le ginga (qui change de sens sur le temps).
+
+Maintenant l'avancée et le pivot suivent des courbes périodiques sur tout le cycle (`src/idaPaire.ts`, `IDA_FLOW`) :
+l'avancée va et vient comme les pas du guideur (avant, arrière, avant, arrière : 4 temps), le pivot tourne vers le pied
+qui bouge (G puis D : 8 temps). Elles repassent par la position neutre aux frontières des créneaux sans s'y arrêter,
+et atteignent leur plus loin environ un tiers de temps après le poids (`idaFlowBeat`, `lag` 0,4) : la hanche finit le
+transfert pendant que le ginga change de sens sur le temps, si bien que les trois ne s'arrêtent plus ensemble. Vu de
+dessus, le bassin dessine des boucles qui se croisent au centre au lieu d'aller-retours en ligne
+([tracé](elections/ida-poids/chemin-du-bassin.png), `scripts/tracer_bassin_ida.mjs`).
+
+Un aller-retour inséré dans une autre figure (#144) garde le trajet de son propre créneau, qui part et revient à la
+position neutre (`sampleIdaPaire(…, slot)`). Dans le créneau de la virgula (#128), le pivot revient à celui du créneau :
+la virgula ouvre elle-même le bassin, et le buste, qui regarde la partenaire, doit garder sa direction à 1° près.
+
+Vitesse du centre du bassin, au plus bas sur le cycle (cm par temps ; entre parenthèses, la rotation au plus bas, en
+degrés par temps) :
+
+| | kizomba | semba | kompa | tarraxinha | suave | zouk |
+|---|---|---|---|---|---|---|
+| ginga tenu (avant #210) | 0 (0) | 0 (0) | 0 (0,8) | 0 (0) | 0,5 (0) | 0 (0) |
+| ginga continu, films du 25 novembre | 0 (0), temps 2 | 0 (0), temps 2 | 0 (0,8) | 0 (0), temps 2 | 0,6 (0), temps 1 | 0,05 (0), temps 2 |
+| **par défaut** | **3,9 (3,2)** | **2,4 (3,2)** | **1,4 (0,1)** | **1,5 (1,7)** | **5,3 (3,5)** | **3,1 (0,6)** |
+
+Garde dans `npm test` (`scripts/test_ida_paire.mjs`) : dans cette vue, six styles, les deux danseurs, deux cycles depuis
+le début, tous les 1/50 de temps, le centre du bassin va à **1 cm par temps au moins**. En dessous, un film à
+12 images par seconde (90 bpm : 8 images par temps) déplace le bassin d'à peu près un millimètre par image : à l'œil,
+une pose tenue. La garde échoue sur la version filmée le 25 novembre (0,00 cm par temps, semba, guideur, temps 2) et
+passe maintenant (1,5 cm par temps au plus bas).
+
+### Contraposition : le plafond de 18° reste
 
 En couple, avec le contact des plexus, le buste regarde le partenaire et le bassin suit les pieds ; le bassin pivote
 sur la hanche d'appui (#84) d'environ **10°** au bout du pas. En quinconce le partenaire est décalé de côté : au repos
-le buste est déjà tourné de **12,7°** contre le bassin pour le regarder. Le contact des plexus laisse au buste au plus
-17,2° (`PLEXUS.facing`) contre le bassin ; au-delà, le buste suit le bassin.
-
-`?idaContra=20` fait pivoter le bassin de 20° vers le pied qui bouge au bout du pas (toujours sur la hanche d'appui),
-le buste gardant le partenaire (la figure lui laisse 20° de plus, `facingRoom`). Mesures, six styles, guideur et
-suiveuse (`IDA_CONTRA=20 node scripts/mesure_ida_ginga.mjs`, `PLACEMENT=reference` pour les pieds face à face) :
-
-| | Bassin, au plus | Buste contre bassin, quinconce | Buste contre bassin, pieds face à face | Os croisés |
-|---|---|---|---|---|
-| par défaut | 9 à 11° | 17,2 à 17,7° | 9,2 à 9,3° | 0 |
-| `idaContra=20` | 20 à 22° | 32,7 à 33,5° | 20,1° | 4 (kompa) |
-| plafond de `test_plexus` | | **18°** | **18°** | |
-
-Os croisés : `scripts/sonde_croisements_couple.mjs ida` (`IDA_CONTRA=20`), l'ida e volta et ses variantes de marche,
-six styles, quinconce, référence et plexus : 0 sur 8 721 poses par défaut ; 4 avec `idaContra=20`, en kompa, au temps
-3,375 (fémur G du guideur contre tibia D de la suiveuse, quinconce, amplitudes 0,5 et 1) : à régler si les 20° sont
-retenus.
-
-Le plafond de 18° vaut pour toutes les figures en paire. En quinconce le buste en est déjà à 17,3° : aucune
-contraposition de plus n'y tient. Les 20° demandent que le propriétaire tranche : relever le plafond pour l'ida e volta
-(33° en quinconce), ou garder 18° (pas de contraposition en plus). Films : [dossier](elections/ida-poids/README.md).
+le buste est déjà tourné de **12,7°** contre le bassin pour le regarder, et il atteint 17,3° pendant l'ida. Une
+contraposition de 20° (bassin tourné de 20°, essai filmé le 25 novembre) le mettait à 32,8° du bassin en quinconce et
+croisait les os des jambes en kompa. Décision du 25 novembre : le plafond de 18° de `test_plexus` reste, aucune
+contraposition n'est ajoutée ; l'essai est retiré.
 
 ## Avant le vote
 

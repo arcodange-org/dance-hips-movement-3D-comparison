@@ -22,7 +22,7 @@ import { usePersistentState } from "./hooks/usePersistentState";
 import { STYLES, movementOf, movementFlags, movementAllowed, travelAllowed, PAIR_DZ, setKompaProto, setSembaProto, setUmDoisProto, type ModeKey, type MovementKey } from "./styles";
 import { setKneeFloor } from "./pose";
 import { QUARTS_PAIR_DZ } from "./quartsPaire";
-import { IDA_PAIR_DZ, setIdaWeightProto, setIdaGingaFlow, setIdaContraProto } from "./idaPaire";
+import { IDA_PAIR_DZ, setIdaWeightProto, setIdaGingaFlow } from "./idaPaire";
 import { PLACE_PAIR_DZ } from "./placePaire";
 import { parseVec3, buildShareUrl } from "./share";
 import { parseShareParams } from "./shareParams";
@@ -46,10 +46,8 @@ setKneeFloor(readParams().get("flexion"));
 // #210 (docs/spec-ida-poids.md): three quarters of the weight on the foot that goes out in the ida e volta (elected on
 // 25 Nov.); `?idaPoids=entier|peu|moitie` shows the other candidates.
 setIdaWeightProto(readParams().get("idaPoids"));
-// #210: `?idaGinga=tenu` holds the ginga between two go-and-returns (the model before the vote of 25 Nov.);
-// `?idaContra=<degrees>` (prototype) turns the pelvis that far against the chest.
+// #210: `?idaGinga=tenu` holds the ginga between two go-and-returns (the model before the vote of 25 Nov.).
 setIdaGingaFlow(readParams().get("idaGinga"));
-setIdaContraProto(readParams().get("idaContra"));
 
 function Gauge({ label, color, hud }: { label: string; color: string; hud: any }) {
   return (

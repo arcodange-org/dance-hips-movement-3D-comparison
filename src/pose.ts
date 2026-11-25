@@ -834,9 +834,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   // #51: with plexus contact the chest turns towards the partner (contraposition share) instead of
   // the figure's own chest yaw; the lean towards the partner is applied once the frame is set.
   const facing = partnerRoot ? Math.atan2(partnerRoot.x - r.root.position.x, partnerRoot.z - r.root.position.z) : 0;
-  // #210 (prototype `?idaContra=`): a figure may leave the chest more room to hold the partner (`facingRoom`, rad).
-  const facingCap = PLEXUS.facing + ((figure as { facingRoom?: number } | null)?.facingRoom ?? 0);
-  if (figure && partnerRoot) r.chest.rotation.y += o.contraposition * Math.max(-facingCap, Math.min(facingCap, angleDelta(r.root.rotation.y, facing)));
+  if (figure && partnerRoot) r.chest.rotation.y += o.contraposition * Math.max(-PLEXUS.facing, Math.min(PLEXUS.facing, angleDelta(r.root.rotation.y, facing)));
   else if (figure) r.chest.rotation.y += figure.chestYaw;
   if (o.quarts && !figure) {
     const qs = quartTurnStep(beat, o.reverse);

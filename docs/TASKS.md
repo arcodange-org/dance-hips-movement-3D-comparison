@@ -533,6 +533,7 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Après le vote (C, 75 %) : la part élue par défaut (appuis, bassin, ginga), tests repris, allers-retours insérés
   vérifiés (#144), R27 complétée, saccades.
 - [x] Ginga continu par défaut (`idaGingaWindows`, `?idaGinga=tenu` pour l'ancien) ; mesures `scripts/mesure_ida_ginga.mjs`.
-- [x] Contraposition de 20° en prototype (`?idaContra=20`), mesurée (32,8° du buste contre le bassin en quinconce, 4 poses
-  d'os croisés en kompa) et filmée du côté du guideur ([dossier](elections/ida-poids/README.md)).
-- [ ] Contraposition de 20° : le propriétaire tranche le plafond de 18° (`test_plexus`) pour l'ida e volta.
+- [x] Contraposition : le plafond de 18° reste (décision du 25 novembre), l'essai à 20° est retiré.
+- [x] Bassin continu en vitesse sur tout le cycle (`IDA_FLOW`, `idaFlowBeat`) ; garde dans `test_ida_paire` (1 cm par
+  temps au moins) ; mesures `scripts/mesure_vitesse_bassin_ida.mjs`, tracé `scripts/tracer_bassin_ida.mjs` ; films avant /
+  après ([dossier](elections/ida-poids/README.md)).

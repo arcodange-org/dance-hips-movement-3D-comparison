@@ -35,27 +35,30 @@ quinconce, référence et plexus.
 **Élu le 25 novembre : C**, trois quarts du poids, par défaut depuis. Deux demandes jointes : enchaîner les
 allers-retours sans arrêter le ginga, et 20° de contraposition entre le bassin et le buste.
 
-## Après le vote : ginga continu et contraposition de 20°
+## Après le vote : le bassin ne s'arrête plus
 
-De gauche à droite : avant (ginga tenu entre deux allers-retours, `?idaGinga=tenu`), par défaut (ginga continu),
-essai (contraposition de 20°, `?idaContra=20`). Trois quarts du poids dans les trois. Kizomba, 90 bpm, un cycle de
-8 temps : G en avant, G en arrière, D en avant, D en arrière. Muscles affichés.
+Décision du 25 novembre sur la contraposition : le buste reste à 18° au plus du bassin, aucune contraposition n'est
+ajoutée (l'essai à 20° est retiré). Le ginga continu filmé ce jour-là laissait encore voir un arrêt entre chaque pas :
+mesuré, le bassin était à l'arrêt complet à chaque temps pair. Le trajet est maintenant continu en vitesse sur tout le
+cycle ([spec](../../spec-ida-poids.md#bassin-continu-pas-de-pose-tenue-sur-les-temps)).
+
+De gauche à droite : avant (la version filmée le 25 novembre), après. Trois quarts du poids dans les deux. Kizomba,
+90 bpm, un cycle de 8 temps : G en avant, G en arrière, D en avant, D en arrière. Muscles affichés.
 
 Vu de derrière le guideur :
 
-![Vu de derrière le guideur](ginga-contra-guideur.gif)
+![Vu de derrière le guideur](continu-guideur.gif)
 
 Vu d'au-dessus, derrière le guideur :
 
-![Vu d'au-dessus](ginga-contra-dessus.gif)
+![Vu d'au-dessus](continu-dessus.gif)
 
-| | Hanches immobiles (part du cycle, au plus d'affilée) | Bassin, au plus | Buste contre bassin (quinconce) | Os croisés |
-|---|---|---|---|---|
-| avant | 77 à 81 %, 1,6 temps | 10° | 17,3° | 0 |
-| par défaut | 27 à 38 %, 0,5 temps | 10° | 17,3° | 0 |
-| essai 20° | 27 à 38 %, 0,5 temps | 21° | 32,8° | 4 (kompa) |
+Le chemin du bassin, vu de dessus et de face, coloré par sa vitesse (un disque rouge où il va à moins de 1 cm par
+temps) :
 
-Mesures : [spec](../../spec-ida-poids.md#ginga-continu). Le ginga continu est le comportement par défaut. La
-contraposition de 20° n'est pas activée : toute figure en paire garde le buste à 18° au plus du bassin (règle
-« danseurs, pas lutteurs »), et en quinconce le buste en est déjà à 17,3° parce qu'il regarde la partenaire, décalée
-de côté. **À trancher** : relever ce plafond pour l'ida e volta (33° en quinconce), ou le garder.
+![Chemin du bassin, avant et après](chemin-du-bassin.png)
+
+| | Vitesse du bassin au plus bas (kizomba) | Six styles |
+|---|---|---|
+| avant | 0 cm par temps, aux temps 2 et 6 (et sous 0,6 aux temps impairs) | 0 à 0,6 |
+| après | 3,9 cm par temps (guideur), 4,4 (suiveuse) | 1,4 à 6,7 |

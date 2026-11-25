@@ -104,7 +104,7 @@ export function sampleTouched<S extends TouchHostSample>(host: (beat: number) =>
   const held = host(hostBeat);
   const o = placementOffset(placement);
   const variant: IdaVariant = { side: touch.side, back: touch.back, ...(touch.virgula ? { virgula: true } : {}) };
-  const ida = sampleIdaPaire(t, follower, rest, o, stance, variant), start = sampleIdaPaire(0, follower, rest, o, stance, variant);
+  const ida = sampleIdaPaire(t, follower, rest, o, stance, variant, true), start = sampleIdaPaire(0, follower, rest, o, stance, variant, true);
   const neutral = idaNeutral(rest, o, stance);
   const feet = {} as Record<FigureFoot, FigureFootPose>;
   // #91: her D stands edge to edge with his D at the sortie garçon's position 2 (R9): during the touch it

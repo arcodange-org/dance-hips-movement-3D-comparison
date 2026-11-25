@@ -25,7 +25,7 @@ Modules des figures en paire : [sortie garçon](docs/spec-sortie-garcon.md) (`sr
 (`src/enchainement.ts`, `scripts/test_enchainement.mjs`), [ida inséré dans les sorties](docs/spec-insertion-ida.md)
 (`src/insertion.ts`, `scripts/test_insertion.mjs`), [ida e volta à tout pas qui avance ou recule](docs/spec-ida-partout.md)
 (#144, R27 : `sampleTouched`, table `TOUCH_POSITIONS` des positions validées sur le GLB, `scripts/test_touches.mjs` ;
-un segment du mode jeu porte ses allers-retours, il n'y a plus de figure « sortie avec ida »). Poids de l'ida (#210, [spec](docs/spec-ida-poids.md)) : trois quarts sur le pied sorti, ginga continu (`IDA_WEIGHT_ELECTED`, `idaGingaWindows`), contraposition de 20° en prototype (`?idaContra=`) ; mesures `scripts/mesure_ida_ginga.mjs`. Marche des pas de figure, fin en quinconce et plexus :
+un segment du mode jeu porte ses allers-retours, il n'y a plus de figure « sortie avec ida »). Poids de l'ida (#210, [spec](docs/spec-ida-poids.md)) : trois quarts sur le pied sorti, ginga continu et bassin qui ne s'arrête jamais (`IDA_WEIGHT_ELECTED`, `idaGingaWindows`, `IDA_FLOW` ; garde de vitesse dans `test_ida_paire`) ; mesures `scripts/mesure_ida_ginga.mjs`, `scripts/mesure_vitesse_bassin_ida.mjs`, tracé `scripts/tracer_bassin_ida.mjs`. Marche des pas de figure, fin en quinconce et plexus :
 [spec](docs/spec-marche-naturelle.md) (`src/gait.ts`, `scripts/test_plexus.mjs`). Le combiné `sortieGF` reste historique. Virgula du leader
 (pied G posé perpendiculaire, #127) : premier pas de la sortie fille crochet, sonde de calibrage `scripts/search_virgula.mjs` ; en option dans
 l'ida e volta en paire (#128, `virgula=1`, `scripts/test_ida_virgula.mjs`). Oracle :

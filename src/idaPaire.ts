@@ -72,19 +72,23 @@ export const setIdaWeightProto = (name?: string | null) => {
  * game mode, scripts/test_saccades.mjs: 1.9 cm within an eighth of a beat, 0.7 cm with it).
  * `v` 0 (`?idaGinga=tenu`): the model before, the swing within the transfer itself, held on the support in between. */
 export const IDA_GINGA_FLOW = { v: 1 };
-export const setIdaGingaFlow = (name?: string | null) => { IDA_GINGA_FLOW.v = name === "tenu" ? 0 : 1; };
 
-/** #210 (owner, 25 Nov. 2026): « ajouter de la contraposition (20°) ». Prototype to elect on film
- * (`?idaContra=<degrees>`, docs/spec-ida-poids.md): the pelvis turns that far towards the moving foot at the end of
- * its step (the #84 pivot about the standing hip, about 10° today), the chest still facing the partner; the plexus
- * contact lets the chest hold the partner that far from the pelvis (`facingCap`). 0: today's pivot. Not the
- * default: the rule « dancers, not wrestlers » (scripts/test_plexus.mjs) keeps the chest within 18° of the pelvis
- * in every pair figure. */
-export const IDA_CONTRA_PROTO = { degrees: 0 };
-export const setIdaContraProto = (value?: string | null) => {
-  const d = Number(value);
-  IDA_CONTRA_PROTO.degrees = value && Number.isFinite(d) && d > 0 && d <= 45 ? d : 0;
-};
+/** #210 (owner, 25 Nov. 2026: no pose held on the beats; the pelvis draws an 8, the hip carries the step and finishes
+ * the weight transfer). With the ginga flowing, the pelvis's travel forward and back and its pivot about the standing
+ * hip are periodic curves over the whole cycle instead of one go and return per slot held in between (measured on the
+ * GLB, scripts/mesure_vitesse_bassin_ida.mjs: the pelvis stood still, 0 cm and 0° per beat, at every even beat, and
+ * under 0.6 cm per beat on every odd one). They pass the neutral stance at the slot boundaries without stopping there,
+ * and reach their furthest `lag` after the weight arrives (`idaFlowBeat`): there the ginga turns back on its own
+ * beat while the pelvis still travels, so the three never stop together. */
+export const IDA_FLOW = { lag: 0.4 };
+/** #210: the cycle's beat warped so that the slot boundaries stay where they are and the middle of each slot (the
+ * weight's beat) comes `IDA_FLOW.lag` later (about 0.3 beat for a lag of 0.4); always increasing. */
+export const idaFlowBeat = (b: number) => b - IDA_FLOW.lag * Math.sin(Math.PI * b / 2) ** 2;
+/** #210: the pivot's curve over the flowing cycle (towards the moving foot: L forward, L back, R forward, R back),
+ * scaled so that its furthest is 1, as far as the moving hip went with the foot before. */
+const pivotWave = (u: number) => Math.sin(Math.PI * u / 2) * Math.cos(Math.PI * (u - 2) / 4);
+const PIVOT_PEAK = Math.max(...Array.from({ length: 801 }, (_, k) => Math.abs(pivotWave(k / 100))));
+export const setIdaGingaFlow = (name?: string | null) => { IDA_GINGA_FLOW.v = name === "tenu" ? 0 : 1; };
 
 /** #88: the follower never leaves before the leader. On an outgoing step both moving feet leave at
  * `start` (beats into the slot); her backward foot lands `backFlight` later, clearing the lane before his
@@ -233,7 +237,10 @@ function idaFeet(b: number, follower: boolean, neutral: ReturnType<typeof idaNeu
 }
 
 export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<FigureFoot, FootPoint>,
-  placement: CouplePlacement | "reference" | PlacementOffset = "reference", stance = 0, variant: IdaVariant = IDA_DEFAULT) {
+  placement: CouplePlacement | "reference" | PlacementOffset = "reference", stance = 0, variant: IdaVariant = IDA_DEFAULT,
+  /** #210: a single go-and-return inserted in another figure (#144, src/insertion.ts) keeps the pelvis path of its own
+   * slot, which starts and ends at the neutral stance. */
+  slot = false) {
   const styleOffset = (variant.side === "R" ? 4 : 0) + (variant.back ? 2 : 0);
   const b = (Number.isFinite(beat) ? beat : 0) + styleOffset;
   const o = placementOffset(placement);
@@ -250,11 +257,15 @@ export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<Fig
   const hipSpan = Math.max(0.05, neutral.L.x - neutral.R.x);
   const lead = idaFeet(b, false, neutral);
   const leadOffset = lead.feet[lead.moving].z - neutral[lead.moving].z;
-  // #210 (prototype `?idaContra=`): the pivot reaches that many degrees at the end of the leader's step, still
-  // about the standing hip.
-  const contra = IDA_CONTRA_PROTO.degrees > 0 ? (IDA_CONTRA_PROTO.degrees * Math.PI / 180) / (IDA_PAIR.hip * IDA_PAIR.step / hipSpan) : 1;
-  const hip = contra * IDA_PAIR.hip * (follower ? -leadOffset : leadOffset);
-  const pivot = (moving === "L" ? -1 : 1) * hip / hipSpan;
+  const flowing = IDA_GINGA_FLOW.v > 0 && !slot, u = idaFlowBeat(b);
+  // #210: with the ginga flowing, the moving hip's advance and the pivot follow the leader's steps over the whole cycle
+  // (forward, back, forward, back: a period of 4 beats; the pivot turns towards the moving foot: L, then R).
+  const slotHip = IDA_PAIR.hip * (follower ? -leadOffset : leadOffset), slotPivot = (moving === "L" ? -1 : 1) * slotHip / hipSpan;
+  // #128: the virgula opens the pelvis itself; there the pivot goes back to its own slot's (the chest, facing the
+  // partner, keeps its direction within 1°: measured on the GLB, the flowing pivot added to the opening turned it 3°).
+  const own = smooth(Math.max(opening, out));
+  const hip = flowing ? IDA_PAIR.hip * IDA_PAIR.step * (follower ? -1 : 1) * Math.sin(Math.PI * u / 2) : slotHip;
+  const pivot = flowing ? -IDA_PAIR.hip * IDA_PAIR.step / hipSpan * pivotWave(u) / PIVOT_PEAK * (1 - own) + slotPivot * own : slotPivot;
   // #128: the pelvis opens to his left with the virgula; the chest keeps its own direction (`upper`).
   const lower = pivot + IDA_VIRGULA.pelvis * opening;
   // #167: the pelvis goes out through the whole outgoing step (from the moment the foot leaves to the beat
@@ -263,7 +274,9 @@ export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<Fig
   const through = smooth((now.q - IDA_PAIR.out[0]) / (w.on[1] - IDA_PAIR.out[0])) * (1 - smooth((now.q - w.back[0]) / (IDA_PAIR.pelvisBack - w.back[0])));
   // #210: the pelvis goes as far as the weight does (today's way for the whole weight).
   const carry = IDA_PAIR.carry * IDA_WEIGHT_PROTO.v.share;
-  const root = { x: neutral.root.x, z: neutral.root.z + forward * carry * IDA_PAIR.step * through + hip / 2 };
+  // #210: flowing, the pelvis's travel with the weight follows the same periodic curve as the hip's advance.
+  const travel = flowing ? (follower ? -1 : 1) * carry * IDA_PAIR.step * Math.sin(Math.PI * u / 2) : forward * carry * IDA_PAIR.step * through;
+  const root = { x: neutral.root.x, z: neutral.root.z + travel + hip / 2 };
   // Phase 15 contraposition of the chest, on the dancer's own moving foot (the follower mirrors the
   // leader). The leader's upper body leads by IDA_LEAD.
   const sign = follower ? -1 : 1;
@@ -284,8 +297,6 @@ export function sampleIdaPaire(beat: number, follower: boolean, rest: Record<Fig
     loadR, loadL: 1 - loadR, support: (loadR >= 0.5 ? "R" : "L") as FigureFoot, transfer, cyclic: true as const,
     coupling: IDA_GINGA.mode === "own" ? 0 : IDA_PAIR.coupling * Math.min(1, Math.hypot(o.x, o.z) / 0.05),
     kneeCap: IDA_PAIR.kneeCap, rotationCap: IDA_PAIR.rotationCap, dip: IDA_PAIR.dip, sway: IDA_PAIR.sway,
-    // #210 (prototype): with the plexus contact the chest holds the partner that much further from the pelvis.
-    ...(IDA_CONTRA_PROTO.degrees > 0 ? { facingRoom: IDA_CONTRA_PROTO.degrees * Math.PI / 180 } : {}),
     // #163: the ida e volta takes the bounce of the largest setting, except around its cycle beat 5.
     gingaCap: { sway: 1, bounce: IDA_GINGA_BOUNCE.cap },
     gingaCapRoom: { sway: 1, bounce: 1 - smooth((p - W[0]) / (W[1] - W[0])) * (1 - smooth((p - W[2]) / (W[3] - W[2]))) } };

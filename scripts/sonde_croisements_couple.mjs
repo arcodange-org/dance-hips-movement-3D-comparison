@@ -28,9 +28,8 @@ await build({ stdin: { contents: ['pose', 'anatomy', 'styles', 'rigJoints', 'pla
 const api = await import(bundle.href); unlinkSync(bundle);
 // #210: IDA_POIDS=<candidat> probes a candidate share of the weight in the ida e volta (`?idaPoids=` in the app).
 if (process.env.IDA_POIDS) api.setIdaWeightProto(process.env.IDA_POIDS);
-// #210: IDA_GINGA=tenu holds the ginga between two go-and-returns; IDA_CONTRA=<degrees> probes the contraposition.
+// #210: IDA_GINGA=tenu holds the ginga between two go-and-returns (the model before).
 if (process.env.IDA_GINGA) api.setIdaGingaFlow(process.env.IDA_GINGA);
-if (process.env.IDA_CONTRA) api.setIdaContraProto(process.env.IDA_CONTRA);
 const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : null;
 const styles = m => Object.keys(api.STYLES).filter(k => api.movementAllowed(k, m));
 const range = (from, to, step) => Array.from({ length: Math.round((to - from) / step) + 1 }, (_, i) => from + i * step);

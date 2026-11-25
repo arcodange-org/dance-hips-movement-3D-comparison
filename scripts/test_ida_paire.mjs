@@ -105,7 +105,16 @@ console.log('PASS neutre : quinconce (ou placement) retrouvé aux temps 0, 4 et 
       const leadOffset = lead.feet[lead.moving].z - api.sampleIdaPaire(0, false, rest, 'quinconce').feet[lead.moving].z;
       // Advance of the moving hip over the standing one, in the dancer's own frame (z forward).
       const ahead = (x.moving === 'L' ? -1 : 1) * span * Math.sin(x.rootYaw);
-      near(ahead, api.IDA_PAIR.hip * (follower ? -leadOffset : leadOffset), 2e-3, `#84 moving hip ahead at ${b} (${follower ? 'follower' : 'leader'})`);
+      // #210: flowing, the advance follows the leader's steps over the whole cycle: the moving hip goes the way the
+      // dancer's moving foot goes while the weight is on it (beats 0.8 to 1.4 of each slot), never further than `hip`
+      // times the step, and the pelvis is square at each slot boundary.
+      const { q, dir } = api.idaStepAt(b), way = follower ? -dir : dir;
+      if (q >= 0.8 && q <= 1.4) assert(ahead * way > 0.005, `#84 moving hip ahead at ${b} (${follower ? 'follower' : 'leader'}): ${ahead}`);
+      assert(Math.abs(ahead) <= api.IDA_PAIR.hip * S + 1e-3, `#84 the moving hip leads by at most hip·step at ${b}`);
+      if (tick % 200 === 0) near(x.rootYaw, 0, 1e-9, `#210 square pelvis at the slot boundary ${b}`);
+      // The single go-and-return inserted in another figure (#144) keeps its own slot's path: the hip follows the foot.
+      const one = api.sampleIdaPaire(b, follower, rest, 'quinconce', 0, api.IDA_DEFAULT, true);
+      near((one.moving === 'L' ? -1 : 1) * span * Math.sin(one.rootYaw), api.IDA_PAIR.hip * (follower ? -leadOffset : leadOffset), 2e-3, `#84 inserted: moving hip ahead at ${b}`);
       near(x.kneeYaw, api.IDA_PAIR.kneeFoot * x.rootYaw, 1e-12, `#84 knees do not follow the pivot at ${b}`);
       peak = Math.max(peak, Math.abs(ahead));
     }
@@ -333,3 +342,34 @@ console.log('PASS', collisionPoses, 'poses de couple : aucun croisement des os d
 const url = new URL(api.buildShareUrl('https://example.test/', { mode: 'pair', ida: true, placement: 'face' }, null, null));
 assert.equal(url.searchParams.get('placement'), 'face');
 console.log('PASS partage du placement de l’ida e volta en paire');
+
+// #210 (owner, 25 Nov. 2026): no pose held on the beats; the go-and-returns follow one another without the ginga, the
+// hips or the pelvis stopping. Guard: in the comparator's pair view (quinconce, plexus contact, contraposition), every
+// 1/50 of a beat over two cycles from the start, six styles, both dancers, the pelvis centre moves at 1 cm per beat at
+// least. Below that a film at 12 images per second (90 bpm: 8 images per beat) moves the pelvis about a millimetre per
+// image: a pose held to the eye. Measured on 25 Nov.: 0 cm per beat on every even beat before (pelvis held from 1.85 to
+// 2.1 of each slot, ginga, carry and pivot all stopped together); now at least 1.4 cm per beat (kompa, follower).
+// scripts/mesure_vitesse_bassin_ida.mjs gives the curves and the angular speed.
+{
+  const STEP = 1 / 50, FLOOR = 1;
+  let slowest = { v: Infinity };
+  for (const styleKey of Object.keys(api.STYLES).filter(k => api.movementAllowed(k, 'ida'))) {
+    const pair = couple(), last = [null, null];
+    for (let k = 0; k <= 16 / STEP; k++) {
+      const beat = k * STEP;
+      pair.forEach((f, i) => {
+        api.applyPose(f.r, f.model, beat, { movement: 'ida', ida: true, idaPaire: true, embrace: true, follower: !!i,
+          placement: 'quinconce', styleKey, amp: 1, plexus: true, contraposition: 1 });
+        f.r.root.updateWorldMatrix(true, true);
+        const p = f.r.pelvis.getWorldPosition(new THREE.Vector3());
+        if (last[i]) {
+          const v = p.distanceTo(last[i]) / STEP * 100;
+          if (v < slowest.v) slowest = { v, styleKey, beat, who: i ? 'suiveuse' : 'guideur' };
+        }
+        last[i] = p;
+      });
+    }
+  }
+  assert(slowest.v >= FLOOR, `#210: the pelvis stands still (${slowest.v.toFixed(2)} cm per beat, ${slowest.styleKey}, ${slowest.who}, beat ${slowest.beat.toFixed(2)})`);
+  console.log(`PASS #210 : le bassin ne s’arrête jamais, au moins ${slowest.v.toFixed(1)} cm par temps (${slowest.styleKey}, ${slowest.who}, temps ${slowest.beat.toFixed(2)}) ; garde : ${FLOOR} cm par temps`);
+}
