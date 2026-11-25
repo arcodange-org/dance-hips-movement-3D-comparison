@@ -86,6 +86,8 @@ crochet, 2,86 en recul), les corps arrivant avant le pied.
 - Empreintes historiques de la sortie garçon (`scripts/fixtures/sorties-historiques.json`, `WRITE=1` de
   `scripts/test_sortie_garcon.mjs`) et mesures enregistrées reprises.
 
+Films avant / après, vus de derrière le guideur, muscles visibles : [dossier](elections/sorties-geste/README.md).
+
 ## Hors périmètre
 
 - La virgula du quart de tour (#208).

@@ -69,6 +69,12 @@ restaurées après chaque export. Les GIFs montrent le [crochet](gifs/sortie-fil
 et le [recul](gifs/sortie-fille-recul.gif).
 [Rétrospective M4](retrospective-sortie-fille.md).
 
+## La hanche porte le pas (#214, R45, 25 novembre 2026)
+
+Le bassin part vers chaque appui avant le pied (0,3 temps) et le pied suit son chemin : [spec](spec-sorties-geste.md),
+`src/gesteHanche.ts`. Positions, poses des pieds et transferts inchangés ; le bassin de la suiveuse n'attend plus qu'un
+dixième de temps sur son G avant son D3 ; le contact D/D arrive un peu avant le temps 3.
+
 ## Règle ajoutée le 20 novembre 2026 (#67)
 
 Distance bassin-bassin quasi constante une fois le décalage latéral retiré, et pas de « monter-descendre » permanent : voir [règles du propriétaire](regles-proprietaire.md) (R2, R3). Critère à mesurer sur le GLB pour cette figure.

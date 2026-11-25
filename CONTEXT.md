@@ -13,8 +13,10 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   (`hancheDabord`, défaut de `UM_DOIS_GESTURE`, `src/umDois.ts`) : le corps part un tiers de temps avant le pas, le pied
   suit le chemin du bassin et se pose à 0,85 du temps, le poids passe ensuite jusqu'au compte. Bassin à mi-chemin
   0,03 temps après le pied (0,30 avant). `?geste=ancien|ensemble|hancheFinit` montre les autres lectures.
-- Relevé des autres figures (`scripts/sonde_geste_hanche.mjs`) : sorties garçon (#213) et fille (#214) à reprendre avec
-  la même lecture ; virgula du quart de tour (#208).
+- Sorties garçon (#213) et fille (#214), même lecture ([spec](docs/spec-sorties-geste.md)) : le bassin part vers chaque
+  appui 0,3 temps avant le pied (0,15 au croisé de la sortie garçon), le pied suit son chemin, poses et transferts
+  inchangés (`src/gesteHanche.ts`, `?geste=ancien` pour l'ancien calendrier) ; contrôlé par
+  `scripts/test_geste_sorties.mjs`. Virgula du quart de tour : #208.
 - Reste : refaire les films du pas de base (#155).
 
 ## Exercices d'isolation seul, pieds posés (#206, lot L441 de ReCoDanse, 24 novembre 2026)

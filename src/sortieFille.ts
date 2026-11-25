@@ -1,6 +1,7 @@
 import { HIP_WIDTH } from "./anatomy";
 import { SORTIE_GINGA_CAP, gingaWindow, type FigureFoot, type FigureFootPose, type FootPoint } from "./sortieGarcon";
 import { gaitStep } from "./gait";
+import { FIGURE_GESTURE, figureWay, followWay } from "./gesteHanche";
 import { COUPLE_DZ, KNEE_ROOM, placementOffset, startCoupling, endCoupling, type CouplePlacement, type PlacementOffset } from "./placement";
 
 export type SortieFilleVariant = "hook" | "back";
@@ -199,7 +200,6 @@ export function sampleSortieFille(beat: number, follower: boolean,
   // #48: once the couple is back face to face on the line (actions 4 and 5), the landings are neutral
   // again: quinconce shift, feet under the hips and the right foot's stagger, as at the start.
   const neutral = [false, false, false, true, true];
-  const shiftOf: Record<FigureFoot, number> = { L: 1, R: 1 };
   const position = (foot: FigureFoot, offset: FootPoint, shift = 0, home = 0): FootPoint =>
     ({ x: rest[foot].x + offset.x + o.x * shift + (foot === "L" ? widen : -widen) * home,
       z: rest[foot].z + offset.z + o.z * shift + (foot === "R" ? (o.stagger ?? 0) / 2 : 0) * home });
@@ -210,29 +210,38 @@ export function sampleSortieFille(beat: number, follower: boolean,
     R: { ...position("R", { x: -widen, z: (o.stagger ?? 0) / 2 }, 1), yaw: 0, lift: 0 },
   };
   let support: FigureFoot = follower ? "L" : "R";
-  let body: FootPoint = { x: 0, z: 0 };
   steps.slice(0, index).forEach((action, i) => {
-    shiftOf[action.foot] = shifted[i] || neutral[i] ? 1 : 0;
     feet[action.foot] = { ...landing(i, action), yaw: action.yaw ?? 0, lift: 0 };
     support = action.foot;
-    body = action.body;
   });
   const action = steps[index];
-  const fromShift = shiftOf[action.foot];
-  // The pelvis follows the shift of the support foot (validated from the D/D arrival on).
-  const weightBefore = shiftOf[support];
-  const weightAfter = index < 4 ? (shifted[index] || neutral[index] ? 1 : 0) : weightBefore;
   const from = feet[action.foot], to = landing(index, action);
+  // The pelvis's way during each action, as shares of the action's beat [from, to] (#214: `G.head` earlier for a step):
+  // from a close start the follower's pelvis completes its retreat over D1 by 80 % of the step, so her planted G leg
+  // never folds onto the leader's right knee between hers (measured on the GLB); #105: her pelvis waits a quarter beat
+  // over her G before following her G2 and her D3 diagonal (leading, it pulls her swinging D knee into the leader's D
+  // knee); #48: into the neutral quinconce the pelvis arrives with the marka (lagging behind it, the follower's right
+  // knee would lean onto the leader's interleaved right knee).
+  const GE = FIGURE_GESTURE.v, closeStart = Math.min(1, Math.hypot(o.x, o.z) / 0.05);
+  const phaseOf = (i: number): [number, number] => follower && (i === 1 || i === 2) ? [.25, 1]
+    : follower && i === 0 ? [0, 1 - 0.2 * closeStart] : i === 4 ? [delayOf(4), touchdownOf(4)] : [0, 1];
+  const wayStart = (i: number) => Math.max(0, i + phaseOf(i)[0] - (i < 4 ? GE.head : 0));
+  const bodyWay = (i: number, at: number) => figureWay(at, wayStart(i), i + phaseOf(i)[1]);
+  // Where the pelvis stands after each action (P[0] before the first); it follows the shift of the support foot
+  // (validated from the D/D arrival on).
+  const P: FootPoint[] = [{ x: o.x, z: o.z }];
+  steps.forEach((a, i) => { const w = i < 4 ? (shifted[i] || neutral[i] ? 1 : 0) : (shifted[3] || neutral[3] ? 1 : 0); P.push({ x: a.body.x + o.x * w, z: a.body.z + o.z * w }); });
   // From a close start the leader's D2 touches the follower's G: her G2 opens the way first.
-  const closeStart = Math.min(1, Math.hypot(o.x, o.z) / 0.05);
   // #88: the follower never leaves before the leader: her G2 waits for his hook (it used to open the way
   // first, sortieFilleHookLead earlier).
-  const delay = action.delay ?? (index === 1 ? sortieFilleHookLead(o) : 0);
+  const delayOf = (i: number) => steps[i].delay ?? (i === 1 ? sortieFilleHookLead(o) : 0);
+  const delay = delayOf(index);
   // #88: synced with his hook, her G2 lands sooner to open the way in time.
   // #105: her D1 lands sooner too (it clears the leader's G1, R24 kept: it leaves with it), and the
   // leader's G5 marka is placed before her D5 marka joins it in the neutral quinconce.
-  const touchdown = !follower && index === 3 ? .48 : !follower && index === 4 ? .5
-    : follower && index === 1 ? SORTIE_FILLE_SYNC.g2touchdown : follower && index === 0 ? .5 : .68;
+  const touchdownOf = (i: number) => !follower && i === 3 ? .48 : !follower && i === 4 ? .5
+    : follower && i === 1 ? SORTIE_FILLE_SYNC.g2touchdown : follower && i === 0 ? .5 : .68;
+  const touchdown = touchdownOf(index);
   const flight = Math.max(0, Math.min(1, (t - delay) / (touchdown - delay)));
   // #49: a walking step (heel rise, swing, heel strike or ball landing); the marka only touches.
   // From the interleaved quinconce a heel rise would push the knee into the partner's: the first steps
@@ -246,7 +255,7 @@ export function sampleSortieFille(beat: number, follower: boolean,
   // #127: a foot landing turned out lands on its ball (the travel is across its own axis).
   const gait = gaitStep(flight, { x: to.x - from.x, z: to.z - from.z }, action.yaw ?? 0,
     interleaved ? SORTIE_FILLE_FIRST_ROLL : crossing || contactStep ? SORTIE_FILLE_CROSS_ROLL : 1);
-  const along = index === 4 ? flight : gait.progress;
+  const along = index === 4 ? flight : followWay(gait.progress, b, index + delay, index + touchdown, at => bodyWay(index, at));
   let point = interpolate(from, to, smooth(along));
   if (action.corner) {
     const via = position(action.foot, action.corner);
@@ -268,22 +277,14 @@ export function sampleSortieFille(beat: number, follower: boolean,
   feet[action.foot] = { ...point, yaw, ...(index === 4 ? { lift: .022 * swing } : { lift: gait.lift, pitch: gait.pitch, pivot: gait.pivot }) };
   const transfer = index < 4 ? smooth((t - touchdown) / (1 - touchdown)) : 0;
   const loadR = mix(Number(support === "R"), Number(action.foot === "R"), transfer);
-  // From a close start the follower's pelvis completes its retreat over D1 by 80 % of the step, so
-  // her planted G leg never folds onto the leader's right knee between hers (measured on the GLB).
-  const bodyPhase = follower && index === 1 ? (t - .25) / .75
-    // #105: her pelvis waits a quarter beat over her G before following her D3 diagonal: leading, it
-    // pulls her swinging D knee into the leader's D knee.
-    : follower && index === 2 ? (t - .25) / .75
-    : follower && index === 0 ? t / (1 - 0.2 * closeStart)
-    // #48: into the neutral quinconce the pelvis arrives with the marka: lagging behind it, the
-    // follower's right knee would lean onto the leader's interleaved right knee.
-    : index === 4 ? (t - delay) / (touchdown - delay) : t;
-  const root = interpolate({ x: body.x + o.x * weightBefore, z: body.z + o.z * weightBefore },
-    { x: action.body.x + o.x * weightAfter, z: action.body.z + o.z * weightAfter }, smooth(bodyPhase));
+  const root = { ...P[0] };
+  for (let i = 0; i < 5; i++) { const w = bodyWay(i, b); root.x += (P[i + 1].x - P[i].x) * w; root.z += (P[i + 1].z - P[i].z) * w; }
   // Keep the follower's pelvis over the outside support while D clears the
   // leader's leg. The support foot stays fixed and D keeps its straight segment.
   // #105: 20 cm in the hook (10 before): her shorter diagonal starts closer to the leader's D.
-  if (follower && index === 2) root.x += (back ? .06 : .20) * Math.sin(Math.PI * t) ** 2;
+  // #214: from `head` before her step, as the hip starts (over the beat of her step alone, it gathered with her way
+  // into a jolt, R34; starting with her way, her torso came onto the leader's right forearm).
+  if (follower) root.x += (back ? .06 : .20) * Math.sin(Math.PI * Math.max(0, Math.min(1, (b - 2 + GE.head) / (1 + GE.head)))) ** 2;
   // Opening of the leader's chest leads the answering rotation of the partner.
   const cue = follower ? .72 : .47;
   const chestYaw = -.20 * smooth((b - cue) / .72) * (1 - smooth((b - 2.15) / 1.1));
@@ -301,7 +302,10 @@ export function sampleSortieFille(beat: number, follower: boolean,
   // the chest keeps its own direction (contraposition); the G knee points out between the pelvis and the
   // foot until the foot goes back, the D knee keeps facing forward.
   const out = index === 0 ? late(flight, V.yawFrom) : index === 1 ? 1 : index === 2 ? 1 - smooth(flight) : 0;
-  const open = index === 0 ? late(flight, V.pelvisFrom) : index === 1 ? 1 - smooth((t - V.pelvisBack[0]) / (V.pelvisBack[1] - V.pelvisBack[0])) : 0;
+  // #214: the pelvis squares up `head` earlier, as it starts towards the hook (with the plexus contact, still open
+  // there, it held the chest's facing at its limit: the chest turned with the virgula by 2°).
+  const squaring = smooth((b - 1 - V.pelvisBack[0] + GE.head) / (V.pelvisBack[1] - V.pelvisBack[0]));
+  const open = index === 0 ? late(flight, V.pelvisFrom) * (1 - squaring) : index === 1 ? 1 - squaring : 0;
   const rootYaw = V.pelvis * open;
   return { ...sample, chestYaw: chestYaw - rootYaw, rootYaw, kneeYawSide: { L: rootYaw - V.knee * out, R: rootYaw } };
 }

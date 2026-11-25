@@ -121,6 +121,11 @@ le G4 du suiveur part avec lui mais vole plus vite (`g4span` = 0,3 temps) : il l
 le D4 n'arrive (les variantes plus lentes faisaient se chevaucher ces deux pieds : 8 à 63 poses). Les
 empreintes historiques du suiveur (sortieG) sont régénérées ; celles du leader sont inchangées.
 
+## La hanche porte le pas (#213, R45, 25 novembre 2026)
+
+Le bassin part vers chaque appui avant le pied (0,3 temps ; 0,15 au croisé) et le pied suit son chemin :
+[spec](spec-sorties-geste.md), `src/gesteHanche.ts`. Positions, poses des pieds et transferts inchangés.
+
 ## Position 2 : bassin au-dessus du pied D, contact des hanches sur le côté (#104, 20 novembre 2026)
 
 Retour du propriétaire : « le pied droit est bien positionné en position 2 mais pas les hanches et épaules […] :

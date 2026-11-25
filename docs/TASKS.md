@@ -534,4 +534,5 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
   de tour (#208).
 - [x] Élu le 25 novembre : C, `hancheDabord`, par défaut ; R45 contrôlée dans `scripts/test_um_dois.mjs`.
 - [ ] Films du pas de base (#155) refaits une fois dans `main`.
-- [ ] Sorties garçon (#213) et fille (#214) : la hanche d'abord.
+- [x] Sorties garçon (#213) et fille (#214) : la hanche d'abord ([spec](spec-sorties-geste.md), `src/gesteHanche.ts`,
+  `scripts/test_geste_sorties.mjs`, [films avant/après](elections/sorties-geste/README.md)).

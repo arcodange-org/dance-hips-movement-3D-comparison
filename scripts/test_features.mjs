@@ -416,9 +416,11 @@ const steps = [
   [/^on échantillonne la sortie fille au deuxième pas en variante "(hook|back)"$/, (c, m) => {
     const rest = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
     const pose = (beat, follower) => mod.sampleSortieFille(beat, follower, rest, m[1]);
-    // #49: the corner of the hook is reached half-way through the swing of the (reduced) walking roll.
-    const roll = mod.SORTIE_FILLE_FIRST_ROLL, push = mod.GAIT.push * roll, land = 1 - (1 - mod.GAIT.land) * roll;
-    c.fille = { start: pose(1, false), corner: pose(1 + mod.sortieFilleHookLead({ x: 0, z: 0 }) + (.68 - mod.sortieFilleHookLead({ x: 0, z: 0 })) * (push + .5 * (land - push)), false), end: pose(2, false),
+    // The corner of the hook: the last instant its foot is still on its starting line (bisection, #214).
+    const start = pose(1, false);
+    let lo = 1 + mod.sortieFilleHookLead({ x: 0, z: 0 }), hi = 2;
+    for (let k = 0; k < 60; k++) { const mid = (lo + hi) / 2; if (Math.abs(pose(mid, false).feet.R.z - start.feet.R.z) < 1e-12) lo = mid; else hi = mid; }
+    c.fille = { start, corner: pose(lo, false), end: pose(2, false),
       followerStart: pose(1, true), followerEnd: pose(2, true) };
   }],
   [/^le droit du leader prend un crochet et le gauche du suiveur sort latéralement$/, (c) => {

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { buildSync } from "esbuild";
-import { readFileSync, unlinkSync } from "node:fs";
+import { readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import * as THREE from "three";
 import { fixture, minimumBoneY, snapshot } from "./pose_fixture.mjs";
@@ -239,19 +239,29 @@ for (const styleKey of Object.keys(api.STYLES).filter(k => api.movementAllowed(k
 }
 console.log('PASS', collisionPoses, 'couple poses: no inter/intra-dancer leg-bone triangle crossing or containment');
 
-const legacy = JSON.parse(readFileSync(new URL('./fixtures/sorties-historiques.json', import.meta.url)));
+const legacyFile = new URL('./fixtures/sorties-historiques.json', import.meta.url), legacyText = readFileSync(legacyFile, 'utf8');
+const legacy = JSON.parse(legacyText), rewrites = [];
 const fingerprint = values => createHash('sha256').update(JSON.stringify(values.map(v => Math.round(v * 1e6)))).digest('hex');
 let regressions = 0;
 for (const { poses: rows, ...config } of legacy.cases) {
   const f = couple(config.movement === 'sortieG')[config.follower ? 1 : 0];
   for (const [beat, expected] of rows) {
     const stats = api.applyPose(f.r, f.model, beat, { sortieVariant: 'right', sortieContra: 30, ...config, embrace: true, sortieFilleVariant: 'back' });
-    assert.equal(fingerprint([...snapshot(f.r), stats.loadL, stats.loadR, stats.kneeL, stats.kneeR]), expected,
-      `historical ${JSON.stringify(config)} at ${beat}`);
+    const actual = fingerprint([...snapshot(f.r), stats.loadL, stats.loadR, stats.kneeL, stats.kneeR]);
+    // WRITE=1 (after a wanted change, said in `SOURCE`): records the new fingerprints instead of checking them.
+    if (process.env.WRITE === '1') { rewrites.push([expected, actual]); regressions++; continue; }
+    assert.equal(actual, expected, `historical ${JSON.stringify(config)} at ${beat}`);
     regressions++;
   }
 }
-console.log('PASS', regressions, 'unchanged sortieG/sortieGF final poses from', legacy.source);
+if (process.env.WRITE === '1') {
+  // In place, in the order of the file, so that its layout is kept.
+  let text = legacyText, cursor = text.indexOf('"cases"');
+  for (const [before, after] of rewrites) { const at = text.indexOf(before, cursor); text = text.slice(0, at) + after + text.slice(at + before.length); cursor = at + after.length; }
+  if (process.env.SOURCE) text = text.replace(JSON.stringify(legacy.source), JSON.stringify(`${legacy.source} + ${process.env.SOURCE}`));
+  writeFileSync(legacyFile, text);
+  console.log('WROTE', regressions, 'sortieG/sortieGF fingerprints');
+} else console.log('PASS', regressions, 'unchanged sortieG/sortieGF final poses from', legacy.source);
 
 const clock = api.createDanceClock(); clock.beat = 4.99;
 api.advanceClock(clock, .1, 90, true, 5); near(clock.beat, 5);
