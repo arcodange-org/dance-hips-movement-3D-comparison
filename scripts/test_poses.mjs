@@ -126,7 +126,9 @@ for (let t = 0; t < 2; t += 0.05) {
 }
 assert.ok(Math.min(...knees) > 8, "semba knees must not collapse to straight legs");
 assert.ok(Math.max(...knees) - Math.min(...knees) > 8, "semba knee modulation");
-assert.ok(Math.max(...levels) - Math.min(...levels) > 0.02, "semba vertical modulation");
+// #209 (the hip first, elected on 25 Nov. 2026): the weight passes later and quicker in the « 1 2 », the pelvis's
+// height varies by 1.96 cm instead of 2.12; it still rises and sinks.
+assert.ok(Math.max(...levels) - Math.min(...levels) > 0.018, "semba vertical modulation");
 for (const [options, duration] of [[{}, 4], [{ ida: true }, 8], [{ quarts: true }, 16],
   [{ corridinho: true }, 16], [{ temps3: true }, 12], [{ sortie: true }, 8]]) {
   near(api.cycleBeats(options), duration, 0, "full export cycle");
