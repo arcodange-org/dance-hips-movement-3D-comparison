@@ -535,12 +535,14 @@ const steps = [
   // #157: the ginga of the couple dance (docs/spec-ginga-couple.md).
   [/^on lit la phase du ginga sur les appuis du leader dans chaque figure du mode jeu$/, (c) => {
     const rig = guideRig();
-    c.ginga = mod.guidage.GUIDE_FIGURE_KEYS.filter(kind => mod.guidage.sampleKind(kind, 0, false, rig).loadR !== undefined).map(kind => {
+    // #210: the ida e volta gives its own phase (`gingaBeat`), never read on its loads (three quarters of the weight:
+    // they go back and forth).
+    c.ginga = mod.guidage.GUIDE_FIGURE_KEYS.filter(kind => { const s = mod.guidage.sampleKind(kind, 0, false, rig); return s.loadR !== undefined && !("gingaBeat" in s); }).map(kind => {
       const end = mod.guidage.GUIDE_FIGURES[kind].beats, phases = [];
       for (let t = 0; t <= end + 1e-9; t += 1 / 16) phases.push(mod.gingaPhase(`feature:${kind}`, b => mod.guidage.sampleKind(kind, b, false, rig), t));
       return { kind, phases };
     });
-    if (c.ginga.length < 8) throw new Error(`${c.ginga.length} figures seulement`);
+    if (c.ginga.length < 7) throw new Error(`${c.ginga.length} figures seulement`);
   }],
   [/^la phase ne recule pas et ne saute pas$/, (c) => {
     for (const { kind, phases } of c.ginga) phases.forEach((p, k) => {

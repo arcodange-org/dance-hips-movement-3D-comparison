@@ -25,7 +25,7 @@ Modules des figures en paire : [sortie garçon](docs/spec-sortie-garcon.md) (`sr
 (`src/enchainement.ts`, `scripts/test_enchainement.mjs`), [ida inséré dans les sorties](docs/spec-insertion-ida.md)
 (`src/insertion.ts`, `scripts/test_insertion.mjs`), [ida e volta à tout pas qui avance ou recule](docs/spec-ida-partout.md)
 (#144, R27 : `sampleTouched`, table `TOUCH_POSITIONS` des positions validées sur le GLB, `scripts/test_touches.mjs` ;
-un segment du mode jeu porte ses allers-retours, il n'y a plus de figure « sortie avec ida »). Marche des pas de figure, fin en quinconce et plexus :
+un segment du mode jeu porte ses allers-retours, il n'y a plus de figure « sortie avec ida »). Poids de l'ida (#210, [spec](docs/spec-ida-poids.md)) : trois quarts sur le pied sorti, ginga continu et bassin qui ne s'arrête jamais (`IDA_WEIGHT_ELECTED`, `idaGingaWindows`, `IDA_FLOW` ; garde de vitesse dans `test_ida_paire`) ; mesures `scripts/mesure_ida_ginga.mjs`, `scripts/mesure_vitesse_bassin_ida.mjs`, tracé `scripts/tracer_bassin_ida.mjs`. Marche des pas de figure, fin en quinconce et plexus :
 [spec](docs/spec-marche-naturelle.md) (`src/gait.ts`, `scripts/test_plexus.mjs`). Le combiné `sortieGF` reste historique. Virgula du leader
 (pied G posé perpendiculaire, #127) : premier pas de la sortie fille crochet, sonde de calibrage `scripts/search_virgula.mjs` ; en option dans
 l'ida e volta en paire (#128, `virgula=1`, `scripts/test_ida_virgula.mjs`). Oracle :
@@ -78,6 +78,9 @@ le couple se tient plus loin (`COUPLE_DZ`, `KNEE_ROOM`, `src/placement.ts`) ; cr
 Transfert de poids continu (#167, R34 : ni saccade, ni téléportation, ni relais soudain) : [spec](docs/spec-transfert-continu.md) ;
 `scripts/test_saccades.mjs` mesure, dans des séances du mode jeu, les à-coups du bassin de chaque figure et le passage d'un côté
 à l'autre ; l'état est enregistré (`scripts/fixtures/saccades.json`, cliquet ; `WRITE=1` après un changement voulu).
+Le bassin garde sa vitesse (#219, #221) : [spec](docs/spec-bassin-continu.md) ; aux jonctions le résidu part avec sa vitesse
+(`inertialize`, `junctionSpeed`, `pelvisResidual`) ; dans le quart de tour et l'ida e volta le plafond de rotation est atteint en
+douceur (`softCap`) ; `scripts/test_bassin_continu.mjs`, mesure partagée `scripts/bassin_mesure.mjs`.
 Exercices d'isolation (#206, lot L441 de ReCoDanse) : [spec](docs/spec-isolations.md) ; `?isolation=<exercice>` (cou, poitrine,
 bassin), danseur seul pieds posés, seule la partie nommée bouge, en boucle (`src/isolations.ts` pur, option `isolation` de
 `applyPose`, `scripts/test_isolations.mjs`, `docs/features/isolations.feature`, films `scripts/capture_isolation_gif.mjs`) ; trois vitesses

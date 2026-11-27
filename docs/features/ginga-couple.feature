@@ -5,6 +5,8 @@ Feature: Ginga visible en danse de couple
 
   Scenario: La phase du ginga suit les transferts d'appui dans chaque figure
     R13 : « le ginga déclenché à chaque alternance droite/gauche, gauche/droite ».
+    L'ida e volta donne sa propre phase (le pied sorti n'y prend que trois quarts du poids, #210) : elle n'est pas lue
+    sur ses appuis.
     When on lit la phase du ginga sur les appuis du leader dans chaque figure du mode jeu
     Then la phase ne recule pas et ne saute pas
     And chaque figure fait avancer la phase d'au moins un transfert

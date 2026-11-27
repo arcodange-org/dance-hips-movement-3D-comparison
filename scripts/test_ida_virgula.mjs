@@ -44,12 +44,16 @@ const STYLES = Object.keys(api.STYLES);
       assert.deepEqual(on.feet.R, off.feet.R, `leader's D unchanged at ${b}`);
       // The chest keeps its direction while the pelvis opens (contraposition): chestYaw is relative to the pelvis.
       near(on.rootYaw + on.chestYaw, off.rootYaw + off.chestYaw, 1e-12, `chest direction at ${b}`);
-      assert(on.feet.L.yaw >= -1e-12 && on.feet.L.yaw <= V.yaw + 1e-12 && on.rootYaw >= off.rootYaw - 1e-12, `turn towards his left at ${b}`);
+      // #210: the default ida's pelvis turns all along the cycle; the virgula's slot keeps its own slot's pivot (the one
+      // of a single go-and-return, `slot`), the virgula opening it to his left.
+      const offSlot = api.sampleIdaPaire(b, false, rest, placement, 0, variant(false), true);
+      const opened = Math.min(off.rootYaw, offSlot.rootYaw);
+      assert(on.feet.L.yaw >= -1e-12 && on.feet.L.yaw <= V.yaw + 1e-12 && on.rootYaw >= opened - 1e-12, `turn towards his left at ${b}`);
       // Out (between the flight out and the return): right angle, ankle `beside` his D's, pelvis open.
       if (b >= P.out[1] && b <= P.ret[0]) {
         near(on.feet.L.yaw, Math.PI / 2, 1e-12, `right angle at ${b}`);
         near(on.feet.L.x, N.R.x + V.beside, 1e-12, `next to his D at ${b}`);
-        near(on.rootYaw - off.rootYaw, V.pelvis, 1e-12, `pelvis opening at ${b}`);
+        near(on.rootYaw - offSlot.rootYaw, V.pelvis, 1e-12, `pelvis opening at ${b}`);
       }
     }
     // Home at the end of the slot: neutral, foot forward.
@@ -78,7 +82,10 @@ for (const config of [{ placement: 'quinconce' }, { placement: 'quinconce', plex
   const heelGap = hullGap(soleOf(pair[0], 'L'), soleOf(pair[0], 'R'));
   assert(heelGap > 0 && heelGap < .05, `${label}: heel next to his D (${heelGap})`);
   const opening = on[0].pelvis - off[0].pelvis;
-  near(opening, V.pelvis, 1e-6, `${label}: pelvis opening`);
+  // #210: the default ida's pelvis turns all along the cycle; the virgula's slot keeps its own slot's pivot.
+  const m = pair[0].model, glbRest = { L: m.legs.L.rest, R: m.legs.R.rest }, stance = (m.legs.L.hipX - glbRest.L.x + glbRest.R.x - m.legs.R.hipX) / 2;
+  const flowGap = api.sampleIdaPaire(1, false, glbRest, config.placement, stance, variant(false), true).rootYaw - api.sampleIdaPaire(1, false, glbRest, config.placement, stance, variant(false)).rootYaw;
+  near(opening, V.pelvis + flowGap, 1e-3, `${label}: pelvis opening`);
   assert(on[0].kneeL > on[0].pelvis + .2 && on[0].kneeL < on[0].foot - .2, `${label}: G knee between pelvis and foot (${on[0].kneeL})`);
   near(on[0].kneeR, off[0].kneeR, .02, `${label}: D knee as before`);
   let chestDrift = 0;

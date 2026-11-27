@@ -105,16 +105,27 @@ console.log('PASS neutre : quinconce (ou placement) retrouvé aux temps 0, 4 et 
       const leadOffset = lead.feet[lead.moving].z - api.sampleIdaPaire(0, false, rest, 'quinconce').feet[lead.moving].z;
       // Advance of the moving hip over the standing one, in the dancer's own frame (z forward).
       const ahead = (x.moving === 'L' ? -1 : 1) * span * Math.sin(x.rootYaw);
-      near(ahead, api.IDA_PAIR.hip * (follower ? -leadOffset : leadOffset), 2e-3, `#84 moving hip ahead at ${b} (${follower ? 'follower' : 'leader'})`);
+      // #210: flowing, the advance follows the leader's steps over the whole cycle: the moving hip goes the way the
+      // dancer's moving foot goes while the weight is on it (beats 0.8 to 1.4 of each slot), never further than `hip`
+      // times the step, and the pelvis is square at each slot boundary.
+      const { q, dir } = api.idaStepAt(b), way = follower ? -dir : dir;
+      if (q >= 0.8 && q <= 1.4) assert(ahead * way > 0.005, `#84 moving hip ahead at ${b} (${follower ? 'follower' : 'leader'}): ${ahead}`);
+      assert(Math.abs(ahead) <= api.IDA_PAIR.hip * S + 1e-3, `#84 the moving hip leads by at most hip·step at ${b}`);
+      if (tick % 200 === 0) near(x.rootYaw, 0, 1e-9, `#210 square pelvis at the slot boundary ${b}`);
+      // The single go-and-return inserted in another figure (#144) keeps its own slot's path: the hip follows the foot.
+      const one = api.sampleIdaPaire(b, follower, rest, 'quinconce', 0, api.IDA_DEFAULT, true);
+      near((one.moving === 'L' ? -1 : 1) * span * Math.sin(one.rootYaw), api.IDA_PAIR.hip * (follower ? -leadOffset : leadOffset), 2e-3, `#84 inserted: moving hip ahead at ${b}`);
       near(x.kneeYaw, api.IDA_PAIR.kneeFoot * x.rootYaw, 1e-12, `#84 knees do not follow the pivot at ${b}`);
       peak = Math.max(peak, Math.abs(ahead));
     }
     assert(peak > 0.02, `#84: the moving hip leads by a few centimetres (${peak})`);
     console.log(`PASS #84 : bassin qui pivote sur la hanche d’appui, hanche du pied qui bouge en avance de ${(peak * 100).toFixed(1)} cm au plus ; genoux au-dessus des pieds`);
   }
-  // #84: the pelvis travels with the weight (carry) plus half of the moving hip's advance (hip).
-  assert(travel >= api.IDA_PAIR.carry * api.IDA_PAIR.step - 1e-3 && travel <= (api.IDA_PAIR.carry + api.IDA_PAIR.hip / 2) * api.IDA_PAIR.step + 1e-3,
-    `pelvises travel between carry·step and (carry + hip/2)·step (${travel})`);
+  // #84: the pelvis travels with the weight (carry) plus half of the moving hip's advance (hip); #210: as far as the
+  // share of the weight that goes onto the outgoing foot.
+  const carry = api.IDA_PAIR.carry * api.IDA_WEIGHT_PROTO.v.share;
+  assert(travel >= carry * api.IDA_PAIR.step - 1e-3 && travel <= (carry + api.IDA_PAIR.hip / 2) * api.IDA_PAIR.step + 1e-3,
+    `pelvises travel between carry·share·step and (carry·share + hip/2)·step (${travel})`);
   // #89: the variants are the cycle started later (right leg +4, backwards first +2).
   for (const [v, shift] of [[{ side: 'R', back: false }, 4], [{ side: 'L', back: true }, 2], [{ side: 'R', back: true }, 6]])
     for (let b = 0; b < 8; b += .25) { const x = api.sampleIdaPaire(b, false, rest, 'quinconce', 0, v), y = api.sampleIdaPaire(b + shift, false, rest, 'quinconce');
@@ -122,40 +133,59 @@ console.log('PASS neutre : quinconce (ou placement) retrouvé aux temps 0, 4 et 
   console.log(`PASS séquence : avant G, arrière G, avant D, arrière D (un aller-retour par 2 temps), suiveur en miroir sans partir avant le leader, couple d'un bloc (${(travel * 100).toFixed(1)} cm), buste du leader en avance de ${api.IDA_LEAD} temps ; variantes = cycle décalé`);
 }
 
-// 2c. Ginga (#42, docs/spec-ginga.md): the style's hip pattern is triggered by each transfer. Its phase
-// is continuous and non-decreasing, advances one half-cycle per transfer (ten per 8-beat cycle, #107) and holds
-// on the support between transfers; once a transfer has ended, the style's support is the figure's
-// (the coupled follower dances the leader's phase mirrored, i.e. on her own mirrored feet). The leader
-// transmits at 70 %, the follower pronounces it fully.
+// 2c. Ginga (#42, docs/spec-ginga.md): the style's hip pattern is triggered by each transfer. #210: the outgoing foot
+// takes three quarters of the weight (vote of 25 Nov.): the phase goes towards it until the style's support is the
+// figure's and comes back the same way; it advances one half-cycle per whole transfer (two per 8-beat cycle). The
+// go-and-returns follow one another without the ginga stopping: the phase moves all along the cycle, each swing over
+// its window (`idaGingaWindows`, which follow one another), and at the end of each window the style's support is the
+// figure's after that transfer (the coupled follower dances the leader's phase mirrored, i.e. on her own mirrored
+// feet). The leader transmits at 70 %, the follower pronounces it fully.
 {
   const rest = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
+  assert.equal(api.IDA_WEIGHT_PROTO.v.share, 0.75, 'three quarters of the weight by default (#210, question 31: C)');
+  for (const follower of [false, true]) {
+    const windows = api.idaGingaWindows(follower), transfers = api.idaTransfers(follower);
+    windows.forEach((w, k) => {
+      const next = windows[(k + 1) % windows.length];
+      near(next.start + (k === windows.length - 1 ? api.IDA_BEATS : 0), w.end, 1e-12, `ginga windows follow one another (${k})`);
+      // The hip reaches the outgoing foot as the weight does, on the beat.
+      if (!transfers[k].returning && transfers[k].amount < 1) near(w.end, transfers[k].end, 1e-12, `the hip arrives with the weight (${k})`);
+    });
+  }
   for (const styleKey of Object.keys(api.STYLES).filter(k => k !== 'kompa')) {
     const support = api.STYLES[styleKey].support;
     for (const follower of [false, true]) {
-      let previous = -Infinity;
-      for (let b = 0; b <= 16; b += 0.01) {
+      // Never held: between two samples a hundredth of a beat apart the phase moves, except where a swing turns
+      // back (a window's ends).
+      const windows = api.idaGingaWindows(follower), ends = windows.flatMap(w => [w.start, w.end].map(x => ((x % 8) + 8) % 8));
+      let previous = api.sampleIdaPaire(0, follower, rest, 'quinconce').gingaBeat, held = 0;
+      for (let b = 0.01; b <= 16; b += 0.01) {
         const g = api.sampleIdaPaire(b, follower, rest, 'quinconce').gingaBeat;
-        assert(g >= previous - 1e-9, `${styleKey}: ginga phase non-decreasing at ${b.toFixed(2)}`);
+        if (Math.abs(g - previous) < 1e-6 && !ends.some(e => Math.abs(((b % 8) + 8) % 8 - e) < 0.03)) held++;
         previous = g;
       }
+      assert.equal(held, 0, `${styleKey}: the ginga never holds (${held} samples)`);
       const s0 = api.sampleIdaPaire(0, follower, rest, 'quinconce').gingaBeat, s8 = api.sampleIdaPaire(8, follower, rest, 'quinconce').gingaBeat;
-      assert(Math.abs(s8 - s0 - 10) < 1e-9, `${styleKey}: ten half-cycles per cycle (${s8 - s0})`);
-      for (const t of api.idaTransfers(follower)) {
-        const f = api.sampleIdaPaire(t.end + 0.02, follower, rest, 'quinconce');
+      assert(Math.abs(s8 - s0 - 2) < 1e-9, `${styleKey}: two half-cycles per cycle (${s8 - s0})`);
+      api.idaTransfers(follower).forEach((t, k) => {
+        const f = api.sampleIdaPaire(windows[k].end, follower, rest, 'quinconce');
         const side = Math.sign(support(f.gingaBeat)) * (follower ? -1 : 1);
-        assert.equal(side, t.to === 'R' ? 1 : -1, `${styleKey} ${follower ? 'follower' : 'leader'}: style support = figure support after ${t.from}→${t.to}@${t.end}`);
-        assert.equal(f.support, t.to);
-      }
+        const after = api.sampleIdaPaire(t.end + 1e-6, follower, rest, 'quinconce');
+        assert.equal(side, after.loadR >= 0.5 ? 1 : -1, `${styleKey} ${follower ? 'follower' : 'leader'}: style support = figure support after ${t.from}→${t.to}@${t.end}`);
+        // The style's support carries the figure's share of the weight: -sin(π·phase) is -1 on the left, +1 on the right.
+        near((1 - Math.sin(Math.PI * f.gingaBeat) * (follower ? -1 : 1)) / 2, after.loadR, 1e-6, `${styleKey}: style's share of the weight after ${t.from}→${t.to}@${t.end}`);
+      });
     }
   }
   const lead = api.sampleIdaPaire(1, false, rest, 'quinconce'), foll = api.sampleIdaPaire(1, true, rest, 'quinconce');
   assert(Math.abs(lead.gingaAmp / foll.gingaAmp - 0.7) < 1e-9, 'leader at 70 % of the follower');
-  console.log('PASS ginga : phase déclenchée par chaque transfert (dix demi-cycles par cycle, continue), appui du style = appui de la figure, leader à 70 %');
+  console.log('PASS ginga : trois quarts du poids sur le pied sorti, la hanche y va et revient, sans jamais s’arrêter d’un aller-retour à l’autre ; appui du style = appui de la figure ; leader à 70 %');
 }
 
 // 2b. Support transfers, explicit for the ginga (#42, « transferts de poids […] à chaque alternance ») :
 // ten per cycle (#107), alternating feet, the same instants for both dancers with mirrored feet; the load
-// only changes inside a transfer and ends fully on its target foot.
+// only changes inside a transfer and ends on its target foot: three quarters of the weight on the outgoing foot
+// (#210), all of it once it has come back.
 {
   const rest = { L: { x: .071, z: .0017 }, R: { x: -.071, z: .0011 } };
   for (const follower of [false, true]) {
@@ -177,13 +207,14 @@ console.log('PASS neutre : quinconce (ou placement) retrouvé aux temps 0, 4 et 
       const t = list.find(x => b > x.start + 1e-9 && b < x.end - 1e-9);
       if (!t) { const inside = list.some(x => b >= x.start - .011 && b <= x.end + .011);
         if (!inside) near(s.loadR, previous.loadR, 1e-12, `load constant outside transfers at ${b}`);
-        assert(s.loadR === 0 || s.loadR === 1 || inside, `full support outside transfers at ${b}`); }
+        assert(Math.abs(s.loadR - 0.5) >= 0.25 - 1e-9 || inside, `support outside transfers at ${b}`); }
       else { assert.equal(s.transfer?.to, t.to); assert(t.to === 'R' ? s.loadR >= previous.loadR - 1e-12 : s.loadR <= previous.loadR + 1e-12, `monotonic transfer at ${b}`); }
       previous = s;
     }
     for (const t of list) {
       const s = api.sampleIdaPaire(t.end + 1e-6, follower, rest, 'quinconce');
-      near(t.to === 'R' ? s.loadR : s.loadL, 1, 1e-9, `transfer ends on ${t.to}`);
+      const share = t.returning || t.amount === 1 ? 1 : t.amount;
+      near(t.to === 'R' ? s.loadR : s.loadL, share, 1e-9, `transfer ends on ${t.to} (${share})`);
       // Both feet are down during every transfer.
       for (const side of ['L', 'R']) near(api.sampleIdaPaire((t.start + t.end) / 2, follower, rest, 'quinconce').feet[side].lift, 0, 1e-12);
     }
@@ -311,3 +342,62 @@ console.log('PASS', collisionPoses, 'poses de couple : aucun croisement des os d
 const url = new URL(api.buildShareUrl('https://example.test/', { mode: 'pair', ida: true, placement: 'face' }, null, null));
 assert.equal(url.searchParams.get('placement'), 'face');
 console.log('PASS partage du placement de l’ida e volta en paire');
+
+// #210 (owner, 25 Nov. 2026): no pose held on the beats; the go-and-returns follow one another without the ginga, the
+// hips or the pelvis stopping. Guard: in the comparator's pair view (quinconce, plexus contact, contraposition), every
+// 1/50 of a beat over two cycles from the start, six styles, both dancers, the pelvis centre moves at 1 cm per beat at
+// least. Below that a film at 12 images per second (90 bpm: 8 images per beat) moves the pelvis about a millimetre per
+// image: a pose held to the eye. Measured on 25 Nov.: 0 cm per beat on every even beat before (pelvis held from 1.85 to
+// 2.1 of each slot, ginga, carry and pivot all stopped together); now at least 1.4 cm per beat (kompa, follower).
+// scripts/mesure_vitesse_bassin_ida.mjs gives the curves and the angular speed.
+{
+  const STEP = 1 / 50, FLOOR = 1;
+  let slowest = { v: Infinity };
+  for (const styleKey of Object.keys(api.STYLES).filter(k => api.movementAllowed(k, 'ida'))) {
+    const pair = couple(), last = [null, null];
+    for (let k = 0; k <= 16 / STEP; k++) {
+      const beat = k * STEP;
+      pair.forEach((f, i) => {
+        api.applyPose(f.r, f.model, beat, { movement: 'ida', ida: true, idaPaire: true, embrace: true, follower: !!i,
+          placement: 'quinconce', styleKey, amp: 1, plexus: true, contraposition: 1 });
+        f.r.root.updateWorldMatrix(true, true);
+        const p = f.r.pelvis.getWorldPosition(new THREE.Vector3());
+        if (last[i]) {
+          const v = p.distanceTo(last[i]) / STEP * 100;
+          if (v < slowest.v) slowest = { v, styleKey, beat, who: i ? 'suiveuse' : 'guideur' };
+        }
+        last[i] = p;
+      });
+    }
+  }
+  assert(slowest.v >= FLOOR, `#210: the pelvis stands still (${slowest.v.toFixed(2)} cm per beat, ${slowest.styleKey}, ${slowest.who}, beat ${slowest.beat.toFixed(2)})`);
+  console.log(`PASS #210 : le bassin ne s’arrête jamais, au moins ${slowest.v.toFixed(1)} cm par temps (${slowest.styleKey}, ${slowest.who}, temps ${slowest.beat.toFixed(2)}) ; garde : ${FLOOR} cm par temps`);
+}
+
+// #210, #219, #221 (R34): in the game mode the pelvis never stops and its speed never breaks, from the basic step through
+// the ida e volta and back (scripts/bassin_mesure.mjs). Before: 1 115 and 1 334 cm/beat² at the entry (the pelvis
+// jumped from 9.9 to 17.2 cm per beat), 712 °/beat² of yaw at the exit, the roll stopped dead at its cap (506 °/beat²).
+// The basic step: 30 cm/beat². Known gap, held where it is: 414 to 548 cm/beat² in height where a foot starts its
+// return (its heel rises on the ball in a thirtieth of a beat: the reduced roll shortens the push-off, src/gait.ts).
+// Yaw at the exit: up to 480 °/beat², the pivot's speed given up within a tenth of a beat (0.5° at most beyond the basic
+// step: carried longer, the knees met the partner's, `JUNCTION_YAW`).
+{
+  const { pelvisSession, zoneOf } = await import('./bassin_mesure.mjs');
+  const LIMIT = { a: 150, ay: 600, ar: 300, aw: 500 };
+  const worst = {};
+  for (const styleKey of ['kizomba', 'semba', 'suave']) for (const kind of ['ida', 'idaArr']) {
+    const { end, roles } = await pelvisSession(kind, { styleKey });
+    for (const [role, rows] of Object.entries(roles)) {
+      const z = zoneOf(rows, -0.5, end + 1);
+      assert.equal(z.still, 0, `${styleKey} ${kind} ${role}: the pelvis stands still ${z.still} beat`);
+      // Height and roll: semba's own bounce (in every figure, and in the passage to the basic step danced in suave).
+      for (const key of ['a', 'aw', ...(styleKey === 'semba' ? [] : ['ay', 'ar'])])
+        assert(z[key].value < LIMIT[key], `${styleKey} ${kind} ${role}: ${key} ${z[key].value.toFixed(0)} at ${z[key].t.toFixed(2)} (≤ ${LIMIT[key]})`);
+      for (const key of ['a', 'ay', 'aw', 'ar']) if (!worst[key] || z[key].value > worst[key].value) worst[key] = { ...z[key], styleKey, kind, role };
+      if (!worst.vmin || z.vmin.value < worst.vmin.value) worst.vmin = { ...z.vmin, styleKey, kind, role };
+    }
+  }
+  const say = k => `${worst[k].value.toFixed(0)} (${worst[k].styleKey}, ${worst[k].kind}, ${worst[k].role}, ${worst[k].t.toFixed(2)})`;
+  console.log(`PASS #210 : bassin de l’ida e volta sans arrêt (au moins ${worst.vmin.value.toFixed(1)} cm par temps), accélération au sol ${say('a')}, `
+    + `en hauteur ${say('ay')}, lacet ${say('aw')}, roulis ${say('ar')} ; jonctions comprises`);
+}

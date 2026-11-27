@@ -525,6 +525,19 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
   quart), plexus (5 cm), coude de la suiveuse ; sonde `scripts/sonde_croisements_couple.mjs` ; mesures enregistrées reprises.
 - [x] Films à 30° dans le dossier du vote (quart de tour, sortie fille, ida e volta en couple).
 
+## Ida e volta : le pied sorti ne prend qu'une partie du poids (#210)
+
+- [x] Spec ([spec](spec-ida-poids.md)) ; mesures (`scripts/mesure_ida_poids.mjs`) ; candidats sous `?idaPoids=`
+  (`peu`, `moitie`, `troisQuarts`) ; aucun croisement d'os.
+- [x] Films et vote : page de vote, quinzième tour, question 31 ([dossier](elections/ida-poids/README.md)).
+- [x] Après le vote (C, 75 %) : la part élue par défaut (appuis, bassin, ginga), tests repris, allers-retours insérés
+  vérifiés (#144), R27 complétée, saccades.
+- [x] Ginga continu par défaut (`idaGingaWindows`, `?idaGinga=tenu` pour l'ancien) ; mesures `scripts/mesure_ida_ginga.mjs`.
+- [x] Contraposition : le plafond de 18° reste (décision du 25 novembre), l'essai à 20° est retiré.
+- [x] Bassin continu en vitesse sur tout le cycle (`IDA_FLOW`, `idaFlowBeat`) ; garde dans `test_ida_paire` (1 cm par
+  temps au moins) ; mesures `scripts/mesure_vitesse_bassin_ida.mjs`, tracé `scripts/tracer_bassin_ida.mjs` ; films avant /
+  après ([dossier](elections/ida-poids/README.md)).
+
 ## « 1 2 » : le ginga de la hanche porte le pas de côté (#209)
 
 - [x] Spec ([spec](spec-un-deux-geste.md)) ; règle R45 ; mesures (`scripts/mesure_un_deux_geste.mjs`) ; candidats sous
@@ -535,3 +548,14 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Élu le 25 novembre : C, `hancheDabord`, par défaut ; R45 contrôlée dans `scripts/test_um_dois.mjs`.
 - [ ] Films du pas de base (#155) refaits une fois dans `main`.
 - [ ] Sorties garçon (#213) et fille (#214) : la hanche d'abord.
+
+## Le bassin garde sa vitesse : jonctions, hauteur, plafond de rotation (#219, #221)
+
+- [x] Issues #219 (jonctions) et #221 (hauteur et plafond dans les figures), mesures du 27 novembre dans le mode jeu.
+- [x] Spec ([spec](spec-bassin-continu.md)) ; inertialisation en vitesse aux jonctions (racine, lacet propre, pose du
+  bassin et buste, aller-retour d'ouverture compris) ; plafond de rotation doux dans le quart de tour et l'ida e volta.
+- [x] Garde `scripts/test_bassin_continu.mjs` (vitesse continue à 708 jonctions, six styles) ; mesure partagée
+  `scripts/bassin_mesure.mjs`.
+- [x] Essayé puis écarté : la hauteur qui anticipe la portée des jambes (le bassin abaissé, même de 5 mm, croise les
+  os du quart de tour et de l'ida e volta) ; voir la spec.
+- [ ] Fusion dans les branches du quart de tour (#211) et de l'ida e volta (#212), puis leurs propres corrections.

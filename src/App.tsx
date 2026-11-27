@@ -23,7 +23,7 @@ import { STYLES, movementOf, movementFlags, movementAllowed, travelAllowed, PAIR
 import { setKneeFloor } from "./pose";
 import { setUmDoisGesture } from "./umDois";
 import { QUARTS_PAIR_DZ } from "./quartsPaire";
-import { IDA_PAIR_DZ } from "./idaPaire";
+import { IDA_PAIR_DZ, setIdaWeightProto, setIdaGingaFlow } from "./idaPaire";
 import { PLACE_PAIR_DZ } from "./placePaire";
 import { parseVec3, buildShareUrl } from "./share";
 import { parseShareParams } from "./shareParams";
@@ -44,6 +44,11 @@ setSembaProto(readParams().get("semba"));
 setUmDoisProto(readParams().get("unDeux"));
 // #203 (prototype, docs/spec-flexion-minimale.md): `?flexion=15|20` shows a candidate minimum flexion of the knees.
 setKneeFloor(readParams().get("flexion"));
+// #210 (docs/spec-ida-poids.md): three quarters of the weight on the foot that goes out in the ida e volta (elected on
+// 25 Nov.); `?idaPoids=entier|peu|moitie` shows the other candidates.
+setIdaWeightProto(readParams().get("idaPoids"));
+// #210: `?idaGinga=tenu` holds the ginga between two go-and-returns (the model before the vote of 25 Nov.).
+setIdaGingaFlow(readParams().get("idaGinga"));
 // #209 (docs/spec-un-deux-geste.md): the hip first is elected (25 Nov. 2026); `?geste=ancien|ensemble|hancheFinit` shows
 // another timing of the step aside of the « 1 2 » against the body that carries it.
 setUmDoisGesture(readParams().get("geste"));

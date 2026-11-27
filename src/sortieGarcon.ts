@@ -6,7 +6,10 @@ export type SortieVariant = "line" | "right";
 export interface FootPoint { x: number; z: number }
 export interface FigureFootPose extends FootPoint { yaw: number; lift: number;
   /** #49: rolling foot (src/gait.ts). */
-  pitch?: number; pivot?: "ball" | "heel" | null }
+  pitch?: number; pivot?: "ball" | "heel" | null;
+  /** #210: share of the pitched and lifted ankle's rise that may hold the pelvis up (as `ROLLED_WALK.bear`); unset:
+   * all of it. */
+  bear?: number }
 export const SORTIE_GARCON_BEATS = 5;
 // The couple's half-spacing, shared by the pair figures (#203: `COUPLE_DZ`).
 export const SORTIE_GARCON_PAIR_DZ = COUPLE_DZ;
