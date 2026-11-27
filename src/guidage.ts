@@ -558,15 +558,24 @@ export function junctionSpeed(motions: GuideMotions, from: GuideKind, to: GuideK
   const first = touches.find(t => t.at === 0), entry = (first && motions[to].entryTouched[touchKey(first)]) || motions[to].entry;
   return { leader: minus(motions[from].exit.leader, entry.leader), follower: minus(motions[from].exit.follower, entry.follower) };
 }
-/** #219 (Bollo, « Inertialization », GDC 2018): an offset that starts at `x0` with speed `v0` (per beat) and is gone
- * after `T` beats, with neither speed nor acceleration left, its acceleration nil at the start. With `v0` = 0 it is the
- * quintic fade of #69 (`inertiaWeight`). The pelvis then keeps both its place and its speed across a boundary. */
-export function inertialize(x0: number, v0: number, elapsed: number, T = GUIDE.inertia): number {
-  if (elapsed >= T) return 0;
-  const t = Math.max(0, elapsed);
-  const a = -(6 * v0 * T + 12 * x0) / (2 * T ** 5), b = (16 * v0 * T + 30 * x0) / (2 * T ** 4), c = -(12 * v0 * T + 20 * x0) / (2 * T ** 3);
-  return ((a * t + b) * t + c) * t ** 3 + v0 * t + x0;
+/** #219 (Bollo, « Inertialization », GDC 2018): an offset that starts at `x0` with speed `v0` (per beat), the place gone
+ * after `T` beats and the speed after `V`, with neither speed nor acceleration left, the acceleration nil at the start.
+ * With `v0` = 0 it is the quintic fade of #69 (`inertiaWeight`); with `V` = `T`, Bollo's own curve. The pelvis then
+ * keeps both its place and its speed across a boundary. */
+export function inertialize(x0: number, v0: number, elapsed: number, T = GUIDE.inertia, V = T): number {
+  const t = Math.max(0, elapsed), place = t >= T ? 0 : x0 * inertiaWeight(t);
+  if (t >= V || v0 === 0) return place;
+  // The speed's own curve (Bollo's with no offset), over `V` beats: it carries on by `JUNCTION_OVERSHOOT`·v0·V at most.
+  const u = t / V;
+  return place + v0 * V * u * (1 + u * u * (-6 + u * (8 - 3 * u)));
 }
+/** #219: the farthest the speed's own curve carries on (share of v0·V), a fifth of the way into its time. */
+export const JUNCTION_OVERSHOOT = 0.19;
+/** #219: the root's own yaw carries its speed at most this far beyond the next figure (rad). Carried over a whole beat,
+ * the 19° per beat of an ida e volta started on another beat of its cycle turned the knees into the partner's (measured
+ * on the GLB, kizomba, `test_guidage`; 1° or less: no leg-bone crossing in the six styles). Its speed then fades faster. */
+export const JUNCTION_YAW = Math.PI / 180;
+export const yawFade = (speed: number) => Math.min(GUIDE.inertia, JUNCTION_YAW / Math.max(1e-9, JUNCTION_OVERSHOOT * Math.abs(speed)));
 
 /** Quintic fade of an inertialized residual (Bollo): 1 → 0 over `GUIDE.inertia` beats, flat at both ends. */
 export function inertiaWeight(elapsed: number): number {
@@ -593,7 +602,7 @@ export function sampleGuide(plan: GuidePlan, beat: number, ginga: GuideGinga = G
   const w = inertiaWeight(localBeat);
   // #219: the residual goes with its speed (a fade from rest where the segment gives none).
   const faded = (o: Offset, v: RootOffset = RESTING): RootOffset =>
-    ({ x: inertialize(o.x, v.x, localBeat), z: inertialize(o.z, v.z, localBeat), yaw: inertialize(0, v.yaw, localBeat) });
+    ({ x: inertialize(o.x, v.x, localBeat), z: inertialize(o.z, v.z, localBeat), yaw: inertialize(0, v.yaw, localBeat, GUIDE.inertia, yawFade(v.yaw)) });
   const touches = segment.touches ?? [], where = touchedBeat(touches, localBeat);
   return {
     segment, kind: segment.kind, localBeat, couple: segment.couple,

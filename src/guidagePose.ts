@@ -7,7 +7,7 @@
  * against the start of the next), so that the pelvis keeps its speed across the boundary. */
 import { applyPose, type PoseModel, type PoseOptions, type PoseStats } from "./pose";
 import type { RigHandle } from "./anatomy";
-import { aheadSpeed, backSpeed, guidePoseOptions, guideStyleOf, inertialize, movementOf, segmentBeats, GUIDE_GINGA_DEFAULT, JUNCTION_STEP, type GuideGinga, type GuideKind, type GuideSample, type RootOffset } from "./guidage";
+import { aheadSpeed, backSpeed, guidePoseOptions, guideStyleOf, inertialize, movementOf, segmentBeats, yawFade, GUIDE, GUIDE_GINGA_DEFAULT, JUNCTION_STEP, type GuideGinga, type GuideKind, type GuideSample, type RootOffset } from "./guidage";
 import type { Touch } from "./insertion";
 
 export type GuidePoseBase = Partial<Pick<PoseOptions, "styleKey" | "amp" | "iso" | "cadre" | "placement" | "contraposition">>;
@@ -58,7 +58,7 @@ export function pelvisResidual(r: RigHandle, model: PoseModel, from: GuideKind, 
     // The chest turns towards the partner (contraposition) and the trunk counters the pelvis: both
     // depend on the planar and pelvis residuals, measured with them like the height.
     const fadedAt = (t: number): [Offset, number[]] => [
-      { x: inertialize(planar.x, planarSpeed.x, t), z: inertialize(planar.z, planarSpeed.z, t), yaw: inertialize(planar.yaw, planarSpeed.yaw, t) },
+      { x: inertialize(planar.x, planarSpeed.x, t), z: inertialize(planar.z, planarSpeed.z, t), yaw: inertialize(planar.yaw, planarSpeed.yaw, t, GUIDE.inertia, yawFade(planarSpeed.yaw)) },
       at.map((x0, k) => inertialize(x0, speed[k], t))];
     const w = steps.map(k => poseAt(r, model, to, k * H, base, follower, ...fadedAt(k * H), from, opening, ginga));
     for (const k of [0, 7, 8, 9, 10, 11, 12, 13, 14, 15]) {
