@@ -65,6 +65,10 @@ export function pelvisResidual(r: RigHandle, model: PoseModel, from: GuideKind, 
       at[k] = a[0][k] - w[0][k];
       speed[k] = out[k] - aheadSpeed(w[0][k], w[1][k], w[2][k]);
     }
+    // The height keeps no speed: carried down, the pelvis bends the knees further than the next figure allows (measured
+    // on the GLB: femurs crossed a quarter of a beat into a sortie fille danced after an ida e volta, kizomba); carried
+    // up, it would leave the legs' reach. It fades in place, as before #219.
+    speed[0] = 0;
     junction = { at, speed };
     cache.set(key, junction);
   }

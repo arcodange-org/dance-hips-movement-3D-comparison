@@ -34,8 +34,13 @@ continue, la vitesse non.
 - **Lacet de la racine** : `rootOffset.yaw` s'ajoute au lacet propre de la figure (`src/pose.ts`) ; il n'avait pas de
   résidu.
 - **Pose du bassin et buste** : chaque canal du résidu mesuré sur le squelette a sa vitesse, par différences finies
-  d'ordre 2 (`JUNCTION_STEP` = 1/96 de temps) de part et d'autre de la jonction ; la hauteur et le buste sont mesurés
-  avec les résidus au sol et du bassin tels qu'ils partent. Mis en cache par transition, comme avant.
+  d'ordre 2 (`JUNCTION_STEP` = 1/96 de temps) de part et d'autre de la jonction ; le buste est mesuré avec les résidus
+  au sol et du bassin tels qu'ils partent. Mis en cache par transition, comme avant.
+- **Sauf la hauteur**, qui s'efface sur place comme avant : emportée vers le bas, sa vitesse plie les genoux plus que la
+  figure suivante ne le permet (fémurs croisés un quart de temps après le début d'une sortie fille dansée après un ida
+  e volta, kizomba, et même avec une vitesse éteinte en un tiers de temps) ; emportée vers le haut, elle sortirait de
+  la portée des jambes. Le saut de vitesse verticale reste donc aux jonctions (jusqu'à 96 cm par temps entre l'ida e
+  volta de `main` et la sortie fille, où la hauteur de l'ida varie vite au dernier instant).
 
 ## 2. Plafond de rotation atteint en douceur (#221)
 
@@ -62,7 +67,8 @@ effet juste après. Écarté : les à-coups verticaux se corrigent figure par fi
 
 À chaque jonction (six styles, chaque figure depuis et vers le pas de base ; en kizomba chaque figure suivie de chaque
 autre, aller-retour d'ouverture compris), la vitesse du bassin est la même des deux côtés : moins de 1 cm par temps au
-centre, moins de 2° par temps en lacet et en roulis. Mesuré : 0,03 cm et 0,05° par temps à 708 jonctions.
+sol, moins de 2° par temps en lacet et en roulis. Mesuré : 0,03 cm et 0,05° par temps à 708 jonctions. La vitesse
+verticale est relevée, pas bornée (voir plus haut). Les tests de croisement des os du mode jeu (`test_guidage`) passent.
 
 La mesure de séance (`scripts/bassin_mesure.mjs` : bassin des deux danseurs, figure commandée depuis le pas de base,
 48 échantillons par temps, accélérations au sol, en hauteur, en lacet et en roulis, arrêts) sert aux gardes propres
@@ -72,7 +78,7 @@ des figures (`test_quarts_paire`, `test_ida_paire`).
 
 | où | après |
 | --- | --- |
-| jonctions | aucune cassure : 0,03 cm et 0,05° par temps au plus d'un côté à l'autre ; marches 54 à 60 cm/temps² à la sortie (843 à 978 avant) |
+| jonctions | aucune cassure au sol, en lacet ni en roulis : 0,03 cm et 0,05° par temps au plus d'un côté à l'autre ; marches 54 à 60 cm/temps² à la sortie (843 à 978 avant) ; hauteur inchangée |
 
 Les autres styles : les figures du semba gardent les à-coups verticaux et de roulis du style lui-même (son rebond,
 environ 400 à 600 cm/temps² et 600 °/temps², présents dans chaque figure et dans le passage au pas de base dansé en

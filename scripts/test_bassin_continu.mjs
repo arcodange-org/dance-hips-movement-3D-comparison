@@ -1,8 +1,9 @@
 // #219 — the pelvis keeps its speed (docs/spec-bassin-continu.md), on the real GLB, in the game mode itself
 // (planGuide, applyGuidePose: what the game shows). Rule R34: no jolt.
 //  1. At every boundary between two segments (basic step → figure, figure → figure, figure → basic step) the pelvis's
-//     speed is the same on both sides: centre, yaw and roll, both dancers, the six styles. Before #219 the residual of a
-//     boundary faded in place only: the pelvis jumped from one figure's speed to the next one's (10 to 20 cm per beat).
+//     speed is the same on both sides: on the ground, in yaw and in roll, both dancers, the six styles. Before #219 the
+//     residual of a boundary faded in place only: the pelvis jumped from one figure's speed to the next one's (10 to
+//     20 cm per beat). Its height keeps no speed (carried down it crossed the femurs): its jump is reported, not bounded.
 // The figures' own guards (the quarter turn, the ida e volta) use the same measure: scripts/bassin_mesure.mjs.
 import assert from "node:assert/strict";
 import { buildSync } from "esbuild";
@@ -37,7 +38,7 @@ const unwrap = (a, b) => a - Math.round((a - b) / 360) * 360;
 // 1. Speed on both sides of every boundary (second-order one-sided differences, `JUNCTION_STEP` apart).
 const LIMIT = { centre: 1, turn: 2 }; // cm per beat, degrees per beat
 let boundaries = 0;
-const worst = { centre: { jump: 0 }, turn: { jump: 0 } };
+const worst = { centre: { jump: 0 }, turn: { jump: 0 }, height: { jump: 0 } };
 for (const styleKey of STYLES) {
   const offered = api.guideFiguresFor(styleKey).filter(k => !api.GUIDE_FIGURES[k].chain);
   // Every figure from and back to the basic step; in kizomba, every figure followed by every other.
@@ -55,11 +56,12 @@ for (const styleKey of STYLES) {
         for (const k of [3, 4]) for (const s of after) s[k] = unwrap(s[k], before[0][k]);
         const out = before[0].map((_, k) => api.backSpeed(before[0][k], before[1][k], before[2][k]));
         const into = after[0].map((_, k) => api.aheadSpeed(after[0][k], after[1][k], after[2][k]));
-        const centre = Math.hypot(into[0] - out[0], into[1] - out[1], into[2] - out[2]);
+        const centre = Math.hypot(into[0] - out[0], into[2] - out[2]), height = Math.abs(into[1] - out[1]);
         const turn = Math.max(Math.abs(into[3] - out[3]), Math.abs(into[4] - out[4]));
         const where = { styleKey, figures: figures.join('→'), beat: b, role: follower ? 'suiveuse' : 'guideur' };
         if (centre > worst.centre.jump) worst.centre = { jump: centre, ...where };
         if (turn > worst.turn.jump) worst.turn = { jump: turn, ...where };
+        if (height > worst.height.jump) worst.height = { jump: height, ...where };
         boundaries++;
       }
     }
@@ -69,4 +71,5 @@ assert.ok(worst.centre.jump < LIMIT.centre, `pelvis speed breaks at a boundary: 
 assert.ok(worst.turn.jump < LIMIT.turn, `pelvis turning speed breaks at a boundary: ${JSON.stringify(worst.turn)}`);
 console.log(`PASS vitesse du bassin continue à ${boundaries} frontières (six styles, chaque figure depuis et vers le pas de base, en kizomba chaque figure suivie de chaque autre) : `
   + `écart max ${worst.centre.jump.toFixed(2)} cm par temps (${worst.centre.styleKey} ${worst.centre.figures}, ${worst.centre.role}), `
-  + `${worst.turn.jump.toFixed(2)}° par temps en lacet ou roulis (${worst.turn.styleKey} ${worst.turn.figures}) ; avant #219 : 10 à 20 cm par temps`);
+  + `${worst.turn.jump.toFixed(2)}° par temps en lacet ou roulis (${worst.turn.styleKey} ${worst.turn.figures}) ; avant #219 : 10 à 20 cm par temps. `
+  + `En hauteur (non bornée) : ${worst.height.jump.toFixed(1)} cm par temps au plus (${worst.height.styleKey} ${worst.height.figures}, ${worst.height.role})`);

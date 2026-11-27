@@ -337,7 +337,8 @@ function soleHeight(points: THREE.Vector3[], q: THREE.Quaternion): number {
 /** #221 (R34): a cap reached softly: unchanged up to `SOFT_CAP_KNEE` of the cap, then bending towards the cap without
  * ever reaching it (slope and curvature continuous). Held flat at the cap, the pelvis stopped turning there at once and
  * started again at once (measured in the game mode: 656° per beat² on the follower's roll in the quarter turn, 506 in
- * the ida e volta). Where it is measured: those two figures (the walks share the ida's pose bounds); the other figures
+ * the ida e volta). Where it is measured: those two figures (the walks share the ida's pose bounds, the pair corridinho
+ * is the quarter turn); the other figures
  * keep the flat cap their clearances and recorded poses were calibrated with. */
 export const SOFT_CAP_KNEE = 0.6;
 export const softCap = (value: number, cap: number) => {
@@ -774,7 +775,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     // close-couple path. Preserve their proportions, with a geometric clearance cap.
     const rotation = r.pelvis.rotation, cap = (figure as { rotationCap?: number }).rotationCap ?? 0.12;
     // #221: reached softly in the pair quarter turn and the ida e volta (`softCap`).
-    const soft = (o.movement === "quarts" && o.quartsPaire) || (o.movement === "ida" && o.idaPaire), largest = softMax3(rotation.x, rotation.y, rotation.z);
+    const soft = (o.movement === "quarts" && o.quartsPaire) || (o.movement === "corridinho" && o.placePaire) || (o.movement === "ida" && o.idaPaire), largest = softMax3(rotation.x, rotation.y, rotation.z);
     const scale = soft ? (largest > 1e-12 ? softCap(largest, cap) / largest : 1)
       : Math.min(1, cap / Math.max(1e-12, Math.abs(rotation.x), Math.abs(rotation.y), Math.abs(rotation.z)));
     rotation.set(rotation.x * scale, rotation.y * scale, rotation.z * scale);
