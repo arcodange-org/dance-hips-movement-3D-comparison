@@ -138,6 +138,16 @@ export const KOMPA_PROTO: { eight: KompaEight | null | undefined } = { eight: un
 export const setKompaProto = (name: string | null | undefined) => {
   KOMPA_PROTO.eight = name === "ancien" ? null : name === "deuxTemps" ? KOMPA_EIGHTS[KOMPA_ELECTED] : (name && KOMPA_EIGHTS[name]) || undefined;
 };
+/** #223 (rule R46, 27 Nov. 2026: the hips carry the weight all the time, everything above the navel stays still):
+ * `isolated` (default), the waist takes up all that the pelvis does (its sway, its roll, its pitch, its yaw) and the
+ * styles' trunk waves are off (the suave's wave, the zouk's, the kompa's chest roll); the trunk of the kompa and of the
+ * « 1 2 » no longer follows the pelvis. `?buste=elu`: the trunk as before #223, as voted for the kompa on 23 Nov. (the
+ * chest goes half-way with the pelvis and follows 35 % of its pivot) and kept for the « 1 2 » on 24 Nov. */
+export const TRUNK = { isolated: true };
+export const setTrunk = (name: string | null | undefined) => { TRUNK.isolated = name !== "elu"; };
+/** A style's trunk wave, kept only with the trunk of before #223 (`?buste=elu`): `value` then, `still` otherwise. */
+const wave = (value: number, still = 0) => (TRUNK.isolated ? still : value);
+
 /** #195 (rule of 24 Nov. 2026, R40): the kompa is danced one beat per support, not two. Beats per weight
  * arrival of the basic step: the elected step, voted at two beats per support, keeps its poses and runs
  * twice as fast. `?kompa=deuxTemps` shows it as voted; the other variants and `ancien` keep their two beats,
@@ -302,13 +312,17 @@ function applySit(r: RigHandle, sit: SembaSit, b: number, a: number): void {
   r.pelvis.rotation.y = yaw;
   r.root.position.z = -sit.back * sat * a;
   // The trunk: upright, following a share of the pivot, leaning forward (as elected for the kompa).
+  // #223: isolated, it leans forward only; the waist of the pose takes up the pelvis's pivot and its sway (aside: the
+  // root's; forward and back: `swayFore`).
+  r.swayFore = r.root.position.z;
+  r.head.rotation.x = -0.5 * sit.lean * a;
+  r.root.position.z += sit.ahead * a;
+  if (TRUNK.isolated) { r.spine.rotation.set(sit.lean * a, 0, 0); return; }
   const facing = r.spine.rotation.clone().set(sit.lean * a, sit.follow * yaw, 0, "YXZ");
   r.spine.quaternion.copy(r.pelvis.quaternion.clone().invert().multiply(r.spine.quaternion.clone().setFromEuler(facing)));
   r.spine.rotation.x += r.pelvis.rotation.x; r.spine.rotation.z += r.pelvis.rotation.z;
-  r.head.rotation.x = -0.5 * sit.lean * a;
   const lean = (d: number) => Math.asin(Math.max(-0.9, Math.min(0.9, sit.iso * d / TORSO_JOINTS.chest[1])));
-  r.isoLean = { side: lean(r.root.position.x - TORSO_JOINTS.spine[1] * Math.sin(r.pelvis.rotation.z)), fore: lean(r.root.position.z) };
-  r.root.position.z += sit.ahead * a;
+  r.isoLean = { side: lean(r.root.position.x - TORSO_JOINTS.spine[1] * Math.sin(r.pelvis.rotation.z)), fore: lean(r.swayFore) };
 }
 
 export const STYLES: Record<string, StyleDef> = {
@@ -431,7 +445,9 @@ export const STYLES: Record<string, StyleDef> = {
           const yaw = sit.pivot * Math.cos(u - sit.around) * a;
           r.pelvis.rotation.y = yaw;
           r.root.position.z -= sit.back * bump(2 * (u - sit.around)) * a;
-          if (sit.follow === undefined && !eight.lean) r.spine.rotation.y = -yaw; // `assis`, `assisMarque`, as filmed
+          // #223: isolated, the trunk leans forward only; the waist of the pose takes up the pelvis's pivot.
+          if (TRUNK.isolated) r.spine.rotation.set((eight.lean ?? 0) * a, 0, 0);
+          else if (sit.follow === undefined && !eight.lean) r.spine.rotation.y = -yaw; // `assis`, `assisMarque`, as filmed
           else {
             // The trunk above the pelvis: upright, facing front but for the share of the pivot it follows
             // (`follow`), leaning forward by `lean`. The spine takes exactly what the pelvis's roll and pivot
@@ -443,12 +459,15 @@ export const STYLES: Record<string, StyleDef> = {
           }
         }
       }
-      r.chest.rotation.z = -0.035 * sw * a;
+      r.chest.rotation.z = wave(-0.035 * sw * a);
       if (eight?.back) {
         r.root.position.z -= eight.back.reach * a;
         r.pelvis.rotation.x = eight.back.pitch * (1 - deep) / 2 * a;
       }
-      if (eight?.iso) {
+      // #223: the pelvis's sway forward and back (the pose reads its sway aside on the root): isolated, the waist takes
+      // it all up; with the trunk of before, `iso` says how much.
+      r.swayFore = r.root.position.z;
+      if (eight?.iso && !TRUNK.isolated) {
         // The chest stays where it was: the spine leans against the pelvis's travel and the chest leans back
         // by as much (no net rotation), over the height between them; the roll of the pelvis also carries the foot
         // of the spine sideways. Applied by the pose after the trunk lock.
@@ -511,11 +530,12 @@ export const STYLES: Record<string, StyleDef> = {
       r.pelvis.position.z = (slow ? -SUAVE_SLOW.depth * S2(b) : 0.022 * S4(w)) * a;
       r.pelvis.rotation.x = 0.05 * Math.sin((TAU * w) / 4 + 1.57) * a;
       r.pelvis.rotation.z = 0.03 * side * a;
-      r.spine.rotation.x = 0.09 * Math.sin((TAU * w) / 4 - 0.5) * a;
-      r.lumbar.rotation.x = 0.1 * Math.sin((TAU * w) / 4 - 0.9) * a;
-      r.thoracic.rotation.x = 0.1 * Math.sin((TAU * w) / 4 - 1.4) * a;
-      r.chest.rotation.x = 0.08 * Math.sin((TAU * w) / 4 - 1.1) * a;
-      r.head.rotation.x = 0.06 * Math.sin((TAU * w) / 4 - 1.7) * a;
+      // The trunk's wave: with the trunk of before #223 only (`wave`).
+      r.spine.rotation.x = wave(0.09 * Math.sin((TAU * w) / 4 - 0.5) * a);
+      r.lumbar.rotation.x = wave(0.1 * Math.sin((TAU * w) / 4 - 0.9) * a);
+      r.thoracic.rotation.x = wave(0.1 * Math.sin((TAU * w) / 4 - 1.4) * a);
+      r.chest.rotation.x = wave(0.08 * Math.sin((TAU * w) / 4 - 1.1) * a);
+      r.head.rotation.x = wave(0.06 * Math.sin((TAU * w) / 4 - 1.7) * a);
       r.kneeL.rotation.x = (0.14 + 0.1 * side) * a;
       r.kneeR.rotation.x = (0.14 - 0.1 * side) * a;
       // The heel rose on every beat (the bounce); two beats per side, it stays down.
@@ -545,11 +565,13 @@ export const STYLES: Record<string, StyleDef> = {
       r.hipR.rotation.x = 0.45 * s * a;
       r.kneeL.rotation.x = (0.12 + 0.28 * pos(s)) * a;
       r.kneeR.rotation.x = (0.12 + 0.28 * pos(-s)) * a;
-      r.chest.rotation.y = 0.14 * Math.sin((TAU * b) / 2 - 1.0) * a;
-      r.chest.rotation.x = -0.14 * (0.5 + 0.5 * S4(w)) * a;
-      r.lumbar.rotation.x = -0.1 * (0.5 + 0.5 * S4(w)) * a;
-      r.thoracic.rotation.x = -0.08 * (0.5 + 0.5 * S4(w + 0.5)) * a;
-      r.head.rotation.x = -0.08 * (0.5 + 0.5 * Math.sin((TAU * w) / 4 - 0.8)) * a;
+      // The arch breathes and the chest twists with the trunk of before #223 only (`wave`); isolated, the arch holds
+      // half-way, whatever the ginga does to the amplitude in the figures.
+      r.chest.rotation.y = wave(0.14 * Math.sin((TAU * b) / 2 - 1.0) * a);
+      r.chest.rotation.x = wave(-0.14 * (0.5 + 0.5 * S4(w)) * a, -0.07);
+      r.lumbar.rotation.x = wave(-0.1 * (0.5 + 0.5 * S4(w)) * a, -0.05);
+      r.thoracic.rotation.x = wave(-0.08 * (0.5 + 0.5 * S4(w + 0.5)) * a, -0.04);
+      r.head.rotation.x = wave(-0.08 * (0.5 + 0.5 * Math.sin((TAU * w) / 4 - 0.8)) * a, -0.04);
     },
   },
 };

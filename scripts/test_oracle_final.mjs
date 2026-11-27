@@ -15,8 +15,13 @@ const rest = f => Object.fromEntries(['L','R'].map(side=>[side,{x:f.model.legs[s
 
 // Independent Kizomba/amp=1/iso=1 orientation reference for this integration contract.
 // These documented style amplitudes are not read from STYLES.apply or animated ancestors.
-// World = outer * root * pelvis * spine * chest. The nominal yaw sum is NOT a world Euler yaw.
+// #223: run with the trunk of before (`elu`) and with the isolated trunk (the default, docs/spec-isolation-buste.md).
+let MODE='elu';
+// Trunk of before: World = outer * root * pelvis * spine * chest. The nominal yaw sum is NOT a world Euler yaw.
+// Isolated: the waist takes up the pelvis; the chest turns by its nominal yaw over the root, then leans forward (0.1).
 function expectedChestWorld(outer, beat, expected) {
+  if(MODE==='isole') return outer.clone().multiply(eulerQ(0,expected.rootLocalYaw,0))
+    .multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(.1,expected.chestLocalYaw,0,'YXZ')));
   const sway=Math.sin(Math.PI*beat), pitch=.02*Math.sin(2*Math.PI*beat), roll=.05*sway;
   return outer.clone().multiply(eulerQ(0,expected.rootLocalYaw,0))
     .multiply(eulerQ(pitch,.03*sway,roll)).multiply(eulerQ(-pitch,0,-roll))
@@ -36,7 +41,12 @@ function check(f, beat, expected, config, label) {
     footChecks++;
   }
   angleNear(f.r.root.rotation.y,expected.rootLocalYaw,1e-9,label+' root local');
-  angleNear(f.r.chest.rotation.y,expected.chestLocalYaw,1e-9,label+' chest local');
+  if(MODE==='elu') angleNear(f.r.chest.rotation.y,expected.chestLocalYaw,1e-9,label+' chest local');
+  else {
+    // The chest's turn over the root (its local rotation also holds the waist's counter-lean).
+    const over=worldQuaternion(f.r.root).invert().multiply(worldQuaternion(f.r.chest));
+    angleNear(new THREE.Euler().setFromQuaternion(over,'YXZ').y,expected.chestLocalYaw,1e-7,label+' chest local');
+  }
   quaternionNear(worldQuaternion(f.r.root).toArray(),outer.clone().multiply(eulerQ(0,expected.rootLocalYaw,0)).toArray(),1e-7,label+' root world');
   // #62: on the spot the style runs ON_BEAT_SHIFT behind the clock (weight on the beat).
   const styleBeat=beat-api.onBeatShift({movement:'none',embrace:true,...config});
@@ -60,7 +70,10 @@ function checkContinuity(f, times, config, label) {
     continuityChecks++;
   }
 }
-const coverage=[];
+let coverage=[];
+for(const mode of ['elu','isole']) {
+MODE=mode; api.setTrunk(mode);
+coverage=[];
 for(const movement of ['quarts','ida']) for(const reverse of movement==='quarts'?[false,true]:[false]) for(const follower of [false,true]) {
   const cycle=movement==='quarts'?16:8;
   const f=fixture(api,{rotation:(follower?Math.PI:0)+.37,offset:[.13,0,follower?.175:-.175]});
@@ -70,7 +83,7 @@ for(const movement of ['quarts','ida']) for(const reverse of movement==='quarts'
   const times=[...new Set([...Array.from({length:cycle*4+1},(_,i)=>i/4),...landings,...boundaries.flatMap(t=>[t-1e-7,t+1e-7])])].sort((a,b)=>a-b);
   const seen=new Set();
   for(const b of times) {
-    const label=`${movement} reverse=${reverse} follower=${follower} b=${b}`;
+    const label=`[${MODE}] ${movement} reverse=${reverse} follower=${follower} b=${b}`;
     check(f,b,api.oraclePose(movement,b,reverse,rest(f)),config,label);
     if(landings.includes(b)) seen.add(Math.floor(b/2));
   }
@@ -108,14 +121,20 @@ for(const movement of ['sortieG','sortieF','sortieGF']) for(const follower of [f
     near(actual[0].R-actual[1].R,.17248,1e-6,'historical GLB right foot reset');
   }
 }
-// The actual world yaw differs from the nominal root+chest sum: guard the old mislabelling.
+}
+// The actual world yaw differs from the nominal root+chest sum: guard the old mislabelling (trunk of before).
+// #223: isolated, the pelvis's own yaw no longer reaches the chest: the nominal sum is its world yaw.
 {
   const f=fixture(api), expected=api.oraclePose('ida',.5,false,rest(f));
+  api.applyPose(f.r,f.model,.5,{movement:'ida',ida:true,embrace:true});
+  near(new THREE.Euler().setFromQuaternion(worldQuaternion(f.r.chest),'YXZ').y,expected.rootLocalYaw+expected.chestLocalYaw,1e-7,'isolated chest world yaw');
+  api.setTrunk('elu');
   api.applyPose(f.r,f.model,.5,{movement:'ida',ida:true,embrace:true});
   const measured=new THREE.Euler().setFromQuaternion(worldQuaternion(f.r.chest),'YXZ').y;
   near(expected.rootLocalYaw+expected.chestLocalYaw,-.07071067811865475);
   near(measured,-.0413428059705013);
   assert(Math.abs(measured-(expected.rootLocalYaw+expected.chestLocalYaw))>.02,'nominal is not world yaw');
+  api.setTrunk(null);
 }
 floorAtLeast(minY);
 console.log('PASS oracle GLB:',JSON.stringify({poses,footChecks,worldChecks,continuityChecks,maxFootError,minY,maxNominalRootError,coverage}));
