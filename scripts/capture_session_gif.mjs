@@ -26,6 +26,8 @@ const page = await browser.newPage({ viewport: { width: 560, height: 600 } });
 page.setDefaultTimeout(300000);
 await page.goto(`${url}&sortieBeat=${from.toFixed(4)}`, { waitUntil: "load", timeout: 300000 });
 await page.waitForSelector("canvas");
+// WAIT=<ms>: a page that loads its models slowly (the dancer alone) is given this long before the first image.
+if (process.env.WAIT) await page.waitForTimeout(Number(process.env.WAIT));
 const shot = () => page.locator("canvas").first().screenshot();
 const settled = async (heavy = 0) => { let previous = null; for (let k = 0; k < 400; k++) { await page.waitForTimeout(150); const png = await shot(); if (previous && png.equals(previous) && png.length > heavy) return png; previous = png; } throw new Error('never settled'); };
 // The first image is taken once the models are drawn: an image this heavy (bytes). A light view (bones alone, in

@@ -21,6 +21,7 @@ import { resolveCam, resolveView, viewAnglesOf, SOLID_TORSO_OPACITY } from "./ca
 import { usePersistentState } from "./hooks/usePersistentState";
 import { STYLES, movementOf, movementFlags, movementAllowed, travelAllowed, PAIR_DZ, setKompaProto, setSembaProto, setUmDoisProto, type ModeKey, type MovementKey } from "./styles";
 import { setKneeFloor } from "./pose";
+import { setUmDoisGesture } from "./umDois";
 import { QUARTS_PAIR_DZ } from "./quartsPaire";
 import { IDA_PAIR_DZ, setIdaWeightProto, setIdaGingaFlow } from "./idaPaire";
 import { PLACE_PAIR_DZ } from "./placePaire";
@@ -48,6 +49,9 @@ setKneeFloor(readParams().get("flexion"));
 setIdaWeightProto(readParams().get("idaPoids"));
 // #210: `?idaGinga=tenu` holds the ginga between two go-and-returns (the model before the vote of 25 Nov.).
 setIdaGingaFlow(readParams().get("idaGinga"));
+// #209 (docs/spec-un-deux-geste.md): the hip first is elected (25 Nov. 2026); `?geste=ancien|ensemble|hancheFinit` shows
+// another timing of the step aside of the « 1 2 » against the body that carries it.
+setUmDoisGesture(readParams().get("geste"));
 
 function Gauge({ label, color, hud }: { label: string; color: string; hud: any }) {
   return (

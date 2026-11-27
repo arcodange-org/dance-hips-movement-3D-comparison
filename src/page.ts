@@ -126,7 +126,7 @@ export const COMMANDES: readonly Commande[] = [
   { id: "sortieCombinee", nom: "Sortie combinée", place: "miseAuPoint", params: ["sortieGF"], quand: enCouple },
 ];
 /** Paramètres d'URL sans commande sur la page : captures, film, pages de vote, liens. */
-export const PAR_ADRESSE: readonly string[] = ["cam", "angle", "zoom", "campos", "camtgt", "bare", "demo", "solid", "haut", "essai", "kompa", "semba", "unDeux", "flexion", "idaPoids", "idaGinga",
+export const PAR_ADRESSE: readonly string[] = ["cam", "angle", "zoom", "campos", "camtgt", "bare", "demo", "solid", "haut", "essai", "kompa", "semba", "unDeux", "flexion", "idaPoids", "idaGinga", "geste",
   // #206 : les exercices d'isolation (docs/spec-isolations.md), filmés par le pont des mascottes.
   "isolation", "miroir"];
 

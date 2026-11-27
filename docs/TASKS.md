@@ -537,3 +537,14 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Bassin continu en vitesse sur tout le cycle (`IDA_FLOW`, `idaFlowBeat`) ; garde dans `test_ida_paire` (1 cm par
   temps au moins) ; mesures `scripts/mesure_vitesse_bassin_ida.mjs`, tracé `scripts/tracer_bassin_ida.mjs` ; films avant /
   après ([dossier](elections/ida-poids/README.md)).
+
+## « 1 2 » : le ginga de la hanche porte le pas de côté (#209)
+
+- [x] Spec ([spec](spec-un-deux-geste.md)) ; règle R45 ; mesures (`scripts/mesure_un_deux_geste.mjs`) ; candidats sous
+  `?geste=` (`hancheFinit`, `ensemble`, `hancheDabord`).
+- [x] Films et vote : page de vote, seizième tour, question 32 ([dossier](elections/un-deux-geste/README.md)).
+- [x] Relevé des autres figures (`scripts/sonde_geste_hanche.mjs`) : sorties à reprendre (#213, #214), virgula du quart
+  de tour (#208).
+- [x] Élu le 25 novembre : C, `hancheDabord`, par défaut ; R45 contrôlée dans `scripts/test_um_dois.mjs`.
+- [ ] Films du pas de base (#155) refaits une fois dans `main`.
+- [ ] Sorties garçon (#213) et fille (#214) : la hanche d'abord.

@@ -70,6 +70,8 @@ votes) ; en couple et en déplacement, l'ancien modèle ; le traceur mesure auss
 se danse sur un temps par appui (#195, R40 : `KOMPA_BEATS`, `kompaBeat` ; `?kompa=deuxTemps` : le pas tel que voté).
 Pas de base « 1 2 » de la kizomba et du semba seuls (#196, R42, [spec](docs/spec-pas-de-base-1-2.md)), élu le 24 novembre : `UM_DOIS_ELECTED`
 (`src/umDois.ts` pur, `applySit` et `UM_DOIS` dans `src/styles.ts`, `scripts/test_um_dois.mjs`) ; l'ancien pas est la figure « Sur place » (`surPlace`).
+La hanche porte le pas de côté (#209, R45, [spec](docs/spec-un-deux-geste.md)), élu le 25 novembre : la hanche d'abord (`UM_DOIS_GESTURE_ELECTED`, `?geste=` pour les autres lectures) ;
+relevé des figures où le pied part avant le bassin : `scripts/sonde_geste_hanche.mjs`.
 Suave seul, sur place : deux temps par côté, sans rebond (#200, R44, [spec](docs/spec-suave-deux-temps.md), `SUAVE_SLOW`) ; en couple, l'ancien modèle.
 Jamais de jambe tendue (#203, R43, [spec](docs/spec-flexion-minimale.md)) : 30° de flexion au moins (`KNEE_FLOOR_ELECTED`, élu le 24 novembre) ;
 le couple se tient plus loin (`COUPLE_DZ`, `KNEE_ROOM`, `src/placement.ts`) ; croisements d'os en couple : `scripts/sonde_croisements_couple.mjs` (hors `npm test`, `REGLAGE` pour essayer un réglage).

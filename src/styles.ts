@@ -1,5 +1,6 @@
 import { TAU, S1, S2, S4, pos, HIP_WIDTH, type RigHandle } from "./anatomy";
 import { TORSO_JOINTS } from "./rigJoints";
+import { UM_DOIS_GESTURE } from "./umDois";
 
 export interface StyleDef {
   label: string;
@@ -216,7 +217,8 @@ export function sembaSupport(p: SembaSit, b: number, stepping = false): number {
   // `stepping` (#196, the « 1 2 »): the feet travel. The foot that steps out lands half-way through the beat and
   // the weight then passes onto it, both feet on the floor; during the double bounce the other foot closes and
   // marks without weight, so the whole weight stays on the foot of the bounce.
-  const n = p.pattern.length, t = (((b - 0.5) % n) + n) % n, i = Math.floor(t), v = t - i, into = stepping ? 0.5 : 0.2;
+  // #209: the weight passes once the foot has landed (`UM_DOIS_GESTURE`, half-way through the beat today).
+  const n = p.pattern.length, t = (((b - 0.5) % n) + n) % n, i = Math.floor(t), v = t - i, into = stepping ? 1 - UM_DOIS_GESTURE.v.land : 0.2;
   let side = 1;
   for (let k = 0; k < i; k++) if (p.pattern[k] === "T") side = -side;
   if (p.pattern[i] === "D") return stepping ? -side : -side * (1 - 0.5 * Math.sin(Math.PI * v) ** 2);
@@ -261,6 +263,12 @@ const UM_DOIS_SITS: Record<"semba" | "kizomba" | "kizombaDoux", SembaSit> = {
   kizombaDoux: { ...SEMBA_SITS.parCote, dip: 0.06, swing: 0.3, sway: 0.035, pivot: 0.1, back: 0.015 },
 };
 const umDoisKizombaSit = (): SembaSit => umDoisOf("kizomba")?.doux ? UM_DOIS_SITS.kizombaDoux : UM_DOIS_SITS.kizomba;
+/** #209: the sideways sway (m) the hip of the « 1 2 » gives the pelvis at motion beat `b` (as `apply` receives it),
+ * amplitude `a`: the step's foot may follow the body, sway included (src/umDois.ts). */
+export const umDoisSway = (styleKey: string, b: number, a: number): number => {
+  const sit = styleKey === "kizomba" ? umDoisKizombaSit() : styleKey === "semba" ? UM_DOIS_SITS.semba : null;
+  return sit ? sit.sway * sembaSwing(sit, b + 1) * a : 0;
+};
 /** The hip that sits (#161, #162): the pose of a `SembaSit` at motion beat `b`, amplitude `a`. Danced by the
  * semba's elected step, and by the « 1 2 » (#196) of the semba and of the kizomba, whose feet travel. */
 function applySit(r: RigHandle, sit: SembaSit, b: number, a: number): void {
