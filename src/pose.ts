@@ -76,8 +76,8 @@ export interface PoseOptions {
   contraposition: number;
   /** #69 guide mode: offset (own frame, m) added to the figure's pelvis root, e.g. the residual of a
    * transition being inertialized; `y` is added to the pelvis height found by the leg reach. The feet
-   * keep their targets (the leg IK absorbs it). */
-  rootOffset: { x: number; z: number; y?: number } | null;
+   * keep their targets (the leg IK absorbs it). #219: `yaw` (rad) is added to the figure's own yaw (`rootYaw`). */
+  rootOffset: { x: number; z: number; y?: number; yaw?: number } | null;
   /** #69 guide mode: residual of the pelvis's own pose (position m, Euler rad) at a boundary being
    * inertialized; added after the figure's bounds and before the leg IK. */
   pelvisOffset: { position: [number, number, number]; rotation: [number, number, number] } | null;
@@ -333,6 +333,20 @@ function soleHeight(points: THREE.Vector3[], q: THREE.Quaternion): number {
   for (const p of points) min = Math.min(min, v.copy(p).applyQuaternion(q).y);
   return Number.isFinite(min) ? -min : 0;
 }
+
+/** #221 (R34): a cap reached softly: unchanged up to `SOFT_CAP_KNEE` of the cap, then bending towards the cap without
+ * ever reaching it (slope and curvature continuous). Held flat at the cap, the pelvis stopped turning there at once and
+ * started again at once (measured in the game mode: 656° per beat² on the follower's roll in the quarter turn, 506 in
+ * the ida e volta). Where it is measured: those two figures (the walks share the ida's pose bounds, the pair corridinho
+ * is the quarter turn); the other figures
+ * keep the flat cap their clearances and recorded poses were calibrated with. */
+export const SOFT_CAP_KNEE = 0.6;
+export const softCap = (value: number, cap: number) => {
+  const knee = SOFT_CAP_KNEE * cap, room = cap - knee;
+  return value <= knee || room <= 0 ? Math.min(value, cap) : knee + room * Math.tanh((value - knee) / room);
+};
+/** #221: the largest of three magnitudes, smoothly (an 8-norm: where two are close it stays above both). */
+const softMax3 = (x: number, y: number, z: number) => (x ** 8 + y ** 8 + z ** 8) ** 0.125;
 
 /** Markers remain JSX children of pelvis but follow the animated knee frame. */
 export function updateKneeMarkers(r: RigHandle): void {
@@ -759,8 +773,11 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   if (figure) {
     // The on-the-spot isolations need a smaller envelope while feet follow a fixed
     // close-couple path. Preserve their proportions, with a geometric clearance cap.
-    const rotation = r.pelvis.rotation;
-    const scale = Math.min(1, ((figure as { rotationCap?: number }).rotationCap ?? 0.12) / Math.max(1e-12, Math.abs(rotation.x), Math.abs(rotation.y), Math.abs(rotation.z)));
+    const rotation = r.pelvis.rotation, cap = (figure as { rotationCap?: number }).rotationCap ?? 0.12;
+    // #221: reached softly in the pair quarter turn and the ida e volta (`softCap`).
+    const soft = (o.movement === "quarts" && o.quartsPaire) || (o.movement === "corridinho" && o.placePaire) || (o.movement === "ida" && o.idaPaire), largest = softMax3(rotation.x, rotation.y, rotation.z);
+    const scale = soft ? (largest > 1e-12 ? softCap(largest, cap) / largest : 1)
+      : Math.min(1, cap / Math.max(1e-12, Math.abs(rotation.x), Math.abs(rotation.y), Math.abs(rotation.z)));
     rotation.set(rotation.x * scale, rotation.y * scale, rotation.z * scale);
     // Coupled pelvises (owner request, 19 Nov.): while the couple starts in contact, the follower's
     // pelvis follows the leader's instead of dancing on its own: the follower's hips seek the
@@ -811,6 +828,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     if (o.rootOffset) { r.root.position.x += o.rootOffset.x; r.root.position.z += o.rootOffset.z; }
     const rootYaw = (figure as { rootYaw?: number }).rootYaw;
     if (rootYaw !== undefined) r.root.rotation.y = rootYaw;
+    if (o.rootOffset?.yaw) r.root.rotation.y += o.rootOffset.yaw;
     // #51: the pelvises seek each other: each closes half the gap beyond the plexus distance (the leg
     // reach projection below keeps the pelvis above its feet).
     if (partnerRoot && PLEXUS.pelvisPull > 0) {
