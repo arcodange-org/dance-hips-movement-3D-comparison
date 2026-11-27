@@ -63,27 +63,37 @@ console.log('PASS plexus-to-plexus lean with contraposition (measured state guar
 // trunk leans at most 8° from the vertical (style posture included) and the chest turns at most 18°
 // against the pelvis, in every pair figure (six styles but kompa, which dances neither sorties nor
 // quarts; quinconce and reference).
+// #223 (R46: above the navel the trunk stays still, the hips turn under it): the 18° now bound the contraposition, the
+// chest against the figure's heading (the root); in the ida e volta the chest keeps facing the partner while the hips
+// turn up to 9° away, 22° from them (`IDA_FACING`). Against the pelvis the chest is now as far as the style turns the
+// hips under it (tarraxinha, zouk: 24°): bounded at 25°. Before #223 the chest followed the hips, up to 24.7° from the
+// figure's heading.
 {
   const vertical = new THREE.Vector3(0, 1, 0);
   const yawOf = q => new THREE.Euler().setFromQuaternion(q, 'YXZ').y;
-  let lean = 0, twist = 0, where = '';
+  let lean = 0, twist = 0, contra = 0, where = '', twistWhere = '', contraWhere = '';
   for (const placement of ['quinconce', 'reference']) for (const [label, dz, beats, options] of cases)
     for (const styleKey of Object.keys(api.STYLES).filter(k => k !== 'kompa')) {
       const pair = [fixture(api, { offset: [0, 0, -dz] }), fixture(api, { rotation: Math.PI, offset: [0, 0, dz] })];
       for (let beat = 0; beat <= beats + 1e-9; beat += .25) {
         pair.forEach((f, i) => api.applyPose(f.r, f.model, beat, { ...options, embrace: true, follower: !!i, placement, styleKey, amp: 1, plexus: true, contraposition: 1 }));
         for (const f of pair) {
-          const trunk = world(f, 'head').sub(world(f, 'pelvis')).angleTo(vertical);
-          const d = yawOf(f.r.chest.getWorldQuaternion(new THREE.Quaternion())) - yawOf(f.r.pelvis.getWorldQuaternion(new THREE.Quaternion()));
-          const t = Math.abs(Math.atan2(Math.sin(d), Math.cos(d)));
+          // #223: from where the pelvis would be under the unbent spine (the waist takes up the hips' sway).
+          const trunk = world(f, 'head').sub(api.trunkFoot(f.r)).angleTo(vertical);
+          const chestYaw = yawOf(f.r.chest.getWorldQuaternion(new THREE.Quaternion())), angle = d => Math.abs(Math.atan2(Math.sin(d), Math.cos(d)));
+          const t = angle(chestYaw - yawOf(f.r.pelvis.getWorldQuaternion(new THREE.Quaternion())));
+          const c = angle(chestYaw - yawOf(f.r.root.getWorldQuaternion(new THREE.Quaternion()))), cap = label.startsWith('ida') ? 23 : 18;
+          if (c * 180 / Math.PI / cap > contra) { contra = c * 180 / Math.PI / cap; contraWhere = `${(c * 180 / Math.PI).toFixed(1)}° (${label} ${placement} ${styleKey} ${beat})`; }
           if (trunk > lean) { lean = trunk; where = `${label} ${placement} ${styleKey} ${beat}`; }
-          twist = Math.max(twist, t);
+          if (t > twist) { twist = t; twistWhere = `${label} ${placement} ${styleKey} ${beat} ${f === pair[1] ? 'suiveuse' : 'guideur'}`; }
         }
       }
     }
   assert(lean <= 8 * Math.PI / 180, `trunk lean ${(lean * 180 / Math.PI).toFixed(1)}° (${where})`);
-  assert(twist <= 18 * Math.PI / 180, `chest twist ${(twist * 180 / Math.PI).toFixed(1)}°`);
-  console.log(`PASS danseurs, pas lutteurs : tronc au plus ${(lean * 180 / Math.PI).toFixed(1)}° de la verticale, buste au plus ${(twist * 180 / Math.PI).toFixed(1)}° contre le bassin`);
+  assert(contra <= 1, `contraposition: the chest turns ${contraWhere} from the figure's heading (18°, ida e volta 23°)`);
+  assert(twist <= 25 * Math.PI / 180, `chest twist ${(twist * 180 / Math.PI).toFixed(1)}° against the pelvis (${twistWhere})`);
+  console.log(`PASS danseurs, pas lutteurs : tronc au plus ${(lean * 180 / Math.PI).toFixed(1)}° de la verticale, contraposition au plus ${contraWhere}, `
+    + `buste au plus ${(twist * 180 / Math.PI).toFixed(1)}° contre le bassin qui tourne dessous (#223)`);
 }
 
 // The app enables the plexus contact whenever a placement is set: the figure runners (GLB poses,

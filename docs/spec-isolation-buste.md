@@ -57,8 +57,8 @@ la colonne.
 - Ida e volta en couple : les hanches tournent jusqu'à 9° d'un côté pendant que le buste fait face au partenaire, à
   13° de l'axe en quinconce ; le buste isolé peut s'écarter de 22° des hanches (`IDA_FACING`) au lieu de 17°
   (`PLEXUS.facing`, gardé ailleurs : les sorties en dépendent, #220).
-- L'appui vers le partenaire lit l'inclinaison du tronc sur le buste et non plus du bassin à la tête (qui se balancerait
-  avec le bassin).
+- L'appui vers le partenaire lit l'inclinaison du tronc depuis le pied de la colonne dépliée (`trunkFoot`) et non plus
+  depuis le bassin, qui se balance sous le buste.
 - Hors de la règle : les exercices d'isolation (#206) posent leur tronc eux-mêmes.
 
 ## Après (même mesure)
@@ -101,3 +101,10 @@ mesureur de hanches suit le même réglage (`BUSTE=elu`).
 - `test_sortie_garcon` : poses historiques avec le tronc d'avant ; tronc isolé, mêmes jambes.
 - `test_ginga_huit` : ce que les votes du kompa et du semba ont vu (le buste qui suit) se mesure avec le tronc d'avant ;
   isolé, ce buste reste en place.
+- `test_plexus` (« danseurs, pas lutteurs », 20 novembre) : l'inclinaison du tronc se lit depuis le pied de la colonne
+  dépliée (4,8° au plus). Les 18° bornent maintenant la contraposition, le buste contre la direction de la figure (17,6°
+  au plus ; 23° dans l'ida e volta, où le buste fait face au partenaire pendant que les hanches tournent) : avant, le
+  buste suivait les hanches et s'écartait jusqu'à 24,7° de la direction de la figure (tarraxinha, zouk). Contre le
+  bassin, qui tourne sous lui, le buste va jusqu'à 24,4° (borné à 25°).
+- `test_guidage` : le saut du squelette aux jonctions sur un millionième de temps passe de 0,31 à 0,41 mm (tête, zouk,
+  sortie garçon puis quart de tour ; l'appui vers le partenaire s'applique après le résidu du tronc) ; borne 0,45 mm.

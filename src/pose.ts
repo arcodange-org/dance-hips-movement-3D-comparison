@@ -372,6 +372,7 @@ function isolateWaist(r: RigHandle, sway: { x: number; z: number }): void {
   // The spine and the chest as set on an unmoving pelvis: the style's lean, the chest's posture and its turns.
   // The chest turns about the vertical and leans forward where it faces (its Euler angles read in that order).
   const own = r.spine.quaternion.clone();
+  r.waistOwn = own.clone();
   const chestOwn = new THREE.Quaternion().setFromEuler(new THREE.Euler(r.chest.rotation.x, r.chest.rotation.y, r.chest.rotation.z, "YXZ"));
   // Where the chest stands from the spine's foot, as the style leans it, and the style's sway in the root's frame.
   const reach = TORSO_JOINTS.chest[1], up = new THREE.Vector3(0, reach, 0).applyQuaternion(own);
@@ -388,7 +389,17 @@ function isolateWaist(r: RigHandle, sway: { x: number; z: number }): void {
   r.chest.quaternion.copy(spine.invert().multiply(own).multiply(chestOwn));
 }
 
-function leanTowards(r: RigHandle, partner: { x: number; z: number }, waist = false): void {
+/** Where the trunk stands from (world): the pelvis; #223, with the waist taking up the pelvis, where the pelvis would be
+ * under the unbent spine (from the pelvis itself, the trunk's lean would sway with the hips). */
+export function trunkFoot(r: RigHandle): THREE.Vector3 {
+  if (!r.waistOwn) return r.pelvis.getWorldPosition(new THREE.Vector3());
+  const rootQ = r.root.getWorldQuaternion(new THREE.Quaternion());
+  return r.chest.getWorldPosition(new THREE.Vector3())
+    .sub(new THREE.Vector3(0, TORSO_JOINTS.chest[1], 0).applyQuaternion(rootQ.clone().multiply(r.waistOwn)))
+    .sub(new THREE.Vector3(0, TORSO_JOINTS.spine[1], 0).applyQuaternion(rootQ));
+}
+
+function leanTowards(r: RigHandle, partner: { x: number; z: number }): void {
   const outer = r.root.parent!;
   const spine = r.spine as THREE.Object3D, chest = r.chest as THREE.Object3D;
   const marker = (): THREE.Vector3 => {
@@ -410,8 +421,7 @@ function leanTowards(r: RigHandle, partner: { x: number; z: number }, waist = fa
     if (iteration === 0) {
       const t = Math.max(0, Math.min(1, (missing - PLEXUS.open) / PLEXUS.fade)); fadeOut = 1 - t * t * (3 - 2 * t);
       // Style posture first: a style already leaning forward (suave) keeps less room for the lean.
-      // #223: with the waist taking up the pelvis, the trunk's lean is the chest's (from the pelvis, it would sway with it).
-      const trunk = r.head.getWorldPosition(new THREE.Vector3()).sub((waist ? r.chest : r.pelvis).getWorldPosition(new THREE.Vector3()));
+      const trunk = r.head.getWorldPosition(new THREE.Vector3()).sub(trunkFoot(r));
       fadeOut = Math.min(fadeOut, Math.max(0, PLEXUS.maxTrunk - trunk.angleTo(new THREE.Vector3(0, 1, 0))) / PLEXUS.maxLean);
     }
     const pivot = outer.worldToLocal(spine.getWorldPosition(new THREE.Vector3()));
@@ -920,7 +930,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   // #206: the arms hang during an exercise (no dance frame).
   applyDanceFrame(r, o.cadre && !iso);
   if (o.follower) applyFollowerFrame(r, o.cadre);
-  if (partnerRoot) leanTowards(r, partnerRoot, waist);
+  if (partnerRoot) leanTowards(r, partnerRoot);
   const activeIK = !!iso || !!figure || o.plant || o.travel > 0 || o.quarts || o.ida || o.corridinho;
   const footOrientations = {} as Record<Side, THREE.Quaternion>;
   // Height of the ankle that bounds the pelvis height (the ankle target itself, except in a rolled walk).

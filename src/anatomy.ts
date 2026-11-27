@@ -79,6 +79,7 @@ export function resetRig(r: RigHandle): void {
   if (r.armFR) r.armFR.rotation.set(0, 0, 0);
   r.isoLean = undefined;
   r.swayFore = undefined;
+  r.waistOwn = undefined;
   r.extraL = 0;
   r.extraR = 0;
 }
