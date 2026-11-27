@@ -573,8 +573,9 @@ export function inertialize(x0: number, v0: number, elapsed: number, T = GUIDE.i
 export const JUNCTION_OVERSHOOT = 0.19;
 /** #219: the root's own yaw carries its speed at most this far beyond the next figure (rad). Carried over a whole beat,
  * the 19° per beat of an ida e volta started on another beat of its cycle turned the knees into the partner's (measured
- * on the GLB, kizomba, `test_guidage`; 1° or less: no leg-bone crossing in the six styles). Its speed then fades faster. */
-export const JUNCTION_YAW = Math.PI / 180;
+ * on the GLB, `test_guidage`: kizomba idaArrD → idaD; with 1°, still suave idaArrD → sortie fille chained; 0.5°: no
+ * leg-bone crossing in the six styles). Its speed then fades faster. */
+export const JUNCTION_YAW = 0.5 * Math.PI / 180;
 export const yawFade = (speed: number) => Math.min(GUIDE.inertia, JUNCTION_YAW / Math.max(1e-9, JUNCTION_OVERSHOOT * Math.abs(speed)));
 
 /** Quintic fade of an inertialized residual (Bollo): 1 → 0 over `GUIDE.inertia` beats, flat at both ends. */

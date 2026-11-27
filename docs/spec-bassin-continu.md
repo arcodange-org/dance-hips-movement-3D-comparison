@@ -32,9 +32,10 @@ continue, la vitesse non.
   segment suivant). `planGuide` donne à chaque segment `speed` = fin du précédent − début du sien (`junctionSpeed`) ;
   un aller-retour ajouté à la position 0 la recalcule.
 - **Lacet de la racine** : `rootOffset.yaw` s'ajoute au lacet propre de la figure (`src/pose.ts`) ; il n'avait pas de
-  résidu. Sa vitesse s'éteint assez vite pour ne pas emporter le bassin plus de 1° au-delà de la figure suivante
+  résidu. Sa vitesse s'éteint assez vite pour ne pas emporter le bassin plus de 0,5° au-delà de la figure suivante
   (`JUNCTION_YAW`, `yawFade`) : emportés sur un temps, les 19° par temps d'un ida e volta repris à un autre temps de son
-  cycle tournaient les genoux dans ceux du partenaire (kizomba, `test_guidage`).
+  cycle tournaient les genoux dans ceux du partenaire (`test_guidage` : kizomba idaArrD → idaD ; avec 1°, encore suave
+  idaArrD → sortie fille enchaînée).
 - **Pose du bassin et buste** : chaque canal du résidu mesuré sur le squelette a sa vitesse, par différences finies
   d'ordre 2 (`JUNCTION_STEP` = 1/96 de temps) de part et d'autre de la jonction ; le buste est mesuré avec les résidus
   au sol et du bassin tels qu'ils partent. Mis en cache par transition, comme avant.
