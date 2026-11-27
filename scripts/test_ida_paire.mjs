@@ -373,3 +373,31 @@ console.log('PASS partage du placement de l’ida e volta en paire');
   assert(slowest.v >= FLOOR, `#210: the pelvis stands still (${slowest.v.toFixed(2)} cm per beat, ${slowest.styleKey}, ${slowest.who}, beat ${slowest.beat.toFixed(2)})`);
   console.log(`PASS #210 : le bassin ne s’arrête jamais, au moins ${slowest.v.toFixed(1)} cm par temps (${slowest.styleKey}, ${slowest.who}, temps ${slowest.beat.toFixed(2)}) ; garde : ${FLOOR} cm par temps`);
 }
+
+// #210, #219, #221 (R34): in the game mode the pelvis never stops and its speed never breaks, from the basic step through
+// the ida e volta and back (scripts/bassin_mesure.mjs). Before: 1 115 and 1 334 cm/beat² at the entry (the pelvis
+// jumped from 9.9 to 17.2 cm per beat), 712 °/beat² of yaw at the exit, the roll stopped dead at its cap (506 °/beat²).
+// The basic step: 30 cm/beat². Known gap, held where it is: 414 to 548 cm/beat² in height where a foot starts its
+// return (its heel rises on the ball in a thirtieth of a beat: the reduced roll shortens the push-off, src/gait.ts).
+// Yaw at the exit: up to 480 °/beat², the pivot's speed given up within a tenth of a beat (0.5° at most beyond the basic
+// step: carried longer, the knees met the partner's, `JUNCTION_YAW`).
+{
+  const { pelvisSession, zoneOf } = await import('./bassin_mesure.mjs');
+  const LIMIT = { a: 150, ay: 600, ar: 300, aw: 500 };
+  const worst = {};
+  for (const styleKey of ['kizomba', 'semba', 'suave']) for (const kind of ['ida', 'idaArr']) {
+    const { end, roles } = await pelvisSession(kind, { styleKey });
+    for (const [role, rows] of Object.entries(roles)) {
+      const z = zoneOf(rows, -0.5, end + 1);
+      assert.equal(z.still, 0, `${styleKey} ${kind} ${role}: the pelvis stands still ${z.still} beat`);
+      // Height and roll: semba's own bounce (in every figure, and in the passage to the basic step danced in suave).
+      for (const key of ['a', 'aw', ...(styleKey === 'semba' ? [] : ['ay', 'ar'])])
+        assert(z[key].value < LIMIT[key], `${styleKey} ${kind} ${role}: ${key} ${z[key].value.toFixed(0)} at ${z[key].t.toFixed(2)} (≤ ${LIMIT[key]})`);
+      for (const key of ['a', 'ay', 'aw', 'ar']) if (!worst[key] || z[key].value > worst[key].value) worst[key] = { ...z[key], styleKey, kind, role };
+      if (!worst.vmin || z.vmin.value < worst.vmin.value) worst.vmin = { ...z.vmin, styleKey, kind, role };
+    }
+  }
+  const say = k => `${worst[k].value.toFixed(0)} (${worst[k].styleKey}, ${worst[k].kind}, ${worst[k].role}, ${worst[k].t.toFixed(2)})`;
+  console.log(`PASS #210 : bassin de l’ida e volta sans arrêt (au moins ${worst.vmin.value.toFixed(1)} cm par temps), accélération au sol ${say('a')}, `
+    + `en hauteur ${say('ay')}, lacet ${say('aw')}, roulis ${say('ar')} ; jonctions comprises`);
+}

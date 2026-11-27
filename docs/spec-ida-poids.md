@@ -169,6 +169,25 @@ quarts du poids, fenêtres du ginga qui se suivent, phase jamais tenue ; la phas
 (`test_ginga_couple`, `ginga-couple.feature`) ne concerne plus l'ida, qui donne la sienne) ; saccades réenregistrées
 (meilleures qu'avant).
 
+## Le bassin sans arrêt ni accélération subite (27 novembre)
+
+Demande du 27 novembre : l'ida e volta sans interruption du mouvement des hanches et sans accélération subite. Mesuré
+dans le mode jeu (`scripts/bassin_mesure.mjs` : ida commandé depuis le pas de base, kizomba, ginga par défaut,
+quinconce, amplitude 1, 48 échantillons par temps ; repère, le pas de base : 30 cm/temps²).
+
+- **Jonctions** (#219, branche fusionnée ici) : le résidu part avec sa vitesse. Entrée 1 115 et 1 334 → 66 et 78
+  cm/temps² (le bassin sautait de 9,9 à 17,2 cm par temps) ; sortie : 60 à 68 cm/temps², lacet 550 et 712 → 96 et 47
+  °/temps² (jusqu'à 493 pour l'ida commencé en arrière : son pivot rend sa vitesse en un dixième de temps, pour ne pas
+  emporter les genoux plus de 0,5° dans ceux du partenaire).
+- **Roulis** (#221) : le plafond de rotation (`rotationCap`, 2°) est atteint en douceur. Suiveuse : 506 → 213 °/temps².
+- **Intérieur** : continu depuis le ginga continu (25 novembre) ; jamais immobile (au moins 2,4 cm par temps).
+
+**Reste** : 414 à 548 cm/temps² en hauteur là où un pied commence son retour (temps 3,2 et 5,2 du cycle) : le roulis
+réduit du pas (`backRoll`, `forwardRoll` 0,3) raccourcit aussi la poussée (`src/gait.ts`), et le talon monte sur la
+pointe en un trentième de temps ; la cheville recule d'autant et la jambe qui borne la hauteur la suit. Allonger la
+poussée change le moment où le pied quitte le sol, calibré avec celui du partenaire (#88) : à reprendre avec ses tests.
+Garde dans `scripts/test_ida_paire.mjs` (kizomba, semba, suave ; hauteur et roulis du semba : le rebond du style lui-même).
+
 ## Hors périmètre
 
 - La virgula du quart de tour (#208) et le « 1 2 » (#209), chantiers distincts.
