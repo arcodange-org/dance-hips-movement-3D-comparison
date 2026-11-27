@@ -535,3 +535,13 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Élu le 25 novembre : C, `hancheDabord`, par défaut ; R45 contrôlée dans `scripts/test_um_dois.mjs`.
 - [ ] Films du pas de base (#155) refaits une fois dans `main`.
 - [ ] Sorties garçon (#213) et fille (#214) : la hanche d'abord.
+
+## Au-dessus du nombril, le buste reste stable (#223)
+
+- [x] Spec ([spec](spec-isolation-buste.md)) ; règle R46 ; mesures avant / après (repère de chaque danseur, moyenne
+  glissante sur 4 temps).
+- [x] La taille absorbe le bassin (`isolateWaist`, `src/pose.ts`) ; vagues des styles arrêtées ; pas de base du mode jeu
+  tenu comme le style choisi (`trunkStyle`) ; ida e volta : buste jusqu'à 22° des hanches (`IDA_FACING`).
+- [x] Garde `scripts/test_isolation_buste.mjs` ; oracle, sorties historiques et votes du « 8 » mesurés avec les deux troncs.
+- [ ] Films à faire élire : le buste isolé contre `?buste=elu` (kompa du 23 novembre, « 1 2 » du 24), seul et en mode jeu.
+- [ ] Films du pas de base (#155) refaits une fois l'isolation dans `main`.
