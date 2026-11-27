@@ -25,7 +25,11 @@ export const QUARTS_HEEL_AT_TOE: FootPoint = { x: 0.056, z: 0.20 };
  * forward and makes the follower step back) and the second. `progressif`: the block turns the whole quarter in one
  * smooth curve from the moment the first foot leaves to the landing of the second, nearly facing front when the first
  * foot lands; `entreLesPas`: the first step only goes forward, the block turns from its landing to the second's. */
-export interface QuartVirgula { beyond: number; beside?: number; pivot?: boolean; turn: "aujourdhui" | "diagonale" | "apres" | "progressif" | "entreLesPas" }
+export interface QuartVirgula { beyond: number; beside?: number; pivot?: boolean; turn: "aujourdhui" | "diagonale" | "apres" | "progressif" | "entreLesPas";
+  /** #211: the follower's D goes this far straight back on « 1 » (m), then pivots, loaded, and closes on « 4 ». */
+  back?: number;
+  /** #211: at « 1 » the leader's chest turns this far towards the coming turn (rad), the pelvises still facing. */
+  chestLead?: number }
 export const QUART_AFTER = 0.4;
 export const QUART_TODAY: QuartVirgula = { beyond: 0, turn: "aujourdhui" };
 export const QUART_CANDIDATES: Record<string, QuartVirgula> = {
@@ -46,6 +50,21 @@ export const QUART_ELECTED: QuartVirgula = { beyond: 0.19, beside: 0.034, turn: 
  * then pivots on its ball, loaded, while the couple turns. Its bones never cross his, but in the quinconce at amplitude
  * 1 her toes land on his virgula's (spec, « Le pivot de la suiveuse »): not the default until the owner decides. */
 QUART_CANDIDATES.pivotSuiveur = { ...QUART_ELECTED, pivot: true };
+/** #211 (owner, 27 Nov. 2026, after the films of f8619a1: on « 1 » the follower steps straight back on the line instead of
+ * starting the pivot). PROTOTYPES, to elect: her D goes straight back on « 1 » and her pelvis with it, without turning;
+ * the D then carries her and pivots on its ball while the couple turns (from his D's lift for « 2 »); her G goes round
+ * on « 3 »; her D, free again, closes to the quarter's place on « 4 » (the quarter stays rigid, spec #37).
+ * - `reculDroit` (H): the elected virgula; it lands in her D's lane, 13 cm beyond her toes: her D goes back 34 cm.
+ * - `reculUnPied` (H′): the virgula 10 cm further to his left, out of her lane; her D goes back one foot (21 cm).
+ * Both: at « 1 » his chest turns 15° towards the coming turn while the pelvises still face each other; hers follows it
+ * (`chestLead`). */
+QUART_CANDIDATES.reculDroit = { ...QUART_ELECTED, back: 0.34, chestLead: 15 * Math.PI / 180 };
+QUART_CANDIDATES.reculUnPied = { ...QUART_ELECTED, beside: (QUART_ELECTED.beside ?? 0) + 0.10, back: 0.21, chestLead: 15 * Math.PI / 180 };
+/** #211 (`back`): `close`, beats of the quarter over which her free D closes to the quarter's place (« 4 »), `lift` (m) its
+ * marca's height; `pelvis`: share of her D's way back her pelvis takes (over the D that carries her), `stay`: beats of the
+ * quarter while it stays there before going to the quarter's place with her G; `lag`: beats her chest follows his. */
+export const QUART_RECUL = { close: [3.1, 3.8], lift: 0.005, pelvis: 0.85, stay: [1.2, 2.0, 3.6], lag: 0.1 };
+
 /** #208 (`entreLesPas`): the leader's G knee points where its foot does (the virgula turned out to the left, the
  * pelvis not yet turned); his trailing D knee opens `right` rad outwards meanwhile, in proportion; the follower's D
  * knee opens `follower` rad to her right while she steps back and pivots on it. */
@@ -267,6 +286,20 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
     // #208 (`entreLesPas`, 25 Nov.): the follower's D steps straight back, without turning, then pivots on its ball,
     // loaded, while the couple turns: it lands where that pivot brings its ankle to the quarter's place.
     const backStep = between && follower && index === 0 && !!QUART_PROTO.v.pivot;
+    // #211 (`back`): her D straight back on « 1 », then the pivot on its ball while it carries her, then it closes on « 4 ».
+    const recul = between && follower && index === 0 && QUART_PROTO.v.back !== undefined;
+    let closing = 0;
+    if (recul) {
+      const from = toFollower(startPoint), to = toFollower(endPoint), behind = rotate({ x: 0, z: -QUART_PROTO.v.back! }, base);
+      const spot = { x: from.x + behind.x, z: from.z + behind.z }, ball = rotate(QUART_BALL, base);
+      const turned = QUARTER * (a1 + a2) / 2, onBall = rotate(QUART_BALL, base + turned);
+      const pivoted = { x: spot.x + ball.x - onBall.x, z: spot.z + ball.z - onBall.z };
+      const e = 1 - (1 - smooth(raw)) ** 3;
+      closing = smooth((now.q - QUART_RECUL.close[0]) / (QUART_RECUL.close[1] - QUART_RECUL.close[0]));
+      own = raw < 1 ? { x: mix(from.x, spot.x, e), z: mix(from.z, spot.z, e) } : { x: mix(pivoted.x, to.x, closing), z: mix(pivoted.z, to.z, closing) };
+      // The straight way back, in the dancer's frame at the start of the quarter.
+      travel.x = 0; travel.z = QUART_PROTO.v.back!;
+    }
     let pivotYaw = 0, landing = own;
     if (backStep) {
       const from = toFollower(startPoint), to = toFollower(endPoint), ball = rotate(QUART_BALL, base + QUARTER);
@@ -290,10 +323,11 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
       const trail = heel * p1 * (raw <= 0 ? 1 : push > 0 && raw < push ? 1 - smooth(raw / push) : 0);
       if (trail > pitch) { pitch = trail; pivot = "ball"; }
     }
-    const lift = raw > 0 && raw < 1 ? Math.max(gait.lift, GAIT.liftPeak * 0.35 * Math.sin(Math.PI * raw) ** 2) : 0;
+    const lift = raw > 0 && raw < 1 ? Math.max(gait.lift, GAIT.liftPeak * 0.35 * Math.sin(Math.PI * raw) ** 2)
+      : closing > 0 && closing < 1 ? QUART_RECUL.lift * Math.sin(Math.PI * closing) ** 2 : 0;
     // The moving foot pivots once it has left its neighbours.
-    feet[side] = { ...own, yaw: backStep ? base + (raw < 1 ? 0 : pivotYaw) : base + QUARTER * ramp(raw, Math.max(shape.yawDelay, shape.arcDelay)), lift,
-      pitch, pivot };
+    feet[side] = { ...own, yaw: recul ? base + (raw < 1 ? 0 : QUARTER * (a1 + a2) / 2) : backStep ? base + (raw < 1 ? 0 : pivotYaw) : base + QUARTER * ramp(raw, Math.max(shape.yawDelay, shape.arcDelay)), lift,
+      ...(recul && raw >= 1 ? { pitch: 0, pivot: undefined } : { pitch, pivot }) };
   }
   // Weight: on the second foot at the start of a quarter; it moves to each foot as that foot lands.
   const toFirst = smooth((one.raw - 0.5) / 0.5), toSecond = smooth((two.raw - 0.5) / 0.5);
@@ -311,7 +345,15 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
   // #208 (`entreLesPas`): the place of the pelvis goes round C with the feet, `QUART_LEAD` of an eighth with the first
   // step, the rest with the second (following the yaw instead crossed the legs; staying in place, the trailing knee).
   let rootPoint: FootPoint;
-  if (between) {
+  if (between && follower && QUART_PROTO.v.back !== undefined) {
+    // #211 (`back`): straight back over her D on « 1 » (couple frame: her back is +z), there while it carries her and
+    // pivots, then to the quarter's place with her G; the place goes round C only once the couple turns.
+    // Blended with the retained path (`QUART_ROOT`), which it joins once her G carries her.
+    const [rise, stay, gone] = QUART_RECUL.stay;
+    const over = ease5((now.q - 0.35) / (rise - 0.35)) * (1 - ease5((now.q - stay) / (gone - stay)));
+    const kept = about(c, start.root, QUARTER * quartRootShare(now.q)), back = { x: start.root.x, z: start.root.z + QUART_RECUL.pelvis * QUART_PROTO.v.back! };
+    rootPoint = about(c, { x: mix(kept.x, back.x, over), z: mix(kept.z, back.z, over) }, base);
+  } else if (between) {
     const placed = quartRootShare(now.q);
     rootPoint = about(c, about(c, start.root, QUARTER * placed), base);
   } else {
@@ -334,7 +376,18 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
   // The follower's D knee opens to her right (away from his virgula) while she steps back and pivots on it.
   const kneeOut = follower || !between ? 0 : Math.max(0, feet.L.yaw - bodyYaw);
   const herOut = follower && between && QUART_PROTO.v.pivot ? QUART_KNEE.follower * p1 * (1 - (a1 + a2) / 2) : 0;
-  return { beat: b, action, moving, feet, root, rootYaw: bodyYaw, chestYaw,
+  // #211 (`chestLead`): the figure turns the chests itself (`chestOwn`, over the root) instead of the plexus contact, which
+  // swings them 30° by « 1 » as she steps back and he steps forward to his left. Each chest faces the partner as at the
+  // start of the quarter (the quinconce's angle); at « 1 » his turns `chestLead` further towards the coming turn and hers
+  // follows it; both come back over their pelvis as the block turns, the chest a little later (`chestLag`).
+  const leadAt = (t: number) => (QUART_PROTO.v.chestLead ?? 0) * smooth((t - role[0].start) / (role[0].end - role[0].start))
+    * (1 - (turnAt(t)[0] + turnAt(t)[1]) / 2);
+  let chestOwn: number | undefined;
+  if (between && QUART_PROTO.v.chestLead !== undefined) {
+    const own = follower ? toFollower(couple.follower.root) : couple.leader.root, partner = follower ? toFollower(couple.leader.root) : couple.follower.root;
+    chestOwn = Math.atan2(partner.x - own.x, partner.z - own.z) + chestYaw + leadAt(now.q - (follower ? QUART_RECUL.lag : 0));
+  }
+  return { beat: b, action, moving, feet, root, rootYaw: bodyYaw, chestYaw, ...(chestOwn !== undefined ? { chestOwn } : {}),
     ...(kneeOut > 0 ? { kneeYawSide: { L: -QUART_KNEE.left * kneeOut, R: QUART_KNEE.right * kneeOut / QUARTER } } : {}),
     ...(herOut > 0 ? { kneeYawSide: { L: 0, R: herOut } } : {}), loadR, loadL: 1 - loadR,
     coupling: QUARTS_BODY.coupling * Math.min(1, Math.hypot(o.x, o.z) / 0.05), cyclic: true, kneeCap: mix(QUARTS_BODY.kneeCap, QUARTS_BODY.crossing.kneeCap, crossing), sway: QUARTS_BODY.sway,

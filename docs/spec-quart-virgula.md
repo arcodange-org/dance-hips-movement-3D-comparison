@@ -158,6 +158,54 @@ Mesuré :
 Le test des enveloppes de pieds (`scripts/test_quarts_paire.mjs`, section 6) échouerait : ce pivot n'est donc pas la
 figure par défaut. Il est filmé pour être jugé (`pivot-pieds.gif`, `pivot-dessus.gif`, `pivot-guideur.gif` dans le dossier du vote).
 
+## Le suiveur recule droit au « 1 » (27 novembre, prototypes `?quart=reculDroit` et `?quart=reculUnPied`)
+
+Correction du 27 novembre, après les films de f8619a1 : au « 1 », la suiveuse recule tout droit sur la ligne au lieu de
+commencer le pivot. Mesuré sur la version retenue (mode jeu, kizomba, quinconce) : son D recule de 21,3 cm et part de
+31 cm vers sa droite (55° hors de la ligne), son bassin de 20,1 cm et 16,1 cm ; les bustes ont déjà tourné de 29 à 30°
+au « 1 ».
+
+Deux prototypes, rien ne change sans le paramètre :
+
+- **`reculDroit` (H)** : la virgula retenue ; elle se pose dans le couloir du D de la suiveuse, au-delà de ses orteils :
+  son D recule de 34 cm, droit.
+- **`reculUnPied` (H′)** : la virgula 10 cm plus à gauche du guideur, hors de ce couloir ; son D recule d'un pied (21 cm).
+- Dans les deux : son bassin recule droit avec son D ; ce D la porte et pivote sur son avant-pied pendant que le couple
+  tourne ; son G fait le tour au « 3 » ; son D, libéré, se replace au « 4 » à la place du quart (le quart reste rigide,
+  spec #37). Le bassin rejoint ensuite le trajet retenu (`QUART_RECUL`).
+- Bustes (`chestLead`) : la figure tourne elle-même les bustes, au lieu du contact des plexus qui les faisait tourner
+  de 30° au « 1 ». Chacun fait face au partenaire comme au départ du quart. Au « 1 » le buste du guideur tourne de 15°
+  vers le tour à venir, les bassins restant de face ; celui de la suiveuse le suit 0,1 temps après. Les bustes reviennent
+  sur leur bassin à mesure que le bloc tourne.
+
+Mesuré (quinconce, amplitude 1 ; mode jeu pour le « 1 » et le bassin) :
+
+| | retenu | H `reculDroit` | H′ `reculUnPied` |
+| --- | --- | --- | --- |
+| D de la suiveuse au « 1 » | 21,3 cm en arrière, 31 cm de côté | **34 cm, 0 de côté** | **21 cm, 0 de côté** |
+| bassin de la suiveuse au « 1 » | 20,1 cm, 16,1 de côté | 27,4 cm, 2,6 de côté | 17,5 cm, 2,4 de côté |
+| buste au « 1 » (guideur / suiveuse) | 30,5° / 29,2° | 15,6° / 13,1° | 15,6° / 13,2° |
+| lacet des bassins au « 1 » | 0,5° / −0,8° | 0,5° / −0,8° | 0,5° / −0,8° |
+| enveloppes des pieds (quinconce, amplitude 1) | disjointes | disjointes | la virgula sur le D, 0,86 à 3,68 |
+| enveloppes, autres placements et amplitudes | disjointes | D contre D vers 3,3 ; G et D de la suiveuse de 2,4 à 3,5 | D contre D de 2,6 à 3,4 |
+| os croisés (`sonde_croisements_couple`, quinconce, 288 poses) | 0 | **103** | **330** |
+| bassin de la suiveuse (kizomba) : au sol, en hauteur, vitesse | 308 / 793 cm/temps², 55 cm/temps | 367 / 1 677, 70 | 365 / 937, 71 (semba) |
+
+Pourquoi ça croise. Le quart est rigide autour de C : le D du guideur se pose au « 3 » à la place de son D de départ
+tournée d'un quart, en (9,6 ; 66,9) dans le repère du couple. C'est dans le couloir du D de la suiveuse, 30 cm derrière
+son départ. Un D qui recule droit et y reste jusqu'au « 4 » occupe donc la place où le D du guideur se pose : les
+jambes droites se croisent pendant qu'il arrive (2,4 à 2,5), puis pendant qu'elle se replace en passant devant son D
+posé (3,1 à 3,25). Pousser la virgula vers sa gauche écarte son D d'autant (C bouge : 15 cm avec 10 cm de virgula), mais
+le talon de la virgula reste sur les orteils d'un D qui ne recule que d'un pied, et le pivot sur l'avant-pied amène la
+cheville vers la virgula. Le pied porteur bouge aussi par construction : il pivote puis se replace au « 4 », un troisième
+pas que la garde « pied porteur immobile » de `test_quarts_paire` refuse (`QUART=<candidat>` lance ces tests sur un
+candidat).
+
+Ce qui reste à trancher : avec un quart rigide autour du guideur (R11, quinconce retrouvé à chaque quart, #37), un D qui
+recule droit doit croiser la place où le D du guideur se pose au « 3 ». Pistes : le guideur gère la place (son D se pose
+au « 3 » hors du chemin de la suiveuse et rejoint sa place au « 4 », comme #110) ; ou le quinconce n'est retrouvé qu'à la
+fin de la figure ; ou le recul n'est pas tout à fait droit (`pivotSuiveur`, 13 cm vers sa droite).
+
 ## À vérifier une fois élu (tests sur le GLB réel, `scripts/test_quarts_paire.mjs`)
 
 - Contraintes de la spec #37 inchangées : fin de chaque quart égale au départ tourné d'un quart autour de C, retour au

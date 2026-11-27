@@ -5,12 +5,14 @@ import { unlinkSync } from "node:fs";
 import * as THREE from "three";
 import { fixture, minimumBoneY, snapshot } from "./pose_fixture.mjs";
 import { transformedMesh, meshIntersection, footHull, footHullsOverlap } from "./mesh_intersections.mjs";
-const bundle = new URL("./.test-quarts-paire-bundle.mjs", import.meta.url);
+const bundle = new URL(`./.test-quarts-paire-bundle-${process.pid}.mjs`, import.meta.url);
 buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'rigJoints', 'placement', 'quartsPaire', 'share']
   .map(n => `export * from "./src/${n}";`).join('\n'), resolveDir: new URL('../', import.meta.url).pathname },
   bundle: true, packages: 'external', platform: 'node', format: 'esm', outfile: bundle.pathname,
   define: { 'import.meta.env.BASE_URL': '"/"' }, logLevel: 'silent' });
 const api = await import(bundle.href); unlinkSync(bundle);
+// #211: QUART=<candidat> runs these tests on a candidate quarter turn (`?quart=` in the app), to measure it.
+if (process.env.QUART) api.setQuartProto(process.env.QUART);
 const near = (a, b, tolerance = 1e-8, label = '') => assert.ok(Math.abs(a - b) <= tolerance, `${label} ${a} != ${b} (tol ${tolerance})`);
 const wrap = a => Math.atan2(Math.sin(a), Math.cos(a));
 const world = (f, name) => f.r[name].getWorldPosition(new THREE.Vector3());
