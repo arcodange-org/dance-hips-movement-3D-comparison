@@ -22,8 +22,9 @@ const probe = fixture(api), rest = { L: probe.model.legs.L.rest, R: probe.model.
 const stance = (probe.model.legs.L.hipX - rest.L.x + rest.R.x - probe.model.legs.R.hipX) / 2;
 const motions = api.guideMotions({ rest, stance, placement: 'quinconce', amp: 1 });
 // Speeds measured at the engine's step (1/96 beat, finer than a frame: a beat is about 40 frames at 90 bpm). Finer, the
-// style's ginga phase, interpolated every 1/64 beat, shows its kinks everywhere, junction or not.
-const deg = 180 / Math.PI, H = api.JUNCTION_STEP;
+// style's ginga phase, interpolated every 1/64 beat, shows its kinks everywhere, junction or not. Yaw and roll at a
+// quarter of it: the root's own yaw may give up its speed within a tenth of a beat (`JUNCTION_YAW`), too short for 1/96.
+const deg = 180 / Math.PI, H = api.JUNCTION_STEP, h = H / 4;
 
 /** Pelvis of one dancer at a beat of a session: world position (cm) and its yaw and roll (degrees). */
 function pelvisAt(f, follower, plan, beat, styleKey) {
@@ -54,12 +55,15 @@ for (const styleKey of STYLES) {
       for (const b of starts) {
         const at = beat => pelvisAt(f, follower, plan, beat, styleKey);
         const before = [b - 1e-7, b - H, b - 2 * H].map(at), after = [b, b + H, b + 2 * H].map(at);
-        for (const side of [before, after]) for (const s of side) for (const k of [3, 4]) s[k] = unwrap(s[k], side[0][k]);
-        for (const k of [3, 4]) for (const s of after) s[k] = unwrap(s[k], before[0][k]);
+        const beforeT = [b - 1e-7, b - h, b - 2 * h].map(at), afterT = [b, b + h, b + 2 * h].map(at);
+        for (const side of [before, after, beforeT, afterT]) for (const s of side) for (const k of [3, 4]) s[k] = unwrap(s[k], side[0][k]);
+        for (const k of [3, 4]) for (const s of [...after, ...afterT]) s[k] = unwrap(s[k], before[0][k]);
         const out = before[0].map((_, k) => api.backSpeed(before[0][k], before[1][k], before[2][k], H));
         const into = after[0].map((_, k) => api.aheadSpeed(after[0][k], after[1][k], after[2][k], H));
         const centre = Math.hypot(into[0] - out[0], into[2] - out[2]), height = Math.abs(into[1] - out[1]);
-        const turn = Math.max(Math.abs(into[3] - out[3]), Math.abs(into[4] - out[4]));
+        const outT = beforeT[0].map((_, k) => api.backSpeed(beforeT[0][k], beforeT[1][k], beforeT[2][k], h));
+        const intoT = afterT[0].map((_, k) => api.aheadSpeed(afterT[0][k], afterT[1][k], afterT[2][k], h));
+        const turn = Math.max(Math.abs(intoT[3] - outT[3]), Math.abs(intoT[4] - outT[4]));
         const where = { styleKey, figures: figures.join('→'), beat: b, role: follower ? 'suiveuse' : 'guideur' };
         if (centre > worst.centre.jump) worst.centre = { jump: centre, ...where };
         if (turn > worst.turn.jump) worst.turn = { jump: turn, ...where };
