@@ -78,6 +78,9 @@ le couple se tient plus loin (`COUPLE_DZ`, `KNEE_ROOM`, `src/placement.ts`) ; cr
 Transfert de poids continu (#167, R34 : ni saccade, ni téléportation, ni relais soudain) : [spec](docs/spec-transfert-continu.md) ;
 `scripts/test_saccades.mjs` mesure, dans des séances du mode jeu, les à-coups du bassin de chaque figure et le passage d'un côté
 à l'autre ; l'état est enregistré (`scripts/fixtures/saccades.json`, cliquet ; `WRITE=1` après un changement voulu).
+Au-dessus du nombril le buste reste stable (#223, R46) : [spec](docs/spec-isolation-buste.md) ; la taille absorbe le bassin
+(`isolateWaist`, `src/pose.ts`), vagues des styles arrêtées (`TRUNK`, `wave`, `src/styles.ts`) ; `?buste=elu` (et `BUSTE=elu` des mesures) : le tronc
+d'avant, tel que voté pour le kompa et le « 1 2 » ; `scripts/test_isolation_buste.mjs`.
 Exercices d'isolation (#206, lot L441 de ReCoDanse) : [spec](docs/spec-isolations.md) ; `?isolation=<exercice>` (cou, poitrine,
 bassin), danseur seul pieds posés, seule la partie nommée bouge, en boucle (`src/isolations.ts` pur, option `isolation` de
 `applyPose`, `scripts/test_isolations.mjs`, `docs/features/isolations.feature`, films `scripts/capture_isolation_gif.mjs`) ; trois vitesses

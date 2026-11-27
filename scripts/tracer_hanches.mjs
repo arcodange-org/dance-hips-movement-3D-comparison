@@ -34,6 +34,8 @@ const follower = !solo && role !== "leader", dz = api.GUIDE_PAIR_DZ, beats = sol
 // #196: `… <candidat> seul unDeux <style>` traces the « 1 2 » of the kizomba or of the semba (`UM_DOIS`).
 const unDeux = solo && kind === 'unDeux';
 if (solo) { api.setKompaProto(styleKey === 'kompa' && !unDeux ? ginga : null); api.setSembaProto(styleKey === 'semba' && !unDeux ? ginga : null); api.setUmDoisProto(unDeux ? ginga : null); }
+// #223: `BUSTE=elu` measures the trunk of before (as `?buste=elu`).
+api.setTrunk(process.env.BUSTE);
 if (unDeux && !api.umDoisOf(styleKey)) throw new Error(`${ginga}: not a candidate of the « 1 2 » for ${styleKey}`);
 // Tempo of the measures and of the GIF: the semba at 130 bpm, the others at 90 ; BPM=… in the environment
 // measures at another tempo (the kompa's music plays at 120 by default).

@@ -13,6 +13,9 @@ const bundle = new URL("./.test-ginga-huit-bundle.mjs", import.meta.url);
 buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'rigJoints', 'placement', 'insertion', 'guidage'].map(n => `export * from "./src/${n}";`).join('\n'), resolveDir: new URL('../', import.meta.url).pathname },
   bundle: true, packages: 'external', platform: 'node', format: 'esm', outfile: bundle.pathname, define: { 'import.meta.env.BASE_URL': '"/"' }, logLevel: 'silent' });
 const api = await import(bundle.href); unlinkSync(bundle);
+/** #223: the hip tracer with the trunk of before (`?buste=elu`): the votes below were cast on it. */
+const traceBefore = (...args) => JSON.parse(execFileSync('node', [fileURLToPath(new URL('./tracer_hanches.mjs', import.meta.url)), '', ...args],
+  { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], env: { ...process.env, BUSTE: 'elu' } }));
 
 // 1. Prototypes apart: named, not offered by default, built on a calibrated size.
 {
@@ -145,12 +148,14 @@ const api = await import(bundle.href); unlinkSync(bundle);
   }
   // Fifth round (vote for KG3: the « 8 » seen from the side, less knee, the buttocks back, the chest isolated).
   const kh = trace('hanches', 'seul', 'base', 'kompa');
+  const khBefore = traceBefore('hanches', 'seul', 'base', 'kompa');
   for (const name of ['profil', 'profilFort']) {
     const k = trace(name, 'seul', 'base', 'kompa');
     assert.ok(k.fluidite.arretPart === 0 && k.mesures.L.profil > 10 * kh.mesures.L.profil && k.mesures.R.profil > 10 * kh.mesures.R.profil,
       `kompa ${name}: an « 8 » seen from the side (${k.mesures.L.profil} against ${kh.mesures.L.profil} cm²)`);
     assert.ok(k.mesures.L.face > 40, `kompa ${name}: the « 8 » seen from the front is kept (${k.mesures.L.face} cm²)`);
-    assert.ok(k.buste.largeur < 2 && k.buste.profondeur < 2 && kh.buste.largeur > 10, `kompa ${name}: the chest stays in place (${k.buste.largeur} cm sideways against ${kh.buste.largeur})`);
+    // #223: since the isolated trunk every chest stays; the vote compared it with the trunk of before (`BUSTE=elu`).
+    assert.ok(k.buste.largeur < 2 && k.buste.profondeur < 2 && khBefore.buste.largeur > 10, `kompa ${name}: the chest stays in place (${k.buste.largeur} cm sideways against ${khBefore.buste.largeur} with the trunk of before)`);
     assert.ok(k.genoux.gauche[1] < kh.genoux.gauche[1] - 10, `kompa ${name}: the knees bend less (${k.genoux.gauche[1]}° against ${kh.genoux.gauche[1]}°)`);
   }
   // Sixth round (vote for KG3 again: the legs must visibly alternate, one bent, one straighter). Measured: in
@@ -201,7 +206,9 @@ const api = await import(bundle.href); unlinkSync(bundle);
     const k = trace(name, 'seul', 'base', 'kompa');
     assert.ok(k.posture.busteDevantGenoux[0] > behind && k.posture.busteDevantGenoux[2] < 3, `kompa ${name}: the bust above the knees (${k.posture.busteDevantGenoux} cm)`);
     assert.ok(k.posture.inclinaison[1] > 12 && k.posture.inclinaison[1] < 25 && k.posture.inclinaison[2] - k.posture.inclinaison[0] < 1, `kompa ${name}: a steady forward lean (${k.posture.inclinaison}°)`);
-    assert.ok(k.buste.largeur > 5 && k.buste.largeur < 12, `kompa ${name}: the bust follows the pelvis sideways (${k.buste.largeur} cm)`);
+    // #223: as voted (trunk of before) the bust follows the pelvis sideways; isolated, it stays.
+    const kb = traceBefore(name, 'seul', 'base', 'kompa');
+    assert.ok(kb.buste.largeur > 5 && kb.buste.largeur < 12 && k.buste.largeur < 0.5, `kompa ${name}: the bust follows the pelvis sideways as voted (${kb.buste.largeur} cm), not isolated (${k.buste.largeur} cm)`);
     assert.ok(k.fluidite.arretPart === 0 && k.genoux.gauche[0] < api.KNEE_FLOOR_ELECTED + 6 && k.genoux.gauche[1] > 40 && Math.abs(k.mesures.L.face - km.mesures.L.face) < 2, `kompa ${name}: the hips of assisMarque (${k.mesures.L.face} cm²)`);
   }
   console.log(`PASS genoux qui mènent (vote du 22 novembre) : jamais à l'arrêt, accélération du bassin ${led('genouxQuart').fluidite.acceleration99} m/s² (${fToday.acceleration99} aujourd'hui, ${fF.acceleration99} pour F) ; de face ${g0.mesures.L.face} à ${g2.mesures.L.face} cm² ; kompa ${kg.mesures.L.face} cm²`);
@@ -239,7 +246,9 @@ const api = await import(bundle.href); unlinkSync(bundle);
     const k = trace(name, 'seul', 'base', 'semba'), g = k.genoux;
     assert.ok(k.fluidite.arretPart === 0 && k.fluidite.acceleration99 < 12, `semba ${name}: never still, no jolt (${JSON.stringify(k.fluidite)})`);
     assert.ok(g.gauche[0] < api.KNEE_FLOOR_ELECTED + 6 && g.gauche[1] > 44 && g.ecart > 14, `semba ${name}: the legs alternate (${JSON.stringify(g)})`);
-    assert.ok(k.posture.busteDevantGenoux[0] > -8.5 && k.posture.inclinaison[1] > 12 && k.buste.largeur > 4 && k.buste.largeur < 10, `semba ${name}: the bust of the elected kompa (${JSON.stringify(k.posture)}, ${k.buste.largeur} cm sideways)`);
+    const kb = traceBefore(name, 'seul', 'base', 'semba');
+    assert.ok(k.posture.busteDevantGenoux[0] > -8.5 && k.posture.inclinaison[1] > 12 && kb.buste.largeur > 4 && kb.buste.largeur < 10 && k.buste.largeur < 0.5,
+      `semba ${name}: the bust of the elected kompa (${JSON.stringify(k.posture)}, ${kb.buste.largeur} cm sideways as voted, ${k.buste.largeur} isolated, #223)`);
     assert.ok(k.mesures.C.hauteur > 1.5 && k.mesures.C.hauteur < 4, `semba ${name}: one bounce per landing (${k.mesures.C.hauteur} cm)`);
     report.push(`${name} ${k.fluidite.acceleration99} m/s², genoux ${g.gauche[0]}° à ${g.gauche[1]}°`);
   }

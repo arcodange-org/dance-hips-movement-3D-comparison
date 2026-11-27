@@ -242,16 +242,25 @@ console.log('PASS', collisionPoses, 'couple poses: no inter/intra-dancer leg-bon
 const legacy = JSON.parse(readFileSync(new URL('./fixtures/sorties-historiques.json', import.meta.url)));
 const fingerprint = values => createHash('sha256').update(JSON.stringify(values.map(v => Math.round(v * 1e6)))).digest('hex');
 let regressions = 0;
+// #223: the poses were recorded with the trunk of before (`?buste=elu`); the isolated trunk (the default) changes nothing
+// below the waist: root, pelvis, legs and feet (the first 8 nodes of the snapshot), loads and knees.
+const BELOW = 8 * 16;
 for (const { poses: rows, ...config } of legacy.cases) {
   const f = couple(config.movement === 'sortieG')[config.follower ? 1 : 0];
   for (const [beat, expected] of rows) {
-    const stats = api.applyPose(f.r, f.model, beat, { sortieVariant: 'right', sortieContra: 30, ...config, embrace: true, sortieFilleVariant: 'back' });
-    assert.equal(fingerprint([...snapshot(f.r), stats.loadL, stats.loadR, stats.kneeL, stats.kneeR]), expected,
-      `historical ${JSON.stringify(config)} at ${beat}`);
+    const pose = trunk => {
+      api.setTrunk(trunk);
+      const stats = api.applyPose(f.r, f.model, beat, { sortieVariant: 'right', sortieContra: 30, ...config, embrace: true, sortieFilleVariant: 'back' });
+      return [...snapshot(f.r), stats.loadL, stats.loadR, stats.kneeL, stats.kneeR];
+    };
+    const before = pose('elu'), isolated = pose(null);
+    assert.equal(fingerprint(before), expected, `historical ${JSON.stringify(config)} at ${beat}`);
+    const below = values => fingerprint([...values.slice(0, BELOW), ...values.slice(-4)]);
+    assert.equal(below(isolated), below(before), `historical ${JSON.stringify(config)} at ${beat}: the isolated trunk changes the legs`);
     regressions++;
   }
 }
-console.log('PASS', regressions, 'unchanged sortieG/sortieGF final poses from', legacy.source);
+console.log('PASS', regressions, 'unchanged sortieG/sortieGF final poses from', legacy.source, '(trunk of before; isolated trunk: same legs, #223)');
 
 const clock = api.createDanceClock(); clock.beat = 4.99;
 api.advanceClock(clock, .1, 90, true, 5); near(clock.beat, 5);

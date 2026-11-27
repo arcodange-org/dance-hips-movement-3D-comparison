@@ -19,7 +19,7 @@ import { isIsolationId, isolationSettings } from "./isolations";
 import CompassRose from "./components/CompassRose";
 import { resolveCam, resolveView, viewAnglesOf, SOLID_TORSO_OPACITY } from "./cameras";
 import { usePersistentState } from "./hooks/usePersistentState";
-import { STYLES, movementOf, movementFlags, movementAllowed, travelAllowed, PAIR_DZ, setKompaProto, setSembaProto, setUmDoisProto, type ModeKey, type MovementKey } from "./styles";
+import { STYLES, movementOf, movementFlags, movementAllowed, travelAllowed, PAIR_DZ, setKompaProto, setSembaProto, setUmDoisProto, setTrunk, type ModeKey, type MovementKey } from "./styles";
 import { setKneeFloor } from "./pose";
 import { setUmDoisGesture } from "./umDois";
 import { QUARTS_PAIR_DZ } from "./quartsPaire";
@@ -42,6 +42,9 @@ setSembaProto(readParams().get("semba"));
 // #196 (docs/spec-pas-de-base-1-2.md): the « 1 2 » is the basic step of the kizomba and of the semba alone;
 // `?unDeux=large|court|doux` shows another candidate than the elected ones.
 setUmDoisProto(readParams().get("unDeux"));
+// #223 (docs/spec-isolation-buste.md): above the navel the trunk stays still; `?buste=elu` shows the trunk of before
+// (the kompa's and the « 1 2 »'s as voted on 23 and 24 Nov.).
+setTrunk(readParams().get("buste"));
 // #203 (prototype, docs/spec-flexion-minimale.md): `?flexion=15|20` shows a candidate minimum flexion of the knees.
 setKneeFloor(readParams().get("flexion"));
 // #209 (docs/spec-un-deux-geste.md): the hip first is elected (25 Nov. 2026); `?geste=ancien|ensemble|hancheFinit` shows

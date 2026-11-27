@@ -13,7 +13,7 @@ import VitrineHud from "./jeu/VitrineHud";
 import CadreLibre from "./jeu/CadreLibre";
 import { SANS_MARGES, type Marges } from "../jeuHud";
 import { createDanceClock, seekClock, type DanceClock } from "../clock";
-import { STYLES } from "../styles";
+import { STYLES, setTrunk } from "../styles";
 import { useMusic } from "../music/useMusic";
 import { RECORDING_CREDIT } from "../music/recordings";
 import { SOLID_TORSO_OPACITY } from "../cameras";
@@ -24,6 +24,9 @@ import {
   GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, guideFiguresFor, guideStyleOf, GUIDE_PAIR_DZ, GUIDE_DEMO, GUIDE_DEMO_ARROWS, GUIDE_DEMO_CHAIN, GUIDE_DEMO_INSERT, GUIDE_DEMO_TOUCH, GUIDE_DEMO_GINGA, GUIDE_GINGA, GUIDE_EIGHT, applyTransform, figureOfCode, keyLabel, type HeldArrows,
   type GuideFigure, type GuideGinga, type GuideKind, type GuideSample,
 } from "../guidage";
+
+// #223 (docs/spec-isolation-buste.md): `?buste=elu` shows the trunk of before in the game and the showcase too.
+if (typeof window !== "undefined") setTrunk(new URLSearchParams(window.location.search).get("buste"));
 
 const KIND_LABEL = (k: GuideKind) => (k === "base" ? "Pas de base" : GUIDE_FIGURES[k].label);
 /** #144: what the HUD shows of the figure under way: its touches, and the one being danced. */

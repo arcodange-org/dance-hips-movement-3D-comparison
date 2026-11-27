@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { resetRig, groundDip, type RigHandle } from "./anatomy";
 import {
   STYLES, supportOf, umDoisOf, umDoisSway, travelOffset, travelAllowed, corridinhoPath, reversePath, quartTurnStep,
-  idaEVoltaStep, idaContra, sortieEnvelope, sortieActive, lockUpperTrunk,
+  idaEVoltaStep, idaContra, sortieEnvelope, sortieActive, lockUpperTrunk, TRUNK,
   applyDanceFrame, applyFollowerFrame, swingLift, type MovementKey,
 } from "./styles";
 import { solveLeg3D } from "./ik";
@@ -89,6 +89,9 @@ export interface PoseOptions {
   /** #206 (docs/spec-isolations.md): an isolation exercise, alone with planted feet. No style is applied (no sway,
    * no transfer, no bounce); only the named part moves, looping on the clock at three speeds (`isolationBeats`). */
   isolation: { id: IsolationId; settings?: IsolationSettings } | null;
+  /** #223: the style whose forward lean the trunk keeps (null: the danced style's). The game mode's basic step, danced
+   * as the suave, keeps the chosen style's: the trunk no longer tips at each figure (with the isolated trunk only). */
+  trunkStyle: string | null;
 }
 export const DEFAULT_POSE: PoseOptions = {
   styleKey: "kizomba", amp: 1, travel: 0, dir: 1, plant: true, iso: true, cadre: true,
@@ -96,7 +99,7 @@ export const DEFAULT_POSE: PoseOptions = {
   embrace: false, reverse: false, follower: false, movement: "none",
   sortieFilleVariant: "hook", sortieVariant: "line", sortieContra: DEFAULT_SORTIE_CONTRA, sortieVirgula: true,
   placement: "reference", quartsPaire: false, idaPaire: false, idaVariant: IDA_DEFAULT, marche: null, sortieChain: false, sortieInsert: false, touches: [], ginga: null, gingaFrom: null, placePaire: false, plexus: false, contraposition: 1,
-  rootOffset: null, partnerRootOffset: null, pelvisOffset: null, trunkOffset: null, isolation: null,
+  rootOffset: null, partnerRootOffset: null, pelvisOffset: null, trunkOffset: null, isolation: null, trunkStyle: null,
 };
 /** Plexus-to-plexus contact (#51): chest-marker gap targeted between partners (m) and the largest
  * lean of the upper body towards the partner (rad). */
@@ -111,6 +114,8 @@ export const DEFAULT_POSE: PoseOptions = {
  * style's own posture included) is `maxTrunk` (rad) from the vertical. #203: `gap` 0.05 (was 0.08): with the knees
  * bent the couple stands 8 cm further apart (`COUPLE_DZ`), and the chests aim 3 cm closer to keep their contact
  * (the owner's 6 cm) with a trunk still under 8° from the vertical. */
+/** #223: how far the isolated chest may turn from the hips in the ida e volta (rad). */
+export const IDA_FACING = 0.4;
 export const PLEXUS = { gap: 0.05, maxLean: 0.08, maxTrunk: 0.13, open: 0.06, fade: 0.08, facing: 0.3, marker: 0.16, pelvisDistance: 0.34, pelvisPull: 0 };
 interface Leg {
   length1: number; length2: number; f0: THREE.Vector3; t0: THREE.Vector3;
@@ -355,6 +360,45 @@ function kneeAngle(r: RigHandle, s: Side): number {
 
 /** #51: tilt the spine towards the partner until this dancer's plexus marker reaches the middle of the
  * couple (minus half the contact gap). Both partners do the same, so their plexus markers meet. */
+/** #223 (rule R46, docs/spec-isolation-buste.md): the waist takes up what the pelvis does. The hips keep all their
+ * motion; above the navel the trunk stays where the style puts it on an unmoving pelvis: upright as the style leans it
+ * (`r.spine`, `r.chest`: their pitch), facing the root's heading, over the pelvis at rest. The pelvis's roll, pitch and
+ * yaw, its own sway (`r.pelvis.position`) and the style's sway of the root (`sway`, in the root's parent frame: aside
+ * and forward or back) are taken up by the spine, which leans from its foot (just under the navel) so that the chest
+ * stays where it would be; the chest leans back by as much. The spine keeps its length, the chest its height over
+ * the spine's foot. What the pose adds after (the contraposition, the posture, the lean towards the partner) is kept. */
+const WAIST_LEAN_MAX = 0.9; // sine of the steepest lean of the spine (64°): a guard, about 15° are used
+function isolateWaist(r: RigHandle, sway: { x: number; z: number }): void {
+  // The spine and the chest as set on an unmoving pelvis: the style's lean, the chest's posture and its turns.
+  // The chest turns about the vertical and leans forward where it faces (its Euler angles read in that order).
+  const own = r.spine.quaternion.clone();
+  r.waistOwn = own.clone();
+  const chestOwn = new THREE.Quaternion().setFromEuler(new THREE.Euler(r.chest.rotation.x, r.chest.rotation.y, r.chest.rotation.z, "YXZ"));
+  // Where the chest stands from the spine's foot, as the style leans it, and the style's sway in the root's frame.
+  const reach = TORSO_JOINTS.chest[1], up = new THREE.Vector3(0, reach, 0).applyQuaternion(own);
+  const yaw = r.root.rotation.y, c = Math.cos(yaw), s = Math.sin(yaw);
+  const swayX = c * sway.x - s * sway.z, swayZ = s * sway.x + c * sway.z;
+  // The spine's foot moves with the pelvis; the chest stays over the pelvis at rest, its sway taken up.
+  const foot = new THREE.Vector3(0, TORSO_JOINTS.spine[1], 0).applyQuaternion(r.pelvis.quaternion).add(r.pelvis.position);
+  let hx = up.x - swayX - foot.x, hz = up.z - swayZ - foot.z;
+  const flat = Math.hypot(hx, hz), most = WAIST_LEAN_MAX * reach;
+  if (flat > most) { hx *= most / flat; hz *= most / flat; }
+  const along = new THREE.Vector3(hx, Math.sqrt(reach * reach - hx * hx - hz * hz), hz).normalize();
+  const spine = new THREE.Quaternion().setFromUnitVectors(up.clone().normalize(), along).multiply(own);
+  r.spine.quaternion.copy(r.pelvis.quaternion.clone().invert().multiply(spine));
+  r.chest.quaternion.copy(spine.invert().multiply(own).multiply(chestOwn));
+}
+
+/** Where the trunk stands from (world): the pelvis; #223, with the waist taking up the pelvis, where the pelvis would be
+ * under the unbent spine (from the pelvis itself, the trunk's lean would sway with the hips). */
+export function trunkFoot(r: RigHandle): THREE.Vector3 {
+  if (!r.waistOwn) return r.pelvis.getWorldPosition(new THREE.Vector3());
+  const rootQ = r.root.getWorldQuaternion(new THREE.Quaternion());
+  return r.chest.getWorldPosition(new THREE.Vector3())
+    .sub(new THREE.Vector3(0, TORSO_JOINTS.chest[1], 0).applyQuaternion(rootQ.clone().multiply(r.waistOwn)))
+    .sub(new THREE.Vector3(0, TORSO_JOINTS.spine[1], 0).applyQuaternion(rootQ));
+}
+
 function leanTowards(r: RigHandle, partner: { x: number; z: number }): void {
   const outer = r.root.parent!;
   const spine = r.spine as THREE.Object3D, chest = r.chest as THREE.Object3D;
@@ -377,7 +421,7 @@ function leanTowards(r: RigHandle, partner: { x: number; z: number }): void {
     if (iteration === 0) {
       const t = Math.max(0, Math.min(1, (missing - PLEXUS.open) / PLEXUS.fade)); fadeOut = 1 - t * t * (3 - 2 * t);
       // Style posture first: a style already leaning forward (suave) keeps less room for the lean.
-      const trunk = r.head.getWorldPosition(new THREE.Vector3()).sub(r.pelvis.getWorldPosition(new THREE.Vector3()));
+      const trunk = r.head.getWorldPosition(new THREE.Vector3()).sub(trunkFoot(r));
       fadeOut = Math.min(fadeOut, Math.max(0, PLEXUS.maxTrunk - trunk.angleTo(new THREE.Vector3(0, 1, 0))) / PLEXUS.maxLean);
     }
     const pivot = outer.worldToLocal(spine.getWorldPosition(new THREE.Vector3()));
@@ -398,6 +442,8 @@ function leanTowards(r: RigHandle, partner: { x: number; z: number }): void {
 
 /** #85: the local transforms a style sets (positions, rotations, knee extras), to blend two styles. */
 const STYLE_NODES = ["root", "pelvis", "spine", "lumbar", "thoracic", "chest", "head", "hipL", "hipR", "kneeL", "kneeR"] as const;
+/** #223: the trunk's nodes above the waist. */
+const TRUNK_NODES = ["spine", "lumbar", "thoracic", "chest", "head"] as const;
 function styleState(r: RigHandle) {
   return { nodes: STYLE_NODES.map(n => [r[n].position.clone(), r[n].rotation.clone()] as const), extraL: r.extraL, extraR: r.extraR };
 }
@@ -715,6 +761,8 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     }
   };
   if (!iso) applyStyle(o.styleKey);
+  // #223: the style's sway forward and back, for the waist (its sway aside is read on the root).
+  let swayFore = r.swayFore ?? 0;
   // #85: blend towards another style's pose (the guide mode changes style at a boundary: the basic step
   // in suave, the figures in the chosen style); `weight` 1 = the other style entirely.
   const blend = !iso && o.styleBlend && o.styleBlend.weight > 0 && STYLES[o.styleBlend.key] && o.styleBlend.key !== o.styleKey ? o.styleBlend : null;
@@ -723,6 +771,7 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     resetRig(r);
     for (const s of SIDES) r["foot" + s].rotation.set(0, 0, 0);
     applyStyle(blend.key);
+    swayFore += ((r.swayFore ?? 0) - swayFore) * blend.weight;
     mixStyleState(r, mine, styleState(r), blend.weight);
   }
   // #159 (prototype): the « 8 ». The roll and the yaw of the pelvis are those of the style later in the
@@ -793,7 +842,8 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   const desiredKnee = { L: r.kneeL.rotation.x, R: r.kneeR.rotation.x };
   const ownPosture = STYLES[o.styleKey].posture, otherPosture = blend ? STYLES[blend.key].posture : ownPosture, bw = blend?.weight ?? 0;
   // #206: an exercise stands upright on soft knees, whatever the style.
-  const posture = iso ? { lean: 0, knee: ISOLATION_KNEE } : { lean: ownPosture.lean + (otherPosture.lean - ownPosture.lean) * bw, knee: ownPosture.knee + (otherPosture.knee - ownPosture.knee) * bw };
+  const keptLean = o.trunkStyle && TRUNK.isolated ? STYLES[o.trunkStyle]?.posture.lean : undefined;
+  const posture = iso ? { lean: 0, knee: ISOLATION_KNEE } : { lean: keptLean ?? ownPosture.lean + (otherPosture.lean - ownPosture.lean) * bw, knee: ownPosture.knee + (otherPosture.knee - ownPosture.knee) * bw };
   // #209: where the body is across (travel and the hip's sway, in shares of `ecart`), for a foot that follows it.
   const umDoisBody = umDois ? (c: number) => umDoisCarry(c) + umDoisSway(o.styleKey, shift ? c - shift + 24 : c, o.amp) / umDois.ecart : undefined;
   const feet = figure?.feet ?? (umDois ? umDoisFeet(clockBeat, umDois.ecart, model, umDoisBody) : plannedFeet(beat, o, model));
@@ -825,18 +875,37 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     if (umDois) r.root.position.x += umDois.ecart * umDoisCarry(clockBeat);
     if (iso) { r.root.position.x += iso.pelvis.side; r.root.position.z += iso.pelvis.fore; }
   }
-  lockUpperTrunk({ spine: r.spine.rotation, chest: r.chest.rotation, head: r.head.rotation }, r.pelvis.rotation, o.iso);
-  // #161 (prototype): a style may ask the spine to take up the pelvis's travel (`isoLean`, see KompaEight.iso).
-  if (r.isoLean) {
-    r.spine.rotation.z += r.isoLean.side; r.chest.rotation.z -= r.isoLean.side;
-    r.spine.rotation.x -= r.isoLean.fore; r.chest.rotation.x += r.isoLean.fore;
+  // #223: the waist takes up the pelvis, once the chest has its turns and its posture (below). Exercises (#206) pose
+  // their own trunk.
+  const waist = o.iso && TRUNK.isolated && !iso;
+  if (waist && o.trunkStyle && o.trunkStyle !== o.styleKey && STYLES[o.trunkStyle]) {
+    // The game's basic step, danced as another style, holds the trunk as the chosen style does (isolated, its trunk is
+    // still: any time of its cycle gives it).
+    const mine = styleState(r);
+    resetRig(r);
+    STYLES[o.trunkStyle].apply(r, 0, o.amp, 0);
+    const held = TRUNK_NODES.map(n => r[n].rotation.x);
+    mixStyleState(r, mine, mine, 0);
+    TRUNK_NODES.forEach((n, k) => { r[n].rotation.x = held[k]; });
+  }
+  if (waist) { r.spine.rotation.set(r.spine.rotation.x, 0, 0); r.chest.rotation.set(r.chest.rotation.x, 0, 0); r.head.rotation.set(r.head.rotation.x, 0, 0); }
+  else {
+    lockUpperTrunk({ spine: r.spine.rotation, chest: r.chest.rotation, head: r.head.rotation }, r.pelvis.rotation, o.iso);
+    // #161 (prototype): a style may ask the spine to take up the pelvis's travel (`isoLean`, see KompaEight.iso).
+    if (r.isoLean) {
+      r.spine.rotation.z += r.isoLean.side; r.chest.rotation.z -= r.isoLean.side;
+      r.spine.rotation.x -= r.isoLean.fore; r.chest.rotation.x += r.isoLean.fore;
+    }
   }
   const se = figure ? 0 : sortieEnv(beat, o);
   if (se > 0) r.chest.rotation.y -= 0.22 * se * o.amp;
   // #51: with plexus contact the chest turns towards the partner (contraposition share) instead of
   // the figure's own chest yaw; the lean towards the partner is applied once the frame is set.
   const facing = partnerRoot ? Math.atan2(partnerRoot.x - r.root.position.x, partnerRoot.z - r.root.position.z) : 0;
-  if (figure && partnerRoot) r.chest.rotation.y += o.contraposition * Math.max(-PLEXUS.facing, Math.min(PLEXUS.facing, angleDelta(r.root.rotation.y, facing)));
+  // #223: in the ida e volta the hips turn up to 9° away while the chest faces the partner, 13° aside in quinconce: the
+  // isolated trunk may turn that far from them (22°; 17° elsewhere, where the figures were tuned with it).
+  const facingCap = waist && o.movement === "ida" ? IDA_FACING : PLEXUS.facing;
+  if (figure && partnerRoot) r.chest.rotation.y += o.contraposition * Math.max(-facingCap, Math.min(facingCap, angleDelta(r.root.rotation.y, facing)));
   else if (figure) r.chest.rotation.y += figure.chestYaw;
   if (o.quarts && !figure) {
     const qs = quartTurnStep(beat, o.reverse);
@@ -851,6 +920,8 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     r.root.rotation.y += ic.lowerYaw;
     r.chest.rotation.y += ic.upperYaw - ic.lowerYaw;
   }
+  // In a figure the style's sway is on the pelvis already; the root follows the figure.
+  if (waist) isolateWaist(r, figure ? { x: 0, z: 0 } : { x: styleRootX, z: swayFore });
   const trunk = [r.spine, r.chest, r.head].flatMap(n => [n.rotation.x, n.rotation.y, n.rotation.z]);
   if (o.trunkOffset) {
     const t = o.trunkOffset;

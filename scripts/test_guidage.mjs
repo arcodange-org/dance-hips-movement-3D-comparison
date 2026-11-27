@@ -424,8 +424,10 @@ const place = (f, follower, frame) => {
 };
 /** Largest joint displacement across a boundary over 1e-6 beat (the motion itself is ≪ 0.01 mm). #203: 0.4 mm (was
  * 0.2): with the knees bent the couple stands 8 cm further apart, and the plexus lean now acts where the chained sortie
- * meets the basic step; the faded trunk residual matches it to 0.3 mm (zouk, chest and head), far below what shows. */
-const GUIDE_JUMP = 0.0004;
+ * meets the basic step; the faded trunk residual matches it to 0.3 mm (zouk, chest and head), far below what shows.
+ * #223: 0.45 mm. With the waist taking up the pelvis, the plexus lean (applied after the faded trunk residual) leaves
+ * 0.41 mm at the head where a sortie garçon meets a quarter turn (zouk; 0.31 mm with `?buste=elu`, chained sortie). */
+const GUIDE_JUMP = 0.00045;
 
 // 4b. GLB: the whole skeleton is continuous at every boundary (pelvis pose inertialized before the IK).
 {
