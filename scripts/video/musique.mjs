@@ -1,0 +1,165 @@
+#!/usr/bin/env node
+// Les musiques du film (#155) : un extrait par style, généré par Eleven Music (ElevenLabs), mesuré.
+//
+// La kizomba réutilise la piste de l'application (public/musique/kizomba.mp3, #142). Les autres styles ont
+// un extrait dans scripts/video/pistes/ (ou le dossier `VIDEO_PISTES`). Seule leur provenance (pistes.json) est
+// versionnée : les fichiers son restent hors du dépôt, parce que les conditions d'Eleven Music interdisent, sur
+// l'offre Starter, de mettre une collection de morceaux à la disposition de tiers (« Music Library », § 4.2 et
+// 4.8(f), version du 9 octobre 2026). Les garder sur sa machine pour remonter la vidéo reste permis.
+//
+// RIEN n'est généré sans `--generer` : chaque seconde coûte des crédits (accord du propriétaire).
+//   node scripts/video/musique.mjs                          état des pistes
+//   node --env-file=<fichier> scripts/video/musique.mjs --generer semba,kompa --durees semba=38,kompa=36
+// La clé `ELEVENLABS_API_KEY` vient de l'environnement ; elle n'est jamais écrite ni affichée.
+import { existsSync, mkdirSync, renameSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { ANALYSIS_RATE, analyseTempo } from "../tempo.mjs";
+import { SILENCE, decoder, lireRegistre, niveau as niveauPiste } from "../generer_musique.mjs";
+import { CREDITS_PAR_MINUTE, MODELE, PROMPTS, VARIANTES, planContinu } from "../musique_prompts.mjs";
+import { RACINE, arguments_, dossier, ecrireJson, lireJson } from "./outils.mjs";
+
+const ICI = dirname(fileURLToPath(import.meta.url));
+export const DOSSIER_PISTES = process.env.VIDEO_PISTES ?? join(ICI, "pistes");
+export const FICHE_PISTES = join(ICI, "pistes", "pistes.json");
+/** Variante (plan de composition) retenue pour la vidéo, par style. */
+export const VARIANTE_VIDEO = "V";
+
+/** Les pistes disponibles : style → {fichier, bpm, premierTemps, duree, gainDb, boucle?}. */
+export function pistes() {
+  const out = {};
+  const kizomba = lireRegistre().find(p => p.style === "kizomba");
+  if (kizomba) out.kizomba = {
+    fichier: join(RACINE, "public", "musique", kizomba.file), bpm: kizomba.bpm, premierTemps: kizomba.firstBeat,
+    duree: kizomba.duration, gainDb: kizomba.gainDb, boucle: kizomba.beats * 60 / kizomba.bpm,
+  };
+  for (const [style, p] of Object.entries(lireJson(FICHE_PISTES, {}))) {
+    const fichier = join(DOSSIER_PISTES, p.fichier);
+    // Le film part du premier début de phrase de la partie pleine et s'arrête avant que l'extrait s'éteigne.
+    if (existsSync(fichier)) out[style] = { fichier, bpm: p.bpm, premierTemps: p.depuis ?? p.premierTemps, duree: p.jusque ?? p.duree,
+      gainDb: p.gainDb, ...(p.boucle ? { boucle: p.boucle } : {}) };
+  }
+  return out;
+}
+
+/** Tempo à défaut de piste : celui que la génération demandera. */
+export const tempoPrevu = style => PROMPTS[style].bpm;
+
+/**
+ * La partie pleine d'un extrait (pur) : un extrait peut commencer par un silence ou une entrée plus faible, et
+ * finir en s'éteignant. `niveaux` : niveau RMS (dB) de fenêtres de `fenetre` secondes, une tous les `pas`.
+ * Rend `depuis` (premier début de phrase de 8 temps dans la partie pleine), `jusque` (fin de la partie pleine)
+ * et `boucle` (plus grand multiple de 16 temps qui y tient, en secondes ; 0 s'il n'y en a pas).
+ */
+export function partiePleine(niveaux, pas, bpm, premierTemps, fenetre = FENETRE_NIVEAU) {
+  const forts = [...niveaux].sort((a, b) => b - a).slice(0, Math.max(1, Math.floor(niveaux.length / 2)));
+  const seuil = forts[Math.floor(forts.length / 2)] - 5;
+  const premier = niveaux.findIndex(x => x >= seuil), dernier = niveaux.findLastIndex(x => x >= seuil);
+  const huit = 8 * 60 / bpm, debut = premier * pas, jusque = dernier * pas + fenetre * 0.75;
+  const k = Math.ceil((debut - 0.3 - premierTemps) / huit);
+  let depuis = premierTemps + k * huit;
+  while (depuis < 0) depuis += huit;
+  const seize = 2 * huit, boucle = Math.floor((jusque - depuis - 0.2) / seize) * seize;
+  return { depuis: Math.round(depuis * 10000) / 10000, jusque: Math.round(jusque * 100) / 100, boucle: boucle > 0 ? Math.round(boucle * 10000) / 10000 : 0 };
+}
+
+/** Fenêtre de mesure du niveau (s) : assez longue pour qu'une entrée clairsemée ne passe pas pour pleine. */
+export const FENETRE_NIVEAU = 2;
+
+/** Niveau RMS (dB) d'un son décodé : fenêtres de `fenetre` secondes, une tous les `pas`. */
+export function niveauxDe(samples, sampleRate, pas = 0.5, fenetre = FENETRE_NIVEAU) {
+  const n = Math.round(fenetre * sampleRate), saut = Math.round(pas * sampleRate), out = [];
+  for (let i = 0; i + n <= samples.length; i += saut) {
+    let e = 0;
+    for (let j = i; j < i + n; j++) e += samples[j] * samples[j];
+    out.push(10 * Math.log10(e / n + 1e-12));
+  }
+  return out;
+}
+
+/** Mesure un extrait : tempo, premier temps, partie pleine, niveau, signature rythmique. */
+export function mesurer(style, fichier) {
+  const samples = decoder(fichier);
+  const m = analyseTempo(samples, ANALYSIS_RATE, { hint: PROMPTS[style].bpm });
+  const n = niveauPiste(fichier);
+  return {
+    bpm: Math.round(m.bpm * 1000) / 1000, premierTemps: Math.round(m.firstBeat * 10000) / 10000,
+    ...partiePleine(niveauxDe(samples, ANALYSIS_RATE), 0.5, m.bpm, m.firstBeat),
+    duree: Math.round(m.duration * 1000) / 1000, lufs: n.lufs, crete: n.crete,
+    gainDb: Math.round(Math.min(-16 - n.lufs, -1 - n.crete) * 10) / 10,
+    derive: Math.round(m.drift * 10000) / 10000, confiance: Math.round(m.confidence * 100) / 100,
+    tempsEgaux: Math.round(m.rhythm.evenLow * 100) / 100, tresillo: Math.round((m.rhythm.tresillo ?? 0) * 100) / 100,
+  };
+}
+
+async function generer(style, secondes, cle) {
+  const corps = { composition_plan: planContinu(style, VARIANTE_VIDEO, secondes), model_id: MODELE };
+  const r = await fetch("https://api.elevenlabs.io/v1/music?output_format=mp3_44100_128", {
+    method: "POST", headers: { "Content-Type": "application/json", "xi-api-key": cle }, body: JSON.stringify(corps),
+  });
+  if (!r.ok) {
+    let detail = "";
+    try { detail = JSON.stringify((await r.json()).detail ?? {}).slice(0, 500); } catch { /* corps non JSON */ }
+    throw new Error(`génération ${style} : HTTP ${r.status} ${detail}`);
+  }
+  return { son: Buffer.from(await r.arrayBuffer()), corps };
+}
+
+async function credits(cle) {
+  const r = await fetch("https://api.elevenlabs.io/v1/user/subscription", { headers: { "xi-api-key": cle } });
+  if (!r.ok) return null;
+  const s = await r.json();
+  return s.character_limit - s.character_count;
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const args = arguments_();
+  if (args.mesurer) {
+    // Remesure les extraits présents (hors ligne, gratuit) et garde leur provenance.
+    const fiche = lireJson(FICHE_PISTES, {});
+    for (const [style, p] of Object.entries(fiche)) {
+      fiche[style] = { ...p, ...mesurer(style, join(DOSSIER_PISTES, p.fichier)) };
+      const q = fiche[style];
+      console.log(`${style.padEnd(11)} ${q.bpm} bpm, partie pleine de ${q.depuis} à ${q.jusque} s (${(q.jusque - q.depuis).toFixed(1)} s), boucle ${q.boucle} s`);
+    }
+    ecrireJson(FICHE_PISTES, fiche);
+    process.exit(0);
+  }
+  if (!args.generer) {
+    for (const [style, p] of Object.entries(pistes()))
+      console.log(`${style.padEnd(11)} ${p.bpm.toFixed(2).padStart(7)} bpm  ${p.duree.toFixed(1).padStart(5)} s  premier temps ${p.premierTemps.toFixed(3)} s`);
+    process.exit(0);
+  }
+  const cle = process.env.ELEVENLABS_API_KEY;
+  if (!cle) { console.error("ELEVENLABS_API_KEY absente de l'environnement (node --env-file=<fichier> …)"); process.exit(2); }
+  const durees = Object.fromEntries(String(args.durees ?? "").split(",").filter(Boolean).map(x => { const [s, d] = x.split("="); return [s, Number(d)]; }));
+  const styles = String(args.generer).split(",").filter(s => PROMPTS[s] && VARIANTES[s]?.[VARIANTE_VIDEO]);
+  mkdirSync(DOSSIER_PISTES, { recursive: true });
+  const fiche = lireJson(FICHE_PISTES, {});
+  const avant = await credits(cle);
+  console.log(`crédits avant : ${avant}`);
+  for (const style of styles) {
+    const secondes = durees[style];
+    if (!(secondes >= 8)) { console.error(`${style} : durée absente (--durees ${style}=NN)`); continue; }
+    const prevu = planContinu(style, VARIANTE_VIDEO, secondes).chunks.reduce((n, c) => n + c.duration_ms, 0) / 1000;
+    console.log(`${style} : ${secondes} s demandées, ${prevu.toFixed(1)} s en blocs entiers, environ ${Math.ceil(prevu / 60 * CREDITS_PAR_MINUTE)} crédits`);
+    const { son, corps } = await generer(style, secondes, cle);
+    const fichier = join(DOSSIER_PISTES, `${style}.mp3`);
+    const neuf = join(dossier("musique"), `${style}-${Date.now()}.mp3`);
+    writeFileSync(neuf, son);
+    const lufs = niveauPiste(neuf).lufs;
+    if (!(lufs > SILENCE)) { console.error(`${style} : prise SILENCIEUSE (${lufs} LUFS), gardée dans ${neuf}, non retenue`); continue; }
+    const m = mesurer(style, neuf);
+    renameSync(neuf, fichier);
+    fiche[style] = {
+      fichier: `${style}.mp3`, ...m, modele: MODELE, variante: VARIANTE_VIDEO, nom: VARIANTES[style][VARIANTE_VIDEO].nom,
+      demande: { secondes, blocs: corps.composition_plan.chunks.length, styles: corps.composition_plan.chunks[0].positive_styles,
+        aEviter: corps.composition_plan.chunks[0].negative_styles },
+      genereLe: new Date().toISOString().slice(0, 10),
+    };
+    ecrireJson(FICHE_PISTES, fiche);
+    console.log(`  ${m.bpm} bpm (demandé ${PROMPTS[style].bpm}), premier temps ${m.premierTemps} s, ${m.duree} s, ${m.lufs.toFixed(1)} LUFS, dérive ${m.derive}, confiance ${m.confiance}, temps égaux ${m.tempsEgaux}`);
+  }
+  const apres = await credits(cle);
+  console.log(`crédits après : ${apres} (dépensé ${avant !== null && apres !== null ? avant - apres : "?"})`);
+}

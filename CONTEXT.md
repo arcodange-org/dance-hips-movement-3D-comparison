@@ -182,6 +182,47 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
 - Restent : doigts raides, omoplates fixes, option pas encore par défaut ; l'écart de longueur des bras du rig est
   mesuré dans la spec, pas corrigé.
 
+## Vidéo éducative : le pas de base sur place d'un style à l'autre (#155, PR #156, 21 novembre 2026)
+
+- **La chaîne `scripts/video/` fabrique la vidéo** (environ 5 min 40, 1080p, −16 LUFS) : scénario
+  (`narration.json`), voix Phonon locales, musiques, capture image par image (`film=1`, `src/film.ts`,
+  `FilmDriver`), habillage rendu par le navigateur, montage ffmpeg. La vidéo elle-même va dans
+  `essais/video/` (ignoré par git). [Spec](docs/spec-video-pas-de-base.md), [mode d'emploi](scripts/video/README.md).
+- **Le texte ne dit que la fiche de faits** `docs/video/faits-pas-de-base.md` (337 faits numérotés, 160 sources
+  au générique). Le scénario a été écrit par un workflow : rédacteur, quatre critiques, synthèse,
+  contre-vérification. `scripts/test_video.mjs` vérifie que chaque phrase cite des faits qui existent.
+- **Musiques** : cinq extraits Eleven Music générés pour la vidéo (semba, kompa, tarraxinha, suave, zouk),
+  choisis par la mesure, pas à l'oreille : **à écouter par le propriétaire**. Les fichiers restent hors du
+  dépôt (conditions d'Eleven Music, offre Starter : pas de collection de morceaux mise à la disposition de
+  tiers) ; leur provenance est dans `scripts/video/pistes/pistes.json`. Sans eux, un style est filmé en silence.
+- **Buste** : avec la couche de muscles, les blocs gris du tronc sont masqués (demande du propriétaire) ; tête
+  et bras restent stylisés, le modèle n'a pas leurs os ni leurs muscles.
+- **Troisième version, avec le ginga du couple** (#157 fusionné) : mesuré dans le final, un rebond d'environ
+  1 cm par temps et un déplacement de côté de 2,4 cm au plus. La caméra du final va du trois quarts au profil :
+  de profil seul, le balancement ne se voyait pas.
+- **Quatrième version, après les paroles du propriétaire du 22 novembre** : le ginga du couple « Trop discret »
+  (le final s'approche des hanches, réglage « ample ») ; « Le konpa est complètement faux actuellement: c'est
+  le 8 le plus prononcé » (le chapitre kompa dit que l'image est fausse et ce que décrivent les professeurs) ;
+  le second rebond du semba « comme un chacha ». Le film dit ces écarts, le modèle ne les corrige pas encore.
+- **Recherche sur la danse kompa** (#161) : [`docs/recherche-danse/`](docs/recherche-danse/README.md). Le pas
+  de base est une marche en rythme ; le « 8 » est attesté au rythme ralenti et dans la danse collée ; le
+  modèle a le rythme du ralenti sans son « 8 ». Aucune source ne dit ce « 8 » le plus prononcé des styles.
+- **Refilmé après les pas élus du kompa et du semba** (#160, 23 novembre) : les deux chapitres et la
+  comparaison disent ce que le modèle fait désormais (hanche qui s'assoit, « 8 » vu de dessus, buste penché,
+  double rebond du semba) et où il s'écarte des sources ; faits F338 à F355 ; `scripts/video/mesurer_pas.mjs`
+  mesure les six pas de base et `test_video.mjs` y confronte la narration.
+- **Demandé le 24 novembre**, après le film v9 : le kompa à un appui par temps, pas élu gardé (#195) ; le pas de base
+  « 1 2 » de la kizomba et du semba, figure nouvelle (#196) ; le suave à deux temps par côté, sans rebond (#200). Le film
+  reprendra ses chapitres kompa, kizomba, semba, suave et sa comparaison quand ces mouvements seront dans `main`. Le
+  kompa y est (#198) : chapitre et comparaison réécrits, film refait (v10). Le suave (#205) et le « 1 2 » (#201) aussi :
+  chapitres semba, kizomba, suave et comparaison réécrits ; onzième version filmée (6 min 23). Douzième version
+  (25 novembre) avec la flexion minimale des genoux (#203).
+- **Le film parle à des danseurs** (règle du 24 novembre) : ni centimètres ni degrés à l'écran ni dans la voix, des
+  tailles en mots, les styles comparés entre eux ; narration réécrite, voix redites, `test_video.mjs` refuse les unités
+  et prouve chaque comparaison. Pas encore refilmé.
+- **Reste** : refilmer quand le « 8 » du couple et du déplacement (#187) sera fusionné ; l'écoute des cinq musiques ; la
+  décision du propriétaire sur la piste kizomba déjà en ligne (#146, conditions d'Eleven Music).
+
 ## Vitrine : danse automatique en musique, lien direct (#150, 21 novembre 2026)
 
 - `?vitrine=1` ouvre le mode jeu en danse automatique, au tempo de la piste enregistrée, muscles

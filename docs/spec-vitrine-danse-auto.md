@@ -100,3 +100,11 @@ La vitrine remplit le cadre qu'on lui donne. Le son démarre au premier clic dan
 
 - Les mascottes Rémi et Corinne à la place des corps anatomiques.
 - L'intégration sur le site d'Arcodange (cette spec fournit seulement le lien et le fragment `iframe`).
+
+## Suite (#155, 21 novembre 2026) : le buste sans blocs gris
+
+Le propriétaire, en regardant la vitrine : « Si on affiche les os et muscle du buste il n'y a pas de raison
+d'afficher les blocs gris. » Avec la couche de muscles (toujours affichée en danse automatique), les volumes
+gris du tronc (colonne, thorax, épaules) sont masqués : on voit les muscles du tronc à leur place. La tête et
+les bras restent stylisés, le modèle n'ayant ni leurs os ni leurs muscles (`trunkBlocksVisible`,
+`src/muscles.ts`, scénario dans `docs/features/video.feature`). La même règle vaut dans toutes les vues.

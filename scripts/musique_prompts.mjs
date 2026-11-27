@@ -114,6 +114,91 @@ export const VARIANTES = {
   },
 };
 
+// ------------------------------------------------------------------------------------------
+// Variante « V » des cinq autres styles : extraits de la vidéo éducative (#155).
+//
+// Le propriétaire a laissé le choix des musiques de la vidéo (« je te laisse choisir seul »). Même
+// méthode que pour la kizomba : un genre, une époque, un type de production, des instruments, et ce
+// qu'on ne veut pas. Chaque plan vient de docs/musique/<style>.md, avec ses niveaux de preuve :
+// - semba : ngomas grave et aiguë, dikanza en doubles-croches, deux guitares, accordéon, 2/4
+//   rebondissant, tonique et dominante (Baratti 2020) ; 120 bpm est une proposition du dépôt ;
+// - kompa : 4/4 régulier, grosse caisse sur 1 et 3, tanbou sur 2 et 4, cloche, basse en marche sur
+//   deux accords, guitares, cuivres (sources faibles pour la grille) ; 120 bpm, proposition ;
+// - tarraxinha : lente, dépouillée, entièrement synthétique, basse électronique lourde ; 75 bpm,
+//   proposition ;
+// - suave : lent, très peu d'instruments, boîte à rythmes ; la couleur R&B et 72 bpm sont des
+//   propositions ;
+// - zouk brésilien : musique empruntée au zouk love, lent-vite-vite « boom-chick-chick », 3-3-2 ;
+//   80 bpm, proposition.
+// Ces extraits servent à la vidéo ; les proposer dans l'application (#146) reste une décision
+// d'écoute du propriétaire.
+// ------------------------------------------------------------------------------------------
+Object.assign(VARIANTES, {
+  semba: {
+    V: {
+      nom: "Semba de groupe, Luanda",
+      styles: [
+        "Angolan semba", "1970s Luanda live band recording", "120 BPM", "strictly steady tempo",
+        "bouncy two-beat feel, galloping syncopation, festive and joyful", "low ngoma hand drum accenting the first beat of each bar",
+        "high ngoma hand drum and congas", "dikanza bamboo scraper in constant sixteenth notes", "two interlocking guitars",
+        "bright melodic lead guitar in the Congolese style", "accordion", "melodic bass guitar",
+        "major key, tonic and dominant chords", "acoustic, organic, live room sound", "instrumental",
+      ],
+      eviter: ["drum machine", "synthesizer", "zouk beat"],
+    },
+  },
+  kompa: {
+    V: {
+      nom: "Kompa d'orchestre de bal",
+      styles: [
+        "Haitian kompa", "1970s Haitian dance band, warm live recording", "120 BPM", "strictly steady tempo",
+        "4/4, even, smooth and flowing, relaxed and elegant", "kick drum on beats one and three",
+        "tanbou hand drum and snare on beats two and four", "steady cowbell in eighth notes", "graj scraper", "congas",
+        "walking bass guitar locked with the kick drum, two chords", "clean electric rhythm guitar picking continuously",
+        "saxophone and brass section playing short warm riffs", "major key, dominant and tonic chords", "warm analog sound",
+        "instrumental",
+      ],
+      eviter: ["drum machine", "zouk beat", "reggaeton"],
+    },
+  },
+  tarraxinha: {
+    V: {
+      nom: "Tarraxinha de studio, Luanda",
+      styles: [
+        "Angolan tarraxinha", "1990s Luanda home studio production", "75 BPM", "strictly steady tempo",
+        "4/4, slow, sparse, hypnotic, sensual, raw", "drum machine", "heavy deep electronic bass with long sustained notes",
+        "sparse syncopated kick drum, never on every beat", "dry rimshot and sparse clap", "minimal dark keyboard chords",
+        "lots of silence between the hits", "minor key", "instrumental",
+      ],
+      eviter: ["fast tempo", "busy percussion", "guitar solo", "brass"],
+    },
+  },
+  suave: {
+    V: {
+      nom: "Kizomba lente et douce",
+      styles: [
+        "slow romantic kizomba, ghetto zouk", "2000s Lusophone production with an R&B colour", "72 BPM", "strictly steady tempo",
+        "4/4, slow, smooth, tender, lots of space between the hits", "soft round kick drum on beats one and three only",
+        "soft rimshot in a three-three-two pattern", "light shaker", "long warm sustained bass", "electric piano chords",
+        "soft warm pad", "gentle nylon guitar phrases", "minor key", "instrumental",
+      ],
+      eviter: ["fast tempo", "busy percussion", "brass"],
+    },
+  },
+  zouk: {
+    V: {
+      nom: "Zouk love pour le zouk brésilien",
+      styles: [
+        "zouk love ballad for Brazilian zouk dancing", "1990s French Caribbean studio production", "80 BPM", "strictly steady tempo",
+        "4/4, slow, romantic, flowing", "boom chick-chick drum pattern, slow quick-quick", "kick drum on beat one",
+        "rimshot on the quick counts", "hi-hat in a three-three-two pattern", "soft shaker", "warm round bass guitar",
+        "lush sustained strings and warm pad", "gentle nylon guitar arpeggios", "minor key", "instrumental",
+      ],
+      eviter: ["fast carnival zouk", "brass stabs"],
+    },
+  },
+});
+
 /** Durée d'un extrait d'essai (s) : assez pour juger la couleur, quatre fois moins cher qu'une prise. */
 export const DUREE_ESSAI = 15;
 
@@ -125,19 +210,40 @@ export const DUREE_ESSAI = 15;
  * perdus), alors que le planificateur de l'API (`POST /v1/music/plan`, gratuit) découpe lui-même
  * 62 s en quatre sections de 15 à 16 s.
  */
+/** Temps par section d'un style : 32, ou 16 quand 32 temps dépasseraient `BLOC_MAX_S` (styles lents, #155). */
+export const tempsParSection = (style) =>
+  (TEMPS_PAR_SECTION * 60) / PROMPTS[style].bpm <= BLOC_MAX_S ? TEMPS_PAR_SECTION : TEMPS_PAR_SECTION / 2;
+
 export function planDe(style, variante, seconds) {
   const v = VARIANTES[style]?.[variante];
   if (!v) throw new Error(`variante inconnue ${style}=${variante}`);
   const bloc = (text, ms) => ({ text, duration_ms: Math.round(ms), positive_styles: v.styles,
     negative_styles: [...A_EVITER, ...v.eviter], context_adherence: "high" });
   if (seconds <= BLOC_MAX_S) return { chunks: [bloc(CONSIGNE, seconds * 1000)] };
-  const section = (TEMPS_PAR_SECTION * 60000) / PROMPTS[style].bpm;
-  const sections = Math.max(1, Math.min(Math.floor(PROMPTS[style].beats / TEMPS_PAR_SECTION), Math.floor((seconds * 1000 - 3000) / section)));
+  const parSection = tempsParSection(style);
+  const section = (parSection * 60000) / PROMPTS[style].bpm;
+  const sections = Math.max(1, Math.min(Math.floor(PROMPTS[style].beats / parSection), Math.floor((seconds * 1000 - 3000) / section)));
   const chunks = [];
   for (let i = 0; i < sections; i++) chunks.push(bloc(i === 0 ? CONSIGNE : CONSIGNE_SUITE, section));
   const reste = seconds * 1000 - chunks.reduce((sum, c) => sum + c.duration_ms, 0);
   chunks.push(bloc(CONSIGNE_FIN, Math.max(3000, reste)));
   return { chunks };
+}
+
+/**
+ * Plan de composition sans fin écrite : le groove d'un bout à l'autre, pour un extrait qu'un montage
+ * coupe en fondu (vidéo, #155). Les blocs durent un nombre entier de phrases de 8 temps et au plus
+ * `BLOC_MAX_S` ; la durée rendue est la première qui couvre `seconds`.
+ */
+export function planContinu(style, variante, seconds) {
+  const v = VARIANTES[style]?.[variante];
+  if (!v) throw new Error(`variante inconnue ${style}=${variante}`);
+  const temps = (60 / PROMPTS[style].bpm) * 1000;
+  const parBloc = tempsParSection(style);
+  const blocs = Math.max(2, Math.ceil((seconds * 1000) / (parBloc * temps)));
+  return { chunks: Array.from({ length: blocs }, (_, i) => ({
+    text: i === 0 ? CONSIGNE : CONSIGNE_SUITE, duration_ms: Math.round(parBloc * temps), positive_styles: v.styles,
+    negative_styles: [...A_EVITER, ...v.eviter], context_adherence: "high" })) };
 }
 
 /** Texte de provenance d'une variante, consigné dans le registre à la place d'un prompt. */

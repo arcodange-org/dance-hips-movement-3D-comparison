@@ -9,3 +9,6 @@ tsconfig*.tsbuildinfo
 scripts/.*.mjs
 # Extraits d'essai de musique générée (#142) : jamais publiés
 essais/
+
+# Extraits de musique de la vidéo (#155) : gardés hors du dépôt (conditions d'Eleven Music), leur provenance reste dans pistes.json
+scripts/video/pistes/*.mp3

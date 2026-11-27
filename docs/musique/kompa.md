@@ -98,6 +98,10 @@ Timbres à imiter : `KICK`, `SNARE` ou `CONGA_H` claqué (tanbou), `COWBELL`, `S
 
 ## 9. Lien musique → mouvement
 
+> Complément du 22 novembre 2026 : cette section ne s'appuyait que sur une source pédagogique faible. Ce que
+> d'autres sources disent du pas et du bassin, dont le « 8 » et le gouyad, est dans
+> [la recherche sur la danse kompa](../recherche-danse/kompa.md) (#161).
+
 - Haitian Music Zone, « How to Dance Kompa » : temps 1 pas à gauche avec transfert complet,
   temps 2 pied droit qui touche sans poids, temps 3 pas à droite avec transfert complet, temps 4
   pied gauche qui touche sans poids ; hanches accentuées sur 2 et 4. Pas de pause décrite.

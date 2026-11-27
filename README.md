@@ -29,6 +29,31 @@ Pour l'intégrer dans une autre page :
 Dans le mode jeu, la danse automatique (Espace) prend aussi le tempo de la piste et affiche les
 muscles. [Spécification](docs/spec-vitrine-danse-auto.md).
 
+## Vidéo éducative : le pas de base sur place, d'un style à l'autre (#155)
+
+Une vidéo d'un peu plus de six minutes présente le pas de base sur place des six styles : un chapitre par
+style (d'où il vient, ce que fait le modèle), un plan où les six dansent côte à côte au même tempo, les
+limites, puis le couple en danse automatique pendant que le générique cite toutes les sources.
+
+**La vidéo n'est pas dans le dépôt ; le script qui la fabrique l'est**, pour la refaire à mesure que le
+moteur progresse :
+
+```bash
+node scripts/video/controle.mjs        # le scénario est-il conforme ? (structure, faits cités, durée)
+node scripts/video/generer_video.mjs   # voix, plans, habillage, montage → essais/video/pas-de-base.mp4
+```
+
+- Le texte (`scripts/video/narration.json`) ne dit que ce que porte la fiche de faits
+  [`docs/video/faits-pas-de-base.md`](docs/video/faits-pas-de-base.md) (365 faits numérotés, tirés des
+  recherches du dépôt) ; chaque phrase cite ses faits, un test le vérifie.
+- L'application se filme image par image avec `film=1`, au tempo de chaque musique.
+- Voix : Phonon 40m français, en local. **« Voice: Phonon by Gradium — gradium.ai »**, licence CC BY-NC 4.0 :
+  la vidéo est réservée à un usage non commercial tant que cette voix y figure.
+- Musique générée par IA (Eleven Music, ElevenLabs) ; les extraits restent hors du dépôt
+  ([pourquoi](docs/spec-musique-elevenlabs.md#conditions-dusage-relevé-du-21-novembre-2026-à-confirmer-par-le-propriétaire)).
+
+[Spécification](docs/spec-video-pas-de-base.md) · [la chaîne, pas à pas](scripts/video/README.md).
+
 ## Exercices d'isolation : le cou, la poitrine, le bassin (#206)
 
 Un danseur seul, pieds posés, fait **un exercice** d'échauffement ou de body move : seule la partie du corps nommée bouge,
@@ -344,6 +369,8 @@ Les cellules historiques G/F décrivent les anciennes trajectoires. Les figures 
 - [Recherche biomécanique](docs/recherche-biomecanique/README.md) : podologie, biomécanique,
   kinésithérapie et ostéopathie (sources FR/EN), puis confrontation des paramètres du modèle
   à la littérature, avec verdicts et points à valider.
+- [Recherche sur la danse](docs/recherche-danse/README.md) : ce que les sources disent du pas et du
+  bassin, style par style, quand le dépôt en savait trop peu ; d'abord le kompa et son « 8 » (#161).
 - [Recherche jeux vidéo](docs/recherche-jeux-video/README.md) : ce que le comparateur peut
   emprunter aux jeux de sport (motion matching, EA, inertialisation, jeux de rythme) et concept
   d'un mode « guider sa partenaire » (#63).

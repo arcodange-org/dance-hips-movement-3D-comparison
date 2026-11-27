@@ -46,6 +46,10 @@ Page principale (#192) : [spec](docs/spec-page-scene-panneau.md) ; la scène tou
 onglets « Seul · Comparer · En couple · Jeu » (`src/page.ts` pur : inventaire `COMMANDES` des commandes et de leur place, `src/components/page/`) ;
 chaque commande porte son nom (`data-commande`) ; `docs/features/page-scene-panneau.feature` ; mesure dans un navigateur : `scripts/mesure_page.mjs` (hors `npm test`).
 `src/App.tsx` garde l'état, la lecture de l'adresse, la scène et la vue `bare=1` ; aucun paramètre d'URL renommé.
+Vidéo éducative (#155) : [spec](docs/spec-video-pas-de-base.md) ; la chaîne `scripts/video/` (scénario, voix Phonon locales, musiques,
+capture image par image avec `film=1` — `src/film.ts`, `src/components/FilmDriver.tsx` —, habillage, montage) régénère la vidéo ; la
+narration ne dit que ce que porte la fiche de faits `docs/video/faits-pas-de-base.md` (mesures du modèle : `scripts/video/mesurer_pas.mjs`,
+confrontées à la narration par `scripts/test_video.mjs`) ; la vidéo elle-même n'est pas versionnée.
 Haut du corps anatomique (#176) : [spec](docs/spec-haut-du-corps.md) ; option `haut=1` : os et muscles du buste, des bras et des mains
 (`public/anatomy_upper.glb`, `scripts/build_upper_body.mjs`, `src/upperBody.ts` pur, `src/components/UpperBodyLayer.tsx`,
 `scripts/test_upper_body.mjs`) ; la main anatomique vient où le rig pose la sienne ; le rig publie la couche dans `rig.upperBody`.
@@ -89,6 +93,8 @@ Explications des transitions (leader engagé, suiveur reçu, contacts) : [spec](
 (`src/transitions.ts` pur, `src/components/TransitionCard.tsx`, `scripts/test_transitions.mjs`).
 
 Règles de mouvement du propriétaire, consolidées et vérifiables : [`docs/regles-proprietaire.md`](docs/regles-proprietaire.md).
+Recherche sur la danse, style par style (pas et bassin selon les sources, paroles du propriétaire, trajets du
+bassin mesurés) : [`docs/recherche-danse/`](docs/recherche-danse/README.md) ; le kompa du modèle est à refaire (#161).
 
 Décision de mouvement en attente du propriétaire (#148) : filmer les candidats et les lui faire élire
 ([spec](docs/spec-elections-variantes.md), [procédure](.vibe/CONTRIBUTING.md), `src/essais.ts` : `?essai=` inerte sans

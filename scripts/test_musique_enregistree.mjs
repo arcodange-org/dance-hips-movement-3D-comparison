@@ -10,7 +10,7 @@ import { existsSync, mkdtempSync, readFileSync, readdirSync, unlinkSync, writeFi
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { A_EVITER, BLOC_MAX_S, CREDITS_PAR_MINUTE, DUREE_ESSAI, MODELE, PROMPTS, TEMPS_PAR_SECTION, VARIANTES, coutEstime, creditsPour, planDe, texteDe } from "./musique_prompts.mjs";
+import { A_EVITER, BLOC_MAX_S, CREDITS_PAR_MINUTE, DUREE_ESSAI, MODELE, PROMPTS, TEMPS_PAR_SECTION, VARIANTES, coutEstime, creditsPour, planContinu, planDe, tempsParSection, texteDe } from "./musique_prompts.mjs";
 import { ANALYSIS_RATE, analyseTempo } from "./tempo.mjs";
 import { SEUILS, corpsRequete, ecrireRegistre, lireArguments, lireRegistre, plan, signature, tableauProvenance } from "./generer_musique.mjs";
 
@@ -446,6 +446,10 @@ function drums(kind, { bpm = 96, first = 0.04, bars = 24 } = {}) {
   assert.throws(() => lireArguments(["--essais", "kizomba", "--duree", "300"]), /entre 5 et 60/);
 
   // Variantes (plans de composition) : deuxième tentative après le refus de la prise 1 à l'écoute.
+  // #155 : les cinq autres styles ont une variante « V » (extraits de la vidéo) ; chaque genre est nommé.
+  const GENRES = { kizomba: /Angolan/, semba: /Angolan semba/, kompa: /Haitian kompa/, tarraxinha: /Angolan tarraxinha/,
+    suave: /kizomba/, zouk: /zouk/ };
+  assert.deepEqual(Object.keys(VARIANTES).sort(), Object.keys(PROMPTS).sort(), "une variante au moins par style");
   for (const [style, variantes] of Object.entries(VARIANTES)) {
     assert.ok(PROMPTS[style], `${style} : variantes d'un style connu`);
     for (const [lettre, v] of Object.entries(variantes)) {
@@ -453,8 +457,8 @@ function drums(kind, { bpm = 96, first = 0.04, bars = 24 } = {}) {
       assert.ok(v.nom.length > 5, `${where} : nom`);
       assert.ok(v.styles.includes(`${PROMPTS[style].bpm} BPM`), `${where} : tempo du style`);
       assert.ok(v.styles.includes("instrumental") && v.styles.includes("strictly steady tempo"), `${where} : instrumental, tempo strict`);
-      assert.ok(/Angolan/.test(v.styles[0]), `${where} : le premier style donne le genre`);
-      assert.ok(v.styles.some((x) => /19\d0s/.test(x)), `${where} : époque de production`);
+      assert.ok(GENRES[style].test(v.styles[0]), `${where} : le premier style donne le genre`);
+      assert.ok(v.styles.some((x) => /(19|20)\d0s/.test(x)), `${where} : époque de production`);
       const chunk = planDe(style, lettre, 15).chunks[0];
       assert.equal(planDe(style, lettre, 15).chunks.length, 1);
       assert.equal(chunk.duration_ms, 15000);
@@ -481,9 +485,12 @@ function drums(kind, { bpm = 96, first = 0.04, bars = 24 } = {}) {
   for (const [style, variantes] of Object.entries(VARIANTES)) {
     for (const lettre of Object.keys(variantes)) {
       const d = PROMPTS[style], entier = planDe(style, lettre, d.seconds).chunks;
-      const section = Math.round(TEMPS_PAR_SECTION * 60000 / d.bpm);
-      assert.equal(entier.length, d.beats / TEMPS_PAR_SECTION + 1, `${style} ${lettre} : une section par 32 temps de boucle, plus la fin`);
-      for (const c of entier.slice(0, -1)) assert.equal(c.duration_ms, section, `${style} ${lettre} : section de 32 temps`);
+      // #155 : 32 temps par section, 16 pour les styles lents (32 temps y dépasseraient un bloc).
+      const parSection = tempsParSection(style);
+      assert.equal(parSection, TEMPS_PAR_SECTION * 60 / d.bpm <= BLOC_MAX_S ? TEMPS_PAR_SECTION : TEMPS_PAR_SECTION / 2);
+      const section = Math.round(parSection * 60000 / d.bpm);
+      assert.equal(entier.length, d.beats / parSection + 1, `${style} ${lettre} : une section par ${parSection} temps de boucle, plus la fin`);
+      for (const c of entier.slice(0, -1)) assert.equal(c.duration_ms, section, `${style} ${lettre} : section de ${parSection} temps`);
       assert.equal(entier.reduce((sum, c) => sum + c.duration_ms, 0), d.seconds * 1000, `${style} ${lettre} : durée totale demandée`);
       for (const c of entier) {
         assert.ok(c.duration_ms >= 3000 && c.duration_ms <= BLOC_MAX_S * 1000, `${style} ${lettre} : bloc de 3 à ${BLOC_MAX_S} s (${c.duration_ms} ms)`);
@@ -491,6 +498,14 @@ function drums(kind, { bpm = 96, first = 0.04, bars = 24 } = {}) {
         assert.deepEqual(c.positive_styles, entier[0].positive_styles, `${style} ${lettre} : mêmes styles d'un bout à l'autre (groove constant)`);
       }
       assert.match(entier.at(-1).text, /^\[Ending\]/, `${style} ${lettre} : la fin est une section à part, hors boucle`);
+      // #155 : un extrait de film n'a pas de fin écrite ; il couvre la durée demandée en blocs entiers.
+      for (const secondes of [20, 36, 55]) {
+        const continu = planContinu(style, lettre, secondes).chunks;
+        assert.ok(continu.length >= 2, `${style} ${lettre} : jamais un bloc unique`);
+        assert.ok(continu.every((c) => c.duration_ms === section && !/Ending/.test(c.text)), `${style} ${lettre} : blocs égaux, sans fin`);
+        const total = continu.reduce((sum, c) => sum + c.duration_ms, 0);
+        assert.ok(total >= secondes * 1000 && total < Math.max(2 * section, secondes * 1000 + section), `${style} ${lettre} : couvre ${secondes} s sans bloc de trop`);
+      }
     }
   }
   assert.throws(() => lireArguments(["--styles", "salsa"]), /style inconnu/);

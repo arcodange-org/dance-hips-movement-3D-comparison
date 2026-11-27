@@ -20,9 +20,9 @@ import {
   DRACO_DECODER_PATH,
   MUSCLE_OPACITY,
   muscleParent,
-  trunkBlocksVisible,
   parentOffsetSkel,
   makeMuscleMaterial,
+  trunkBlocksVisible,
 } from "../muscles";
 
 // #176: the anatomical upper body is its own chunk, loaded with its GLB only when asked for.
@@ -48,6 +48,8 @@ export interface RigProps {
   travel?: number;
   showTorso?: boolean;
   showMuscles?: boolean;
+  /** Line of the pelvis's recent path (default: shown). The film hides it and draws its own top view. */
+  showTrail?: boolean;
   movement?: MovementKey; // phase 17 : option de déplacement exclusive (inclut les sorties)
   sortieFilleVariant?: SortieFilleVariant;
   placement?: CouplePlacement; // five-action figures only; undefined = validated spacing
@@ -93,6 +95,7 @@ export default function Rig({
   travel = 0,
   showTorso = true,
   showMuscles = false,
+  showTrail = true,
   movement = "none" as MovementKey,
   sortieFilleVariant = "hook",
   placement,
@@ -335,7 +338,8 @@ export default function Rig({
     <>
       <group position={offset} rotation={[0, rotationY, 0]}>
         <group ref={reg("root")}>
-          <group ref={reg("pelvis")} position={[0, HIP_Y, 0]}>
+          {/* `film: "pelvis"` lets the film script read the pelvis's path (src/components/FilmDriver.tsx). */}
+          <group ref={reg("pelvis")} position={[0, HIP_Y, 0]} userData={{ film: "pelvis" }}>
             <primitive object={skel} />
             <mesh
               ref={reg("contactPelvis")}
@@ -504,7 +508,7 @@ export default function Rig({
       )}
       </group>
       {/* #69: the guide mode moves the couple frame; a world-space trail would be transformed twice. */}
-      {!guide && <primitive object={trail} />}
+      {!guide && showTrail && <primitive object={trail} />}
       {upperBody && (
         <Suspense fallback={null}>
           <UpperBodyLayer rig={r} pair={pair} side={side} showBones={showTorso} showMuscles={showMuscles} ghost={ghost}

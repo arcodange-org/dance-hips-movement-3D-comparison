@@ -327,6 +327,25 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Écoute de validation par le propriétaire : « Oui, elle convient » (21 novembre 2026).
 - [ ] Autres styles (semba, kompa, tarraxinha, suave, zouk brésilien) : même méthode, PR à part, accord du propriétaire pour les crédits.
 
+## Vidéo éducative : le pas de base sur place d'un style à l'autre (#155)
+
+- [x] Issue #155 et spécification poussée en premier ([spec](spec-video-pas-de-base.md)).
+- [x] Fiche de faits numérotés tirée des recherches du dépôt (`docs/video/faits-pas-de-base.md`).
+- [x] `film=1` : l'application se filme image par image (`src/film.ts`, `FilmDriver`).
+- [x] Chaîne `scripts/video/` : scénario, voix Phonon, musiques, calendrier, capture, habillage, montage.
+- [x] Scénario écrit par workflow (rédaction, quatre critiques, synthèse, contre-vérification).
+- [x] Cinq extraits de musique générés et mesurés ; fichiers hors du dépôt, provenance versionnée.
+- [x] `scripts/test_video.mjs` et `video.feature` dans `npm test`.
+- [x] Blocs gris du tronc masqués quand les muscles sont affichés.
+- [x] Première version de la vidéo remise au propriétaire.
+- [ ] Écoute des cinq musiques par le propriétaire (choisies par la mesure).
+- [x] Vidéo refilmée avec le ginga du couple (#157) ; caméra du final de trois quarts, où le balancement se lit.
+- [x] Quatrième version : gros plan sur les hanches dans le final (ginga « ample »), chapitre kompa corrigé,
+      second rebond du semba dit à l'image (paroles du propriétaire du 22 novembre).
+- [x] Recherche sur la danse kompa (#161) : `docs/recherche-danse/kompa.md`, faits F320 à F337.
+- [ ] Refaire le kompa et le semba dans le modèle avec le « 8 » (#159), puis refilmer.
+- [ ] Os et muscles de la tête et des bras, pour remplacer les derniers volumes stylisés (hors périmètre de #155).
+
 ## Vitrine : danse automatique en musique, lien direct (#150)
 
 - [x] Issue #150 et spécification poussée en premier ([spec](spec-vitrine-danse-auto.md)).

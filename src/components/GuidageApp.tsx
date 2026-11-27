@@ -1,7 +1,7 @@
 /** Game mode (#69, docs/spec-mode-guidage-poc.md; #140, docs/spec-jeu-file-auto.md): `?mode=pair&guidage=1`.
  * The player leads: each key queues a pair figure for the follower; the figures are danced in order, each
  * from the neutral quinconce. Space lets the couple dance by itself. The rest of the app is unchanged. */
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
@@ -18,6 +18,8 @@ import { useMusic } from "../music/useMusic";
 import { RECORDING_CREDIT } from "../music/recordings";
 import { SOLID_TORSO_OPACITY } from "../cameras";
 import { danceBpm, listenBpm, openingBpm, showcaseLook, vitrineSettings, vitrineUrl } from "../vitrine";
+import FilmDriver from "./FilmDriver";
+import { filmEnabled } from "../film";
 import TransitionCard from "./TransitionCard";
 import { transitionAt } from "../transitions";
 import {
@@ -87,6 +89,8 @@ export default function GuidageApp() {
   const styleKey = STYLES[params.get("style") ?? ""] ? params.get("style")! : "kizomba";
   // `bare=1`: canvas and a one-line caption only (GIF captures).
   const bare = params.get("bare") === "1";
+  // #155: `film=1` hands the frames to a script (scripts/video/capturer.mjs); the script frames the couple.
+  const film = filmEnabled(params);
   // #176: `haut=1` shows the anatomical bones and muscles of the trunk, arms and hands.
   const upperBody = params.get("haut") === "1";
   // #150: the showcase settings read from the URL (`vitrine=1`, `auto=1`, `muscles=1`, `vue=`, `bpm=`).
@@ -104,6 +108,8 @@ export default function GuidageApp() {
   const [playing, setPlaying] = useState(!capture);
   const clock = useMemo(() => createDanceClock(), []);
   const session = useMemo(() => new GuideSession(), []);
+  // #155: the film's side-on camera follows the couple's orientation.
+  const coupleYaw = useCallback(() => session.sample(clock.beat)?.couple.yaw ?? 0, [session, clock]);
   // #140: Space switches between listening to the commands and the automatic dance (`auto=1` opens in
   // it; `graine=N` fixes its seed: same seed, same dance).
   const [auto, setAuto] = useState(settings.auto);
@@ -229,7 +235,9 @@ export default function GuidageApp() {
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-slate-950 text-slate-200">
-      <Canvas camera={{ position: leaderView ? [LEADER_VIEW.eye.x, LEADER_VIEW.eye.y, LEADER_VIEW.eye.z] : [2.7, 1.5, 3.4], fov: 40 }} dpr={[1, 2]}>
+      <Canvas camera={{ position: leaderView ? [LEADER_VIEW.eye.x, LEADER_VIEW.eye.y, LEADER_VIEW.eye.z] : [2.7, 1.5, 3.4], fov: 40 }} dpr={[1, 2]}
+        {...(film ? { frameloop: "never" as const, gl: { preserveDrawingBuffer: true } } : {})}>
+        {film && <FilmDriver clock={clock} frameYaw={coupleYaw} />}
         <DanceTransport clock={clock} bpm={bpm} playing={playing} driver={music.driver} />
         <FrameClock clock={clock} last={last} />
         <color attach="background" args={["#0b1220"]} />
@@ -249,7 +257,7 @@ export default function GuidageApp() {
           </CoupleFrame>
         </React.Suspense>
         <OrbitControls makeDefault target={leaderView ? [LEADER_VIEW.target.x, LEADER_VIEW.target.y, LEADER_VIEW.target.z] : [0, 0.8, 0]} enableDamping dampingFactor={0.08} minDistance={1.4} maxDistance={7}
-          autoRotate={settings.vitrine && !leaderView && !capture} autoRotateSpeed={0.6} />
+          autoRotate={settings.vitrine && !leaderView && !capture && !film} autoRotateSpeed={0.6} />
         <CameraFollow session={session} clock={clock} paused={paused} leaderView={leaderView} />
       </Canvas>
 

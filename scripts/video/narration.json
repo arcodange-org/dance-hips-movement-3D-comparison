@@ -1,0 +1,671 @@
+{
+  "surTitre": "Comparateur 3D des styles de danse",
+  "titre": "Le pas de base sur place",
+  "sousTitre": "D'un style à l'autre : semba, kompa, kizomba, tarraxinha, suave, zouk brésilien",
+  "piedTitre": "Animation paramétrique illustrative, sans validation chorégraphique.",
+  "ordre": [
+    "semba",
+    "kompa",
+    "kizomba",
+    "tarraxinha",
+    "suave",
+    "zouk"
+  ],
+  "chapitres": {
+    "ouverture": {
+      "phrases": [
+        {
+          "voix": "guide",
+          "texte": "Le pas de base sur place : le poids passe d'un pied à l'autre, et l'on revient toujours à sa place.",
+          "faits": [
+            "F005",
+            "F242",
+            "F361"
+          ]
+        },
+        {
+          "voix": "guide",
+          "texte": "Un modèle le calcule pour six styles, sans capture de mouvement.",
+          "faits": [
+            "F001",
+            "F004",
+            "F283"
+          ]
+        },
+        {
+          "voix": "geste",
+          "texte": "On regarde le bassin, les genoux, le poids, le haut du corps.",
+          "repere": "Bassin, genoux, poids, haut du corps",
+          "faits": [
+            "F003",
+            "F004",
+            "F007"
+          ]
+        }
+      ]
+    },
+    "semba": {
+      "cartouche": {
+        "lieu": "Luanda, Angola",
+        "epoque": "populaire dans les années 1950",
+        "tempo": "sa bande-son : ≈ 120 battements/min",
+        "faits": [
+          "F059",
+          "F068",
+          "F089",
+          "F261"
+        ]
+      },
+      "phrases": [
+        {
+          "voix": "histoire",
+          "texte": "Luanda, années 1950 : le semba est très populaire. Son nom veut dire « coup de nombril », en langue kimbundu.",
+          "dit": "Louanda, années cinquante : le semba est très populaire. Son nom veut dire coup de nombril, en langue kimmboundou.",
+          "faits": [
+            "F059"
+          ]
+        },
+        {
+          "voix": "geste",
+          "texte": "Le pas de base est le « 1 2 ». Sur le 1, un pied s'écarte de presque une largeur de hanches et reçoit le poids. Sur le 2, l'autre le rejoint et marque, sans poids.",
+          "dit": "Le pas de base est le un-deux. Sur le un, un pied s'écarte de presque une largeur de hanches et reçoit le poids. Sur le deux, l'autre le rejoint et marque, sans poids.",
+          "repere": "Le « 1 2 » : on change de ligne",
+          "faits": [
+            "F361",
+            "F362"
+          ]
+        },
+        {
+          "voix": "geste",
+          "texte": "Le double rebond : pendant la marque, le poids reste sur le même pied, et la hanche refait un petit rond, comme un cha-cha.",
+          "faits": [
+            "F361",
+            "F363"
+          ],
+          "repere": "Double rebond : comme un cha-cha"
+        },
+        {
+          "voix": "histoire",
+          "texte": "Parmi ses racines, la massemba, une danse de couple. Avant l'indépendance, le semba est une musique de revendication.",
+          "dit": "Parmi ses racines, la massém-ba, une danse de couple. Avant l'indépendance, le semba est une musique de revendication.",
+          "faits": [
+            "F061",
+            "F063"
+          ]
+        },
+        {
+          "voix": "geste",
+          "texte": "Le buste suit le bassin, nettement penché vers l'avant. Les sources décrivent trois pas, puis une pause : ce motif-ci est un choix du projet.",
+          "repere": "Buste penché vers l'avant",
+          "faits": [
+            "F076",
+            "F342",
+            "F343",
+            "F361",
+            "F362"
+          ]
+        }
+      ]
+    },
+    "kompa": {
+      "cartouche": {
+        "lieu": "Port-au-Prince, Haïti",
+        "epoque": "1955 ou 1957 selon les sources",
+        "tempo": "sa bande-son : ≈ 120 battements/min",
+        "faits": [
+          "F018",
+          "F098",
+          "F099",
+          "F107",
+          "F128"
+        ]
+      },
+      "phrases": [
+        {
+          "voix": "histoire",
+          "texte": "Port-au-Prince, années 1950 : le saxophoniste Nemours Jean-Baptiste crée le kompa.",
+          "dit": "Port-au-Prince, années cinquante : le saxophoniste Ne-mour Jean-Baptiste crée le kompa.",
+          "faits": [
+            "F098",
+            "F099"
+          ]
+        },
+        {
+          "voix": "histoire",
+          "texte": "Le kompa vient de la méringue, une musique plus ancienne, ralentie ou modernisée selon les sources.",
+          "faits": [
+            "F100"
+          ]
+        },
+        {
+          "voix": "geste",
+          "texte": "Dans le modèle, la hanche s'assoit quand le poids arrive, puis remonte en tournant. Le bassin ne s'arrête jamais : vu de dessus, il dessine un « 8 ».",
+          "dit": "Dans le modèle, la hanche s'assoit quand le poids arrive, puis remonte en tournant. Le bassin ne s'arrête jamais : vu de dessus, il dessine un huit.",
+          "faits": [
+            "F344",
+            "F346",
+            "F347"
+          ],
+          "repere": "La hanche s'assoit : un « 8 »"
+        },
+        {
+          "voix": "geste",
+          "texte": "Ses professeurs décrivent une marche : un appui par temps. Le modèle fait de même : le poids change de pied à chaque temps.",
+          "faits": [
+            "F324",
+            "F356"
+          ],
+          "repere": "Une marche en rythme"
+        },
+        {
+          "voix": "geste",
+          "texte": "Selon un manuel de professeurs, le bassin trace au ralenti un demi-« 8 » sur chaque appui. Le modèle s'en écarte : sa hanche s'assoit vers l'arrière, sur le temps.",
+          "dit": "Selon un manuel de professeurs, le bassin trace au ralenti un demi-huit sur chaque appui. Le modèle s'en écarte : sa hanche s'assoit vers l'arrière, sur le temps.",
+          "faits": [
+            "F326",
+            "F349"
+          ],
+          "repere": "Au ralenti : un demi-« 8 » par appui"
+        },
+        {
+          "voix": "geste",
+          "texte": "Les genoux fléchissent l'un après l'autre. Le buste suit le bassin, penché vers l'avant, comme au semba.",
+          "faits": [
+            "F348",
+            "F355"
+          ],
+          "repere": "Genoux en alternance, buste penché"
+        }
+      ]
+    },
+    "kizomba": {
+      "cartouche": {
+        "lieu": "Angola",
+        "epoque": "vers 1980",
+        "tempo": "sa bande-son : ≈ 102 battements/min (sources : 85 à 95)",
+        "faits": [
+          "F016",
+          "F027",
+          "F034",
+          "F052"
+        ]
+      },
+      "phrases": [
+        {
+          "voix": "histoire",
+          "texte": "Angola, vers 1980. Selon Wikipédia, la musique kizomba succède directement au semba, avec une basse plus forte.",
+          "dit": "Angola, vers mille neuf cent quatre-vingt. Selon Wikipédia, la musique kizomba succède directement au semba, avec une basse plus forte.",
+          "faits": [
+            "F016",
+            "F021",
+            "F032"
+          ]
+        },
+        {
+          "voix": "geste",
+          "texte": "Le pas de base est aussi le « 1 2 », avec une hanche plus douce. Le poids reste deux temps sur chaque pied ; une source le décrit ainsi : le pied qui rejoint touche sans poids.",
+          "repere": "Le « 1 2 » : deux temps par pied",
+          "faits": [
+            "F036",
+            "F055",
+            "F361",
+            "F362",
+            "F363"
+          ],
+          "dit": "Le pas de base est aussi le un-deux, avec une hanche plus douce. Le poids reste deux temps sur chaque pied ; une source le décrit ainsi : le pied qui rejoint touche sans poids."
+        },
+        {
+          "voix": "histoire",
+          "texte": "L'origine de cette musique est discutée. Le récit courant : zouk antillais et semba. Eduardo Paim, présenté comme son père, cite plutôt le kompa haïtien, selon un blog.",
+          "dit": "L'origine de cette musique est discutée. Le récit courant : zouk antillais et semba. Eduardo Païm, présenté comme son père, cite plutôt le kompa haïtien, selon un blog.",
+          "faits": [
+            "F016",
+            "F017",
+            "F018",
+            "F019"
+          ]
+        },
+        {
+          "voix": "geste",
+          "texte": "Le buste penche nettement vers l'avant et suit le bassin d'un côté à l'autre.",
+          "repere": "Buste penché, qui suit le bassin",
+          "faits": [
+            "F362",
+            "F364"
+          ]
+        }
+      ]
+    },
+    "tarraxinha": {
+      "cartouche": {
+        "lieu": "Province de Benguela, Angola",
+        "epoque": "début des années 2000 ou avant",
+        "tempo": "sa bande-son : ≈ 75 battements/min",
+        "faits": [
+          "F138",
+          "F139",
+          "F143",
+          "F163"
+        ]
+      },
+      "phrases": [
+        {
+          "voix": "histoire",
+          "texte": "Angola, province de Benguela, début des années 2000 ou avant. Tarraxinha veut dire « petite vis ».",
+          "dit": "Angola, province de Benguéla, début des années deux mille, ou avant. Tarraxinha veut dire petite visse.",
+          "faits": [
+            "F138",
+            "F139"
+          ]
+        },
+        {
+          "voix": "geste",
+          "texte": "Le modèle fait tourner le bassin sur place : une hanche part vers l'avant, puis l'autre, et le bassin bascule d'avant en arrière.",
+          "repere": "Une hanche avance",
+          "faits": [
+            "F157",
+            "F158",
+            "F159"
+          ]
+        },
+        {
+          "voix": "histoire",
+          "texte": "Deux récits sur son origine : une autre musique, le kuduro, ralentie. Ou bien la kizomba, ralentie pour faire ressortir les hanches.",
+          "dit": "Deux récits sur son origine : une autre musique, le koudourou, ralentie. Ou bien la kizomba, ralentie pour faire ressortir les hanches.",
+          "faits": [
+            "F139",
+            "F167"
+          ]
+        },
+        {
+          "voix": "geste",
+          "texte": "Le buste penche un peu vers l'avant. Le poids ne passe qu'en partie d'un pied à l'autre.",
+          "repere": "Le poids passe en partie",
+          "faits": [
+            "F155",
+            "F156",
+            "F355"
+          ]
+        }
+      ]
+    },
+    "suave": {
+      "cartouche": {
+        "lieu": "Origine non documentée",
+        "epoque": "mot attesté une fois, en 2017",
+        "tempo": "sa bande-son : ≈ 72 battements/min",
+        "faits": [
+          "F172",
+          "F173",
+          "F180",
+          "F196"
+        ]
+      },
+      "phrases": [
+        {
+          "voix": "histoire",
+          "texte": "En 2017, dans la presse, une étudiante angolaise décrit une façon calme de danser, où l'on bouge peu. Elle la dit suave.",
+          "dit": "En deux mille dix-sept, dans la presse, une étudiante angolaise décrit une façon calme de danser, où l'on bouge peu. Elle la dit suave.",
+          "faits": [
+            "F173"
+          ]
+        },
+        {
+          "voix": "geste",
+          "texte": "Dans le modèle, le bassin reste deux temps de chaque côté, sans rebond, et glisse à peine : vu de dessus, il trace un petit « 8 ».",
+          "dit": "Dans le modèle, le bassin reste deux temps de chaque côté, sans rebond, et glisse à peine : vu de dessus, il trace un petit huit.",
+          "repere": "Deux temps par côté, un « 8 »",
+          "faits": [
+            "F190",
+            "F197",
+            "F353",
+            "F359",
+            "F360"
+          ]
+        },
+        {
+          "voix": "histoire",
+          "texte": "Ce témoignage est la seule mention trouvée du mot. Le suave n'a ni genre musical, ni tempo sourcé. Ici, c'est une variante lente de la kizomba.",
+          "faits": [
+            "F172",
+            "F173",
+            "F174",
+            "F198"
+          ]
+        },
+        {
+          "voix": "geste",
+          "texte": "Une vague parcourt le haut du corps, des lombaires à la tête, sur quatre temps.",
+          "repere": "Vague, sur quatre temps",
+          "faits": [
+            "F193",
+            "F197"
+          ]
+        }
+      ]
+    },
+    "zouk": {
+      "cartouche": {
+        "lieu": "Brésil",
+        "epoque": "début des années 1990",
+        "tempo": "sa bande-son : ≈ 80 battements/min",
+        "faits": [
+          "F208",
+          "F213",
+          "F231"
+        ]
+      },
+      "phrases": [
+        {
+          "voix": "histoire",
+          "texte": "Brésil, début des années 1990. Le zouk brésilien naît de la lambada, selon une page de Wikipédia peu sourcée.",
+          "dit": "Brésil, début des années quatre-vingt-dix. Le zouk brésilien naît de la lambada, selon une page de Wikipédia peu sourcée.",
+          "faits": [
+            "F208",
+            "F239"
+          ]
+        },
+        {
+          "voix": "histoire",
+          "texte": "La musique lambada s'efface. Les danseurs passent à d'autres musiques, dont le zouk antillais, né en partie du kompa.",
+          "faits": [
+            "F104",
+            "F205",
+            "F209"
+          ],
+          "dit": "La musique lambada s'efface. Les danseurs passent à d'autres musiques, dont le zouk des Antilles, né en partie du kompa."
+        },
+        {
+          "voix": "geste",
+          "texte": "Comme pour la tarraxinha, le modèle fait tourner le bassin, vers un côté puis vers l'autre.",
+          "repere": "Le bassin tourne, d'un côté puis de l'autre",
+          "faits": [
+            "F226",
+            "F249",
+            "F352"
+          ]
+        },
+        {
+          "voix": "geste",
+          "texte": "Le buste se cambre, le corps monte et descend, sur quatre temps. Les sources décrivent un pas lent, puis deux rapides : ici, le poids change à chaque temps.",
+          "repere": "Cambré, niveau qui varie",
+          "faits": [
+            "F217",
+            "F220",
+            "F222",
+            "F223",
+            "F225",
+            "F229",
+            "F236",
+            "F248"
+          ]
+        }
+      ]
+    },
+    "comparaison": {
+      "phrases": [
+        {
+          "voix": "guide",
+          "texte": "Ramenés au même tempo, les six styles ont un socle commun : genoux fléchis, poids qui passe d'un pied à l'autre, retour à sa place.",
+          "faits": [
+            "F240",
+            "F241",
+            "F242",
+            "F254",
+            "F309",
+            "F361"
+          ]
+        },
+        {
+          "voix": "geste",
+          "texte": "Le kompa change de pied à chaque temps. La kizomba et le semba restent deux temps sur chaque pied, comme le suave sur chaque côté.",
+          "accent": [
+            "kompa",
+            "kizomba",
+            "semba",
+            "suave"
+          ],
+          "faits": [
+            "F356",
+            "F359",
+            "F361",
+            "F364"
+          ]
+        },
+        {
+          "voix": "geste",
+          "texte": "Le haut du corps : le suave ondule, le zouk se cambre. Kizomba, kompa et semba penchent nettement le buste vers l'avant.",
+          "accent": [
+            "suave",
+            "zouk",
+            "kizomba",
+            "kompa",
+            "semba"
+          ],
+          "faits": [
+            "F253",
+            "F355",
+            "F364"
+          ]
+        },
+        {
+          "voix": "guide",
+          "texte": "De près : tarraxinha, kompa et zouk font le plus tourner le bassin, vers un côté puis vers l'autre.",
+          "accent": [
+            "tarraxinha",
+            "kompa",
+            "zouk"
+          ],
+          "faits": [
+            "F352",
+            "F364"
+          ],
+          "plan": "grille"
+        },
+        {
+          "voix": "guide",
+          "texte": "Le semba et la kizomba tournent un peu. Le suave, pas du tout.",
+          "accent": [
+            "semba",
+            "kizomba",
+            "suave"
+          ],
+          "faits": [
+            "F352",
+            "F364"
+          ]
+        },
+        {
+          "voix": "geste",
+          "texte": "Vu de dessus, cinq bassins tracent une boucle ou un « 8 ». Le zouk, lui, reste sur une ligne.",
+          "accent": [
+            "semba",
+            "kompa",
+            "kizomba",
+            "tarraxinha",
+            "suave"
+          ],
+          "faits": [
+            "F354",
+            "F362",
+            "F364"
+          ],
+          "dit": "Vu de dessus, cinq bassins tracent une boucle ou un huit. Le zouk, lui, reste sur une ligne."
+        },
+        {
+          "voix": "geste",
+          "texte": "Tarraxinha et suave se déplacent le moins : le bassin va à peine de côté. Le poids n'y passe qu'en partie.",
+          "faits": [
+            "F161",
+            "F191",
+            "F350",
+            "F353",
+            "F364"
+          ],
+          "accent": [
+            "tarraxinha",
+            "suave"
+          ],
+          "voile": false
+        }
+      ],
+      "titre": "Les six styles, côte à côte"
+    },
+    "limites": {
+      "titre": "Les limites",
+      "phrases": [
+        {
+          "voix": "guide",
+          "texte": "Ce film montre un modèle calculé, pas une capture de mouvement.",
+          "point": "Modèle paramétrique, pas de capture de mouvement",
+          "faits": [
+            "F282",
+            "F283"
+          ]
+        },
+        {
+          "voix": "guide",
+          "texte": "Ses réglages ne sont pas une norme de danse : aucune validation chorégraphique.",
+          "point": "Pas une norme de danse, pas de validation chorégraphique",
+          "faits": [
+            "F284",
+            "F285",
+            "F291"
+          ]
+        },
+        {
+          "voix": "guide",
+          "texte": "Les sources sont parfois faibles, ou en désaccord.",
+          "point": "Sources parfois faibles ou en désaccord",
+          "faits": [
+            "F068",
+            "F099",
+            "F302"
+          ]
+        },
+        {
+          "voix": "guide",
+          "texte": "La musique et les voix sont générées par IA.",
+          "dit": "La musique et les voix sont générées par intelligence artificielle.",
+          "point": "Musique et voix générées par IA",
+          "faits": [
+            "F290",
+            "F304"
+          ]
+        }
+      ]
+    },
+    "final": {
+      "phrases": [
+        {
+          "voix": "guide",
+          "texte": "Pour finir, deux danseurs dansent automatiquement, en couple.",
+          "lien": true,
+          "faits": []
+        },
+        {
+          "voix": "guide",
+          "texte": "De près : les hanches se balancent et rebondissent à chaque temps. C'est le ginga ; il lui manque encore son « 8 ».",
+          "dit": "De près : les hanches se balancent et rebondissent à chaque temps. C'est le ginga ; il lui manque encore son huit.",
+          "faits": [
+            "F315",
+            "F316",
+            "F317",
+            "F319"
+          ],
+          "plan": "hanches"
+        },
+        {
+          "voix": "guide",
+          "texte": "La musique : une fusion kizomba et semba.",
+          "faits": [
+            "F034"
+          ]
+        }
+      ],
+      "titre": "En couple, en danse automatique"
+    }
+  },
+  "generique": {
+    "titre": "Sources et crédits",
+    "accroche": "Le code, les recherches, le scénario et les scripts de fabrication de ce film sont dans le dépôt du projet.",
+    "blocs": [
+      {
+        "titre": "Anatomie",
+        "lignes": [
+          {
+            "texte": "BodyParts3D v4.0, © The Database Center for Life Science (DBCLS), licence CC BY-SA 2.1 Japan",
+            "detail": "Maillages du squelette (public/anatomy.glb) et de la couche de muscles (public/anatomy_muscles.glb)."
+          },
+          {
+            "texte": "Cette licence impose une attribution visible et le partage à l'identique.",
+            "detail": "https://dbarchive.biosciencedbc.jp/en/bodyparts3d/license.html"
+          }
+        ]
+      },
+      {
+        "titre": "Musique",
+        "lignes": [
+          {
+            "texte": "Musique générée par IA (Eleven Music, ElevenLabs)",
+            "detail": "Modèle noté dans le registre des pistes : music_v2_5. Ni œuvres existantes ni enregistrements de musiciens."
+          }
+        ]
+      },
+      {
+        "titre": "Voix",
+        "lignes": [
+          "Voice: Phonon by Gradium — gradium.ai",
+          {
+            "texte": "Phonon 40m français, licence CC BY-NC 4.0",
+            "detail": "Vidéo réservée à un usage non commercial tant que cette voix y figure. Voix exécutée en local, avec ollama."
+          }
+        ]
+      },
+      {
+        "titre": "Modèles de langage et agents de code",
+        "lignes": [
+          {
+            "texte": "Sessions Mistral",
+            "detail": "Le harnais du dépôt est écrit « pour toute session Mistral »."
+          },
+          {
+            "texte": "Vibe Nuage Agent",
+            "detail": "Auteur de 56 commits de la branche ; le dépôt parle de « phases Vibe »."
+          },
+          {
+            "texte": "Claude Opus 5.5",
+            "detail": "Co-auteur de plus de 140 commits de la branche."
+          },
+          {
+            "texte": "Agents de code : dossiers de travail .claude et .Codex",
+            "detail": "Le dépôt n'y nomme aucun modèle."
+          },
+          {
+            "texte": "Scénario, montage et contrôle de cette vidéo : agents Claude (Anthropic), modèle Claude Fable 5.2",
+            "detail": "En workflow : un rédacteur, quatre critiques (exactitude, image, clarté, rythme), une synthèse, une contre-vérification."
+          }
+        ]
+      },
+      {
+        "titre": "Outils",
+        "lignes": [
+          "Application : Vite, React 19, @react-three/fiber 9, drei 10, three 0.187, TypeScript, Tailwind 3",
+          "Son de l'application : Web Audio, dans le navigateur",
+          "Captures et montage : Playwright (Chromium), ffmpeg",
+          "Anatomie : trimesh, numpy, glTF-Transform, compression Draco",
+          "Déploiement : GitHub Pages, par GitHub Actions",
+          "Recherche documentaire : PubMed, PMC, Europe PMC, Crossref, theses.fr",
+          "Police de l'application : DejaVu Sans, licence Bitstream Vera"
+        ]
+      },
+      {
+        "titre": "Recherches",
+        "lignes": [
+          "Les sources suivent. Leurs liens sont dans docs/video/faits-pas-de-base.md, dans le dépôt. Cette fiche dit aussi lesquelles n'ont été lues que par extraits, ou citées sans être consultées."
+        ]
+      }
+    ],
+    "fin": "https://arcodange-org.github.io/dance-hips-movement-3D-comparison/"
+  }
+}
