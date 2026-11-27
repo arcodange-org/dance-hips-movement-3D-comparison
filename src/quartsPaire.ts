@@ -130,6 +130,29 @@ export const QUART_BALL: FootPoint = { x: -0.01684, z: 0.11664 };
 /** #208 (`entreLesPas`): how far ahead of its yaw the place of the pelvis goes round C with the first step (1: an
  * eighth of the quarter at the first landing, as the feet; 0: it waits for the second step). */
 export const QUART_LEAD = 0.9;
+/** #208, #219 (R34: the pelvis never stops and its speed never breaks): the place of the pelvis goes round C along one
+ * curve over the whole quarter instead of two bursts held still in between (it went 45 % of the way within the first
+ * foot's flight, 80 cm per beat, then the rest within the second's, then stood still for the last beat). `knots`: [beat
+ * of the quarter, share of the quarter] it passes through: it starts before the first feet leave, is over the virgula
+ * when it lands (`QUART_LEAD`), drifts while the block turns and finishes after the second foot has landed; `drift`:
+ * share per beat it still moves at both ends of the quarter, the same at both, so that quarters chain without a break.
+ * A monotone cubic through them (Fritsch-Butland): it never goes back. Measured on the GLB (game mode, kizomba): 324
+ * cm/beat² and 57 cm per beat at most instead of 419 and 80, never still. Bounded by the bones: a pelvis behind the
+ * virgula when it lands crosses the legs (amplitude 0.5); a pelvis ahead of the trailing foot when it pushes off makes
+ * the height jump (the legs' reach, 1 400 to 3 000 cm/beat²). */
+export const QUART_ROOT = { knots: [[0, 0], [0.35, 0.012], [1, QUART_LEAD / 2], [1.75, 0.47], [3, 0.97], [4, 1]] as [number, number][], drift: 0.02 };
+/** Share of the quarter the place of the pelvis has gone round C at beat `q` of the quarter (`QUART_ROOT`). */
+export function quartRootShare(q: number): number {
+  const k = QUART_ROOT.knots, n = k.length, t = Math.max(k[0][0], Math.min(k[n - 1][0], q));
+  const width = k.slice(1).map(([x], i) => x - k[i][0]), secant = k.slice(1).map(([, y], i) => (y - k[i][1]) / width[i]);
+  // Interior slopes: Fritsch-Butland's weighted harmonic mean of the neighbouring secants (monotone, no overshoot).
+  const slope = k.map((_, i) => i === 0 || i === n - 1 ? QUART_ROOT.drift : secant[i - 1] * secant[i] <= 0 ? 0
+    : 3 * (width[i - 1] + width[i]) / ((2 * width[i] + width[i - 1]) / secant[i - 1] + (width[i] + 2 * width[i - 1]) / secant[i]));
+  let i = 0;
+  while (i < n - 2 && t > k[i + 1][0]) i++;
+  const h = k[i + 1][0] - k[i][0], u = (t - k[i][0]) / h, u2 = u * u, u3 = u2 * u;
+  return (2 * u3 - 3 * u2 + 1) * k[i][1] + (u3 - 2 * u2 + u) * h * slope[i] + (-2 * u3 + 3 * u2) * k[i + 1][1] + (u3 - u2) * h * slope[i + 1];
+}
 /** #208 (`entreLesPas`): the leader's D arcs from the moment it leaves (the virgula one foot further makes its way
  * longer; arcing late, it caught up at the end and the pelvis rose 6 cm within a quarter of a beat). */
 export const QUART_BETWEEN_SHAPES: QuartsShapes = {
@@ -289,7 +312,7 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
   // step, the rest with the second (following the yaw instead crossed the legs; staying in place, the trailing knee).
   let rootPoint: FootPoint;
   if (between) {
-    const placed = QUART_LEAD * (p1 / 2) + (1 - QUART_LEAD / 2) * ease5(rawAt(role[1], now.q));
+    const placed = quartRootShare(now.q);
     rootPoint = about(c, about(c, start.root, QUARTER * placed), base);
   } else {
     const rigid = about(c, start.root, (QUARTER / 2) * (a1 + a2)), diagonal = diagonalRoot(c, start.root, QUARTS_BODY.extremity, a1, a2);

@@ -220,3 +220,31 @@ console.log('PASS', collisionPoses, 'poses de couple : aucun croisement des os d
 const url = new URL(api.buildShareUrl('https://example.test/', { mode: 'pair', quarts: true, placement: 'face' }, null, null));
 assert.equal(url.searchParams.get('placement'), 'face');
 console.log('PASS partage du placement des quarts en paire');
+
+// #208, #219 (R34): in the game mode the pelvis never stops and its speed never breaks, from the basic step through the
+// quarter turn and back (scripts/bassin_mesure.mjs). Before: the pelvis went 45 % of the way round C within the first
+// foot's flight (80 cm per beat, 419 cm/beat²), stood still for the last beat (0.08 beat), and broke its speed at both
+// junctions (473 and 528 cm/beat²); its roll stopped dead at the cap (656 °/beat²). The basic step: 30 cm/beat².
+// Known gap, held where it is: the height follows the legs' reach (468 to 1 020 cm/beat², 507 to 914 before; 44 in the
+// basic step). A pelvis that anticipates it, even lowered by 5 mm, crosses the bones (docs/spec-bassin-continu.md).
+{
+  const { pelvisSession, zoneOf } = await import('./bassin_mesure.mjs');
+  const LIMIT = { a: 350, ay: 1100, ar: 300, aw: 200, vmax: 60 };
+  const worst = {};
+  for (const styleKey of ['kizomba', 'semba', 'suave']) {
+    const { end, roles } = await pelvisSession('quart', { styleKey });
+    for (const [role, rows] of Object.entries(roles)) {
+      const z = zoneOf(rows, -0.5, end + 1);
+      assert.equal(z.still, 0, `${styleKey} ${role}: the pelvis stands still ${z.still} beat`);
+      // Height and roll: semba's own bounce (in every figure, and in the passage to the basic step danced in suave).
+      for (const key of ['a', 'aw', ...(styleKey === 'semba' ? [] : ['ay', 'ar'])])
+        assert(z[key].value < LIMIT[key], `${styleKey} ${role}: ${key} ${z[key].value.toFixed(0)} at ${z[key].t.toFixed(2)} (≤ ${LIMIT[key]})`);
+      assert(z.vmax < LIMIT.vmax, `${styleKey} ${role}: top speed ${z.vmax.toFixed(1)} cm per beat`);
+      for (const key of ['a', 'ay', 'aw', 'ar']) if (!worst[key] || z[key].value > worst[key].value) worst[key] = { ...z[key], styleKey, role };
+      if (!worst.vmin || z.vmin.value < worst.vmin.value) worst.vmin = { ...z.vmin, styleKey, role };
+    }
+  }
+  const say = k => `${worst[k].value.toFixed(0)} (${worst[k].styleKey}, ${worst[k].role}, ${worst[k].t.toFixed(2)})`;
+  console.log(`PASS #208 : bassin du quart de tour sans arrêt (au moins ${worst.vmin.value.toFixed(1)} cm par temps), accélération au sol ${say('a')}, `
+    + `en hauteur ${say('ay')}, lacet ${say('aw')}, roulis ${say('ar')} ; jonctions comprises`);
+}

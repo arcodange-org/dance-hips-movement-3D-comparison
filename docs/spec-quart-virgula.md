@@ -169,6 +169,33 @@ figure par défaut. Il est filmé pour être jugé (`pivot-pieds.gif`, `pivot-de
 - Saccades (R34, `scripts/fixtures/saccades.json`) reprises si les mesures changent.
 - La virgula de la sortie fille (#127) reste la référence : le guideur avance, la suiveuse recule.
 
+## Le bassin sans arrêt ni accélération subite (27 novembre)
+
+Demande du 27 novembre : le quart de tour sans interruption du mouvement des hanches et sans accélération subite.
+Mesuré dans le mode jeu (`scripts/bassin_mesure.mjs` : quart commandé depuis le pas de base, kizomba, ginga par défaut,
+quinconce, amplitude 1, 48 échantillons par temps, bassin des deux danseurs ; repère, le pas de base : 30 cm/temps²).
+
+- **Jonctions** (#219, branche fusionnée ici) : le résidu part avec sa vitesse ; plus de saut de vitesse au sol, en lacet
+  ni en roulis d'un échantillon à l'autre (entrée : 9,9 → 0,6 cm par temps, 473 cm/temps² ; sortie : 528 → 49).
+- **Trajet du bassin autour de C** (`QUART_ROOT`, `quartRootShare`) : une seule courbe monotone sur le quart au lieu de
+  deux élans séparés par des arrêts. Il part un peu avant les premiers pieds (1,2 % du quart à 0,35), est au-dessus de la
+  virgula quand elle se pose (45 % au temps 1, comme avant), glisse pendant que le bloc tourne (47 % à 1,75), finit
+  après la pose du second pied (97 % à 3) et dérive encore de 2 % du quart par temps aux deux bouts, pour que les quarts
+  s'enchaînent sans arrêt. Kizomba : vitesse au plus 57 cm par temps (80), accélération au sol 324 (419), jamais
+  immobile (arrêt de 0,08 temps avant la fin).
+- **Roulis** (#221) : le plafond de rotation est atteint en douceur. Suiveuse : 656 → 163 °/temps².
+- **Lacet** : la rotation élue (G, entre les deux pas) est inchangée : 149 à 168 °/temps² au plus.
+
+Ce qui borne le trajet, mesuré sur les os : un bassin encore derrière la virgula quand elle se pose croise les jambes
+(amplitude 0,5, 30 poses) ; un bassin en avance sur le pied arrière quand celui-ci pousse fait sauter la hauteur (la
+portée de la jambe arrière, 1 400 à 3 000 cm/temps²). Étaler davantage demanderait que les premiers pieds partent plus
+tôt (aujourd'hui à 0,4 temps, posés sur le temps 1) : c'est le dessin de la figure, à soumettre au propriétaire.
+
+**Reste** : la hauteur suit la portée des jambes (468 à 1 020 cm/temps² selon le style et le rôle, contre 507 à 914
+avant ; 44 dans le pas de base) : quand un pied part, roule ou se pose, la jambe qui borne la hauteur change. Un bassin
+qui anticipe cette borne, même abaissé de 5 mm, croise les os de cette figure (spec du bassin continu, #221). Garde dans
+`scripts/test_quarts_paire.mjs` (kizomba, semba, suave ; hauteur et roulis du semba : le rebond du style lui-même).
+
 ## Hors périmètre
 
 - L'ida e volta (#210) et le « 1 2 » (#209), chantiers distincts.
