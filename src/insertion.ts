@@ -69,6 +69,12 @@ export const TOUCH_POSITIONS: Record<string, Touch[]> = {
 };
 /** The virgula is offered where the leader's G goes forward from the neutral stance (#127, #128). */
 export const touchVirgula = (_kind: string, touch: Touch): boolean => touch.side === "L" && !touch.back && touch.at === 0;
+/** Election prototypes (#86, #144, docs/elections/suiveuse-ida.md): variants of the follower's part shown
+ * to the owner as GIFs (`?suiveuse=memePied` or `immobile` in the game view). Not validated on the GLB, not
+ * offered in the game: the elected variant is then implemented properly.
+ * - `sameFoot`: she moves the same foot as the leader (his G, her G) instead of the foot facing his;
+ * - `still`: during a touch of the leader she keeps both feet where they are. */
+export const FOLLOWER_VARIANT = { sameFoot: false, still: false };
 /** What a figure sample must give for a touch to be added to it. */
 export interface TouchHostSample {
   beat: number; feet: Record<FigureFoot, FigureFootPose>; root: { x: number; z: number };
@@ -102,8 +108,9 @@ export function sampleTouched<S extends TouchHostSample>(host: (beat: number) =>
   if (!touch) return { ...host(hostBeat), ...(styleRuns ? { beat: b } : {}), inserted: false };
   // The ida's displacements from its own neutral stance, added to the held position of the figure.
   const held = host(hostBeat);
+  if (follower && FOLLOWER_VARIANT.still) return { ...held, ...(styleRuns ? { beat: b } : {}), inserted: true };
   const o = placementOffset(placement);
-  const variant: IdaVariant = { side: touch.side, back: touch.back, ...(touch.virgula ? { virgula: true } : {}) };
+  const variant: IdaVariant = { side: follower && FOLLOWER_VARIANT.sameFoot ? other(touch.side) : touch.side, back: touch.back, ...(touch.virgula ? { virgula: true } : {}) };
   const ida = sampleIdaPaire(t, follower, rest, o, stance, variant), start = sampleIdaPaire(0, follower, rest, o, stance, variant);
   const neutral = idaNeutral(rest, o, stance);
   const feet = {} as Record<FigureFoot, FigureFootPose>;
