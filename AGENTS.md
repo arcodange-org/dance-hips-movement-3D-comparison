@@ -78,6 +78,9 @@ le couple se tient plus loin (`COUPLE_DZ`, `KNEE_ROOM`, `src/placement.ts`) ; cr
 Transfert de poids continu (#167, R34 : ni saccade, ni téléportation, ni relais soudain) : [spec](docs/spec-transfert-continu.md) ;
 `scripts/test_saccades.mjs` mesure, dans des séances du mode jeu, les à-coups du bassin de chaque figure et le passage d'un côté
 à l'autre ; l'état est enregistré (`scripts/fixtures/saccades.json`, cliquet ; `WRITE=1` après un changement voulu).
+Le bassin garde sa vitesse (#219, #221) : [spec](docs/spec-bassin-continu.md) ; aux jonctions le résidu part avec sa vitesse
+(`inertialize`, `junctionSpeed`, `pelvisResidual`) ; dans le quart de tour et l'ida e volta le plafond de rotation est atteint en
+douceur (`softCap`) ; `scripts/test_bassin_continu.mjs`, mesure partagée `scripts/bassin_mesure.mjs`.
 Exercices d'isolation (#206, lot L441 de ReCoDanse) : [spec](docs/spec-isolations.md) ; `?isolation=<exercice>` (cou, poitrine,
 bassin), danseur seul pieds posés, seule la partie nommée bouge, en boucle (`src/isolations.ts` pur, option `isolation` de
 `applyPose`, `scripts/test_isolations.mjs`, `docs/features/isolations.feature`, films `scripts/capture_isolation_gif.mjs`) ; trois vitesses

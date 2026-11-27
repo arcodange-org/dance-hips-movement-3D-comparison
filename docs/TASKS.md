@@ -548,3 +548,14 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Élu le 25 novembre : C, `hancheDabord`, par défaut ; R45 contrôlée dans `scripts/test_um_dois.mjs`.
 - [ ] Films du pas de base (#155) refaits une fois dans `main`.
 - [ ] Sorties garçon (#213) et fille (#214) : la hanche d'abord.
+
+## Le bassin garde sa vitesse : jonctions, hauteur, plafond de rotation (#219, #221)
+
+- [x] Issues #219 (jonctions) et #221 (hauteur et plafond dans les figures), mesures du 27 novembre dans le mode jeu.
+- [x] Spec ([spec](spec-bassin-continu.md)) ; inertialisation en vitesse aux jonctions (racine, lacet propre, pose du
+  bassin et buste, aller-retour d'ouverture compris) ; plafond de rotation doux dans le quart de tour et l'ida e volta.
+- [x] Garde `scripts/test_bassin_continu.mjs` (vitesse continue à 708 jonctions, six styles) ; mesure partagée
+  `scripts/bassin_mesure.mjs`.
+- [x] Essayé puis écarté : la hauteur qui anticipe la portée des jambes (le bassin abaissé, même de 5 mm, croise les
+  os du quart de tour et de l'ida e volta) ; voir la spec.
+- [ ] Fusion dans les branches du quart de tour (#211) et de l'ida e volta (#212), puis leurs propres corrections.
