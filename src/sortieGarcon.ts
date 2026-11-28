@@ -77,7 +77,8 @@ export const setSortieTour = (name: string | null | undefined) => { SORTIE_TOUR.
  * follower's D3, which goes back past her G2, needs `mix` (with `now` it brushes her G2's heel); the leader's D4, which
  * comes back round his G3 landed late in the turn, needs `now` (with `mix` it brushes his G3). */
 export const SORTIE_TOUR_PATH: Record<"leader" | "follower", "mix" | "now"> = { leader: "now", follower: "mix" };
-/** R34 (#220): beats over which a foot that leaves lets go of the pelvis height. */
+/** R34 (#220): beats over which a foot that leaves lets go of the pelvis height (`ease5`: with `smooth`, the end of the
+ * let-go jolted her pelvis at 2.58 in the turning candidates, and with the game's ample ginga in suave tour45 crossed a femur). */
 export const SORTIE_REACH_HOLD = 0.6;
 export const SORTIE_BALL: FootPoint = { x: -0.01684, z: 0.11664 };
 const ease5 = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * t * (10 - 15 * t + 6 * t * t); };
@@ -296,7 +297,7 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   // R34 (#220): the moving foot keeps bounding the pelvis from where it left, letting go over `SORTIE_REACH_HOLD` beats
   // from its departure (past its landing if need be): leaving a far place (her G4, 45 cm in front of her D3), it let
   // the pelvis jump up 11 cm within a twelfth of a beat.
-  const letGo = smooth((t - lead) / SORTIE_REACH_HOLD);
+  const letGo = SORTIE_REACH_HOLD > 0 ? ease5((t - lead) / SORTIE_REACH_HOLD) : 1;
   const reachFrom = index < 4 && letGo < 1 ? { side: moving, x: from.x, z: from.z, release: letGo } : undefined;
   const sample: SortieGarconSample = { beat: b, action: Math.ceil(b), moving, feet, root, loadR, loadL: 1 - loadR,
     chestYaw: -contra * Math.PI / 180 * exit, coupling: Math.max(startCoupling(b, o), endCoupling(b, o)), gingaCap: SORTIE_GINGA_CAP,

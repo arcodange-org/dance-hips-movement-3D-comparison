@@ -77,8 +77,9 @@ D3), sa jambe G tendue vers l'avant la tient basse ; quand ce G part pour le « 
 disparaît d'un coup et le bassin saute à celle du D3.
 
 Correction (par défaut, toutes les sorties garçon) : le pied qui part garde sa voix sur la hauteur du bassin depuis là où
-il était, et la lâche en douceur sur 0,6 temps (`reachFrom` de l'échantillon, lu par `src/pose.ts` ; `SORTIE_REACH_HOLD`).
-Aucune pose de pied ne change.
+il était, et la lâche en douceur sur 0,6 temps (`reachFrom` de l'échantillon, lu par `src/pose.ts` ; `SORTIE_REACH_HOLD`,
+courbe `ease5`). Aucune pose de pied ne change. Dans les candidats qui tournent, « là où il était »
+est la place du pied dans le couple tourné : la place d'avant la rotation faisait tomber son bassin à 3,0.
 
 | | avant | après |
 | --- | --- | --- |
