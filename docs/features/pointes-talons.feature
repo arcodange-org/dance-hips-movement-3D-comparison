@@ -1,8 +1,8 @@
 Feature: Exercices sur la pointe des pieds, et lever-baisser les talons (#216)
   Spec : docs/spec-pointes-talons.md (suite du lot L441 de ReCoDanse). Sur la pointe des pieds, les deux talons sont
   levés toute la boucle et l'exercice est celui à plat ; l'exercice des talons les lève et les baisse ensemble, aux trois
-  vitesses des autres exercices. Élu le 25 novembre 2026 : les talons montent à mi-hauteur ; l'exercice des talons suit
-  les trois vitesses. Sur le vrai
+  vitesses des autres exercices. Élu le 25 novembre 2026 : l'exercice des talons suit les trois vitesses ; le 28 novembre
+  (#225) : les talons montent aux trois quarts. Sur le vrai
   squelette (avant-pieds immobiles, le corps monté d'un bloc) : scripts/test_isolations.mjs.
 
   Scenario: L'exercice des talons, aux trois vitesses
@@ -15,8 +15,8 @@ Feature: Exercices sur la pointe des pieds, et lever-baisser les talons (#216)
     And seule la partie "pieds" bouge
     And la dernière image enchaîne sur la première
 
-  Scenario: Les talons levés montent à mi-hauteur, dans l'exercice des talons comme sur la pointe des pieds
-    Then les talons levés montent à mi-hauteur
+  Scenario: Les talons levés montent aux trois quarts, dans l'exercice des talons comme sur la pointe des pieds
+    Then les talons levés montent aux trois quarts
 
   Scenario Outline: Sur la pointe des pieds, l'exercice est celui à plat (<exercice>)
     Given l'exercice "<exercice>" sur la pointe des pieds

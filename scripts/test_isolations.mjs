@@ -46,13 +46,15 @@ const pointAt = (id, k, m) => startOf(id, k) + m * ISOLATION_SPEEDS[k];
 }
 
 {
-  // Le comportement élu (le huit, tranché le 25 novembre ; les talons à mi-hauteur, aux trois vitesses, tranchés le même
-  // jour) ; à plat sans `pointes` ; plus aucun candidat des exercices dans les essais.
+  // Le comportement élu (le huit, tranché le 25 novembre ; l'exercice des talons aux trois vitesses, tranché le même jour ;
+  // les talons aux trois quarts, le 28 novembre) ; à plat sans `pointes` ; plus aucun candidat des exercices dans les
+  // essais, sauf la demi-pointe complète (#225).
   assert.deepEqual(isolationSettings(), ISOLATION_DEFAULT);
   assert.deepEqual(ISOLATION_DEFAULT, { huit: "alterne", miroir: false, pointes: false });
   assert.equal(isolationSettings({ miroir: true }).miroir, true);
   assert.equal(isolationSettings({ pointes: true }).pointes, true);
-  assert.ok(!Object.keys(ESSAIS).some(k => k.startsWith("iso") || k.startsWith("talons")), "les candidats élus ou perdants ont quitté les essais");
+  assert.ok(!Object.keys(ESSAIS).some(k => k.startsWith("iso") || k.startsWith("talons") || k === "hautTroisQuarts" || k === "piedBloc"), "les candidats élus ou perdants ont quitté les essais");
+  assert.equal(isolationSettings({}, k => k === "hautDemiPointe").hauteur, "demiPointe", "la demi-pointe complète reste filmable");
   assert.ok(ISOLATION_IDS.every(id => beats(0, isolationBeats(id), 1 / 4).every(b => ISOLATIONS[id].famille === "pieds" || at(id, b).heel === 0)), "à plat sans pointes");
   console.log("PASS réglages : le comportement élu, à plat sans pointes, plus de candidat dans les essais");
 }
@@ -97,7 +99,7 @@ const pointAt = (id, k, m) => startOf(id, k) + m * ISOLATION_SPEEDS[k];
     for (const b of beats(0, isolationBeats(id), 1 / 16)) {
       const p = at(id, b, s);
       const head = [p.head.nod, p.head.turn, p.head.tilt], chest = [p.chest.fore, p.chest.side], pelvis = flat(p).slice(5, 10);
-      // Sur pointes, les talons restent levés toute la boucle (à mi-hauteur) ; dans l'exercice des talons, ils bougent.
+      // Sur pointes, les talons restent levés toute la boucle (aux trois quarts) ; dans l'exercice des talons, ils bougent.
       if (f !== "pieds") assert.equal(p.heel, s.pointes ? ISOLATION_HEEL : 0, `${id} (${name}) : talons au temps ${b}`);
       for (const [part, values] of [["cou", head], ["poitrine", chest], ["bassin", pelvis], ["pieds", [p.heel]]]) {
         if (part === "pieds" && f !== "pieds") continue;
@@ -210,9 +212,10 @@ const pointAt = (id, k, m) => startOf(id, k) + m * ISOLATION_SPEEDS[k];
 }
 
 {
-  // #216 : l'exercice des talons, en haut (à mi-hauteur) puis à plat, aux trois vitesses (élu le 25 novembre).
+  // #216 : l'exercice des talons, en haut puis à plat, aux trois vitesses (élu le 25 novembre) ; #225 : en haut, aux trois
+  // quarts (élu le 28 novembre).
   const id = "talons", H = ISOLATION_HEEL;
-  assert.ok(Math.abs(H - 25 * Math.PI / 180) < 1e-12, "talons à mi-hauteur");
+  assert.ok(Math.abs(H - 45 * Math.PI / 180) < 1e-12, "talons aux trois quarts");
   for (const k of [0, 1, 2]) for (let j = 0; j < 4; j++)
     assert.ok(Math.abs(at(id, pointAt(id, k, j)).heel - (j % 2 === 0 ? H : 0)) < 1e-12, `${id} : vitesse ${k}, en haut puis à plat (point ${j})`);
   // Posé puis tenu à deux temps et à un temps ; fluide au demi-temps.
@@ -220,7 +223,7 @@ const pointAt = (id, k, m) => startOf(id, k) + m * ISOLATION_SPEEDS[k];
   assert.ok(held(0) && held(1) && !held(2), "tenu à deux temps et à un temps, fluide au demi-temps");
   // `pointes` ne change rien à l'exercice des talons.
   assert.ok(beats(0, 24, 1 / 16).every(b => at(id, b, settings({ pointes: true })).heel === at(id, b).heel));
-  console.log("PASS talons : à mi-hauteur puis à plat aux trois vitesses, tenus puis fluides");
+  console.log("PASS talons : aux trois quarts puis à plat aux trois vitesses, tenus puis fluides");
 }
 
 // ---------------------------------------------------------------- 2. vrai GLB
@@ -230,7 +233,9 @@ function measure(r, outer) {
   r.root.updateWorldMatrix(true, true);
   const local = o => outer.worldToLocal(o.getWorldPosition(v3()));
   const q = o => outer.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(o.getWorldQuaternion(new THREE.Quaternion()));
-  const legs = Object.fromEntries(SIDES.map(s => [s, [r["hip" + s], r["knee" + s], r["foot" + s]].map(o => o.getWorldPosition(v3()))]));
+  // #225 : la jambe va du genou au bas du tibia, là où est la cheville au repos ; talon levé, le talus glisse dans la
+  // pince (src/cheville.ts) : la cheville quitte ce point de son glissement, mesuré à part.
+  const legs = Object.fromEntries(SIDES.map(s => [s, [r["hip" + s].getWorldPosition(v3()), r["knee" + s].getWorldPosition(v3()), r["knee" + s].localToWorld(r["foot" + s].userData.rest.clone())]]));
   return {
     feet: SIDES.map(s => local(r["foot" + s])), footQ: SIDES.map(s => q(r["foot" + s])),
     pelvis: local(r.pelvis), pelvisQ: q(r.pelvis), chest: local(r.chest), chestQ: q(r.chest), head: local(r.head), headQ: q(r.head),
@@ -337,7 +342,8 @@ for (const [label, where] of [["seul", {}], ["comparaison, à droite, tourné", 
   };
   // Sur la pointe des pieds, chaque exercice est celui à plat monté d'un bloc : bassin, cage et tête à la même place et dans
   // la même orientation, plus haut d'une hauteur constante ; les talons restent levés.
-  // (La hauteur varie d'un exercice à l'autre de moins d'un millimètre : chacun a son niveau, mesuré sur sa boucle.)
+  // (La hauteur varie d'un exercice à l'autre de moins de 3 mm : chacun a son niveau, mesuré sur sa boucle ; ceux où le
+  // bassin penche ou glisse loin laissent moins de jambe.)
   let lifts = [], heelLow = Infinity;
   for (const id of ISOLATION_IDS.filter(id => ISOLATIONS[id].famille !== "pieds")) {
    const own = [];
@@ -353,10 +359,10 @@ for (const [label, where] of [["seul", {}], ["comparaison, à droite, tourné", 
    assert.ok(Math.max(...own) - Math.min(...own) < 1e-4, `${id} sur pointes (${label}) : monté d'un bloc (${((Math.max(...own) - Math.min(...own)) * 1000).toFixed(3)} mm d'écart)`);
    lifts.push(...own);
   }
-  // #225 : à mi-hauteur (25°), le pied sur la plante : la cheville monte de 4,2 cm, le talon est à 6,7 cm du sol, les
-  // orteils plient d'autant que le pied bascule.
-  assert.ok(Math.min(...lifts) > 0.04 && Math.max(...lifts) < 0.045 && Math.max(...lifts) - Math.min(...lifts) < 0.002, `sur pointes (${label}) : monté de ${(Math.min(...lifts) * 100).toFixed(2)} à ${(Math.max(...lifts) * 100).toFixed(2)} cm`);
-  assert.ok(heelLow > 0.064 && heelLow < 0.071, `sur pointes (${label}) : talons levés (${(heelLow * 100).toFixed(1)} cm)`);
+  // #225 : aux trois quarts (45°, élus le 28 novembre), le pied sur la plante : la cheville monte de 6,5 cm, le talon est
+  // à 11 cm du sol, les orteils plient d'autant que le pied bascule.
+  assert.ok(Math.min(...lifts) > 0.06 && Math.max(...lifts) < 0.068 && Math.max(...lifts) - Math.min(...lifts) < 0.003, `sur pointes (${label}) : monté de ${(Math.min(...lifts) * 100).toFixed(2)} à ${(Math.max(...lifts) * 100).toFixed(2)} cm`);
+  assert.ok(heelLow > 0.105 && heelLow < 0.115, `sur pointes (${label}) : talons levés (${(heelLow * 100).toFixed(1)} cm)`);
   assert.ok(Math.abs(toeFold - ISOLATION_HEEL) < 1e-6, `sur pointes (${label}) : les orteils plient de ${(toeFold * DEG).toFixed(2)}°`);
   // L'exercice des talons : le corps monte et descend d'un bloc avec les chevilles, rien d'autre ne bouge ; à plat, il est
   // à sa place.
@@ -374,10 +380,12 @@ for (const [label, where] of [["seul", {}], ["comparaison, à droite, tourné", 
       previous = m;
     }
     assert.ok(block < 1e-4 && moved < 1e-4, `${id} (${label}) : le corps monte d'un bloc (${(block * 1000).toFixed(3)} mm), sans glisser ni tourner (${(moved * 1000).toFixed(3)})`);
-    assert.ok(top > 0.04 && top < 0.045 && jump < 0.035, `${id} (${label}) : monte de ${(top * 100).toFixed(1)} cm, ${(jump * 1000).toFixed(1)} mm au plus en 1/8 de temps`);
+    assert.ok(top > 0.062 && top < 0.068 && jump < 0.035, `${id} (${label}) : monte de ${(top * 100).toFixed(1)} cm, ${(jump * 1000).toFixed(1)} mm au plus en 1/8 de temps`);
     api.applyPose(r, model, pointAt(id, 0, 1), { isolation: { id } });
     const flatPose = measure(r, outer);
-    assert.ok(Math.abs(flatPose.pelvis.y - rest.pelvis.y) < 1e-3, `${id} (${label}) : à plat, le bassin à sa place`);
+    // Aux trois quarts, en haut, les genoux à leur pli minimal (R43) retiennent le bassin de 2 mm : l'exercice garde ce
+    // niveau toute la boucle (#216), à plat il est donc à 3 mm au plus sous sa place.
+    assert.ok(Math.abs(flatPose.pelvis.y - rest.pelvis.y) < 3e-3, `${id} (${label}) : à plat, le bassin à sa place (${((flatPose.pelvis.y - rest.pelvis.y) * 1000).toFixed(1)} mm)`);
     api.applyPose(r, model, 0, { isolation: { id } }); const first = snapshot(r);
     api.applyPose(r, model, isolationBeats(id), { isolation: { id } });
     assert.ok(maxDiff(first, snapshot(r)) < 1e-9, `${id} (${label}) : la boucle se referme`);

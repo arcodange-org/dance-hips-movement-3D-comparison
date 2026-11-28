@@ -17,11 +17,11 @@ import { IDA_DEFAULT, type IdaVariant } from "../idaPaire";
 import type { IsolationId, IsolationSettings } from "../isolations";
 import {
   MUSCLES_URL,
+  TENDONS_URL,
   DRACO_DECODER_PATH,
   MUSCLE_OPACITY,
-  muscleParent,
   trunkBlocksVisible,
-  parentOffsetSkel,
+  graftMuscles,
   makeMuscleMaterial,
 } from "../muscles";
 
@@ -134,6 +134,8 @@ export default function Rig({
   const lastGhost = useRef<boolean | null>(null);
   const { scene } = useGLTF(ANATOMY_URL);
   const { scene: musclesScene } = useGLTF(MUSCLES_URL, DRACO_DECODER_PATH);
+  // #229: the Achilles tendons, grafted with the muscles.
+  const { scene: tendonsScene } = useGLTF(TENDONS_URL, DRACO_DECODER_PATH);
   const muscleMeshes = useRef<THREE.Mesh[]>([]);
   const chainMeshes = useRef<Record<Side, THREE.Mesh[]>>({ R: [], L: [] });
   const chainColor = useMemo(() => new THREE.Color(STYLES[styleKey].color), [styleKey]);
@@ -159,30 +161,20 @@ export default function Rig({
       chainMeshes.current[sd] = list;
     }
   }, [skel, r]);
-  // Greffe de la couche musculaire (GLB BodyParts3D, espace Skeleton) sur les
-  // n\u0153uds du rig : chaque maillage `Muscle_<Label>_<R|L|C>` est re-parent\u00e9 vers
-  // son pivot osseux et d\u00e9cal\u00e9 de la position du parent en espace Skeleton.
+  // Greffe de la couche musculaire (GLB BodyParts3D) sur les nœuds du rig (`graftMuscles`, src/muscles.ts) : chaque
+  // maillage `Muscle_<Label>_<R|L|C>` sous son pivot osseux, posé sur les os ; #229 : les tendons qui passent la cheville
+  // (et le tendon d'Achille) suivent le pied.
   useEffect(() => {
     for (const m of muscleMeshes.current) m.removeFromParent();
-    const list: THREE.Mesh[] = [];
-    const src = musclesScene.clone(true);
     const meshes: THREE.Mesh[] = [];
-    src.traverse((o) => {
-      if ((o as THREE.Mesh).isMesh) meshes.push(o as THREE.Mesh);
-    });
-    for (const mesh of meshes) {
-      const parentKey = muscleParent(mesh.name);
-      const parent = parentKey ? (r[parentKey] as THREE.Object3D | undefined) : undefined;
-      if (!parentKey || !parent) continue;
-      mesh.material = makeMuscleMaterial();
-      mesh.userData.part = "muscle";
-      mesh.position.sub(parentOffsetSkel(parentKey, r));
-      mesh.visible = showMuscles;
-      parent.add(mesh);
-      list.push(mesh);
-    }
+    for (const source of [musclesScene, tendonsScene])
+      source.clone(true).traverse((o) => {
+        if ((o as THREE.Mesh).isMesh) meshes.push(o as THREE.Mesh);
+      });
+    const list = graftMuscles(r, meshes, makeMuscleMaterial);
+    for (const mesh of list) mesh.visible = showMuscles;
     muscleMeshes.current = list;
-  }, [musclesScene, skel, r, showMuscles]);
+  }, [musclesScene, tendonsScene, skel, r, showMuscles]);
   useEffect(() => {
     for (const m of muscleMeshes.current) m.visible = showMuscles;
   }, [showMuscles, musclesScene, skel]);

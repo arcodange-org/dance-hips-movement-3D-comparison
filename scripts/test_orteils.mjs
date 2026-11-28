@@ -18,7 +18,7 @@ buildSync({ stdin: { contents: ["pose", "anatomy", "rigJoints", "orteils", "isol
   define: { "import.meta.env.BASE_URL": '"/"' }, logLevel: "silent" });
 const api = await import(bundle.href);
 unlinkSync(bundle);
-const { articulateToes, islands, TOE_EXTENSION_MAX, ISOLATION_HEEL } = api;
+const { articulateToes, islands, TOE_EXTENSION_MAX, ISOLATION_HEEL, ISOLATION_HEIGHTS } = api;
 
 const DEG = 180 / Math.PI, SIDES = ["L", "R"];
 const bytes = readFileSync(new URL("../public/anatomy.glb", import.meta.url));
@@ -114,11 +114,12 @@ const report = [];
     const full = (lo + hi) / 2;
     assert.ok(full < leg.toeFoldMax && full > 60 / DEG, `${s} : demi-pointe complète à ${(full * DEG).toFixed(1)}°, sous le pli maximal`);
     const row = th => { const h = heights(th); return `${(th * DEG).toFixed(0)}° : talon ${(h.heel * 100).toFixed(1)} cm, cheville +${(h.ankle * 100).toFixed(1)} cm`; };
-    report.push(`${s} ${[ISOLATION_HEEL, 45 / DEG, full].map(row).join(" | ")}`);
+    report.push(`${s} ${[ISOLATION_HEIGHTS.miHauteur, ISOLATION_HEEL, full].map(row).join(" | ")}`);
     if (s === "R") {
+      // Aux trois quarts élus (le 28 novembre), le talon est aux trois quarts de sa hauteur en demi-pointe complète.
       const ratio = heights(ISOLATION_HEEL).heel / heights(full).heel;
-      assert.ok(ratio > 0.4 && ratio < 0.5, `à mi-hauteur, le talon est à ${(ratio * 100).toFixed(0)} % de sa hauteur en demi-pointe complète`);
-      report.push(`à mi-hauteur, le talon à ${(ratio * 100).toFixed(0)} % de sa hauteur en demi-pointe complète`);
+      assert.ok(ratio > 0.7 && ratio < 0.8, `aux trois quarts, le talon est à ${(ratio * 100).toFixed(0)} % de sa hauteur en demi-pointe complète`);
+      report.push(`aux trois quarts, le talon à ${(ratio * 100).toFixed(0)} % de sa hauteur en demi-pointe complète`);
     }
   }
   console.log("PASS pied sur la plante : rien sous le sol jusqu'au pli maximal, demi-pointe complète sous la limite");
@@ -140,7 +141,10 @@ const report = [];
   api.applyPose(r, model, 2, { isolation: { id: "cou-tourne" } });
   const atRest = state();
   const lines = [];
-  for (const [name, hauteur] of [["mi-hauteur", undefined], ["trois quarts", "troisQuarts"], ["demi-pointe complète", "demiPointe"]]) {
+  // Jusqu'aux trois quarts, la plante reste au sol, le 2e orteil à plat ; en demi-pointe complète, la plante quitte le sol
+  // de l'épaisseur de son coussinet (vote du 28 novembre : les orteils plient au-dessus du sol), et chaque orteil descend
+  // en pente jusqu'à son bout, posé (pentes en degrés : le 2e, au plus et au moins ; tous, au plus).
+  for (const [name, hauteur, [lo, hi], steepest] of [["mi-hauteur", "miHauteur", [0, 0], 35], ["trois quarts", undefined, [0, 0], 35], ["demi-pointe complète", "demiPointe", [8, 14], 50]]) {
     const settings = { ...api.ISOLATION_DEFAULT, pointes: true, ...(hauteur ? { hauteur } : {}) };
     api.applyPose(r, model, 2, { isolation: { id: "cou-tourne", settings } });
     const now = state();
@@ -148,12 +152,12 @@ const report = [];
       assert.ok(ray.attach < 1e-9, `${name} : l'orteil ${k + 1} tient à la tête de son métatarsien (${(ray.attach * 1000).toFixed(4)} mm)`);
       assert.ok(Math.abs(ray.low - atRest[i][k].low) < 1e-5, `${name} : le bout de l'orteil ${k + 1} reste posé (${((ray.low - atRest[i][k].low) * 1000).toFixed(3)} mm)`);
     }));
-    assert.ok(now.every(rays => rays[1].slope < 1e-6), `${name} : le 2e orteil reste à plat`);
+    assert.ok(now.every(rays => rays[1].slope * DEG >= lo - 1e-4 && rays[1].slope * DEG <= hi + 1e-4), `${name} : le 2e orteil en pente de ${now.map(rays => (rays[1].slope * DEG).toFixed(2)).join(", ")}° (de ${lo} à ${hi}°)`);
     const slopes = [0, 1, 2, 3, 4].map(k => Math.max(...now.map(rays => rays[k].slope)) * DEG);
-    assert.ok(slopes[0] < 6 && Math.max(...slopes) < 35, `${name} : pente des orteils ${slopes.map(x => x.toFixed(0)).join(", ")}°`);
+    assert.ok(slopes[0] < 6 + hi && Math.max(...slopes) < steepest, `${name} : pente des orteils ${slopes.map(x => x.toFixed(0)).join(", ")}°`);
     lines.push(`${name} : pente des orteils, du gros au petit, ${slopes.map(x => x.toFixed(1)).join(" · ")}°`);
   }
-  console.log("PASS orteils : chacun tient à la tête de son métatarsien, son bout reste posé ; le 2e reste à plat");
+  console.log("PASS orteils : chacun tient à la tête de son métatarsien, son bout reste posé ; le 2e à plat jusqu'aux trois quarts, en pente en demi-pointe complète");
   for (const line of lines) console.log("INFO " + line);
 }
 

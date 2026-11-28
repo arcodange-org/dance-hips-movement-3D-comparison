@@ -9,8 +9,8 @@
  * au suivant, le centre compris.
  *
  * Sur la pointe des pieds, et l'exercice des talons (#216, docs/spec-pointes-talons.md) : `pointes` lève les deux talons
- * toute la boucle ; l'exercice `talons` les lève et les baisse. Élu le 25 novembre 2026 (tour 17) : les talons montent à
- * mi-hauteur, et l'exercice des talons suit les trois vitesses des autres exercices.
+ * toute la boucle ; l'exercice `talons` les lève et les baisse. Élu le 25 novembre 2026 (tour 17) : l'exercice des talons
+ * suit les trois vitesses des autres exercices ; le 28 novembre (tour 18, #225) : les talons montent aux trois quarts.
  *
  * Repère du danseur : il regarde vers l'avant ; « gauche » est sa gauche (+x dans le moteur). Le temps 0 est le temps 1
  * de la musique ; « sur 1 » veut dire « arrivé sur le temps 1 ».
@@ -103,11 +103,11 @@ export const ISOLATION_AMPLITUDES = {
  * elle tourne en haut du cou. */
 export const NECK_PIVOT = 0.07;
 /** #216, #225 : la bascule du pied (rad) quand les talons sont levés, autour de la ligne de pli des orteils, qui restent
- * à plat (docs/spec-pied-sur-la-plante.md) : à mi-hauteur, élue le 25 novembre 2026 (le talon à 6,7 cm du sol, la moitié
- * de sa hauteur en demi-pointe complète). Candidats à élire (#225, src/essais.ts) : plus haut, aux trois quarts
- * (`hautTroisQuarts`), et la demi-pointe complète, la cheville à l'aplomb de la plante (`hautDemiPointe`). */
+ * à plat (docs/spec-pied-sur-la-plante.md). Élue le 28 novembre 2026 (tour 18) : aux trois quarts (le talon à 11 cm du
+ * sol ; la mi-hauteur du tour 17 jugée réussie, les trois quarts visés). Candidat restant : la demi-pointe complète, la
+ * cheville à l'aplomb de la plante (`hautDemiPointe`, src/essais.ts). */
 export const ISOLATION_HEIGHTS = { miHauteur: 25 * DEG, troisQuarts: 45 * DEG, demiPointe: 69 * DEG } as const;
-export const ISOLATION_HEEL = ISOLATION_HEIGHTS.miHauteur;
+export const ISOLATION_HEEL = ISOLATION_HEIGHTS.troisQuarts;
 /** Genoux souples pendant un exercice (rad) : ni tendus, ni pliés en danse. Le plancher de flexion de toutes les danses
  * (#203, règle R43 : 30°, `KNEE_FLOOR` dans src/pose.ts) le relève : les genoux tiennent ce minimum. */
 export const ISOLATION_KNEE = 0.2;
@@ -121,17 +121,17 @@ export interface IsolationSettings {
   /** #216 : l'exercice sur la pointe des pieds, les deux talons levés toute la boucle (sans effet sur l'exercice des
    * talons, qui les lève et les baisse de lui-même). */
   pointes: boolean;
-  /** #225 : candidat à élire, plus haut que la mi-hauteur élue (absent : la mi-hauteur). */
-  hauteur?: Exclude<keyof typeof ISOLATION_HEIGHTS, "miHauteur">;
+  /** #225 : une autre hauteur que les trois quarts élus (absent : les trois quarts) ; la demi-pointe complète est encore
+   * candidate, la mi-hauteur sert aux comparaisons. */
+  hauteur?: keyof typeof ISOLATION_HEIGHTS;
 }
 export const ISOLATION_DEFAULT: IsolationSettings = { huit: "alterne", miroir: false, pointes: false };
 
 /** Les réglages d'un exercice depuis l'adresse : le comportement élu, le miroir, la pointe des pieds ; #225 : les
  * candidats encore à élire, seulement si `?essai=` les demande (`active`, src/essais.ts). */
 export function isolationSettings(asked: { miroir?: boolean; pointes?: boolean } = {},
-  active: (essai: "hautTroisQuarts" | "hautDemiPointe") => boolean = () => false): IsolationSettings {
-  const hauteur = active("hautDemiPointe") ? "demiPointe" as const : active("hautTroisQuarts") ? "troisQuarts" as const : null;
-  return { ...ISOLATION_DEFAULT, miroir: !!asked.miroir, pointes: !!asked.pointes, ...(hauteur ? { hauteur } : {}) };
+  active: (essai: "hautDemiPointe") => boolean = () => false): IsolationSettings {
+  return { ...ISOLATION_DEFAULT, miroir: !!asked.miroir, pointes: !!asked.pointes, ...(active("hautDemiPointe") ? { hauteur: "demiPointe" as const } : {}) };
 }
 
 /** Points (mouvements) d'un tour de la figure. */
@@ -256,7 +256,7 @@ export function isolationAt(id: IsolationId, beat: number, s: IsolationSettings 
     const A = ISOLATION_AMPLITUDES.poitrine;
     pose.chest = { fore: signed(fore, A.fore, A.back), side: A.side * side };
   } else if (def.famille === "pieds") {
-    pose.heel = ISOLATION_HEIGHTS[s.hauteur ?? "miHauteur"] * fore;
+    pose.heel = ISOLATION_HEIGHTS[s.hauteur ?? "troisQuarts"] * fore;
   } else {
     const A = ISOLATION_AMPLITUDES.bassin;
     if (f.kind === "allerRetour" && f.axis === "fore") pose.pelvis.tilt = signed(fore, A.forward, A.back);
@@ -274,6 +274,6 @@ export function isolationAt(id: IsolationId, beat: number, s: IsolationSettings 
     }
   }
   // #216 : sur la pointe des pieds, les talons levés toute la boucle.
-  if (s.pointes && def.famille !== "pieds") pose.heel = ISOLATION_HEIGHTS[s.hauteur ?? "miHauteur"];
+  if (s.pointes && def.famille !== "pieds") pose.heel = ISOLATION_HEIGHTS[s.hauteur ?? "troisQuarts"];
   return pose;
 }

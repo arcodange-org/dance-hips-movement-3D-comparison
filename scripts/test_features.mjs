@@ -183,9 +183,9 @@ const steps = [
     if (!mod.isolations.isIsolationId(m[1])) throw new Error(`exercice inconnu ${m[1]}`);
     c.isolation = m[1]; c.isoStart = 0; c.isoSettings = mod.isolations.isolationSettings({ pointes: true });
   }],
-  [/^les talons levés montent à mi-hauteur$/, () => {
+  [/^les talons levés montent aux trois quarts$/, () => {
     const high = mod.isolations.ISOLATION_HEEL;
-    if (Math.abs(high - 25 * Math.PI / 180) > 1e-12) throw new Error(`talon levé de ${(high * 180 / Math.PI).toFixed(1)}°`);
+    if (Math.abs(high - 45 * Math.PI / 180) > 1e-12) throw new Error(`talon levé de ${(high * 180 / Math.PI).toFixed(1)}°`);
   }],
   [/^les talons sont (.+)$/, (c, m) => {
     const high = mod.isolations.ISOLATION_HEEL;
