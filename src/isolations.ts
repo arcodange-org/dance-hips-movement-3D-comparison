@@ -102,10 +102,12 @@ export const ISOLATION_AMPLITUDES = {
 /** La tête penche et hoche autour de la base du cou, à cette distance (m) sous le nœud de la tête (le haut du cou) ;
  * elle tourne en haut du cou. */
 export const NECK_PIVOT = 0.07;
-/** #216 : la rotation du pied (rad) quand les talons sont levés, autour de l'avant-pied : à mi-hauteur (talon à 9 cm du
- * sol), élue le 25 novembre 2026. Le pied du squelette est d'un bloc : au-delà de la mi-hauteur il tiendrait sur le bout
- * des orteils. */
-export const ISOLATION_HEEL = 25 * DEG;
+/** #216, #225 : la bascule du pied (rad) quand les talons sont levés, autour de la ligne de pli des orteils, qui restent
+ * à plat (docs/spec-pied-sur-la-plante.md) : à mi-hauteur, élue le 25 novembre 2026 (le talon à 6,7 cm du sol, la moitié
+ * de sa hauteur en demi-pointe complète). Candidats à élire (#225, src/essais.ts) : plus haut, aux trois quarts
+ * (`hautTroisQuarts`), et la demi-pointe complète, la cheville à l'aplomb de la plante (`hautDemiPointe`). */
+export const ISOLATION_HEIGHTS = { miHauteur: 25 * DEG, troisQuarts: 45 * DEG, demiPointe: 69 * DEG } as const;
+export const ISOLATION_HEEL = ISOLATION_HEIGHTS.miHauteur;
 /** Genoux souples pendant un exercice (rad) : ni tendus, ni pliés en danse. Le plancher de flexion de toutes les danses
  * (#203, règle R43 : 30°, `KNEE_FLOOR` dans src/pose.ts) le relève : les genoux tiennent ce minimum. */
 export const ISOLATION_KNEE = 0.2;
@@ -119,12 +121,17 @@ export interface IsolationSettings {
   /** #216 : l'exercice sur la pointe des pieds, les deux talons levés toute la boucle (sans effet sur l'exercice des
    * talons, qui les lève et les baisse de lui-même). */
   pointes: boolean;
+  /** #225 : candidat à élire, plus haut que la mi-hauteur élue (absent : la mi-hauteur). */
+  hauteur?: Exclude<keyof typeof ISOLATION_HEIGHTS, "miHauteur">;
 }
 export const ISOLATION_DEFAULT: IsolationSettings = { huit: "alterne", miroir: false, pointes: false };
 
-/** Les réglages d'un exercice depuis l'adresse : le comportement élu, le miroir, la pointe des pieds. */
-export function isolationSettings(asked: { miroir?: boolean; pointes?: boolean } = {}): IsolationSettings {
-  return { ...ISOLATION_DEFAULT, miroir: !!asked.miroir, pointes: !!asked.pointes };
+/** Les réglages d'un exercice depuis l'adresse : le comportement élu, le miroir, la pointe des pieds ; #225 : les
+ * candidats encore à élire, seulement si `?essai=` les demande (`active`, src/essais.ts). */
+export function isolationSettings(asked: { miroir?: boolean; pointes?: boolean } = {},
+  active: (essai: "hautTroisQuarts" | "hautDemiPointe") => boolean = () => false): IsolationSettings {
+  const hauteur = active("hautDemiPointe") ? "demiPointe" as const : active("hautTroisQuarts") ? "troisQuarts" as const : null;
+  return { ...ISOLATION_DEFAULT, miroir: !!asked.miroir, pointes: !!asked.pointes, ...(hauteur ? { hauteur } : {}) };
 }
 
 /** Points (mouvements) d'un tour de la figure. */
@@ -249,7 +256,7 @@ export function isolationAt(id: IsolationId, beat: number, s: IsolationSettings 
     const A = ISOLATION_AMPLITUDES.poitrine;
     pose.chest = { fore: signed(fore, A.fore, A.back), side: A.side * side };
   } else if (def.famille === "pieds") {
-    pose.heel = ISOLATION_HEEL * fore;
+    pose.heel = ISOLATION_HEIGHTS[s.hauteur ?? "miHauteur"] * fore;
   } else {
     const A = ISOLATION_AMPLITUDES.bassin;
     if (f.kind === "allerRetour" && f.axis === "fore") pose.pelvis.tilt = signed(fore, A.forward, A.back);
@@ -267,6 +274,6 @@ export function isolationAt(id: IsolationId, beat: number, s: IsolationSettings 
     }
   }
   // #216 : sur la pointe des pieds, les talons levés toute la boucle.
-  if (s.pointes && def.famille !== "pieds") pose.heel = ISOLATION_HEEL;
+  if (s.pointes && def.famille !== "pieds") pose.heel = ISOLATION_HEIGHTS[s.hauteur ?? "miHauteur"];
   return pose;
 }

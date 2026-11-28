@@ -37,3 +37,22 @@ Feature: Exercices sur la pointe des pieds, et lever-baisser les talons (#216)
   Scenario: Sans pointes, les talons restent à plat ; les réglages sont ceux élus
     Then sans pointes, les talons restent à plat dans tous les exercices sauf celui des talons
     And sans interrupteur d'essai, les réglages sont ceux élus
+
+  # #225 (docs/spec-pied-sur-la-plante.md) : le pied pivote sur la plante, les orteils articulés restent à plat.
+  # Mesures sur le vrai squelette : scripts/test_orteils.mjs.
+  Scenario: L'exercice des talons : le pied pivote sur la plante, les orteils restent à plat
+    Given l'exercice "talons" sur le vrai squelette
+    Then quand les talons montent, les orteils restent posés : le bout de chaque orteil ne bouge pas
+    And chaque orteil tient à la tête de son métatarsien ; le deuxième, sur la ligne de pli, reste à plat
+    And le pied pivote sur la ligne de la base des orteils, qui ne bouge pas
+    And les orteils plient d'autant que le talon monte, au plus jusqu'à une demi-pointe de danseur
+
+  Scenario: Sur la pointe des pieds : le pied pivote sur la plante, les orteils restent à plat
+    Given l'exercice "bassin-huit" sur le vrai squelette, sur la pointe des pieds
+    Then quand les talons montent, les orteils restent posés : le bout de chaque orteil ne bouge pas
+    And chaque orteil tient à la tête de son métatarsien ; le deuxième, sur la ligne de pli, reste à plat
+    And le pied pivote sur la ligne de la base des orteils, qui ne bouge pas
+    And les orteils plient d'autant que le talon monte, au plus jusqu'à une demi-pointe de danseur
+
+  Scenario: Hors des exercices, les orteils suivent le pied comme avant
+    Then hors des exercices, les orteils ne plient pas

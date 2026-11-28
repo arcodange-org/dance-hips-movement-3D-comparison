@@ -17,6 +17,8 @@
  * le huit qui alterne glisse et tourne, une mesure chacun) devenus le comportement ; leurs interrupteurs retirés.
  * Pointes et talons (#216) : votes du 25 novembre 2026 (talons à mi-hauteur ; l'exercice des talons aux trois vitesses)
  * devenus le comportement ; `talonsBas` et `talonsTenue` retirés.
+ * Le pied sur la plante (#225) : `hautTroisQuarts` et `hautDemiPointe` attendent leur vote ; `piedBloc` remet le pied
+ * d'un bloc des exercices (il tient sur le bout des orteils), pour filmer l'avant.
  */
 export const ESSAIS = {
   /** Témoin : ne change rien. Sert à filmer le comportement actuel image par image hors du mode paire. */
@@ -24,6 +26,12 @@ export const ESSAIS = {
   /** #179 : les mains jointes sur le côté du couple, plus bas et plus près, coudes détendus, avec la prise du
    * 22 novembre (l'attitude choisie les tient au niveau des épaules, emboîtées). */
   mainsBasses: "mains jointes sur le côté du couple, plus bas",
+  /** #225 : les talons des exercices montent aux trois quarts (le pied bascule de 45°). */
+  hautTroisQuarts: "talons aux trois quarts",
+  /** #225 : les talons des exercices montent en demi-pointe complète, la cheville à l'aplomb de la plante (69°). */
+  hautDemiPointe: "talons en demi-pointe complète",
+  /** #225 : le pied d'un bloc des exercices, avant ce lot (talon levé, il tient sur le bout des orteils). */
+  piedBloc: "pied d'un bloc, sur le bout des orteils (avant #225)",
 } as const;
 export type Essai = keyof typeof ESSAIS;
 

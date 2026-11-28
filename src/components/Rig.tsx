@@ -154,6 +154,8 @@ export default function Rig({
         const m = r[`${n}_${sd}`] as THREE.Mesh | undefined;
         if (m && m.isMesh) list.push(m);
       }
+      // #225: the toes (`Toes<k>_<side>`, articulated by bindSkeleton) light up with their foot.
+      (r[`toe${sd}`] as THREE.Object3D | undefined)?.traverse(o => { if ((o as THREE.Mesh).isMesh) list.push(o as THREE.Mesh); });
       chainMeshes.current[sd] = list;
     }
   }, [skel, r]);

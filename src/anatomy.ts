@@ -47,6 +47,9 @@ export type RigHandle = {
   kneeR: THREE.Object3D;
   footL: THREE.Object3D;
   footR: THREE.Object3D;
+  /** #225: the toes' node of each foot (`ToePivot_<side>`, on the line of the base of the toes). */
+  toeL?: THREE.Object3D;
+  toeR?: THREE.Object3D;
   armUL?: THREE.Group;
   armUR?: THREE.Group;
   armFL?: THREE.Group;
@@ -72,6 +75,11 @@ export function resetRig(r: RigHandle): void {
   r.hipR.rotation.set(0, 0, 0);
   r.kneeL.rotation.set(0, 0, 0);
   r.kneeR.rotation.set(0, 0, 0);
+  // #225: the toes back to rest, each at the head of its metatarsal.
+  for (const toe of [r.toeL, r.toeR]) {
+    toe?.quaternion.identity();
+    for (const ray of toe?.children ?? []) if (ray.userData.rest) { ray.position.copy(ray.userData.rest); ray.quaternion.identity(); }
+  }
   // #40: armUL is the anatomical left arm (+x); same physical rest angles as before the renaming.
   if (r.armUL) r.armUL.rotation.set(0, 0, -0.12);
   if (r.armUR) r.armUR.rotation.set(0, 0, 0.12);

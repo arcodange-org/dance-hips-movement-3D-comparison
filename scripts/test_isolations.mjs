@@ -305,17 +305,32 @@ for (const [label, where] of [["seul", {}], ["comparaison, à droite, tourné", 
     api.applyPose(r, model, isolationBeats(id), { isolation: { id } }); const last = snapshot(r);
     assert.ok(maxDiff(first, last) < 1e-9, `${id} (${label}) : la dernière image enchaîne sur la première`);
   }
-  // #216 : les avant-pieds (horizontalement : le pied d'un bloc tient sur le bout des orteils) et les talons.
+  // #216, #225 : le pied pivote sur la ligne de pli des orteils (docs/spec-pied-sur-la-plante.md) ; elle ne bouge pas, et
+  // les orteils restent posés, à plat et immobiles. Le talon monte.
   const footPoint = (s, point) => outer.worldToLocal(model.legs[s][point].clone().applyMatrix4(r["foot" + s].matrixWorld));
-  const lowestSole = () => Math.min(...SIDES.map(s => Math.min(...model.legs[s].sole.map(p => outer.worldToLocal(p.clone().applyMatrix4(r["foot" + s].matrixWorld)).y))));
+  // Les orteils tels qu'ils sont posés : chacun suit la tête de son métatarsien, son bout reste au sol.
+  const toePoints = s => { const out = []; r["toe" + s].traverse(o => { if (!o.isMesh) return; const p = o.geometry.attributes.position;
+    for (let i = 0; i < p.count; i++) out.push(outer.worldToLocal(v3().fromBufferAttribute(p, i).applyMatrix4(o.matrixWorld))); }); return out; };
+  const toeTips = s => model.legs[s].rays.map(ray => { let y = Infinity; const m = ray.node.children[0], p = m.geometry.attributes.position;
+    for (let i = 0; i < p.count; i++) y = Math.min(y, outer.worldToLocal(v3().fromBufferAttribute(p, i).applyMatrix4(m.matrixWorld)).y); return y; });
+  const lowestSole = () => Math.min(...SIDES.flatMap(s => [...model.legs[s].rearSole.map(p => outer.worldToLocal(p.clone().applyMatrix4(r["foot" + s].matrixWorld)).y), ...toePoints(s).map(p => p.y)]));
+  const toeFrame = s => ({ p: outer.worldToLocal(r["toe" + s].getWorldPosition(v3())), q: outer.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(r["toe" + s].getWorldQuaternion(new THREE.Quaternion())) });
   api.applyPose(r, model, 2, { isolation: { id: "cou-tourne" } }); r.root.updateWorldMatrix(true, true);
-  const balls = SIDES.map(s => footPoint(s, "ball"));
+  assert.ok(SIDES.every(s => r["toe" + s] && model.legs[s].toeSole.length > 1000), "les orteils sont articulés");
+  const hinges = SIDES.map(s => footPoint(s, "hinge")), toesAtRest = SIDES.map(toeFrame), tipsAtRest = SIDES.map(toeTips);
+  let toeFold = 0;
   const feetChecks = (what) => {
     r.root.updateWorldMatrix(true, true);
-    const ballMove = Math.max(...SIDES.map((s, i) => { const p = footPoint(s, "ball"); return Math.hypot(p.x - balls[i].x, p.z - balls[i].z); }));
-    assert.ok(ballMove < 1e-4, `${what} (${label}) : les avant-pieds ne bougent pas (${(ballMove * 1000).toFixed(3)} mm)`);
-    assert.ok(Math.abs(lowestSole()) < 1e-4, `${what} (${label}) : les pieds sont posés`);
+    const hingeMove = Math.max(...SIDES.map((s, i) => footPoint(s, "hinge").distanceTo(hinges[i])));
+    assert.ok(hingeMove < 1e-4, `${what} (${label}) : la ligne de pli des orteils ne bouge pas (${(hingeMove * 1000).toFixed(3)} mm)`);
+    const toeMove = Math.max(...SIDES.map((s, i) => { const t = toeFrame(s); return Math.max(t.p.distanceTo(toesAtRest[i].p), angle(t.q, toesAtRest[i].q) * 0.1); }));
+    assert.ok(toeMove < 1e-4, `${what} (${label}) : la ligne des orteils reste à plat et immobile (${(toeMove * 1000).toFixed(3)} mm)`);
+    const tipMove = Math.max(...SIDES.flatMap((s, i) => toeTips(s).map((y, k) => Math.abs(y - tipsAtRest[i][k]))));
+    assert.ok(tipMove < 1e-4, `${what} (${label}) : le bout de chaque orteil reste posé (${(tipMove * 1000).toFixed(3)} mm)`);
+    assert.ok(Math.abs(Math.min(...SIDES.flatMap(s => toePoints(s).map(p => p.y)))) < 1e-4, `${what} (${label}) : les orteils touchent le sol`);
+    assert.ok(Math.abs(lowestSole()) < 1e-4, `${what} (${label}) : les pieds sont posés, rien sous le sol`);
     assert.ok(minimumBoneY(r) > -1e-4, `${what} (${label}) : os au-dessus du sol`);
+    toeFold = Math.max(toeFold, ...SIDES.map(s => angle(new THREE.Quaternion(), r["toe" + s].quaternion)));
     const m = measure(r, outer);
     assert.ok(Math.max(...m.thigh.map((d, i) => Math.abs(d - rest.thigh[i])), ...m.shin.map((d, i) => Math.abs(d - rest.shin[i]))) < 1e-4, `${what} (${label}) : longueurs des jambes`);
     return m;
@@ -338,8 +353,11 @@ for (const [label, where] of [["seul", {}], ["comparaison, à droite, tourné", 
    assert.ok(Math.max(...own) - Math.min(...own) < 1e-4, `${id} sur pointes (${label}) : monté d'un bloc (${((Math.max(...own) - Math.min(...own)) * 1000).toFixed(3)} mm d'écart)`);
    lifts.push(...own);
   }
-  assert.ok(Math.min(...lifts) > 0.05 && Math.max(...lifts) - Math.min(...lifts) < 0.002, `sur pointes (${label}) : monté de ${(Math.min(...lifts) * 100).toFixed(2)} à ${(Math.max(...lifts) * 100).toFixed(2)} cm`);
-  assert.ok(heelLow > 0.07, `sur pointes (${label}) : talons levés (${(heelLow * 100).toFixed(1)} cm)`);
+  // #225 : à mi-hauteur (25°), le pied sur la plante : la cheville monte de 4,2 cm, le talon est à 6,7 cm du sol, les
+  // orteils plient d'autant que le pied bascule.
+  assert.ok(Math.min(...lifts) > 0.04 && Math.max(...lifts) < 0.045 && Math.max(...lifts) - Math.min(...lifts) < 0.002, `sur pointes (${label}) : monté de ${(Math.min(...lifts) * 100).toFixed(2)} à ${(Math.max(...lifts) * 100).toFixed(2)} cm`);
+  assert.ok(heelLow > 0.064 && heelLow < 0.071, `sur pointes (${label}) : talons levés (${(heelLow * 100).toFixed(1)} cm)`);
+  assert.ok(Math.abs(toeFold - ISOLATION_HEEL) < 1e-6, `sur pointes (${label}) : les orteils plient de ${(toeFold * DEG).toFixed(2)}°`);
   // L'exercice des talons : le corps monte et descend d'un bloc avec les chevilles, rien d'autre ne bouge ; à plat, il est
   // à sa place.
   {
@@ -356,7 +374,7 @@ for (const [label, where] of [["seul", {}], ["comparaison, à droite, tourné", 
       previous = m;
     }
     assert.ok(block < 1e-4 && moved < 1e-4, `${id} (${label}) : le corps monte d'un bloc (${(block * 1000).toFixed(3)} mm), sans glisser ni tourner (${(moved * 1000).toFixed(3)})`);
-    assert.ok(top > 0.05 && jump < 0.035, `${id} (${label}) : monte de ${(top * 100).toFixed(1)} cm, ${(jump * 1000).toFixed(1)} mm au plus en 1/8 de temps`);
+    assert.ok(top > 0.04 && top < 0.045 && jump < 0.035, `${id} (${label}) : monte de ${(top * 100).toFixed(1)} cm, ${(jump * 1000).toFixed(1)} mm au plus en 1/8 de temps`);
     api.applyPose(r, model, pointAt(id, 0, 1), { isolation: { id } });
     const flatPose = measure(r, outer);
     assert.ok(Math.abs(flatPose.pelvis.y - rest.pelvis.y) < 1e-3, `${id} (${label}) : à plat, le bassin à sa place`);

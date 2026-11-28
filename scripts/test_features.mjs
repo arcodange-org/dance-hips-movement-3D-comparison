@@ -126,6 +126,41 @@ const isoPose = (c, b, s = c.isoSettings) => mod.isolations.isolationAt(c.isolat
 const isoParts = p => ({ cou: [p.head.nod, p.head.turn, p.head.tilt], poitrine: [p.chest.fore, p.chest.side],
   bassin: [p.pelvis.fore, p.pelvis.side, p.pelvis.tilt, p.pelvis.hike, p.pelvis.turn], pieds: [p.heel] });
 
+// ---------- le vrai squelette, pour les orteils (#225) ----------
+// Un second bundle, three externe : le rig de scripts/pose_fixture.mjs et le moteur partagent la même copie de three.
+const glbBundle = join(root, "scripts", ".test-features-glb-bundle.mjs");
+esbuild.buildSync({
+  stdin: { contents: ["pose", "anatomy", "rigJoints", "orteils", "isolations"].map(n => `export * from "../src/${n}";`).join("\n"), resolveDir: join(root, "scripts"), loader: "ts" },
+  bundle: true, packages: "external", format: "esm", platform: "node", outfile: glbBundle, logLevel: "silent",
+  define: { "import.meta.env.BASE_URL": '"/"' },
+});
+const glb = await import(pathToFileURL(glbBundle).href + "?t=" + Date.now());
+rmSync(glbBundle, { force: true });
+const { fixture: glbFixture } = await import(pathToFileURL(join(root, "scripts", "pose_fixture.mjs")).href);
+const THREE = await import(pathToFileURL(join(root, "node_modules", "three", "build", "three.module.js")).href);
+const glbRig = glbFixture(glb);
+/** Où sont les orteils et la ligne de pli de chaque pied, dans le repère du danseur. */
+const toeState = () => {
+  const { r, outer, model } = glbRig;
+  r.root.updateWorldMatrix(true, true);
+  const inv = outer.getWorldQuaternion(new THREE.Quaternion()).invert();
+  return ["L", "R"].map(s => ({
+    toe: outer.worldToLocal(r["toe" + s].getWorldPosition(new THREE.Vector3())), toeQ: inv.clone().multiply(r["toe" + s].getWorldQuaternion(new THREE.Quaternion())),
+    hinge: outer.worldToLocal(model.legs[s].hinge.clone().applyMatrix4(r["foot" + s].matrixWorld)),
+    toesLow: Math.min(...model.legs[s].toeSole.map(p => outer.worldToLocal(p.clone().applyMatrix4(r["toe" + s].matrixWorld)).y)),
+    fold: 2 * Math.acos(Math.min(1, Math.abs(r["toe" + s].quaternion.w))),
+    // Chaque orteil : le bas de ses os, sa pente, l'écart entre sa base et la tête de son métatarsien (qui suit le pied).
+    rays: model.legs[s].rays.map(ray => {
+      const mesh = ray.node.children[0], p = mesh.geometry.attributes.position, v = new THREE.Vector3();
+      let low = Infinity;
+      for (let i = 0; i < p.count; i++) low = Math.min(low, outer.worldToLocal(v.fromBufferAttribute(p, i).applyMatrix4(mesh.matrixWorld)).y);
+      const head = model.legs[s].hinge.clone().add(ray.rest).applyMatrix4(r["foot" + s].matrixWorld);
+      return { low, slope: 2 * Math.acos(Math.min(1, Math.abs(ray.node.quaternion.w))), attach: head.distanceTo(ray.node.getWorldPosition(new THREE.Vector3())) };
+    }),
+  }));
+};
+const quatAngle = (a, b) => 2 * Math.acos(Math.min(1, Math.abs(a.dot(b))));
+
 // ---------- registre de steps ----------
 const steps = [
   // Exercices d'isolation (#206, docs/spec-isolations.md) : src/isolations.ts.
@@ -176,6 +211,53 @@ const steps = [
     const { ISOLATION_IDS, ISOLATIONS, isolationAt, isolationBeats } = mod.isolations;
     for (const id of ISOLATION_IDS) if (ISOLATIONS[id].famille !== "pieds")
       for (let b = 0; b <= isolationBeats(id); b += 1 / 8) if (isolationAt(id, b).heel !== 0) throw new Error(`${id} au temps ${b}`);
+  }],
+  // Le pied sur la plante, les orteils articulés (#225, docs/spec-pied-sur-la-plante.md), sur le vrai squelette.
+  [/^l'exercice "([\w-]+)" sur le vrai squelette(, sur la pointe des pieds)?$/, (c, m) => {
+    if (!mod.isolations.isIsolationId(m[1])) throw new Error(`exercice inconnu ${m[1]}`);
+    c.isolation = m[1];
+    const settings = glb.isolationSettings({ pointes: !!m[2] });
+    // Le danseur debout, à plat : la place des orteils et de la ligne de pli au repos.
+    glb.applyPose(glbRig.r, glbRig.model, 2, { isolation: { id: "cou-tourne" } });
+    c.toesAtRest = toeState();
+    c.toePoses = [];
+    for (let b = 0; b <= glb.isolationBeats(m[1]); b += 1 / 8) {
+      glb.applyPose(glbRig.r, glbRig.model, b, { isolation: { id: m[1], settings } });
+      c.toePoses.push({ b, heel: glb.isolationAt(m[1], b, settings).heel, feet: toeState() });
+    }
+    if (!c.toePoses.some(p => p.heel > 0)) throw new Error("les talons ne montent pas");
+  }],
+  [/^quand les talons montent, les orteils restent posés : le bout de chaque orteil ne bouge pas$/, (c) => {
+    for (const { b, feet } of c.toePoses) feet.forEach((f, i) => {
+      const rest = c.toesAtRest[i];
+      if (f.toe.distanceTo(rest.toe) > 1e-4 || quatAngle(f.toeQ, rest.toeQ) > 1e-6) throw new Error(`au temps ${b} : la ligne des orteils bouge`);
+      if (Math.abs(f.toesLow) > 1e-4) throw new Error(`au temps ${b} : les orteils à ${(f.toesLow * 1000).toFixed(2)} mm du sol`);
+      f.rays.forEach((ray, k) => { if (Math.abs(ray.low - rest.rays[k].low) > 1e-4) throw new Error(`au temps ${b} : le bout de l'orteil ${k + 1} bouge de ${((ray.low - rest.rays[k].low) * 1000).toFixed(2)} mm`); });
+    });
+  }],
+  [/^chaque orteil tient à la tête de son métatarsien ; le deuxième, sur la ligne de pli, reste à plat$/, (c) => {
+    for (const { b, feet } of c.toePoses) for (const f of feet) {
+      f.rays.forEach((ray, k) => { if (ray.attach > 1e-6) throw new Error(`au temps ${b} : l'orteil ${k + 1} se détache de ${(ray.attach * 1000).toFixed(3)} mm`); });
+      if (f.rays[1].slope > 1e-6) throw new Error(`au temps ${b} : le 2e orteil penche`);
+    }
+  }],
+  [/^le pied pivote sur la ligne de la base des orteils, qui ne bouge pas$/, (c) => {
+    for (const { b, feet } of c.toePoses) feet.forEach((f, i) => {
+      if (f.hinge.distanceTo(c.toesAtRest[i].hinge) > 1e-4) throw new Error(`au temps ${b} : la ligne de pli bouge de ${(f.hinge.distanceTo(c.toesAtRest[i].hinge) * 1000).toFixed(2)} mm`);
+    });
+  }],
+  [/^les orteils plient d'autant que le talon monte, au plus jusqu'à une demi-pointe de danseur$/, (c) => {
+    for (const { b, heel, feet } of c.toePoses) for (const f of feet) if (Math.abs(f.fold - heel) > 1e-6) throw new Error(`au temps ${b} : orteils pliés de ${f.fold}, talon de ${heel}`);
+    const most = glbRig.model.legs.L.toeFoldMax, deg = 180 / Math.PI;
+    if (Math.abs(glb.TOE_EXTENSION_MAX - Math.PI / 2) > 1e-12) throw new Error("le gros orteil s'étend de 90° au plus");
+    if (most < 65 / deg || most > 75 / deg || glbRig.model.legs.R.toeFoldMax !== most) throw new Error(`pli maximal ${(most * deg).toFixed(1)}°`);
+  }],
+  [/^hors des exercices, les orteils ne plient pas$/, () => {
+    for (const options of [{ styleKey: "kizomba" }, { styleKey: "semba", corridinho: true, travel: 0.6 }])
+      for (const b of [0, 0.5, 1.25, 3.75]) {
+        glb.applyPose(glbRig.r, glbRig.model, b, options);
+        for (const s of ["L", "R"]) if (!glbRig.r["toe" + s].quaternion.equals(new THREE.Quaternion())) throw new Error(`${options.styleKey} au temps ${b}`);
+      }
   }],
   [/^(?:elle|il) ne repasse jamais par le centre$/, (c) => {
     for (let b = 0; b <= mod.isolations.isolationBeats(c.isolation); b += 1 / 64) { const p = isoPose(c, b).path; if (Math.hypot(p.fore, p.side) < 0.999) throw new Error(`au centre au temps ${b}`); }
