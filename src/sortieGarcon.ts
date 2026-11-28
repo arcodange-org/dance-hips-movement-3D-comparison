@@ -346,7 +346,10 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
     }
   }
   const turned = theta(b), r = about(c, root, turned);
-  return { ...sample, root: { x: r.x, z: r.z }, rootYaw: turned };
+  // R34: the foot that left bounds the pelvis from where it stood in the turned couple (its place there, pivoted), not
+  // from its place in the figure (its pelvis dropped 2.5 to 4.6 cm in one sample on « 3 »).
+  const stood = reachFrom && standing(moving, lastOf(moving, index), positionsBefore[moving]).ankle;
+  return { ...sample, root: { x: r.x, z: r.z }, rootYaw: turned, ...(reachFrom && stood ? { reachFrom: { ...reachFrom, x: stood.x, z: stood.z } } : {}) };
 }
 /** A sortie garçon sample, in the dancer's own frame. */
 export interface SortieGarconSample {
