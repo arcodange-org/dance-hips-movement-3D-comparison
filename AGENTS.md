@@ -82,6 +82,14 @@ Exercices d'isolation (#206, lot L441 de ReCoDanse) : [spec](docs/spec-isolation
 bassin), danseur seul pieds posés, seule la partie nommée bouge, en boucle (`src/isolations.ts` pur, option `isolation` de
 `applyPose`, `scripts/test_isolations.mjs`, `docs/features/isolations.feature`, films `scripts/capture_isolation_gif.mjs`) ; trois vitesses
 par boucle, amplitude moyenne, le huit qui alterne glisse et tourne, élus les 24 et 25 novembre (`docs/elections/2026-11-24-isolations/`).
+Sur la pointe des pieds et l'exercice des talons (#216) : [spec](docs/spec-pointes-talons.md) ; `pointes=1`, `isolation=talons` (talons
+levés par `heel` de la pose, pied roulé sur l'avant-pied) ; `docs/features/pointes-talons.feature` ; talons à mi-hauteur, l'exercice des talons aux trois vitesses, élus le 25 novembre (`docs/elections/2026-11-25-pointes-talons/`).
+Le pied pivote sur la plante (#225) : [spec](docs/spec-pied-sur-la-plante.md) ; orteils articulés au chargement (`src/orteils.ts` : `ToePivot_<côté>` sur la ligne de pli,
+un nœud par orteil à sa tête de métatarsien ; GLB inchangé), pliés dans les exercices seulement (`pivot: "toes"`), au plus jusqu'à une demi-pointe de danseur ;
+`scripts/test_orteils.mjs` ; talons aux trois quarts, élus le 28 novembre (`ISOLATION_HEEL`) ; la demi-pointe complète reste filmable (`?essai=hautDemiPointe`, la plante quitte le sol : `BALL_LIFT`),
+`docs/elections/2026-11-28-pied-sur-la-plante/`. Cheville et raccord à la jambe (#229) : muscles du bassin et des jambes posés sur les os (`muscleFrameOrigin`), tendons qui passent la cheville
+pesés entre jambe et pied et tendon d'Achille (`public/anatomy_tendons.glb`, `scripts/build_tendons.mjs`, `graftMuscles` dans `src/muscles.ts`) ; talus qui glisse dans la pince dans les exercices
+(`src/cheville.ts`) ; `scripts/test_cheville.mjs` (muscles décodés dans node : `scripts/muscles_fixture.mjs`), gros plans `scripts/capture_cheville.mjs`.
 Mode guidage (PoC #69) : [spec](docs/spec-mode-guidage-poc.md) (`src/guidage.ts` pur, `src/guidagePose.ts`,
 vue `src/components/GuidageApp.tsx`, `scripts/test_guidage.mjs`) ; recherche : [jeux vidéo](docs/recherche-jeux-video/README.md).
 

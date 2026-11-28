@@ -40,6 +40,10 @@ puis deux fois plus vite, puis encore deux fois plus vite ; la forme a été [é
 
 ![Le cercle de la poitrine, marqué](docs/elections/2026-11-24-isolations/P3-poitrine-cercle-marque.gif)
 
+Chaque exercice se fait aussi **sur la pointe des pieds** (`pointes=1`), et un exercice lève et baisse **les talons**
+(`?isolation=talons`, les mollets et l'équilibre) : les talons montent à mi-hauteur, aux trois vitesses des autres
+exercices, [élus le 25 novembre](docs/elections/2026-11-25-pointes-talons/README.md) (#216, [spec](docs/spec-pointes-talons.md)).
+
 ## Musique enregistrée, générée par IA (#142)
 
 Quand un style a une piste, le bouton **« Son »** joue une **boucle enregistrée générée par IA**
@@ -370,8 +374,8 @@ Les cellules historiques G/F décrivent les anciennes trajectoires. Les figures 
 ## Attribution obligatoire (licence des maillages)
 
 Les maillages de `public/anatomy.glb`, de `public/anatomy_upper.glb` (haut du corps, option `haut=1`,
-[spec](docs/spec-haut-du-corps.md)) **et** de `public/anatomy_muscles.glb` (couche
-musculaire optionnelle) proviennent de **BodyParts3D v4.0**, © The Database Center for Life
+[spec](docs/spec-haut-du-corps.md)), de `public/anatomy_muscles.glb` (couche
+musculaire optionnelle) **et** de `public/anatomy_tendons.glb` (tendons d'Achille) proviennent de **BodyParts3D v4.0**, © The Database Center for Life
 Science (DBCLS), licence **CC BY-SA 2.1 Japan** — cette attribution reste visible dans
 l'application (pied de page) et dans ce README.
 https://dbarchive.biosciencedbc.jp/en/bodyparts3d/license.html
@@ -410,7 +414,8 @@ exact, ex. produit par le bouton « Partager la vue »), `&angle=45&zoom=2.5` (*
 degrés autour de la cible (0 = +Z, 90 = +X = E/ligne de danse) et **zoom** = distance caméra→cible
 en m — écrits aussi dans l'URL par « Partager la vue », prioritaires sous `campos`/`camtgt`),
 `&boussole=0` (masque la boussole 8 directions), `&isolation=<exercice>&miroir=1` (exercice d'isolation seul, pieds
-posés, en boucle à trois vitesses ; ignoré en paire ; [spec](docs/spec-isolations.md)).
+posés, en boucle à trois vitesses ; ignoré en paire ; [spec](docs/spec-isolations.md)), `&pointes=1` (l'exercice sur la
+pointe des pieds ; `isolation=talons` : lever et baisser les talons ; [spec](docs/spec-pointes-talons.md)).
 
 **La page (#192)** : onglets « Seul · Comparer · En couple · Jeu » ; la scène se voit dès l'ouverture, avec sa barre de
 lecture (lecture, rejouer, pas de la figure, tempo, son) ; les réglages sont dans un panneau : le style, la figure et ses
@@ -500,7 +505,9 @@ sur une police (ex. DejaVu) — sinon aucun texte n'est rendu dans les vidéos.
   (FJ IDs ci-dessous), export GLB + compression Draco via gltf-transform.
 - `scripts/build_muscles.py` — construit `public/anatomy_muscles.glb` (couche musculaire
   BodyParts3D, côtés R/L/C) + compression Draco ; décodeur dans `public/draco/gltf/`.
-- `public/anatomy_muscles.glb`, `public/draco/`, `public/fonts/` — assets servis tels quels.
+- `scripts/build_tendons.mjs` — construit `public/anatomy_tendons.glb` (tendons d'Achille, BodyParts3D, même repère
+  que les muscles) + compression Draco (#229).
+- `public/anatomy_muscles.glb`, `public/anatomy_tendons.glb`, `public/draco/`, `public/fonts/` — assets servis tels quels.
 
 ## Régénération de l'anatomie (optionnel)
 

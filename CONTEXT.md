@@ -34,6 +34,33 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   trois vitesses ; le point posé et tenu à deux temps et à un temps, fluide au demi-temps ; les demi-cercles ajoutés.
   Le 25 : le huit du bassin alterne, une mesure il glisse, une mesure il tourne aussi. Interrupteurs retirés.
 
+## Le pied pivote sur la plante, les orteils articulés (#225, 27-28 novembre 2026)
+
+- Demande (pont des mascottes, lot L441) : quand le talon monte, le pied du squelette pivote sur la plante, les orteils
+  restent posés ; il ne bascule plus d'un bloc jusqu'à tenir sur le bout des orteils. [Spec](docs/spec-pied-sur-la-plante.md).
+- Fait : `src/orteils.ts` détache au chargement les phalanges (îlots du maillage du pied) sous `ToePivot_<côté>`, sur la
+  ligne de pli (centre de la tête du 2e métatarsien) ; chaque orteil pend à la tête de son métatarsien et garde son bout
+  posé. Pli limité à une demi-pointe de danseur (90° d'extension du gros orteil : 70° de pli). Dans les exercices
+  seulement ; la marche roulée et le pied roulé des figures et du mode jeu gardent le pied d'un bloc (un autre lot).
+- Mi-hauteur inchangée (25°) : talon à 6,7 cm, le corps monte de 4,2 cm (avant : 9 cm et 6,5 cm, debout sur le bout des
+  orteils). Demi-pointe complète à 69° : talon à 14,5 cm, cheville +7,5 cm.
+- Élu le 28 novembre (tour 18, question 36, [dossier](docs/elections/2026-11-28-pied-sur-la-plante/README.md)) : les talons
+  aux trois quarts (45° : talon à 11 cm, le corps monte de 6,5 cm) ; la mi-hauteur jugée réussie. Deux corrections demandées,
+  faites : en demi-pointe complète (encore candidate, `?essai=hautDemiPointe`), la plante quitte le sol de 1 cm et les
+  orteils plient au-dessus du sol ; la cheville et son raccord à la jambe (#229) : muscles posés sur les os (ils étaient
+  4,2 cm trop bas), tendons qui passent la cheville et tendon d'Achille qui suivent le pied, talus qui glisse dans la pince
+  au lieu d'entrer dans le tibia. PR #226, empilée sur #217, en brouillon jusqu'à ce que le fondateur ait vu les corrections.
+
+## Pointe des pieds et talons (#216, 25 novembre 2026)
+
+- Demande : chaque exercice d'isolation sur la pointe des pieds ; un exercice nouveau qui lève et baisse les talons
+  (mollets, équilibre). [Spec](docs/spec-pointes-talons.md).
+- Fait : `pointes=1` (les talons levés toute la boucle, l'exercice monté d'un bloc) ; `isolation=talons` (T1, trois
+  vitesses, le corps monte d'un bloc avec les chevilles). Pied roulé sur l'avant-pied (#49) ; le niveau du bassin se mesure
+  sans la montée des chevilles. Le pied du squelette est d'un bloc : talon levé, il tient sur le bout des orteils.
+- Élu le 25 novembre (tour 17, [dossier](docs/elections/2026-11-25-pointes-talons/README.md)) : les talons montent à
+  mi-hauteur ; l'exercice des talons suit les trois vitesses ; les films conviennent. Interrupteurs retirés.
+
 ## Jamais de jambe tendue : 30° de flexion au moins (#203, 24-25 novembre 2026)
 
 - Règle R43 : dans toutes les danses, les deux genoux gardent un minimum de flexion. **Minimum élu le 24 novembre :

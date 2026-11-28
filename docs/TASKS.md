@@ -490,6 +490,30 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Vingt et une boucles refilmées (`docs/elections/2026-11-24-isolations/`).
 - [x] Le huit du bassin (25 novembre) : il alterne, une mesure il glisse, une mesure il tourne aussi ; B7 et B7′ refilmés.
 
+## Pointe des pieds et talons (#216)
+
+- [x] Issue #216 ; spec poussée en premier ([spec](spec-pointes-talons.md)).
+- [x] `pointes=1` : les exercices sur la pointe des pieds, montés d'un bloc ; `isolation=talons` (T1) ; pied roulé sur
+  l'avant-pied, niveau du bassin qui reçoit la montée des chevilles (`src/isolations.ts`, `src/pose.ts`).
+- [x] Tests sur le vrai squelette (`scripts/test_isolations.mjs`) et Gherkin (`docs/features/pointes-talons.feature`).
+- [x] Films des candidats (`docs/elections/2026-11-25-pointes-talons/`).
+- [x] Vote du 25 novembre (tour 17) : talons à mi-hauteur, l'exercice des talons aux trois vitesses, films validés ;
+  `talonsBas` et `talonsTenue` retirés ; films refaits avec les muscles.
+
+## Le pied pivote sur la plante, les orteils à plat (#225)
+
+- [x] Issue #225 ; spec poussée en premier ([spec](spec-pied-sur-la-plante.md)) ; PR empilée sur #217.
+- [x] Articulation des orteils : `src/orteils.ts` (découpe des phalanges en îlots, `ToePivot_<côté>`, un nœud par orteil à sa tête de métatarsien), `bindSkeleton`.
+- [x] Pied roulé sur la ligne de pli (`pivot: "toes"`), orteils posés, pli limité (`toeFoldMax`) ; exercices seulement.
+- [x] Tests sur le vrai GLB (`scripts/test_orteils.mjs`, `scripts/test_isolations.mjs`) et Gherkin (`docs/features/pointes-talons.feature`).
+- [x] Films avant et après (talons, deux exercices sur pointes) ; élection de la hauteur des talons (tour 18, question 36).
+- [x] Vote du 28 novembre : les trois quarts deviennent le comportement ; `hautTroisQuarts` et `piedBloc` retirés.
+- [x] Demi-pointe complète (encore candidate) : la plante quitte le sol, les orteils plient au-dessus du sol (`BALL_LIFT`).
+- [x] Cheville et raccord à la jambe (#229) : muscles posés sur les os, tendons et tendon d'Achille qui suivent le pied,
+  talus dans la pince (`src/cheville.ts`, `scripts/test_cheville.mjs`) ; gros plans avant et après.
+- [ ] Le fondateur voit les corrections ; puis la PR passe prête.
+- [ ] Hors de ce lot (#227) : la marche roulée, le pied roulé des figures et du mode jeu.
+
 ## Suave : deux temps par côté, sans rebond (#200)
 
 - [x] Issue #200 ; spec ([spec](spec-suave-deux-temps.md)) ; règle R44.

@@ -5,7 +5,11 @@
 - **Hiérarchie glTF** (`public/anatomy.glb`) : `Skeleton → Pelvis (HipBone_R/L, Sacrum) ;
   HipPivot_R/L → Femur → KneePivot → Tibia/Fibula/Patella → AnklePivot → Foot_R/L`. Le code anime
   `r.hipR/L, r.kneeR/L, r.footR/L` (= nœuds GLB `HipPivot_*` etc.) et `r.root` (Skeleton).
-  Côté droit à **x < 0**. GLB en `KHR_mesh_quantization` uniquement (vertices int16 ±32767,
+  Côté droit à **x < 0**. #225 (28 novembre 2026) : au chargement, `bindSkeleton` détache les phalanges du maillage
+  `Foot_R/L` sous `AnklePivot → ToePivot_R/L` (ligne de pli) `→ ToeRay1..5_R/L → Toes1..5_R/L` ; le GLB ne change pas.
+  #229 : les couches de muscles sont dans le repère de BodyParts3D (origine au milieu des boîtes des os coxaux), 4,2 cm
+  plus haut que celle du GLB des os : `graftMuscles` les y pose (`muscleFrameOrigin`). Dans les exercices, la cheville
+  glisse dans la pince (`AnklePivot` quitte sa place de repos de quelques mm, `userData.rest`). GLB en `KHR_mesh_quantization` uniquement (vertices int16 ±32767,
   `node.scale` = demi-extent, `node.translation` = centre dans l'espace du parent) — ne pas
   réimporter/réexporter sans vérifier les compensations (bug corrigé : `scripts/fix_knee_bone_offsets.py`).
 - **Métriques réelles** (`anatomy_meta.json`) : hanche `HIP_Y = 0,8835 m`, inter-hanches 0,168 m,
@@ -37,7 +41,7 @@
 - **Animation paramétrique f(temps) uniquement** — pas de mocap.
 - **Réglages persistés** dans `localStorage` (préfixe `danse-comparateur:`) ; les paramètres d'URL
   priment (utilisés par les captures).
-- **Attribution obligatoire** : maillages `public/anatomy.glb` + `public/anatomy_muscles.glb` + `public/anatomy_upper.glb` =
+- **Attribution obligatoire** : maillages `public/anatomy.glb` + `public/anatomy_muscles.glb` + `public/anatomy_tendons.glb` + `public/anatomy_upper.glb` =
   **BodyParts3D v4.0, © DBCLS, CC BY-SA 2.1 Japan** — visible dans l'app (pied de page) et le
   README. Police embarquée : sous-ensemble DejaVu (Bitstream Vera).
 
@@ -86,8 +90,9 @@ repères de proximité poitrine/bassin/genoux en paire. Posture par style : `pos
 + `&torso=0&muscles=1&sortie=1&repere=0&appui=1&plant=0&corridinho=1&ligne=0&iso=0&cadre=0&quarts=1&temps3=1&ida=1&dir=-1&boussole=0&solid=1&bare=1`
 + `&son=1&musique=A|B` (son synthétisé #44 : `son=1` invite à cliquer sur « Son », l'audio exige un geste ;
 `musique` = musique jouée en comparaison ; voir `docs/spec-son-synthese.md`)
-+ `&isolation=<exercice>&miroir=1` (#206 : exercice d'isolation seul, pieds posés, sur un huit qui boucle ; seul et
-comparaison, ignoré en paire ; [spec](../docs/spec-isolations.md))
++ `&isolation=<exercice>&miroir=1` (#206 : exercice d'isolation seul, pieds posés, en boucle à trois vitesses ; seul et
+comparaison, ignoré en paire ; [spec](../docs/spec-isolations.md)) ; `&pointes=1` (#216 : sur la pointe des pieds ;
+`isolation=talons` : lever et baisser les talons ; [spec](../docs/spec-pointes-talons.md))
 + `&demo=<clé>&cam=default|hip|fixed|wide|diag|front|back|top&campos=x,y,z&camtgt=x,y,z&angle=45&zoom=2.5`
 (`campos/camtgt` = angle caméra exact, produit par le bouton « Partager la vue », prioritaire sur
 `cam=` ; `angle=` = azimut ° autour de la cible (0=+Z, 90=+X=E), `zoom=` = distance m, appliqués

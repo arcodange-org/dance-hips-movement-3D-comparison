@@ -15,6 +15,10 @@
  * la tenue sur le côté reste une option de l'app (`?tenue=cote`, `TENUE` dans src/upperBody.ts).
  * Exercices d'isolation (#206) : votes des 24 et 25 novembre 2026 (amplitude moyenne ; trois vitesses, posé puis fluide ;
  * le huit qui alterne glisse et tourne, une mesure chacun) devenus le comportement ; leurs interrupteurs retirés.
+ * Pointes et talons (#216) : votes du 25 novembre 2026 (talons à mi-hauteur ; l'exercice des talons aux trois vitesses)
+ * devenus le comportement ; `talonsBas` et `talonsTenue` retirés.
+ * Le pied sur la plante (#225) : vote du 28 novembre 2026 (tour 18), les talons aux trois quarts, devenus le
+ * comportement ; `hautTroisQuarts` et `piedBloc` retirés. La demi-pointe complète (`hautDemiPointe`) reste à filmer.
  */
 export const ESSAIS = {
   /** Témoin : ne change rien. Sert à filmer le comportement actuel image par image hors du mode paire. */
@@ -22,6 +26,9 @@ export const ESSAIS = {
   /** #179 : les mains jointes sur le côté du couple, plus bas et plus près, coudes détendus, avec la prise du
    * 22 novembre (l'attitude choisie les tient au niveau des épaules, emboîtées). */
   mainsBasses: "mains jointes sur le côté du couple, plus bas",
+  /** #225 : les talons des exercices montent en demi-pointe complète, la cheville à l'aplomb de la plante (69°) ; la
+   * plante quitte le sol, les orteils plient au-dessus du sol (`BALL_LIFT` dans src/pose.ts). */
+  hautDemiPointe: "talons en demi-pointe complète",
 } as const;
 export type Essai = keyof typeof ESSAIS;
 

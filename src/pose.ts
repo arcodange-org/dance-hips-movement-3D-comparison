@@ -23,6 +23,8 @@ import { gaitStep, GAIT } from "./gait";
 import { isolationAt, isolationBeats, ISOLATION_KNEE, NECK_PIVOT, type IsolationId, type IsolationPose, type IsolationSettings } from "./isolations";
 import { TORSO_JOINTS } from "./rigJoints";
 import { umDoisFoot, umDoisCarry } from "./umDois";
+import { articulateToes, footAxisYaw, TOE_EXTENSION_MAX } from "./orteils";
+import { ankleFlexion, ankleGlide } from "./cheville";
 
 export type Side = "L" | "R";
 const SIDES: Side[] = ["L", "R"];
@@ -121,6 +123,16 @@ interface Leg {
   hipX: number;
   /** #49: sole points a rolling foot pivots on (ankle coordinates): ball of the foot and heel. */
   ball: THREE.Vector3; heel: THREE.Vector3;
+  /** #225: a point of the toes' fold line (ankle coordinates; the line runs along the roll axis), the points of the
+   * foot behind it (ankle coordinates) and of the toes (toe node coordinates, from the hinge), and the most the toes
+   * fold (rad). Without articulated toes: the ball, the whole sole, no toe, no fold. */
+  hinge: THREE.Vector3; rearSole: THREE.Vector3[]; toeSole: THREE.Vector3[]; toeFoldMax: number;
+  /** #229: the ankle's place at rest in the leg (knee coordinates), where the talus glides from (src/cheville.ts), and the
+   * axis of the ankle (the roll axis, knee coordinates at rest). */
+  ankleRest: THREE.Vector3; ankleAxis: THREE.Vector3;
+  /** #225: each toe, hung at the head of its metatarsal (`node`, its place at rest in the toes' node), the lowest points
+   * of its bones (node coordinates) and their height at rest (toes' node coordinates). */
+  rays: { node: THREE.Object3D; rest: THREE.Vector3; low: THREE.Vector3[]; restLow: number }[];
 }
 export interface PoseModel {
   legs: Record<Side, Leg>;
@@ -134,22 +146,33 @@ export interface PoseStats {
   trunk: number[];
 }
 export function bindSkeleton(r: RigHandle, skeleton: THREE.Object3D): void {
+  // #225: the toes of each foot are articulated (src/orteils.ts) before the nodes are named.
+  for (const s of SIDES) {
+    const ankle = skeleton.getObjectByName("AnklePivot_" + s);
+    if (ankle) articulateToes(ankle, s);
+  }
   skeleton.traverse(o => { if (o.name) r[o.name] = o; });
   for (const s of SIDES) {
     r["hip" + s] = r["HipPivot_" + s];
     r["knee" + s] = r["KneePivot_" + s];
     r["foot" + s] = r["AnklePivot_" + s];
+    r["toe" + s] = r["ToePivot_" + s];
+    // #229: the ankle's place at rest, which the talus glides from (src/cheville.ts) and resetRig restores.
+    const ankle = r["foot" + s] as THREE.Object3D | undefined;
+    if (ankle && !ankle.userData.rest) ankle.userData.rest = ankle.position.clone();
   }
 }
 
-/** Cache actual sole vertices in ankle coordinates, including quantized GLB transforms. */
-function solePoints(foot: THREE.Object3D): THREE.Vector3[] {
+/** Cache actual sole vertices in `frame` coordinates (the ankle by default), including quantized GLB transforms;
+ * `skip` leaves out a subtree (#225: the toes). */
+function solePoints(foot: THREE.Object3D, frame: THREE.Object3D = foot, skip?: THREE.Object3D): THREE.Vector3[] {
   foot.updateWorldMatrix(true, true);
-  const inverse = foot.matrixWorld.clone().invert();
+  const inverse = frame.matrixWorld.clone().invert();
   const points: THREE.Vector3[] = [];
   foot.traverse(o => {
     const mesh = o as THREE.Mesh;
     if (!mesh.isMesh || mesh.userData.part === "muscle" || mesh.userData.part === "anchor") return;
+    for (let up: THREE.Object3D | null = mesh; up && up !== foot; up = up.parent) if (up === skip) return;
     const positions = mesh.geometry.attributes.position;
     const matrix = inverse.clone().multiply(mesh.matrixWorld);
     for (let i = 0; i < positions.count; i++)
@@ -171,16 +194,6 @@ function rollPoints(sole: THREE.Vector3[], toeOut: number): { ball: THREE.Vector
   };
   return { ball: centroid(0.67, 0.85), heel: centroid(0, 0.12) };
 }
-/** Yaw of the heel → ball (forefoot, 15–33 % from the toe) axis of a sole, from +z toward +x. */
-function footAxisYaw(sole: THREE.Vector3[]): number {
-  const zs = sole.map(p => p.z), toe = Math.max(...zs), heel = Math.min(...zs), length = toe - heel;
-  const centre = (from: number, to: number) => {
-    const band = sole.filter(p => p.z <= toe - from * length && p.z >= toe - to * length);
-    return { x: band.reduce((a, p) => a + p.x, 0) / band.length, z: band.reduce((a, p) => a + p.z, 0) / band.length };
-  };
-  const heelCentre = centre(0.8, 1), ball = centre(0.15, 0.33);
-  return Math.atan2(ball.x - heelCentre.x, ball.z - heelCentre.z);
-}
 export function createPoseModel(r: RigHandle): PoseModel {
   resetRig(r);
   r.root.updateWorldMatrix(true, true);
@@ -197,15 +210,34 @@ export function createPoseModel(r: RigHandle): PoseModel {
       hip: hip.position.clone(), rest, sole, toeOut: footAxisYaw(sole),
       hipX: r.root.parent!.worldToLocal(hip.getWorldPosition(new THREE.Vector3())).x,
       ball: new THREE.Vector3(), heel: new THREE.Vector3(),
+      hinge: new THREE.Vector3(), rearSole: sole, toeSole: [], toeFoldMax: 0, rays: [],
+      ankleRest: foot.position.clone(), ankleAxis: new THREE.Vector3(),
     };
+    legs[s].ankleAxis.set(Math.cos(legs[s].toeOut), 0, -Math.sin(legs[s].toeOut));
     Object.assign(legs[s], rollPoints(sole, legs[s].toeOut));
+    legs[s].hinge.copy(legs[s].ball);
+  }
+  // #225: the toes fold until the big toe reaches its extension in a dancer's demi-pointe. Both feet fold alike: the
+  // limit is taken on the mean of their extensions at rest (the GLB's two feet differ by a few degrees).
+  const toes = SIDES.map(s => r["toe" + s] as THREE.Object3D | undefined);
+  if (toes.every(t => t)) {
+    const rest = toes.reduce((sum, t) => sum + (t!.userData.restExtension as number), 0) / toes.length;
+    for (const [k, s] of SIDES.entries()) {
+      const foot = r["foot" + s] as THREE.Object3D, toe = toes[k]!;
+      const rays = toe.children.filter(node => node.userData.rest).map(node => {
+        const points = solePoints(node), lowest = Math.min(...points.map(p => p.y));
+        return { node, rest: (node.userData.rest as THREE.Vector3).clone(), low: points.filter(p => p.y <= lowest + 0.01), restLow: node.userData.rest.y + lowest };
+      });
+      Object.assign(legs[s], { hinge: toe.position.clone(), rearSole: solePoints(foot, foot, toe), toeSole: solePoints(toe), toeFoldMax: TOE_EXTENSION_MAX - rest, rays });
+    }
   }
   return { legs, targets: { L: new THREE.Vector3(), R: new THREE.Vector3() }, lift: { L: 0, R: 0 } };
 }
 
 interface FootPlan { x: number; z: number; yaw: number; lift: number;
-  /** #49: rolling foot — pitch (+ = heel up) and the sole point kept fixed on the floor. */
-  pitch?: number; pivot?: "ball" | "heel" | null;
+  /** #49: rolling foot — pitch (+ = heel up) and the sole point kept fixed on the floor. #225: `toes`, the fold line
+   * of the toes, which stay flat on the floor while the heel rises (up to `toeFoldMax`). */
+  pitch?: number; pivot?: "ball" | "heel" | "toes" | null;
   /** #73: share of the pitched ankle's rise that may hold the pelvis up (rolled walk outside the figures). */
   bear?: number }
 // Phase 17 — enveloppe de sortie effective pour ce rig : option exclusive `movement`
@@ -333,6 +365,43 @@ function soleHeight(points: THREE.Vector3[], q: THREE.Quaternion): number {
   for (const p of points) min = Math.min(min, v.copy(p).applyQuaternion(q).y);
   return Number.isFinite(min) ? -min : 0;
 }
+/** #225: the toes folded back by `fold` (rad) about `axis` (ankle coordinates; their node is flat). Each toe hangs from
+ * the head of its metatarsal, which turns with the foot about the fold line: the toe's base follows its head, and the toe
+ * turns about it, tip down, until its lowest point is back at its height at rest. The tip stays on the floor; the toes
+ * whose head is on the fold line (the second, and nearly the big toe) stay flat. */
+function placeToes(leg: Leg, fold: number, axis: THREE.Vector3, lift = 0): void {
+  const q = new THREE.Quaternion(), v = new THREE.Vector3();
+  for (const ray of leg.rays) {
+    const base = ray.rest.clone().applyAxisAngle(axis, fold);
+    // #225: the ball `lift` above the floor, each tip still at its height at rest.
+    const above = (phi: number) => {
+      q.setFromAxisAngle(axis, phi);
+      let low = Infinity;
+      for (const p of ray.low) low = Math.min(low, v.copy(p).applyQuaternion(q).y);
+      return base.y + low - (ray.restLow - lift);
+    };
+    // `above` falls as the tip goes down: the turn that brings the toe back to its height, by bisection.
+    let lo = -fold, hi = fold;
+    if (above(lo) <= 0) hi = lo; else if (above(hi) >= 0) lo = hi;
+    for (let k = 0; k < 40 && hi - lo > 1e-9; k++) { const mid = (lo + hi) / 2; if (above(mid) > 0) lo = mid; else hi = mid; }
+    ray.node.position.copy(base);
+    ray.node.quaternion.setFromAxisAngle(axis, (lo + hi) / 2);
+  }
+}
+/** #225: height of the ankle above the floor for a foot turned by `q` whose toes fold back by `fold` (rad) about `axis`
+ * (ankle coordinates) at the hinge, the ball `lift` above the floor: the lowest point of the foot behind the fold line,
+ * or of the toes, rests on the floor. */
+function footHeight(leg: Leg, q: THREE.Quaternion, fold: number, axis: THREE.Vector3, lift = 0): number {
+  const toes = q.clone().multiply(new THREE.Quaternion().setFromAxisAngle(axis, -fold));
+  const hinge = leg.hinge.clone().applyQuaternion(q).y;
+  return Math.max(soleHeight(leg.rearSole, q), leg.toeSole.length ? soleHeight(leg.toeSole, toes) + lift - hinge : -Infinity);
+}
+/** #225 (vote of 28 November 2026): towards the full demi-pointe the toes bend above the floor. Past the elected three
+ * quarters (`from`, foot pitch, rad), the ball leaves the floor; at the full demi-pointe (`to`) it stands `height` (m)
+ * above it, the thickness of the pad under the heads of the metatarsals, which carries the weight there. Each toe slopes
+ * down from the head of its metatarsal to its tip, which stays posed. Up to the three quarters nothing changes. */
+export const BALL_LIFT = { from: 45 * Math.PI / 180, to: 69 * Math.PI / 180, height: 0.01 } as const;
+const ballLiftAt = (pitch: number) => BALL_LIFT.height * smoothstep((pitch - BALL_LIFT.from) / (BALL_LIFT.to - BALL_LIFT.from));
 
 /** Markers remain JSX children of pelvis but follow the animated knee frame. */
 export function updateKneeMarkers(r: RigHandle): void {
@@ -562,6 +631,8 @@ function poseIsolationTrunk(r: RigHandle, iso: IsolationPose): void {
  * Otherwise the chest and the head would bob as the pelvis slides. */
 const isolationLevels = new WeakMap<PoseModel, Map<string, number>>();
 let measuringLevel = false;
+/** #216: the ankles' rise of the pose just measured (heels up). */
+let measuredRise = 0;
 function isolationLevel(r: RigHandle, model: PoseModel, o: PoseOptions): number {
   const key = JSON.stringify([o.isolation!.id, o.isolation!.settings ?? null]);
   let levels = isolationLevels.get(model);
@@ -571,7 +642,8 @@ function isolationLevel(r: RigHandle, model: PoseModel, o: PoseOptions): number 
     level = Infinity;
     measuringLevel = true;
     try {
-      for (let k = 0, n = 8 * isolationBeats(o.isolation!.id); k < n; k++) { applyPose(r, model, k / 8, o); level = Math.min(level, r.root.position.y); }
+      // #216: measured without the ankles' rise (heels up), which the pelvis then receives in full.
+      for (let k = 0, n = 8 * isolationBeats(o.isolation!.id); k < n; k++) { applyPose(r, model, k / 8, o); level = Math.min(level, r.root.position.y - measuredRise); }
     } finally { measuringLevel = false; }
     levels.set(key, level);
   }
@@ -797,6 +869,10 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   // #209: where the body is across (travel and the hip's sway, in shares of `ecart`), for a foot that follows it.
   const umDoisBody = umDois ? (c: number) => umDoisCarry(c) + umDoisSway(o.styleKey, shift ? c - shift + 24 : c, o.amp) / umDois.ecart : undefined;
   const feet = figure?.feet ?? (umDois ? umDoisFeet(clockBeat, umDois.ecart, model, umDoisBody) : plannedFeet(beat, o, model));
+  // #216: during an exercise both feet roll about their ball, heels up by `heel` (0: flat), and their ankles carry the
+  // pelvis up (the rolled foot of #49).
+  // #225: they pivot on the toes' fold line, and the toes stay flat on the floor.
+  if (iso) for (const s of SIDES) (feet as Record<Side, FootPlan>)[s] = { ...(feet as Record<Side, FootPlan>)[s], pitch: iso.heel, pivot: "toes", bear: 1 };
   if (figure) {
     // The coupled follower mirrors it like her pelvis: the couple sways together in the world.
     const coupledSway = o.follower ? 1 - 2 * figure.coupling : 1;
@@ -864,6 +940,12 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   const footOrientations = {} as Record<Side, THREE.Quaternion>;
   // Height of the ankle that bounds the pelvis height (the ankle target itself, except in a rolled walk).
   const bearingY = {} as Record<Side, number>;
+  // #216: how much each bearing ankle rises above its flat height (heels up).
+  const rise = { L: 0, R: 0 } as Record<Side, number>;
+  // #225: how far the toes fold back towards flat (rad), about which axis (ankle coordinates).
+  const toeFold = { L: 0, R: 0 } as Record<Side, number>, toeAxis = { L: X, R: X } as Record<Side, THREE.Vector3>;
+  // #225: how high the ball leaves the floor (m), towards the full demi-pointe.
+  const ballLift = { L: 0, R: 0 } as Record<Side, number>;
   for (const s of SIDES) {
     // #73: outside the figures, the feet of a rolled walk carry a pitch from `plannedFeet` and roll like
     // figure feet; feet without a pitch (on the spot, solo ida, historical sorties) keep the style's rock.
@@ -882,18 +964,24 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     // #73: outside figures the style's own foot rock (`extraL`, `extraR`) also pivots on a ground point,
     // the ball when the heel rises, the heel when the toes rise: the support foot no longer slides.
     const pivot = rolled ? feet[s].pivot : extra > 0 ? "ball" : extra < 0 ? "heel" : null;
+    const leg = model.legs[s];
     if (pivot && extra !== 0) {
-      const point = model.legs[s][pivot];
+      // #225: on the toes' fold line, the hinge keeps its place.
+      const point = pivot === "toes" ? leg.hinge : leg[pivot];
       const shift = point.clone().applyQuaternion(flat).sub(point.clone().applyQuaternion(q));
       x += shift.x; z += shift.z;
     }
-    model.targets[s].set(x, soleHeight(model.legs[s].sole, q) + feet[s].lift, z);
+    // #225: the toes fold back as the heel rises, up to their limit; beyond it they turn with the foot.
+    if (pivot === "toes") { toeFold[s] = Math.max(0, Math.min(extra, leg.toeFoldMax)); toeAxis[s] = rollAxis; ballLift[s] = leg.rays.length ? ballLiftAt(extra) : 0; }
+    const height = pivot === "toes" ? footHeight(leg, q, toeFold[s], rollAxis, ballLift[s]) : soleHeight(leg.sole, q);
+    model.targets[s].set(x, height + feet[s].lift, z);
     // #73, R34: in a rolled walk outside the figures, a foot in the air or landing bends its knee instead
     // of lifting the pelvis, and the heel rising at push-off holds the pelvis up by a share only (`bear`).
     // On these long steps the pelvis otherwise jumped up as the trailing heel rose.
     if (!figure && feet[s].pitch !== undefined) {
-      const flatY = soleHeight(model.legs[s].sole, flat);
-      bearingY[s] = flatY + ((feet[s] as FootPlan).bear ?? 0) * (soleHeight(model.legs[s].sole, q) - flatY);
+      const flatY = soleHeight(leg.sole, flat);
+      bearingY[s] = flatY + ((feet[s] as FootPlan).bear ?? 0) * (height - flatY);
+      rise[s] = bearingY[s] - flatY;
     } else bearingY[s] = model.targets[s].y;
   }
   if (activeIK) {
@@ -975,7 +1063,10 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
       height += (led - height) * kneeLed.share;
       r.pelvis.rotation.z += Math.asin(sin) * kneeLed.share;
     }
-    height = Math.min(height, isoLevel);
+    // #206, #216: the pelvis keeps the exercise's level, raised by the ankles when the heels are up.
+    const isoRise = iso ? (rise.L + rise.R) / 2 : 0;
+    if (measuringLevel) measuredRise = isoRise;
+    height = Math.min(height, isoLevel + isoRise);
     r.root.position.y = height + Math.min(0, styleY) + bounce + (o.rootOffset?.y ?? 0);
     r.root.updateWorldMatrix(true, true);
     const skeleton = r["Skeleton"] as THREE.Object3D;
@@ -988,13 +1079,31 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
       // #127: `kneeYawSide` adds to it per leg (a turned-out foot takes its knee with it).
       const kneeYaw = figure ? ((figure as { kneeYaw?: number }).kneeYaw ?? 0) + ((figure as { kneeYawSide?: Record<Side, number> }).kneeYawSide?.[s] ?? 0) : 0;
       const pole = kneeYaw !== 0 ? new THREE.Vector3(-Math.sin(kneeYaw), 0, Math.cos(kneeYaw)) : undefined;
-      const solution = solveLeg3D(leg.hip, target, leg.length1, leg.length2, leg.f0, leg.t0, pole);
-      r["hip" + s].quaternion.copy(solution.qHip);
-      r["knee" + s].rotation.x = solution.beta;
-      r["knee" + s].updateWorldMatrix(true, true);
-      const foot = r["foot" + s] as THREE.Object3D;
-      foot.quaternion.copy(foot.parent!.getWorldQuaternion(new THREE.Quaternion()).invert()
-        .multiply(outerQ).multiply(footOrientations[s]));
+      const foot = r["foot" + s] as THREE.Object3D, knee = r["knee" + s] as THREE.Object3D;
+      const solve = (shinEnd: THREE.Vector3) => {
+        const solution = solveLeg3D(leg.hip, shinEnd, leg.length1, leg.length2, leg.f0, leg.t0, pole);
+        r["hip" + s].quaternion.copy(solution.qHip);
+        knee.rotation.x = solution.beta;
+        knee.updateWorldMatrix(true, true);
+        foot.quaternion.copy(knee.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(outerQ).multiply(footOrientations[s]));
+        return ankleGlide(ankleFlexion(foot.quaternion, leg.ankleAxis));
+      };
+      // #229: in the exercises, the talus glides back in the mortise as the ankle stretches (src/cheville.ts). The shin
+      // ends that much away from the ankle's target, so that the foot stays where it is planned; the glide it is solved
+      // for is the one applied (the ankle's bend, hence the glide, barely changes from one solution to the next).
+      // Elsewhere the ankle stays as it was (#227).
+      let applied = new THREE.Vector3(), glide = solve(target);
+      if (!iso) glide.set(0, 0, 0);
+      for (let k = 0; k < 4 && glide.distanceToSquared(applied) > 1e-14; k++) {
+        applied = glide;
+        const toSkeleton = skeleton.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(knee.getWorldQuaternion(new THREE.Quaternion()));
+        glide = solve(target.clone().sub(applied.clone().applyQuaternion(toSkeleton)));
+      }
+      foot.position.copy(leg.ankleRest).add(applied);
+      if (toeFold[s] !== 0 && r["toe" + s]) {
+        (r["toe" + s] as THREE.Object3D).quaternion.setFromAxisAngle(toeAxis[s], -toeFold[s]);
+        placeToes(leg, toeFold[s], toeAxis[s], ballLift[s]);
+      }
     }
   } else {
     for (const s of SIDES) {
@@ -1010,12 +1119,13 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
   updateKneeMarkers(r);
   const grounded = {} as Record<Side, boolean>;
   for (const s of SIDES) {
-    const foot = r["foot" + s] as THREE.Object3D;
-    foot.updateWorldMatrix(true, false);
+    const foot = r["foot" + s] as THREE.Object3D, toe = r["toe" + s] as THREE.Object3D | undefined;
+    foot.updateWorldMatrix(true, true);
     let lowest = Infinity;
-    const v = new THREE.Vector3();
-    for (const p of model.legs[s].sole)
-      lowest = Math.min(lowest, v.copy(p).applyMatrix4(foot.matrixWorld).y);
+    const v = new THREE.Vector3(), leg = model.legs[s];
+    // #225: with folded toes, the foot behind the fold line and each toe in its own frame.
+    const parts: [THREE.Vector3[], THREE.Matrix4][] = toeFold[s] !== 0 && toe ? [[leg.rearSole, foot.matrixWorld], ...leg.rays.map(ray => [ray.low, ray.node.matrixWorld] as [THREE.Vector3[], THREE.Matrix4])] : [[leg.sole, foot.matrixWorld]];
+    for (const [points, matrix] of parts) for (const p of points) lowest = Math.min(lowest, v.copy(p).applyMatrix4(matrix).y);
     grounded[s] = lowest <= 0.0001;
   }
   const prescribedR = iso ? 0.5 : (figure as { loadR?: number } | null)?.loadR ?? (supportOf(o.styleKey, r, beat, step) + 1) / 2;
