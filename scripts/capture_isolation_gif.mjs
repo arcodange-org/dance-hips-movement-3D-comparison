@@ -6,7 +6,8 @@
 // Une seule page chargée par adresse : l'horloge de danse est retrouvée par les fibres React (comme
 // scripts/capture_session_gif.mjs) et placée sur le temps de chaque image. Rendu par la carte graphique.
 // Usage : CHROME_PATH=... BPM=96 FPS=10 node scripts/capture_isolation_gif.mjs sortie.gif "<adresse sans sortieBeat>" ["<adresse 2>" ...]
-//   LABELS="A|B|C" : lettres en bas de chaque colonne (le compte des temps est en haut). WIDTH=400 : largeur d'une colonne dans le GIF.
+//   LABELS="A|B|C" : lettres en bas de chaque colonne (le compte des temps est en haut), LABEL_Y leur hauteur. WIDTH=400 :
+//   largeur d'une colonne dans le GIF.
 //   BEATS=24 : durée filmée, en temps (8 par défaut). STAGES="8,8,8" : durée de chaque vitesse (deux temps, un temps, un
 //   demi-temps par mouvement), écrite en bas au centre.
 import { createRequire } from "node:module";
@@ -58,7 +59,10 @@ await browser.close();
 const inputs = dirs.flatMap(d => ["-framerate", String(fps), "-i", `${d}/f%03d.png`]);
 // Chaque chiffre à sa place, éteint ; celui du temps en cours allumé par-dessus (pas de mesure de police).
 const size = 22, pitch = 26, total = width * urls.length, x0 = Math.round((total - 7 * pitch - 14) / 2);
-const scaled = dirs.map((_, k) => `[${k}:v]scale=${width}:-2:flags=lanczos${labels[k] ? `,drawtext=fontfile=${font}:text=${labels[k]}:fontsize=24:fontcolor=white:x=14:y=h-38` : ""}[c${k}]`).join(";");
+// Les lettres en bas à gauche de chaque colonne ; au-dessus de la vitesse quand elle est écrite (un mot long, comme
+// « après », la chevaucherait au milieu). LABEL_Y : une autre hauteur (expression ffmpeg).
+const labelY = process.env.LABEL_Y ?? (stages.length ? "h-72" : "h-38");
+const scaled = dirs.map((_, k) => `[${k}:v]scale=${width}:-2:flags=lanczos${labels[k] ? `,drawtext=fontfile=${font}:text=${labels[k]}:fontsize=24:fontcolor=white:x=14:y=${labelY}` : ""}[c${k}]`).join(";");
 const stacked = dirs.length > 1 ? `${dirs.map((_, k) => `[c${k}]`).join("")}hstack=inputs=${dirs.length}[s]` : "[c0]null[s]";
 const digit = (i, on) => `drawtext=fontfile=${font}:text=${i + 1}:fontsize=${size}:fontcolor=${on ? "0xf8fafc" : "0x475569"}:x=${x0 + i * pitch}:y=14`
   + (on ? `:enable='eq(mod(floor(n*${beats}/${n}),8),${i})'` : "");

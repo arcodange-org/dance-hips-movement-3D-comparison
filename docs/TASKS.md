@@ -508,7 +508,7 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Tests sur le vrai GLB (`scripts/test_orteils.mjs`, `scripts/test_isolations.mjs`) et Gherkin (`docs/features/pointes-talons.feature`).
 - [ ] Films avant et après (talons, deux exercices sur pointes) ; élection de la hauteur des talons (candidats sous `?essai=`).
 - [ ] Vote du propriétaire ; le choix élu devient le comportement, interrupteurs retirés.
-- [ ] Hors de ce lot : la marche roulée, le pied roulé des figures et du mode jeu.
+- [ ] Hors de ce lot (#227) : la marche roulée, le pied roulé des figures et du mode jeu.
 
 ## Suave : deux temps par côté, sans rebond (#200)
 

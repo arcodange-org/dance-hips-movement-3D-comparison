@@ -100,7 +100,7 @@ qu'atteint le talon en demi-pointe complète. Le pied gauche et le pied droit di
 - **Pas dans ce lot** : la marche roulée hors des figures (`src/gait.ts`, poussée du talon), le pied roulé des figures,
   du « 1 2 » et du mode jeu, ni le balancement du pied propre aux styles. Ils gardent le pied d'un bloc, avec un pli
   des orteils nul. Leurs réglages et leurs mesures enregistrées en dépendent : les à-coups du bassin (R34,
-  `scripts/fixtures/saccades.json`), l'oracle, les poses finales. Les étendre est un autre lot, avec ses films.
+  `scripts/fixtures/saccades.json`), l'oracle, les poses finales. Les étendre est un autre lot, avec ses films (#227).
 - Un pli nul laisse le pied exactement comme avant : la pose est la même au bit près, et tous les autres tests restent
   verts sans changer leurs fixtures.
 
