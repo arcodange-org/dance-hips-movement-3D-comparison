@@ -11,7 +11,7 @@ Tous les films : 96 temps par minute, os et muscles affichés, le compte des tem
 
 ## Avant, après
 
-L'exercice des talons, vu de côté à hauteur des jambes, à la mi-hauteur élue au tour 17. À gauche, le pied d'un bloc
+L'exercice des talons, les pieds vus de trois quarts à hauteur du sol, à la mi-hauteur élue au tour 17. À gauche, le pied d'un bloc
 (avant) ; à droite, le pied sur la plante (après).
 
 ![T1 avant, après](T1-talons-avant-apres.gif)
@@ -27,7 +27,8 @@ donc le corps monte un peu moins.
 
 ## Q36 — Maintenant que les orteils restent posés, jusqu'où montent les talons ?
 
-L'exercice des talons, vu de côté, à hauteur des jambes. Le choix vaut aussi pour les exercices sur la pointe des pieds.
+L'exercice des talons, les pieds vus de trois quarts à hauteur du sol. Le choix vaut aussi pour les exercices sur la
+pointe des pieds.
 
 ![Q36](Q36-hauteur-des-talons.gif)
 
@@ -50,8 +51,8 @@ Avec le serveur de développement (`npx vite --port 5226`) et Chrome de Playwrig
 
 ```bash
 B="http://localhost:5226/?bare=1&mode=solo&haut=1&muscles=1&playing=0&bpm=96&repere=0&boussole=0&ligne=0&appui=0"
-JAMBES="campos=1.5,0.55,0.25&camtgt=0,0.5,0.05"
-BEATS=24 STAGES=8,8,8 WIDTH=320 LABELS="A|B|C" node scripts/capture_isolation_gif.mjs docs/elections/2026-11-28-pied-sur-la-plante/Q36-hauteur-des-talons.gif "$B&isolation=talons&$JAMBES&essai=temoin" "$B&isolation=talons&$JAMBES&essai=hautTroisQuarts" "$B&isolation=talons&$JAMBES&essai=hautDemiPointe"
+PIEDS="campos=1.1,0.16,0.5&camtgt=0,0.07,0.07"
+BEATS=24 STAGES=8,8,8 WIDTH=320 LABELS="A|B|C" node scripts/capture_isolation_gif.mjs docs/elections/2026-11-28-pied-sur-la-plante/Q36-hauteur-des-talons.gif "$B&isolation=talons&$PIEDS&essai=temoin" "$B&isolation=talons&$PIEDS&essai=hautTroisQuarts" "$B&isolation=talons&$PIEDS&essai=hautDemiPointe"
 ```
 
 Avant, après : `essai=piedBloc` (le pied d'un bloc) contre `essai=temoin`, `LABELS="avant|après"`, `WIDTH=360`. Le corps
