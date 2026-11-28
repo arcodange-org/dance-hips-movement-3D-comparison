@@ -9,7 +9,7 @@ import SortieGarconContactViz from "./components/SortieGarconContactViz";
 import GridFloor from "./components/GridFloor";
 import { DEFAULT_PLACEMENT, placementOf, type CouplePlacement } from "./placement";
 import { SORTIE_FILLE_BEATS, SORTIE_FILLE_PAIR_DZ, sortieFilleBeat, sortieFilleVariantOf, type SortieFilleVariant } from "./sortieFille";
-import { SORTIE_GARCON_BEATS, SORTIE_GARCON_PAIR_DZ, DEFAULT_SORTIE_CONTRA, sortieGarconSettings, type SortieVariant } from "./sortieGarcon";
+import { SORTIE_GARCON_BEATS, SORTIE_GARCON_PAIR_DZ, DEFAULT_SORTIE_CONTRA, sortieGarconSettings, setSortieTour, type SortieVariant } from "./sortieGarcon";
 import PagePrincipale from "./components/page/PagePrincipale";
 import DemoOverlay, { DEMOS } from "./components/DemoOverlay";
 import OriginMarker from "./components/OriginMarker";
@@ -50,6 +50,9 @@ setKneeFloor(readParams().get("flexion"));
 // (docs/spec-sorties-geste.md): the same reading in the sorties; `?geste=ancien` shows the former one there too.
 setUmDoisGesture(readParams().get("geste"));
 setFigureGesture(readParams().get("geste"));
+// #220 (docs/spec-sortie-garcon-rotation.md): `?sortieTour=<nom>` shows a candidate of the sortie garçon where the
+// follower steps straight back on « 1 » and the couple turns from the leader's D lift for « 2 ».
+setSortieTour(readParams().get("sortieTour"));
 
 function Gauge({ label, color, hud }: { label: string; color: string; hud: any }) {
   return (

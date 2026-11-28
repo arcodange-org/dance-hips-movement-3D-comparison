@@ -49,7 +49,8 @@ export function sampleSortieFG(beat: number, follower: boolean, rest: Record<Fig
   const b = Math.max(0, Math.min(CHAIN_BEATS, Number.isFinite(beat) ? beat : 0));
   const o = placementOffset(placement);
   const fille = (t: number, f: boolean) => sampleSortieFille(t, f, rest, "hook", o, contact, stance);
-  const garcon = (t: number, f: boolean) => sampleSortieGarcon(t, f, rest, "line", contraDegrees, o, contact, stance);
+  // #220: the chain keeps the sortie garçon without the couple's turn (`?sortieTour=` prototypes).
+  const garcon = (t: number, f: boolean) => sampleSortieGarcon(t, f, rest, "line", contraDegrees, o, contact, stance, null);
   if (b <= CHAIN_FROM) return { ...fille(b, follower), beat: b, chain: "fille" as const };
   // Couple translation that keeps the leader's planted D: his D at the sortie fille's position 3 is his D
   // at the sortie garçon's position 2. The leader's own frame is the couple frame translated; the

@@ -20,10 +20,14 @@ import { SOLID_TORSO_OPACITY } from "../cameras";
 import { danceBpm, listenBpm, openingBpm, showcaseLook, vitrineSettings, vitrineUrl } from "../vitrine";
 import TransitionCard from "./TransitionCard";
 import { transitionAt } from "../transitions";
+import { setSortieTour } from "../sortieGarcon";
 import {
   GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, guideFiguresFor, guideStyleOf, GUIDE_PAIR_DZ, GUIDE_DEMO, GUIDE_DEMO_ARROWS, GUIDE_DEMO_CHAIN, GUIDE_DEMO_INSERT, GUIDE_DEMO_TOUCH, GUIDE_DEMO_GINGA, GUIDE_GINGA, GUIDE_EIGHT, applyTransform, figureOfCode, keyLabel, type HeldArrows,
   type GuideFigure, type GuideGinga, type GuideKind, type GuideSample,
 } from "../guidage";
+
+// #220 (docs/spec-sortie-garcon-rotation.md): `?sortieTour=<nom>` dances a candidate of the sortie garçon in the game too.
+setSortieTour(new URLSearchParams(window.location.search).get("sortieTour"));
 
 const KIND_LABEL = (k: GuideKind) => (k === "base" ? "Pas de base" : GUIDE_FIGURES[k].label);
 /** #144: what the HUD shows of the figure under way: its touches, and the one being danced. */

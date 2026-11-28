@@ -140,7 +140,7 @@ export function sampleInserted(host: InsertionHost, beat: number, follower: bool
   const o = placementOffset(placement);
   const figure = (t: number) => host === "sortieF"
     ? sampleSortieFille(t, follower, rest, "hook", o, contact, stance)
-    : sampleSortieGarcon(t, follower, rest, "line", contraDegrees, o, contact, stance);
+    : sampleSortieGarcon(t, follower, rest, "line", contraDegrees, o, contact, stance, null);
   const touch: Touch = { at: INSERTION_AT, ...INSERTION_VARIANT[host], ...(host === "sortieG" ? { open: INSERTION_OPEN } : {}) };
   return sampleTouched(figure, [touch], b, follower, rest, o, stance, true) as ReturnType<typeof figure> & { inserted: boolean; loadL?: number; kneeYaw?: number };
 }
