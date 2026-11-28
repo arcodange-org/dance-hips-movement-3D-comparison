@@ -44,8 +44,12 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   seulement ; la marche roulée et le pied roulé des figures et du mode jeu gardent le pied d'un bloc (un autre lot).
 - Mi-hauteur inchangée (25°) : talon à 6,7 cm, le corps monte de 4,2 cm (avant : 9 cm et 6,5 cm, debout sur le bout des
   orteils). Demi-pointe complète à 69° : talon à 14,5 cm, cheville +7,5 cm.
-- À élire (tour 18 de la page de vote, question 36) : la hauteur des talons, A mi-hauteur, B trois quarts, C demi-pointe
-  complète ([dossier](docs/elections/2026-11-28-pied-sur-la-plante/README.md)). PR #226, empilée sur #217.
+- Élu le 28 novembre (tour 18, question 36, [dossier](docs/elections/2026-11-28-pied-sur-la-plante/README.md)) : les talons
+  aux trois quarts (45° : talon à 11 cm, le corps monte de 6,5 cm) ; la mi-hauteur jugée réussie. Deux corrections demandées,
+  faites : en demi-pointe complète (encore candidate, `?essai=hautDemiPointe`), la plante quitte le sol de 1 cm et les
+  orteils plient au-dessus du sol ; la cheville et son raccord à la jambe (#229) : muscles posés sur les os (ils étaient
+  4,2 cm trop bas), tendons qui passent la cheville et tendon d'Achille qui suivent le pied, talus qui glisse dans la pince
+  au lieu d'entrer dans le tibia. PR #226, empilée sur #217, en brouillon jusqu'à ce que le fondateur ait vu les corrections.
 
 ## Pointe des pieds et talons (#216, 25 novembre 2026)
 

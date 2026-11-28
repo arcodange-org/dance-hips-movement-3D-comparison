@@ -506,8 +506,12 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Articulation des orteils : `src/orteils.ts` (découpe des phalanges en îlots, `ToePivot_<côté>`, un nœud par orteil à sa tête de métatarsien), `bindSkeleton`.
 - [x] Pied roulé sur la ligne de pli (`pivot: "toes"`), orteils posés, pli limité (`toeFoldMax`) ; exercices seulement.
 - [x] Tests sur le vrai GLB (`scripts/test_orteils.mjs`, `scripts/test_isolations.mjs`) et Gherkin (`docs/features/pointes-talons.feature`).
-- [ ] Films avant et après (talons, deux exercices sur pointes) ; élection de la hauteur des talons (candidats sous `?essai=`).
-- [ ] Vote du propriétaire ; le choix élu devient le comportement, interrupteurs retirés.
+- [x] Films avant et après (talons, deux exercices sur pointes) ; élection de la hauteur des talons (tour 18, question 36).
+- [x] Vote du 28 novembre : les trois quarts deviennent le comportement ; `hautTroisQuarts` et `piedBloc` retirés.
+- [x] Demi-pointe complète (encore candidate) : la plante quitte le sol, les orteils plient au-dessus du sol (`BALL_LIFT`).
+- [x] Cheville et raccord à la jambe (#229) : muscles posés sur les os, tendons et tendon d'Achille qui suivent le pied,
+  talus dans la pince (`src/cheville.ts`, `scripts/test_cheville.mjs`) ; gros plans avant et après.
+- [ ] Le fondateur voit les corrections ; puis la PR passe prête.
 - [ ] Hors de ce lot (#227) : la marche roulée, le pied roulé des figures et du mode jeu.
 
 ## Suave : deux temps par côté, sans rebond (#200)

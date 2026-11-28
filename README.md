@@ -374,8 +374,8 @@ Les cellules historiques G/F décrivent les anciennes trajectoires. Les figures 
 ## Attribution obligatoire (licence des maillages)
 
 Les maillages de `public/anatomy.glb`, de `public/anatomy_upper.glb` (haut du corps, option `haut=1`,
-[spec](docs/spec-haut-du-corps.md)) **et** de `public/anatomy_muscles.glb` (couche
-musculaire optionnelle) proviennent de **BodyParts3D v4.0**, © The Database Center for Life
+[spec](docs/spec-haut-du-corps.md)), de `public/anatomy_muscles.glb` (couche
+musculaire optionnelle) **et** de `public/anatomy_tendons.glb` (tendons d'Achille) proviennent de **BodyParts3D v4.0**, © The Database Center for Life
 Science (DBCLS), licence **CC BY-SA 2.1 Japan** — cette attribution reste visible dans
 l'application (pied de page) et dans ce README.
 https://dbarchive.biosciencedbc.jp/en/bodyparts3d/license.html
@@ -505,7 +505,9 @@ sur une police (ex. DejaVu) — sinon aucun texte n'est rendu dans les vidéos.
   (FJ IDs ci-dessous), export GLB + compression Draco via gltf-transform.
 - `scripts/build_muscles.py` — construit `public/anatomy_muscles.glb` (couche musculaire
   BodyParts3D, côtés R/L/C) + compression Draco ; décodeur dans `public/draco/gltf/`.
-- `public/anatomy_muscles.glb`, `public/draco/`, `public/fonts/` — assets servis tels quels.
+- `scripts/build_tendons.mjs` — construit `public/anatomy_tendons.glb` (tendons d'Achille, BodyParts3D, même repère
+  que les muscles) + compression Draco (#229).
+- `public/anatomy_muscles.glb`, `public/anatomy_tendons.glb`, `public/draco/`, `public/fonts/` — assets servis tels quels.
 
 ## Régénération de l'anatomie (optionnel)
 

@@ -6,7 +6,10 @@
   HipPivot_R/L → Femur → KneePivot → Tibia/Fibula/Patella → AnklePivot → Foot_R/L`. Le code anime
   `r.hipR/L, r.kneeR/L, r.footR/L` (= nœuds GLB `HipPivot_*` etc.) et `r.root` (Skeleton).
   Côté droit à **x < 0**. #225 (28 novembre 2026) : au chargement, `bindSkeleton` détache les phalanges du maillage
-  `Foot_R/L` sous `AnklePivot → ToePivot_R/L` (ligne de pli) `→ ToeRay1..5_R/L → Toes1..5_R/L` ; le GLB ne change pas. GLB en `KHR_mesh_quantization` uniquement (vertices int16 ±32767,
+  `Foot_R/L` sous `AnklePivot → ToePivot_R/L` (ligne de pli) `→ ToeRay1..5_R/L → Toes1..5_R/L` ; le GLB ne change pas.
+  #229 : les couches de muscles sont dans le repère de BodyParts3D (origine au milieu des boîtes des os coxaux), 4,2 cm
+  plus haut que celle du GLB des os : `graftMuscles` les y pose (`muscleFrameOrigin`). Dans les exercices, la cheville
+  glisse dans la pince (`AnklePivot` quitte sa place de repos de quelques mm, `userData.rest`). GLB en `KHR_mesh_quantization` uniquement (vertices int16 ±32767,
   `node.scale` = demi-extent, `node.translation` = centre dans l'espace du parent) — ne pas
   réimporter/réexporter sans vérifier les compensations (bug corrigé : `scripts/fix_knee_bone_offsets.py`).
 - **Métriques réelles** (`anatomy_meta.json`) : hanche `HIP_Y = 0,8835 m`, inter-hanches 0,168 m,
@@ -38,7 +41,7 @@
 - **Animation paramétrique f(temps) uniquement** — pas de mocap.
 - **Réglages persistés** dans `localStorage` (préfixe `danse-comparateur:`) ; les paramètres d'URL
   priment (utilisés par les captures).
-- **Attribution obligatoire** : maillages `public/anatomy.glb` + `public/anatomy_muscles.glb` + `public/anatomy_upper.glb` =
+- **Attribution obligatoire** : maillages `public/anatomy.glb` + `public/anatomy_muscles.glb` + `public/anatomy_tendons.glb` + `public/anatomy_upper.glb` =
   **BodyParts3D v4.0, © DBCLS, CC BY-SA 2.1 Japan** — visible dans l'app (pied de page) et le
   README. Police embarquée : sous-ensemble DejaVu (Bitstream Vera).
 
