@@ -27,7 +27,7 @@ import {
 } from "../guidage";
 
 // #211 (docs/spec-quart-virgula.md): `?quart=<nom>` dances another quarter turn than the retained one in the game too
-// (`deuxTemps`, `deuxTempsRecul`: the quarter in two beats); before the session reads the figures' lengths.
+// (`quatreTemps`: the four-beat quarter of before 28 Nov. 2026); before the session reads the figures' lengths.
 setQuartProto(new URLSearchParams(window.location.search).get("quart"));
 
 const KIND_LABEL = (k: GuideKind) => (k === "base" ? "Pas de base" : GUIDE_FIGURES[k].label);

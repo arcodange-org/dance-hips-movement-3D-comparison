@@ -39,11 +39,23 @@ C, exprimée dans le repère du leader (+x à gauche, +z vers l'avant) :
   G0 sur L1 ; la même rotation envoie D0 parallèle à G, à l'écartement et au décalage de départ.
 - À la fin du quart k, toute la configuration (pieds, racines, quinconce et contact des
   demi-pointes compris) est la configuration de départ tournée de k·π/2 autour de C. Après quatre
-  quarts, le couple revient exactement au départ (cycle de 16 temps, en boucle).
+  quarts, le couple revient exactement au départ (cycle de 8 temps depuis le quart en deux temps, #211 ; 16 avant).
 - Chaque pied suit un **arc autour de C** pendant son pas, avec un lacet qui tourne avec lui ; il
   peut d'abord se dégager le long de son propre axe, élargir ou resserrer l'arc, et pivoter en fin
   de vol (`QuartsStepShape`).
-- **Ordre des appuis** (un quart = 4 temps) :
+- **Ordre des appuis, quart retenu depuis le 28 novembre** (un quart = 2 temps, #211, [spec](spec-quart-virgula.md),
+  `QUART_ELECTED`, `QUART_TWO`) :
+
+| Temps du quart | Suiveuse | Guideur |
+|---|---|---|
+| 0,4 → 1 | **D** : recule sans tourner, 31 cm en arrière et 18 cm vers sa droite (le plus droit que permet la position neutre au « 2 »), la moitié du chemin dès le début du vol ; posé sur le 1 | **G** : la virgula, un pied au-delà du bout du D, tournée vers sa gauche (10° de plus que l'angle droit) ; posée sur le 1 |
+| 0,85 → 2 | bassin et buste tournent du quart (1,5° au « 1 ») ; les bustes suivent le partenaire (plexus au contact) | pareil ; au « 1 », son buste est déjà tourné vers le tour à venir (17,5° contre son bassin) |
+| 1 → 2 | **D** : la porte et pivote sur son avant-pied | **G** : le porte et se referme sur son talon jusqu'à l'angle droit (1,3 → 1,9) |
+| 1,05 → 2 | **G** : part dès que le D la porte, fait le tour ; posé sur le 2 | |
+| 1,42 → 2 | | **D** : contourne le G ; posé sur le 2 |
+| 2 | position neutre du départ, tournée d'un quart | |
+
+- **Ordre des appuis du quart en quatre temps** (avant le 28 novembre, `?quart=quatreTemps` ; un quart = 4 temps) :
 
 | Temps du quart | Suiveur | Leader |
 |---|---|---|

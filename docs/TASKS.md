@@ -535,8 +535,16 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] G confirmé (25 nov.) ; à-coups, ginga, plexus réglés ; films du côté du guideur.
 - [x] Précision du 25 nov. : la suiveuse recule droit puis pivote sur son D, prototype `?quart=pivotSuiveur` (0 os
   croisé ; semelles qui se chevauchent en quinconce, amplitude 1), filmé.
-- [ ] Le propriétaire tranche : pivot de la suiveuse malgré le chevauchement des semelles, ou version par défaut ;
-  conséquences sur R11 (centre du quart entre les danseurs) et R8 (pas du guideur de 54 cm).
+- [x] Corrections des 27 et 28 nov. (#211) : la suiveuse recule droit au « 1 » (prototypes H, H′ : os croisés) ; le
+  quart en deux temps (`deuxTemps`, `deuxTempsRecul`), filmés.
+- [x] Choisi le 28 nov. : `deuxTempsRecul`, par défaut (`QUART_ELECTED`) ; orteils de la virgula dégagés (virgula 10°
+  plus ouverte, refermée sur son talon), départ de la rotation adouci (dès 0,85), à-coup vertical de la suiveuse ramené
+  de 1 413 à 780 cm/temps² (son G part à 1,05) ; bustes au contact des plexus (R4), la lecture à 15° sous
+  `?quart=buste15` ; tests des quarts sur deux temps ; spec #37, R11, R21 et R47 réécrites ; cliquets R8 et saccades
+  enregistrés à nouveau.
+- [ ] Films de la version retenue, puis sortie du brouillon de #211.
+- [ ] Question ouverte : le quart seul (sans partenaire) reste en quatre temps.
+- [ ] R8 (pas du guideur de 54 cm) à revoir avec le centre du quart entre les danseurs.
 
 ## « 1 2 » : le ginga de la hanche porte le pas de côté (#209)
 

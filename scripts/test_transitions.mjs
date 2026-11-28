@@ -56,8 +56,10 @@ console.log('PASS transitionAt : transition en cours, la dernière après la fin
 const g = api.transitionsOf('sortieG');
 for (const i of [0, 1]) assert.match(g[i].follower, /[Rr]ecule/, `sortie garçon action ${i + 1}: the follower walks back (#110)`);
 for (const key of ['sortieG', 'sortieF', 'sortieF:back']) assert.match(api.transitionsOf(key).at(-1).follower, /sans transfert/, `${key}: marka without transfer`);
-assert.match(api.transitionsOf('quart')[0].leader, /diagonale/, 'quart: the diagonal (R25)');
-console.log('PASS cohérence : suiveuse qui recule dans la sortie garçon, markas sans transfert, diagonale des quarts');
+// #211 (R47): on « 1 » of the quarter the virgula goes forward and the follower steps back, the pelvises still facing.
+assert.match(api.transitionsOf('quart')[0].leader, /virgula/, 'quart: the virgula (R47)');
+assert.match(api.transitionsOf('quart')[0].follower, /recule sans tourner/, 'quart: her D steps back without turning (#211)');
+console.log('PASS cohérence : suiveuse qui recule dans la sortie garçon, markas sans transfert, virgula des quarts');
 
 // 5. Composite figures reuse the simple ones word for word.
 const text = t => [t.title, t.leader, t.follower, t.contacts].join('|');

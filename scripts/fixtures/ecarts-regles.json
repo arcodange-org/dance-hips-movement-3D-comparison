@@ -42,16 +42,16 @@
     }
   },
   "quart de tour": {
-    "R21": 0.12,
-    "R4": 8.1,
+    "R21": 0.015,
+    "R4": 8.4,
     "R8": {
       "leader": {
-        "long": 54.2,
-        "side": 24.2
+        "long": 54.8,
+        "side": 54.8
       },
       "follower": {
-        "long": 33.2,
-        "side": 55.4
+        "long": 52.7,
+        "side": 52.7
       }
     }
   },
@@ -70,8 +70,8 @@
     }
   },
   "sur place (R21)": {
-    "kizomba": 0.02,
-    "semba": 0.02,
+    "kizomba": 0.005,
+    "semba": 0.005,
     "kompa": 0.005,
     "tarraxinha": 0,
     "suave": 0,

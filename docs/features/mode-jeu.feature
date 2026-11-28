@@ -4,7 +4,7 @@ Feature: Mode jeu : file de commandes, écoute par défaut, danse automatique
 
   Scenario: Les commandes s'empilent dans une file et se dansent dans l'ordre
     When le joueur commande "ida, quart, sortieG, quart" aux temps "1, 1.5, 2, 2.2"
-    Then les segments du mode jeu sont "base@0 ida@4 quart@12 sortieG@16 quart@22 base@26"
+    Then les segments du mode jeu sont "base@0 ida@4 quart@12 sortieG@14 quart@20 base@22"
     And aucune commande n'est refusée ni perdue
 
   Scenario: Une commande pressée juste après une position neutre attend la suivante

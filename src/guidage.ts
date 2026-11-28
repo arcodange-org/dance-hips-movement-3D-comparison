@@ -645,7 +645,8 @@ export function endBeatOf(kind: GuideKind): number {
 /** Demonstration session (`?guidage=1&demo=1`, GIF of the PR): ida e volta, sortie garçon, quart de
  * tour, sortie fille, each led a little before its boundary. */
 export const GUIDE_DEMO: { beat: number; figure: GuideFigure }[] = [
-  { beat: 2.9, figure: "ida" }, { beat: 10.9, figure: "sortieG" }, { beat: 20.9, figure: "quart" }, { beat: 24.95, figure: "sortieF" },
+  // #211: the quarter lasts two beats; the sortie fille is pressed near its end, as before.
+  { beat: 2.9, figure: "ida" }, { beat: 10.9, figure: "sortieG" }, { beat: 20.9, figure: "quart" }, { beat: 22.95, figure: "sortieF" },
 ];
 
 /** #89 demonstration (`?guidage=1&demo=fleches`): walk forward, double, walk backward, ida e volta right leg

@@ -39,12 +39,13 @@ const lcg = seed => () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 21
   assert.equal(kinds(api.planGuide([I(4.05, 'ida')], motions, 30)), 'base@0 ida@8 base@16', 'just after a boundary: the next one');
   // A burst of commands: all danced, in the order pressed (nothing refused, nothing lost).
   plan = api.planGuide([I(1, 'ida'), I(1.5, 'quart'), I(2, 'sortieG'), I(2.2, 'quart')], motions, 40);
-  assert.equal(kinds(plan), 'base@0 ida@4 quart@12 sortieG@16 quart@22 base@26');
-  assert.deepEqual(fates(plan), [['dansée', 4], ['dansée', 12], ['dansée', 16], ['dansée', 22]]);
+  // #211: the quarter turn lasts two beats.
+  assert.equal(kinds(plan), 'base@0 ida@4 quart@12 sortieG@14 quart@20 base@22');
+  assert.deepEqual(fates(plan), [['dansée', 4], ['dansée', 12], ['dansée', 14], ['dansée', 20]]);
   assert.deepEqual(plan.segments.map(s => s.by), [undefined, 'commande', 'commande', 'commande', 'commande', undefined]);
   // The same figure twice is danced twice; a command pressed during a figure waits for its end.
-  assert.equal(kinds(api.planGuide([I(1, 'quart'), I(2, 'quart')], motions, 20)), 'base@0 quart@4 quart@8 base@12');
-  assert.equal(kinds(api.planGuide([I(3, 'ida'), I(5, 'quart'), I(6, 'sortieG')], motions, 40)), 'base@0 ida@4 quart@12 sortieG@16 base@22');
+  assert.equal(kinds(api.planGuide([I(1, 'quart'), I(2, 'quart')], motions, 20)), 'base@0 quart@4 quart@6 base@8');
+  assert.equal(kinds(api.planGuide([I(3, 'ida'), I(5, 'quart'), I(6, 'sortieG')], motions, 40)), 'base@0 ida@4 quart@12 sortieG@14 base@20');
   // The queue as the view shows it: the figure under way, the next one with its start, the others behind.
   plan = api.planGuide([I(3, 'ida'), I(5, 'quart'), I(6, 'sortieG')], motions, 9);
   assert.equal(kinds(plan), 'base@0 ida@4');
@@ -70,7 +71,7 @@ const lcg = seed => () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 21
     commands += list.length;
   }
   // The demonstration sessions of the view (GIFs) keep their segments.
-  assert.equal(kinds(api.planGuide(api.GUIDE_DEMO, motions, 40)), 'base@0 ida@4 sortieG@12 base@18 quart@22 sortieF@26 base@32');
+  assert.equal(kinds(api.planGuide(api.GUIDE_DEMO, motions, 40)), 'base@0 ida@4 sortieG@12 base@18 quart@22 sortieF@24 base@30');
   assert.equal(kinds(api.planGuide(api.GUIDE_DEMO_ARROWS, motions, 40)), 'base@0 avance@4 double@6 recule@8 base@10 idaArrD@14 base@22');
   assert.equal(kinds(api.planGuide(api.GUIDE_DEMO_CHAIN, motions, 40)), 'base@0 sortieFG@4 base@13');
   assert.equal(kinds(api.planGuide(api.GUIDE_DEMO_INSERT, motions, 40)), 'base@0 sortieG+2@4 sortieF+2@12 base@20');
@@ -129,7 +130,7 @@ console.log('PASS enchaînement : ↑ pendant la sortie fille (du début à la p
   plan = api.planGuide([I(1, 'sortieG'), I(2, 'ida')], motions, 3);
   assert.deepEqual([plan.queue, plan.queueTouches, fates(plan)], [['sortieG'], [1], [['en file', 4], ['insérée', null]]], 'shown in the queue while it waits');
   assert.equal(kinds(api.planGuide([I(1, 'sortieG'), I(2, 'ida'), I(2.5, 'ida')], motions, 30)), 'base@0 sortieG+0+1@4 base@14');
-  assert.equal(kinds(api.planGuide([I(1, 'quart'), I(2, 'ida')], motions, 30)), 'base@0 quart+0@4 base@10', '« ida e volta + quart de tour ensuite »');
+  assert.equal(kinds(api.planGuide([I(1, 'quart'), I(2, 'ida')], motions, 30)), 'base@0 quart+0@4 base@8', '« ida e volta + quart de tour ensuite »');
   assert.equal(kinds(api.planGuide([I(1, 'double'), I(2, 'ida'), I(2.2, 'ida')], motions, 30)), 'base@0 double+0@4 ida@8 base@16', 'no step left in the waiting figure: queued');
   assert.equal(kinds(api.planGuide([I(1, 'avance'), I(1.5, 'recule'), I(2, 'ida')], motions, 30)), 'base@0 avance+0@4 recule@8 base@10', 'the figure waiting first');
   // The walks: both steps.
@@ -138,7 +139,7 @@ console.log('PASS enchaînement : ↑ pendant la sortie fille (du début à la p
   assert.equal(kinds(api.planGuide([I(3.9, 'sortieF'), I(5, 'ida'), I(6.5, 'avance')], motions, 30)), 'base@0 sortieFG+2@4 base@15', 'chained at its position 3, two beats later');
   assert.equal(kinds(api.planGuide([I(3.9, 'sortieF'), I(4.5, 'avance'), I(5, 'ida')], motions, 40)), 'base@0 sortieFG+2@4 base@15');
   assert.equal(kinds(api.planGuide([I(3.9, 'sortieF'), I(6.5, 'ida'), I(6.8, 'avance')], motions, 40)), 'base@0 sortieF+3@4 avance@12 base@14', 'D4 touched: the sortie fille goes on, ↑ is queued');
-  assert.equal(kinds(api.planGuide([I(3.9, 'sortieF'), I(4.5, 'quart'), I(5, 'ida')], motions, 30)), 'base@0 sortieF+2@4 quart@12 base@16', 'the other commands keep their place');
+  assert.equal(kinds(api.planGuide([I(3.9, 'sortieF'), I(4.5, 'quart'), I(5, 'ida')], motions, 30)), 'base@0 sortieF+2@4 quart@12 base@14', 'the other commands keep their place');
   // The virgula (a key held with the ida's): where the leader's G goes forward from the neutral stance.
   assert.equal(kinds(api.planGuide([I(1, 'sortieG'), V(2, 'ida')], motions, 30)), 'base@0 sortieG+0v@4 base@12');
   assert.equal(kinds(api.planGuide([I(3.9, 'sortieG'), V(5.5, 'ida')], motions, 30)), 'base@0 sortieG+2@4 base@12', 'not offered at this step: a plain touch');

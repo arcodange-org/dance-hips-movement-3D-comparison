@@ -11,11 +11,13 @@ let loaded = null;
 export async function guideApi() {
   if (loaded) return loaded;
   const bundle = new URL(`./.bassin-mesure-${process.pid}.mjs`, import.meta.url);
-  buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'rigJoints', 'placement', 'guidage', 'guidagePose', 'placePaire', 'insertion']
+  buildSync({ stdin: { contents: ['pose', 'anatomy', 'styles', 'rigJoints', 'placement', 'guidage', 'guidagePose', 'placePaire', 'insertion', 'quartsPaire']
     .map(n => `export * from "./src/${n}";`).join('\n'), resolveDir: new URL('../', import.meta.url).pathname },
     bundle: true, packages: 'external', platform: 'node', format: 'esm', outfile: bundle.pathname,
     define: { 'import.meta.env.BASE_URL': '"/"' }, logLevel: 'silent' });
   loaded = await import(bundle.href); unlinkSync(bundle);
+  // #211: QUART=<candidat> measures a candidate quarter turn (`?quart=` in the app), as test_quarts_paire does.
+  if (process.env.QUART) loaded.setQuartProto(process.env.QUART);
   return loaded;
 }
 

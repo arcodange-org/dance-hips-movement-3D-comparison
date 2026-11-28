@@ -262,10 +262,65 @@ ligne, et ses orteils arrivent alors sur ceux de la virgula dans le quinconce du
 Poser son D déjà un peu tourné ne libère les orteils qu'à partir de 45° : 29 cm en arrière et 26 de côté, à mi-chemin du
 D tourné de `deuxTemps`.
 
-À élire sur films : `deuxTemps` (aucun contact, son D tourné dès le « 1 ») ou `deuxTempsRecul` (le recul le plus droit
-que permet la position neutre, les orteils au contact au « 1 »). Une fois élu : R11 (quarts) et R21 (D du leader posé à
-2,88) réécrites, la table « un quart = 4 temps » de la spec #37, et les gardes de `scripts/test_quarts_paire.mjs` (qui
-supposent quatre temps par quart).
+## La version retenue (28 novembre) : le quart en deux temps, son D qui recule
+
+Après les films de 57c32da, le propriétaire a choisi `deuxTempsRecul` : son D recule puis pivote (plutôt que posé déjà
+tourné). C'est le quart de tour en paire, dans le mode jeu comme dans le comparateur (`QUART_ELECTED`, plus de
+paramètre) ; `?quart=quatreTemps` montre le quart en quatre temps d'avant (f8619a1), `?quart=deuxTemps` l'autre
+prototype. Le quart seul (sans partenaire) reste en quatre temps : question ouverte.
+
+Réglages, sans toucher au choix (`QUART_TWO`) :
+
+- **Les orteils** : la pointe de la virgula et les orteils de son D se chevauchaient de sa pose à 1,44 (un coin de 3 cm
+  sur 2, quinconce, amplitude 1). La position neutre au « 2 » fixe où son D se pose par rapport à la virgula, quelle que
+  soit la place de celle-ci. La virgula se pose donc 10° plus ouverte que l'angle droit et se referme sur son talon
+  pendant le « 2 » (1,3 à 1,9), pendant que son D pivote et s'écarte. Sur l'avant-pied, la pointe ne bouge presque pas
+  (encore 48 échantillons à 20°) ; sur le talon, 10° suffisent ; 20° touchent son G face à face.
+- **Le départ de la rotation** : le bloc tourne dès 0,85 (1,5° au « 1 ») au lieu de partir sur le « 1 » ; son D pivote
+  à partir de sa pose.
+- **L'à-coup vertical de son bassin** : quand son G partait à 1,24, son bassin montait de 3 cm en un dixième de temps.
+  Il part à 1,05, dès que son D la porte. Partir en roulant le talon l'empirait (2 000 à 3 300 cm/temps²).
+- **Son D répond à la virgula** : il fait la moitié de son chemin dans le premier dixième de son vol. Plus lent, son
+  genou rencontrait la cuisse de la virgula à 0,5 avec le ginga du mode jeu (3 à 8 poses, kizomba au réglage
+  `discret`, semba, aller-retour inséré) ; reculer d'abord tout droit et ne partir vers sa droite qu'en fin de vol
+  laissait son pied dans le couloir où arrive le G du guideur. Estomper le ginga à cet endroit faisait sauter la
+  hauteur du bassin (près de 2 000 cm/temps²) : écarté.
+- **Les bustes** gardent le contact des plexus (R4) : ils suivent le partenaire et tournent donc de 30° au « 1 », vers
+  le tour à venir (de 12,5° vers sa droite à 17,5° vers sa gauche contre son bassin, pour le guideur). Tournés de 15°
+  seulement (`chestLead`, comme filmé en 57c32da), ils s'écartaient de 16 cm au « 1 » (R4 : 6 cm) ; cette lecture reste
+  visible sous `?quart=buste15`. Le buste suit le bassin 0,05 temps plus tard (0,13 tournait le buste du guideur de 27°
+  contre son bassin au milieu du « 2 », au-delà des 18° de « danseurs, pas lutteurs »).
+
+Deux corrections trouvées en route : le buste qui suit le bassin 0,13 temps plus tard, et celui de la suiveuse qui suit
+celui du guideur, regardent désormais dans le quart précédent au début d'un quart (en deux temps le précédent tourne
+encore à sa fin : saut de 1° au début de chaque quart). Le talon gauche est mesuré sur le GLB (les deux pieds ne sont
+pas symétriques au millimètre).
+
+Mesuré (quinconce, amplitude 1 ; mode jeu, kizomba, guideur / suiveuse) :
+
+| | filmé (57c32da) | retenu |
+| --- | --- | --- |
+| son D au « 1 » | 31,3 cm en arrière, 17,6 de côté, sans tourner | pareil |
+| lacet des bassins au « 1 » | 0,5° / −0,8° | 2,2° / 0,9° (1,5° sans le ginga) |
+| bustes au « 1 » (depuis le départ) | 15,5° / 12,9° | 32,2° / 30,8° (plexus au contact) |
+| contact des plexus (R4, `test_ecarts_regles`) | 16 cm | 8,4 cm (8,1 en quatre temps) |
+| poids sur le temps (R21) | | 0,015 temps (0,12 en quatre temps) |
+| enveloppes des pieds | orteils sur la virgula, 0,8 à 1,44 (quinconce, amplitude 1) | disjointes (quinconce et face à face, amplitudes 1 à 2) |
+| pied porteur | immobile | immobile : la virgula se referme sur son talon, son D pivote sur son avant-pied |
+| os croisés (`test_quarts_paire`, 288 poses) | 0 | 0 |
+| bassin au sol | 456 / 434 cm/temps² | 465 / 434 |
+| bassin en hauteur | 595 / 1 413 | **471 / 780** |
+| vitesse au plus | 79 / 69 cm/temps | 80 / 71 |
+| lacet, accélération au plus | 521 / 527 °/temps² | **396 / 421** |
+
+Semba et suave : au sol 450 à 456 et 434, en hauteur 509 à 697 (guideur) et 726 à 1 023 (suiveuse, en suave sur son
+premier pas, à 0,42), lacet 392. Le quart en quatre temps : au sol 324 / 308, en hauteur 468 / 793, lacet 149 / 168 :
+le même chemin en deux fois moins de temps. Gardes de `scripts/test_quarts_paire.mjs` en deux temps (au sol 500, en
+hauteur 1 100, lacet 450, vitesse 85) ; le même test passe sur `QUART=quatreTemps`. Cliquets enregistrés à nouveau
+(`WRITE=1`) : `scripts/fixtures/ecarts-regles.json` (le pas du guideur de R8 : 54,8 cm au lieu de 54,2, la virgula
+plus ouverte ; celui de la suiveuse, 52,7) et `scripts/fixtures/saccades.json` (le bassin de la suiveuse bouge de
+3,2 cm en hauteur en un huitième de temps à 1,06, quand son G part, contre 2,3 en quatre temps ; les autres figures
+bougent de 1 à 2 mm, les séances du mode jeu ayant des quarts plus courts).
 
 ## À vérifier une fois élu (tests sur le GLB réel, `scripts/test_quarts_paire.mjs`)
 
