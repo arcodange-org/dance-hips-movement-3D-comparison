@@ -29,7 +29,10 @@ export interface QuartVirgula { beyond: number; beside?: number; pivot?: boolean
   /** #211: the follower's D goes this far straight back on « 1 » (m), then pivots, loaded, and closes on « 4 ». */
   back?: number;
   /** #211: at « 1 » the leader's chest turns this far towards the coming turn (rad), the pelvises still facing. */
-  chestLead?: number }
+  chestLead?: number;
+  /** #211 (owner, 28 Nov. 2026): beats of one quarter; 2: the first steps land on « 1 », the couple turns and is back in
+   * the neutral position on « 2 » (`QUART_TWO`). Four beats when absent. */
+  beats?: 2 }
 export const QUART_AFTER = 0.4;
 export const QUART_TODAY: QuartVirgula = { beyond: 0, turn: "aujourdhui" };
 export const QUART_CANDIDATES: Record<string, QuartVirgula> = {
@@ -64,6 +67,16 @@ QUART_CANDIDATES.reculUnPied = { ...QUART_ELECTED, beside: (QUART_ELECTED.beside
  * marca's height; `pelvis`: share of her D's way back her pelvis takes (over the D that carries her), `stay`: beats of the
  * quarter while it stays there before going to the quarter's place with her G; `lag`: beats her chest follows his. */
 export const QUART_RECUL = { close: [3.1, 3.8], lift: 0.005, pelvis: 0.85, stay: [1.2, 2.0, 3.6], lag: 0.1 };
+/** #211 (owner, 28 Nov. 2026: the quarter is danced in two beats, not four; on « 2 » the couple is back in the neutral
+ * position it started from, turned a quarter). PROTOTYPES, to elect on films:
+ * - `deuxTemps`: the elected quarter in two beats: his virgula and her D land on « 1 » (her D at its place, already
+ *   turned, as in the quarter of f8619a1), the pelvises not turned yet; the block turns between « 1 » and « 2 », his D
+ *   and her G land on « 2 », the couple in quinconce again.
+ * - `deuxTempsRecul`: the same, her D going back on « 1 » without turning and pivoting on its ball on « 2 » while the
+ *   couple turns (`pivot`), chests leading (`chestLead`). Back as straight as the neutral on « 2 » allows: a D exactly
+ *   straight back ends, once pivoted, 18 cm short of its place, under his D (spec #211, « Le quart en deux temps »). */
+QUART_CANDIDATES.deuxTemps = { ...QUART_ELECTED, beats: 2 };
+QUART_CANDIDATES.deuxTempsRecul = { ...QUART_ELECTED, beats: 2, pivot: true, chestLead: 15 * Math.PI / 180 };
 
 /** #208 (`entreLesPas`): the leader's G knee points where its foot does (the virgula turned out to the left, the
  * pelvis not yet turned); his trailing D knee opens `right` rad outwards meanwhile, in proportion; the follower's D
@@ -74,6 +87,8 @@ export const setQuartProto = (name: string | null | undefined) => { QUART_PROTO.
 /** Quintic ease: zero speed and zero acceleration at both ends. */
 const ease5 = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * t * (10 - 15 * t + 6 * t * t); };
 const QUARTER = Math.PI / 2;
+/** Beats of one quarter (#211: 2 for the two-beat prototypes). */
+export const quartBeats = () => QUART_PROTO.v.beats ?? 4;
 
 const smooth = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * (3 - 2 * t); };
 /** #163 (docs/spec-ginga-couple.md): the pair quarter turn takes the couple's largest ginga setting, and
@@ -161,11 +176,11 @@ export const QUART_LEAD = 0.9;
  * the height jump (the legs' reach, 1 400 to 3 000 cm/beat²). */
 export const QUART_ROOT = { knots: [[0, 0], [0.35, 0.012], [1, QUART_LEAD / 2], [1.75, 0.47], [3, 0.97], [4, 1]] as [number, number][], drift: 0.02 };
 /** Share of the quarter the place of the pelvis has gone round C at beat `q` of the quarter (`QUART_ROOT`). */
-export function quartRootShare(q: number): number {
-  const k = QUART_ROOT.knots, n = k.length, t = Math.max(k[0][0], Math.min(k[n - 1][0], q));
+export function quartRootShare(q: number, path: { knots: [number, number][]; drift: number } = quartBeats() === 2 ? QUART_TWO.root : QUART_ROOT): number {
+  const k = path.knots, n = k.length, t = Math.max(k[0][0], Math.min(k[n - 1][0], q));
   const width = k.slice(1).map(([x], i) => x - k[i][0]), secant = k.slice(1).map(([, y], i) => (y - k[i][1]) / width[i]);
   // Interior slopes: Fritsch-Butland's weighted harmonic mean of the neighbouring secants (monotone, no overshoot).
-  const slope = k.map((_, i) => i === 0 || i === n - 1 ? QUART_ROOT.drift : secant[i - 1] * secant[i] <= 0 ? 0
+  const slope = k.map((_, i) => i === 0 || i === n - 1 ? path.drift : secant[i - 1] * secant[i] <= 0 ? 0
     : 3 * (width[i - 1] + width[i]) / ((2 * width[i] + width[i - 1]) / secant[i - 1] + (width[i] + 2 * width[i - 1]) / secant[i]));
   let i = 0;
   while (i < n - 2 && t > k[i + 1][0]) i++;
@@ -176,6 +191,22 @@ export function quartRootShare(q: number): number {
  * longer; arcing late, it caught up at the end and the pelvis rose 6 cm within a quarter of a beat). */
 export const QUART_BETWEEN_SHAPES: QuartsShapes = {
   ...QUARTS_SHAPES, leader: [QUARTS_SHAPES.leader[0], { ...QUARTS_SHAPES.leader[1], arcDelay: 0 }],
+};
+/** #211 (`beats: 2`): the quarter in two beats. « 1 » as in four beats (the first feet leave together and land on it);
+ * « 2 » is the four-beat quarter from its « 1 » to its second landing (beat 2.9 of four), played 1.9 times faster: the
+ * same poses in the same order, the block turning as far as the place of the pelvis has gone round C (a place ahead of the
+ * turn crossed his G's leg with her D's in the middle of « 2 »). `shapes`: the second feet; `root`, `crossing`: the
+ * knots of `QUART_ROOT` and the window of `QUARTS_BODY.crossing` on that time; `ginga`: the room of `QUARTS_GINGA` closes
+ * before « 2 »; `chestLag`: `QUARTS_BODY.chestLag` on that time. */
+export const QUART_TWO = {
+  shapes: {
+    leader: [QUARTS_SHAPES.leader[0], { ...QUARTS_SHAPES.leader[1], start: 1.42, end: 2.0, arcDelay: 0 }],
+    follower: [QUARTS_SHAPES.follower[0], { ...QUARTS_SHAPES.follower[1], start: 1.24, end: 2.0 }],
+  } as QuartsShapes,
+  root: { knots: [[0, 0], [0.35, 0.012], [1, QUART_LEAD / 2], [1.395, 0.47], [2, 1]] as [number, number][], drift: QUART_ROOT.drift },
+  crossing: { from: 0.6, to: 1.32 },
+  ginga: { from: [0, 0.4], until: [1.6, 1.95] },
+  chestLag: 0.13,
 };
 /** Pelvis and style during the pair quarter turns (calibrated, docs/spec-quarts-paire.md):
  * - #106: pelvis and upper body turn as one block with the feet, half the quarter with the first foot
@@ -197,7 +228,7 @@ export const QUARTS_BODY = {
   crossing: { from: 0.6, to: 1.6, ramp: 0.3, kneeCap: 0.12, rotationCap: 0.04 },
 };
 function crossingAt(q: number): number {
-  const { from, to, ramp: r } = QUARTS_BODY.crossing;
+  const { ramp: r } = QUARTS_BODY.crossing, { from, to } = quartBeats() === 2 ? QUART_TWO.crossing : QUARTS_BODY.crossing;
   return Math.max(0, Math.min(smooth((q - from + r) / r), 1 - smooth((q - to) / r)));
 }
 const ramp = (x: number, delay: number) => smooth((x - delay) / Math.max(1e-6, 1 - delay));
@@ -227,11 +258,12 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
   // Leader: G first (upper body follows), then D (lower body). Follower: D first, then G.
   const order: [FigureFoot, FigureFoot] = follower ? ["R", "L"] : ["L", "R"];
   const between = QUART_PROTO.v.turn === "entreLesPas";
-  const role = (between && shapes === QUARTS_SHAPES ? QUART_BETWEEN_SHAPES : shapes)[follower ? "follower" : "leader"];
+  const span = quartBeats(), cycle = 4 * span;
+  const role = (shapes !== QUARTS_SHAPES ? shapes : span === 2 ? QUART_TWO.shapes : between ? QUART_BETWEEN_SHAPES : shapes)[follower ? "follower" : "leader"];
   const step = (time: number) => {
-    const p = ((time % QUARTS_BEATS) + QUARTS_BEATS) % QUARTS_BEATS;
-    const quarter = Math.min(3, Math.floor(p / 4));
-    const q = p - quarter * 4;
+    const p = ((time % cycle) + cycle) % cycle;
+    const quarter = Math.min(3, Math.floor(p / span));
+    const q = p - quarter * span;
     const base = quarter * QUARTER;
     const feet = order.map((side, k) => {
       const shape = role[k];
@@ -340,7 +372,7 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
   const bodyYaw = base + (QUARTER / 2) * (a1 + a2);
   // #126 (owner: « le buste peut avoir un léger retard sur le pied : le temps de transfert »): the chest
   // follows the pelvis `chestLag` beats later.
-  const lagged = turnAt(now.q - QUARTS_BODY.chestLag);
+  const lagged = turnAt(now.q - (span === 2 ? QUART_TWO.chestLag : QUARTS_BODY.chestLag));
   const chestYaw = (QUARTER / 2) * (lagged[0] + lagged[1] - a1 - a2);
   // #208 (`entreLesPas`): the place of the pelvis goes round C with the feet, `QUART_LEAD` of an eighth with the first
   // step, the rest with the second (following the yaw instead crossed the legs; staying in place, the trailing knee).
@@ -367,8 +399,9 @@ export function sampleQuartsPaire(beat: number, follower: boolean, rest: Record<
   const crossing = crossingAt(now.q);
   // The quarters follow one another (cyclic): the room is the same, closed, at the end of one and at the
   // start of the next.
-  const ending = smooth((now.q - QUARTS_GINGA.from[0]) / (QUARTS_GINGA.from[1] - QUARTS_GINGA.from[0]))
-    * (1 - smooth((now.q - QUARTS_GINGA.until[0]) / (QUARTS_GINGA.until[1] - QUARTS_GINGA.until[0])));
+  const room = span === 2 ? QUART_TWO.ginga : QUARTS_GINGA;
+  const ending = smooth((now.q - room.from[0]) / (room.from[1] - room.from[0]))
+    * (1 - smooth((now.q - room.until[0]) / (room.until[1] - room.until[0])));
   const moving = two.flying || two.raw >= 1 ? order[1] : order[0];
   const action = now.quarter * 2 + (now.q >= role[1].start ? 1 : 0);
   // #208: the leader's G goes forward with its knee turned to the left like its foot (the virgula); the knee comes

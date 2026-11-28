@@ -206,6 +206,67 @@ recule droit doit croiser la place où le D du guideur se pose au « 3 ». Piste
 au « 3 » hors du chemin de la suiveuse et rejoint sa place au « 4 », comme #110) ; ou le quinconce n'est retrouvé qu'à la
 fin de la figure ; ou le recul n'est pas tout à fait droit (`pivotSuiveur`, 13 cm vers sa droite).
 
+## Le quart en deux temps (28 novembre, prototypes `?quart=deuxTemps` et `?quart=deuxTempsRecul`)
+
+Correction du 28 novembre : le quart se danse en deux temps, pas en quatre. Au « 1 », la virgula du guideur avance (un
+pied au-delà du bout de son D) et la suiveuse recule ; les bassins ne tournent pas encore. Au « 2 », le couple tourne et
+revient à la position neutre du départ, tourné d'un quart (quinconce retrouvé). Quatre quarts font huit temps. La
+question du « 3 » (section précédente) tombe : il n'y a plus de « 3 ».
+
+Ce que font les prototypes (rien ne change sans le paramètre ; `QUART_TWO`, `quartBeats` dans `src/quartsPaire.ts`) :
+
+- Le « 1 » est celui du quart en quatre temps : les premiers pieds partent ensemble à 0,4 et se posent sur le temps.
+- Le « 2 » rejoue la partie du quart en quatre temps qui va de son « 1 » à la pose du second pied (temps 2,9), 1,9 fois
+  plus vite : les mêmes poses, dans le même ordre. Le G de la suiveuse part à 1,24, le D du guideur à 1,42 ; tous deux se
+  posent sur le « 2 » (le D du guideur se posait à 2,88 : l'écart de R21 disparaît). Le bloc tourne de 1 à 2.
+- Le bassin fait le tour de C sur ce même temps (`QUART_TWO.root`). Un premier essai où il allait plus vite que le bloc
+  ne tournait (75 % du chemin à mi-rotation au lieu de 50 %) croisait la jambe de la virgula avec le D de la suiveuse au
+  milieu du « 2 » (150 croisements sur 288 poses) ; allonger la fenêtre où les genoux s'assouplissent empirait (222).
+- Mode jeu : la figure dure deux temps (`GUIDE_FIGURES.quart`), et `?quart=` y est lu aussi (`GuidageApp`).
+
+Les deux prototypes :
+
+- **`deuxTemps`** : le quart retenu, en deux temps. Son D se pose au « 1 » à sa place du quart, déjà tourné (comme dans
+  f8619a1).
+- **`deuxTempsRecul`** : son D recule au « 1 » sans tourner, puis pivote sur son avant-pied au « 2 » pendant que le
+  couple tourne. Les bustes de la section précédente (`chestLead`) : au « 1 », celui du guideur tourne de 15° vers le tour
+  à venir et celui de la suiveuse le suit.
+
+Mesuré (quinconce, amplitude 1 ; mode jeu, kizomba, pour le « 1 », les bustes et le bassin) :
+
+| | retenu (quatre temps) | `deuxTemps` | `deuxTempsRecul` |
+| --- | --- | --- | --- |
+| D de la suiveuse au « 1 » | 21,3 cm en arrière, 31 cm de côté, tourné de 90° | pareil | **31,3 cm en arrière, 17,6 de côté (29° hors de la ligne), sans tourner** |
+| bassin de la suiveuse au « 1 » | 20,1 cm en arrière, 16,1 de côté | pareil | pareil |
+| lacet des bassins (guideur / suiveuse) | 0,5° / −0,8° au « 1 » | pareil au « 1 » ; 89,5° / 90,7° au « 2 » | pareil |
+| bustes au « 1 » (guideur / suiveuse) | 30,5° / 29,2° | 30,5° / 29,2° | 15,5° / 12,9° |
+| pied porteur, du « 1 » au départ suivant | immobile | immobile (cheville et avant-pied : 0 cm) | G du guideur immobile ; D de la suiveuse : l'avant-pied ne bouge pas, la cheville tourne autour (16,7 cm) |
+| position neutre au « 2 » | au temps 4 | écart 0,00 cm | 0,00 cm |
+| enveloppes des pieds | disjointes | disjointes (quinconce et face à face, amplitudes 1 à 2) | **quinconce, amplitude 1 : ses orteils sur ceux de la virgula, de 0,8 à 1,44 de chaque quart** ; disjointes ailleurs |
+| os croisés (quinconce, face à face, plexus ; 288 poses chacun) | 0 | 0 | 0 |
+| bassin au sol (guideur / suiveuse) | 324 / 308 cm/temps² | 456 / 434 | 456 / 434 |
+| bassin en hauteur | 468 / 793 cm/temps² | 595 / 1 471 | 595 / 1 413 |
+| vitesse au plus, au plus lent | 57 / 55 cm/temps ; jamais immobile | 79 / 69 ; jamais immobile (2,4 cm/temps au plus lent) | pareil |
+| lacet, accélération au plus | 149 / 168 °/temps² | 521 / 527 | 521 / 527 |
+
+Semba et suave : du même ordre (au sol 451 à 452 et 434 à 435 cm/temps², en hauteur 597 à 1 367). Le lacet suit la
+règle : tourner le quart en un temps, en douceur aux deux bouts, demande 520 °/temps² ; en quatre temps le bloc tournait
+sur 1,9 temps.
+
+Pourquoi `deuxTempsRecul` ne recule pas tout droit. Au « 2 », son D doit être à sa place de la position neutre, à 31,7 cm
+de la virgula dans la direction tournée d'un quart. Du « 1 » au « 2 », ce D porte et pivote sur son avant-pied : sa
+cheville ne bouge que de 13 cm de côté. La place de son D au « 1 » par rapport à la virgula est donc fixée, où que la
+virgula se pose (la déplacer déplace d'autant la place de son D). Un D exactement droit arrive au « 2 », une fois pivoté,
+à 18 cm de sa place, sous le D du guideur : c'étaient les croisements de H. Le plus droit possible est 29° hors de la
+ligne, et ses orteils arrivent alors sur ceux de la virgula dans le quinconce du mode jeu (amplitude 1 ; libres à 1,5).
+Poser son D déjà un peu tourné ne libère les orteils qu'à partir de 45° : 29 cm en arrière et 26 de côté, à mi-chemin du
+D tourné de `deuxTemps`.
+
+À élire sur films : `deuxTemps` (aucun contact, son D tourné dès le « 1 ») ou `deuxTempsRecul` (le recul le plus droit
+que permet la position neutre, les orteils au contact au « 1 »). Une fois élu : R11 (quarts) et R21 (D du leader posé à
+2,88) réécrites, la table « un quart = 4 temps » de la spec #37, et les gardes de `scripts/test_quarts_paire.mjs` (qui
+supposent quatre temps par quart).
+
 ## À vérifier une fois élu (tests sur le GLB réel, `scripts/test_quarts_paire.mjs`)
 
 - Contraintes de la spec #37 inchangées : fin de chaque quart égale au départ tourné d'un quart autour de C, retour au

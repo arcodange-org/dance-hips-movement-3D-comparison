@@ -6,7 +6,7 @@ import { movementAllowed, STYLE_MOVEMENTS, type MovementKey } from "./styles";
 import { samplePlacePaire, PLACE_PAIR_DZ } from "./placePaire";
 import { sampleIdaPaire, IDA_PAIR_DZ, IDA_DEFAULT, type IdaVariant } from "./idaPaire";
 import { sampleMarchePaire, MARCHE_PAIR_DZ, type MarcheKind } from "./marchePaire";
-import { sampleQuartsPaire, QUARTS_PAIR_DZ } from "./quartsPaire";
+import { sampleQuartsPaire, QUARTS_PAIR_DZ, quartBeats } from "./quartsPaire";
 import { sampleSortieGarcon, SORTIE_GARCON_PAIR_DZ, DEFAULT_SORTIE_CONTRA, type FigureFoot, type FootPoint } from "./sortieGarcon";
 import { sampleSortieFille, SORTIE_FILLE_PAIR_DZ } from "./sortieFille";
 import { sampleSortieFG, CHAIN_BEATS, CHAIN_FROM } from "./enchainement";
@@ -38,7 +38,8 @@ export const GUIDE_FIGURES: Record<GuideFigure, GuideFigureDef> = {
   idaD: { movement: "ida", beats: 8, end: 8, label: "Ida e volta jambe droite", code: "", key: "→", ida: { side: "R", back: false } },
   idaArr: { movement: "ida", beats: 8, end: 8, label: "Ida e volta en arrière", code: "", key: "↓", ida: { side: "L", back: true } },
   idaArrD: { movement: "ida", beats: 8, end: 8, label: "Ida e volta en arrière, jambe droite", code: "", key: "↓ →", ida: { side: "R", back: true } },
-  quart: { movement: "quarts", beats: 4, end: 4, label: "Quart de tour", code: "KeyQ", key: "Q" },
+  // #211: one quarter, four beats (two with the `?quart=deuxTemps…` prototypes).
+  quart: { movement: "quarts", get beats() { return quartBeats(); }, get end() { return quartBeats(); }, label: "Quart de tour", code: "KeyQ", key: "Q" },
   // The five-action figures hold their marka one beat (their style is frozen at beat 4, in phase with
   // the next segment's beat 0).
   sortieG: { movement: "sortieG", beats: 6, end: 5, label: "Sortie garçon", code: "KeyD", key: "D" },
