@@ -34,6 +34,19 @@ dépôt (ce fichier, `docs/spec-*.md`, `docs/adr/*`, `docs/TASKS.md`, README) et
   trois vitesses ; le point posé et tenu à deux temps et à un temps, fluide au demi-temps ; les demi-cercles ajoutés.
   Le 25 : le huit du bassin alterne, une mesure il glisse, une mesure il tourne aussi. Interrupteurs retirés.
 
+## Le pied pivote sur la plante, les orteils articulés (#225, 27-28 novembre 2026)
+
+- Demande (pont des mascottes, lot L441) : quand le talon monte, le pied du squelette pivote sur la plante, les orteils
+  restent posés ; il ne bascule plus d'un bloc jusqu'à tenir sur le bout des orteils. [Spec](docs/spec-pied-sur-la-plante.md).
+- Fait : `src/orteils.ts` détache au chargement les phalanges (îlots du maillage du pied) sous `ToePivot_<côté>`, sur la
+  ligne de pli (centre de la tête du 2e métatarsien) ; chaque orteil pend à la tête de son métatarsien et garde son bout
+  posé. Pli limité à une demi-pointe de danseur (90° d'extension du gros orteil : 70° de pli). Dans les exercices
+  seulement ; la marche roulée et le pied roulé des figures et du mode jeu gardent le pied d'un bloc (un autre lot).
+- Mi-hauteur inchangée (25°) : talon à 6,7 cm, le corps monte de 4,2 cm (avant : 9 cm et 6,5 cm, debout sur le bout des
+  orteils). Demi-pointe complète à 69° : talon à 14,5 cm, cheville +7,5 cm.
+- À élire (tour 18 de la page de vote, question 36) : la hauteur des talons, A mi-hauteur, B trois quarts, C demi-pointe
+  complète ([dossier](docs/elections/2026-11-28-pied-sur-la-plante/README.md)). PR #226, empilée sur #217.
+
 ## Pointe des pieds et talons (#216, 25 novembre 2026)
 
 - Demande : chaque exercice d'isolation sur la pointe des pieds ; un exercice nouveau qui lève et baisse les talons

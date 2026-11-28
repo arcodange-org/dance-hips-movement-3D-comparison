@@ -84,6 +84,9 @@ bassin), danseur seul pieds posés, seule la partie nommée bouge, en boucle (`s
 par boucle, amplitude moyenne, le huit qui alterne glisse et tourne, élus les 24 et 25 novembre (`docs/elections/2026-11-24-isolations/`).
 Sur la pointe des pieds et l'exercice des talons (#216) : [spec](docs/spec-pointes-talons.md) ; `pointes=1`, `isolation=talons` (talons
 levés par `heel` de la pose, pied roulé sur l'avant-pied) ; `docs/features/pointes-talons.feature` ; talons à mi-hauteur, l'exercice des talons aux trois vitesses, élus le 25 novembre (`docs/elections/2026-11-25-pointes-talons/`).
+Le pied pivote sur la plante (#225) : [spec](docs/spec-pied-sur-la-plante.md) ; orteils articulés au chargement (`src/orteils.ts` : `ToePivot_<côté>` sur la ligne de pli,
+un nœud par orteil à sa tête de métatarsien ; GLB inchangé), pliés dans les exercices seulement (`pivot: "toes"`), au plus jusqu'à une demi-pointe de danseur ;
+`scripts/test_orteils.mjs` ; hauteur des talons au-delà de la mi-hauteur à élire (`?essai=hautTroisQuarts|hautDemiPointe`, `docs/elections/2026-11-28-pied-sur-la-plante/`).
 Mode guidage (PoC #69) : [spec](docs/spec-mode-guidage-poc.md) (`src/guidage.ts` pur, `src/guidagePose.ts`,
 vue `src/components/GuidageApp.tsx`, `scripts/test_guidage.mjs`) ; recherche : [jeux vidéo](docs/recherche-jeux-video/README.md).
 

@@ -503,9 +503,9 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 ## Le pied pivote sur la plante, les orteils à plat (#225)
 
 - [x] Issue #225 ; spec poussée en premier ([spec](spec-pied-sur-la-plante.md)) ; PR empilée sur #217.
-- [ ] Articulation des orteils : `src/orteils.ts` (découpe des phalanges en îlots, `ToePivot_<côté>`), `bindSkeleton`.
-- [ ] Pied roulé sur la ligne de pli (`pivot: "toes"`), orteils à plat, pli limité (`toeFoldMax`) ; exercices seulement.
-- [ ] Tests sur le vrai GLB (`scripts/test_orteils.mjs`, `scripts/test_isolations.mjs`) et Gherkin (`docs/features/pointes-talons.feature`).
+- [x] Articulation des orteils : `src/orteils.ts` (découpe des phalanges en îlots, `ToePivot_<côté>`, un nœud par orteil à sa tête de métatarsien), `bindSkeleton`.
+- [x] Pied roulé sur la ligne de pli (`pivot: "toes"`), orteils posés, pli limité (`toeFoldMax`) ; exercices seulement.
+- [x] Tests sur le vrai GLB (`scripts/test_orteils.mjs`, `scripts/test_isolations.mjs`) et Gherkin (`docs/features/pointes-talons.feature`).
 - [ ] Films avant et après (talons, deux exercices sur pointes) ; élection de la hauteur des talons (candidats sous `?essai=`).
 - [ ] Vote du propriétaire ; le choix élu devient le comportement, interrupteurs retirés.
 - [ ] Hors de ce lot : la marche roulée, le pied roulé des figures et du mode jeu.
