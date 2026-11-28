@@ -62,6 +62,7 @@ export function sampleSortieFG(beat: number, follower: boolean, rest: Record<Fig
     ...s,
     feet: { L: { ...s.feet.L, x: s.feet.L.x + shift.x, z: s.feet.L.z + shift.z }, R: { ...s.feet.R, x: s.feet.R.x + shift.x, z: s.feet.R.z + shift.z } },
     root: { x: s.root.x + shift.x, z: s.root.z + shift.z },
+    ...("reachFrom" in s && s.reachFrom ? { reachFrom: { ...s.reachFrom, x: s.reachFrom.x + shift.x, z: s.reachFrom.z + shift.z } } : {}),
   });
   const bridgeEnd = CHAIN_FROM + CHAIN_BRIDGE.beats;
   if (b >= bridgeEnd) return { ...moved(garcon(CHAIN_TO + b - bridgeEnd, follower)), beat: b, chain: "garcon" as const };

@@ -121,7 +121,7 @@ export function sampleTouched<S extends TouchHostSample>(host: (beat: number) =>
   // touch, the weight stays on the support (the backward slot's final transfer is not taken).
   const loadR = t < IDA_PAIR.weight.back[1] ? ida.loadR : held.loadR ?? ida.loadR;
   const extra = held as { rootYaw?: number; kneeYaw?: number };
-  return { ...held, ...(styleRuns ? { beat: b } : {}), feet, loadR, loadL: 1 - loadR,
+  return { ...held, ...(styleRuns ? { beat: b } : {}), feet, loadR, loadL: 1 - loadR, reachFrom: undefined,
     root: { x: held.root.x + k * (ida.root.x - neutral.root.x), z: held.root.z + k * (ida.root.z - neutral.root.z) },
     chestYaw: held.chestYaw + (ida.chestYaw - start.chestYaw),
     rootYaw: (extra.rootYaw ?? 0) + (ida.rootYaw - start.rootYaw),

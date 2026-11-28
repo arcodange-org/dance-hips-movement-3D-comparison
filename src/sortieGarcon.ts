@@ -68,7 +68,6 @@ export const SORTIE_TOURS: Record<string, SortieTour> = {
   tour45Trois: { straight: true, angle: -45 * DEG, from: 1, until: 3, centre: "couple" },
   tour45Suiveuse: { straight: true, angle: -45 * DEG, from: 1, until: 3.5, centre: "suiveuse" },
   tour60: { straight: true, angle: -60 * DEG, from: 1, until: 3.5, centre: "couple" },
-  gauche45: { straight: true, angle: 45 * DEG, from: 1, until: 3.5, centre: "couple" },
 };
 export const SORTIE_TOUR: { v: SortieTour | null } = { v: null };
 export const setSortieTour = (name: string | null | undefined) => { SORTIE_TOUR.v = (name && SORTIE_TOURS[name]) || null; };
@@ -78,6 +77,8 @@ export const setSortieTour = (name: string | null | undefined) => { SORTIE_TOUR.
  * follower's D3, which goes back past her G2, needs `mix` (with `now` it brushes her G2's heel); the leader's D4, which
  * comes back round his G3 landed late in the turn, needs `now` (with `mix` it brushes his G3). */
 export const SORTIE_TOUR_PATH: Record<"leader" | "follower", "mix" | "now"> = { leader: "now", follower: "mix" };
+/** R34 (#220): beats over which a foot that leaves lets go of the pelvis height. */
+export const SORTIE_REACH_HOLD = 0.6;
 export const SORTIE_BALL: FootPoint = { x: -0.01684, z: 0.11664 };
 const ease5 = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * t * (10 - 15 * t + 6 * t * t); };
 /** Positive angle: yaw towards the left (anticlockwise), as in src/quartsPaire.ts. */
@@ -292,10 +293,16 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   const exit = b < 1 ? smooth(b) : b < 2 ? 1 : b < 3 ? 1 - smooth(b - 2) : 0;
   const contra = Number.isFinite(contraDegrees) ? Math.max(0, Math.min(30, contraDegrees)) : DEFAULT_SORTIE_CONTRA;
   const N = SORTIE_GARCON_GINGA.notch, notchRoom = 1 - rise(b, N.slice(0, 2)) * (1 - rise(b, N.slice(2)));
+  // R34 (#220): the moving foot keeps bounding the pelvis from where it left, letting go over `SORTIE_REACH_HOLD` beats
+  // from its departure (past its landing if need be): leaving a far place (her G4, 45 cm in front of her D3), it let
+  // the pelvis jump up 11 cm within a twelfth of a beat.
+  const letGo = smooth((t - lead) / SORTIE_REACH_HOLD);
+  const reachFrom = index < 4 && letGo < 1 ? { side: moving, x: from.x, z: from.z, release: letGo } : undefined;
   const sample: SortieGarconSample = { beat: b, action: Math.ceil(b), moving, feet, root, loadR, loadL: 1 - loadR,
     chestYaw: -contra * Math.PI / 180 * exit, coupling: Math.max(startCoupling(b, o), endCoupling(b, o)), gingaCap: SORTIE_GINGA_CAP,
     gingaRoom: { sway: rise(b, SORTIE_GARCON_GINGA.swayFrom) * notchRoom, bounce: notchRoom },
-    gingaCapRoom: { sway: gingaWindow(b, SORTIE_GARCON_GINGA_ROOM), bounce: gingaWindow(b, SORTIE_GARCON_GINGA_ROOM) } };
+    gingaCapRoom: { sway: gingaWindow(b, SORTIE_GARCON_GINGA_ROOM), bounce: gingaWindow(b, SORTIE_GARCON_GINGA_ROOM) },
+    ...(reachFrom ? { reachFrom } : {}) };
   if (!tour || !tour.angle) return sample;
   // #220: the couple turns. Centre in this dancer's own frame (the leader's frame is the couple frame moved by dz, the
   // follower's is also turned by π: a turn about a point keeps its angle in both).
@@ -345,6 +352,9 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
 export interface SortieGarconSample {
   beat: number; action: number; moving: FigureFoot; feet: Record<FigureFoot, FigureFootPose>; root: FootPoint;
   /** #220: the couple's turn (0 without `?sortieTour=`). */
-  rootYaw?: number; loadR: number; loadL: number; chestYaw: number; coupling: number; gingaCap: { sway: number; bounce: number };
+  rootYaw?: number;
+  /** R34 (#220): the moving foot's departure, which still bounds the pelvis height while it lets go (src/pose.ts). */
+  reachFrom?: { side: FigureFoot; x: number; z: number; release: number };
+  loadR: number; loadL: number; chestYaw: number; coupling: number; gingaCap: { sway: number; bounce: number };
   gingaRoom: { sway: number; bounce: number }; gingaCapRoom: { sway: number; bounce: number };
 }
