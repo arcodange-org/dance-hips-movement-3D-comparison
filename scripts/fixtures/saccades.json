@@ -135,44 +135,44 @@
     "sortieG": {
       "leader": {
         "vertical": {
-          "cm": 3.7,
+          "cm": 4,
           "temps": 0.5
         },
         "horizontal": {
-          "cm": 5.4,
-          "temps": 2.53
+          "cm": 4.6,
+          "temps": 2.44
         }
       },
       "suiveur": {
         "vertical": {
-          "cm": 13.6,
-          "temps": 3.25
+          "cm": 4.6,
+          "temps": 3.31
         },
         "horizontal": {
-          "cm": 10.5,
-          "temps": 2.53
+          "cm": 8.9,
+          "temps": 2.47
         }
       }
     },
     "sortieF": {
       "leader": {
         "vertical": {
-          "cm": 2.2,
+          "cm": 2.3,
           "temps": 2.59
         },
         "horizontal": {
-          "cm": 7.6,
-          "temps": 3.41
+          "cm": 6,
+          "temps": 3.31
         }
       },
       "suiveur": {
         "vertical": {
-          "cm": 10.6,
-          "temps": 1.31
+          "cm": 9.4,
+          "temps": 2.31
         },
         "horizontal": {
-          "cm": 8.5,
-          "temps": 1.47
+          "cm": 8.2,
+          "temps": 1.81
         }
       }
     },

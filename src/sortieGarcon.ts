@@ -50,6 +50,41 @@ const STEP4_LEAD = 0.2;
  * (1: she lands as before). #110: the leader's D4 leaves 0.25 beat into its action (`step4`, 0.2 before):
  * from his wider exit, earlier it brushes its knee behind his G3 shin; her G4 leaves with it. */
 export const SORTIE_GARCON_SYNC = { lag: 0, keepLanding: 1, step4: 0.25, d4: "aside" as "aside" | "back" | "diagonal", g4span: 0.3 };
+/** #220 (owner, 27 Nov. 2026: on « 1 » the follower steps straight back; the couple's rotation starts when the leader's
+ * D leaves the floor for « 2 »). PROTOTYPES, to elect on films (`?sortieTour=<nom>`, nothing changes without it):
+ * - `straight`: her D1 goes straight back from where it stands (it slid 2.7 cm to her right to the reference lane), her
+ *   pelvis too; the right feet are as much further apart at position 2 (his D2 following her, the right thighs met in
+ *   suave with the game's ginga);
+ * - `angle` (rad, negative: clockwise, towards the leader's right, the follower turning towards him), from `from` to
+ *   `until` (beats), about `centre` (`suiveuse`: her pelvis at position 2; `couple`: the middle of the two pelvises
+ *   there): each foot lands where the figure puts it in the couple turned as far as at its landing; the foot that
+ *   carries the weight pivots on its ball meanwhile; the pelvis goes round the centre with the turn. Every foot lands
+ *   again after `until` (his D4 at 3.65, her G4 at 3.55, the markas): the figure ends rigidly turned by `angle`. */
+export interface SortieTour { straight: boolean; angle: number; from: number; until: number; centre: "suiveuse" | "couple" }
+const DEG = Math.PI / 180;
+export const SORTIE_TOURS: Record<string, SortieTour> = {
+  sansTour: { straight: true, angle: 0, from: 1, until: 3.5, centre: "couple" },
+  tour45: { straight: true, angle: -45 * DEG, from: 1, until: 3.5, centre: "couple" },
+  tour45Trois: { straight: true, angle: -45 * DEG, from: 1, until: 3, centre: "couple" },
+  tour45Suiveuse: { straight: true, angle: -45 * DEG, from: 1, until: 3.5, centre: "suiveuse" },
+  tour60: { straight: true, angle: -60 * DEG, from: 1, until: 3.5, centre: "couple" },
+};
+export const SORTIE_TOUR: { v: SortieTour | null } = { v: null };
+export const setSortieTour = (name: string | null | undefined) => { SORTIE_TOUR.v = (name && SORTIE_TOURS[name]) || null; };
+/** #220: where a right foot pivots, its ball, from the ankle (own frame, foot yaw 0; measured on the GLB, #208). */
+/** #220: the couple turn a flying foot's path is drawn in, per role: `mix`, from the one it left in to the one it lands
+ * in, as the foot goes; `now`, the couple's turn at that instant. Measured on the GLB soles (quinconce, amplitude 1): the
+ * follower's D3, which goes back past her G2, needs `mix` (with `now` it brushes her G2's heel); the leader's D4, which
+ * comes back round his G3 landed late in the turn, needs `now` (with `mix` it brushes his G3). */
+export const SORTIE_TOUR_PATH: Record<"leader" | "follower", "mix" | "now"> = { leader: "now", follower: "mix" };
+/** R34 (#220): beats over which a foot that leaves lets go of the pelvis height (`ease5`: with `smooth`, the end of the
+ * let-go jolted her pelvis at 2.58 in the turning candidates, and with the game's ample ginga in suave tour45 crossed a femur). */
+export const SORTIE_REACH_HOLD = 0.6;
+export const SORTIE_BALL: FootPoint = { x: -0.01684, z: 0.11664 };
+const ease5 = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * t * (10 - 15 * t + 6 * t * t); };
+/** Positive angle: yaw towards the left (anticlockwise), as in src/quartsPaire.ts. */
+const rotate = (p: FootPoint, th: number): FootPoint => ({ x: p.x * Math.cos(th) + p.z * Math.sin(th), z: -p.x * Math.sin(th) + p.z * Math.cos(th) });
+const about = (c: FootPoint, p: FootPoint, th: number): FootPoint => { const v = rotate({ x: p.x - c.x, z: p.z - c.z }, th); return { x: c.x + v.x, z: c.z + v.z }; };
 const smooth = (x: number) => { const t = Math.max(0, Math.min(1, x)); return t * t * (3 - 2 * t); };
 const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 const interpolate = (a: FootPoint, b: FootPoint, t: number): FootPoint => ({ x: mix(a.x, b.x, t), z: mix(a.z, b.z, t) });
@@ -87,7 +122,8 @@ export const gingaWindow = (x: number, w: { from: number[]; notch?: number[]; un
 
 export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record<FigureFoot, FootPoint>,
   variant: SortieVariant = "line", contraDegrees = DEFAULT_SORTIE_CONTRA,
-  placement: CouplePlacement | "reference" | PlacementOffset = "reference", contact = 1, stance = 0) {
+  placement: CouplePlacement | "reference" | PlacementOffset = "reference", contact = 1, stance = 0,
+  tour: SortieTour | null = SORTIE_TOUR.v): SortieGarconSample {
   const b = sortieGarconBeat(beat);
   const index = Math.min(4, Math.floor(b));
   const t = b - index;
@@ -147,6 +183,13 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
       z: rest[side].z + offset.z + o.z * shift + (side === "R" ? stagger : 0) * home + line(i) };
   };
   const positions = { L: { x: rest.L.x + widen + o.x, z: rest.L.z + o.z }, R: { x: rest.R.x - widen + o.x, z: rest.R.z + o.z + stagger } };
+  // #220 (`straight`): her D1 keeps its lane (o and the stance). His D2 does not follow it (as close as before, the right
+  // thighs met in suave with the game's ginga): the right feet are 2.7 cm further apart at position 2.
+  const dd = tour?.straight ? o.x - widen : 0;
+  const landing = (i: number, side: FigureFoot, offset: FootPoint): FootPoint => {
+    const p = target(i, side, offset);
+    return follower && i === 0 && dd ? { x: positions.R.x, z: p.z } : p;
+  };
   // At the crossing the pelvis stays between the feet; returning it to x=0 before
   // D follows would over-stretch that leg and force G's knee into the partner.
   const bodyAt = (action: number, offset: FootPoint): FootPoint =>
@@ -168,15 +211,18 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   // support foot, so it is validated whenever the dancer stands on a validated landing (the D/D arrival in particular).
   const P: FootPoint[] = [shiftedBody({ x: 0, z: 0 }, 1)];
   for (let i = 0; i < 4; i++) P.push(shiftedBody(bodyAfter(i, steps[i][1]), shifted[i] || neutral[i] ? 1 : 0));
+  // #220 (`straight`): her pelvis goes straight back over her D1.
+  if (follower && dd) P[1] = { x: P[0].x, z: P[1].z };
   let support: FigureFoot = follower ? "L" : "R";
   for (let i = 0; i < index; i++) {
     const [side, offset] = steps[i];
-    positions[side] = target(i, side, offset);
+    positions[side] = landing(i, side, offset);
     if (i < 4) support = side;
   }
   const [moving, offset] = steps[index];
   const from = positions[moving];
-  const to = target(index, moving, offset);
+  const to = landing(index, moving, offset);
+  const positionsBefore = { ...positions }, landingNow = to;
   // The leader's forward intention starts in the frame: his G1 (and pelvis) leave 0.1 beat after the
   // partner's D1, so his knee never meets her thigh before she retreats (face-à-face placement).
   // #50: the leader's G3 crosses once the follower's D3 has stepped out of the D/D foot contact; at
@@ -194,9 +240,10 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   const wayStart = (i: number) => Math.max(0, i + leadOf(i) - G.head * (i === 2 ? SORTIE_GARCON_CROSS_HEAD : 1));
   const way = (i: number, at: number) => figureWay(at, wayStart(i), i + 1);
   // D4 returns behind the planted G once the partner's G4 has left (same 0.65 touchdown).
-  const span = !follower && index === 3 ? 0.65 - SORTIE_GARCON_SYNC.step4
-    : follower && index === 3 && SORTIE_GARCON_SYNC.g4span > 0 ? SORTIE_GARCON_SYNC.g4span
-    : follower ? Math.max(0.3, 0.6 - lead * SORTIE_GARCON_SYNC.keepLanding) : 0.6;
+  const spanOf = (i: number) => !follower && i === 3 ? 0.65 - SORTIE_GARCON_SYNC.step4
+    : follower && i === 3 && SORTIE_GARCON_SYNC.g4span > 0 ? SORTIE_GARCON_SYNC.g4span
+    : follower ? Math.max(0.3, 0.6 - leadOf(i) * SORTIE_GARCON_SYNC.keepLanding) : 0.6;
+  const span = spanOf(index);
   const flight = Math.max(0, Math.min(1, (t - lead) / span));
   // #49: a walking step (heel rise, swing, heel strike or ball landing); the marka only touches.
   // Crossing (G3 in front of D) and uncrossing (D4) roll little: a heel strike with the toes up would
@@ -247,8 +294,71 @@ export function sampleSortieGarcon(beat: number, follower: boolean, rest: Record
   const exit = b < 1 ? smooth(b) : b < 2 ? 1 : b < 3 ? 1 - smooth(b - 2) : 0;
   const contra = Number.isFinite(contraDegrees) ? Math.max(0, Math.min(30, contraDegrees)) : DEFAULT_SORTIE_CONTRA;
   const N = SORTIE_GARCON_GINGA.notch, notchRoom = 1 - rise(b, N.slice(0, 2)) * (1 - rise(b, N.slice(2)));
-  return { beat: b, action: Math.ceil(b), moving, feet, root, loadR, loadL: 1 - loadR,
+  // R34 (#220): the moving foot keeps bounding the pelvis from where it left, letting go over `SORTIE_REACH_HOLD` beats
+  // from its departure (past its landing if need be): leaving a far place (her G4, 45 cm in front of her D3), it let
+  // the pelvis jump up 11 cm within a twelfth of a beat.
+  const letGo = SORTIE_REACH_HOLD > 0 ? ease5((t - lead) / SORTIE_REACH_HOLD) : 1;
+  const reachFrom = index < 4 && letGo < 1 ? { side: moving, x: from.x, z: from.z, release: letGo } : undefined;
+  const sample: SortieGarconSample = { beat: b, action: Math.ceil(b), moving, feet, root, loadR, loadL: 1 - loadR,
     chestYaw: -contra * Math.PI / 180 * exit, coupling: Math.max(startCoupling(b, o), endCoupling(b, o)), gingaCap: SORTIE_GINGA_CAP,
     gingaRoom: { sway: rise(b, SORTIE_GARCON_GINGA.swayFrom) * notchRoom, bounce: notchRoom },
-    gingaCapRoom: { sway: gingaWindow(b, SORTIE_GARCON_GINGA_ROOM), bounce: gingaWindow(b, SORTIE_GARCON_GINGA_ROOM) } };
+    gingaCapRoom: { sway: gingaWindow(b, SORTIE_GARCON_GINGA_ROOM), bounce: gingaWindow(b, SORTIE_GARCON_GINGA_ROOM) },
+    ...(reachFrom ? { reachFrom } : {}) };
+  if (!tour || !tour.angle) return sample;
+  // #220: the couple turns. Centre in this dancer's own frame (the leader's frame is the couple frame moved by dz, the
+  // follower's is also turned by π: a turn about a point keeps its angle in both).
+  const dz = SORTIE_GARCON_PAIR_DZ, toCouple = (p: FootPoint, f: boolean) => (f ? { x: -p.x, z: dz - p.z } : { x: p.x, z: p.z - dz });
+  const pelvisAt2 = (f: boolean) => toCouple(f === follower ? { x: P[2].x, z: P[2].z } : sampleSortieGarcon(2, f, rest, variant, contraDegrees, placement, contact, stance, { ...tour, angle: 0 }).root, f);
+  const her = pelvisAt2(true), centre = tour.centre === "suiveuse" ? her : (() => { const him = pelvisAt2(false); return { x: (her.x + him.x) / 2, z: (her.z + him.z) / 2 }; })();
+  const c = follower ? { x: -centre.x, z: dz - centre.z } : { x: centre.x, z: centre.z + dz };
+  const theta = (time: number) => tour.angle * ease5((time - tour.from) / (tour.until - tour.from));
+  const landAt = (i: number) => (i < 0 ? 0 : i + leadOf(i) + spanOf(i));
+  const lastOf = (side: FigureFoot, before: number) => { for (let i = before - 1; i >= 0; i--) if (steps[i][0] === side) return i; return -1; };
+  const ball = (side: FigureFoot, yaw: number) => rotate(side === "R" ? SORTIE_BALL : { x: -SORTIE_BALL.x, z: SORTIE_BALL.z }, yaw);
+  // A foot placed by action k lands turned as far as the couple then; it carries the weight until the other foot lands
+  // (no transfer at the marka) and pivots on its ball meanwhile.
+  const placed = (side: FigureFoot, k: number) => {
+    const at = theta(landAt(k)), release = k + 1 <= 3 ? landAt(k + 1) : Infinity;
+    const yaw = theta(Math.max(landAt(k), Math.min(b, release)));
+    return { at, yaw, shift: { x: ball(side, at).x - ball(side, yaw).x, z: ball(side, at).z - ball(side, yaw).z } };
+  };
+  // Where a foot placed by action k stands now: landed in its turned couple, then pivoted on its ball.
+  const standing = (side: FigureFoot, k: number, unturned: FootPoint) => {
+    const p = placed(side, k), q = about(c, unturned, p.at);
+    return { ...p, ankle: { x: q.x + p.shift.x, z: q.z + p.shift.z } };
+  };
+  const unturned = { L: { ...feet.L }, R: { ...feet.R } };
+  for (const side of ["L", "R"] as FigureFoot[]) {
+    const foot = unturned[side];
+    if (side !== moving || b >= landAt(index)) {
+      const now = standing(side, side === moving ? index : lastOf(side, index), foot);
+      feet[side] = { ...foot, x: now.ankle.x, z: now.ankle.z, yaw: foot.yaw + now.yaw };
+    } else {
+      // The flying foot: its path in the couple turned as far as now, from where it left (its last place, turned and
+      // pivoted) to where it lands in the couple turned as far as at its landing.
+      const k = lastOf(side, index), from = standing(side, k, positionsBefore[side]);
+      const land = theta(landAt(index)), s = smooth(along), at = about(c, landingNow, land);
+      // The path is turned as far as `now`; at both ends it is put back where the foot left and where it lands.
+      const mode = SORTIE_TOUR_PATH[follower ? "follower" : "leader"], leave = index + leadOf(index);
+      const now = mode === "now" ? theta(b) : mix(from.at, land, s);
+      const path = about(c, foot, now), start = about(c, positionsBefore[side], mode === "now" ? theta(leave) : from.at), end = about(c, landingNow, land);
+      feet[side] = { ...foot, x: path.x + (1 - s) * (from.ankle.x - start.x) + s * (at.x - end.x), z: path.z + (1 - s) * (from.ankle.z - start.z) + s * (at.z - end.z),
+        yaw: foot.yaw + mix(from.yaw, land, s) };
+    }
+  }
+  const turned = theta(b), r = about(c, root, turned);
+  // R34: the foot that left bounds the pelvis from where it stood in the turned couple (its place there, pivoted), not
+  // from its place in the figure (its pelvis dropped 2.5 to 4.6 cm in one sample on « 3 »).
+  const stood = reachFrom && standing(moving, lastOf(moving, index), positionsBefore[moving]).ankle;
+  return { ...sample, root: { x: r.x, z: r.z }, rootYaw: turned, ...(reachFrom && stood ? { reachFrom: { ...reachFrom, x: stood.x, z: stood.z } } : {}) };
+}
+/** A sortie garçon sample, in the dancer's own frame. */
+export interface SortieGarconSample {
+  beat: number; action: number; moving: FigureFoot; feet: Record<FigureFoot, FigureFootPose>; root: FootPoint;
+  /** #220: the couple's turn (0 without `?sortieTour=`). */
+  rootYaw?: number;
+  /** R34 (#220): the moving foot's departure, which still bounds the pelvis height while it lets go (src/pose.ts). */
+  reachFrom?: { side: FigureFoot; x: number; z: number; release: number };
+  loadR: number; loadL: number; chestYaw: number; coupling: number; gingaCap: { sway: number; bounce: number };
+  gingaRoom: { sway: number; bounce: number }; gingaCapRoom: { sway: number; bounce: number };
 }

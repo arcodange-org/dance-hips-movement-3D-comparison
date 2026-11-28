@@ -933,10 +933,21 @@ export function applyPose(r: RigHandle, model: PoseModel, clockBeat: number, opt
     // behind or reaching aside, only bounds it by what it can reach straight, from where its foot stands (on its
     // ball when the heel is up). A smooth minimum hands the height from one bound to the other without a kink.
     const reaches: number[] = [];
+    // R34 (#220): a figure may hold the say of a foot that has just left (`reachFrom`): its leg keeps bounding the pelvis
+    // from where the foot stood, letting go as the step goes (`release`, 0 to 1). The pelvis then rises with the step
+    // instead of jumping up the moment a far foot leaves the floor.
+    const held = (figure as { reachFrom?: { side: Side; x: number; z: number; release: number } } | null)?.reachFrom;
     for (const { s, hipOffset, reach2 } of bounds) {
       const hip = hipOffset.clone().add(r.root.position);
       const target = model.targets[s];
       const horizontal2 = (target.x - hip.x) ** 2 + (target.z - hip.z) ** 2;
+      if (held && held.side === s && held.release < 1 && !umDois) {
+        const flatY = soleHeight(model.legs[s].sole, new THREE.Quaternion().setFromAxisAngle(Y, feet[s].yaw));
+        const stood = flatY + Math.sqrt(Math.max(0, reach2 - (held.x - hip.x) ** 2 - (held.z - hip.z) ** 2)) - hip.y;
+        const now = bearingY[s] + Math.sqrt(Math.max(0, reach2 - horizontal2)) - hip.y;
+        height = Math.min(height, stood + (now - stood) * held.release);
+        continue;
+      }
       if (umDois) {
         // #203: « straight » is the least flexion of the rule.
         const leg = model.legs[s], straight2 = leg.length1 ** 2 + leg.length2 ** 2 + 2 * leg.length1 * leg.length2 * Math.cos(KNEE_FLOOR.rad);
