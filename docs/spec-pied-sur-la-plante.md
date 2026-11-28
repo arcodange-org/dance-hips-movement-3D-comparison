@@ -83,9 +83,9 @@ cheville : sa montée depuis le pied à plat ; pente des orteils, du gros au pet
 
 | Bascule du pied | Talon | Cheville | Pente des orteils | Remarque |
 |---|---|---|---|---|
-| 25° | 6,7 cm | +4,2 cm | 3 · 0 · 1 · 4 · 10° | **mi-hauteur** (élue le 25 novembre) : le talon à 47 % de sa hauteur en demi-pointe |
-| 45° | 11,0 cm | +6,5 cm | 4 · 0 · 1 · 7 · 18° | aux trois quarts |
-| 69° | 14,5 cm | +7,5 cm | 5 · 0 · 2 · 9 · 26° | demi-pointe complète, la cheville à l'aplomb de la plante |
+| 25° | 6,7 cm | +4,2 cm | 3 · 0 · 1 · 4 · 10° | mi-hauteur (élue le 25 novembre) : le talon à 47 % de sa hauteur en demi-pointe |
+| 45° | 11,0 cm | +6,5 cm | 4 · 0 · 1 · 7 · 18° | **aux trois quarts, élus le 28 novembre** : le talon à 76 % de sa hauteur en demi-pointe |
+| 69° | 15,5 cm | +8,6 cm | 16 · 10 · 12 · 22 · 43° | demi-pointe complète, la cheville à l'aplomb de la plante ; la plante à 1 cm du sol (plus bas) |
 | ancien pied d'un bloc, 25° | 9,0 cm | +6,5 cm | — | tenu sur le bout des orteils, l'avant-pied à 2 cm du sol |
 
 La mi-hauteur reste la même bascule, 25°. Le talon paraît plus bas qu'avant (6,7 cm au lieu de 9), parce que l'avant
@@ -95,8 +95,7 @@ qu'atteint le talon en demi-pointe complète. Le pied gauche et le pied droit di
 ## Où le moteur plie les orteils
 
 - **Les exercices** (`isolation=`, sur pointes et l'exercice des talons) : le pied roulé de #216 pivote maintenant sur
-  la ligne de pli (`pivot: "toes"`), et les orteils restent posés. `essai=piedBloc` remet l'ancien pied d'un bloc, le
-  temps de filmer l'avant.
+  la ligne de pli (`pivot: "toes"`), et les orteils restent posés.
 - **Pas dans ce lot** : la marche roulée hors des figures (`src/gait.ts`, poussée du talon), le pied roulé des figures,
   du « 1 2 » et du mode jeu, ni le balancement du pied propre aux styles. Ils gardent le pied d'un bloc, avec un pli
   des orteils nul. Leurs réglages et leurs mesures enregistrées en dépendent : les à-coups du bassin (R34,
@@ -104,31 +103,98 @@ qu'atteint le talon en demi-pointe complète. Le pied gauche et le pied droit di
 - Un pli nul laisse le pied exactement comme avant : la pose est la même au bit près, et tous les autres tests restent
   verts sans changer leurs fixtures.
 
-## Question ouverte, à élire
+## Le vote du 28 novembre (tour 18, question 36)
 
-Maintenant que le talon peut monter plus haut sans que le pied tienne sur le bout des orteils, faut-il dépasser la
-mi-hauteur élue au tour 17 ? Les candidats sont filmés, os et muscles visibles, sous `?essai=` (`src/essais.ts`).
-Le dossier est dans `docs/elections/`. Rien ne change avant le vote : la mi-hauteur reste le comportement.
+Le fondateur a choisi **B, les trois quarts**, comme hauteur visée ; la mi-hauteur lui paraît réussie. Il demande deux
+corrections, faites dans ce lot :
 
-| Candidat | Interrupteur | Bascule | Ce qu'on voit |
+- en demi-pointe complète (C, toujours candidate), les orteils doivent bien plier, au-dessus du sol ;
+- la cheville et le raccord à la jambe doivent être justes, aux trois hauteurs.
+
+Les trois quarts sont le comportement (`ISOLATION_HEEL`, 45°) ; `hautTroisQuarts` et `piedBloc` sont retirés,
+`hautDemiPointe` reste pour filmer C.
+
+## La demi-pointe complète : la plante quitte le sol
+
+Les os du GLB touchent le sol à plat (ni coussinet ni peau). En demi-pointe complète, le pied basculé de 69° posait les
+têtes des métatarsiens à ras du sol, à la verticale au-dessus des orteils à plat : le pli se lisait comme une cassure.
+
+Au-delà des trois quarts, **la plante quitte le sol**, jusqu'à **1 cm** en demi-pointe complète : l'épaisseur du
+coussinet sous les têtes des métatarsiens, qui porte alors le poids (`BALL_LIFT` dans `src/pose.ts`, montée en douceur
+entre 45° et 69° de bascule). Chaque orteil descend en pente de la tête de son métatarsien jusqu'à son bout, qui reste
+posé : le pli est au-dessus du sol. Jusqu'aux trois quarts, rien ne change (la plante au sol, le 2e orteil à plat).
+
+| En demi-pointe complète | Avant | Après |
+|---|---|---|
+| plante (centre de la tête du 2e métatarsien) | 1,2 cm du sol | 2,2 cm |
+| pente des orteils, du gros au petit | 5 · 0 · 2 · 9 · 26° | 16 · 10 · 12 · 22 · 43° |
+| talon, cheville | 14,5 cm, +7,5 cm | 15,5 cm, +8,6 cm |
+
+Rien ne passe sous le sol : il n'y a ni sésamoïde dans le GLB des os, ni muscle ou tendon dans le pied (la couche des
+muscles s'arrête aux tendons qui descendent de la jambe, ci-dessous).
+
+## La cheville et le raccord à la jambe (#229)
+
+Mesuré sur le vrai GLB, os et muscles (`scripts/test_cheville.mjs`, `scripts/muscles_fixture.mjs` décode la couche
+des muscles dans node), à plat puis aux trois hauteurs. Trois défauts, corrigés :
+
+1. **La couche des muscles était 4,2 cm trop bas** (et 0,8 cm trop en avant) sur les os du bassin et des jambes. Elle
+   est dans le repère de BodyParts3D (origine au milieu des centres des boîtes des os coxaux) ; `public/anatomy.glb` a
+   son origine ailleurs. À plat, les tendons qui descendent dans le pied passaient 3 cm sous le sol ; les jumeaux
+   partaient presque au niveau du genou. `muscleFrameOrigin` prend ce point sur les os coxaux du GLB et y pose les
+   muscles du bassin et des jambes (ceux du tronc gardent leur place, réglée sur le buste). Après : le muscle le plus
+   bas est à 1,4 cm du sol, les jumeaux partent 6 cm au-dessus du genou, sur le fémur.
+2. **Les tendons qui passent la cheville restaient collés à la jambe** : talon levé, ils pendaient dans le vide devant
+   et sous le pied. Le jambier antérieur, les deux fibulaires et le jambier postérieur sont maintenant pesés entre le
+   genou et la cheville (`ANKLE_CROSSING`, `graftMuscles` dans `src/muscles.ts`) : sous la cheville ils suivent le pied,
+   au-dessus la jambe, et entre les deux un mélange sans pli. Sur le pied, ils ne bougent pas contre ses os ; entre la
+   jambe et le pied, ils s'écartent des os de 1 cm au plus (le jambier antérieur, tendu devant la cheville, aux trois
+   quarts).
+3. **Il n'y avait pas de tendon d'Achille.** Le tendon calcanéen de BodyParts3D est ajouté
+   (`public/anatomy_tendons.glb`, `scripts/build_tendons.mjs`), pesé du soléaire, qu'il prolonge, jusqu'à son attache
+   sur le calcanéum : il suit le talon et reste une corde tendue du mollet au talon.
+
+Et le talus dans la pince du tibia et de la fibula :
+
+- Un talus qui tourne seulement autour de la cheville entrait dans le devant du tibia dès les trois quarts (2 sommets,
+  2,7 mm) et en demi-pointe complète (14 sommets, jusqu'à 8,6 mm). Aucun centre de rotation fixe ne l'évite (essayés
+  sur le GLB : le centre du dôme du talus, plus haut, plus bas ; tous laissent 5 à 10 mm).
+- Une vraie cheville roule et glisse : en se tendant, le talus recule dans la pince. **Le pied glisse d'autant**, vers
+  l'arrière et un peu vers le bas dans le repère de la jambe (`ANKLE_GLIDE` dans `src/cheville.ts`) : rien jusqu'à 12°
+  de flexion, puis 0,08 mm par degré, incliné de 40° vers le bas. La jambe prend ce glissement à son compte : le pied
+  reste où il est posé, les orteils aussi. Seulement dans les exercices (#227 pour la marche et les figures).
+- Mesuré après : rien n'entre dans le tibia ni la fibula, à plat et aux trois hauteurs ; le talus reste assis dans la
+  pince (au plus près, 0,9 à 2,8 mm, l'espace du cartilage ; 2,8 mm à plat).
+
+| Talon levé | Glissement du talus | Au plus près du tibia ou de la fibula | Dans l'os |
 |---|---|---|---|
-| A (le comportement actuel) | aucun | 25° | à mi-hauteur |
-| B | `hautTroisQuarts` | 45° | aux trois quarts |
-| C | `hautDemiPointe` | 69° | tout en haut : demi-pointe complète, la cheville au-dessus de la plante |
+| à plat | 0 | 2,8 mm | rien |
+| mi-hauteur | 0 | 0,9 mm | rien |
+| trois quarts (élus) | 1,8 mm | 1,7 mm | rien (avant : 2 sommets, 2,7 mm) |
+| demi-pointe complète | 4,0 mm | 2,8 mm | rien (avant : 14 sommets, 8,6 mm) |
 
-La hauteur vaut pour l'exercice des talons et pour les exercices sur pointes (`ISOLATION_HEIGHTS`, réglage `hauteur`).
+Le guideur et la suiveuse ont le même squelette, à la même échelle (`public/anatomy.glb`) : ce qui est vérifié vaut
+pour les deux. Les mascottes ont leurs propres pieds, réglés dans le pont.
+
+Gros plans avant et après, de profil et de trois quarts arrière, à hauteur de cheville :
+`docs/elections/2026-11-28-pied-sur-la-plante/cheville-avant-apres.png`, et le film `cheville-gros-plan.gif`.
 
 ## Moteur
 
 - `src/orteils.ts` : `islands` (les os d'un maillage), `measureToes` (les orteils, leurs têtes de métatarsien, la ligne
   de pli, l'extension du gros orteil au repos), `articulateToes(ankle, side)` (le nœud `ToePivot_<côté>`, un nœud et
   un maillage par orteil ; idempotente), `TOE_EXTENSION_MAX` (90°).
-- `src/pose.ts` : `bindSkeleton` articule les orteils (`r.toeR`, `r.toeL`) ; la jambe du modèle porte `hinge`,
-  `rearSole`, `toeSole`, `toeFoldMax`, `rays` ; le pied roulé prend un pivot `"toes"` : la ligne de pli reste en place,
-  les orteils plient (`placeToes`). La hauteur de la cheville se calcule sur les deux parties du pied (`footHeight`).
-- `src/isolations.ts` : `ISOLATION_HEIGHTS` (mi-hauteur élue, et les candidats) ; `src/essais.ts` : `hautTroisQuarts`,
-  `hautDemiPointe`, `piedBloc`.
-- `src/anatomy.ts` : `resetRig` remet les orteils au repos.
+- `src/pose.ts` : `bindSkeleton` articule les orteils (`r.toeR`, `r.toeL`) et note la place de la cheville au repos ;
+  la jambe du modèle porte `hinge`, `rearSole`, `toeSole`, `toeFoldMax`, `rays`, `ankleRest`, `ankleAxis` ; le pied
+  roulé prend un pivot `"toes"` : la ligne de pli reste en place, les orteils plient (`placeToes`). La hauteur de la
+  cheville se calcule sur les deux parties du pied (`footHeight`). `BALL_LIFT` : la plante quitte le sol vers la
+  demi-pointe complète. Dans les exercices, la jambe prend le glissement du talus.
+- `src/cheville.ts` : `ANKLE_GLIDE`, `ankleFlexion`, `ankleGlide`, `talusOf`.
+- `src/muscles.ts` : `muscleFrameOrigin`, `ANKLE_CROSSING`, `footShare`, `graftMuscles` (aussi pour `Rig.tsx`),
+  `TENDONS_URL`.
+- `src/isolations.ts` : `ISOLATION_HEIGHTS`, `ISOLATION_HEEL` (les trois quarts, élus) ; `src/essais.ts` :
+  `hautDemiPointe`.
+- `src/anatomy.ts` : `resetRig` remet les chevilles et les orteils au repos.
 - `src/components/Rig.tsx` : les orteils s'allument avec la chaîne d'appui (`appui=1`).
 
 ## Vérifications
@@ -136,7 +202,11 @@ La hauteur vaut pour l'exercice des talons et pour les exercices sur pointes (`I
 - `scripts/test_orteils.mjs` (dans `npm test`) : la découpe sur le vrai GLB (deux phalanges au gros orteil, trois aux
   autres, union identique au pied d'origine, idempotente, GLB chargé intact) ; la ligne de pli ; aucun os sous le sol
   jusqu'au pli maximal ; la demi-pointe complète sous la limite ; à chaque hauteur, chaque orteil tient à sa tête de
-  métatarsien, son bout reste posé, le 2e reste à plat ; un pli nul ne change rien.
+  métatarsien, son bout reste posé, le 2e reste à plat jusqu'aux trois quarts et descend en pente en demi-pointe
+  complète ; un pli nul ne change rien.
+- `scripts/test_cheville.mjs` (dans `npm test`) : la couche des muscles posée sur les os ; les tendons qui passent la
+  cheville suivent le pied ; le tendon d'Achille tient au mollet et au talon ; aucun muscle sous le sol (exercices et
+  danses) ; le talus n'entre ni dans le tibia ni dans la fibula et reste assis dans la pince.
 - `scripts/test_isolations.mjs` : sur pointes et dans l'exercice des talons, la ligne de pli immobile, le bout de chaque
   orteil posé, rien sous le sol, talons à la hauteur voulue, os au-dessus du sol, longueurs des jambes, corps monté
   d'un bloc.
@@ -146,4 +216,8 @@ La hauteur vaut pour l'exercice des talons et pour les exercices sur pointes (`I
 
 ## Résultat mesuré
 
-À remplir à la livraison.
+- Les trois quarts, élus : le talon à 11 cm du sol, la cheville monte de 6,5 cm, le corps de 6,2 à 6,5 cm (aux trois
+  quarts, en haut, les genoux à leur pli minimal retiennent le bassin de 2 mm).
+- La demi-pointe complète : la plante à 1 cm du sol, les orteils en pente jusqu'à leur bout, posé.
+- La cheville : muscles posés sur les os, tendons et tendon d'Achille qui suivent le pied, talus dans la pince à toutes
+  les hauteurs (tableaux ci-dessus).
