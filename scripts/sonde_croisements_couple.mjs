@@ -26,6 +26,8 @@ await build({ stdin: { contents: ['pose', 'anatomy', 'styles', 'rigJoints', 'pla
   bundle: true, packages: 'external', platform: 'node', format: 'esm', outfile: bundle.pathname,
   define: { 'import.meta.env.BASE_URL': '"/"' }, logLevel: 'silent', plugins: settings.length ? [tune] : [] });
 const api = await import(bundle.href); unlinkSync(bundle);
+// #208: QUART=<candidat> measures a candidate quarter turn (`?quart=` in the app).
+if (process.env.QUART) api.setQuartProto(process.env.QUART);
 const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : null;
 const styles = m => Object.keys(api.STYLES).filter(k => api.movementAllowed(k, m));
 const range = (from, to, step) => Array.from({ length: Math.round((to - from) / step) + 1 }, (_, i) => from + i * step);

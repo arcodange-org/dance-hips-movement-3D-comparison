@@ -25,7 +25,9 @@ const cases = [
   // #203: with the knees bent the couple stands 8 cm further apart. In the app's quinconce the chests keep their
   // contact; the reference spacing (tests only, feet facing feet) keeps the pelvises 48 cm apart, and the trunk, at
   // its largest lean, leaves the chests 13 to 16 cm apart (guards only).
-  ['quarts paire', api.QUARTS_PAIR_DZ, 16, { movement: 'quarts', quarts: true, quartsPaire: true }, { quinconce: .11, reference: .16 }],
+  // #208: the first step goes forward and back without a pivot while the feet already take the quarter's places: in
+  // the reference spacing the chests part sideways up to 20 cm at the first landing (8 cm in the quinconce).
+  ['quarts paire', api.QUARTS_PAIR_DZ, 16, { movement: 'quarts', quarts: true, quartsPaire: true }, { quinconce: .11, reference: .21 }],
   // #54: the couple travels as a block (pelvises together): the plexus contact holds in quinconce
   // (owner's indicator, 6 cm). The reference spacing keeps the pelvises apart (guard only).
   ['ida paire', api.IDA_PAIR_DZ, 8, { movement: 'ida', ida: true, idaPaire: true }, { quinconce: .06, reference: .145 }],

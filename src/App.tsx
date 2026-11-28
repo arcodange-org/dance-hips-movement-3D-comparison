@@ -22,7 +22,7 @@ import { usePersistentState } from "./hooks/usePersistentState";
 import { STYLES, movementOf, movementFlags, movementAllowed, travelAllowed, PAIR_DZ, setKompaProto, setSembaProto, setUmDoisProto, type ModeKey, type MovementKey } from "./styles";
 import { setKneeFloor } from "./pose";
 import { setUmDoisGesture } from "./umDois";
-import { QUARTS_PAIR_DZ } from "./quartsPaire";
+import { QUARTS_PAIR_DZ, setQuartProto } from "./quartsPaire";
 import { IDA_PAIR_DZ } from "./idaPaire";
 import { PLACE_PAIR_DZ } from "./placePaire";
 import { parseVec3, buildShareUrl } from "./share";
@@ -42,8 +42,12 @@ setSembaProto(readParams().get("semba"));
 // #196 (docs/spec-pas-de-base-1-2.md): the « 1 2 » is the basic step of the kizomba and of the semba alone;
 // `?unDeux=large|court|doux` shows another candidate than the elected ones.
 setUmDoisProto(readParams().get("unDeux"));
-// #203 (prototype, docs/spec-flexion-minimale.md): `?flexion=15|20` shows a candidate minimum flexion of the knees.
+// #203 (docs/spec-flexion-minimale.md): `?flexion=<degrés>` shows another minimum flexion of the knees than the elected 30°.
 setKneeFloor(readParams().get("flexion"));
+// #208 (docs/spec-quart-virgula.md): `?quart=<nom>` shows another pair quarter turn than the retained one (`ancien`: before #208,
+// `pivotSuiveur`: the follower steps straight back, then pivots on her D; #211: the retained quarter is danced in two beats
+// since 28 Nov. 2026, `quatreTemps` shows the four-beat one, `deuxTemps` the other two-beat prototype).
+setQuartProto(readParams().get("quart"));
 // #209 (docs/spec-un-deux-geste.md): the hip first is elected (25 Nov. 2026); `?geste=ancien|ensemble|hancheFinit` shows
 // another timing of the step aside of the « 1 2 » against the body that carries it.
 setUmDoisGesture(readParams().get("geste"));

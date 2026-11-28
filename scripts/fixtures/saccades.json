@@ -25,7 +25,7 @@
     "ida": {
       "leader": {
         "vertical": {
-          "cm": 1,
+          "cm": 1.1,
           "temps": 5.19
         },
         "horizontal": {
@@ -47,7 +47,7 @@
     "idaD": {
       "leader": {
         "vertical": {
-          "cm": 1,
+          "cm": 1.1,
           "temps": 1.19
         },
         "horizontal": {
@@ -69,7 +69,7 @@
     "idaArr": {
       "leader": {
         "vertical": {
-          "cm": 1,
+          "cm": 1.1,
           "temps": 3.19
         },
         "horizontal": {
@@ -91,7 +91,7 @@
     "idaArrD": {
       "leader": {
         "vertical": {
-          "cm": 1,
+          "cm": 1.1,
           "temps": 7.19
         },
         "horizontal": {
@@ -113,22 +113,22 @@
     "quart": {
       "leader": {
         "vertical": {
-          "cm": 2.5,
-          "temps": 1.72
+          "cm": 1.6,
+          "temps": 1.56
         },
         "horizontal": {
-          "cm": 13.4,
-          "temps": 0.75
+          "cm": 9.8,
+          "temps": 1.63
         }
       },
       "suiveur": {
         "vertical": {
-          "cm": 4.5,
-          "temps": 0.81
+          "cm": 3.2,
+          "temps": 1.06
         },
         "horizontal": {
-          "cm": 15.7,
-          "temps": 0.75
+          "cm": 8.7,
+          "temps": 1.66
         }
       }
     },
@@ -180,20 +180,20 @@
       "leader": {
         "vertical": {
           "cm": 0.6,
-          "temps": 0.19
+          "temps": 2.63
         },
         "horizontal": {
-          "cm": 2.6,
+          "cm": 2.7,
           "temps": 0.44
         }
       },
       "suiveur": {
         "vertical": {
-          "cm": 1,
-          "temps": 1.06
+          "cm": 1.1,
+          "temps": 1.03
         },
         "horizontal": {
-          "cm": 2.6,
+          "cm": 2.7,
           "temps": 0.41
         }
       }
@@ -205,14 +205,14 @@
           "temps": 1.09
         },
         "horizontal": {
-          "cm": 3,
+          "cm": 3.1,
           "temps": 0.5
         }
       },
       "suiveur": {
         "vertical": {
-          "cm": 0.7,
-          "temps": 0.63
+          "cm": 0.9,
+          "temps": 0.16
         },
         "horizontal": {
           "cm": 3.1,
@@ -223,22 +223,22 @@
     "double": {
       "leader": {
         "vertical": {
-          "cm": 0.7,
-          "temps": 2.09
+          "cm": 0.6,
+          "temps": 0.09
         },
         "horizontal": {
-          "cm": 5.6,
-          "temps": 0.22
+          "cm": 5.7,
+          "temps": 0.19
         }
       },
       "suiveur": {
         "vertical": {
-          "cm": 0.9,
+          "cm": 0.7,
           "temps": 0.47
         },
         "horizontal": {
           "cm": 5.7,
-          "temps": 0.22
+          "temps": 0.19
         }
       }
     }

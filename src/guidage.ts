@@ -6,7 +6,7 @@ import { movementAllowed, STYLE_MOVEMENTS, type MovementKey } from "./styles";
 import { samplePlacePaire, PLACE_PAIR_DZ } from "./placePaire";
 import { sampleIdaPaire, IDA_PAIR_DZ, IDA_DEFAULT, type IdaVariant } from "./idaPaire";
 import { sampleMarchePaire, MARCHE_PAIR_DZ, type MarcheKind } from "./marchePaire";
-import { sampleQuartsPaire, QUARTS_PAIR_DZ } from "./quartsPaire";
+import { sampleQuartsPaire, QUARTS_PAIR_DZ, quartBeats } from "./quartsPaire";
 import { sampleSortieGarcon, SORTIE_GARCON_PAIR_DZ, DEFAULT_SORTIE_CONTRA, type FigureFoot, type FootPoint } from "./sortieGarcon";
 import { sampleSortieFille, SORTIE_FILLE_PAIR_DZ } from "./sortieFille";
 import { sampleSortieFG, CHAIN_BEATS, CHAIN_FROM } from "./enchainement";
@@ -38,7 +38,8 @@ export const GUIDE_FIGURES: Record<GuideFigure, GuideFigureDef> = {
   idaD: { movement: "ida", beats: 8, end: 8, label: "Ida e volta jambe droite", code: "", key: "→", ida: { side: "R", back: false } },
   idaArr: { movement: "ida", beats: 8, end: 8, label: "Ida e volta en arrière", code: "", key: "↓", ida: { side: "L", back: true } },
   idaArrD: { movement: "ida", beats: 8, end: 8, label: "Ida e volta en arrière, jambe droite", code: "", key: "↓ →", ida: { side: "R", back: true } },
-  quart: { movement: "quarts", beats: 4, end: 4, label: "Quart de tour", code: "KeyQ", key: "Q" },
+  // #211: one quarter, four beats (two with the `?quart=deuxTemps…` prototypes).
+  quart: { movement: "quarts", get beats() { return quartBeats(); }, get end() { return quartBeats(); }, label: "Quart de tour", code: "KeyQ", key: "Q" },
   // The five-action figures hold their marka one beat (their style is frozen at beat 4, in phase with
   // the next segment's beat 0).
   sortieG: { movement: "sortieG", beats: 6, end: 5, label: "Sortie garçon", code: "KeyD", key: "D" },
@@ -200,12 +201,17 @@ export interface GuideOptions {
 /** Rigid transform of the couple frame: yaw about +y then translation (three.js rotation.y convention). */
 export interface CoupleTransform { yaw: number; x: number; z: number }
 export interface Offset { x: number; z: number }
+/** #219: an offset of the root (or its speed per beat): on the ground, and its own yaw (`rootYaw`). */
+export interface RootOffset { x: number; z: number; yaw: number }
 export interface GuideSegment {
   kind: GuideKind; start: number; end: number;
   /** Couple frame of the segment (composition of the previous figures' motions). */
   couple: CoupleTransform;
   /** Pelvis residual of each dancer at the segment's start, in its own frame (faded by `inertia`). */
   residual: { leader: Offset; follower: Offset };
+  /** #219: speed of that residual at the segment's start (end of the segment before − start of this one), own frame:
+   * the fade carries it, so that the pelvis keeps its speed across the boundary. None: a fade from rest. */
+  speed?: { leader: RootOffset; follower: RootOffset };
   /** Segment danced before this one (its pelvis height is inertialized by the view, src/guidagePose.ts). */
   previous: GuideKind | null;
   /** #140: a command of the player, or a choice of the automatic dance (the basic step: neither). */
@@ -220,12 +226,24 @@ export interface GuideSegment {
 export const segmentBeats = (kind: GuideKind, touches: Touch[] = []): number =>
   (kind === "base" ? GUIDE.baseGrid : GUIDE_FIGURES[kind].beats) + TOUCH_BEATS * touches.length;
 /** Motion of one figure: couple transform from its start to its end, and the pelvis residual of each
- * dancer (own frame) the next segment starts with. */
-export interface FigureMotion { couple: CoupleTransform; residual: { leader: Offset; follower: Offset } }
+ * dancer (own frame) the next segment starts with. #219: speed of the root as the figure starts (`entry`, own frame) and
+ * as it ends (`exit`, in the dancer's own frame of the next segment). */
+export interface FigureMotion { couple: CoupleTransform; residual: { leader: Offset; follower: Offset };
+  entry: { leader: RootOffset; follower: RootOffset }; exit: { leader: RootOffset; follower: RootOffset };
+  /** #219: the entry speed when the figure starts with a touch (#144: at its position 0), by touch (`touchKey`). */
+  entryTouched: Record<string, { leader: RootOffset; follower: RootOffset }> }
+/** #219: a touch as the plan builds it (its position, and `virgula` when danced so). */
+export const touchKey = (touch: Touch) => JSON.stringify(touch);
 export type GuideMotions = Record<GuideKind, FigureMotion>;
 
 export const IDENTITY: CoupleTransform = { yaw: 0, x: 0, z: 0 };
 const ZERO: Offset = { x: 0, z: 0 };
+const RESTING: RootOffset = { x: 0, z: 0, yaw: 0 };
+/** #219: beats between the samples that measure a speed at a boundary (second-order one-sided differences). */
+export const JUNCTION_STEP = 1 / 96;
+/** #219: speed at the end of `f` sampled at `at`, `at − h`, `at − 2h` (`back`), or at its start `at`, `at + h`, `at + 2h`. */
+export const backSpeed = (f0: number, f1: number, f2: number, h = JUNCTION_STEP) => (3 * f0 - 4 * f1 + f2) / (2 * h);
+export const aheadSpeed = (f0: number, f1: number, f2: number, h = JUNCTION_STEP) => (-3 * f0 + 4 * f1 - f2) / (2 * h);
 
 export function rotate(yaw: number, p: Offset): Offset {
   const c = Math.cos(yaw), s = Math.sin(yaw);
@@ -274,6 +292,20 @@ export function guideMotions(g: GuideRig): GuideMotions {
   if (new Set([IDA_PAIR_DZ, MARCHE_PAIR_DZ, QUARTS_PAIR_DZ, SORTIE_GARCON_PAIR_DZ, SORTIE_FILLE_PAIR_DZ, PLACE_PAIR_DZ]).size !== 1)
     throw new Error("guide mode: the pair figures must share one couple spacing");
   const motions = {} as GuideMotions;
+  const H = JUNCTION_STEP;
+  /** Root on the ground and its own yaw, own frame. */
+  const rootAt = (kind: GuideKind, beat: number, follower: boolean, touches: Touch[] = []) => {
+    const s = sampleSegment(kind, touches, beat, follower, g) as { root: FootPoint; rootYaw?: number };
+    return { x: s.root.x, z: s.root.z, yaw: s.rootYaw ?? 0 };
+  };
+  const entryOf = (kind: GuideKind, touches: Touch[] = []) => {
+    const entry = { leader: RESTING, follower: RESTING };
+    for (const role of ["leader", "follower"] as const) {
+      const a = [0, 1, 2].map(k => rootAt(kind, k * H, role === "follower", touches));
+      entry[role] = { x: aheadSpeed(a[0].x, a[1].x, a[2].x), z: aheadSpeed(a[0].z, a[1].z, a[2].z), yaw: aheadSpeed(a[0].yaw, a[1].yaw, a[2].yaw) };
+    }
+    return entry;
+  };
   for (const kind of ["base", ...GUIDE_FIGURE_KEYS] as GuideKind[]) {
     const end = kind === "base" ? 0 : GUIDE_FIGURES[kind].end;
     const start = { leader: sampleKind(kind, 0, false, g), follower: sampleKind(kind, 0, true, g) };
@@ -292,7 +324,22 @@ export function guideMotions(g: GuideRig): GuideMotions {
       // Residual in the dancer's new own frame: the next segment starts where this one ended.
       residual[role] = rotate(-(couple.yaw + outer.yaw), { x: old.x - fresh.x, z: old.z - fresh.z });
     }
-    motions[kind] = { couple, residual };
+    // #219: the root's speed as the figure starts (alone, or with a touch at its position 0), and as its segment ends
+    // (the sorties hold their marka: at rest; a touch never ends a figure).
+    const close = segmentBeats(kind), exit = { leader: RESTING, follower: RESTING };
+    for (const role of ["leader", "follower"] as const) {
+      const b = [0, 1, 2].map(k => rootAt(kind, close - k * H, role === "follower"));
+      // Into the next segment's own frame (a speed only turns with the couple).
+      const out = rotate(-couple.yaw, { x: backSpeed(b[0].x, b[1].x, b[2].x), z: backSpeed(b[0].z, b[1].z, b[2].z) });
+      exit[role] = { ...out, yaw: backSpeed(b[0].yaw, b[1].yaw, b[2].yaw) };
+    }
+    const entryTouched: FigureMotion["entryTouched"] = {};
+    for (const position of touchPositionsOf(kind).filter(t => t.at === 0)) for (const virgula of [false, true]) {
+      if (virgula && !touchVirgula(kind, position)) continue;
+      const touch: Touch = { ...position, ...(virgula ? { virgula: true } : {}) };
+      entryTouched[touchKey(touch)] = entryOf(kind, [touch]);
+    }
+    motions[kind] = { couple, residual, entry: entryOf(kind), exit, entryTouched };
   }
   return motions;
 }
@@ -406,6 +453,8 @@ export function planGuide(intentions: GuideIntention[], motions: GuideMotions, u
   const addTouch = (s: GuideSegment, position: Touch, virgula: boolean): Touch => {
     const touch: Touch = { ...position, ...(virgula && touchVirgula(s.kind, position) ? { virgula: true } : {}) };
     s.touches = [...touchesOf(s), touch].sort((a, b) => a.at - b.at);
+    // #219: a touch at the start changes the speed the segment starts with.
+    if (position.at === 0 && s.previous !== null) s.speed = junctionSpeed(motions, s.previous, s.kind, s.touches);
     decided.add(`t${position.at}`);
     return touch;
   };
@@ -483,6 +532,7 @@ export function planGuide(intentions: GuideIntention[], motions: GuideMotions, u
     previous.end = boundary;
     const touches = head !== undefined ? [...(pending.get(head) ?? [])].sort((a, b) => a.at - b.at) : [];
     current = { kind: choice ?? "base", start: boundary, end: Infinity, couple: compose(previous.couple, motion.couple), residual: motion.residual,
+      speed: junctionSpeed(motions, previous.kind, choice ?? "base", touches),
       previous: previous.kind, previousTouches: touchesOf(previous), touches,
       ...(choice ? { by: head !== undefined ? "commande" as const : "auto" as const } : {}) };
     decided = new Set(touches.map(t => `t${t.at}`));
@@ -502,6 +552,33 @@ export function planGuide(intentions: GuideIntention[], motions: GuideMotions, u
   return { segments, outcomes, queue: queue.map(index => list[index].intention.figure), queueTouches: queue.map(index => pending.get(index)?.length ?? 0), auto: autoAt(until) };
 }
 
+/** #219: speed of the residual at a boundary from `from` to `to` (own frame of `to`): what the pelvis keeps of its speed.
+ * `touches`: those of `to` (one at its position 0 starts it). */
+export function junctionSpeed(motions: GuideMotions, from: GuideKind, to: GuideKind, touches: Touch[] = []): { leader: RootOffset; follower: RootOffset } {
+  const minus = (a: RootOffset, b: RootOffset): RootOffset => ({ x: a.x - b.x, z: a.z - b.z, yaw: a.yaw - b.yaw });
+  const first = touches.find(t => t.at === 0), entry = (first && motions[to].entryTouched[touchKey(first)]) || motions[to].entry;
+  return { leader: minus(motions[from].exit.leader, entry.leader), follower: minus(motions[from].exit.follower, entry.follower) };
+}
+/** #219 (Bollo, « Inertialization », GDC 2018): an offset that starts at `x0` with speed `v0` (per beat), the place gone
+ * after `T` beats and the speed after `V`, with neither speed nor acceleration left, the acceleration nil at the start.
+ * With `v0` = 0 it is the quintic fade of #69 (`inertiaWeight`); with `V` = `T`, Bollo's own curve. The pelvis then
+ * keeps both its place and its speed across a boundary. */
+export function inertialize(x0: number, v0: number, elapsed: number, T = GUIDE.inertia, V = T): number {
+  const t = Math.max(0, elapsed), place = t >= T ? 0 : x0 * inertiaWeight(t);
+  if (t >= V || v0 === 0) return place;
+  // The speed's own curve (Bollo's with no offset), over `V` beats: it carries on by `JUNCTION_OVERSHOOT`·v0·V at most.
+  const u = t / V;
+  return place + v0 * V * u * (1 + u * u * (-6 + u * (8 - 3 * u)));
+}
+/** #219: the farthest the speed's own curve carries on (share of v0·V), a fifth of the way into its time. */
+export const JUNCTION_OVERSHOOT = 0.19;
+/** #219: the root's own yaw carries its speed at most this far beyond the next figure (rad). Carried over a whole beat,
+ * the 19° per beat of an ida e volta started on another beat of its cycle turned the knees into the partner's (measured
+ * on the GLB, `test_guidage`: kizomba idaArrD → idaD; with 1°, still suave idaArrD → sortie fille chained; 0.5°: no
+ * leg-bone crossing in the six styles). Its speed then fades faster. */
+export const JUNCTION_YAW = 0.5 * Math.PI / 180;
+export const yawFade = (speed: number) => Math.min(GUIDE.inertia, JUNCTION_YAW / Math.max(1e-9, JUNCTION_OVERSHOOT * Math.abs(speed)));
+
 /** Quintic fade of an inertialized residual (Bollo): 1 → 0 over `GUIDE.inertia` beats, flat at both ends. */
 export function inertiaWeight(elapsed: number): number {
   const u = Math.max(0, Math.min(1, elapsed / GUIDE.inertia));
@@ -516,7 +593,7 @@ export interface GuideSample {
   figureBeat: number;
   /** #157: the ginga setting of the session. */
   ginga: GuideGinga;
-  couple: CoupleTransform; rootOffset: { leader: Offset; follower: Offset };
+  couple: CoupleTransform; rootOffset: { leader: RootOffset; follower: RootOffset };
   /** Share (1 → 0) of a boundary residual still applied (quintic fade). */
   inertia: number;
 }
@@ -525,13 +602,15 @@ export function sampleGuide(plan: GuidePlan, beat: number, ginga: GuideGinga = G
   for (const s of plan.segments) if (s.start <= beat + 1e-9) segment = s;
   const localBeat = Math.max(0, beat - segment.start);
   const w = inertiaWeight(localBeat);
-  const scaled = (o: Offset) => ({ x: o.x * w, z: o.z * w });
+  // #219: the residual goes with its speed (a fade from rest where the segment gives none).
+  const faded = (o: Offset, v: RootOffset = RESTING): RootOffset =>
+    ({ x: inertialize(o.x, v.x, localBeat), z: inertialize(o.z, v.z, localBeat), yaw: inertialize(0, v.yaw, localBeat, GUIDE.inertia, yawFade(v.yaw)) });
   const touches = segment.touches ?? [], where = touchedBeat(touches, localBeat);
   return {
     segment, kind: segment.kind, localBeat, couple: segment.couple,
     touches, touch: where.touch, touchBeat: where.t, figureBeat: where.hostBeat, ginga,
     movement: movementOf(segment.kind),
-    rootOffset: { leader: scaled(segment.residual.leader), follower: scaled(segment.residual.follower) },
+    rootOffset: { leader: faded(segment.residual.leader, segment.speed?.leader), follower: faded(segment.residual.follower, segment.speed?.follower) },
     inertia: segment.previous === null ? 0 : w,
   };
 }
@@ -566,7 +645,8 @@ export function endBeatOf(kind: GuideKind): number {
 /** Demonstration session (`?guidage=1&demo=1`, GIF of the PR): ida e volta, sortie garçon, quart de
  * tour, sortie fille, each led a little before its boundary. */
 export const GUIDE_DEMO: { beat: number; figure: GuideFigure }[] = [
-  { beat: 2.9, figure: "ida" }, { beat: 10.9, figure: "sortieG" }, { beat: 20.9, figure: "quart" }, { beat: 24.95, figure: "sortieF" },
+  // #211: the quarter lasts two beats; the sortie fille is pressed near its end, as before.
+  { beat: 2.9, figure: "ida" }, { beat: 10.9, figure: "sortieG" }, { beat: 20.9, figure: "quart" }, { beat: 22.95, figure: "sortieF" },
 ];
 
 /** #89 demonstration (`?guidage=1&demo=fleches`): walk forward, double, walk backward, ida e volta right leg

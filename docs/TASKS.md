@@ -525,6 +525,27 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
   quart), plexus (5 cm), coude de la suiveuse ; sonde `scripts/sonde_croisements_couple.mjs` ; mesures enregistrées reprises.
 - [x] Films à 30° dans le dossier du vote (quart de tour, sortie fille, ida e volta en couple).
 
+## Quart de tour en couple : la virgula avance, la rotation s'accélère moins vite (#208)
+
+- [x] Spec ([spec](spec-quart-virgula.md)) ; mesures (`scripts/mesure_quart_virgula.mjs`) ; candidats sous `?quart=`
+  (`plus5`, `plus10`, `unPied`, `apres`).
+- [x] Films et vote : page de vote, quatorzième tour, questions 29 et 30 ([dossier](elections/quart-virgula/README.md)).
+- [x] Après le vote : C (`unPied`) et G (`entreLesPas`, hypothèse de travail) par défaut (`QUART_ELECTED`), réglés
+  sans croisement d'os (0 sur 288 poses, trois placements), tests des quarts réécrits (#106 → R47), règle R47 ajoutée.
+- [x] G confirmé (25 nov.) ; à-coups, ginga, plexus réglés ; films du côté du guideur.
+- [x] Précision du 25 nov. : la suiveuse recule droit puis pivote sur son D, prototype `?quart=pivotSuiveur` (0 os
+  croisé ; semelles qui se chevauchent en quinconce, amplitude 1), filmé.
+- [x] Corrections des 27 et 28 nov. (#211) : la suiveuse recule droit au « 1 » (prototypes H, H′ : os croisés) ; le
+  quart en deux temps (`deuxTemps`, `deuxTempsRecul`), filmés.
+- [x] Choisi le 28 nov. : `deuxTempsRecul`, par défaut (`QUART_ELECTED`) ; orteils de la virgula dégagés (virgula 10°
+  plus ouverte, refermée sur son talon), départ de la rotation adouci (dès 0,85), à-coup vertical de la suiveuse ramené
+  de 1 413 à 780 cm/temps² (son G part à 1,05) ; bustes au contact des plexus (R4), la lecture à 15° sous
+  `?quart=buste15` ; tests des quarts sur deux temps ; spec #37, R11, R21 et R47 réécrites ; cliquets R8 et saccades
+  enregistrés à nouveau.
+- [ ] Films de la version retenue, puis sortie du brouillon de #211.
+- [ ] Question ouverte : le quart seul (sans partenaire) reste en quatre temps.
+- [ ] R8 (pas du guideur de 54 cm) à revoir avec le centre du quart entre les danseurs.
+
 ## « 1 2 » : le ginga de la hanche porte le pas de côté (#209)
 
 - [x] Spec ([spec](spec-un-deux-geste.md)) ; règle R45 ; mesures (`scripts/mesure_un_deux_geste.mjs`) ; candidats sous
@@ -535,3 +556,14 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Élu le 25 novembre : C, `hancheDabord`, par défaut ; R45 contrôlée dans `scripts/test_um_dois.mjs`.
 - [ ] Films du pas de base (#155) refaits une fois dans `main`.
 - [ ] Sorties garçon (#213) et fille (#214) : la hanche d'abord.
+
+## Le bassin garde sa vitesse : jonctions, hauteur, plafond de rotation (#219, #221)
+
+- [x] Issues #219 (jonctions) et #221 (hauteur et plafond dans les figures), mesures du 27 novembre dans le mode jeu.
+- [x] Spec ([spec](spec-bassin-continu.md)) ; inertialisation en vitesse aux jonctions (racine, lacet propre, pose du
+  bassin et buste, aller-retour d'ouverture compris) ; plafond de rotation doux dans le quart de tour et l'ida e volta.
+- [x] Garde `scripts/test_bassin_continu.mjs` (vitesse continue à 708 jonctions, six styles) ; mesure partagée
+  `scripts/bassin_mesure.mjs`.
+- [x] Essayé puis écarté : la hauteur qui anticipe la portée des jambes (le bassin abaissé, même de 5 mm, croise les
+  os du quart de tour et de l'ida e volta) ; voir la spec.
+- [ ] Fusion dans les branches du quart de tour (#211) et de l'ida e volta (#212), puis leurs propres corrections.

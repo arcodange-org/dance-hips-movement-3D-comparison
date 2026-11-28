@@ -19,7 +19,7 @@ Ces consignes remplacent les anciennes procédures « ff-push sur `main` » des 
 Modules des figures en paire : [sortie garçon](docs/spec-sortie-garcon.md) (`src/sortieGarcon.ts`,
 `scripts/test_sortie_garcon.mjs`), [sortie fille](docs/spec-sortie-fille.md) (`src/sortieFille.ts`,
 `scripts/test_sortie_fille.mjs`), [quarts de tour en paire](docs/spec-quarts-paire.md) (`src/quartsPaire.ts`,
-`scripts/test_quarts_paire.mjs`), [ida e volta en paire](docs/spec-ida-paire.md) (`src/idaPaire.ts`,
+`scripts/test_quarts_paire.mjs` ; virgula d'un pied, rotation entre les deux pas : #208, R47, [spec](docs/spec-quart-virgula.md), `QUART_ELECTED` ; en deux temps depuis le 28 novembre, #211 : `QUART_TWO`, `quartBeats`, `?quart=quatreTemps` pour l'ancien), [ida e volta en paire](docs/spec-ida-paire.md) (`src/idaPaire.ts`,
 `scripts/test_ida_paire.mjs`), [marche en paire et flèches du mode jeu](docs/spec-jeu-fleches.md)
 (`src/marchePaire.ts`, `scripts/test_marche_paire.mjs`), [enchaînement sortie fille → sortie garçon](docs/spec-enchainements.md)
 (`src/enchainement.ts`, `scripts/test_enchainement.mjs`), [ida inséré dans les sorties](docs/spec-insertion-ida.md)
@@ -78,6 +78,9 @@ le couple se tient plus loin (`COUPLE_DZ`, `KNEE_ROOM`, `src/placement.ts`) ; cr
 Transfert de poids continu (#167, R34 : ni saccade, ni téléportation, ni relais soudain) : [spec](docs/spec-transfert-continu.md) ;
 `scripts/test_saccades.mjs` mesure, dans des séances du mode jeu, les à-coups du bassin de chaque figure et le passage d'un côté
 à l'autre ; l'état est enregistré (`scripts/fixtures/saccades.json`, cliquet ; `WRITE=1` après un changement voulu).
+Le bassin garde sa vitesse (#219, #221) : [spec](docs/spec-bassin-continu.md) ; aux jonctions le résidu part avec sa vitesse
+(`inertialize`, `junctionSpeed`, `pelvisResidual`) ; dans le quart de tour et l'ida e volta le plafond de rotation est atteint en
+douceur (`softCap`) ; `scripts/test_bassin_continu.mjs`, mesure partagée `scripts/bassin_mesure.mjs`.
 Exercices d'isolation (#206, lot L441 de ReCoDanse) : [spec](docs/spec-isolations.md) ; `?isolation=<exercice>` (cou, poitrine,
 bassin), danseur seul pieds posés, seule la partie nommée bouge, en boucle (`src/isolations.ts` pur, option `isolation` de
 `applyPose`, `scripts/test_isolations.mjs`, `docs/features/isolations.feature`, films `scripts/capture_isolation_gif.mjs`) ; trois vitesses

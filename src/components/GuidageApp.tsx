@@ -20,10 +20,15 @@ import { SOLID_TORSO_OPACITY } from "../cameras";
 import { danceBpm, listenBpm, openingBpm, showcaseLook, vitrineSettings, vitrineUrl } from "../vitrine";
 import TransitionCard from "./TransitionCard";
 import { transitionAt } from "../transitions";
+import { setQuartProto } from "../quartsPaire";
 import {
   GuideSession, GUIDE_FIGURES, GUIDE_FIGURE_KEYS, guideFiguresFor, guideStyleOf, GUIDE_PAIR_DZ, GUIDE_DEMO, GUIDE_DEMO_ARROWS, GUIDE_DEMO_CHAIN, GUIDE_DEMO_INSERT, GUIDE_DEMO_TOUCH, GUIDE_DEMO_GINGA, GUIDE_GINGA, GUIDE_EIGHT, applyTransform, figureOfCode, keyLabel, type HeldArrows,
   type GuideFigure, type GuideGinga, type GuideKind, type GuideSample,
 } from "../guidage";
+
+// #211 (docs/spec-quart-virgula.md): `?quart=<nom>` dances another quarter turn than the retained one in the game too
+// (`quatreTemps`: the four-beat quarter of before 28 Nov. 2026); before the session reads the figures' lengths.
+setQuartProto(new URLSearchParams(window.location.search).get("quart"));
 
 const KIND_LABEL = (k: GuideKind) => (k === "base" ? "Pas de base" : GUIDE_FIGURES[k].label);
 /** #144: what the HUD shows of the figure under way: its touches, and the one being danced. */

@@ -7,6 +7,7 @@
 import { CHAIN_BEATS, CHAIN_BRIDGE, CHAIN_FROM, CHAIN_TO } from "./enchainement";
 import { INSERTED_BEATS, INSERTION_AT, INSERTION_BEATS, INSERTION_VARIANT } from "./insertion";
 import type { IdaVariant } from "./idaPaire";
+import { quartBeats } from "./quartsPaire";
 
 export interface Transition {
   /** Local beats of the figure where the transition starts and ends. */
@@ -96,18 +97,18 @@ const SORTIE_F_REST: Entry[] = [
     sources: ["S8"] },
 ];
 
-// Quarter turn (#82: both first feet leave together; R25: pelvis and chest turn with the feet).
+// Quarter turn (#82: both first feet leave together; R47, #211: two beats, the block turning between the two steps).
 const QUART: Entry[] = [
-  { title: "Premier pied : la diagonale",
-    leader: "Engage buste et bassin avec son G, qui part avec le D de la suiveuse et se pose talon au bout du D, en angle droit ; le corps est en diagonale, son épaule G en avance.",
-    follower: "Son D recule d'abord le long de son chemin puis tourne, posé sur le 1 avec le G du guideur ; bassin et buste en diagonale.",
-    contacts: "Le cadre tourne d'un bloc, la main D pivote ; cuisses intercalées, genoux presque tendus au croisement.",
-    sources: ["R25", "R24", "S16", "S7", "#82", "#106"] },
-  { title: "Second pied : le quart",
-    leader: "Son D, monté sur sa demi-pointe pendant que le G le porte, contourne le talon du G ; le reste du corps rattrape l'épaule G.",
-    follower: "Son G recule et rejoint, posé sur le 3 ; le bassin rattrape le côté déjà tourné.",
-    contacts: "Les bassins se réalignent ; le quinconce est retrouvé à la fin du quart.",
-    sources: ["R25", "R11", "#106"] },
+  { title: "« 1 » : la virgula avance, la suiveuse recule",
+    leader: "Son G part avec le D de la suiveuse et se pose un pied au-delà du bout de son D, tourné vers sa gauche (la virgula) ; son buste se tourne déjà vers le tour, son bassin reste de face.",
+    follower: "Son D recule sans tourner, posé sur le 1 avec la virgula ; son bassin le suit, de face ; son buste suit celui du guideur.",
+    contacts: "Cuisses intercalées ; les bassins ne tournent pas encore.",
+    sources: ["R47", "R24", "S16", "#82", "#208", "#211"] },
+  { title: "« 2 » : le quart",
+    leader: "Le bloc tourne pendant que la virgula le porte et se referme sur son talon ; son D, monté sur sa demi-pointe, fait le tour et se pose sur le 2.",
+    follower: "Son D la porte et pivote sur son avant-pied ; son G fait le tour, posé sur le 2.",
+    contacts: "Au « 2 », la position neutre du départ, tournée d'un quart : le quinconce est retrouvé.",
+    sources: ["R47", "R11", "#211"] },
 ];
 
 // Ida e volta (#107): one out-and-back per 2 beats; slots in the default order.
@@ -202,7 +203,7 @@ const TABLE: Record<TransitionKey, Transition[]> = {
   ],
   sortieFI: inserted(sortieF("hook"), INSERTION_VARIANT.sortieF),
   sortieGI: inserted(SORTIE_G, INSERTION_VARIANT.sortieG),
-  quart: [{ ...QUART[0], from: 0, to: 1 }, { ...QUART[1], from: 1, to: 4 }],
+  quart: [{ ...QUART[0], from: 0, to: 1 }, { ...QUART[1], from: 1, to: quartBeats() }],
   ida: span(idaSlots({ side: "L", back: false }), 0, 2),
   idaD: span(idaSlots({ side: "R", back: false }), 0, 2),
   idaArr: span(idaSlots({ side: "L", back: true }), 0, 2),
