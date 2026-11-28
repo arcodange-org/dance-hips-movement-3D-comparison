@@ -543,8 +543,10 @@ Réf : `docs/retrospective-phase3-5.md` (pièges, raccourcis à tort, process am
 - [x] Prototypes `?sortieTour=` (`sansTour`, `tour45`, `tour45Suiveuse`, `tour45Trois`, `tour60`), lus par le comparateur
   et le mode jeu ; mesurés sur le GLB (os, semelles, ginga du mode jeu, bassin) ; vers la gauche écarté.
 - [x] Le saut du bassin à « 3 ¼ » (R34, d'avant #218) : le pied qui part lâche la hauteur du bassin sur 0,6 temps
-  (`reachFrom`) ; suiveuse 6 070 → 1 175 cm/temps².
-- [ ] Les bassins immobiles au sol pendant la marka (4,6 à 5,1) ; la contraposition du guideur au « 1 » (4,4° visibles).
+  (`reachFrom`, courbe `ease5`) ; suiveuse 6 070 → 1 106 cm/temps² ; dans le couple tourné, depuis sa place tournée.
+- [x] Os et ginga remesurés avec la correction (28 novembre) : `tour45` propre.
+- [ ] Les bassins immobiles au sol pendant la marka (4,6 à 5,1 : fin du transfert au « 4 », ginga plafonné en quinconce),
+  à faire voir ; la contraposition du guideur au « 1 » (4,4° visibles).
 - [ ] Films, puis le propriétaire élit : de combien, autour de quel point, jusqu'à quand (proposition : `tour45`).
 - [ ] Une fois élu : par défaut, tests de la sortie garçon (hachages historiques), R22, allers-retours (#144) sur la
   sortie tournée.
